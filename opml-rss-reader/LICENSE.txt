@@ -1,0 +1,30 @@
+Copyright (c) OpenLink Software. All rights reserved.
+
+The OpenLink OPML and RSS News Reader Assistant skill configuration is provided
+for use with OpenLink Software products and services, including the OpenLink AI
+Layer (OPAL) and the OpenLink Virtuoso Platform.
+
+Permission is granted to use, copy, and distribute this skill configuration
+for integration with AI agents and LLM-based systems that interact with
+OpenLink data services, subject to the following conditions:
+
+1. This copyright notice and permission notice shall be included in all copies
+   or substantial portions of the skill configuration.
+
+2. This skill may not be used to misrepresent the source, origin, or
+   capabilities of OpenLink Software products.
+
+3. Redistributions in modified form must clearly indicate the changes made
+   and must not claim to be the original OpenLink OPML and RSS News Reader
+   Assistant configuration.
+
+THIS SKILL CONFIGURATION IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+OPENLINK SOFTWARE BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM, OUT OF OR IN CONNECTION WITH THIS SKILL CONFIGURATION.
+
+---
+OpenLink AI Layer (OPAL):       https://opal.openlinksw.com
+OpenLink Virtuoso Platform:     https://virtuoso.openlinksw.com
+OpenLink AI Agent Repository:   https://github.com/OpenLinkSoftware
