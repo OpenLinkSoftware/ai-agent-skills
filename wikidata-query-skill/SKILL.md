@@ -18,7 +18,7 @@ Use this skill when users want to:
 ## Core Capabilities
 
 ✅ **Natural Language to SPARQL**: Convert user questions into valid Wikidata SPARQL
-✅ **Query Execution**: Execute queries against Wikidata Query Service
+✅ **Protocol-Aware Execution**: Route execution through `curl`, URIBurner REST, MCP, authenticated `chatPromptComplete`, or OPAL Agent routing
 ✅ **HTML Generation**: Create beautiful, interactive HTML result pages
 ✅ **Multiple Output Formats**: JSON, Markdown tables, or HTML
 ✅ **Label Service**: Automatic label resolution for human-readable results
@@ -29,6 +29,19 @@ Use this skill when users want to:
 **Accept Header**: `application/sparql-results+json`
 **Method**: HTTP GET with URL-encoded query
 **User-Agent**: Required (use `Claude-Code-Wikidata-Skill/1.0`)
+
+## Execution Routing
+
+Default execution order:
+1. `curl` directly against `https://query.wikidata.org/sparql`
+2. URIBurner REST via `https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery`
+3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+5. OPAL Agent routing using recognizable OPAL function names
+
+If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
+
+Read [protocol-routing.md](./references/protocol-routing.md) when you need exact endpoint patterns.
 
 ## Wikidata Naming Convention
 
@@ -97,13 +110,38 @@ LIMIT <number>
 
 ### 4. Execute Query
 
-Use curl with proper headers:
+Choose the execution protocol using the routing rules above.
+
+Primary path, direct `curl` against Wikidata:
 ```bash
 curl -s -G "https://query.wikidata.org/sparql" \
   -H "Accept: application/sparql-results+json" \
   -H "User-Agent: Claude-Code-Wikidata-Skill/1.0" \
   --data-urlencode "query=<SPARQL_QUERY>"
 ```
+
+REST fallback via URIBurner:
+```bash
+curl -s -G "https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery" \
+  --data-urlencode "url=https://query.wikidata.org/sparql" \
+  --data-urlencode "query=<SPARQL_QUERY>" \
+  --data-urlencode "format=application/sparql-results+json"
+```
+
+MCP path:
+- Use MCP only when the user asks for it, when the local environment is already wired for MCP, or when the higher-priority routes are unavailable.
+- Prefer the streamable HTTP endpoint first: `https://linkeddata.uriburner.com/chat/mcp/messages`
+- Use the SSE endpoint when the client expects server-sent events: `https://linkeddata.uriburner.com/chat/mcp/sse`
+- Treat MCP as auth-gated by default. From this environment, both MCP endpoints returned `401 Unauthorized` on March 6, 2026.
+
+Authenticated `chatPromptComplete` path:
+- Use when the user asks for OpenAI-compatible, LLM-mediated, or function-brokered execution, or when the earlier routes are unavailable.
+- Endpoint: `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+- Treat this path as auth-gated by default. From this environment, unauthenticated requests failed because no API key was available on March 6, 2026.
+
+OPAL Agent routing path:
+- Use when the user asks for OPAL, agent routing, or recognizable OPAL tools/functions.
+- Recognizable Wikidata-relevant OPAL functions include `OAI.DBA.sparqlRemoteQuery`, `OAI.DBA.chatPromptComplete`, and `OAI.DBA.sparqlQuery` when execution is scoped to local service data rather than remote Wikidata.
 
 ### 5. Generate Output
 
@@ -129,6 +167,13 @@ WHERE {
 }
 ORDER BY DESC(?publicationDate)
 ```
+
+**Execution options**:
+- Default: run directly with `curl` against Wikidata
+- REST: send the same query through `sparqlRemoteQuery`
+- MCP: invoke the query through the configured MCP transport when requested
+- `chatPromptComplete`: use authenticated LLM-mediated routing when requested
+- OPAL Agent: route through recognizable OPAL function names when requested
 
 ### Pattern 2: Books by Author
 **User**: "List books written by J.K. Rowling"
@@ -257,6 +302,12 @@ When generating HTML results:
 ```
 
 ## Error Handling
+
+### Protocol Failure
+If the selected execution route fails:
+- Honor explicit user preference first; do not silently switch protocols if the user asked for a specific one
+- If no preference was stated, fall through in this order: `curl` -> `sparqlRemoteQuery` -> MCP -> `chatPromptComplete` -> OPAL Agent routing
+- Report which protocol failed and which fallback you are trying next
 
 ### Timeout Errors
 Wikidata Query Service has query timeout limits:

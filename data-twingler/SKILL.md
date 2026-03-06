@@ -31,6 +31,19 @@ GraphQL — all driven by natural language, no imperative programming required.
 
 ## Query Language Routing
 
+## Execution Routing
+
+Default execution order for query execution:
+1. Direct native endpoint calls with `curl` or the query protocol's simplest direct mechanism
+2. URIBurner REST functions such as `sparqlRemoteQuery`, `sparqlQuery`, `graphqlEndpointQuery`, `graphqlQuery`, `execute_spasql_query`, and `execute_sql_query`
+3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+5. OPAL Agent routing using recognizable OPAL function names
+
+If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
+
+Read `references/protocol-routing.md` when you need exact routing guidance.
+
 ### SQL
 Default: `SELECT TOP 20 * FROM Demo.Demo.Customers`
 Apply `TOP 20` unless a row limit is specified. Tabulate results.
@@ -81,6 +94,14 @@ a template before falling back to general LLM knowledge. Substitute
 
 Call directly, or as fallback when predefined templates yield no match.
 
+Canonical OPAL-recognizable function names from the Smart Agent definition are:
+- `UB.DBA.sparqlQuery` with signature `(query, format)` for SPARQL
+- `Demo.demo.execute_spasql_query` with signature `(sql, maxrows, timeout)` for SPASQL
+- `UB.DBA.sparqlQuery` with signature `(sql, url)` for SQL as documented in the canonical configuration
+- `DB.DBA.graphqlQuery` with signature `(query)` for GraphQL
+
+Treat OPAL as an agent routing layer over these named functions, not merely another transport.
+
 ---
 
 ## Entity Denotation in Results
@@ -100,6 +121,7 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 1. Retry without `@en` language tags on `?name`.
 2. Prompt for missing values: `{G}`, `{Article Title}`, `?authorName`, etc.
 3. Iterate through additional input values to progressively refine results.
+4. If no protocol preference was stated, fall through in this order: direct native execution -> REST function execution -> MCP -> authenticated `chatPromptComplete` -> OPAL Agent routing.
 
 ---
 

@@ -25,6 +25,21 @@ linked-data infrastructure to explore news sources and retrieve feed content.
 
 ---
 
+## Execution Routing
+
+Default execution order:
+1. Direct native execution with the simplest supported route, such as direct `curl` to the relevant feed or query endpoint when appropriate
+2. URIBurner REST function execution
+3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+5. OPAL Agent routing using canonical OPAL-recognizable function names
+
+If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
+
+Read `references/protocol-routing.md` when you need exact routing guidance.
+
+---
+
 ## Predefined Prompt Templates
 
 **Always** load `references/query-templates.md` and match the user's input to
@@ -61,6 +76,11 @@ Demo.demo.execute_spasql_query(sql, maxrows, timeout)
 - `maxrows` — default 20 unless the user specifies otherwise
 - `timeout` — 30000 ms
 
+Canonical OPAL-recognizable function name from the Smart Agent definition:
+- `Demo.demo.execute_spasql_query`
+
+Treat OPAL as an agent routing layer over this named function, not merely another transport.
+
 ---
 
 ## Error Handling
@@ -70,6 +90,7 @@ If a query returns no results or no template matches:
 2. Offer to retry with a broader query.
 3. Offer to switch to a custom query.
 4. Offer to try a different feed URL.
+5. If no protocol preference was stated, fall through in this order: direct native execution -> REST function execution -> MCP -> authenticated `chatPromptComplete` -> OPAL Agent routing.
 
 Always confirm the selected query template with the user before execution.
 

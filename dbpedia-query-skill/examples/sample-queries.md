@@ -1,5 +1,11 @@
 # DBpedia Query Examples
 
+## Execution Notes
+
+- Default routing order: direct `curl`, then `sparqlRemoteQuery`, then MCP, then authenticated `chatPromptComplete`, then OPAL Agent routing
+- If the user asks for a specific protocol, use that protocol instead
+- Keep the SPARQL query unchanged across protocols unless the endpoint behavior forces an adjustment
+
 ## Example 1: Films by Director
 
 **Natural Language**: "Show me all movies directed by Spike Lee with their budgets"
@@ -21,6 +27,21 @@ WHERE {
   FILTER(LANG(?title) = 'en')
 }
 ORDER BY DESC(?date)
+```
+
+**Direct curl execution**:
+```bash
+curl -s -G "https://dbpedia.org/sparql" \
+  --data-urlencode "query=<SPARQL_QUERY>" \
+  --data-urlencode "format=json"
+```
+
+**REST execution via URIBurner**:
+```bash
+curl -s -G "https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery" \
+  --data-urlencode "url=https://dbpedia.org/sparql" \
+  --data-urlencode "query=<SPARQL_QUERY>" \
+  --data-urlencode "format=application/sparql-results+json"
 ```
 
 ## Example 2: Most Populous Cities

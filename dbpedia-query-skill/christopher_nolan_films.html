@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies Directed by Christopher Nolan - DBpedia</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        thead { background: rgba(102,126,234,0.3); }
+        th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td {
+            padding: 0.65rem 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        tr:hover td { background: rgba(102,126,234,0.1); }
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; color: #8fa4f0; }
+        .num { color: #888; font-size: 0.85rem; }
+        .sparql-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .sparql-section h2 {
+            font-size: 1rem;
+            color: #999;
+            margin-bottom: 0.75rem;
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #c5c8c6;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movies Directed by Christopher Nolan</h1>
+        <div class="stats">16 results from DBpedia SPARQL endpoint</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>DBpedia Resource</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="num">1</td><td>Larceny (1996 film)</td><td><a href="http://dbpedia.org/resource/Larceny_(1996_film)" target="_blank">dbr:Larceny_(1996_film)</a></td></tr>
+                <tr><td class="num">2</td><td>Doodlebug (film)</td><td><a href="http://dbpedia.org/resource/Doodlebug_(film)" target="_blank">dbr:Doodlebug_(film)</a></td></tr>
+                <tr><td class="num">3</td><td>Following</td><td><a href="http://dbpedia.org/resource/Following" target="_blank">dbr:Following</a></td></tr>
+                <tr><td class="num">4</td><td>Memento (film)</td><td><a href="http://dbpedia.org/resource/Memento_(film)" target="_blank">dbr:Memento_(film)</a></td></tr>
+                <tr><td class="num">5</td><td>Insomnia (2002 film)</td><td><a href="http://dbpedia.org/resource/Insomnia_(2002_film)" target="_blank">dbr:Insomnia_(2002_film)</a></td></tr>
+                <tr><td class="num">6</td><td>Batman Begins</td><td><a href="http://dbpedia.org/resource/Batman_Begins" target="_blank">dbr:Batman_Begins</a></td></tr>
+                <tr><td class="num">7</td><td>The Prestige (film)</td><td><a href="http://dbpedia.org/resource/The_Prestige_(film)" target="_blank">dbr:The_Prestige_(film)</a></td></tr>
+                <tr><td class="num">8</td><td>The Dark Knight</td><td><a href="http://dbpedia.org/resource/The_Dark_Knight" target="_blank">dbr:The_Dark_Knight</a></td></tr>
+                <tr><td class="num">9</td><td>Inception</td><td><a href="http://dbpedia.org/resource/Inception" target="_blank">dbr:Inception</a></td></tr>
+                <tr><td class="num">10</td><td>The Dark Knight Rises</td><td><a href="http://dbpedia.org/resource/The_Dark_Knight_Rises" target="_blank">dbr:The_Dark_Knight_Rises</a></td></tr>
+                <tr><td class="num">11</td><td>Interstellar (film)</td><td><a href="http://dbpedia.org/resource/Interstellar_(film)" target="_blank">dbr:Interstellar_(film)</a></td></tr>
+                <tr><td class="num">12</td><td>Quay (film)</td><td><a href="http://dbpedia.org/resource/Quay_(film)" target="_blank">dbr:Quay_(film)</a></td></tr>
+                <tr><td class="num">13</td><td>Dunkirk (2017 film)</td><td><a href="http://dbpedia.org/resource/Dunkirk_(2017_film)" target="_blank">dbr:Dunkirk_(2017_film)</a></td></tr>
+                <tr><td class="num">14</td><td>Tenet (film)</td><td><a href="http://dbpedia.org/resource/Tenet_(film)" target="_blank">dbr:Tenet_(film)</a></td></tr>
+                <tr><td class="num">15</td><td>Oppenheimer (film)</td><td><a href="http://dbpedia.org/resource/Oppenheimer_(film)" target="_blank">dbr:Oppenheimer_(film)</a></td></tr>
+                <tr><td class="num">16</td><td>The Odyssey (2026 film)</td><td><a href="http://dbpedia.org/resource/The_Odyssey_(2026_film)" target="_blank">dbr:The_Odyssey_(2026_film)</a></td></tr>
+            </tbody>
+        </table>
+
+        <div class="sparql-section">
+            <h2>SPARQL Query</h2>
+            <pre><code>PREFIX dbo: &lt;http://dbpedia.org/ontology/&gt;
+PREFIX dbr: &lt;http://dbpedia.org/resource/&gt;
+PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+
+SELECT DISTINCT ?film ?title ?releaseDate
+WHERE {
+  ?film dbo:director dbr:Christopher_Nolan ;
+        a dbo:Film ;
+        rdfs:label ?title .
+  OPTIONAL { ?film dbo:releaseDate ?releaseDate }
+  FILTER(LANG(?title) = 'en')
+}
+ORDER BY DESC(?releaseDate)
+LIMIT 20</code></pre>
+        </div>
+
+        <div class="footer">
+            Data from <a href="https://dbpedia.org">DBpedia</a> &mdash; structured data extracted from Wikipedia
+        </div>
+    </div>
+</body>
+</html>

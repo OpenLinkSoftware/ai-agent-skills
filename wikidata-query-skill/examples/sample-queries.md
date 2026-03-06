@@ -1,5 +1,11 @@
 # Wikidata Query Examples
 
+## Execution Notes
+
+- Default routing order: direct `curl`, then `sparqlRemoteQuery`, then MCP, then authenticated `chatPromptComplete`, then OPAL Agent routing
+- If the user asks for a specific protocol, use that protocol instead
+- Keep the SPARQL query unchanged across protocols unless the endpoint behavior forces an adjustment
+
 ## Example 1: Films by Director (Spike Lee)
 
 **Natural Language**: "Show me all movies directed by Spike Lee with release dates and budgets"
@@ -17,6 +23,22 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }
 ORDER BY DESC(?publicationDate)
+```
+
+**Direct curl execution**:
+```bash
+curl -s -G "https://query.wikidata.org/sparql" \
+  -H "Accept: application/sparql-results+json" \
+  -H "User-Agent: Claude-Code-Wikidata-Skill/1.0" \
+  --data-urlencode "query=<SPARQL_QUERY>"
+```
+
+**REST execution via URIBurner**:
+```bash
+curl -s -G "https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery" \
+  --data-urlencode "url=https://query.wikidata.org/sparql" \
+  --data-urlencode "query=<SPARQL_QUERY>" \
+  --data-urlencode "format=application/sparql-results+json"
 ```
 
 ## Example 2: Books by Author

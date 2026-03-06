@@ -17,7 +17,7 @@ Use this skill when users want to:
 ## Core Capabilities
 
 ✅ **Natural Language to SPARQL**: Convert user questions into valid SPARQL queries
-✅ **Query Execution**: Execute queries against DBpedia endpoint
+✅ **Protocol-Aware Execution**: Route execution through `curl`, URIBurner REST, or MCP
 ✅ **HTML Generation**: Create beautiful, interactive HTML result pages
 ✅ **Multiple Output Formats**: JSON, Markdown tables, or HTML
 ✅ **Error Handling**: Graceful handling of malformed queries or no results
@@ -27,6 +27,19 @@ Use this skill when users want to:
 **SPARQL Endpoint**: `https://dbpedia.org/sparql`
 **Format**: JSON results (`format=json`)
 **Method**: HTTP GET with URL-encoded query
+
+## Execution Routing
+
+Default execution order:
+1. `curl` directly against `https://dbpedia.org/sparql`
+2. URIBurner REST via `https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery`
+3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+5. OPAL Agent routing using recognizable OPAL function names
+
+If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
+
+Read [protocol-routing.md](./references/protocol-routing.md) when you need exact endpoint patterns.
 
 ## Common DBpedia Prefixes
 
@@ -81,12 +94,42 @@ LIMIT <number>
 
 ### 4. Execute Query
 
-Use curl to execute against DBpedia:
+Choose the execution protocol using the routing rules above.
+
+Primary path, direct `curl` against DBpedia:
 ```bash
 curl -s -G "https://dbpedia.org/sparql" \
   --data-urlencode "query=<SPARQL_QUERY>" \
   --data-urlencode "format=json"
 ```
+
+REST fallback via URIBurner:
+```bash
+curl -s -G "https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery" \
+  --data-urlencode "url=https://dbpedia.org/sparql" \
+  --data-urlencode "query=<SPARQL_QUERY>" \
+  --data-urlencode "format=application/sparql-results+json"
+```
+
+MCP path:
+- Use MCP only when the user asks for it, when the local environment is already wired for MCP, or when the higher-priority routes are unavailable.
+- Prefer the streamable HTTP endpoint first: `https://linkeddata.uriburner.com/chat/mcp/messages`
+- Use the SSE endpoint when the client expects server-sent events: `https://linkeddata.uriburner.com/chat/mcp/sse`
+- Treat MCP as auth-gated by default. From this environment, both MCP endpoints returned `401 Unauthorized` on March 6, 2026.
+
+Authenticated `chatPromptComplete` path:
+- Use when the user asks for OpenAI-compatible, LLM-mediated, or function-brokered execution, or when the earlier routes are unavailable.
+- Endpoint: `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+- Treat this path as auth-gated by default. From this environment, unauthenticated requests failed because no API key was available on March 6, 2026.
+
+OPAL Agent routing path:
+- Use when the user asks for OPAL, agent routing, or recognizable OPAL tools/functions.
+- Treat OPAL as an agent layer that routes through named functions rather than just a raw transport.
+- Recognizable DBpedia-relevant OPAL functions include:
+  - `OAI.DBA.sparqlRemoteQuery`
+  - `OAI.DBA.chatPromptComplete`
+  - `OAI.DBA.sparqlQuery` when execution is scoped to the service's local graph rather than remote DBpedia
+- When using OPAL routing, refer to the function by its OPAL-recognizable name and match the execution path to the user's requested agent behavior.
 
 ### 5. Generate Output
 
@@ -116,6 +159,13 @@ WHERE {
 }
 ORDER BY DESC(?releaseDate)
 ```
+
+**Execution options**:
+- Default: run directly with `curl` against DBpedia
+- REST: send the same query through `sparqlRemoteQuery`
+- MCP: invoke the DBpedia query through the configured MCP transport when requested
+- `chatPromptComplete`: use authenticated LLM-mediated routing when requested
+- OPAL Agent: route through recognizable OPAL function names when requested
 
 ### Pattern 2: Population Queries
 **User**: "What are the 10 most populous cities in France?"
@@ -221,6 +271,12 @@ If query times out:
 - Simplify query complexity
 - Suggest narrowing criteria
 
+### Protocol Failure
+If the selected execution route fails:
+- Honor explicit user preference first; do not silently switch protocols if the user asked for a specific one
+- If no preference was stated, fall through in this order: `curl` -> `sparqlRemoteQuery` -> MCP -> `chatPromptComplete` -> OPAL Agent routing
+- Report which protocol failed and which fallback you are trying next
+
 ## Output Preferences
 
 Always ask the user:
@@ -239,6 +295,9 @@ Always ask the user:
 4. **Use OPTIONAL**: For properties that may not exist
 5. **Order results**: Make results meaningful with ORDER BY
 6. **Hyperlink in HTML**: All DBpedia URIs should be clickable
+7. **State the chosen protocol**: Mention whether execution used direct `curl`, REST, or MCP
+8. **Keep `chatPromptComplete` available**: Use it after MCP in the default routing order, and only when credentials are available
+9. **Use OPAL names when routing through OPAL**: Prefer recognizable names such as `OAI.DBA.sparqlRemoteQuery` and `OAI.DBA.chatPromptComplete`
 
 ## Example Session
 
@@ -247,7 +306,7 @@ Always ask the user:
 **Assistant**:
 "I'll query DBpedia for books authored by J.K. Rowling.
 
-Executing SPARQL query against DBpedia endpoint..."
+Executing the SPARQL query with direct `curl` against the DBpedia endpoint..."
 
 [Constructs and executes query]
 

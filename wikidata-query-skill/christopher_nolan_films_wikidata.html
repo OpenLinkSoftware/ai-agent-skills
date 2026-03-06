@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies Directed by Christopher Nolan - Wikidata</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #006699, #339966, #1a3a4a);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+            background: linear-gradient(90deg, #3399cc, #66cc99);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .wikidata-badge {
+            display: inline-block;
+            background: rgba(51, 153, 102, 0.3);
+            border: 1px solid rgba(51, 153, 102, 0.5);
+            border-radius: 4px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #66cc99;
+            margin-bottom: 0.5rem;
+        }
+        .stats {
+            font-size: 0.9rem;
+            color: #99bbaa;
+            margin-bottom: 1.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        thead { background: rgba(51, 153, 204, 0.25); }
+        th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td {
+            padding: 0.65rem 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        tr:hover td { background: rgba(51, 153, 204, 0.1); }
+        a { color: #66cc99; text-decoration: none; }
+        a:hover { text-decoration: underline; color: #99eebb; }
+        .num { color: #88aabb; font-size: 0.85rem; }
+        .budget { color: #ffcc66; font-family: monospace; }
+        .date { color: #aaccdd; }
+        .sparql-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .sparql-section h2 {
+            font-size: 1rem;
+            color: #99bbaa;
+            margin-bottom: 0.75rem;
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #c5c8c6;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #77998a;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movies Directed by Christopher Nolan</h1>
+        <div class="wikidata-badge">Wikidata</div>
+        <div class="stats">12 unique films from Wikidata Query Service &middot; Entity: <a href="https://www.wikidata.org/entity/Q25191">wd:Q25191</a></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Earliest Release</th>
+                    <th>Budget (USD)</th>
+                    <th>Wikidata</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="num">1</td>
+                    <td>Oppenheimer</td>
+                    <td class="date">2023-07-20</td>
+                    <td class="budget">$100,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q108839994" target="_blank">Q108839994</a></td>
+                </tr>
+                <tr>
+                    <td class="num">2</td>
+                    <td>Tenet</td>
+                    <td class="date">2020-08-13</td>
+                    <td class="budget">$200,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q63985561" target="_blank">Q63985561</a></td>
+                </tr>
+                <tr>
+                    <td class="num">3</td>
+                    <td>Dunkirk</td>
+                    <td class="date">2017-07-13</td>
+                    <td class="budget">$100,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q21935651" target="_blank">Q21935651</a></td>
+                </tr>
+                <tr>
+                    <td class="num">4</td>
+                    <td>Interstellar</td>
+                    <td class="date">2014-10-26</td>
+                    <td class="budget">$165,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q13417189" target="_blank">Q13417189</a></td>
+                </tr>
+                <tr>
+                    <td class="num">5</td>
+                    <td>The Dark Knight Rises</td>
+                    <td class="date">2012-07-20</td>
+                    <td class="budget">$250,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q189330" target="_blank">Q189330</a></td>
+                </tr>
+                <tr>
+                    <td class="num">6</td>
+                    <td>Inception</td>
+                    <td class="date">2010-07-08</td>
+                    <td class="budget">$160,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q25188" target="_blank">Q25188</a></td>
+                </tr>
+                <tr>
+                    <td class="num">7</td>
+                    <td>The Dark Knight</td>
+                    <td class="date">2008-07-18</td>
+                    <td class="budget">$185,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q163872" target="_blank">Q163872</a></td>
+                </tr>
+                <tr>
+                    <td class="num">8</td>
+                    <td>The Prestige</td>
+                    <td class="date">2006-10-17</td>
+                    <td class="budget">$40,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q46551" target="_blank">Q46551</a></td>
+                </tr>
+                <tr>
+                    <td class="num">9</td>
+                    <td>Batman Begins</td>
+                    <td class="date">2005-06-15</td>
+                    <td class="budget">$150,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q166262" target="_blank">Q166262</a></td>
+                </tr>
+                <tr>
+                    <td class="num">10</td>
+                    <td>Insomnia</td>
+                    <td class="date">2002-01-01</td>
+                    <td class="budget">$46,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q429969" target="_blank">Q429969</a></td>
+                </tr>
+                <tr>
+                    <td class="num">11</td>
+                    <td>Memento</td>
+                    <td class="date">2000-09-05</td>
+                    <td class="budget">$9,000,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q190525" target="_blank">Q190525</a></td>
+                </tr>
+                <tr>
+                    <td class="num">12</td>
+                    <td>Following</td>
+                    <td class="date">1998-04-24</td>
+                    <td class="budget">$6,000</td>
+                    <td><a href="https://www.wikidata.org/entity/Q685817" target="_blank">Q685817</a></td>
+                </tr>
+                <tr>
+                    <td class="num">13</td>
+                    <td>Larceny</td>
+                    <td class="date">--</td>
+                    <td class="budget">--</td>
+                    <td><a href="https://www.wikidata.org/entity/Q124819520" target="_blank">Q124819520</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="sparql-section">
+            <h2>SPARQL Query</h2>
+            <pre><code>SELECT DISTINCT ?film ?filmLabel ?publicationDate ?budget
+WHERE {
+  ?film wdt:P57 wd:Q25191 ;        # director: Christopher Nolan
+        wdt:P31 wd:Q11424 .         # instance of: film
+  OPTIONAL { ?film wdt:P577 ?publicationDate . }
+  OPTIONAL { ?film wdt:P2130 ?budget . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}
+ORDER BY DESC(?publicationDate)</code></pre>
+        </div>
+
+        <div class="footer">
+            Data from <a href="https://www.wikidata.org">Wikidata</a> &middot; CC0 (Public Domain) &middot; Queried via <a href="https://query.wikidata.org">Wikidata Query Service</a>
+        </div>
+    </div>
+</body>
+</html>
