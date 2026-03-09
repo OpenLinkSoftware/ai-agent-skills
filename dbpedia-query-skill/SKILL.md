@@ -31,11 +31,12 @@ Use this skill when users want to:
 ## Execution Routing
 
 Default execution order:
-1. `curl` directly against `https://dbpedia.org/sparql`
-2. URIBurner REST via `https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery`
-3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
-4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
-5. OPAL Agent routing using recognizable OPAL function names
+1. **SPASQL via `execute_spasql_query`** (when connected to a Virtuoso instance) — prepend the SPARQL query with the keyword `SPARQL` and submit to `https://linkeddata.uriburner.com/chat/functions/execute_spasql_query`. Parameters: `sql` (required — the `SPARQL <query>` string), `max_rows`, `timeout`, `format` (`json`, `jsonl`, or `markdown`).
+2. `curl` directly against `https://dbpedia.org/sparql`
+3. URIBurner REST via `https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery`
+4. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+5. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+6. OPAL Agent routing using recognizable OPAL function names
 
 If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
 
@@ -96,7 +97,10 @@ LIMIT <number>
 
 Choose the execution protocol using the routing rules above.
 
-Primary path, direct `curl` against DBpedia:
+Primary path (Virtuoso instance), SPASQL via `execute_spasql_query`:
+- Call the `execute_spasql_query` function with `sql` set to `SPARQL <SPARQL_QUERY>` (the keyword `SPARQL` followed by a space and the query text), plus optional `max_rows`, `timeout`, and `format` (`json`, `jsonl`, or `markdown`).
+
+Direct `curl` against DBpedia (when not on a Virtuoso instance):
 ```bash
 curl -s -G "https://dbpedia.org/sparql" \
   --data-urlencode "query=<SPARQL_QUERY>" \
@@ -161,9 +165,10 @@ ORDER BY DESC(?releaseDate)
 ```
 
 **Execution options**:
-- Default: run directly with `curl` against DBpedia
+- Virtuoso instance (default): prepend query with `SPARQL` and send via `execute_spasql_query`
+- Direct: run with `curl` against DBpedia
 - REST: send the same query through `sparqlRemoteQuery`
-- MCP: invoke the DBpedia query through the configured MCP transport when requested
+- MCP: invoke through the configured MCP transport when requested
 - `chatPromptComplete`: use authenticated LLM-mediated routing when requested
 - OPAL Agent: route through recognizable OPAL function names when requested
 
