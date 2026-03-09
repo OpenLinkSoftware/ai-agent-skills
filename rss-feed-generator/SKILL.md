@@ -47,8 +47,14 @@ lists posts, articles, or news items but does not publish its own feed.
 
 ## Order of Operations
 
-1. **Page Fetch** — Retrieve the target URL via `bash` (curl/wget) or the
-   web-search tool. Capture full HTML.
+1. **Page Fetch** — Retrieve the target URL by invoking the `WEB_FETCH` function
+   (defined in `https://linkeddata.uriburner.com/chat/functions/openapi.yaml`,
+   endpoint `/WEB_FETCH`). Use whichever available protocol applies — REST, MCP,
+   OPAL, or curl. Required parameter: `url`. Optional: `headers`, `max_redirects`,
+   `timeout_seconds`. `WEB_FETCH` retrieves the page just like a web browser and
+   returns the full page content for subsequent processing. See
+   [protocol-routing.md](./references/protocol-routing.md) for exact invocation
+   patterns per protocol.
 2. **Feed Discovery** — Check `<link rel="alternate">` tags. If a feed already
    exists, report it and stop (offer to proxy/mirror instead).
 3. **Post Extraction** — Use the heuristics in `references/extraction-rules.md`
