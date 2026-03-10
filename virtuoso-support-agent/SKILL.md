@@ -40,7 +40,7 @@ Use when users need:
 
 ---
 
-## Available MCP Tools (23 Total)
+## Available MCP Tools (25 Total)
 
 All tools available on both Demo and URIBurner servers with server prefix.
 
@@ -51,6 +51,12 @@ All tools available on both Demo and URIBurner servers with server prefix.
 - `sparql_list_entity_types_detailed`
 - `sparql_list_entity_types_samples`
 - `sparql_list_ontologies`
+
+**Database Remote Objects (1 tool)**
+- `database_remote_datasources` — VDB operations: list, connect, disconnect, link/attach, tables, unlink remote datasources
+
+**Database Schema Objects (1 tool)**
+- `database_schema_objects` — Retrieve metadata for tables, views, procedures, and user-defined types
 
 **Database Scripts (1 tool)**
 - `EXECUTE_SQL_SCRIPT`
@@ -195,4 +201,4 @@ Claude will automatically read these files when needed for specific tasks.
 ---
 
 ## Version
-**1.4.1** - Corrected workflow: 9-step process using high-level RDF Views tools, remote DSN handling as error recovery only
+**1.4.2** - Added database_remote_datasources and database_schema_objects tools (25 total)

@@ -1,6 +1,6 @@
 # Tool Reference - Virtuoso Support Agent
 
-Complete parameter documentation for all 23 MCP tools.
+Complete parameter documentation for all 25 MCP tools.
 
 ## Tool Naming Convention
 
@@ -62,6 +62,77 @@ List all ontologies in the RDF graph.
 **Parameters:**
 - `graph_iri` (optional, string) - Target graph IRI
 - `format` (optional, string) - Response format: "json", "jsonl", "markdown"
+
+---
+
+## Database Remote Objects Tools (1 tool)
+
+### database_remote_datasources
+Manage Virtual Database (VDB) remote datasources — list, connect, disconnect, link/attach, browse, and unlink remote tables.
+
+**Tool Names:**
+- `Demo:database_remote_datasources`
+- `URIBurner:database_remote_datasources`
+
+**Parameters:**
+- `command` (required, string) — Operation: `list`, `connect`, `disconnect`, `link`, `attach`, `tables`, `unlink`
+- `dsn` (optional, string) — Data source name
+- `user_name` (optional, string) — Authentication username
+- `user_password` (optional, string) — Authentication password
+- `remote_table` (optional, string) — Remote table identifier
+- `local_table` (optional, string) — Local table identifier
+- `format` (optional, string) — Response format: `json`, `jsonl`, `markdown`
+
+**Example:**
+```javascript
+Demo:database_remote_datasources({
+  command: "list",
+  format: "markdown"
+})
+
+Demo:database_remote_datasources({
+  command: "link",
+  dsn: "MyDSN",
+  remote_table: "dbo.Customers",
+  local_table: "Demo.demo.Customers",
+  format: "json"
+})
+```
+
+---
+
+## Database Schema Objects Tools (1 tool)
+
+### database_schema_objects
+Retrieve metadata for database schema objects including tables, views, procedures, and user-defined types.
+
+**Tool Names:**
+- `Demo:database_schema_objects`
+- `URIBurner:database_schema_objects`
+
+**Parameters:**
+- `qualifier` (optional, string) — Database qualifier/catalog
+- `type` (optional, string) — Object type: `TABLES`, `VIEWS`, `PROCEDURES`, or `UDT`
+- `schema_filter` (optional, string) — Filter by schema name
+- `name_filter` (optional, string) — Filter by object name pattern
+- `name` (optional, string) — Specific object name
+- `max_rows` (optional, integer) — Maximum rows to return
+- `format` (optional, string) — Response format: `json`, `jsonl`, `markdown`
+
+**Example:**
+```javascript
+Demo:database_schema_objects({
+  type: "TABLES",
+  qualifier: "Demo",
+  schema_filter: "demo",
+  format: "markdown"
+})
+
+Demo:database_schema_objects({
+  type: "PROCEDURES",
+  format: "json"
+})
+```
 
 ---
 
