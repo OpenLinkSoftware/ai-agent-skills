@@ -88,6 +88,7 @@ All tools available on both Demo and URIBurner servers with server prefix.
 - `assistantsConfigurations`
 
 **→ For detailed parameters and usage:** Read `references/tool-reference.md`
+**→ For execution modalities and environment-specific routing:** Read `references/protocol-routing.md`
 
 ---
 
@@ -191,6 +192,7 @@ When activated:
 When detailed information is needed, read these reference files:
 
 - **Tool parameters:** `references/tool-reference.md`
+- **Protocol routing:** `references/protocol-routing.md`
 - **Query templates:** `references/query-templates.md`
 - **Complete examples:** `references/showcase-examples.md`
 - **Workflow details:** `references/workflow-details.md`
