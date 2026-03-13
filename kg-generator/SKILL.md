@@ -41,7 +41,7 @@ When uncertain, default to the **Generic** template and ask the user if they wan
 4. **Determine output format** — RDF-Turtle is the default; respect explicit requests.
 5. **Populate and apply the template** — substitute all `{placeholders}` and generate the output.
 6. **Validate** — confirm syntactic correctness (balanced braces/brackets for JSON-LD; valid prefixes and triple syntax for Turtle).
-7. **Deliver** — output in a single code block. If saving to file, use `{slug}-1.ttl` or `{slug}-1.jsonld`, incrementing as needed, saved to `/Users/kidehen/Documents/LLMs/Claude Generated/web pages/`.
+7. **Deliver** — output in a single code block. If saving to file, use `{slug}-1.ttl` or `{slug}-1.jsonld`, incrementing as needed, saved to `{output-directory}`.
 8. **Final validation** — validate the RDF syntax for the requested format (Turtle, JSON-LD, RDF/XML, etc.) before responding.
 
 ---
@@ -233,5 +233,5 @@ Always use **both** `schema:naics` and `schema:identifier` together on industry 
 
 - **Turtle**: `{descriptive-slug}-1.ttl` (increment if file exists)
 - **JSON-LD**: `{descriptive-slug}-1.jsonld` (increment if file exists)
-- **Default save location**: `/Users/kidehen/Documents/LLMs/Claude Generated/web pages/`
+- **Default save location**: `{output-directory}` — ask the user if not specified, or infer from context
 - Override if user specifies a path
