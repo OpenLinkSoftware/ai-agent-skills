@@ -11,6 +11,8 @@ This skill provides comprehensive guidance for using URIBurner MCP Server's suit
 
 **Key Principle:** Use URIBurner's native MCP tools (execute_spasql_query, sparqlQuery, etc.) for all standard operations. Only invoke ChatPromptComplete when the user explicitly requests Gemini-powered AI analysis or when using SPARQL Agent 121's advanced features.
 
+**→ For execution modalities and environment-specific routing:** Read `references/protocol-routing.md`
+
 ## Prerequisites
 
 - Access to URIBurner MCP Server
