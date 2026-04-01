@@ -2,7 +2,7 @@
 
 All queries are executed via `Demo.demo.execute_spasql_query(sql, maxrows, timeout)`.
 Substitute `{url}` with the feed URL supplied by the user before executing.
-Default `maxrows` = 20, `timeout` = 30000.
+Default `timeout` = 30000.
 
 ---
 
@@ -108,24 +108,28 @@ preference, default to P4 (live/refreshed edition).
 
 **Trigger:** "Explore the OPML news source {url}"
 
-Explores the cached (already-sponged) version of the OPML feed. Use when the
-user wants to browse previously ingested content without triggering a live fetch.
+Explores the cached version of the OPML feed. `get:soft "soft"` applies
+Virtuoso's native cache management. Use when a forced refresh is not required.
 
 ```sparql
 SPARQL
+DEFINE get:soft "soft"
+DEFINE input:grab-iri "{url}"
+DEFINE input:grab-var "feed"
+
 PREFIX schema: <http://schema.org/>
 PREFIX sioc: <http://rdfs.org/sioc/ns#>
 
-SELECT DISTINCT
-  ?feed
-  (?post AS ?postID)
+SELECT DISTINCT ?feed (?post AS ?postID)
   (CONCAT('https://linkeddata.uriburner.com/describe/?uri=', STR(?post)) AS ?postDescUrl)
   ?pubDate ?postTitle ?postUrl
-FROM <{url}>
 WHERE {
-  ?s a schema:DataFeed ; sioc:link ?feed .
-  GRAPH ?g {
-    ?feed schema:mainEntity ?blog.
+  GRAPH <{url}> {
+    ?s a schema:DataFeed.
+    ?s sioc:link ?feed .
+  }
+  GRAPH ?feed {
+    ?feed_entry schema:mainEntity ?blog.
     ?blog schema:dataFeedElement ?post.
     ?post schema:title ?postTitle ;
           schema:relatedLink ?postUrl ;
@@ -142,28 +146,29 @@ LIMIT 20
 
 **Trigger:** "Explore the latest edition of OPML news source {url}"
 
-Forces a live re-fetch of the OPML feed using `get:soft "soft"` and
-`input:grab-var "feed"` pragmas to pull the freshest content.
+Forces an unconditional refresh of the OPML feed via `get:refresh "0"`,
+bypassing any cached version.
 
 ```sparql
 SPARQL
 DEFINE get:soft "soft"
+DEFINE get:refresh "0"
+DEFINE input:grab-iri "{url}"
 DEFINE input:grab-var "feed"
 
 PREFIX schema: <http://schema.org/>
 PREFIX sioc: <http://rdfs.org/sioc/ns#>
 
-SELECT DISTINCT
-  ?feed
-  (?post AS ?postID)
+SELECT DISTINCT ?feed (?post AS ?postID)
   (CONCAT('https://linkeddata.uriburner.com/describe/?uri=', STR(?post)) AS ?postDescUrl)
   ?pubDate ?postTitle ?postUrl
-FROM <{url}>
 WHERE {
-  ?s a schema:DataFeed.
-  OPTIONAL { ?s sioc:link ?feed }.
-  GRAPH ?g {
-    ?feed schema:mainEntity ?blog.
+  GRAPH <{url}> {
+    ?s a schema:DataFeed.
+    ?s sioc:link ?feed .
+  }
+  GRAPH ?feed {
+    ?feed_entry schema:mainEntity ?blog.
     ?blog schema:dataFeedElement ?post.
     ?post schema:title ?postTitle ;
           schema:relatedLink ?postUrl ;
@@ -180,27 +185,28 @@ LIMIT 20
 
 **Trigger:** "Explore the RSS or Atom news source {url}"
 
-Explores a cached RSS or Atom feed. Uses OPTIONAL clauses to handle feeds
-where title, text, date, or link predicates may be absent.
+Explores an RSS or Atom feed with Virtuoso's native cache management.
+`OPTIONAL` clauses handle feeds where title, link, or date predicates may be absent.
 
 ```sparql
 SPARQL
+DEFINE get:soft "soft"
+DEFINE input:grab-iri "{url}"
+
 PREFIX schema: <http://schema.org/>
 PREFIX sioc: <http://rdfs.org/sioc/ns#>
 
-SELECT DISTINCT
-  ?feed
-  (?post AS ?postID)
+SELECT DISTINCT ?feed (?post AS ?postID)
   (CONCAT('https://linkeddata.uriburner.com/describe/?uri=', STR(?post)) AS ?postDescUrl)
-  ?pubDate ?postTitle ?postText ?postUrl
-FROM <{url}>
+  ?pubDate ?postTitle ?postUrl
 WHERE {
-  ?feed a schema:DataFeed ;
-        foaf:topic | schema:dataFeedElement ?post.
-  OPTIONAL { ?post schema:title ?postTitle }
-  OPTIONAL { ?post schema:text ?postText }
-  OPTIONAL { ?post schema:dateCreated | schema:datePublished ?pubDate }
-  OPTIONAL { ?post schema:relatedLink ?postUrl }
+  GRAPH <{url}> {
+    ?feed a schema:DataFeed ;
+          schema:dataFeedElement ?post.
+    OPTIONAL { ?post schema:title ?postTitle }
+    OPTIONAL { ?post schema:dateCreated | schema:datePublished ?pubDate }
+    OPTIONAL { ?post schema:relatedLink ?postUrl }
+  }
 }
 ORDER BY DESC(?pubDate)
 ```
@@ -211,30 +217,28 @@ ORDER BY DESC(?pubDate)
 
 **Trigger:** "Explore the latest edition of RSS or Atom news source {url}"
 
-Forces a live re-fetch using `get:soft "soft"` and `get:refresh "0"` pragmas.
-Replaces the hardcoded example URL below with the user's `{url}`.
+Forces an unconditional refresh via `get:refresh "0"`.
 
 ```sparql
 SPARQL
 DEFINE get:soft "soft"
 DEFINE get:refresh "0"
+DEFINE input:grab-iri "{url}"
 
 PREFIX schema: <http://schema.org/>
 PREFIX sioc: <http://rdfs.org/sioc/ns#>
 
-SELECT DISTINCT
-  ?feed
-  (?post AS ?postID)
-  (CONCAT('<https://linkeddata.uriburner.com/describe/?uri=>', STR(?post)) AS ?postDescUrl)
-  ?pubDate ?postTitle ?postText ?postUrl
-FROM <{url}>
+SELECT DISTINCT ?feed (?post AS ?postID)
+  (CONCAT('https://linkeddata.uriburner.com/describe/?uri=', STR(?post)) AS ?postDescUrl)
+  ?pubDate ?postTitle ?postUrl
 WHERE {
-  ?feed a schema:DataFeed ;
-        schema:dataFeedElement ?post.
-  OPTIONAL { ?post schema:title ?postTitle }
-  OPTIONAL { ?post schema:text ?postText }
-  OPTIONAL { ?post schema:dateCreated | schema:datePublished ?pubDate }
-  OPTIONAL { ?post schema:relatedLink ?postUrl }
+  GRAPH <{url}> {
+    ?feed a schema:DataFeed ;
+          schema:dataFeedElement ?post.
+    OPTIONAL { ?post schema:title ?postTitle }
+    OPTIONAL { ?post schema:dateCreated | schema:datePublished ?pubDate }
+    OPTIONAL { ?post schema:relatedLink ?postUrl }
+  }
 }
 ORDER BY DESC(?pubDate)
 ```
@@ -247,10 +251,10 @@ ORDER BY DESC(?pubDate)
 |---|---|
 | URL is a plain web page; user wants to find feeds | AD1 |
 | URL is a plain web page; user wants to explore/read feeds | AD2 (AD1 → P3 or P4) |
-| OPML feed, content already ingested | P1 |
-| OPML feed, want freshest content | P2 |
-| RSS or Atom feed, content already ingested | P3 |
-| RSS or Atom feed, want freshest content | P4 |
+| OPML feed, no forced refresh needed | P1 |
+| OPML feed, force refresh | P2 |
+| RSS or Atom feed, no forced refresh needed | P3 |
+| RSS or Atom feed, force refresh | P4 |
 | Feed type unknown | Run AD1 first; if a direct feed URL, try P3 |
 
 ---
@@ -259,9 +263,10 @@ ORDER BY DESC(?pubDate)
 
 | Pragma | Effect |
 |---|---|
-| `DEFINE get:soft "soft"` | Soft-fetch: pulls live content if not cached |
-| `DEFINE get:refresh "0"` | Forces immediate refresh regardless of cache |
-| `DEFINE input:grab-var "feed"` | Tells the sponger which variable to use as the feed IRI |
+| `DEFINE get:soft "soft"` | Activates Virtuoso's native cache management |
+| `DEFINE get:refresh "0"` | Forces unconditional refresh, bypassing cache |
+| `DEFINE input:grab-iri "{url}"` | Specifies the IRI for the Sponger to process |
+| `DEFINE input:grab-var "feed"` | Tells the Sponger to also process the `?feed` variable IRI |
 
 ---
 
@@ -270,12 +275,10 @@ ORDER BY DESC(?pubDate)
 | Predicate | Meaning |
 |---|---|
 | `schema:DataFeed` | The feed container entity |
-| `sioc:link` | Link from DataFeed to the actual feed IRI |
+| `sioc:link` | Link from DataFeed to the actual feed IRI (OPML) |
 | `schema:mainEntity` | Blog/channel entity within the feed graph |
-| `schema:dataFeedElement` | Individual post/item within the blog |
+| `schema:dataFeedElement` | Individual post/item within the blog or feed |
 | `schema:title` | Post title |
-| `schema:text` | Post body text |
 | `schema:relatedLink` | Post canonical URL |
 | `schema:datePublished` | Post publication date |
 | `schema:dateCreated` | Post creation date (RSS fallback) |
-| `foaf:topic` | Alternative feed→post link (some RSS variants) |

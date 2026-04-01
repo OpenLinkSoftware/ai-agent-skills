@@ -4,7 +4,7 @@ description: Manage, explore, and troubleshoot OPML, RSS, and Atom news feeds us
 license: See LICENSE.txt
 ---
 
-# OPML and RSS News Reader Assistant (v1.1.0)
+# OPML and RSS News Reader Assistant (v1.2.0)
 
 Specialized assistant for managing, processing, and troubleshooting OPML and
 RSS/Atom feeds. Executes predefined SPARQL/SPASQL queries against OpenLink's
