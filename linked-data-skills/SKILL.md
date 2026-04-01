@@ -2,7 +2,7 @@
 name: linked-data-skills
 title: Linked Data Skills
 description: Generate and manage RDF Views, Knowledge Graphs, and Linked Data from relational database tables using Virtuoso stored procedures. Covers the full pipeline from scope detection and ontology generation through IRI template confirmation, ABox data rules, rewrite rule assignment, and physical store synchronization.
-version: 2.0.0
+version: 2.1.0
 type: skill
 created: 2026-03-26T18:30:49.078Z
 updated: 2026-04-01T00:00:00.000Z
@@ -202,6 +202,41 @@ Report a summary to the user:
 | Ontology Load | 3–4 | Ontology confirmed present in `sparql_list_ontologies` output |
 | IRI Template Confirmation | 5 | User has explicitly confirmed or overridden all proposed templates |
 | Rewrite Rules | 7 | Both TBox and ABox rewrite rules confirmed applied before sync |
+
+---
+
+## Utility Queries
+
+### UQ1 — List Existing Quad Maps
+
+**Use whenever:** a list of existing quad maps is required — specifically to:
+- Detect naming collisions before creating a new RDF View
+- Identify quad maps available for cleanup
+
+```sparql
+SPARQL
+DEFINE input:storage ""
+
+SELECT ?qm
+FROM <http://www.openlinksw.com/schemas/virtrdf#>
+WHERE {
+  [] virtrdf:qsUserMaps ?maps .
+  ?maps ?p ?qm .
+  ?qm a virtrdf:QuadMap .
+}
+```
+
+Execute via `Demo.demo.execute_spasql_query`. Present results as a numbered list of quad map IRIs.
+
+**Collision check (Step 0 / Step 6):** Before generating or applying an RDF View script, run UQ1 and compare the proposed quad map IRI against the results. If a match is found, warn the user and ask whether to reuse, rename, or drop the existing map.
+
+**Cleanup:** To drop an existing quad map, execute via `EXECUTE_SQL_SCRIPT`:
+
+```sql
+SPARQL DROP QUAD MAP <{quad-map-iri}>;
+```
+
+Confirm the map no longer appears in a subsequent UQ1 run before proceeding.
 
 ---
 
