@@ -87,7 +87,7 @@ Only after Gate 4 CONFIRM: generate Ontology and Knowledge Graph views, deploy r
 | Field | Value |
 |-------|-------|
 | **Name** | linked-data-skills |
-| **Version** | 3.0.0 |
+| **Version** | 3.1.0 |
 | **Purpose** | Generate and deploy Knowledge Graphs and Linked Data from relational database objects using Virtuoso RDF Views. |
 | **Scope** | Five-step pipeline: determine DB objects → confirm IRI templates → generate TBox+ABox views → deploy via rewrite rules → verify with hyperlinked entity samples. |
 
@@ -349,19 +349,34 @@ After successful completion: call `OAI.DBA.RDF_AUDIT_METADATA` (`audit_level: 1`
 
 ### Step 5 — Verify: Linked Data Compliance
 
-See `references/workflow-details.md` for the entity sampling query and full presentation requirements.
+⛔ **Execute the query below immediately after the post-deployment audit. Do not ask the user, do not display a success message first. This call is mandatory.**
 
-Use the confirmed IRIs from Step 2 — do not re-derive:
+Use `{actual-abox-graph-iri}` extracted from the Step 3b output — from the `graph iri(...)` clause, substituting `demo.openlinksw.com` for `^{URIQADefaultHost}^` and stripping the trailing `#`.
 
-- `{confirmed-abox-graph-iri}` = `{protocol}://{host}/data/{confirmed-iri-path-segment}`
-- `{confirmed-tbox-namespace}` = `{protocol}://{host}/schema/{confirmed-iri-path-segment}#`
-- `{describe-base}` = `{protocol}://{host}/describe/?uri=`
+**Call `Demo.demo.execute_spasql_query` with this exact query** (substitute the actual graph IRI before calling):
 
-Execute the entity sampling query via `Demo.demo.execute_spasql_query`. Present results as a formatted table with **every IRI hyperlinked**:
+```sparql
+SPARQL
+SELECT ?type
+  (SAMPLE(?entity) AS ?sampleEntity)
+  (COUNT(?entity) AS ?entityCount)
+FROM <{actual-abox-graph-iri}>
+WHERE {
+  ?entity a ?type .
+}
+GROUP BY ?type
+ORDER BY DESC(?entityCount)
+```
 
-| Entity Type | Sample Entity | Description URL | Count |
-|-------------|---------------|-----------------|-------|
-| [TBox class IRI]() | [ABox entity IRI]() | [describe]() | N |
+If the query returns SR324 (transaction timeout), retry with `LIMIT 100` added inside the `WHERE` clause.
+
+**Present results as a formatted table. Every IRI must be a clickable markdown hyperlink:**
+
+| Entity Type | Sample Entity | Count |
+|-------------|---------------|-------|
+| [`{?type}`](`{?type}`) | [`{?sampleEntity}`](`{?sampleEntity}`) | `{?entityCount}` |
+
+⛔ **Every IRI in this table must come from query results. Never invent, guess, or construct entity IRIs. If all query attempts fail, report the error — do not fabricate links.**
 
 If any IRI fails to dereference, report as a Linked Data compliance gap and investigate the rewrite rule from Step 4d.
 
@@ -388,7 +403,7 @@ See `references/workflow-details.md` for the UQ1 quad map listing query and drop
 3. **Three-part naming throughout.** Every object is `qualifier.schema.object_name` in all tool calls and user-facing output.
 4. **Table selection is not script authorization.** A reply of "all" or a table list selects the working set only. Script generation requires a separate "CONFIRM" at Step 2.
 5. **Never write an IRI before hostname is resolved.** `{protocol}` and `{host}` must be concrete values before any IRI string is constructed.
-6. **No unresolved placeholders ever.** No script, IRI, or rewrite rule passed to `OAI.DBA.EXECUTE_SQL_SCRIPT` may contain `{host}`, `^{URIQADefaultHost}^`, or any `{...}` token.
+6. **No unresolved placeholders ever.** No script, IRI, or rewrite rule passed to `OAI.DBA.EXECUTE_SQL_SCRIPT` may contain `{host}`, `{base-iri}`, or any `{...}` placeholder token. **Exception: `^{URIQADefaultHost}^` is a Virtuoso server-side macro** — it MUST remain in generated scripts exactly as produced by the generation tools and is NOT a placeholder to be substituted or blocked.
 7. **Rewrite rules are not optional.** Linked Data without dereferenceable IRIs is incomplete. TBox and ABox rewrite rules must both be applied in Step 4.
 8. **`OAI.DBA.RDF_AUDIT_METADATA` is an integrity tool, not a pre-flight step.** Call it only on generation/deployment error and as a post-deployment sanity check.
 9. **`OAI.DBA.EXECUTE_SQL_SCRIPT` is for write operations only.** Use `Demo.demo.execute_spasql_query` for all read queries.
