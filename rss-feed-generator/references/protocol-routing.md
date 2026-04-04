@@ -5,10 +5,11 @@ Use this file only when you need exact execution routing guidance for the page f
 ## Default Order
 
 1. `WEB_FETCH` function via URIBurner REST
-2. MCP via streamable HTTP or SSE
-3. Authenticated LLM-mediated execution via `chatPromptComplete`
-4. OPAL Agent routing via recognizable OPAL function names
-5. `bash` (curl/wget) directly against the target URL
+2. Terminal-owned OAuth flow — when the endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject via `Authorization: Bearer {token}` header into subsequent REST/OpenAPI calls
+3. MCP via streamable HTTP or SSE
+4. Authenticated LLM-mediated execution via `chatPromptComplete`
+5. OPAL Agent routing via recognizable OPAL function names
+6. `bash` (curl/wget) directly against the target URL
 
 If the user explicitly asks for a protocol, honor that request instead of the default order.
 

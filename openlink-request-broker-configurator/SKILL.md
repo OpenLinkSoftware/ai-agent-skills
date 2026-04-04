@@ -29,6 +29,19 @@ Primary use cases: configure ODBC Agent rules from host-installed DSNs and JDBC 
 
 ---
 
+## Execution Routing
+
+Default execution order:
+
+1. **Mode C (www_sv)** — HTTP Admin Assistant at `http://localhost:8000` (preferred when available)
+2. **Mode A (direct file edit + CLI)** — edit `oplrqb.ini` directly and use `oplrqb` CLI commands
+3. **Terminal-owned OAuth flow** — when a REST endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+4. **MCP** — if a remote MCP-enabled Virtuoso instance exposes broker management tools
+
+If the user names a specific mode or protocol, follow that preference instead.
+
+---
+
 ## Step 0 — Mode Detection
 
 Always run first.

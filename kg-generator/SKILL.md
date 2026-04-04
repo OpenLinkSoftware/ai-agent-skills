@@ -33,6 +33,21 @@ When uncertain, default to the **Generic** template and ask the user if they wan
 
 ---
 
+## Execution Routing
+
+Default execution order for fetching content and invoking web services:
+
+1. Direct native access (file read, WebFetch, or `curl`) to the source URL
+2. URIBurner REST functions for content retrieval and RDF services
+3. Terminal-owned OAuth flow — when the endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+4. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+5. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+6. OPAL Agent routing using recognizable OPAL function names
+
+If the user explicitly names a protocol, follow that preference instead.
+
+---
+
 ## Workflow
 
 1. **Identify the source URL** — extract the `file:` or `http[s]:` URL from the user's request.

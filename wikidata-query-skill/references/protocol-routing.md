@@ -6,9 +6,10 @@ Use this file only when you need exact execution routing guidance.
 
 1. `curl` directly against Wikidata
 2. URIBurner REST via `sparqlRemoteQuery`
-3. MCP via streamable HTTP or SSE
-4. Authenticated LLM-mediated execution via `chatPromptComplete`
-5. OPAL Agent routing via recognizable OPAL function names
+3. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
+4. MCP via streamable HTTP or SSE
+5. Authenticated LLM-mediated execution via `chatPromptComplete`
+6. OPAL Agent routing via recognizable OPAL function names
 
 If the user explicitly asks for a protocol, honor that request instead of the default order.
 
@@ -59,6 +60,31 @@ Parameters:
 - `url=https://query.wikidata.org/sparql`
 - `query=<SPARQL_QUERY>`
 - `format=application/sparql-results+json`
+
+## Terminal-owned OAuth Flow
+
+Use when the REST or OpenAPI endpoint requires OAuth 2.0 authentication before accepting requests.
+
+**When to use:** REST call returns 401/403/500, or the user explicitly requests authenticated access before any REST call is attempted.
+
+**Steps:**
+1. Identify the OAuth 2.0 grant type: authorization code (user-facing), client credentials (service-to-service), or device flow (terminal-friendly)
+2. Execute the OAuth flow from the terminal using `curl` or the agent's built-in OAuth tooling
+3. Capture the returned Bearer token
+4. Inject the token into subsequent REST/OpenAPI calls: `Authorization: Bearer {token}`
+
+**Terminal-friendly pattern (device flow or client credentials):**
+```bash
+# Client credentials example
+curl -s -X POST "https://{auth-server}/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id={id}&client_secret={secret}&scope={scope}"
+# Then use token:
+curl -s -G "https://linkeddata.uriburner.com/chat/functions/sparqlRemoteQuery" \
+  -H "Authorization: Bearer {token}" \
+  --data-urlencode "url=https://query.wikidata.org/sparql" \
+  --data-urlencode "query=<SPARQL_QUERY>"
+```
 
 ## MCP
 

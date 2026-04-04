@@ -30,9 +30,10 @@ linked-data infrastructure to explore news sources and retrieve feed content.
 Default execution order:
 1. Direct native execution with the simplest supported route, such as direct `curl` to the relevant feed or query endpoint when appropriate
 2. URIBurner REST function execution
-3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
-4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
-5. OPAL Agent routing using canonical OPAL-recognizable function names
+3. Terminal-owned OAuth flow — when the endpoint requires OAuth 2.0 authentication, execute the OAuth 2.0 flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+4. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+5. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+6. OPAL Agent routing using canonical OPAL-recognizable function names
 
 If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
 

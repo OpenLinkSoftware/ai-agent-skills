@@ -10,6 +10,19 @@ Manage the OpenLink License Manager daemon (`oplmgr`) lifecycle across macOS, Li
 
 ---
 
+## Execution Routing
+
+Default execution order when REST or remote access is needed:
+
+1. **Local CLI execution** — manage `oplmgr` via `sudo` commands, `launchctl`, or `systemctl` (primary mode)
+2. **URIBurner REST functions** — for remote license server status checks or management
+3. **Terminal-owned OAuth flow** — when a REST endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+4. **MCP** — if a remote MCP-enabled service exposes license manager tools
+
+If the user names a specific mode or protocol, follow that preference instead.
+
+---
+
 ## Step 0 — Detect OS and Init System
 
 ```bash

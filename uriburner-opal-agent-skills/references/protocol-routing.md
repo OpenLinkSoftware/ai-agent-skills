@@ -62,7 +62,35 @@ Guidance:
 
 ---
 
-### 3. OPAL Agent Routing
+### 3. Terminal-owned OAuth Flow
+
+Use when REST or OpenAPI endpoints require OAuth 2.0 authentication before accepting requests. This modality sits above MCP in the routing order so that authenticated REST calls can be established from the terminal without depending on the MCP client's OAuth mechanism.
+
+**When to use:**
+- REST call returns 401, 403, or unexpected 500
+- User explicitly requests authenticated access before any call is attempted
+- MCP client OAuth is not available or not yet configured
+
+**Steps:**
+1. Identify the OAuth 2.0 grant type: authorization code (user-facing), client credentials (service-to-service), or device flow (terminal-friendly)
+2. Execute the OAuth flow from the terminal using `curl` or the agent's built-in OAuth tooling
+3. Capture the returned Bearer token
+4. Inject the token into subsequent REST/OpenAPI calls: `Authorization: Bearer {token}`
+
+**Terminal-friendly pattern (client credentials):**
+```bash
+curl -s -X POST "https://{auth-server}/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id={id}&client_secret={secret}&scope={scope}"
+# Use returned access_token in subsequent REST calls:
+curl -s -G "https://linkeddata.uriburner.com/chat/functions/execute_spasql_query" \
+  -H "Authorization: Bearer {token}" \
+  --data-urlencode "sql=SPARQL SELECT * WHERE { ?s ?p ?o } LIMIT 10"
+```
+
+---
+
+### 4. OPAL Agent Routing
 
 Use when the host environment is an OPAL-enabled agent, or when the user explicitly requests OPAL routing.
 
@@ -83,7 +111,7 @@ Guidance:
 
 ---
 
-### 4. OpenAI-Compatible API (chatPromptComplete / SPARQL Agent 121)
+### 5. OpenAI-Compatible API (chatPromptComplete / SPARQL Agent 121)
 
 Use when the user explicitly requests Gemini-powered analysis, citation verification, or SPARQL Agent 121's KG-first workflow.
 
@@ -110,7 +138,7 @@ Guidance:
 
 ---
 
-### 5. Direct curl (Query Execution Only)
+### 6. Direct curl (Query Execution Only)
 
 Use as a last-resort fallback when no other modality is available.
 
@@ -166,11 +194,11 @@ Do not retry a failed call more than once before triggering the OAuth flow.
 
 | Environment | Recommended Modality |
 |---|---|
-| Claude Code (MCP-enabled) | MCP |
-| REST/HTTP client | URIBurner REST Functions |
+| Claude Code (MCP-enabled) | Terminal-owned OAuth flow → REST, then MCP |
+| REST/HTTP client | URIBurner REST Functions + Terminal-owned OAuth flow |
 | OPAL agent | OPAL Agent Routing |
 | OpenAI-compatible client | chatPromptComplete (SPARQL Agent 121) |
-| CLI / scripting | Direct curl (query execution only) |
+| CLI / scripting | Terminal-owned OAuth flow → Direct curl |
 
 ---
 

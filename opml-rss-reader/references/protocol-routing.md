@@ -6,9 +6,10 @@ Use this file only when you need execution routing guidance beyond the main skil
 
 1. Direct native execution such as `curl` to the relevant feed or query endpoint
 2. URIBurner REST function execution
-3. MCP via streamable HTTP or SSE
-4. Authenticated `chatPromptComplete`
-5. OPAL Agent routing via canonical function names
+3. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
+4. MCP via streamable HTTP or SSE
+5. Authenticated `chatPromptComplete`
+6. OPAL Agent routing via canonical function names
 
 If the user explicitly asks for a protocol, honor that request instead of the default order.
 

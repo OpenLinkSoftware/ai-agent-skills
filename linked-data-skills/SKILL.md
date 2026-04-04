@@ -106,6 +106,19 @@ Only after Gate 4 CONFIRM: generate Ontology and Knowledge Graph views, deploy r
 | **5 — Audit** | Integrity check on generation/deployment error; sanity check after successful deployment | `OAI.DBA.RDF_AUDIT_METADATA` |
 | **6 — Last resort** | LLM-mediated fallback when all other tools fail | `OAI.DBA.chatPromptComplete` |
 
+### Execution Routing Order
+
+When tool execution requires protocol selection, use this precedence:
+
+1. **Native OAI.DBA tool execution** — call `OAI.DBA.*` tools directly via the agent tool layer
+2. **URIBurner / Demo REST function execution** — call via the REST API endpoint
+3. **Terminal-owned OAuth flow** — when the endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject via `Authorization: Bearer {token}` header into subsequent REST/OpenAPI calls
+4. **MCP** — via streamable HTTP or SSE
+5. **Authenticated `chatPromptComplete`** — LLM-mediated fallback
+6. **OPAL Agent routing** — via canonical OPAL-recognizable function names
+
+If the user explicitly names a protocol, honor that preference. See `references/protocol-routing.md` for detailed guidance.
+
 `OAI.DBA.EXECUTE_SQL_SCRIPT` must never be used for read queries or table enumeration. Use `Demo.demo.execute_spasql_query` for those.
 
 ### Tool Inventory
