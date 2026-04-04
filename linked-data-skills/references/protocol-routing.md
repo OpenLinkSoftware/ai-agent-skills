@@ -8,9 +8,10 @@ Use this file only when you need execution routing guidance beyond the main skil
 
 1. **Native OAI.DBA tool execution** — call `OAI.DBA.*` tools directly via the agent tool layer
 2. **URIBurner / Demo REST function execution** — call via the REST API endpoint
-3. **MCP** — via streamable HTTP (`https://linkeddata.uriburner.com/chat/mcp/messages`) or SSE (`https://linkeddata.uriburner.com/chat/mcp/sse`)
-4. **Authenticated `chatPromptComplete`** — LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
-5. **OPAL Agent routing** — via canonical OPAL-recognizable function names
+3. **Terminal-owned OAuth flow** — when the REST or OpenAPI endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject via `Authorization: Bearer {token}` header into subsequent REST/OpenAPI calls
+4. **MCP** — via streamable HTTP (`https://linkeddata.uriburner.com/chat/mcp/messages`) or SSE (`https://linkeddata.uriburner.com/chat/mcp/sse`)
+5. **Authenticated `chatPromptComplete`** — LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+6. **OPAL Agent routing** — via canonical OPAL-recognizable function names
 
 If the user explicitly names a protocol (e.g., "use MCP", "use REST", "use OPAL"), honor that preference instead of the default order.
 

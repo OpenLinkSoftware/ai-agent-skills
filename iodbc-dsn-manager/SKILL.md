@@ -17,6 +17,20 @@ Manage and verify ODBC Data Source Names using the best available interface — 
 
 ---
 
+## Execution Routing
+
+Default execution order for remote or REST interactions:
+
+1. **Mode C (www_sv)** — HTTP Admin Assistant at `http://localhost:8000` (preferred when available)
+2. **Mode B (REST bridge)** — `odbc_rest_server.py` REST endpoint
+3. **Terminal-owned OAuth flow** — when a REST endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+4. **Mode A (Local CLI)** — direct `iodbctest`/`isql` invocation
+5. **MCP** — if an MCP-enabled Virtuoso instance is available for remote DSN operations
+
+If the user names a specific mode or protocol, follow that preference instead.
+
+---
+
 ## Step 0 — Mode Detection (Always Run First)
 
 Run these checks in order and stop at the first match:

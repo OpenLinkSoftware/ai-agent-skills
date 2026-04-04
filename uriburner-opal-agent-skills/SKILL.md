@@ -13,6 +13,19 @@ This skill provides comprehensive guidance for using URIBurner MCP Server's suit
 
 **→ For execution modalities and environment-specific routing:** Read `references/protocol-routing.md`
 
+## Execution Routing
+
+Default execution order:
+
+1. URIBurner REST functions (unauthenticated or with existing session)
+2. Terminal-owned OAuth flow — when the endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+4. OPAL Agent routing using canonical OPAL-recognizable function names
+5. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+6. Direct `curl` as last resort
+
+If the user explicitly names a protocol, honor that preference instead of the default order.
+
 ## Prerequisites
 
 - Access to URIBurner MCP Server

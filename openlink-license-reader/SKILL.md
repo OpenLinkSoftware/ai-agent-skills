@@ -10,6 +10,19 @@ Parse and display OpenLink `.lic` files (ASN.1 DER-encoded) in a clean, human-re
 
 ---
 
+## Execution Routing
+
+Default execution order when REST or remote access is needed:
+
+1. **Local execution** — parse license files directly using `openssl asn1parse` (primary mode)
+2. **URIBurner REST functions** — for remote license validation or registry lookups
+3. **Terminal-owned OAuth flow** — when a REST endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+4. **MCP** — if a remote MCP-enabled service exposes license validation tools
+
+If the user names a specific mode or protocol, follow that preference instead.
+
+---
+
 ## Step 0 — Locate License File(s)
 
 Resolve the target in this priority order:

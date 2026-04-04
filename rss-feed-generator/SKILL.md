@@ -45,6 +45,21 @@ lists posts, articles, or news items but does not publish its own feed.
 
 ---
 
+## Execution Routing
+
+Default execution order for REST/OpenAPI interactions:
+
+1. `WEB_FETCH` and other functions via URIBurner REST
+2. Terminal-owned OAuth flow — when the endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
+3. MCP via `https://linkeddata.uriburner.com/chat/mcp/messages` or `https://linkeddata.uriburner.com/chat/mcp/sse`
+4. Authenticated LLM-mediated execution via `https://linkeddata.uriburner.com/chat/functions/chatPromptComplete`
+5. OPAL Agent routing using recognizable OPAL function names
+6. Direct `curl` or `wget` as last resort
+
+If the user's prompt expresses a protocol preference, follow that preference instead of the default order. See `references/protocol-routing.md` for exact endpoint patterns.
+
+---
+
 ## Order of Operations
 
 1. **Page Fetch** — Retrieve the target URL by invoking the `WEB_FETCH` function

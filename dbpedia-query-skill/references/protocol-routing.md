@@ -6,9 +6,10 @@ Use this file only when you need exact execution routing guidance.
 
 1. `curl` directly against DBpedia
 2. URIBurner REST via `sparqlRemoteQuery`
-3. MCP via streamable HTTP or SSE
-4. Authenticated LLM-mediated execution via `chatPromptComplete`
-5. OPAL Agent routing via recognizable OPAL function names
+3. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
+4. MCP via streamable HTTP or SSE
+5. Authenticated LLM-mediated execution via `chatPromptComplete`
+6. OPAL Agent routing via recognizable OPAL function names
 
 If the user explicitly asks for a protocol, honor that request instead of the default order.
 
