@@ -25,11 +25,13 @@ Use when users need:
 ### Available Instances
 1. **Demo** - Test/sample data with Northwind database
 2. **URIBurner** - Production instance
+3. **Localhost** - Local Virtuoso instance (default port 8890; confirm host/port with user)
 
 ### Workflow
-1. **Ask first:** "Which Virtuoso instance? Demo or URIBurner?"
+1. **Ask first:** "Which Virtuoso instance? Demo, URIBurner, or Localhost?"
 2. **Remember selection** throughout conversation
 3. **Allow switching** with confirmation
+4. For Localhost: confirm base URL (default `http://localhost:8890`) before any operation
 
 ### Tool Naming Convention
 **Format:** `{ServerName}:{ToolName}`
@@ -37,12 +39,13 @@ Use when users need:
 **Examples:**
 - `Demo:execute_spasql_query`
 - `URIBurner:sparqlQuery`
+- `Localhost:sparqlQuery`
 
 ---
 
 ## Available MCP Tools (25 Total)
 
-All tools available on both Demo and URIBurner servers with server prefix.
+All tools available on Demo, URIBurner, and Localhost servers with server prefix.
 
 ### Tool Categories
 

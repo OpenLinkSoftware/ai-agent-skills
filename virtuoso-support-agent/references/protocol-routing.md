@@ -16,12 +16,14 @@ Endpoints:
 - Streamable HTTP (preferred): `https://demo.openlinksw.com/chat/mcp/messages` (Demo instance)
 - Streamable HTTP (preferred): `https://linkeddata.uriburner.com/chat/mcp/messages` (URIBurner)
 - SSE: `https://linkeddata.uriburner.com/chat/mcp/sse` (URIBurner)
+- Streamable HTTP: `http://localhost:{port}/chat/mcp/messages` (Localhost — confirm port with user; default 8890)
 
 Tool naming convention: `{ServerName}:{ToolName}`
 - `Demo:execute_spasql_query`
 - `URIBurner:sparqlQuery`
+- `Localhost:sparqlQuery`
 
-All 25 tools are available via MCP on both Demo and URIBurner servers.
+All 25 tools are available via MCP on Demo, URIBurner, and Localhost servers.
 
 Guidance:
 - Prefer streamable HTTP unless the client specifically expects SSE.
@@ -187,8 +189,9 @@ All modalities support both Virtuoso instances. Confirm the target instance befo
 
 | Instance | MCP Prefix | OPAL Qualifier | REST Base |
 |---|---|---|---|
-| Demo | `Demo:` | `Demo.demo.` | `https://linkeddata.uriburner.com/chat/functions/` |
+| Demo | `Demo:` | `Demo.demo.` | `https://demo.openlinksw.com/chat/functions/` |
 | URIBurner | `URIBurner:` | `UB.DBA.` / `OAI.DBA.` | `https://linkeddata.uriburner.com/chat/functions/` |
+| Localhost | `Localhost:` | `localhost.` | `http://localhost:{port}/chat/functions/` |
 
 ---
 
