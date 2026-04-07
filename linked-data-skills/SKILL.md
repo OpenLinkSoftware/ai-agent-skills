@@ -2,19 +2,18 @@
 name: linked-data-skills
 title: Linked Data Skills
 description: >
-  Generates and deploys Knowledge Graphs using Linked Data principles from relational database
-  objects via Virtuoso RDF Views. STRICT 5-step workflow: (1) After getSkillResource, send
-  opening announcement, ask local-vs-DSN — no tool call until reply. (2) Call
-  ADM.DBA.database_schema_objects({type:"TABLES",qualifier:X}) — NEVER call
-  database_remote_datasources or EXECUTE_SQL_SCRIPT for enumeration. (3) Resolve
-  hostname+protocol via cfg_item_value(), present IRI pattern table (ABox graph, TBox namespace,
-  entity IRI template, rewrite paths) — MANDATORY CONFIRM before any generation tool. (4) Generate TBox+ABox views, deploy rewrite
-  rules, audit on error and after success. (5) Verify with hyperlinked entity samples.
-  TOOL HIERARCHY: read queries use Demo.demo.execute_spasql_query; writes use EXECUTE_SQL_SCRIPT.
-version: 3.1.0
+  Generates Knowledge Graphs from two source types: (A) relational database objects via Virtuoso
+  RDF Views, or (B) documents/text transformed to RDF using schema.org terms. PATH RDBMS — STRICT
+  5-step workflow: ask local-vs-DSN, enumerate tables, resolve hostname, confirm IRI patterns,
+  generate TBox+ABox+rewrite rules, verify with entity samples. PATH D — 4-step workflow: collect
+  document + {page_url} + format (JSON-LD or Turtle), generate RDF via prompt template, post-
+  generation review (syntax fix, additional Q&A/entity types), save to user-designated folder.
+  TOOL HIERARCHY: read queries use Demo.demo.execute_spasql_query; writes use EXECUTE_SQL_SCRIPT;
+  RDF generation uses chatPromptComplete.
+version: 3.2.0
 type: skill
 created: 2026-03-26T18:30:49.078Z
-updated: 2026-04-03T00:00:00.000Z
+updated: 2026-04-06T00:00:00.000Z
 tools:
   - OAI.DBA.getSkillResource
   - ADM.DBA.database_schema_objects
@@ -41,7 +40,7 @@ tools:
   - OAI.DBA.chatPromptComplete
 ---
 
-# Linked Data Skills — Specification (v3.0.0)
+# Linked Data Skills — Specification (v3.2.0)
 
 ---
 
@@ -51,12 +50,13 @@ This section overrides all default tool-calling behavior. The five steps below m
 
 ### Gate 1 — Send announcement and establish scope (NO TOOL CALL YET)
 
-`getSkillResource` may be called once to load this skill's content. After it returns, the **next action must be text only** — send the Opening Announcement and ask the local-vs-DSN question. Do not call any other tool. Wait for the user's reply.
+`getSkillResource` may be called once to load this skill's content. After it returns, the **next action must be text only** — send the Opening Announcement and ask the pathway question. Do not call any other tool. Wait for the user's reply.
 
-- If the user's message already contains an explicit `qualifier.schema` pattern (e.g., `postgres.postgres_jdbc_mt`) → record the qualifier (`postgres`) and schema (`postgres_jdbc_mt`), send the announcement, then proceed to Gate 2.
+- If the user says "Document", provides a URL, or pastes text → **Path D**, proceed to Step 1D.
+- If the user's message already contains an explicit `qualifier.schema` pattern (e.g., `postgres.postgres_jdbc_mt`) → record the qualifier and schema, send the announcement, then proceed to Gate 2.
 - If the user says "local" or names a local qualifier → Path B, proceed to Gate 2.
 - If the user says "DSN: X" → Path A, attach DSN, then proceed to Gate 2.
-- If ambiguous → send the Checkpoint 0 question. Wait. Do not call any tool.
+- If ambiguous → send the Opening Announcement question. Wait. Do not call any tool.
 
 ### Gate 2 — Enumerate tables (ADM.DBA.database_schema_objects ONLY)
 
@@ -87,9 +87,9 @@ Only after Gate 4 CONFIRM: generate Ontology and Knowledge Graph views, deploy r
 | Field | Value |
 |-------|-------|
 | **Name** | linked-data-skills |
-| **Version** | 3.1.0 |
-| **Purpose** | Generate and deploy Knowledge Graphs and Linked Data from relational database objects using Virtuoso RDF Views. |
-| **Scope** | Five-step pipeline: determine DB objects → confirm IRI templates → generate TBox+ABox views → deploy via rewrite rules → verify with hyperlinked entity samples. |
+| **Version** | 3.2.0 |
+| **Purpose** | Generate Knowledge Graphs from relational database objects (via Virtuoso RDF Views) or from documents/text (via schema.org RDF generation). |
+| **Scope** | **Path RDBMS:** determine DB objects → confirm IRI templates → generate TBox+ABox views → deploy via rewrite rules → verify with entity samples. **Path D:** collect document + page_url + format → generate RDF → post-generation review → save to folder. |
 
 ---
 
@@ -159,18 +159,24 @@ If the user explicitly names a protocol, honor that preference. See `references/
 
 ---
 
-> **Linked Data Skills activated.** I will follow a strict 5-step sequence:
+> **Linked Data Skills activated.** I support two Knowledge Graph generation pathways:
 >
+> **Path RDBMS — Database Tables** (5-step workflow)
 > **Step 1** — Determine the database objects to use
 > **Step 2** — Confirm IRI templates before any script is generated
 > **Step 3** — Generate Ontology and Knowledge Graph views
 > **Step 4** — Deploy Linked Data via rewrite rules
 > **Step 5** — Verify with hyperlinked entity samples
 >
-> Starting with Step 1:
-> Are the target database objects **local** to this Virtuoso instance (accessible as `qualifier.schema.table`), or do they reside in an **external database** requiring DSN attachment?
-> - Reply **local** (or provide the qualifier, e.g. `postgres.postgres_jdbc_mt`)
-> - Reply **DSN: {name}**
+> **Path D — Document** (4-step workflow)
+> **Step 1D** — Collect document source, confirm `{page_url}`, output format, and destination folder
+> **Step 2D** — Generate RDF (JSON-LD or Turtle) using schema.org terms
+> **Step 3D** — Post-generation review: syntax fixes, additional Q&A / entity types
+> **Step 4D** — Save approved RDF to designated folder
+>
+> Are you working with **Database Tables** or a **Document**?
+> - Reply **Database Tables** (then: local qualifier or DSN)
+> - Reply **Document** (then: provide a URL or paste your text)
 
 ---
 
@@ -395,6 +401,66 @@ If any IRI fails to dereference, report as a Linked Data compliance gap and inve
 
 ---
 
+---
+
+## Path D — Document → RDF → Storage
+
+### Step 1D — Collect source, format, and destination
+
+⛔ **No tool call until all four items are confirmed.**
+
+Collect from the user:
+1. **Document source** — a URL or pasted text
+2. **`{page_url}`** — used as `@base` in the generated RDF. If the user provides a URL as source, default `{page_url}` to that URL and confirm.
+3. **Output format** — default options: **JSON-LD** or **Turtle**. Honor any other format if explicitly stated.
+4. **Destination folder path** — where the output file will be saved.
+
+Record all four as session variables before proceeding.
+
+**→ NEXT: Step 2D.**
+
+---
+
+### Step 2D — Generate RDF
+
+Load `references/document-to-knowledge-graph-prompt.md` via `getSkillResource`. Substitute `{page_url}` and `{selected_text}` into the template, adjusting the opening line for the chosen format. Call `OAI.DBA.chatPromptComplete` with the fully substituted prompt.
+
+Present the generated RDF as a code block.
+
+**→ NEXT: Step 3D.**
+
+---
+
+### Step 3D — Post-generation review (mandatory)
+
+Execute all four sub-tasks before presenting results to the user:
+
+1. **Syntax check** — identify and fix all syntax errors in the generated RDF.
+2. **Additional Q&A / defined terms / howtos** — present a list for user approval. Do not add until approved.
+3. **Additional entity types** — present a list for user approval. Do not add until approved.
+4. **Revised final output** — if any additions are approved, return the complete revised RDF incorporating originals plus approved additions.
+
+Wait for user approval at each sub-task before proceeding.
+
+**→ NEXT: Step 4D.**
+
+---
+
+### Step 4D — Save to folder
+
+Write the approved RDF to the user-designated folder. Derive the filename from `{page_url}` by slugifying the path component and appending the appropriate extension:
+
+| Format | Extension |
+|--------|-----------|
+| JSON-LD | `.jsonld` |
+| Turtle | `.ttl` |
+| N-Triples | `.nt` |
+| RDF/XML | `.rdf` |
+
+Confirm the full saved file path to the user.
+
+---
+
 ## Execution Routing
 
 Default order: native OAI.DBA tools → REST → MCP → authenticated `chatPromptComplete` → OPAL Agent.
@@ -423,6 +489,9 @@ See `references/workflow-details.md` for the UQ1 quad map listing query and drop
 10. **Entity sampling is mandatory.** Step 5 must be executed and results presented as a hyperlinked table. A session is not complete until Linked Data compliance is demonstrated.
 11. **Scope re-use.** If the working set and path (A or B) are already established in the session, do not re-ask.
 12. **Tool fallback.** If a primary tool fails, report the error before attempting `OAI.DBA.chatPromptComplete` as fallback.
+13. **Path D is self-contained.** No RDBMS tools, no IRI template gates, no Virtuoso deployment steps. The pathway ends when the approved RDF is saved to the designated folder.
+14. **Path D format defaults.** Always offer JSON-LD and Turtle as the two default choices. Never assume a format — confirm with the user at Step 1D.
+15. **Path D: never invent entity IRIs.** All IRIs in the generated RDF must be derived from `{page_url}` as `@base`, from the source document's existing hyperlinks, or from confident external sources (DBpedia, Wikidata, Wikipedia). Do not fabricate IRIs.
 
 ---
 
