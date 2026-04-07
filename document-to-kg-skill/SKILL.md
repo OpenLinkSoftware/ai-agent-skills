@@ -53,8 +53,8 @@ After `getSkillResource` loads this skill, the **next action must be text only**
 > **Step 4** — Save the approved RDF to your designated folder
 >
 > To begin, please provide:
-> 1. **Document source** — paste your text, or provide a URL to fetch from
-> 2. **Page URL (`{page_url}`)** — used as `@base` for all relative IRIs (defaults to the source URL if one was provided)
+> 1. **Document source** — paste your text, provide an `http:`/`https:` URL to fetch, or provide a `file:` URL to read from local disk
+> 2. **Page URL (`{page_url}`)** — used as `@base` for all relative IRIs (defaults to the source URL for HTTP/HTTPS; for `file:` URLs you will be asked whether to use it as-is or supply a canonical HTTP URL)
 > 3. **Output format** — **JSON-LD** or **Turtle** (default choices; any other format accepted if stated)
 > 4. **Destination folder** — where to save the output file
 
@@ -72,12 +72,22 @@ Record the following from the user's reply:
 
 | Variable | Description |
 |----------|-------------|
-| `{selected_text}` | Document content — pasted text or text fetched from a URL |
-| `{page_url}` | Used as `@base` in the generated RDF — defaults to source URL if provided |
+| `{selected_text}` | Document content — pasted text, text read from a `file:` URL, or text fetched from an HTTP/HTTPS URL |
+| `{page_url}` | Used as `@base` in the generated RDF — see source-type rules below |
 | `{format}` | `JSON-LD` (default), `Turtle` (default), or any other format if explicitly stated |
 | `{destination}` | Folder path where the output file will be saved |
 
 If any item is missing, ask for it before proceeding. Do not assume defaults without confirmation.
+
+### Source-type handling
+
+| Source type | How to obtain `{selected_text}` | `{page_url}` default |
+|-------------|----------------------------------|----------------------|
+| Pasted text | Use directly | Ask user to provide |
+| `http:` / `https:` URL | Fetch via web fetch tool | The source URL |
+| `file:` URL | Read from local filesystem | Ask user: use the `file:` URL as-is, or provide an HTTP URL as the canonical `@base`? |
+
+**`file:` URL guidance:** `file:` IRIs as `@base` produce non-dereferenceable hash IRIs. If the document has a canonical web URL (e.g., the page it was downloaded from), that is the better `@base`. If no canonical URL exists, the `file:` URL is acceptable and the user should be informed the resulting IRIs will not be dereferenceable from the web.
 
 **→ NEXT: Step 2.**
 
@@ -146,7 +156,7 @@ If the user explicitly names a protocol, honor that preference.
 ## Operational Rules
 
 1. **Send the opening announcement before any tool call.** After `getSkillResource`, the next action is the announcement text — no tool call.
-2. **All four session variables must be confirmed before Step 2.** Never assume `{page_url}` or `{destination}` without explicit user confirmation.
+2. **All four session variables must be confirmed before Step 2.** Never assume `{page_url}` or `{destination}` without explicit user confirmation. For `file:` source URLs, always ask whether to use the `file:` URL or a canonical HTTP URL as `@base`.
 3. **Format defaults are JSON-LD and Turtle.** Always offer these two. Honor any other format if explicitly stated by the user.
 4. **Post-generation review is mandatory.** Step 3 cannot be skipped. All four sub-tasks must be executed before saving.
 5. **Never add unapproved content.** Additional Q&A, defined terms, howtos, and entity types must be presented for approval before being included in the output.

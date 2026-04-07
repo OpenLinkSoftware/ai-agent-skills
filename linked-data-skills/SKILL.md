@@ -52,7 +52,7 @@ This section overrides all default tool-calling behavior. The five steps below m
 
 `getSkillResource` may be called once to load this skill's content. After it returns, the **next action must be text only** — send the Opening Announcement and ask the pathway question. Do not call any other tool. Wait for the user's reply.
 
-- If the user says "Document", provides a URL, or pastes text → **Path D**, proceed to Step 1D.
+- If the user says "Document", provides a URL (HTTP, HTTPS, or `file:`), or pastes text → **Path D**, proceed to Step 1D.
 - If the user's message already contains an explicit `qualifier.schema` pattern (e.g., `postgres.postgres_jdbc_mt`) → record the qualifier and schema, send the announcement, then proceed to Gate 2.
 - If the user says "local" or names a local qualifier → Path B, proceed to Gate 2.
 - If the user says "DSN: X" → Path A, attach DSN, then proceed to Gate 2.
@@ -410,8 +410,11 @@ If any IRI fails to dereference, report as a Linked Data compliance gap and inve
 ⛔ **No tool call until all four items are confirmed.**
 
 Collect from the user:
-1. **Document source** — a URL or pasted text
-2. **`{page_url}`** — used as `@base` in the generated RDF. If the user provides a URL as source, default `{page_url}` to that URL and confirm.
+1. **Document source** — pasted text, an `http:`/`https:` URL to fetch, or a `file:` URL to read from local disk
+2. **`{page_url}`** — used as `@base` in the generated RDF. Rules by source type:
+   - HTTP/HTTPS URL: default `{page_url}` to the source URL and confirm
+   - `file:` URL: ask the user whether to use the `file:` URL as-is or supply a canonical HTTP URL as `@base`. Inform the user that `file:` IRIs produce non-dereferenceable hash IRIs.
+   - Pasted text: ask the user to provide `{page_url}` explicitly
 3. **Output format** — default options: **JSON-LD** or **Turtle**. Honor any other format if explicitly stated.
 4. **Destination folder path** — where the output file will be saved.
 
