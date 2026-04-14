@@ -62,6 +62,34 @@ bif:contains(?name, 'search term')
 
 Use single quotes only for the search string. Attach `OPTION` clause directly after the search string.
 
+### 3.1. Boolean Search Expressions
+
+`bif:contains` expects a **boolean search expression**, not natural language.
+Bare multi-word strings without operators will cause a syntax error (`XM029`).
+
+**Always use boolean operators between terms:**
+
+```sparql
+-- ✅ Correct — explicit AND
+?o1 bif:contains 'multi-agent AND coordination' OPTION (score ?sc)
+
+-- ✅ Correct — explicit OR
+?o1 bif:contains 'agent OR orchestration' OPTION (score ?sc)
+
+-- ✅ Correct — parenthesised group
+?o1 bif:contains '(multi-agent AND coordination AND production)' OPTION (score ?sc)
+
+-- ❌ Wrong — natural language causes XM029 syntax error
+?o1 bif:contains 'multi-agent coordination mean here' OPTION (score ?sc)
+
+-- ❌ Wrong — treated as function call
+bif:contains(?name, 'multi-agent coordination')
+```
+
+**Term extraction rule:** When converting a user's natural language prompt
+to a `bif:contains` expression, extract the key substantive terms and join
+them with `AND`. Drop stop words ("what", "does", "mean", "here", etc.).
+
 ---
 
 ## 4. FILTER Placement
