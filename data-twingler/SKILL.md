@@ -87,8 +87,9 @@ seems faster.
 | 5 | "How to {X}" | T5 — HowTo (2-step) |
 | 6 | "{Question}" with article/graph context | T6 — Q&A UNION (2-step) |
 | 7 | "Define the term {X}" | T7 — DefinedTerm (2-step) |
+| 8 | "What is {X}?" / "Can you explain what {X} is?" / "Tell me about {X}" | T8 — Direct Entity Description (1-step) |
 
-### Graph IRI Discovery & Two-Step Template Enforcement (T5, T6, T7)
+### Graph IRI Discovery & Template Enforcement (T5, T6, T7, T8)
 
 These templates require a mandatory four-step sequence. **Steps may not be
 combined, pre-empted, or skipped under any circumstances:**
@@ -126,17 +127,59 @@ combined, pre-empted, or skipped under any circumstances:**
    (as T6 does). If zero graphs are returned, report that and proceed to
    fallback.
 
+   **Entity-level insight:** Examine the `?s1` and `?o1` values returned. If
+   `?o1` is a `schema:description` or `schema:text` literal attached to a
+   non-article entity (e.g., `schema:Product`, `schema:SoftwareApplication`,
+   `schema:HowTo`), treat `?s1` as a **direct answer candidate** — proceed
+   to describe it in the final step.
+
 2. **Index query** — Execute the template's index query, scoped to the
    discovered graph IRI(s) from step 1. Report the full index results to the
    user. This step is mandatory regardless of whether results are expected.
    Never pre-skip based on assumed empty results.
 
+   **Alternative index patterns:** If the primary index query returns zero
+   results, try these fallback patterns **once each** (max two retries)
+   before declaring the index step failed:
+
+   - **T6 fallback 1** — direct Question scan (no article relationship):
+     ```sparql
+     SELECT DISTINCT ?s ?name WHERE {
+       GRAPH <{G}> {
+         ?s a schema:Question.
+         OPTIONAL { ?s schema:name ?name }
+         OPTIONAL { ?s schema:text ?name }
+       }
+     }
+     ```
+   - **T6 fallback 2** — broad index (any triple with the user's key terms):
+     ```sparql
+     PREFIX bif: <bif:>
+     SELECT DISTINCT ?s ?o WHERE {
+       GRAPH <{G}> { ?s ?p ?o . ?o bif:contains '({term})' }
+     } LIMIT 20
+     ```
+
 3. **Checkpoint** — Wait for the user to identify the target entity, article,
-   or term from the reported index results.
+   or term from the reported index results. **If no index results are available
+   but Step 1 returned a high-confidence entity (`?s1` with `?o1` as a
+   description), report that entity directly and treat it as confirmed.**
 
 4. **Final query** — Execute only after the user has confirmed the match from
-   step 3. Never execute the final query without first completing and reporting
-   the graph discovery and index steps.
+   step 3. **If Step 3 triggered the entity-level shortcut (description found
+   in Step 1), skip the final query and present the `?o1` value directly as
+   the answer.** Never execute the final query without first completing and
+   reporting the graph discovery and index steps.
+
+### T8 — Direct Entity Description (Shortcut Workflow)
+
+T8 bypasses the index query entirely. After Graph IRI Discovery (Step 1),
+examine `?s1` and `?o1`:
+
+- If `?o1` is a `schema:description` or `schema:text` literal on a non-article
+  entity, **present it as the answer immediately**.
+- Run the T8 describe query on `?s1` to enrich with additional properties.
+- Report the result. No index query, no checkpoint, no final query needed.
 
 ---
 
@@ -211,9 +254,14 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 5. A "no match" requires that no trigger phrase maps to the user's intent after
    honest assessment. Assumed empty results or a desire for a shorter path are
    not valid grounds for declaring no match.
-6. Optimize every query for performance and accuracy.
-7. Validate setting changes with test queries where possible.
-8. Handle errors gracefully with detailed, actionable feedback.
-9. Leverage caching (TTL 3600s) and parallel execution.
-10. Tabulate all query results by default.
-11. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
+6. **Abort and pivot rule** — When an index query fails after both fallback
+   attempts (T6) or when Graph IRI Discovery returns a description literal on
+   a non-article entity, pivot to T8 (Direct Entity Description) immediately.
+   Do not continue retrying a failed template. Do not skip to ad-hoc queries
+   without exhausting the T8 path first.
+7. Optimize every query for performance and accuracy.
+8. Validate setting changes with test queries where possible.
+9. Handle errors gracefully with detailed, actionable feedback.
+10. Leverage caching (TTL 3600s) and parallel execution.
+11. Tabulate all query results by default.
+12. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.

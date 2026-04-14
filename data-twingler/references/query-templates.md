@@ -157,6 +157,39 @@ WHERE {
 }
 ```
 
+### Step 1 Fallback 1 — Direct Question scan (no article relationship)
+
+If the primary index query returns zero results, try this pattern **once**:
+
+```sparql
+SPARQL
+SELECT DISTINCT ?s ?name
+WHERE {
+  GRAPH {G} {
+    ?s a schema:Question.
+    OPTIONAL { ?s schema:name ?name }
+    OPTIONAL { ?s schema:text ?name }
+  }
+}
+```
+
+### Step 1 Fallback 2 — Broad index (key-term search)
+
+If Fallback 1 also returns zero results, try this pattern **once** more:
+
+```sparql
+SPARQL
+PREFIX bif: <bif:>
+SELECT DISTINCT ?s ?o
+WHERE {
+  GRAPH {G} {
+    ?s ?p ?o .
+    ?o bif:contains '({term})'
+  }
+}
+LIMIT 20
+```
+
 ### Step 2 — Final query (after matching `{Name}`)
 
 ```sparql
@@ -190,6 +223,20 @@ WHERE {
   } } }
 }
 ORDER BY ASC(?name)
+```
+
+**Alternative final query** (when the Question uses `schema:text` instead of `schema:name`):
+
+```sparql
+SPARQL
+SELECT DISTINCT ?question ?text ?answer ?answerText
+WHERE {
+  GRAPH {G} {
+    ?question a schema:Question; schema:text ?text; schema:acceptedAnswer ?answer.
+    FILTER (?text = "{Name}").
+    ?answer schema:text ?answerText.
+  }
+}
 ```
 
 ---
@@ -237,6 +284,33 @@ WHERE {
 }
 ORDER BY ASC(?name)
 ```
+
+---
+
+## T8 — Direct Entity Description (1-step, no index required)
+
+**Trigger:** "What is {X}?", "Can you explain what {X} is?", "Tell me about {X}"
+— when the Graph IRI Discovery step (Step 1) returns a `?s1` with `?o1` as a
+`schema:description` or `schema:text` attached to a non-article entity type
+(`schema:Product`, `schema:SoftwareApplication`, `schema:HowTo`, etc.)
+
+### Execution
+
+No index query is needed. The `?s1` IRI and `?o1` literal from Step 1 are the
+answer. Run a follow-up describe query to enrich the result:
+
+```sparql
+SPARQL
+SELECT DISTINCT ?p ?o
+WHERE {
+  GRAPH {G} {
+    <{s1}> ?p ?o .
+  }
+}
+```
+
+Present the `?o1` value from Step 1 as the primary answer, enriched with
+additional properties from this describe query (features, type, brand, etc.).
 
 ---
 
