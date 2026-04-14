@@ -32,7 +32,11 @@ lists posts, articles, or news items but does not publish its own feed.
 
 ---
 
-## Trigger Phrases
+## Predefined Prompt Templates
+
+**Always** match the user's input to a trigger template **before** executing or
+falling back to general LLM knowledge. Substitute `{url}` with the URL provided
+by the user.
 
 | #  | User says …                                      | Action                              |
 |----|--------------------------------------------------|-------------------------------------|
@@ -42,6 +46,10 @@ lists posts, articles, or news items but does not publish its own feed.
 | T4 | "Convert {url} posts to RSS"                     | Same as T1                          |
 | T5 | "Make a self-hostable feed for {url}"            | Emit XML + HTML wrapper             |
 | T6 | "Update / refresh the feed for {url}"            | Re-scrape and re-emit               |
+
+If no trigger phrase matches, fall through in this order: direct native execution
+→ REST function execution → Terminal-owned OAuth flow → MCP →
+authenticated `chatPromptComplete` → OPAL Agent routing.
 
 ---
 

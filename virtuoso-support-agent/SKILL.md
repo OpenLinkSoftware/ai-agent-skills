@@ -142,6 +142,9 @@ If the user explicitly names a protocol, follow that preference instead. See `re
 
 ## Predefined Query Templates
 
+**Always** load `references/query-templates.md` and match the user's input to a
+template **before** falling back to LLM-mediated execution.
+
 The skill includes optimized SPARQL queries for common tasks:
 
 - **FAQ Lookups** - Question/answer retrieval
@@ -150,6 +153,10 @@ The skill includes optimized SPARQL queries for common tasks:
 - **Installation** - OS-specific setup
 
 **→ For all query templates:** Read `references/query-templates.md`
+
+If no template matches, fall through in this order: direct native execution →
+REST function execution → Terminal-owned OAuth flow → MCP →
+authenticated `chatPromptComplete` → OPAL Agent routing.
 
 ---
 

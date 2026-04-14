@@ -44,6 +44,7 @@ Default execution order for query execution:
 If the user's prompt expresses a protocol preference such as `curl`, `REST`, `OpenAI`, `MCP`, `SSE`, `streamable HTTP`, or `OPAL`, follow that preference instead of the default order.
 
 Read `references/protocol-routing.md` when you need exact routing guidance.
+Read `references/sparql-syntax-rules.md` before constructing any SPARQL query.
 
 ### SQL
 Default: `SELECT TOP 20 * FROM Demo.Demo.Customers`
@@ -68,9 +69,14 @@ Endpoint: `https://linkeddata.uriburner.com/graphql`. Depth: 10. Introspection o
 ## Predefined Prompt Templates
 
 **Always** load `references/query-templates.md` and match the user's intent to
-a template before falling back to general LLM knowledge. Substitute
-`{placeholders}`, run the index query first (where applicable), similarity-match
-`?name`, then execute the final query.
+a template **before any query execution** — this gate applies to direct
+SPARQL/SPASQL/SQL, ad-hoc queries, and general LLM knowledge alike. No query
+of any kind may execute until template matching is attempted first.
+
+**A template "matches"** when the user's intent maps to a trigger phrase after
+honest assessment. "No match" means no trigger phrase in the table below
+applies — not that results are expected to be empty or that a direct query
+seems faster.
 
 | # | Trigger | Template in references/ |
 |---|---|---|
@@ -81,6 +87,56 @@ a template before falling back to general LLM knowledge. Substitute
 | 5 | "How to {X}" | T5 — HowTo (2-step) |
 | 6 | "{Question}" with article/graph context | T6 — Q&A UNION (2-step) |
 | 7 | "Define the term {X}" | T7 — DefinedTerm (2-step) |
+
+### Graph IRI Discovery & Two-Step Template Enforcement (T5, T6, T7)
+
+These templates require a mandatory four-step sequence. **Steps may not be
+combined, pre-empted, or skipped under any circumstances:**
+
+1. **Graph IRI Discovery** — Determine the relevant named graph(s) by executing
+   a full-text search across the data space. Substitute `({prompt})` with the
+   user's search terms:
+
+   ```sparql
+   SELECT
+     ?s1,
+     (?sc * 3e-1) AS ?sc,
+     ?o1,
+     (sql:rnk_scale(<LONG::IRI_RANK>(?s1))) AS ?rank,
+     ?g
+   WHERE {
+     QUAD MAP virtrdf:DefaultQuadMap {
+       GRAPH ?g {
+         ?s1 ?s1textp ?o1 .
+
+         ?o1 bif:contains
+           '({prompt})'
+           OPTION (score ?sc) .
+         FILTER (?sc >= 10)
+       }
+     }
+   }
+   ORDER BY DESC (?sc + 1e-6 * sql:rnk_scale(<LONG::IRI_RANK>(?s1)))
+   LIMIT 3
+   ```
+
+   Report the discovered graph IRI(s) (`?g`) to the user. Bind these IRI(s)
+   to `{G}`, `{G1}`, `{G2}`, `{G3}` for use in the index and final queries.
+   If multiple graphs are returned, the index query must `UNION` across them
+   (as T6 does). If zero graphs are returned, report that and proceed to
+   fallback.
+
+2. **Index query** — Execute the template's index query, scoped to the
+   discovered graph IRI(s) from step 1. Report the full index results to the
+   user. This step is mandatory regardless of whether results are expected.
+   Never pre-skip based on assumed empty results.
+
+3. **Checkpoint** — Wait for the user to identify the target entity, article,
+   or term from the reported index results.
+
+4. **Final query** — Execute only after the user has confirmed the match from
+   step 3. Never execute the final query without first completing and reporting
+   the graph discovery and index steps.
 
 ---
 
@@ -93,7 +149,10 @@ a template before falling back to general LLM knowledge. Substitute
 | `UB.DBA.sparqlQuery` | `(sql, url)` | SQL |
 | `DB.DBA.graphqlQuery` | `(query)` | GraphQL |
 
-Call directly, or as fallback when predefined templates yield no match.
+Use only when: (a) no trigger phrase in the template table maps to the user's
+intent after honest assessment, OR (b) a matched template was fully executed
+and its results are unsatisfactory. Assumed empty results or preference for
+speed are not valid reasons to bypass the template gate.
 
 Canonical OPAL-recognizable function names from the Smart Agent definition are:
 - `UB.DBA.sparqlQuery` with signature `(query, format)` for SPARQL
@@ -138,9 +197,23 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 
 ## Rules (Non-Negotiable)
 
-1. Use predefined templates **before** general LLM knowledge.
-2. Optimize every query for performance and accuracy.
-3. Validate setting changes with test queries where possible.
-4. Handle errors gracefully with detailed, actionable feedback.
-5. Leverage caching (TTL 3600s) and parallel execution.
-6. Tabulate all query results by default.
+1. Use predefined templates **before any query execution** — direct queries,
+   ad-hoc SPARQL/SPASQL/SQL, and general LLM knowledge all come after template
+   matching is attempted and either succeeds or is honestly exhausted.
+2. For templates T5, T6, T7: Graph IRI Discovery (step 1) MUST execute and its
+   results MUST be reported before the index query (step 2) runs.
+3. For templates T5, T6, T7: the index query MUST execute and its results MUST
+   be reported before the final query runs. Never skip or pre-empt the graph
+   discovery or index step, even if results are expected to be empty.
+4. Never execute a final query without first completing and reporting the graph
+   discovery and index steps, and receiving user confirmation of the target
+   entity or term.
+5. A "no match" requires that no trigger phrase maps to the user's intent after
+   honest assessment. Assumed empty results or a desire for a shorter path are
+   not valid grounds for declaring no match.
+6. Optimize every query for performance and accuracy.
+7. Validate setting changes with test queries where possible.
+8. Handle errors gracefully with detailed, actionable feedback.
+9. Leverage caching (TTL 3600s) and parallel execution.
+10. Tabulate all query results by default.
+11. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.

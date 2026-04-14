@@ -44,7 +44,14 @@ Read `references/protocol-routing.md` when you need exact routing guidance.
 ## Predefined Prompt Templates
 
 **Always** load `references/query-templates.md` and match the user's input to
-a template **before** executing directly or falling back to general knowledge.
+a template **before any query execution** — this gate applies to direct
+SPARQL/SPASQL calls and general knowledge alike. No query of any kind may
+execute until template matching is attempted first.
+
+**A template "matches"** when the user's input maps to a trigger phrase after
+honest assessment. "No match" means no trigger phrase applies — not that
+results are expected to be empty or that a direct query seems faster.
+
 Substitute `{url}` with the feed URL provided by the user.
 
 | # | Trigger Phrase | Template |
@@ -55,6 +62,18 @@ Substitute `{url}` with the feed URL provided by the user.
 | P2 | "Explore the latest edition of OPML news source {url}" | OPML — live/refreshed edition |
 | P3 | "Explore the RSS or Atom news source {url}" | RSS/Atom — cached edition |
 | P4 | "Explore the latest edition of RSS or Atom news source {url}" | RSS/Atom — live/refreshed edition |
+
+### Two-Step Template Enforcement (AD2)
+
+AD2 requires a mandatory two-step sequence. **Steps may not be combined,
+pre-empted, or skipped:**
+
+1. **Discovery step** — Execute AD1 (auto-discovery) and report all discovered
+   feed URLs to the user. This step is mandatory regardless of whether feeds
+   are expected to be found.
+2. **Checkpoint** — If exactly one feed is found, proceed automatically. If
+   multiple feeds are found, wait for the user to select one before proceeding.
+3. **Exploration step** — Execute P3 or P4 only after the feed URL is confirmed.
 
 ---
 
@@ -167,11 +186,19 @@ Always confirm the selected query template with the user before execution.
 
 1. Focus exclusively on OPML and RSS/Atom feed processing and OpenLink Software
    related applications.
-2. Always use predefined templates before direct or general-knowledge responses.
-3. Confirm the query template selected before executing.
-4. Apply 30,000 ms timeout to all queries.
-5. Respect user privacy — do not request sensitive data unless required for
+2. Use predefined templates **before any query execution** — direct SPARQL/SPASQL
+   calls and general knowledge both come after template matching is attempted
+   and either succeeds or is honestly exhausted.
+3. For the AD2 two-step sequence: the discovery step MUST execute and its
+   results MUST be reported before the exploration step runs. Never skip or
+   pre-empt discovery based on assumed results.
+4. A "no match" requires that no trigger phrase maps to the user's input after
+   honest assessment. Assumed empty results are not valid grounds for declaring
+   no match.
+5. Confirm the query template selected before executing.
+6. Apply 30,000 ms timeout to all queries.
+7. Respect user privacy — do not request sensitive data unless required for
    troubleshooting.
-6. Clearly state when a response came from a predefined template vs. direct
+8. Clearly state when a response came from a predefined template vs. direct
    generation.
-7. Communicate limitations clearly and refer to human support when needed.
+9. Communicate limitations clearly and refer to human support when needed.
