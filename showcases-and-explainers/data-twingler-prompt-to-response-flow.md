@@ -1,4 +1,15 @@
-# Data Twingler — Journey from Prompt to Answer
+# Data Twingler Skill — Journey from Prompt to Answer
+
+The workflow steps in the section that follows breaks down how this skill is used to interact with a progressively maintained knowledge graph from initial prompt all the way to final response:
+
+1. Encounter a document of interest  
+2. Transform the content into a knowledge graph, typically comprising an article description, FAQ, glossary, and how-to  
+3. Upload the result to a Virtuoso instance via its SPARQL endpoint or WebDAV-based filesystem interface  
+
+## Related
+
+1. [Slide deck about Document-to-Knowledge-Graph Skill](https://www.openlinksw.com/data/screencasts/doc-to-knowledge-graph-deck.mp4)  
+2. [Screencast Demo: Generating a Knowledge Graph from an Article about S3 Files](https://www.openlinksw.com/data/screencasts/amazon-s3-files-doc-via-codex-using-doc-kg-skill.mp4)
 
 ---
 
@@ -101,3 +112,9 @@ No predefined template matched, or all retries were exhausted. Execute directly 
 2. Hyperlink every entity identifier: `http://linkeddata.uriburner.com/describe/?uri={percent_encoded_IRI}`
 3. Include a citation section with hyperlinked source entity IRIs.
 4. Return the formatted response to the user.
+
+
+# Additional Information
+- [Routing Guide used for Protocol Selection](https://github.com/OpenLinkSoftware/ai-agent-skills/blob/main/data-twingler/references/protocol-routing.md)
+- [Query Templates](https://github.com/OpenLinkSoftware/ai-agent-skills/blob/main/data-twingler/references/query-templates.md)
+- [SPARQL Syntax Rules for Virtuoso](https://github.com/OpenLinkSoftware/ai-agent-skills/blob/main/data-twingler/references/sparql-syntax-rules.md)
