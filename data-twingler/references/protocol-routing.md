@@ -5,11 +5,71 @@ Use this file only when you need execution routing guidance beyond the main skil
 ## Default Order
 
 1. Direct native execution such as `curl` to the target endpoint
+   - 1a. Plain `curl` for open or OAuth-protected endpoints
+   - 1b. **mTLS `curl`** — when the resource server requires a client certificate (see mTLS section below)
 2. URIBurner REST functions
 3. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
 4. MCP via streamable HTTP or SSE
 5. Authenticated `chatPromptComplete`
 6. OPAL Agent routing via recognizable function names
+
+---
+
+## mTLS curl Variant (Step 1b)
+
+Use this variant whenever a resource server requires **Mutual TLS** — i.e., the server demands a client certificate in addition to (or instead of) a Bearer token.
+
+### Trigger conditions
+
+- User mentions a PKCS#12 file, `.p12`, `.pfx`, mTLS, or client certificate
+- Endpoint returns HTTP 495 (SSL Certificate Error), 496 (SSL Certificate Required), or a TLS handshake error
+- The target resource is known to be protected by WebID-TLS or an mTLS gateway
+
+### Command pattern
+
+```bash
+curl -iLk \
+  --cert-type P12 \
+  --cert "{pkcs12-file}:${MTLS_PWD}" \
+  "{endpoint-url}"
+```
+
+Replace `-k` with `--cacert {ca-bundle}` when a trusted CA bundle is available.
+
+### SPARQL endpoint with client cert
+
+```bash
+curl -iLk \
+  --cert-type P12 \
+  --cert "{pkcs12-file}:${MTLS_PWD}" \
+  -H "Accept: application/sparql-results+json" \
+  "{sparql-endpoint}?query={url-encoded-sparql}"
+```
+
+### Combining mTLS with Bearer token
+
+Some endpoints require both a client certificate and a Bearer token:
+
+```bash
+curl -iLk \
+  --cert-type P12 \
+  --cert "{pkcs12-file}:${MTLS_PWD}" \
+  -H "Authorization: Bearer {token}" \
+  "{endpoint-url}"
+```
+
+In this case run step 3 (OAuth flow) first to obtain the token, then inject both credentials.
+
+### PKCS#12 elicitation
+
+If the PKCS#12 file path or password is not already known, elicit them
+interactively using masked input — never log or echo the password:
+
+```bash
+read -s -p "PKCS#12 password: " MTLS_PWD; echo
+```
+
+Full elicitation and validation logic: load the `mtls-curl` skill.
 
 ---
 
