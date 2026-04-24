@@ -1,6 +1,6 @@
 ---
 name: iodbc-dsn-manager
-description: Configure and verify ODBC Data Source Names (DSNs) using iODBC or unixODBC. Supports three execution modes in priority order: (C) OpenLink www_sv Admin Assistant HTTP server — preferred when available; (B) odbc_rest_server.py REST bridge — for remote/sandbox access; (A) local CLI via iodbctest/isql. Works on macOS and Linux. Covers all DSN types: MT (Multi-Tier), Virtuoso, Unix Lite, and single-tier. Use when the user asks to list, test, configure, add, or troubleshoot ODBC DSNs.
+description: Configure and verify ODBC Data Source Names (DSNs) using iODBC or unixODBC. Supports three execution modes in priority order: (C) OpenLink `www_sv` Admin Assistant HTTP server — preferred when available; (B) `odbc_rest_server.py` REST bridge — for remote/sandbox access; (A) local CLI via `iodbctest`/`isql`. Works on macOS and Linux. Covers all DSN types: MT (Multi-Tier), Virtuoso, Unix Lite, and single-tier. Use when the user asks to list, test, configure, add, or troubleshoot ODBC DSNs.
 ---
 
 # ODBC DSN Manager Skill
@@ -11,7 +11,7 @@ Manage and verify ODBC Data Source Names using the best available interface — 
 
 | Priority | Mode | When to use |
 |---|---|---|
-| **1 (preferred)** | **C — www_sv** | OpenLink Admin Assistant running (or startable) on port 8000 |
+| **1 (preferred)** | **C — OpenLink Admin Assistant** | `www_sv` running (or startable) on port `8000` |
 | **2** | **B — REST bridge** | `odbc_rest_server.py` running on the target machine |
 | **3 (fallback)** | **A — Local CLI** | Claude Code running directly on the ODBC machine |
 
@@ -21,7 +21,7 @@ Manage and verify ODBC Data Source Names using the best available interface — 
 
 Default execution order for remote or REST interactions:
 
-1. **Mode C (www_sv)** — HTTP Admin Assistant at `http://localhost:8000` (preferred when available)
+1. **Mode C (HTTP Admin Assistant)** — `www_sv` at `http://localhost:8000` (preferred when available)
 2. **Mode B (REST bridge)** — `odbc_rest_server.py` REST endpoint
 3. **Terminal-owned OAuth flow** — when a REST endpoint requires OAuth 2.0 authentication, execute the OAuth flow from the terminal (authorization code, client credentials, or device flow), capture the Bearer token, and inject it into subsequent REST/OpenAPI calls via `Authorization: Bearer {token}` headers
 4. **Mode A (Local CLI)** — direct `iodbctest`/`isql` invocation
@@ -148,9 +148,9 @@ curl -s -u <uid>:<pwd> http://localhost:8000/scripts/brkver
 
 ## Mode B — REST Bridge (`odbc_rest_server.py`)
 
-Use when www_sv is not available and Claude is running remotely (sandbox / Linux). The target machine must be running `server/odbc_rest_server.py`.
+Use when `www_sv` is not available and Claude is running remotely (sandbox / Linux). The target machine must be running `server/odbc_rest_server.py`.
 
-Ask the user for the base URL (e.g. `http://192.168.1.10:8899`), then use `WebFetch`.
+Ask the user for the base URL (e.g., `http://192.168.1.10:8899`), then use `WebFetch`.
 
 ### Endpoints
 
@@ -169,7 +169,7 @@ Ask the user for the base URL (e.g. `http://192.168.1.10:8899`), then use `WebFe
 python3 /usr/local/share/odbc-rest-server/odbc_rest_server.py --host 0.0.0.0 --port 8899
 ```
 
-### Install as launchd service (macOS)
+### Install as `launchd` service (macOS)
 ```bash
 sudo mkdir -p /usr/local/var/log
 cp server/com.openlink.odbc-rest-server.plist ~/Library/LaunchAgents/
@@ -199,10 +199,10 @@ which iodbctest isql odbcinst 2>/dev/null
 | System Drivers | `/Library/ODBC/odbcinst.ini` | `/etc/odbcinst.ini` |
 | User DSNs | `~/Library/ODBC/odbc.ini` | `~/.odbc.ini` |
 | Driver format | `.bundle` | `.so` |
-| iODBC test | `/usr/local/iODBC/bin/iodbctest` | `iodbctest` |
-| iODBC Unicode | `/usr/local/iODBC/bin/iodbctestw` | `iodbctestw` |
-| unixODBC test | `isql` | `isql` |
-| unixODBC Unicode | `iusql` | `iusql` |
+| iODBC test — ANSI | `/usr/local/iODBC/bin/iodbctest` | `iodbctest` |
+| iODBC test — Unicode | `/usr/local/iODBC/bin/iodbctestw` | `iodbctestw` |
+| unixODBC test — ANSI | `isql` | `isql` |
+| unixODBC test — Unicode | `iusql` | `iusql` |
 | Config confirm | `iodbc-config --prefix` | `odbcinst -j` |
 
 ### A1. List DSNs
@@ -232,6 +232,7 @@ for k, v in cfg.items('My DSN'):
 
 **iODBC:**
 ```bash
+# ANSI
 printf "SELECT 'Connected'\nquit\n" | /usr/local/iODBC/bin/iodbctest "DSN=<name>;UID=<u>;PWD=<p>"
 # Unicode:
 printf "SELECT 'Connected'\nquit\n" | /usr/local/iODBC/bin/iodbctestw "DSN=<name>;UID=<u>;PWD=<p>"
@@ -239,6 +240,7 @@ printf "SELECT 'Connected'\nquit\n" | /usr/local/iODBC/bin/iodbctestw "DSN=<name
 
 **unixODBC:**
 ```bash
+# ANSI
 echo "SELECT 'Connected'" | isql "<name>" <uid> <pwd> -b
 # Unicode:
 echo "SELECT 'Connected'" | iusql "<name>" <uid> <pwd> -b
@@ -253,14 +255,14 @@ Always add to both `[ODBC Data Sources]` and as a named `[DSN Name]` section.
 ### A5. Driver Info
 ```bash
 /usr/local/iODBC/bin/iodbc-config --version --libs --cflags   # iODBC
-odbcinst -j                                                     # unixODBC
+odbcinst -j                                                   # unixODBC
 ```
 
 ---
 
 ## SPASQL (SPARQL via ODBC)
 
-Virtuoso DSNs support SPARQL issued directly over ODBC by prefixing with `SPARQL`:
+Virtuoso DSNs support SPARQL issued directly over ODBC by prefixing with `SPARQL` keyword:
 
 ```bash
 # Via isql (wide output for full IRIs, then apply CURIEs in post-processing)
@@ -274,44 +276,44 @@ Always post-process full IRI output with Python to apply CURIE substitutions bef
 
 ## Troubleshooting Guide
 
-| Symptom | Likely Cause | Fix |
-|---|---|---|
-| www_sv not responding | Not started | Start binary or check port 8000 |
-| www_sv auth fails | Wrong admin password | Check `www_sv.ini` `[Users]` section |
-| `Data source name not found` | DSN not in `odbc.ini` | Add DSN via Mode C wizard or Edit tool |
-| `Driver not found` | Driver path wrong | Check `.bundle` (macOS) / `.so` (Linux) path |
-| `[28000] Login failed` | Wrong UID/PWD | Correct credentials |
-| `[08001] Can't connect` | Host/port unreachable | Check server/broker is running |
-| `[IM004] SQLAllocHandle failed` | Driver binary bad/wrong arch | Reinstall driver |
-| `Can't open lib` (Linux) | `.so` path wrong | Check `odbcinst.ini` Driver= path |
-| unixODBC wrong config | Different path active | Run `odbcinst -j` to confirm |
-| REST bridge unreachable | Server not started | Run `odbc_rest_server.py` on target host |
+| Symptom                         | Likely Cause                 | Fix                                          |
+|---                              |---                           |---                                           |
+| `www_sv` not responding         | Not started                  | Start binary or check port 8000              |
+| `www_sv` auth fails             | Wrong admin password         | Check `www_sv.ini` `[Users]` section         |
+| `Data source name not found`    | DSN not in `odbc.ini`        | Add DSN via Mode C wizard or Edit tool       |
+| `Driver not found`              | Driver path wrong            | Check `.bundle` (macOS) / `.so` (Linux) path |
+| `[28000] Login failed`          | Wrong UID/PWD                | Correct credentials                          |
+| `[08001] Can't connect`         | Host/port unreachable        | Check server/broker is running               |
+| `[IM004] SQLAllocHandle failed` | Driver binary bad/wrong arch | Reinstall driver                             |
+| `Can't open lib` (Linux)        | `.so` path wrong             | Check `odbcinst.ini` Driver= path            |
+| wrong unixODBC config           | Different path active        | Run `odbcinst -j` to confirm                 |
+| REST bridge unreachable         | Server not started           | Run `odbc_rest_server.py` on target host     |
 
 ---
 
 ## Quick Reference
 
-| Task | Mode C (www_sv) | Mode A (Local CLI) |
-|---|---|---|
-| List DSNs | `curl .../scripts/odbcdsn` | Read `odbc.ini` `[ODBC Data Sources]` |
-| Inspect DSN | `curl .../scripts/odbcdsn?dsn=<name>` | Read named section from `odbc.ini` |
-| Test connection | `curl .../scripts/dsntest?dsn=...` | `iodbctest` / `isql` |
-| Create DSN | Wizard via `/scripts/wods` → `wost` → `woco` → `wod` | Edit `odbc.ini` |
-| Server type templates | `/scripts/wost` or `template.ini` | `references/mt-dsn-parameters.md` |
-| Broker admin | `/scripts/brksetup`, `/scripts/brklog` | N/A |
-| SPASQL | `isql` with `SPARQL ...` prefix | Same |
-| iODBC version | `iodbc-config --version` | Same |
-| unixODBC paths | `odbcinst -j` | Same |
+| Task                  | Mode C (`www_sv`)                                    | Mode A (Local CLI)                    |
+|---                    |---                                                   |---                                    |
+| List DSNs             | `curl .../scripts/odbcdsn`                           | Read `odbc.ini` `[ODBC Data Sources]` |
+| Inspect DSN           | `curl .../scripts/odbcdsn?dsn=<name>`                | Read named section from `odbc.ini`    |
+| Test connection       | `curl .../scripts/dsntest?dsn=...`                   | `iodbctest` / `isql`                  |
+| Create DSN            | Wizard via `/scripts/wods` → `wost` → `woco` → `wod` | Edit `odbc.ini`                       |
+| Server type templates | `/scripts/wost` or `template.ini`                    | `references/mt-dsn-parameters.md`     |
+| Broker admin          | `/scripts/brksetup`, `/scripts/brklog`               | N/A                                   |
+| SPASQL                | `isql` with `SPARQL ...` prefix                      | Same                                  |
+| iODBC version         | `iodbc-config --version`                             | Same                                  |
+| unixODBC paths        | `odbcinst -j`                                        | Same                                  |
 
 ---
 
 ## Initialization Sequence
 
 When invoked:
-1. Run Mode detection (Step 0) — check www_sv, then local ODBC, then ask for REST URL
-2. If www_sv binary found but not running: **ask user** "www_sv is installed but not running — start it?" → start if yes
+1. Run Mode detection (Step 0) — check `www_sv`, then local ODBC, then ask for REST URL
+2. If `www_sv` binary found but not running: **ask user** "`www_sv` is installed but not running — start it?" → start if yes
 3. Report detected mode, OS, available driver managers, config paths
-4. Obtain www_sv credentials if Mode C (session only — never written to disk)
+4. Obtain `www_sv` credentials if Mode C (session only — never written to disk)
 5. List all DSNs grouped by type — present as a table
 6. Ask what to do: **list**, **inspect**, **create**, **edit**, **test**, **broker admin**, or **troubleshoot**
 7. Execute using the selected mode throughout the session
@@ -320,13 +322,13 @@ When invoked:
 
 ## Reference Files
 
-| File | Contents |
-|---|---|
-| `references/www_sv-endpoints.md` | www_sv HTTP endpoints, auth, form parameters, start/stop |
-| `references/mt-dsn-parameters.md` | MT/VIRT/ULITE DSN parameters, 70+ server type templates, driver paths |
-| `references/odbc-error-codes.md` | SQLSTATE error codes and fixes |
-| `references/connection-string-formats.md` | Connection string syntax for all driver types |
-| `server/odbc_rest_server.py` | Python REST bridge for Mode B remote access |
+| File                                         | Contents |
+|---                                           |---|
+| `references/www_sv-endpoints.md`             | `www_sv` HTTP endpoints, auth, form parameters, start/stop |
+| `references/mt-dsn-parameters.md`            | MT/VIRT/ULITE DSN parameters, 70+ server type templates, driver paths |
+| `references/odbc-error-codes.md`             | SQLSTATE error codes and fixes |
+| `references/connection-string-formats.md`    | Connection string syntax for all driver types |
+| `server/odbc_rest_server.py`                 | Python REST bridge for Mode B remote access |
 | `server/com.openlink.odbc-rest-server.plist` | launchd service definition for REST bridge |
 
 ---
