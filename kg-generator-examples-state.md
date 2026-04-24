@@ -1,4 +1,4 @@
-# kg-generator-examples-state.md
+# `kg-generator-examples-state.md`
 
 ## Status
 DONE
@@ -15,7 +15,7 @@ Add an `examples.md` file to the `kg-generator` skill bundle with default demo U
 
 ## Plan
 1. Add `examples.md` in `kg-generator/` containing the three provided demo URLs with short labels. Needs: file edit. Risks: formatting errors or missing newline.
-2. Rebuild `kg-generator.zip` from the updated `kg-generator` directory so the new file is packaged. Needs: `zip -r`. Risks: accidentally bundling unwanted files (e.g., .DS_Store).
+2. Rebuild `kg-generator.zip` from the updated `kg-generator` directory so the new file is packaged. Needs: `zip -r`. Risks: accidentally bundling unwanted files (e.g., `.DS_Store`).
 3. Verify structure and contents of both directory and zip. Needs: `tree`/`find` and `unzip -l`. Risks: forgetting to check zip after rebuild.
 
 ## Work Log
@@ -32,4 +32,4 @@ Add an `examples.md` file to the `kg-generator` skill bundle with default demo U
 Bundle rebuilds should start from a clean zip to avoid stale entries like `.DS_Store`.
 
 ## Files
-- kg-generator-examples-state.md — workflow state for adding examples to kg-generator.
+- `kg-generator-examples-state.md` — workflow state for adding examples to `kg-generator`.
