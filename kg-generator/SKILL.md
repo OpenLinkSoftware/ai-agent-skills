@@ -250,3 +250,43 @@ Always use **both** `schema:naics` and `schema:identifier` together on industry 
 - **JSON-LD**: `{descriptive-slug}-1.jsonld` (increment if file exists)
 - **Default save location**: `{output-directory}` — ask the user if not specified, or infer from context
 - Override if user specifies a path
+
+---
+
+## HTML Infographic Companion Requirements
+
+When the user asks for an HTML infographic companion to a generated Knowledge Graph, the HTML must include the following interaction and linked-data requirements:
+
+- Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Resolve these placeholders from explicit user instructions, current session preferences, or skill defaults; do not hard-code a personal filesystem path into the reusable skill guidance.
+- When no destination has been provided, ask for the output directories or use an already-established session default, then confirm the resolved full file paths.
+- Use the source document URL as the grounding namespace for entity IRIs. Do not use `file:` scheme IRIs for source-derived entities when a canonical HTTP/HTTPS URL is available.
+- Hyperlink visible entity mentions using `https://linkeddata.uriburner.com/describe/?uri={entity-iri}` where the entity IRI is the actual source-grounded entity identifier from the Knowledge Graph.
+- Encode `#` as `%23` in resolver `uri` parameter values. Do not double encode; `%2523` is invalid for these generated resolver links.
+- Visible entity links must open a new tab or view using `target="_blank" rel="noopener noreferrer"`.
+- Embed a JSON-LD structured-data island whose resolver-backed `@id` values match the visible HTML entity hyperlinks exactly when representing the same KG node.
+- Indicate the associated RDF document in HTML metadata using a relative POSH link, e.g. `<link rel="xhv:related related" href="../rdf/{rdf-file}" type="text/turtle">`, with `xhv` bound to `http://www.w3.org/1999/xhtml/vocab#`.
+- Also indicate the same associated RDF document in the embedded JSON-LD `WebPage` node using `schema:relatedLink` with the same relative href, e.g. `"relatedLink": "../rdf/{rdf-file}"`.
+- FAQ questions, FAQ answers, glossary terms, and HowTo steps must be hyperlinked to their KG entity IRIs through the same resolver pattern.
+- FAQ sections must use native `<details class="faq-item">` and `<summary>` accordions so the accordion effect is preserved.
+- Include a floating section navigation control in every HTML infographic. The control must be closed by default and expose a compact `Sections` restore button.
+- The section navigation control must be openable, closable, draggable, and resizable by pointer drag. Persist open/closed state, position, and size in `localStorage` using a page-specific key.
+- The section navigation must link to stable section IDs. If a section lacks an ID, derive one from its heading and keep it stable.
+- The section navigation styling must work in both light and dark mode; dark-mode overrides must not make light mode render as dark.
+- Include a page-level light/dark mode toggle control in every HTML infographic. The default theme should follow `prefers-color-scheme` only until the user makes an explicit choice.
+- Persist the user's theme choice in `localStorage`, apply it at document level with `html[data-theme="light"]` or `html[data-theme="dark"]`, and keep all component styling driven by CSS variables.
+- The theme toggle must not conflict spatially or visually with the floating section navigation control.
+
+---
+
+## Index Page Generation
+
+After saving generated files (RDF or companion HTML infographics) into a directory, **always offer** to generate or update `index.html`, `index.css`, and `index.js` for that directory. These provide a dynamic, searchable index with grid, timeline, and table views.
+
+**Generator**: `scripts/generate-corpus-index.js`
+**Templates**: `templates/corpus-index.css`, `templates/corpus-index.js`
+
+```
+node scripts/generate-corpus-index.js <target-directory>
+```
+
+The index page scans all `.html` files, extracts metadata, auto-derives themes, and renders filterable cards. All links are local `file://` references. Confirm the directory with the user before running.
