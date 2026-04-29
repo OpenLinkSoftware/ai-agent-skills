@@ -14,20 +14,35 @@ if (!dir) { console.error(USAGE); process.exit(1); }
 const absDir = path.resolve(dir);
 if (!fs.statSync(absDir).isDirectory()) { console.error('Not a directory: ' + absDir); process.exit(1); }
 
-// ── Scan ─────────────────────────────────────────────────────────────
-const files = fs.readdirSync(absDir).filter(f => /\.html?$/i.test(f) && f !== 'index.html');
-if (files.length === 0) { console.error('No .html files found in ' + absDir); process.exit(1); }
+// ── Scan (recursive, one level deep) ─────────────────────────────────
+function scanDir(dir, prefix) {
+  const results = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const e of entries) {
+    if (e.name.startsWith('.') || e.name === 'index.html') continue;
+    const full = path.join(dir, e.name);
+    const rel = prefix ? prefix + '/' + e.name : e.name;
+    if (e.isDirectory()) {
+      results.push(...scanDir(full, rel));
+    } else if (/\.html?$/i.test(e.name)) {
+      results.push({ fp: full, rel: rel });
+    }
+  }
+  return results;
+}
+
+const htmlFiles = scanDir(absDir, '');
+if (htmlFiles.length === 0) { console.error('No .html files found in ' + absDir); process.exit(1); }
 
 // ── Parse metadata from each HTML file ───────────────────────────────
 const entries = [];
-files.forEach(f => {
-  const fp = path.join(absDir, f);
+htmlFiles.forEach(({ fp, rel }) => {
   const raw = fs.readFileSync(fp, 'utf8');
   const meta = extractMeta(raw);
 
   entries.push({
-    file: f,
-    title: meta.title || f.replace(/\.html?$/, ''),
+    file: rel,
+    title: meta.title || path.basename(rel).replace(/\.html?$/, ''),
     desc: meta.description || '',
     date: meta.date || dateFromStat(fp),
     publisher: meta.publisher || '',
@@ -94,11 +109,11 @@ ${themeKeys.map(t => `.pill[data-t="${t}"].on { background: ${themeMap[t].color}
 
 <div class="hero">
   <div class="hero-inner">
-    <div class="eyebrow">LOcal Directory · File Index · ${entryCount(files.length)}</div>
+    <div class="eyebrow">LOcal Directory · File Index · ${entryCount(entries.length)}</div>
     <h1>${escapeHTML(dirName)}</h1>
-    <p>Auto-generated index of ${files.length} knowledge-graph HTML file${files.length !== 1 ? 's' : ''} in this directory</p>
+    <p>Auto-generated index of ${entries.length} knowledge-graph HTML file${entries.length !== 1 ? 's' : ''} in this directory</p>
     <div class="stats">
-      <div><div class="stat-num">${files.length}</div><div class="stat-lbl">Files</div></div>
+      <div><div class="stat-num">${entries.length}</div><div class="stat-lbl">Files</div></div>
       <div><div class="stat-num">${themeKeys.length}</div><div class="stat-lbl">Themes</div></div>
       <div><div class="stat-num">${dateSpan.split(' to ').length}</div><div class="stat-lbl">Timespan</div></div>
     </div>
@@ -142,7 +157,7 @@ document.getElementById('foot').innerHTML = 'Auto-generated index &nbsp;·&nbsp;
 const outPath = path.join(absDir, 'index.html');
 fs.writeFileSync(outPath, html, 'utf8');
 console.log('Written: ' + outPath);
-console.log('  ' + files.length + ' entries, ' + themeKeys.length + ' themes');
+console.log('  ' + entries.length + ' entries, ' + themeKeys.length + ' themes');
 
 // ── Helpers ──────────────────────────────────────────────────────────
 function extractMeta(raw) {
