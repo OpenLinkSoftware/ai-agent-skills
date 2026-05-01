@@ -4,12 +4,13 @@ Use this file only when you need execution routing guidance beyond the main skil
 
 ## Default Order
 
-1. Direct native execution such as `curl` to the target endpoint
-2. URIBurner REST functions
-3. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
-4. MCP via streamable HTTP or SSE
-5. Authenticated `chatPromptComplete`
-6. OPAL Agent routing via recognizable function names
+1. **Local RDF files** — scan configured directories (`~/Documents/LLMs/Claude Generated/rdf/`, `./rdf/`) and auto-discovered paths for `.jsonld`, `.ttl`, `.rdf`, `.nt` files. Extract candidates matching `Vector Candidate Types` and run vector similarity against the user prompt. If a match exceeds the `Vector Similarity Threshold` (0.75), offer it to the user before making any network call. If no local match or user declines, proceed to step 2.
+2. Direct native execution such as `curl` to the target endpoint
+3. URIBurner REST functions
+4. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
+5. MCP via streamable HTTP or SSE
+6. Authenticated `chatPromptComplete`
+7. OPAL Agent routing via recognizable function names
 
 ---
 
