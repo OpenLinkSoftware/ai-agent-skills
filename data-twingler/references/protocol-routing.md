@@ -4,7 +4,7 @@ Use this file only when you need execution routing guidance beyond the main skil
 
 ## Default Order
 
-1. **Local RDF files** — scan configured directories (`~/Documents/LLMs/Claude Generated/rdf/`, `./rdf/`) and auto-discovered paths for `.jsonld`, `.ttl`, `.rdf`, `.nt` files. Extract candidates matching `Vector Candidate Types` and run vector similarity against the user prompt. If a match exceeds the `Vector Similarity Threshold` (0.75), offer it to the user before making any network call. If no local match or user declines, proceed to step 2.
+1. **Local RDF files** — scan configured directories, auto-discovered paths, and user-specified overrides for `.jsonld`, `.ttl`, `.rdf`, `.nt` files. Extract candidates matching `Vector Candidate Types` and run vector similarity against the user prompt. If no RDF files found at all, ask the user for a directory path before falling back to the network. If a match exceeds the `Vector Similarity Threshold` (0.75), offer it to the user before making any network call. If no local match or user declines, proceed to step 2.
 2. Direct native execution such as `curl` to the target endpoint
 3. URIBurner REST functions
 4. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header

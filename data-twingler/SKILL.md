@@ -111,6 +111,10 @@ secondary layer.
    and `./rdf/`; add any that exist.
 3. **Prompt override** — if the user specifies a path in the prompt
    (e.g., "check `~/reports/rdf/`"), append it for this query only.
+4. **Ask the user** — if none of the above yield RDF files matching the
+   query, say "No local RDF found in the default paths. Do you have an
+   RDF directory I should check? (e.g., ~/Documents/LLMs/GPT5-Chat-Generated/rdf/)"
+   and accept any user-provided path for this query only.
 
 Merge all paths, deduplicate files by `filename + sha256(first 4KB)`.
 Files with extensions `.jsonld`, `.ttl`, `.rdf`, `.nt`, `.json` are
