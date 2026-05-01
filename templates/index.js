@@ -137,3 +137,140 @@ function escapeHTML(str) {
   div.textContent = str || '';
   return div.innerHTML;
 }
+
+/* ── Dynamic directory scanning ──────────────────────────────────── */
+
+function scanDirectory() {
+  return new Promise(function (resolve) {
+    // Try cached data first
+    try {
+      var cached = JSON.parse(localStorage.getItem('_idx_cache'));
+      if (cached && cached.ts && (Date.now() - cached.ts < 60000)) {
+        // Use cache if < 60s old and user hasn't triggered refresh
+        if (!sessionStorage.getItem('_idx_force')) {
+          resolve(cached.data);
+          return;
+        }
+      }
+    } catch(e) {}
+
+    sessionStorage.removeItem('_idx_force');
+
+    // Derive directory URL from the page's own location
+    var pageUrl = location.href;
+    var dirUrl = pageUrl.substring(0, pageUrl.lastIndexOf('/') + 1);
+
+    fetch(dirUrl)
+      .then(function(r) { return r.text(); })
+      .then(function(html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var rows = doc.querySelectorAll('table tr');
+        var entries = [];
+        var THEME_PALETTE = ['#6366F1','#F59E0B','#10B981','#EF4444','#8B5CF6','#06B6D4','#EC4899','#F97316','#14B8A6','#E11D48'];
+
+        rows.forEach(function(tr) {
+          var link = tr.querySelector('a');
+          if (!link) return;
+          var href = link.getAttribute('href') || '';
+          // Skip parent dir, hidden files, sort links
+          if (href === '../' || /^\?C=/.test(href)) return;
+          var name = decodeURIComponent(href.replace(/\/$/, ''));
+          if (!name || name.startsWith('._') || name === 'index.html') return;
+
+          var cells = tr.querySelectorAll('td');
+          var isDir = href.endsWith('/');
+          var sizeStr = cells[1] ? cells[1].textContent.trim() : '';
+          var dateStr = cells[2] ? cells[2].textContent.trim() : '';
+
+          // Derive title from filename
+          var title = name.replace(/\.html?$/i, '').replace(/[-_]/g, ' ');
+          // Capitalize words
+          title = title.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+
+          // Derive theme from first keyword-ish segment
+          var parts = name.toLowerCase().replace(/\.html?$/i, '').split(/[-_]/);
+          var theme = (parts[0] === 'about' && parts[1]) ? parts[1] : parts[0];
+
+          entries.push({
+            title: title,
+            publisher: '',
+            author: '',
+            date: dateStr ? new Date(dateStr).toISOString().split('T')[0] : '',
+            theme: theme,
+            desc: '',
+            tags: [],
+            file: name,
+            isDir: isDir
+          });
+        });
+
+        if (entries.length === 0) return;
+
+        // Sort: dirs first, then date desc
+        entries.sort(function(a, b) {
+          if (a.isDir && !b.isDir) return -1;
+          if (!a.isDir && b.isDir) return 1;
+          return String(b.date || '').localeCompare(String(a.date || ''));
+        });
+
+        // Build dynamic theme map
+        var themeMap = { all: { label: 'All', color: '#6366F1', count: entries.length }};
+        entries.forEach(function(e) {
+          var t = e.theme || 'general';
+          if (!themeMap[t]) themeMap[t] = { label: t.replace(/\b\w/g, function(c){return c.toUpperCase();}), color: THEME_PALETTE[Object.keys(themeMap).length % THEME_PALETTE.length], count: 0 };
+          themeMap[t].count++;
+        });
+
+        // Cache
+        try {
+          localStorage.setItem('_idx_cache', JSON.stringify({ ts: Date.now(), data: entries, themes: themeMap }));
+        } catch(e) {}
+
+        resolve({ entries: entries, themes: themeMap });
+      })
+      .catch(function() {
+        resolve(null); // fallback to static DATA
+      });
+  });
+}
+
+function applyDynamicData(result) {
+  if (!result) return;
+  DATA = result.entries;
+  THEMES = result.themes;
+
+  // Rebuild theme pills
+  var pillsContainer = document.querySelector('.pills');
+  if (pillsContainer) {
+    var html = '<button class="pill on" data-t="all" onclick="setTheme(\'all\',this)">All</button>';
+    Object.keys(THEMES).forEach(function(t) {
+      if (t === 'all') return;
+      html += '<button class="pill" data-t="' + t + '" onclick="setTheme(\'' + t + '\',this)">' + THEMES[t].label + ' (' + THEMES[t].count + ')</button>';
+    });
+    pillsContainer.innerHTML = html;
+  }
+
+  // Update stats
+  var dates = DATA.map(function(e) { return e.date; }).filter(Boolean).sort();
+  var statNum = document.querySelector('.stat-num');
+  var statLbls = document.querySelectorAll('.stat-lbl');
+  if (statNum) statNum.textContent = DATA.length;
+  if (statLbls.length > 1 && dates.length > 1) statLbls[1].parentNode.querySelector('.stat-num').textContent = dates.length > 1 ? (dates[0] + ' to ' + dates[dates.length-1]) : '—';
+
+  activeTheme = 'all';
+  render();
+}
+
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) {
+    sessionStorage.setItem('_idx_force', '1');
+    location.reload();
+  }
+});
+
+// Init: scan directory then render
+scanDirectory().then(applyDynamicData).then(function() {
+  // If scan failed, render static DATA
+  if (!DATA || DATA.length === 0) return;
+  render();
+});

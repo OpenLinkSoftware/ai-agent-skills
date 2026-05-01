@@ -70,8 +70,8 @@ const dateSpan = entries.length > 1
   : entries[0] ? entries[0].date : '—';
 
 // ── Templates ────────────────────────────────────────────────────────
-const cssSrc = path.join(__dirname, '..', 'templates', 'corpus-index.css');
-const jsSrc  = path.join(__dirname, '..', 'templates', 'corpus-index.js');
+const cssSrc = path.join(__dirname, '..', 'templates', 'index.css');
+const jsSrc  = path.join(__dirname, '..', 'templates', 'index.js');
 const cssOut = path.join(absDir, 'index.css');
 const jsOut  = path.join(absDir, 'index.js');
 fs.copyFileSync(cssSrc, cssOut);
