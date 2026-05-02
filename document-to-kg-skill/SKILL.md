@@ -186,10 +186,11 @@ If the user explicitly names a protocol, honor that preference.
 4. **Post-generation review is mandatory.** Step 3 cannot be skipped. All four sub-tasks must be executed before saving.
 5. **Never add unapproved content.** Additional Q&A, defined terms, howtos, and entity types must be presented for approval before being included in the output.
 6. **Never fabricate IRIs.** All IRIs must be derived from `{page_url}` as `@base`, from existing hyperlinks in the source document, or from confident external sources (DBpedia, Wikidata, Wikipedia). Do not invent IRIs.
-7. **Smart quotes must be replaced with single quotes.** Enforce this in Step 3 syntax check.
-8. **Inline double quotes in annotation values must become single quotes.** Enforce this in Step 3 syntax check.
-9. **Filename is derived from `{page_url}`.** Never use a generic or invented filename.
-10. **Scope is strictly document → RDF.** This skill does not interact with Virtuoso RDF Views, quad maps, or relational database tables.
+7. **External IRIs must be fully expanded.** DBpedia (`http://dbpedia.org/resource/...`), Wikidata (`http://www.wikidata.org/entity/...`), and Wikipedia (`https://en.wikipedia.org/wiki/...`) references must use their full IRI form — never CURIEs or prefixed names. Only schema.org terms may use the `schema:` prefix.
+8. **Smart quotes must be replaced with single quotes.** Enforce this in Step 3 syntax check.
+9. **Inline double quotes in annotation values must become single quotes.** Enforce this in Step 3 syntax check.
+10. **Filename is derived from `{page_url}`.** Never use a generic or invented filename.
+11. **Scope is strictly document → RDF.** This skill does not interact with Virtuoso RDF Views, quad maps, or relational database tables.
 
 ---
 

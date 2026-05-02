@@ -114,6 +114,7 @@ Following your initial response, perform the following tasks:
 - [ ] All subject/object IRIs are hash-based relative IRIs (except known authority entities)
 - [ ] At least 10 `schema:Question` + `schema:Answer` pairs present
 - [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
+- [ ] DBpedia/Wikidata/Wikipedia references use fully expanded IRIs (e.g., `http://dbpedia.org/resource/Artificial_intelligence`) — never CURIEs or prefixed names
 - [ ] All IRI-valued attributes use `@id` — no plain string literals for IRI-only properties
 - [ ] Inline double quotes within literals converted to single quotes
 - [ ] Smart/curly quotes replaced with straight single quotes
