@@ -116,7 +116,8 @@ Use the **canonical specification URL** from the standards body.
 | OWL 2 | `https://www.w3.org/TR/owl2-overview/` |
 | JSON-LD | `https://www.w3.org/TR/json-ld11/` |
 | Linked Data | `https://www.w3.org/DesignIssues/LinkedData.html` |
-| schema.org | `https://schema.org/` |
+| schema.org (namespace) | `http://schema.org/` (HTTP, not HTTPS) |
+| schema.org (docs) | `https://schema.org/` |
 
 ---
 
