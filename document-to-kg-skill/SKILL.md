@@ -107,12 +107,38 @@ Present the generated RDF as a code block.
 
 ## Step 3 — Post-generation Review (mandatory)
 
-Execute all four sub-tasks. Do not skip any. Do not proceed to Step 4 until all are resolved.
+Execute all five sub-tasks. Do not skip any. Do not proceed to Step 4 until all are resolved.
 
 1. **Syntax check** — identify and fix all syntax errors in the generated RDF. Report fixes made.
-2. **Additional Q&A / defined terms / howtos** — present a candidate list for user approval. Do not add to the output until explicitly approved.
-3. **Additional entity types** — present a candidate list for user approval. Do not add until explicitly approved.
-4. **Revised final output** — if any additions from sub-tasks 2 or 3 are approved, return the complete revised RDF incorporating originals plus all approved additions.
+2. **Compliance check** — verify the output against the Post-Generation Checklist below. Fix all violations before proceeding.
+3. **Additional Q&A / defined terms / howtos** — present a candidate list for user approval. Do not add to the output until explicitly approved.
+4. **Additional entity types** — present a candidate list for user approval. Do not add until explicitly approved.
+5. **Revised final output** — if any additions from sub-tasks 3 or 4 are approved, return the complete revised RDF incorporating originals plus all approved additions.
+
+### Post-Generation Checklist
+
+- [ ] `@base` set to `{page_url}`
+- [ ] `schema:` namespace uses `http://schema.org/` (HTTP, not HTTPS)
+- [ ] All subject/object IRIs are hash-based relative IRIs (except known authority entities)
+- [ ] FAQ questions wrapped in `schema:FAQPage` with `schema:mainEntity`
+- [ ] Glossary terms wrapped in `schema:DefinedTermSet` with `schema:hasDefinedTerm`
+- [ ] Main article has `schema:hasPart` linking FAQPage, DefinedTermSet, HowTo, and all entity group sections
+- [ ] At least 10 `schema:Question` + `schema:Answer` pairs present
+- [ ] No blank nodes for `schema:Answer` — every answer is a named entity
+- [ ] Inverse relationships explicit: every `schema:isPartOf` has corresponding `schema:hasPart`
+- [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
+- [ ] All DBpedia/Wikidata/Wikipedia IRIs fully expanded (not CURIEs)
+- [ ] No `file:` scheme IRIs anywhere
+- [ ] All IRI-valued attributes use `@id` — no plain string literals for IRI-only properties
+- [ ] Inline double quotes within literals converted to single quotes
+- [ ] Smart/curly quotes replaced with straight single quotes
+- [ ] `relatedLink` includes up to 20 relevant inline URLs
+- [ ] Language tags applied to annotation literals where applicable
+- [ ] No guessed media URLs (thumbnailUrl, contentUrl, embedUrl)
+- [ ] Images from source content described using `schema:image` with `schema:ImageObject` where distinct
+- [ ] Person IRIs derived from LinkedIn/X profile URLs where found; all platform identities linked via `owl:sameAs`
+- [ ] If ontology present: `schema:name` + `schema:description`, `schema:identifier`, all classes/properties have `rdfs:isDefinedBy :`
+- [ ] `prov:wasGeneratedBy` links article to a skill entity with `schema:name`, `schema:url` (GitHub), `schema:description`
 
 **→ NEXT: Step 4.**
 
@@ -130,6 +156,31 @@ Write the approved RDF to `{destination}`. Derive the filename from `{page_url}`
 | RDF/XML | `.rdf` |
 
 Confirm the full saved file path to the user. The session is complete.
+
+---
+
+## Optional HTML Infographic Companion
+
+When the user asks for an HTML infographic in addition to the RDF Knowledge Graph, apply these requirements:
+
+- Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Resolve these placeholders from explicit user instructions, current session preferences, or skill defaults; do not hard-code a personal filesystem path into the reusable skill guidance.
+- When no destination has been provided, ask for the output directories or use an already-established session default, then confirm the resolved full file paths.
+- Use `{page_url}` as the source-grounded namespace for generated entity IRIs. Do not use `file:` scheme IRIs when a canonical HTTP/HTTPS page URL exists.
+- Hyperlink visible entity mentions using `https://linkeddata.uriburner.com/describe/?uri={entity-iri}` where `{entity-iri}` is an actual entity identifier from the generated Knowledge Graph.
+- Encode `#` as `%23` in resolver `uri` parameter values. Do not double encode; `%2523` is invalid.
+- Entity links must open a new tab or view using `target="_blank" rel="noopener noreferrer"`.
+- Embed a JSON-LD structured-data island. Resolver-backed JSON-LD `@id` values must match the visible HTML entity hyperlinks exactly when they represent the same KG node.
+- Indicate the associated RDF document in HTML metadata using a relative POSH link, e.g. `<link rel="xhv:related related" href="../rdf/{rdf-file}" type="text/turtle">`, with `xhv` bound to `http://www.w3.org/1999/xhtml/vocab#`.
+- Also indicate the same associated RDF document in the embedded JSON-LD `WebPage` node using `schema:relatedLink` with the same relative href, e.g. `"relatedLink": "../rdf/{rdf-file}"`.
+- Hyperlink FAQ questions, FAQ answers, glossary terms, and HowTo steps to their KG entity IRIs through the same resolver pattern.
+- Render FAQs with native `<details class="faq-item">` and `<summary>` accordions.
+- Include a floating section navigation control in every HTML infographic. It must be closed by default, openable, closable, draggable, and resizable by pointer drag.
+- Persist the navigation control's open/closed state, position, and size in `localStorage` using a page-specific key.
+- Link the navigation control to stable section IDs. If sections lack IDs, derive stable IDs from their headings.
+- Ensure the control and page aesthetics work in both light and dark mode; dark-mode CSS must not make light mode render as dark.
+- Include a page-level light/dark mode toggle control in every HTML infographic. The default theme should follow `prefers-color-scheme` only until the user makes an explicit choice.
+- Persist the user's theme choice in `localStorage`, apply it at document level with `html[data-theme="light"]` or `html[data-theme="dark"]`, and keep all component styling driven by CSS variables.
+- The theme toggle must not conflict spatially or visually with the floating section navigation control.
 
 ---
 
@@ -161,10 +212,11 @@ If the user explicitly names a protocol, honor that preference.
 4. **Post-generation review is mandatory.** Step 3 cannot be skipped. All four sub-tasks must be executed before saving.
 5. **Never add unapproved content.** Additional Q&A, defined terms, howtos, and entity types must be presented for approval before being included in the output.
 6. **Never fabricate IRIs.** All IRIs must be derived from `{page_url}` as `@base`, from existing hyperlinks in the source document, or from confident external sources (DBpedia, Wikidata, Wikipedia). Do not invent IRIs.
-7. **Smart quotes must be replaced with single quotes.** Enforce this in Step 3 syntax check.
-8. **Inline double quotes in annotation values must become single quotes.** Enforce this in Step 3 syntax check.
-9. **Filename is derived from `{page_url}`.** Never use a generic or invented filename.
-10. **Scope is strictly document → RDF.** This skill does not interact with Virtuoso RDF Views, quad maps, or relational database tables.
+7. **External IRIs must be fully expanded.** DBpedia (`http://dbpedia.org/resource/...`), Wikidata (`http://www.wikidata.org/entity/...`), and Wikipedia (`https://en.wikipedia.org/wiki/...`) references must use their full IRI form — never CURIEs or prefixed names. Only schema.org terms may use the `schema:` prefix.
+8. **Smart quotes must be replaced with single quotes.** Enforce this in Step 3 syntax check.
+9. **Inline double quotes in annotation values must become single quotes.** Enforce this in Step 3 syntax check.
+10. **Filename is derived from `{page_url}`.** Never use a generic or invented filename.
+11. **Scope is strictly document → RDF.** This skill does not interact with Virtuoso RDF Views, quad maps, or relational database tables.
 
 ---
 
@@ -177,3 +229,18 @@ If the user explicitly names a protocol, honor that preference.
 | **Format confirmation** | Always confirm with user — never assume |
 | **Error reporting** | Name the step, the issue, and the fix applied |
 | **Response scope** | Strictly scoped to this 4-step document → RDF pipeline |
+
+---
+
+## Index Page Generation
+
+After saving generated files (RDF, JSON-LD, or companion HTML infographics) into a directory, **always offer** to generate or update `index.html`, `index.css`, and `index.js` for that directory. These provide a dynamic, searchable index with grid, timeline, and table views.
+
+**Generator**: `scripts/index.js`
+**Templates**: `templates/corpus-index.css`, `templates/corpus-index.js`
+
+```
+node scripts/index.js <target-directory>
+```
+
+The index page scans all `.html` files, extracts metadata (`<title>`, `<meta>`, JSON-LD), auto-derives themes from keywords, and renders filterable cards. All links are local `file://` references. Confirm the directory with the user before running.

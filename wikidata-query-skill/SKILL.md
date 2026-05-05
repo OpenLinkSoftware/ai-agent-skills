@@ -415,6 +415,23 @@ Always ask the user:
 
 ---
 
+---
+
+## Index Page Generation
+
+After saving HTML result pages into a directory, **always offer** to generate or update `index.html`, `index.css`, and `index.js` for that directory. These provide a dynamic, searchable index with grid, timeline, and table views.
+
+**Generator**: `scripts/index.js`
+**Templates**: `templates/corpus-index.css`, `templates/corpus-index.js`
+
+```
+node scripts/index.js <target-directory>
+```
+
+The index page scans all `.html` files, extracts metadata, auto-derives themes, and renders filterable cards. All links are local `file://` references. Confirm the directory with the user before running.
+
+---
+
 **Version**: 1.0.0
 **Endpoint**: https://query.wikidata.org/sparql
 **Data Source**: Wikidata (collaborative knowledge base)

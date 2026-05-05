@@ -1,0 +1,5 @@
+interface:
+  display_name: "CSV to RDF DET Generator"
+  short_description: "Generate CSV-to-RDF DAV ingestion DETs"
+  brand_color: "#1D4ED8"
+  default_prompt: "Use $csv-to-rdf-det-generator to scaffold or update a Virtuoso DAV DET that transforms CSV to RDF before loading the Quad Store."

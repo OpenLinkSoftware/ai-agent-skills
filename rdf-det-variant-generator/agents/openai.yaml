@@ -1,0 +1,5 @@
+interface:
+  display_name: "RDF DET Variant Generator"
+  short_description: "Generate RDF-importing DAV DET variants"
+  brand_color: "#0F766E"
+  default_prompt: "Use $rdf-det-variant-generator to scaffold or update a Virtuoso DAV DET variant that ingests supported RDF document types into the Quad Store."

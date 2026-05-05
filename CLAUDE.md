@@ -63,8 +63,8 @@ Skills specify a fallback hierarchy. If a user explicitly names a protocol (e.g.
 1. Create or edit the skill directory and its `SKILL.md`
 2. Update version metadata and CHANGELOG.md if applicable
 3. **Always repackage the ZIP after any change** — delete first, then recreate:
-   `rm <skill-name>.zip && zip -r <skill-name>.zip <skill-name>/`
-   Deleting first is required: `zip -r` on an existing archive updates entries but does not remove deleted files.
+   `rm <skill-name>.zip && zip -r <skill-name>.zip <skill-name>/ -x "*.DS_Store"`
+   Deleting first is required: `zip -r` on an existing archive updates entries but does not remove deleted files. Always exclude `.DS_Store` with `-x "*.DS_Store"`.
    - Note: the RSS feed generator bundle is named `rss-feed-generator-skill.zip` (not `rss-feed-generator.zip`)
 4. The root `README.md` intentionally stays minimal — detailed docs belong in each skill's `SKILL.md`
 

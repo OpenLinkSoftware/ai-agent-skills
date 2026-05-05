@@ -4,7 +4,7 @@ description: Execute SQL, SPARQL, SPASQL, SPARQL-FED, and GraphQL queries agains
 license: See LICENSE.txt
 ---
 
-# OpenLink Data Twingler (v2.0.83)
+# OpenLink Data Twingler (v2.0.86)
 
 Enhances LLM responses with RAG by routing user intent to the right query
 language and live endpoint. Covers SQL, SPARQL, SPASQL, SPARQL-FED, and
@@ -20,12 +20,20 @@ GraphQL — all driven by natural language, no imperative programming required.
 | SPARQL Result Format | `text/x-html+tr` |
 | SPARQL / SQL Timeout | 30 seconds |
 | SPARQL Max Results | 20 (unless overridden) |
+| Graph IRI Discovery LIMIT | 50 |
 | GraphQL Default Endpoint | `https://linkeddata.uriburner.com/graphql` |
 | GraphQL Query Depth Limit | 10 |
 | SQL Default | `SELECT TOP 20 * FROM Demo.Demo.Customers` |
 | Cache TTL | 3600 seconds |
 | Parallel Execution | Enabled |
 | Tabulate All Results | Yes (all query types) |
+| Semantic Variant Retries | 3 |
+| Fallback Endpoints | `https://kingsley.idehen.net/sparql`, `https://demo.openlinksw.com/sparql` |
+| Local RDF Directories | `~/Documents/LLMs/Claude Generated/rdf/`, `./rdf/` |
+| Auto-Discover Local RDF | Enabled — scans `~/.claude/skills/*/rdf/`, `./rdf/` at startup |
+| Vector Similarity Threshold (Local) | 0.75 |
+| Vector Candidate Types | `schema:Question`, `schema:DefinedTerm`, `schema:HowTo`, `schema:HowToStep`, `skos:Concept` |
+| Server-Side Vector Similarity Threshold | 0.5 |
 
 ---
 
@@ -89,14 +97,94 @@ seems faster.
 | 7 | "Define the term {X}" | T7 — DefinedTerm (2-step) |
 | 8 | "What is {X}?" / "Can you explain what {X} is?" / "Tell me about {X}" | T8 — Direct Entity Description (1-step) |
 
-### Graph IRI Discovery & Template Enforcement (T5, T6, T7, T8)
+### Step 0 — Local Vector Search (Local-First, Pre-Graph Discovery)
+
+**Every** T5, T6, T7, and T8 query MUST execute a local vector search
+**before** any endpoint call. This inverts the workflow: local RDF files
+are the primary data space; URIBurner and fallback endpoints are the
+secondary layer.
+
+#### Folder Resolution
+
+1. **Configured directories** — the `Local RDF Directories` setting.
+2. **Auto-discovered** — at skill load, scan `~/.claude/skills/*/rdf/`
+   and `./rdf/`; add any that exist.
+3. **Prompt override** — if the user specifies a path in the prompt
+   (e.g., "check `~/reports/rdf/`"), append it for this query only.
+4. **Ask the user** — if none of the above yield RDF files matching the
+   query, say "No local RDF found in the default paths. Do you have an
+   RDF directory I should check? (e.g., ~/Documents/LLMs/GPT5-Chat-Generated/rdf/)"
+   and accept any user-provided path for this query only.
+
+Merge all paths, deduplicate files by `filename + sha256(first 4KB)`.
+Files with extensions `.jsonld`, `.ttl`, `.rdf`, `.nt`, `.json` are
+scanned; all others are skipped.
+
+#### Candidate Extraction
+
+For each file, parse the RDF and extract candidates whose `@type`
+matches the configured `Vector Candidate Types`:
+
+- `schema:Question` → `schema:name` (or `schema:text` fallback)
+- `schema:DefinedTerm` → `schema:name`
+- `schema:HowTo` → `schema:name`
+- `schema:HowToStep` → `schema:name`
+- `skos:Concept` → `skos:prefLabel` (or `rdfs:label` fallback)
+
+Each candidate carries:
+- `text` — the string to embed
+- `entityIRI` — the `@id` of the candidate (resolved against the file's `@base`)
+- `sourceFile` — path to the local file
+- `answerIRI` — for Questions, the `schema:acceptedAnswer` → `@id`
+- `answerText` — for Questions, the `schema:acceptedAnswer` → `schema:text`
+
+#### Similarity Matching
+
+1. Embed the user's prompt and every candidate `text` string.
+2. Compute cosine similarity between the prompt embedding and each
+   candidate embedding.
+3. Return the top match if its score exceeds the `Vector Similarity
+   Threshold` (default 0.75).
+
+#### Match → Workflow Shortcut
+
+When a local match is found:
+
+1. **Report the match** to the user as a checkpoint:
+   - Candidate text and score
+   - Source file and entity IRI
+   - For Questions: the answer text directly
+   - Ask: "Proceed with this answer?"
+
+2. **If user confirms** → present the answer. Skip Graph IRI
+   Discovery, index query, and the full endpoint pipeline.
+
+3. **If user declines** → proceed to Step 1 (Graph IRI Discovery)
+   as normal.
+
+When no local match exceeds the threshold, proceed to Step 1
+unchanged — the endpoint pipeline remains intact as the fallback.
+
+#### Prompt Override Examples
+
+- `"Check ~/reports/rdf/ — why did Microsoft's stock fall?"`
+- `"Using local KGs in ./rdf/ and ~/Downloads/dumps/, define the term retention cohort"`
+
+### Graph IRI Discovery — KG-Hybrid Modality (T5, T6, T7, T8)
+
+Graph IRI Discovery operates in a **KG-hybrid modality**: two parallel
+search strategies against the same endpoint, same graphs. Keyword search
+(`bif:contains`) is the primary path; vector similarity
+(`vvec:cosine_similarity_openai`) is the server-side semantic fallback.
+Both run on the endpoint; neither requires local computation.
 
 These templates require a mandatory four-step sequence. **Steps may not be
 combined, pre-empted, or skipped under any circumstances:**
 
-1. **Graph IRI Discovery** — Determine the relevant named graph(s) by executing
-   a full-text search across the data space. Substitute `({prompt})` with the
-   user's search terms:
+1. **Graph IRI Discovery — Keyword Modality** — Determine the relevant
+   named graph(s) by executing a full-text keyword search across the data
+   space. Substitute `({prompt})` with the user's search terms (key nouns
+   joined with `AND`):
 
    ```sparql
    SELECT
@@ -118,20 +206,117 @@ combined, pre-empted, or skipped under any circumstances:**
      }
    }
    ORDER BY DESC (?sc + 1e-6 * sql:rnk_scale(<LONG::IRI_RANK>(?s1)))
-   LIMIT 3
+   LIMIT 50
    ```
 
    Report the discovered graph IRI(s) (`?g`) to the user. Bind these IRI(s)
    to `{G}`, `{G1}`, `{G2}`, `{G3}` for use in the index and final queries.
    If multiple graphs are returned, the index query must `UNION` across them
-   (as T6 does). If zero graphs are returned, report that and proceed to
-   fallback.
+   (as T6 does). If zero graphs are returned, proceed to the **Vector
+   Modality** below.
 
    **Entity-level insight:** Examine the `?s1` and `?o1` values returned. If
    `?o1` is a `schema:description` or `schema:text` literal attached to a
    non-article entity (e.g., `schema:Product`, `schema:SoftwareApplication`,
    `schema:HowTo`), treat `?s1` as a **direct answer candidate** — proceed
    to describe it in the final step.
+
+2. **Graph IRI Discovery — Vector Modality** (when Keyword Modality returns
+   zero results). Execute a server-side cosine similarity query using
+   `sql:vvec_cosine_similarity_openai()`. This requires entities to be
+   annotated with `vvec:hasEmbedding 'true'^^xsd:boolean` on the endpoint:
+
+   ```sparql
+   PREFIX vvec: <http://www.openlinksw.com/ontology/vvec#>
+
+   SELECT ?similarity ?term ?type ?termName
+   WHERE {
+     ?term a ?type ;
+       schema:name | rdfs:label | schema:title ?termName ;
+       vvec:hasEmbedding 'true'^^xsd:boolean .
+     BIND('{user prompt}' AS ?userInput)
+     BIND(sql:vvec_cosine_similarity_openai(?term, ?userInput) AS ?similarity)
+   }
+   GROUP BY ?similarity ?term
+   HAVING (?similarity > {Server-Side Vector Similarity Threshold})
+   ORDER BY DESC(?similarity)
+   ```
+
+   **On match:** Follow the type-specific retrieval query for the matched
+   `?type` to extract the answer:
+
+   - **`schema:Question`** → retrieve `schema:acceptedAnswer` → `schema:text`:
+
+     ```sparql
+     SELECT ?question ?answer ?text
+     WHERE {
+       ?question a schema:Question ;
+         schema:acceptedAnswer ?answer .
+       ?answer schema:text | schema:answerText ?text .
+       FILTER (?question IN (<{matched-IRI}>))
+     }
+     ```
+
+   - **`skos:Concept`** → retrieve `skos:definition` or `schema:description`:
+
+     ```sparql
+     SELECT ?term ?definition
+     WHERE {
+       ?term a skos:Concept ;
+         skos:definition | schema:description ?definition .
+       FILTER (?term IN (<{matched-IRI}>))
+     }
+     ```
+
+   - **`schema:HowTo`** → retrieve steps ordered by `schema:position`:
+
+     ```sparql
+     SELECT ?guide ?step ?text ?position
+     WHERE {
+       ?guide a schema:HowTo ;
+         schema:step ?step .
+       ?step schema:name ?text ;
+         schema:position ?position .
+       FILTER (?guide IN (<{matched-IRI}>))
+     }
+     ORDER BY ASC(?position)
+     ```
+
+   Report the matched entity, its type, similarity score, and the extracted
+   answer to the user as a checkpoint. If the vector modality also returns
+   zero results, proceed to the **Semantic Variant Fallback** below.
+
+   **Semantic Variant Fallback (when both KG-Hybrid modalities return zero results):**
+
+   When both the Keyword Modality and Vector Modality return zero results,
+   do not immediately escalate to endpoint fallback. Instead, decompose the
+   prompt and retry with semantically equivalent phrasings:
+
+   1. **Semantic Decomposition** — Break the user's prompt into its subject,
+      predicate, and object components. Identify the core intent (e.g., "looking
+      for a question about X", "seeking a definition of Y", "asking how to Z").
+      Determine the relevant entity types (`schema:Question`, `schema:DefinedTerm`,
+      `schema:HowTo`, `skos:Concept`) that would satisfy this intent.
+
+   2. **Variant Generation** — Produce up to 3 semantically equivalent prompt
+      variants. These are not mere keyword substitutions — they rephrase the
+      intent while preserving the original meaning. For example:
+      - "Why did Microsoft's stock fall despite record earnings?" →
+        "Microsoft shares dropped after earnings report" →
+        "Microsoft stock decline following record revenue"
+
+   3. **Variant Retry** — Execute Graph IRI Discovery with each variant in
+      sequence, using the same `bif:contains` query template. Stop on the first
+      variant that returns results. Report which variant succeeded.
+
+   4. **Fallback Endpoints** — If all semantic variants return zero results,
+      retry the original prompt against the fallback endpoints in order:
+      `https://kingsley.idehen.net/sparql`, then `https://demo.openlinksw.com/sparql`.
+
+   5. **Final Report** — If all attempts (original + variants + fallback
+      endpoints) return zero results, report the executed queries, endpoints
+      attempted, and ask the user whether to synthesize an answer without KG
+      backing or continue probing with additional variants.
 
 2. **Index query** — Execute the template's index query, scoped to the
    discovered graph IRI(s) from step 1. Report the full index results to the
@@ -221,10 +406,41 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 
 ## Fallback Strategies
 
-1. Retry without `@en` language tags on `?name`.
-2. Prompt for missing values: `{G}`, `{Article Title}`, `?authorName`, etc.
-3. Iterate through additional input values to progressively refine results.
-4. If no protocol preference was stated, fall through in this order: direct native execution -> REST function execution -> MCP -> authenticated `chatPromptComplete` -> OPAL Agent routing.
+The local-first workflow inverts the traditional order:
+
+The local-first + KG-hybrid workflow:
+
+```
+Step 0 (Local Vector Search) → Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Variants → Fallback Endpoints → Final Report
+```
+
+1. **Local Vector Search** (Step 0) — Executes first, before any endpoint call.
+   Scans configured and auto-discovered RDF directories, extracts candidate
+   entities, embeds the user's prompt, and returns the top cosine-similarity
+   match above the configured threshold. On match → checkpoint with user; on
+   decline or no-match → proceed to Step 1.
+
+2. **Semantic Variant Retry** — When Graph IRI Discovery returns zero results,
+   decompose the prompt into subject/predicate/object components, generate up to
+   3 semantically equivalent phrasing variants, and retry keyword search with
+   each variant before escalating to endpoint fallback.
+
+3. **Fallback Endpoints** — Retry against `https://kingsley.idehen.net/sparql`,
+   then `https://demo.openlinksw.com/sparql`, in order.
+
+4. Retry without `@en` language tags on `?name`.
+
+5. Prompt for missing values: `{G}`, `{Article Title}`, `?authorName`, etc.
+
+6. Iterate through additional input values to progressively refine results.
+
+7. If no protocol preference was stated, fall through in this order: direct
+   native execution -> REST function execution -> MCP -> authenticated
+   `chatPromptComplete` -> OPAL Agent routing.
+
+8. **Final Report** — If all attempts fail, report executed queries, endpoints
+   attempted, local directories scanned, and ask the user whether to synthesize
+   without KG backing or continue probing.
 
 ---
 
@@ -240,10 +456,17 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 
 ## Rules (Non-Negotiable)
 
-1. Use predefined templates **before any query execution** — direct queries,
+1. **Local-first rule** — Step 0 (Local Vector Search) MUST execute before any
+   endpoint call for T5, T6, T7, and T8 templates. Scan the configured and
+   auto-discovered RDF directories, embed the user's prompt against extracted
+   candidates, and present any match above the similarity threshold as a
+   checkpoint before proceeding to endpoint queries. Do not skip local search
+   because an endpoint "should" have the answer or because a KG was recently
+   generated — the local file is the source of truth.
+2. Use predefined templates **before any query execution** — direct queries,
    ad-hoc SPARQL/SPASQL/SQL, and general LLM knowledge all come after template
    matching is attempted and either succeeds or is honestly exhausted.
-2. For templates T5, T6, T7: Graph IRI Discovery (step 1) MUST execute and its
+3. For templates T5, T6, T7: Graph IRI Discovery (step 1) MUST execute and its
    results MUST be reported before the index query (step 2) runs.
 3. For templates T5, T6, T7: the index query MUST execute and its results MUST
    be reported before the final query runs. Never skip or pre-empt the graph
@@ -259,9 +482,17 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
    a non-article entity, pivot to T8 (Direct Entity Description) immediately.
    Do not continue retrying a failed template. Do not skip to ad-hoc queries
    without exhausting the T8 path first.
-7. Optimize every query for performance and accuracy.
-8. Validate setting changes with test queries where possible.
-9. Handle errors gracefully with detailed, actionable feedback.
-10. Leverage caching (TTL 3600s) and parallel execution.
-11. Tabulate all query results by default.
-12. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
+7. **Semantic variant retry rule** — When Graph IRI Discovery returns zero
+   results, decompose the prompt and retry with up to 3 semantically equivalent
+   phrasings before escalating to fallback endpoints. Do not treat empty keyword
+   results as definitive without first exhausting semantic variants.
+8. **Fallback endpoint order** — Retry failed queries against
+   `https://kingsley.idehen.net/sparql`, then `https://demo.openlinksw.com/sparql`,
+   in that order. Finding a result on a fallback endpoint does not change the
+   default endpoint for subsequent prompts.
+9. Optimize every query for performance and accuracy.
+10. Validate setting changes with test queries where possible.
+11. Handle errors gracefully with detailed, actionable feedback.
+12. Leverage caching (TTL 3600s) and parallel execution.
+13. Tabulate all query results by default.
+14. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
