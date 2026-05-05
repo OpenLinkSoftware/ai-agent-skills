@@ -107,12 +107,38 @@ Present the generated RDF as a code block.
 
 ## Step 3 — Post-generation Review (mandatory)
 
-Execute all four sub-tasks. Do not skip any. Do not proceed to Step 4 until all are resolved.
+Execute all five sub-tasks. Do not skip any. Do not proceed to Step 4 until all are resolved.
 
 1. **Syntax check** — identify and fix all syntax errors in the generated RDF. Report fixes made.
-2. **Additional Q&A / defined terms / howtos** — present a candidate list for user approval. Do not add to the output until explicitly approved.
-3. **Additional entity types** — present a candidate list for user approval. Do not add until explicitly approved.
-4. **Revised final output** — if any additions from sub-tasks 2 or 3 are approved, return the complete revised RDF incorporating originals plus all approved additions.
+2. **Compliance check** — verify the output against the Post-Generation Checklist below. Fix all violations before proceeding.
+3. **Additional Q&A / defined terms / howtos** — present a candidate list for user approval. Do not add to the output until explicitly approved.
+4. **Additional entity types** — present a candidate list for user approval. Do not add until explicitly approved.
+5. **Revised final output** — if any additions from sub-tasks 3 or 4 are approved, return the complete revised RDF incorporating originals plus all approved additions.
+
+### Post-Generation Checklist
+
+- [ ] `@base` set to `{page_url}`
+- [ ] `schema:` namespace uses `http://schema.org/` (HTTP, not HTTPS)
+- [ ] All subject/object IRIs are hash-based relative IRIs (except known authority entities)
+- [ ] FAQ questions wrapped in `schema:FAQPage` with `schema:mainEntity`
+- [ ] Glossary terms wrapped in `schema:DefinedTermSet` with `schema:hasDefinedTerm`
+- [ ] Main article has `schema:hasPart` linking FAQPage, DefinedTermSet, HowTo, and all entity group sections
+- [ ] At least 10 `schema:Question` + `schema:Answer` pairs present
+- [ ] No blank nodes for `schema:Answer` — every answer is a named entity
+- [ ] Inverse relationships explicit: every `schema:isPartOf` has corresponding `schema:hasPart`
+- [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
+- [ ] All DBpedia/Wikidata/Wikipedia IRIs fully expanded (not CURIEs)
+- [ ] No `file:` scheme IRIs anywhere
+- [ ] All IRI-valued attributes use `@id` — no plain string literals for IRI-only properties
+- [ ] Inline double quotes within literals converted to single quotes
+- [ ] Smart/curly quotes replaced with straight single quotes
+- [ ] `relatedLink` includes up to 20 relevant inline URLs
+- [ ] Language tags applied to annotation literals where applicable
+- [ ] No guessed media URLs (thumbnailUrl, contentUrl, embedUrl)
+- [ ] Images from source content described using `schema:image` with `schema:ImageObject` where distinct
+- [ ] Person IRIs derived from LinkedIn/X profile URLs where found; all platform identities linked via `owl:sameAs`
+- [ ] If ontology present: `schema:name` + `schema:description`, `schema:identifier`, all classes/properties have `rdfs:isDefinedBy :`
+- [ ] `prov:wasGeneratedBy` links article to a skill entity with `schema:name`, `schema:url` (GitHub), `schema:description`
 
 **→ NEXT: Step 4.**
 
