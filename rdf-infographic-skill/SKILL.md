@@ -428,9 +428,9 @@ Use relative paths. Support `.jsonld`, `.ttl`, `.rdf`, and `.nt` extensions depe
 
 **Embedded JSON-LD:**
 ```json
-"relatedLink": "filename.jsonld"
+"relatedLink": {"@id": "filename.jsonld"}
 ```
-Include `schema:relatedLink` in the JSON-LD structured-data island inside the HTML. Value must be a relative path.
+Include `schema:relatedLink` in the JSON-LD structured-data island inside the HTML. Value must be a relative path expressed as an IRI using `@id` — not a plain string literal.
 
 Both links must be relative — never use `file://` or absolute paths — so the relationship holds when the directory is moved or shared.
 
@@ -516,7 +516,8 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] JavaScript syntax is valid (no missing brackets, undefined references, or silent failures in the nav IIFE).
 - [ ] Associated RDF document parses without errors and passes the `validate-kg-compliance.sh` audit.
 - [ ] Every resolver entity hyperlink in the HTML resolves to a valid `describe/?uri=` URL (no double-encoding: `%2523` is invalid; `#` must encode to `%23` exactly once).
-- [ ] The local RDF link (`rel="xhv:related related"`) uses a relative path and the target file exists.
+- [ ] FAQ questions, FAQ answers, glossary terms, and HowTo section + steps are ALL hyperlinked to their KG entity IRIs via the resolver pattern.
+- [ ] The local RDF link (`rel="related"`) uses a relative path and the target file exists.
 - [ ] Navigation panel: drag works, resize works, collapse/expand toggles correctly, localStorage read/write does not throw, stale values are recovered from gracefully.
 - [ ] Skills attribution line present in footer with correct GitHub URL(s).
 - [ ] Dark mode: both `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` produce equivalent rendering; no hardcoded colors outside CSS variables.
