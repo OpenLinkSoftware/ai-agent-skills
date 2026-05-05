@@ -75,7 +75,9 @@ CRITICAL — Before presenting the final output, you MUST perform a compliance s
 9. No blank nodes used for schema:Answer — every answer is a named entity (:a1, :a2, ...)
 10. Inverse relationships are explicit: for every schema:isPartOf there is a corresponding schema:hasPart
 11. If ontology present: schema:name + schema:description, schema:identifier, all classes/properties have rdfs:isDefinedBy :
-Report: "COMPLIANCE SELF-AUDIT: X/11 passed. [list any FAIL items with the specific fix applied]. Final output follows."```
+Report: "COMPLIANCE SELF-AUDIT: X/11 passed. [list any FAIL items with the specific fix applied]. Final output follows."
+
+GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a corresponding check in this audit. No rule without verification — unchecked rules are aspirational, not enforceable.```
 
 ---
 
