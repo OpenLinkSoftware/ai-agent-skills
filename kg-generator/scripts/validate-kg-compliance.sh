@@ -144,7 +144,29 @@ if [ "$FORMAT" = "--turtle" ]; then
     fi
   fi
 
-  # 12. Fully expanded DBpedia/Wikidata IRIs (not CURIEs)
+  # 12. Undeclared prefixes — every CURIE used must have a @prefix declaration
+  DECLARED=$(echo "$CONTENT" | sed -n 's/.*@prefix[[:space:]]*\([a-zA-Z0-9_-]*\):.*/\1/p' | sort -u)
+  USED=$(echo "$CONTENT" | grep -oE '\b[a-zA-Z][a-zA-Z0-9_-]*:[a-zA-Z]' | sed 's/:.*//' | sort -u)
+  UNDECLARED=""
+  for p in $USED; do
+    case "$p" in a|xsd|rdf|rdfs|owl|skos|schema|dct|foaf|prov|org|dcterms|dc) continue ;; esac  # well-known, check below
+    if ! echo "$DECLARED" | grep -qx "$p"; then
+      UNDECLARED="$UNDECLARED $p"
+    fi
+  done
+  # Also check common prefixes that SHOULD be declared explicitly
+  for p in rdf rdfs owl xsd skos schema dct foaf prov org; do
+    if echo "$USED" | grep -qx "$p" && ! echo "$DECLARED" | grep -qx "$p"; then
+      UNDECLARED="$UNDECLARED $p"
+    fi
+  done
+  if [ -n "$UNDECLARED" ]; then
+    fail "Undeclared prefix(es):$UNDECLARED — add @prefix declaration(s)" "Add: @prefix {prefix}: <{namespace}> . for each"
+  else
+    pass "All CURIE prefixes have @prefix declarations"
+  fi
+
+  # 13. Fully expanded DBpedia/Wikidata IRIs (not CURIEs)
   if echo "$CONTENT" | grep -qE 'dbo:|dbp:|dbr:|wd:|wdt:'; then
     CURIEs=$(echo "$CONTENT" | grep -nE 'dbo:|dbp:|dbr:|wd:|wdt:' | head -5)
     fail "Prefixed DBpedia/Wikidata CURIEs found (must be fully expanded)" "$CURIEs"
