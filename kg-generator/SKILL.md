@@ -124,7 +124,7 @@ CRITICAL — Before presenting the final output, you MUST perform a compliance s
 1. schema: namespace uses http://schema.org/ (not https://schema.org/)
 2. FAQ questions are wrapped in a schema:FAQPage linked via schema:mainEntity
 3. Glossary terms are wrapped in a schema:DefinedTermSet linked via schema:hasDefinedTerm
-4. The main article has schema:hasPart linking to FAQPage, DefinedTermSet, HowTo, and all entity group sections (use cases, technologies, etc.)
+4. The main article has schema:hasPart linking to FAQPage, DefinedTermSet, HowTo, the ontology (:), and all entity group sections (use cases, technologies, etc.)
 5. All DBpedia/Wikidata/Wikipedia IRIs are fully expanded (not CURIEs)
 6. No file: scheme IRIs exist anywhere in the output
 7. owl:sameAs is used for DBpedia cross-references (never schema:sameAs)
@@ -144,7 +144,7 @@ GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a 
 - [ ] All subject/object IRIs are hash-based relative IRIs (except known authority entities)
 - [ ] FAQ questions wrapped in `schema:FAQPage` with `schema:mainEntity`
 - [ ] Glossary terms wrapped in `schema:DefinedTermSet` with `schema:hasDefinedTerm`
-- [ ] Main article has `schema:hasPart` linking FAQPage, DefinedTermSet, HowTo, and all entity group sections
+- [ ] Main article has `schema:hasPart` linking FAQPage, DefinedTermSet, HowTo, the ontology (:), and all entity group sections
 - [ ] At least 10 `schema:Question` + `schema:Answer` pairs present
 - [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
 - [ ] All DBpedia/Wikidata/Wikipedia IRIs fully expanded (not CURIEs)
