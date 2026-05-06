@@ -97,6 +97,29 @@ seems faster.
 | 7 | "Define the term {X}" | T7 — DefinedTerm (2-step) |
 | 8 | "What is {X}?" / "Can you explain what {X} is?" / "Tell me about {X}" | T8 — Direct Entity Description (1-step) |
 
+### T5 Structured HowTo Preflight
+
+For any prompt phrased as "How to...", "How do I...", "How can I...", or
+otherwise asking for steps, workflow, playbook, procedure, or checklist, run
+direct `schema:HowTo` discovery before broad keyword/entity discovery or T8
+entity-description inference.
+
+This preflight applies after Step 0 local vector search and before Graph IRI
+Discovery. Enumerate `schema:HowTo` candidates directly from local RDF files
+and then from endpoint graphs, matching against:
+
+- `schema:HowTo` IRI
+- `schema:name`
+- `schema:description`
+- article/source IRI and title when available
+- named-entity spelling variants from the prompt (for example, `Akash` and
+  `Aakash`)
+
+When a candidate `schema:HowTo` is found, retrieve its ordered
+`schema:step` / `schema:HowToStep` list immediately and report the HowTo entity
+as the source. Do not conclude that no HowTo exists until this structured
+enumeration has been attempted.
+
 ### Step 0 — Local Vector Search (Local-First, Pre-Graph Discovery)
 
 **Every** T5, T6, T7, and T8 query MUST execute a local vector search
@@ -466,33 +489,39 @@ Step 0 (Local Vector Search) → Step 1a (bif:contains Keyword) → Step 1b (vve
 2. Use predefined templates **before any query execution** — direct queries,
    ad-hoc SPARQL/SPASQL/SQL, and general LLM knowledge all come after template
    matching is attempted and either succeeds or is honestly exhausted.
-3. For templates T5, T6, T7: Graph IRI Discovery (step 1) MUST execute and its
+3. **Structured HowTo discovery rule** — For T5 prompts and step/workflow
+   requests, enumerate `schema:HowTo` candidates directly before broad keyword
+   discovery, entity-description shortcuts, or semantic inference from adjacent
+   graphs. Include spelling variants and named-entity variants from the prompt,
+   then retrieve ordered `schema:step` / `schema:HowToStep` details for any
+   candidate found.
+4. For templates T5, T6, T7: Graph IRI Discovery (step 1) MUST execute and its
    results MUST be reported before the index query (step 2) runs.
-3. For templates T5, T6, T7: the index query MUST execute and its results MUST
+5. For templates T5, T6, T7: the index query MUST execute and its results MUST
    be reported before the final query runs. Never skip or pre-empt the graph
    discovery or index step, even if results are expected to be empty.
-4. Never execute a final query without first completing and reporting the graph
+6. Never execute a final query without first completing and reporting the graph
    discovery and index steps, and receiving user confirmation of the target
    entity or term.
-5. A "no match" requires that no trigger phrase maps to the user's intent after
+7. A "no match" requires that no trigger phrase maps to the user's intent after
    honest assessment. Assumed empty results or a desire for a shorter path are
    not valid grounds for declaring no match.
-6. **Abort and pivot rule** — When an index query fails after both fallback
+8. **Abort and pivot rule** — When an index query fails after both fallback
    attempts (T6) or when Graph IRI Discovery returns a description literal on
    a non-article entity, pivot to T8 (Direct Entity Description) immediately.
    Do not continue retrying a failed template. Do not skip to ad-hoc queries
    without exhausting the T8 path first.
-7. **Semantic variant retry rule** — When Graph IRI Discovery returns zero
+9. **Semantic variant retry rule** — When Graph IRI Discovery returns zero
    results, decompose the prompt and retry with up to 3 semantically equivalent
    phrasings before escalating to fallback endpoints. Do not treat empty keyword
    results as definitive without first exhausting semantic variants.
-8. **Fallback endpoint order** — Retry failed queries against
+10. **Fallback endpoint order** — Retry failed queries against
    `https://kingsley.idehen.net/sparql`, then `https://demo.openlinksw.com/sparql`,
    in that order. Finding a result on a fallback endpoint does not change the
    default endpoint for subsequent prompts.
-9. Optimize every query for performance and accuracy.
-10. Validate setting changes with test queries where possible.
-11. Handle errors gracefully with detailed, actionable feedback.
-12. Leverage caching (TTL 3600s) and parallel execution.
-13. Tabulate all query results by default.
-14. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
+11. Optimize every query for performance and accuracy.
+12. Validate setting changes with test queries where possible.
+13. Handle errors gracefully with detailed, actionable feedback.
+14. Leverage caching (TTL 3600s) and parallel execution.
+15. Tabulate all query results by default.
+16. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
