@@ -82,6 +82,64 @@ WHERE {
 
 **Trigger:** "How to {User Input}"
 
+### Step 0.5 — Structured HowTo preflight (before broad discovery)
+
+For T5 prompts, first enumerate `schema:HowTo` nodes directly. Match against
+the HowTo IRI, name, description, and any known source/article text. Include
+named-entity spelling variants from the prompt (for example, `Akash` and
+`Aakash`) in `{term1}`, `{term2}`, etc.
+
+```sparql
+SPARQL
+SELECT DISTINCT ?howto ?name ?description ?article ?articleTitle ?g
+WHERE {
+  GRAPH ?g {
+    ?howto a schema:HowTo.
+    OPTIONAL { ?howto schema:name ?name }
+    OPTIONAL { ?howto schema:description ?description }
+    OPTIONAL {
+      ?howto schema:isPartOf|^schema:hasPart ?article.
+      OPTIONAL {
+        ?article (schema:name | schema:headline | schema:title | rdfs:label) ?articleTitle.
+      }
+    }
+    BIND(LCASE(CONCAT(
+      STR(?howto), " ",
+      COALESCE(STR(?name), ""), " ",
+      COALESCE(STR(?description), ""), " ",
+      COALESCE(STR(?article), ""), " ",
+      COALESCE(STR(?articleTitle), "")
+    )) AS ?searchText)
+    FILTER (
+      CONTAINS(?searchText, "{term1}") ||
+      CONTAINS(?searchText, "{term2}") ||
+      CONTAINS(?searchText, "{term3}")
+    )
+  }
+}
+LIMIT 80
+```
+
+When this preflight finds a HowTo, retrieve its ordered steps before using
+broad keyword/entity discovery:
+
+```sparql
+SPARQL
+SELECT DISTINCT ?step ?position ?name ?text
+WHERE {
+  GRAPH {G} {
+    <{HowToIRI}> schema:step ?step.
+    ?step a schema:HowToStep.
+    OPTIONAL { ?step schema:position ?position }
+    OPTIONAL { ?step schema:name ?name }
+    OPTIONAL { ?step schema:text ?stepText }
+    OPTIONAL { ?step schema:itemListElement ?itemText }
+    BIND(COALESCE(?stepText, ?itemText) AS ?text)
+  }
+}
+ORDER BY ASC(?position)
+```
+
 ### Step 1 — Index query (build `?name` list)
 
 ```sparql
