@@ -62,54 +62,6 @@ If the user explicitly names a protocol, follow that preference instead.
 
 ---
 
-## HTML/RDF Pairing Requirements
-
-When the user asks for an **HTML and RDF pairing**, generate both a standalone HTML page and its paired RDF file. The HTML is not just a visual summary; it must be a navigable projection of the RDF graph.
-
-### Output locations
-
-- Save HTML pairing pages to `/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/webpages/`.
-- Save paired RDF files to `/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/rdf/`.
-- In generated HTML under `webpages/`, link the paired RDF file as `../rdf/{rdf-filename}`.
-- Do not leave final pairing artifacts only in the development workspace; workspace copies are temporary unless the user explicitly asks for them there.
-
-### Resolver link pattern
-
-- Every visible external entity hyperlink in the HTML MUST use the resolver pattern:
-  `https://linkeddata.uriburner.com/describe/?uri={url-encoded-rdf-iri}`
-- Use canonical RDF hash IRIs from the paired graph as the resolver `uri` value, e.g. `{source-url}#analysis`, `{source-url}#faq`, `{source-url}#glossary`, `{source-url}#step1`.
-- Do not link visible entity labels directly to source URLs when the entity exists in the RDF graph. Link to the RDF entity through the resolver instead.
-- The only ordinary non-resolver link normally allowed in the HTML is the local paired RDF artifact, e.g. `../rdf/{slug}.ttl`.
-- Validate with a grep/regex check that no visible `<a href>` points to a non-resolver external URL.
-
-### Required navigation panel
-
-Every HTML/RDF pairing MUST include an on-page navigation panel with these properties:
-
-- It is visible on first load and has controls for key sections such as Overview, Sources/Retrieval, Signals/Sections, People/Organizations, Glossary, HowTo, FAQ, and RDF.
-- It is movable by dragging a dedicated header/handle.
-- It is resizable by a visible resize grip while open.
-- It has open and closed states. The closed state must be visibly shrunken, not just hidden content in a full-size box.
-- It can be reopened by clicking the closed panel and by clicking an explicit `+` control.
-- It can be closed by clicking an explicit `-` control. Prevent event bubbling from immediately reopening it after close.
-- It remains movable in both open and closed states. Distinguish drag from click so moving a closed panel does not also reopen it on pointer release.
-- It persists position, open size, and open/closed state with `localStorage`, but must not save collapsed dimensions as the remembered open dimensions.
-- It recovers from stale stored state: if the panel is visually tiny but marked open, treat it as collapsed and allow one-click reopening.
-- Avoid wasting panel width on separate `#` resolver columns. Prefer full-width local section buttons; place resolver links in section headings/content or use compact labels only when they add value.
-
-### HTML pairing validation checklist
-
-Before delivery, verify:
-
-- HTML parses without structural errors.
-- JavaScript syntax passes when extracting non-JSON-LD scripts.
-- RDF parses with an RDF parser such as `rdflib`.
-- All visible external anchors use the URIBurner resolver pattern.
-- The local RDF link works.
-- The navigation panel can open, close, move, resize, and recover from stale `localStorage` state.
-
----
-
 ## Template 1 — Generic (JSON-LD)
 
 Use for general web pages, articles, blog posts, and documentation.
@@ -181,7 +133,9 @@ CRITICAL — Before presenting the final output, you MUST perform a compliance s
 10. No blank nodes used for schema:Answer — every answer is a named entity (:a1, :a2, ...) with schema:acceptedAnswer :aN
 11. Inverse relationships are explicit: for every schema:isPartOf there is a corresponding schema:hasPart, etc.
 12. prov:wasGeneratedBy links the main article to a skill entity with schema:name, schema:url (GitHub), and schema:description
-Report: "COMPLIANCE SELF-AUDIT: X/12 passed. [list any FAIL items with the specific fix applied]. Final output follows."```
+Report: "COMPLIANCE SELF-AUDIT: X/12 passed. [list any FAIL items with the specific fix applied]. Final output follows."
+
+GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a corresponding check in this audit. No rule without verification — unchecked rules are aspirational, not enforceable.```
 
 ### Post-Generation Checklist
 
@@ -294,7 +248,9 @@ CRITICAL — Before outputting the Turtle, you MUST perform a compliance self-au
 10. No blank nodes for schema:Answer — every answer is a named entity (:aN) with schema:acceptedAnswer :aN
 11. Inverse relationships explicit: every schema:isPartOf has a corresponding schema:hasPart, etc.
 12. prov:wasGeneratedBy links :analysis to a skill entity with schema:name, schema:url (GitHub), and schema:description
-Report: "COMPLIANCE SELF-AUDIT: X/12 passed. [list any FAIL items, already fixed]. Output follows."```
+Report: "COMPLIANCE SELF-AUDIT: X/12 passed. [list any FAIL items, already fixed]. Output follows."
+
+GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a corresponding check in this audit. No rule without verification — unchecked rules are aspirational, not enforceable.```
 
 ### NAICS Identifier Pattern
 
@@ -353,6 +309,40 @@ Always use **both** `schema:naics` and `schema:identifier` together on industry 
 - [ ] `prov:wasGeneratedBy` links :analysis to a skill entity with `schema:name`, `schema:url` (GitHub), `schema:description`
 - [ ] Ontology has `schema:name` + `schema:description` + `schema:identifier`; all classes/properties have `rdfs:isDefinedBy :`
 - [ ] Output is the Turtle code block only — no surrounding text
+
+---
+
+## HTML Infographic Companion Requirements
+
+When the user asks for an HTML infographic companion to a generated Knowledge Graph, apply these requirements. For the complete HTML/RDF pairing specification including resolver configuration, navigation panel behavior, localStorage correctness, and the full validation checklist, see the `rdf-infographic-skill` SKILL.md.
+
+### Output Paths
+
+- Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Resolve from explicit user instructions or session defaults.
+- Confirm resolved full file paths before saving.
+
+### Entity IRIs and Resolver Links
+
+- Use `{page_url}` or `{post-url}` as the source-grounded namespace. Never use `file:` scheme IRIs when a canonical HTTPS URL exists.
+- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?uri={entity-iri}`) by default; user-designated resolver if specified; or none if user explicitly opts out.
+- Encode `#` as `%23` exactly once in resolver `uri` parameters. `%2523` (double-encoded) is invalid.
+- Entity links open in new tabs: `target="_blank" rel="noopener noreferrer"`.
+- FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs.
+- Local KG entities (hash-based IRIs) route through resolver. LOD Cloud cross-references (DBpedia, Wikidata) link directly.
+
+### POSH and JSON-LD Metadata
+
+- POSH link: `<link rel="related" href="../rdf/{rdf-file}" type="text/turtle">`
+- JSON-LD `relatedLink` must use IRI form: `{"@id": "../rdf/{rdf-file}"}` — never a plain string literal.
+- `prov:wasGeneratedBy` must reference a `schema:SoftwareApplication` entity per skill.
+- Skills attribution in footer: `Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`
+
+### Navigation, Theme, and Validation
+
+- Collapse-to-header-bar floating navigation: always-visible compact header, toggle, draggable, resizable.
+- Never persist collapsed dimensions in `localStorage`. Recover from stale state. Page-specific keys.
+- Dark mode: `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` produce equivalent rendering. All colors via CSS variables.
+- **GATE: 0 failures required.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver links, local RDF link, nav behavior, skills attribution, dark mode consistency.
 
 ---
 

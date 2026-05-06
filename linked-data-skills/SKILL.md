@@ -466,26 +466,20 @@ Confirm the full saved file path to the user.
 
 ### Optional HTML Infographic Companion For Path D
 
-When the user asks for an HTML infographic companion to Path D RDF output, apply these requirements:
+When the user asks for an HTML infographic companion to Path D RDF output, apply these requirements. For the complete specification see the `rdf-infographic-skill` SKILL.md.
 
-- Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Resolve these placeholders from explicit user instructions, current session preferences, or skill defaults; do not hard-code a personal filesystem path into the reusable skill guidance.
-- When no destination has been provided, ask for the output directories or use an already-established session default, then confirm the resolved full file paths.
-- Use `{page_url}` as the source-grounded namespace for generated entity IRIs. Do not use `file:` scheme IRIs when a canonical HTTP/HTTPS page URL exists.
-- Hyperlink visible entity mentions using `https://linkeddata.uriburner.com/describe/?uri={entity-iri}` where `{entity-iri}` is an actual entity identifier from the generated Knowledge Graph.
-- Encode `#` as `%23` in resolver `uri` parameter values. Do not double encode; `%2523` is invalid.
-- Entity links must open a new tab or view using `target="_blank" rel="noopener noreferrer"`.
-- Embed a JSON-LD structured-data island. Resolver-backed JSON-LD `@id` values must match the visible HTML entity hyperlinks exactly when they represent the same KG node.
-- Indicate the associated RDF document in HTML metadata using a relative POSH link, e.g. `<link rel="xhv:related related" href="../rdf/{rdf-file}" type="text/turtle">`, with `xhv` bound to `http://www.w3.org/1999/xhtml/vocab#`.
-- Also indicate the same associated RDF document in the embedded JSON-LD `WebPage` node using `schema:relatedLink` with the same relative href, e.g. `"relatedLink": "../rdf/{rdf-file}"`.
-- Hyperlink FAQ questions, FAQ answers, glossary terms, and HowTo steps to their KG entity IRIs through the same resolver pattern.
-- Render FAQs with native `<details class="faq-item">` and `<summary>` accordions.
-- Include a floating section navigation control in every HTML infographic. It must be closed by default, openable, closable, draggable, and resizable by pointer drag.
-- Persist the navigation control's open/closed state, position, and size in `localStorage` using a page-specific key.
-- Link the navigation control to stable section IDs. If sections lack IDs, derive stable IDs from their headings.
-- Ensure the control and page aesthetics work in both light and dark mode; dark-mode CSS must not make light mode render as dark.
-- Include a page-level light/dark mode toggle control in every HTML infographic. The default theme should follow `prefers-color-scheme` only until the user makes an explicit choice.
-- Persist the user's theme choice in `localStorage`, apply it at document level with `html[data-theme="light"]` or `html[data-theme="dark"]`, and keep all component styling driven by CSS variables.
-- The theme toggle must not conflict spatially or visually with the floating section navigation control.
+- Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Confirm paths before saving.
+- Use `{page_url}` as the source-grounded namespace. Never use `file:` scheme IRIs when a canonical HTTPS URL exists.
+- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?uri={entity-iri}`) by default; user-designated resolver if specified; or none if opted out.
+- Encode `#` as `%23` exactly once. `%2523` is invalid. Entity links open in new tabs.
+- FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs.
+- Local KG entities route through resolver. LOD Cloud cross-references (DBpedia, Wikidata) link directly.
+- POSH link: `<link rel="related" href="../rdf/{rdf-file}" type="text/turtle">`
+- JSON-LD `relatedLink`: `{"@id": "../rdf/{rdf-file}"}` — IRI form, never a plain string literal.
+- Skills attribution in footer: `Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`
+- Collapse-to-header-bar floating navigation, draggable, resizable. Never persist collapsed dimensions. Recover from stale localStorage. Page-specific keys.
+- Dark mode: `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` equivalent. All colors via CSS variables.
+- **GATE: 0 failures.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver links, local RDF link, nav behavior, skills attribution, dark mode consistency.
 
 ---
 
