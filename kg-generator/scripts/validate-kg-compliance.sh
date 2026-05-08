@@ -80,6 +80,15 @@ if [ "$FORMAT" = "--turtle" ]; then
   else
     fail "Article missing schema:hasPart" "Add schema:hasPart linking FAQPage, DefinedTermSet, and HowTo"
   fi
+  # 5b. Ontology is linked via hasPart
+  if echo "$CONTENT" | grep -q 'a owl:Ontology'; then
+    # Check if the ontology IRI (typically just `:`) appears in hasPart
+    if echo "$CONTENT" | grep -A2 'schema:hasPart' | grep -qE ':(\s|,|;|\))'; then
+      pass "Ontology linked via schema:hasPart"
+    else
+      fail "Ontology not linked via schema:hasPart" "Add `, :` to the article's schema:hasPart list"
+    fi
+  fi
 
   # 6. owl:sameAs used for DBpedia (not schema:sameAs)
   if echo "$CONTENT" | grep -q 'schema:sameAs.*dbpedia'; then

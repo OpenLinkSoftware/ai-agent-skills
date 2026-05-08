@@ -124,7 +124,7 @@ CRITICAL — Before presenting the final output, you MUST perform a compliance s
 1. schema: namespace uses http://schema.org/ (not https://schema.org/)
 2. FAQ questions are wrapped in a schema:FAQPage linked via schema:mainEntity
 3. Glossary terms are wrapped in a schema:DefinedTermSet linked via schema:hasDefinedTerm
-4. The main article has schema:hasPart linking to FAQPage, DefinedTermSet, HowTo, and all entity group sections (use cases, technologies, etc.)
+4. The main article has schema:hasPart linking to FAQPage, DefinedTermSet, HowTo, the ontology (:), and all entity group sections (use cases, technologies, etc.)
 5. All DBpedia/Wikidata/Wikipedia IRIs are fully expanded (not CURIEs)
 6. No file: scheme IRIs exist anywhere in the output
 7. owl:sameAs is used for DBpedia cross-references (never schema:sameAs)
@@ -144,7 +144,7 @@ GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a 
 - [ ] All subject/object IRIs are hash-based relative IRIs (except known authority entities)
 - [ ] FAQ questions wrapped in `schema:FAQPage` with `schema:mainEntity`
 - [ ] Glossary terms wrapped in `schema:DefinedTermSet` with `schema:hasDefinedTerm`
-- [ ] Main article has `schema:hasPart` linking FAQPage, DefinedTermSet, HowTo, and all entity group sections
+- [ ] Main article has `schema:hasPart` linking FAQPage, DefinedTermSet, HowTo, the ontology (:), and all entity group sections
 - [ ] At least 10 `schema:Question` + `schema:Answer` pairs present
 - [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
 - [ ] All DBpedia/Wikidata/Wikipedia IRIs fully expanded (not CURIEs)
@@ -312,43 +312,56 @@ Always use **both** `schema:naics` and `schema:identifier` together on industry 
 
 ---
 
-## HTML Infographic Companion Requirements
+## HTML and Markdown Companion Requirements
 
-When the user asks for an HTML infographic companion to a generated Knowledge Graph, apply these requirements. For the complete HTML/RDF pairing specification including resolver configuration, navigation panel behavior, localStorage correctness, and the full validation checklist, see the `rdf-infographic-skill` SKILL.md.
+When the user asks for an HTML infographic companion, Markdown companion, or HTML + Markdown pair for a generated Knowledge Graph, apply these requirements. For the complete HTML/Markdown/RDF pairing specification including resolver configuration, navigation panel behavior, localStorage correctness, Markdown output rules, and the full validation checklist, see the `rdf-infographic-skill` SKILL.md.
 
 ### Output Paths
 
 - Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Resolve from explicit user instructions or session defaults.
+- Use a shared filename stem for each generated RDF/HTML/Markdown set: `{descriptive-slug}-{llm-id}-{n}`.
+  - `{descriptive-slug}` is a concise lowercase hyphenated summary of the source title or topic.
+  - `{llm-id}` identifies the underlying generating LLM or LLM interface, normalized to lowercase hyphen form (for example `gpt5-chat`, `gpt5-mini`, `claude-sonnet`, `gemini-pro`). If uncertain, infer from the active output root such as `GPT5-Chat-Generated` -> `gpt5-chat`; otherwise ask before saving.
+  - `{n}` starts at `1` and increments only when the exact target filename already exists.
+- When Markdown is requested, save the Markdown file to the **same folder as the HTML file**, using the same filename stem and `.md` extension.
 - Confirm resolved full file paths before saving.
 
 ### Entity IRIs and Resolver Links
 
 - Use `{page_url}` or `{post-url}` as the source-grounded namespace. Never use `file:` scheme IRIs when a canonical HTTPS URL exists.
-- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?uri={entity-iri}`) by default; user-designated resolver if specified; or none if user explicitly opts out.
+- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?url={entity-iri}`) by default; user-designated resolver if specified; or none if user explicitly opts out. In footer prose, describe this as `[URIBurner describe links](https://linkeddata.uriburner.com/fct)` via the `{cname}/{describe}/{query}` pattern, as in `https://linkeddata.uriburner.com/describe/?url={uri}`, over RDF hash IRIs.
 - Encode `#` as `%23` exactly once in resolver `uri` parameters. `%2523` (double-encoded) is invalid.
 - Entity links open in new tabs: `target="_blank" rel="noopener noreferrer"`.
 - FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs.
+- Markdown companions follow the same resolver-link rule for FAQ, glossary, HowTo, media, source/document, and other visible semantic entities.
+- Markdown companions include media when present in the RDF: images with Markdown image syntax, videos with HTML `<video controls>` blocks, audio with HTML `<audio controls>` blocks, and media captions/labels linked to RDF media entity IRIs via the resolver.
 - Local KG entities (hash-based IRIs) route through resolver. LOD Cloud cross-references (DBpedia, Wikidata) link directly.
 
 ### POSH and JSON-LD Metadata
 
 - POSH link: `<link rel="related" href="../rdf/{rdf-file}" type="text/turtle">`
 - JSON-LD `relatedLink` must use IRI form: `{"@id": "../rdf/{rdf-file}"}` — never a plain string literal.
+- When a Markdown companion exists, the HTML POSH metadata must include `<link rel="alternate" href="{markdown-file}" type="text/markdown" title="Markdown representation">`.
+- When a Markdown companion exists, the embedded JSON-LD must declare the Markdown file as an alternate encoding/representation of the HTML `schema:WebPage` or `schema:CreativeWork`, using a relative `@id` such as `{"@type":"schema:MediaObject","encodingFormat":"text/markdown","contentUrl":{"@id":"{markdown-file}"}}`.
+- Markdown companion header must include a relative link to the source HTML file and a relative link to the associated RDF file.
 - `prov:wasGeneratedBy` must reference a `schema:SoftwareApplication` entity per skill.
 - Skills attribution in footer: `Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`
+- Footer generation environment attribution must state and hyperlink the inferred LLM/interface matching `{llm-id}`, the generation client/environment when known, the source delivery host/server when known, and the Linked Data resolver/server platform used for entity hyperlinks. Link LLM/interface and client/environment labels to their RDF provenance entities through the configured resolver. When URIBurner is used, hyperlink it and identify it as a Virtuoso-backed Linked Data resolver/server platform. RDF and embedded JSON-LD SHOULD mirror these using named provenance entities; never use `file:` IRIs.
 
 ### Navigation, Theme, and Validation
 
 - Collapse-to-header-bar floating navigation: always-visible compact header, toggle, draggable, resizable.
 - Never persist collapsed dimensions in `localStorage`. Recover from stale state. Page-specific keys.
 - Dark mode: `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` produce equivalent rendering. All colors via CSS variables.
-- **GATE: 0 failures required.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver links, local RDF link, nav behavior, skills attribution, dark mode consistency.
+- **GATE: 0 failures required.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver links, local RDF link, nav behavior, skills attribution, dark mode consistency. If Markdown is generated, validate the `.md` file exists in the same folder as the HTML, has HTML and RDF relative links, has no non-resolver external semantic links, embeds/references RDF media entities when present, and is declared by the HTML in both POSH `rel="alternate"` metadata and JSON-LD alternate-representation metadata.
 
 ---
 
 ## Saving Output Files
 
-- **Turtle**: `{descriptive-slug}-1.ttl` (increment if file exists)
-- **JSON-LD**: `{descriptive-slug}-1.jsonld` (increment if file exists)
+- **Turtle**: `{descriptive-slug}-{llm-id}-1.ttl` (increment if file exists)
+- **JSON-LD**: `{descriptive-slug}-{llm-id}-1.jsonld` (increment if file exists)
+- **HTML companion**: `{descriptive-slug}-{llm-id}-1.html` using the same stem as the RDF.
+- **Markdown companion**: `{descriptive-slug}-{llm-id}-1.md` using the same stem as the HTML when Markdown is requested.
 - **Default save location**: `{output-directory}` — ask the user if not specified, or infer from context
 - Override if user specifies a path

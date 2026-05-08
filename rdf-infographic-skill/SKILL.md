@@ -1,12 +1,12 @@
 ---
 name: rdf-infographic-skill
-description: Generate sophisticated, interactive HTML infographics from RDF data in any format (Turtle, RDF/XML, N-Triples, JSON-LD). Transform knowledge graphs into visually stunning, data-driven narratives with advanced CSS effects, dynamic interactions, floating navigation, smooth animations, and comprehensive metadata. Use when converting RDF datasets or SPARQL results into engaging, responsive infographic pages for marketing, documentation, or knowledge exploration.
+description: Generate sophisticated, interactive HTML infographics and optional Markdown companion documents from RDF data in any format (Turtle, RDF/XML, N-Triples, JSON-LD). Transform knowledge graphs into visually stunning, data-driven narratives with advanced CSS effects, dynamic interactions, floating navigation, smooth animations, comprehensive metadata, and Markdown variants when requested. Use when converting RDF datasets or SPARQL results into engaging, responsive infographic pages, Markdown companions, marketing assets, documentation, or knowledge exploration artifacts.
 license: MIT
 ---
 
-# RDF-based HTML Infographic Generation Skill
+# RDF-based HTML and Markdown Infographic Generation Skill
 
-Transform raw RDF knowledge graphs into visually compelling, interactive HTML infographics. This skill provides everything needed to convert semantic data into high-fidelity, modern web presentations.
+Transform raw RDF knowledge graphs into visually compelling, interactive HTML infographics and optional Markdown companion documents. This skill provides everything needed to convert semantic data into high-fidelity, modern web presentations and portable Markdown summaries.
 
 ## Overview
 
@@ -15,9 +15,10 @@ This skill enables you to:
 1. **Ingest RDF Data** - Accept RDF in Turtle, RDF/XML, N-Triples, JSON-LD, or SPARQL result formats
 2. **Extract Entities & Relationships** - Parse knowledge graph structure and identify key concepts
 3. **Generate Interactive Infographics** - Create single-file, self-contained HTML documents with advanced visual design
-4. **Implement Advanced Interactions** - Floating draggable navigation, scroll-triggered animations, smooth transitions
-5. **Apply Professional Styling** - Glassmorphism effects, gradient backgrounds, responsive layouts, modern typography
-6. **Ensure Accessibility & SEO** - Comprehensive metadata (JSON-LD, microdata, Open Graph), proper heading hierarchy, entity linking
+4. **Generate Markdown Companions** - Create `.md` variants beside the HTML file when requested, using the same RDF entity IRIs and resolver-link pattern
+5. **Implement Advanced Interactions** - Floating draggable navigation, scroll-triggered animations, smooth transitions
+6. **Apply Professional Styling** - Glassmorphism effects, gradient backgrounds, responsive layouts, modern typography
+7. **Ensure Accessibility & SEO** - Comprehensive metadata (JSON-LD, microdata, Open Graph), proper heading hierarchy, entity linking
 
 ## When to Use This Skill
 
@@ -25,6 +26,7 @@ This skill enables you to:
 - Creating knowledge graph exploration interfaces
 - Building marketing infographics from semantic web data
 - Generating interactive documentation from RDF datasets
+- Generating Markdown variants of RDF-backed HTML companion documents
 - Transforming ontologies into visual narratives
 - Building interactive data-driven narratives for stakeholder presentations
 
@@ -70,6 +72,25 @@ Pass the RDF data and parameters to generate a complete, single-file HTML docume
 - Entity linking to external URIs
 - Comprehensive metadata (JSON-LD, microdata, Open Graph)
 - Professional typography and color schemes
+
+### 4. Generate a Markdown Companion (Optional)
+
+When the user asks for Markdown, a Markdown variant, a `.md` companion, or a text-first companion output:
+
+- Save the Markdown file in the **same folder as the HTML file**.
+- Use the same slug/model/version stem as the HTML file, changing only the extension to `.md`.
+  - Stem pattern: `{descriptive-slug}-{llm-id}-{n}`.
+  - Example HTML: `x-kidehen-knowledge-base-update-thread-gpt5-chat-1.html`
+  - Markdown companion: `x-kidehen-knowledge-base-update-thread-gpt5-chat-1.md`
+- Link back to the HTML file with a relative link.
+- Link to the associated RDF file with the same relative path used by the HTML `rel="related"` link.
+- Preserve the RDF entity-linking contract: FAQ questions/answers, glossary terms/definitions, HowTo section and step headings, article/person/organization/media entities, and other key entities must link through the configured resolver using their RDF IRIs.
+- Do not use raw source URLs for semantic entity links unless the entity is a Linked Open Data cross-reference intended to resolve directly.
+- Include media references when they exist in the RDF:
+  - Images: embed with Markdown image syntax using the image content URL, and wrap or caption with a resolver link to the image object's RDF IRI.
+  - Video: embed with an HTML `<video controls>` block because portable Markdown has no native video syntax. Use the video `contentUrl` as `<source src="..." type="video/mp4">` when available, include `poster="..."` from `schema:thumbnailUrl` when available, and provide a resolver link to the `schema:VideoObject` IRI.
+  - Audio: embed with an HTML `<audio controls>` block when `schema:contentUrl` exists, and provide a resolver link to the `schema:AudioObject` IRI.
+- Markdown does not need interactive navigation, JavaScript, dark mode, or visual effects, but it must remain structurally parallel to the HTML companion: title, overview, core entities, document links, FAQ, glossary, HowTo, sources, and provenance where applicable.
 
 ## Core Architecture
 
@@ -180,7 +201,7 @@ See `references/design-patterns.md` for detailed design system guidelines.
 
 #### Entity Linking
 - First occurrence of RDF entities become hyperlinks
-- Format: `https://linkeddata.uriburner.com/describe/?uri={URL-encoded-IRI}`
+- Format: `https://linkeddata.uriburner.com/describe/?url={URL-encoded-IRI}`
 - Applies to: FAQs, glossaries, HowTos, Articles, and all instances
 
 #### FAQ Accordion
@@ -392,6 +413,83 @@ const customNavItems = [
 ];
 ```
 
+### Knowledge Graph Visualization Modes
+
+When generating an RDF infographic that includes a knowledge graph visualization, you MUST first elicit the visualization mode preference from the user:
+
+> "Would you like a **Basic** (simple, lightweight) or **Advanced** (full-featured, with settings panel) graph visualization?"
+
+#### Basic Mode (Default)
+
+Basic mode provides a lightweight, functional D3.js force-directed graph:
+- Filter buttons: toggle visibility by node type (Classes, Properties, Instances)
+- Search input: filter nodes by name
+- Simple legend with color-coded dots
+- Click any node to open its IRI in the configured resolver (URIBurner describe service)
+- Drag nodes to reposition
+- Mouse wheel zoom and drag-to-pan
+- Hover tooltip showing entity description
+- Edge labels that are clickable hyperlinks to property/type IRIs
+
+**Implementation requirements:**
+- Include D3.js via CDN: `<script src="https://d3js.org/d3.v7.min.js"></script>`
+- Use URIBurner resolver pattern: `https://linkeddata.uriburner.com/describe/?uri={encodedIRI}`
+- Node colors: Classes (orange #ea580c), Properties (blue #0ea5e9), Instances (green #059669)
+- Edge label click behavior:
+  - "a" (rdf:type) → rdf:type predicate IRI
+  - "domain" (rdfs:domain) → rdfs:domain predicate IRI
+  - "range" (rdfs:range) → rdfs:range predicate IRI
+  - Property labels → the property's own IRI
+
+#### Advanced Mode
+
+Advanced mode provides a full-featured visualization with settings panel, inspired by OSDS_extension/graph_gen.js:
+
+**Visual features:**
+- Dark/light theme toggle with gradient backgrounds and vignette effect
+- Arrow markers on edges indicating relationship direction
+- Node type icons: 👤 person, 🏢 organization, 📍 place, 💭 concept, 📅 event, 📝 literal, 🔗 resource
+- Color-coded node sizes based on connectivity/importance
+- Backdrop blur tooltip styling
+
+**Control toolbar (top-right):**
+- Fullscreen toggle button
+- Center graph button
+- Theme toggle (sun/moon)
+- SPARQL construct button (placeholder for future use)
+- Settings gear button
+
+**Settings panel (slides from right):**
+- **Physics Simulation**: Charge strength slider (-1200 to -50), Link distance slider (40-320px), Enable/disable physics toggle
+- **Predicate Display**: Radio option for "Icons" vs "Labels"
+- **Edge Filtering**: Checkbox list of all predicates, Select All/Deselect All buttons
+- **Node Filtering**: Chips for each node type (person, organization, place, concept, event, literal, resource), Select All/Deselect All
+- **Literal Text Filtering**: Text input to show only literal relationships containing specified text
+- **Resolver Preference**: Options for "None", "URIBurner" (https://linkeddata.uriburner.com/describe/?url={uri}), or "Custom" with pattern input
+- **Arrow Style**: "Dual arrows" (render every triple) vs "Single arrow" (merge mutual predicates)
+- **Color-coded Legend**: Dynamic legend showing node type colors with toggle chips
+
+**Interaction:**
+- Mouse wheel zoom (0.2x to 4x scale extent)
+- Drag background to pan
+- Click node to open IRI in resolver
+- Click edge label to open predicate IRI in resolver
+- Drag nodes to reposition
+- Double-click to pin/unpin node
+- Local storage for preferences (theme, physics settings, resolver preference, arrow style)
+
+**Implementation reference**: See `/Users/kidehen/Documents/Management/Development/OSDS_extension/src/graph_gen.js` for complete implementation details.
+
+#### Mode Elicitation
+
+When the user requests an RDF infographic with graph visualization:
+1. Ask: "Would you like a Basic or Advanced graph visualization?"
+2. If Basic → implement Basic mode only
+3. If Advanced → implement Advanced mode with toggle to Basic mode available
+4. Default to Basic if no preference specified
+
+The infographic should include a mode toggle (Basic/Advanced) in the visualization controls if Advanced is selected, allowing users to switch between modes at runtime.
+
 ## Performance Considerations
 
 - **Intersection Observer API**: Used instead of scroll events for optimal performance
@@ -418,6 +516,21 @@ const customNavItems = [
 
 ## RDF Document Relationship
 
+### Filename Stem Rule
+
+Every generated HTML/RDF/Markdown set MUST use one shared filename stem:
+
+`{descriptive-slug}-{llm-id}-{n}`
+
+- `{descriptive-slug}` is a concise lowercase hyphenated summary of the source title or topic.
+- `{llm-id}` identifies the underlying generating LLM or LLM interface, normalized to lowercase hyphen form, for example `gpt5-chat`, `gpt5-mini`, `claude-sonnet`, or `gemini-pro`.
+- Infer `{llm-id}` from the active model or output root when available, e.g., `GPT5-Chat-Generated` -> `gpt5-chat`; if uncertain, ask before saving.
+- `{n}` starts at `1` and increments only when the exact target filename already exists.
+- HTML, RDF, and Markdown companions must keep the same stem and differ only by extension and directory, for example:
+  - HTML: `../webpages/ai-visibility-needs-signal-graph-andrea-volpini-gpt5-chat-1.html`
+  - RDF: `../rdf/ai-visibility-needs-signal-graph-andrea-volpini-gpt5-chat-1.ttl`
+  - Markdown: `../webpages/ai-visibility-needs-signal-graph-andrea-volpini-gpt5-chat-1.md`
+
 Every generated HTML infographic **MUST** declare its connection to its associated RDF source document using two mechanisms:
 
 **POSH (Plain Old Semantic HTML):**
@@ -426,13 +539,44 @@ Every generated HTML infographic **MUST** declare its connection to its associat
 ```
 Use relative paths. Support `.jsonld`, `.ttl`, `.rdf`, and `.nt` extensions depending on the RDF serialization produced.
 
+When a Markdown companion exists, the HTML page **MUST** also advertise it as an alternate representation:
+
+```html
+<link rel="alternate" href="example.md" type="text/markdown" title="Markdown representation">
+```
+
 **Embedded JSON-LD:**
 ```json
 "relatedLink": {"@id": "filename.jsonld"}
 ```
 Include `schema:relatedLink` in the JSON-LD structured-data island inside the HTML. Value must be a relative path expressed as an IRI using `@id` — not a plain string literal.
 
+When a Markdown companion exists, the embedded JSON-LD **MUST** also describe the Markdown file as an alternate encoding/representation of the same `schema:WebPage` or `schema:CreativeWork`:
+
+```json
+{
+  "@type": "schema:MediaObject",
+  "encodingFormat": "text/markdown",
+  "contentUrl": {"@id": "example.md"},
+  "name": "Markdown representation"
+}
+```
+
+Attach this object through `schema:encoding` or an equivalent schema.org relationship that clearly denotes the Markdown file as an alternate representation of the HTML document. Use relative `@id` values, never plain string URLs.
+
 Both links must be relative — never use `file://` or absolute paths — so the relationship holds when the directory is moved or shared.
+
+Every generated Markdown companion **MUST** declare its connection to the same associated RDF source document using a relative Markdown link near the top of the file:
+
+```markdown
+Associated RDF: [example.ttl](../rdf/example.ttl)
+```
+
+If the Markdown was generated as a variant of an HTML companion, also include:
+
+```markdown
+Source HTML: [example.html](example.html)
+```
 
 ---
 
@@ -458,30 +602,41 @@ The GitHub URL pattern for all skills is: `https://github.com/OpenLinkSoftware/a
 
 Correspondingly, the embedded JSON-LD `WebPage` node MUST include a `prov:wasGeneratedBy` reference to a `schema:SoftwareApplication` entity for each skill, with `schema:name`, `schema:url` (GitHub), and `schema:description`. Declare the `prov:` context prefix as `http://www.w3.org/ns/prov#`.
 
+### Generation Environment Attribution
+
+Every generated HTML infographic footer sources/attribution section MUST also include a concise, human-visible generation environment line with each generation environment item hyperlinked when it has a known IRI or URL. This line states:
+
+- The inferred LLM or LLM interface used for generation, matching the `{llm-id}` in the filename stem, for example `gpt5-chat`, linked to its RDF provenance entity through the configured resolver.
+- The generation client/environment when known, for example `Codex desktop`, linked to its RDF provenance entity through the configured resolver.
+- The source delivery host/server when it is known from the source URL or HTTP headers, for example `content.martechday.com via Amazon S3/CloudFront`, linked to its source host URL and/or RDF provenance entity.
+- The Linked Data resolver/server platform used for entity hyperlinks. When URIBurner is used, identify and hyperlink it as `URIBurner`, and state that it is a Virtuoso-backed Linked Data resolver/server platform.
+
+The RDF and embedded JSON-LD provenance SHOULD mirror this visible attribution using named entities such as `:gpt5ChatInterface`, `:codexDesktopEnvironment`, `:sourceDeliveryServer`, `:uriBurnerResolver`, and `:virtuosoServer` where applicable. These entities MUST NOT use `file:` IRIs. If the server/provider cannot be determined, state `source delivery server not determined` in the human-visible attribution instead of omitting the field.
+
 ---
 
-## HTML/RDF Pairing Requirements
+## HTML/Markdown/RDF Pairing Requirements
 
-Every generated HTML infographic **MUST** satisfy these requirements to ensure correct entity-level linkage between the visible HTML and the associated RDF knowledge graph.
+Every generated HTML infographic and Markdown companion **MUST** satisfy these requirements to ensure correct entity-level linkage between visible human-readable output and the associated RDF knowledge graph.
 
 ### Resolver Link Configuration
 
-Entities that have defined IRIs in the RDF knowledge graph (persons, concepts, organizations, FAQ questions, glossary terms, HowTo steps) **SHOULD** be hyperlinked through a designated Linked Data resolver rather than pointing directly to external source URLs. This preserves the human-readable ↔ machine-readable loop: following a resolver link exposes the entity's full structured description with provenance, cross-references, and property sets.
+Entities that have defined IRIs in the RDF knowledge graph (persons, concepts, organizations, FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo sections, HowTo steps, media objects, and source/document entities) **SHOULD** be hyperlinked through a designated Linked Data resolver rather than pointing directly to external source URLs. This preserves the human-readable ↔ machine-readable loop: following a resolver link exposes the entity's full structured description with provenance, cross-references, and property sets.
 
 **Resolver selection (in priority order):**
-1. **URIBurner** (default) — `https://linkeddata.uriburner.com/describe/?uri={URL-encoded-IRI}`
+1. **URIBurner** (default) — `https://linkeddata.uriburner.com/describe/?url={URL-encoded-IRI}`. In footer prose, describe this as `URIBurner describe links` linked to `https://linkeddata.uriburner.com/fct`, via the `{cname}/{describe}/{query}` pattern, as in `https://linkeddata.uriburner.com/describe/?url={uri}`, over RDF hash IRIs.
 2. **User-designated resolver** — any alternative resolver explicitly specified by the user
 3. **None** — if the user explicitly opts out, entity text is not hyperlinked and plain entity IRIs may be shown instead
 
 ```html
 <!-- DEFAULT: URIBurner resolver link to KG entity -->
 <a class="entity-link"
-   href="https://linkeddata.uriburner.com/describe/?uri=https%3A%2F%2Fwww.lassila.org%2Fpublications%2F2001%2FSciAm.pdf%23timBernersLee"
+   href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.lassila.org%2Fpublications%2F2001%2FSciAm.pdf%23timBernersLee"
    target="_blank" rel="noopener noreferrer">Tim Berners-Lee</a>
 
 <!-- WITH USER RESOLVER (e.g., custom describe endpoint) -->
 <a class="entity-link"
-   href="https://my-company.com/describe/?uri=https%3A%2F%2Fwww.lassila.org%2Fpublications%2F2001%2FSciAm.pdf%23timBernersLee"
+   href="https://my-company.com/describe/?url=https%3A%2F%2Fwww.lassila.org%2Fpublications%2F2001%2FSciAm.pdf%23timBernersLee"
    target="_blank" rel="noopener noreferrer">Tim Berners-Lee</a>
 
 <!-- NO RESOLVER (user opted out): plain entity IRI, no hyperlink, or inline IRI display -->
@@ -515,8 +670,11 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] HTML parses without errors (no unclosed tags, valid attributes).
 - [ ] JavaScript syntax is valid (no missing brackets, undefined references, or silent failures in the nav IIFE).
 - [ ] Associated RDF document parses without errors and passes the `validate-kg-compliance.sh` audit.
-- [ ] Every resolver entity hyperlink in the HTML resolves to a valid `describe/?uri=` URL (no double-encoding: `%2523` is invalid; `#` must encode to `%23` exactly once).
-- [ ] FAQ questions, FAQ answers, glossary terms, and HowTo section + steps are ALL hyperlinked to their KG entity IRIs via the resolver pattern.
+- [ ] Every resolver entity hyperlink in the HTML resolves to a valid `describe/?url=` URL (no double-encoding: `%2523` is invalid; `#` must encode to `%23` exactly once).
+- [ ] FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section + steps, and other visible semantic entities are ALL hyperlinked to their KG entity IRIs via the resolver pattern.
+- [ ] If a Markdown companion was requested, it is saved in the same folder as the HTML file, uses the same filename stem with `.md`, links to the HTML file, links to the RDF file with a relative path, and has no non-resolver external semantic links.
+- [ ] If a Markdown companion was requested, the HTML POSH metadata includes `<link rel="alternate" type="text/markdown" href="{markdown-file}">`, and the embedded JSON-LD declares the Markdown file as an alternate encoding/representation using a relative `@id`.
+- [ ] If a Markdown companion was requested and RDF media entities exist, it embeds or references them: images with Markdown image syntax, videos with HTML `<video controls>`, audio with HTML `<audio controls>`, and captions/labels linked to the RDF media entity IRIs through the resolver.
 - [ ] The local RDF link (`rel="related"`) uses a relative path and the target file exists.
 - [ ] Navigation panel: drag works, resize works, collapse/expand toggles correctly, localStorage read/write does not throw, stale values are recovered from gracefully.
 - [ ] Skills attribution line present in footer with correct GitHub URL(s).
