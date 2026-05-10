@@ -474,7 +474,13 @@ Advanced mode provides a full-featured visualization with settings panel, inspir
 - Mouse wheel zoom (0.2x to 4x scale extent)
 - Drag background to pan
 - Click node to open IRI in resolver
-- Click edge label to open predicate IRI in resolver
+- **Click edge label to open predicate IRI in resolver** — the click handler MUST resolve edge labels using this mapping:
+  - `"a"` → `http://www.w3.org/1999/02/22-rdf-syntax-ns#type`
+  - `"domain"` → `http://www.w3.org/2000/01/rdf-schema#domain`
+  - `"range"` → `http://www.w3.org/2000/01/rdf-schema#range`
+  - `"subClassOf"` → `http://www.w3.org/2000/01/rdf-schema#subClassOf`
+  - `"seeAlso"` → `http://www.w3.org/2000/01/rdf-schema#seeAlso`
+  - Other labels → `{document-baseIRI}{label}` (hash-based relative IRI)
 - Drag nodes to reposition
 - Double-click to pin/unpin node
 - Local storage for preferences (theme, physics settings, resolver preference, arrow style)
