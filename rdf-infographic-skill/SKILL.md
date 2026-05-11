@@ -429,7 +429,10 @@ Basic mode provides a lightweight, functional D3.js force-directed graph:
 - Drag nodes to reposition
 - Mouse wheel zoom and drag-to-pan
 - Hover tooltip showing entity description
-- Edge labels that are clickable hyperlinks to property/type IRIs
+- Edge/connector labels that are clickable hyperlinks to property/type IRIs
+- **Edge hover tooltip** showing predicate description with semantic meaning (e.g., "rdf:type - Indicates that a node is an instance of a class", "rdfs:subClassOf - Node is a subclass of the target class")
+- Edge line highlights on hover with increased opacity and width
+- Predicate descriptions mapped: `a`/`type` → rdf:type, `subClassOf` → rdfs:subClassOf, `domain` → rdfs:domain, `range` → rdfs:range, `seeAlso` → rdfs:seeAlso, `hasPart` → schema:hasPart, `author` → schema:author, `about` → schema:about
 
 **Implementation requirements:**
 - Include D3.js via CDN: `<script src="https://d3js.org/d3.v7.min.js"></script>`
@@ -450,7 +453,9 @@ Advanced mode provides a full-featured visualization with settings panel, inspir
 - Arrow markers on edges indicating relationship direction
 - Node type icons: 👤 person, 🏢 organization, 📍 place, 💭 concept, 📅 event, 📝 literal, 🔗 resource
 - Color-coded node sizes based on connectivity/importance
-- Backdrop blur tooltip styling
+- Backdrop blur tooltip styling for both nodes and edges
+- Edge hover tooltips showing predicate semantic descriptions
+- Edge highlighting on hover
 
 **Control toolbar (top-right):**
 - Fullscreen toggle button

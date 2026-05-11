@@ -191,6 +191,21 @@ Use for business strategy posts, X/social threads, market analyses, and industry
 
 > `{post-url}` and `{url}` are often the same value.
 
+**Example — X post (Robert Scoble vishing incident):**
+```
+{url} = "https://x.com/Scobleizer/status/2053367142045847649"
+{post-url} = "https://x.com/Scobleizer/status/2053367142045847649"
+
+RDF: @prefix : <https://x.com/Scobleizer/status/2053367142045847649#> .
+HTML footer: RDF Resolver → https://x.com/Scobleizer/status/2053367142045847649
+MD header: RDF Resolver → https://x.com/Scobleizer/status/2053367142045847649
+Glossary terms: [Vishing](https://x.com/Scobleizer/status/2053367142045847649#vishing)
+```
+
+**Output file footer requirements:**
+- HTML: Include `RDF: <a href="{source-url}">Resolver</a>` link in footer, plus link to Turtle file
+- MD: Include `**RDF Resolver:** [URL](URL)` in header, plus `#term` fragment links in glossary
+
 ### Prompt
 
 ```
