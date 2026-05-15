@@ -865,6 +865,64 @@ Before delivery, record or verify the chosen denotation basis for every `schema:
 
 ---
 
+## Footer SPARQL Button with Format Toggle
+
+Every HTML infographic that has a companion RDF file (Turtle and/or JSON-LD) **MUST** include a SPARQL button in the footer that lets users query the knowledge graph via URIBurner. Include format toggle tabs (RDF Turtle / JSON-LD) so users can select which RDF document to query.
+
+### Required HTML Structure
+
+```html
+<footer>
+    <div class="kg-format-tabs">
+        <button class="active" id="fmtTtl" onclick="setSparqlFormat('ttl')">RDF Turtle</button>
+        <button id="fmtJsonld" onclick="setSparqlFormat('jsonld')">JSON-LD</button>
+    </div>
+    <p style="margin-bottom:20px">
+        <a id="sparqlBtn" href="...">Explore Knowledge Graph using SPARQL</a>
+    </p>
+</footer>
+```
+
+### Required CSS
+
+```css
+.kg-format-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.kg-format-tabs button { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.8rem; font-weight: 500; }
+.kg-format-tabs button.active { background: var(--accent); color: white; border-color: var(--accent); }
+```
+
+### Required JavaScript
+
+```javascript
+function setSparqlFormat(fmt) {
+    document.getElementById('fmtTtl').classList.toggle('active', fmt === 'ttl');
+    document.getElementById('fmtJsonld').classList.toggle('active', fmt === 'jsonld');
+    const ext = fmt === 'jsonld' ? 'jsonld' : 'ttl';
+    const slug = '{descriptive-slug}-{model-id}-{n}';
+    const graphIri = 'https://linkeddata.uriburner.com/DAV/demos/daas/' + slug + '.' + ext;
+    const query = 'PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ASELECT%0A++++%3Ftype%0A++++%28SAMPLE%28%3Fs%29+AS+%3FsampleEntity%29%0A++++%28SAMPLE%28%3Flabel%29+AS+%3FsampleLabel%29%0A++++%28COUNT%28%3Fs%29+AS+%3FentityCount%29%0AWHERE+%7B%0A++++GRAPH+%3C' + encodeURIComponent(graphIri) + '%3E+%7B%0A++++++++%3Fs+rdf%3Atype+%3Ftype+.%0A%0A++++++++OPTIONAL+%7B%0A++++++++++++%3Fs+rdfs%3Alabel+%3Flabel%0A++++++++%7D%0A++++%7D%0A%7D%0AGROUP+BY+%3Ftype%0AORDER+BY+DESC%28%3FentityCount%29';
+    document.getElementById('sparqlBtn').href = 'https://linkeddata.uriburner.com/sparql?query=' + query;
+}
+```
+
+Substitute `{descriptive-slug}-{model-id}-{n}` with the actual output filename (without extension).
+
+### Document IRI vs SPARQL GRAPH IRI
+
+**Critical distinction:**
+
+| IRI Type | Used For | Pattern |
+|----------|----------|---------|
+| **Document IRI** | Entity references in RDF, HTML, MD | `{source-url}#{entity}` |
+| **SPARQL GRAPH IRI** | Querying the named graph in URIBurner | `https://linkeddata.uriburner.com/DAV/demos/daas/{filename}` |
+
+- **Document IRIs** use the source URL with `#` suffix (e.g., `https://pluralistic.net/2026/05/13/vibe-governance#q1`)
+- **SPARQL GRAPH IRIs** use the DAV path to the generated RDF file (e.g., `https://linkeddata.uriburner.com/DAV/demos/daas/vibe-governance-minimax_m2.5free-1.ttl`)
+
+**Never confuse the two.** HTML entity resolver links use Document IRIs; the SPARQL query GRAPH clause uses the DAV GRAPH IRI.
+
+---
+
 ## HTML/Markdown/RDF Pairing Requirements
 
 Every generated HTML infographic and Markdown companion **MUST** satisfy these requirements to ensure correct entity-level linkage between visible human-readable output and the associated RDF knowledge graph.
@@ -942,6 +1000,7 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] The local RDF link (`rel="related"`) uses a relative path and the target file exists.
 - [ ] Navigation panel: drag works, resize works, collapse/expand toggles correctly, localStorage read/write does not throw, stale values are recovered from gracefully.
 - [ ] Skills attribution line present in footer with correct GitHub URL(s).
+- [ ] Footer SPARQL button present with Turtle/JSON-LD format toggle; GRAPH clause uses `DAV/demos/daas/{filename}` path (not source URL).
 - [ ] Dark mode: both `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` produce equivalent rendering; no hardcoded colors outside CSS variables.
 
 ---
