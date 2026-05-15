@@ -36,6 +36,16 @@ When generated RDF introduces or normalizes a `schema:SoftwareApplication`, use 
 
 When using a homepage fallback and a confirmed DBpedia/Wikidata identity exists, add `owl:sameAs` and declare `owl:` as `http://www.w3.org/2002/07/owl#`. Do not fabricate DBpedia or Wikidata IRIs.
 
+### Country IRI Alignment
+
+When generated RDF introduces or normalizes a `schema:Country`, use the denotation priority rule shared with `document-to-kg-skill` and `rdf-infographic-skill`:
+
+1. DBpedia country IRI if a confident DBpedia resource exists.
+2. Wikidata country IRI if no confident DBpedia resource exists but a confident Wikidata entity exists.
+3. Source-grounded document hash IRI only when neither DBpedia nor Wikidata can be confirmed.
+
+When using DBpedia as the primary country IRI and a confirmed Wikidata equivalent exists, add `owl:sameAs` to the Wikidata entity. When using Wikidata as a fallback and a DBpedia equivalent later becomes available, normalize to DBpedia or add `owl:sameAs` if preserving an existing artifact is necessary. Do not use local document hash IRIs for known countries when DBpedia or Wikidata authority IRIs are available. Visible country names in HTML/Markdown companions and KG Explorer nodes must use the selected country IRI via the resolver pattern.
+
 ### Collection and Service Detection
 
 When generating RDF from a documentation collection, manual, docs portal, sitemap-backed site, MkDocs/Docusaurus/VitePress collection, GitBook, or source mesh:
@@ -45,6 +55,7 @@ When generating RDF from a documentation collection, manual, docs portal, sitema
 3. If source content mentions a SPARQL endpoint, REST API, query service, data service, server platform, or runtime infrastructure, model it explicitly using appropriate entities such as `schema:WebAPI`, `schema:DataCatalog`, `schema:DataFeed`, `schema:SoftwareApplication`, `schema:Service`, or `schema:SoftwareSourceCode`.
 4. For query-example pages, represent major query families or named queries as distinct resources when they are central to the document. Link each query to its target endpoint/service and to the concepts it reports on.
 5. Apply the SoftwareApplication denotation rule to server/software platforms such as Virtuoso, PostgreSQL, Databricks, Snowflake, GitLab Pages, MkDocs, or application connectors. Prefer confident DBpedia/Wikidata IRIs for known platforms; otherwise use the official homepage URL with `#this`.
+6. For SPARQL examples, preserve executable query text in RDF using `schema:SoftwareSourceCode`, `schema:programmingLanguage "SPARQL"`, `schema:text`, `schema:codeSampleType`, and `schema:target` pointing to the endpoint/service. Model live execution links as `schema:SearchAction` or equivalent `schema:potentialAction` resources with correctly URL-encoded query parameters for the endpoint. If placeholders remain in the source query, keep them visibly marked and do not imply the query is executable without user edits.
 
 ## Template Selection
 
@@ -145,14 +156,16 @@ Using a code block, generate a comprehensive representation of this information 
 24. You MUST wrap FAQ questions in a schema:FAQPage with schema:mainEntity listing all question IRIs. The FAQPage MUST be linked from the main article via schema:hasPart.
 25. You MUST wrap glossary terms in a schema:DefinedTermSet with schema:hasDefinedTerm listing all term IRIs. The DefinedTermSet MUST be linked from the main article via schema:hasPart.
 26. ALL DBpedia, Wikidata, and Wikipedia entity references MUST use fully expanded IRIs (e.g., http://dbpedia.org/resource/Tim_Berners-Lee) — never CURIEs or prefixed names.
-27. You MUST NOT use file: scheme IRIs anywhere. The @base or @prefix : MUST use the canonical https: URL of the source document with a # suffix.
-28. If the response includes a lightweight ontology (custom classes, properties, or an owl:Ontology declaration), you MUST: (a) name and describe the ontology using schema:name and schema:description alongside rdfs:label and rdfs:comment; (b) add schema:identifier with the canonical source URL; (c) associate every class and property with the ontology using rdfs:isDefinedBy : .
-29. You MUST NOT use blank nodes for schema:Answer instances. Every schema:Answer MUST be a named entity with its own hash-based IRI (e.g., :a1, :a2) connected via schema:acceptedAnswer :aN — never schema:acceptedAnswer [ a schema:Answer ; ... ].
-30. When you assert a directional relationship (e.g., schema:isPartOf), you MUST also assert its inverse on the target entity (e.g., schema:hasPart) — RDF does not infer inverses automatically, so both directions are needed for completeness.
-31. Every logical entity group beyond FAQ/glossary/HowTo (e.g., use cases, technologies, architectural layers, key concepts) MUST be wrapped in a schema:ArticleSection and linked to the main article via schema:hasPart. No entity should be orphaned — every entity must be reachable from the main article through some path.
-32. The main article MUST include prov:wasGeneratedBy linking to a schema:SoftwareApplication entity representing the skill that produced it. Declare @prefix prov: <http://www.w3.org/ns/prov#> . The skill entity MUST have schema:name (e.g., "kg-generator skill"), schema:url pointing to its GitHub source (e.g., https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator), and schema:description. If multiple skills were used, use multiple prov:wasGeneratedBy triples.
+27. For every country entity modeled as `schema:Country`, use a DBpedia country IRI as the primary subject IRI when confidently known; otherwise use a Wikidata country IRI when confidently known; only use a `{page_url}` hash IRI when neither can be confirmed. Add `owl:sameAs` between the selected country IRI and any confirmed DBpedia/Wikidata equivalent.
+28. You MUST NOT use file: scheme IRIs anywhere. The @base or @prefix : MUST use the canonical https: URL of the source document with a # suffix.
+29. If the response includes a lightweight ontology (custom classes, properties, or an owl:Ontology declaration), you MUST: (a) name and describe the ontology using schema:name and schema:description alongside rdfs:label and rdfs:comment; (b) add schema:identifier with the canonical source URL; (c) associate every class and property with the ontology using rdfs:isDefinedBy : .
+30. You MUST NOT use blank nodes for schema:Answer instances. Every schema:Answer MUST be a named entity with its own hash-based IRI (e.g., :a1, :a2) connected via schema:acceptedAnswer :aN — never schema:acceptedAnswer [ a schema:Answer ; ... ].
+31. When you assert a directional relationship (e.g., schema:isPartOf), you MUST also assert its inverse on the target entity (e.g., schema:hasPart) — RDF does not infer inverses automatically, so both directions are needed for completeness.
+32. Every logical entity group beyond FAQ/glossary/HowTo (e.g., use cases, technologies, architectural layers, key concepts) MUST be wrapped in a schema:ArticleSection and linked to the main article via schema:hasPart. No entity should be orphaned — every entity must be reachable from the main article through some path.
+33. The main article MUST include prov:wasGeneratedBy linking to a schema:SoftwareApplication entity representing the skill that produced it. Declare @prefix prov: <http://www.w3.org/ns/prov#> . The skill entity MUST have schema:name (e.g., "kg-generator skill"), schema:url pointing to its GitHub source (e.g., https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator), and schema:description. If multiple skills were used, use multiple prov:wasGeneratedBy triples.
 33. For documentation/manual collections, inspect sitemap/search index/navigation for high-signal child pages. Pages covering APIs, SPARQL endpoints, query examples, services, data models, server/runtime platforms, and reporting workflows MUST be incorporated when they materially change the graph.
 34. When a SPARQL endpoint, API endpoint, query service, or server platform is present, model it explicitly. SPARQL endpoints SHOULD use `schema:WebAPI` or another appropriate service class with `schema:url`; query families MAY use `schema:SoftwareSourceCode` and SHOULD link to the endpoint with `schema:target` or an equivalent property.
+35. When SPARQL query examples or recipes are present, the query body MUST be preserved as `schema:text` on a `schema:SoftwareSourceCode` resource with `schema:programmingLanguage "SPARQL"`, linked to its endpoint via `schema:target`, and linked to a URL-encoded live query action via `schema:potentialAction` where the endpoint supports a GET query URL.
 
 """
 {selected_text}
@@ -192,6 +205,7 @@ GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a 
 - [ ] At least 10 `schema:Question` + `schema:Answer` pairs present
 - [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
 - [ ] All DBpedia/Wikidata/Wikipedia IRIs fully expanded (not CURIEs)
+- [ ] Every `schema:Country` subject IRI follows the country denotation priority rule: DBpedia IRI if confirmed, else Wikidata IRI if confirmed, else source-grounded document IRI; add `owl:sameAs` for confirmed DBpedia/Wikidata equivalents.
 - [ ] No `file:` scheme IRIs anywhere
 - [ ] All IRI-valued attributes use `@id` — no plain string literals for IRI-only properties
 - [ ] Inline double quotes within literals converted to single quotes
@@ -204,6 +218,7 @@ GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a 
 - [ ] Person IRIs derived from LinkedIn/X profile URLs where found; all platform identities linked via `owl:sameAs`
 - [ ] If ontology present: `schema:name` + `schema:description`, `schema:identifier`, all classes/properties have `rdfs:isDefinedBy :`
 - [ ] `prov:wasGeneratedBy` links article to a skill entity with `schema:name`, `schema:url` (GitHub), `schema:description`
+- [ ] SPARQL query examples are preserved as `schema:SoftwareSourceCode` with query text, target endpoint/service, and correctly encoded live query actions when applicable
 
 ## Template 2 — Business & Market Analysis (RDF-Turtle)
 

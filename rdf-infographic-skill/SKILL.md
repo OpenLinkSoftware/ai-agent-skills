@@ -50,8 +50,9 @@ When active, every generated artifact set MUST include, unless the user explicit
 8. **Advanced KG settings panel** — fullscreen, center, settings button, visible close (`X`), wired physics controls, predicate display, predicate filters, node filters, literal filter, resolver preference, arrow style, and clear state feedback.
 9. **Attribution footer** — source material, companion files, skills used, generation environment, server/platform items where known, resolver pattern, and hyperlinked generation-environment entities.
 10. **Markdown companion parity** — Markdown mirrors the HTML narrative structure and preserves resolver-backed links for FAQ, glossary, HowTo, People, Organizations, SoftwareApplication, source/document, and media entities.
-11. **SoftwareApplication denotation rule** — DBpedia IRI if confirmed, else Wikidata IRI if confirmed, else official homepage URL with `#this`; add `owl:sameAs` for confirmed DBpedia/Wikidata identities when using a homepage fallback.
+11. **Authority denotation rules** — SoftwareApplication and Country entities use DBpedia/Wikidata-centered IRIs where confidently available; add `owl:sameAs` for confirmed DBpedia/Wikidata equivalents.
 12. **Zero-failure delivery gate** — do not deliver until RDF parse, HTML/JS parse, resolver link audit, KG Explorer behavior checklist, nav behavior, dark mode, output path checks, and programmatic KG orphan-node checks all pass.
+13. **SPARQL query presentation** — when the RDF or source content contains `schema:SoftwareSourceCode` SPARQL examples, endpoint demos, or query recipes, render them as readable accordions with resolver-backed query-entity links, fenced/preformatted query text, a visible endpoint/service link, and a correctly URL-encoded live query link when an endpoint is known. Markdown companions must include the same query headings, resolver links, live links, and fenced `sparql` code blocks.
 
 If an input is insufficient to satisfy the harness contract, ask for the missing source, RDF, resolver, output folder, or artifact scope before generating. If an existing artifact is being repaired, preserve its RDF/HTML/MD pairing and retrofit the missing contract items rather than creating a separate one-off patch.
 
@@ -111,12 +112,25 @@ When the user asks for Markdown, a Markdown variant, a `.md` companion, or a tex
 - Link to the associated RDF file with the same relative path used by the HTML `rel="related"` link.
 - Preserve the RDF entity-linking contract: FAQ questions/answers, glossary terms/definitions, HowTo section and step headings, article/person/organization/media entities, and other key entities must link through the configured resolver using their RDF IRIs.
 - Treat every visible HowTo step label exactly like a visible FAQ question: if the RDF contains `schema:HowToStep` entities, the step heading/label in HTML and Markdown MUST be an anchor to that step entity's RDF IRI through the configured resolver.
+- Treat every visible SPARQL query heading exactly like a visible FAQ question: if the RDF contains `schema:SoftwareSourceCode` with `schema:programmingLanguage "SPARQL"`, the heading/title in HTML and Markdown MUST be an anchor to that query entity's RDF IRI through the configured resolver.
 - Do not use raw source URLs for semantic entity links. Visible semantic entity links, including DBpedia/Wikidata IRIs selected as RDF entity identifiers, should route through the configured resolver unless the user explicitly asks for direct LOD links.
 - Include media references when they exist in the RDF:
   - Images: embed with Markdown image syntax using the image content URL, and wrap or caption with a resolver link to the image object's RDF IRI.
   - Video: embed with an HTML `<video controls>` block because portable Markdown has no native video syntax. Use the video `contentUrl` as `<source src="..." type="video/mp4">` when available, include `poster="..."` from `schema:thumbnailUrl` when available, and provide a resolver link to the `schema:VideoObject` IRI.
   - Audio: embed with an HTML `<audio controls>` block when `schema:contentUrl` exists, and provide a resolver link to the `schema:AudioObject` IRI.
 - Markdown does not need interactive navigation, JavaScript, dark mode, or visual effects, but it must remain structurally parallel to the HTML companion: title, overview, core entities, document links, FAQ, glossary, HowTo, sources, and provenance where applicable.
+
+### SPARQL Query Sections
+
+When RDF or source content includes SPARQL examples, query families, endpoint demos, or reporting recipes:
+
+- Preserve the query body verbatim apart from safe HTML escaping. Do not replace it with a summary.
+- Render each query in HTML as a `<details>`/`<summary>` accordion so long queries do not dominate the page.
+- The summary title MUST link to the query entity through the configured resolver pattern.
+- Include a visible "Run live query" link when the endpoint supports GET query URLs. Construct the URL with `encodeURIComponent(query)` and endpoint-specific parameters, defaulting to `?query={encoded}&format=text%2Fhtml` when no endpoint-specific pattern is known.
+- If the query contains placeholders, preserve them visibly and add nearby copy indicating the live link opens with placeholders retained for editing.
+- Link the query card/chips to the endpoint/service entity and the main concept being queried when those IRIs exist in RDF.
+- In Markdown, mirror the same structure with a resolver-backed heading, a live query link, and a fenced `sparql` code block.
 
 ## Core Architecture
 
@@ -792,12 +806,32 @@ Correspondingly, the embedded JSON-LD `WebPage` node MUST include a `prov:wasGen
 
 Every generated HTML infographic footer sources/attribution section MUST also include a concise, human-visible generation environment line with each generation environment item hyperlinked when it has a known IRI or URL. This line states:
 
-- The inferred LLM or LLM interface used for generation, matching the `{llm-id}` in the filename stem, for example `gpt5-chat`, linked to its RDF provenance entity through the configured resolver.
-- The generation client/environment when known, for example `Codex desktop`, linked to its RDF provenance entity through the configured resolver.
-- The source delivery host/server when it is known from the source URL or HTTP headers, for example `content.martechday.com via Amazon S3/CloudFront`, linked to its source host URL and/or RDF provenance entity.
-- The Linked Data resolver/server platform used for entity hyperlinks. When URIBurner is used, identify and hyperlink it as `URIBurner`, and state that it is a Virtuoso-backed Linked Data resolver/server platform.
+- The inferred LLM or LLM interface used for generation, matching the `{llm-id}` in the filename stem, for example `gpt5-chat`, linked to its canonical product URL (see canonical URL table below).
+- The generation client/environment when known, for example `Cowork Desktop`, linked to its canonical product URL.
+- The source delivery host/server when it is known from the source URL or HTTP headers, for example `content.martechday.com via Amazon S3/CloudFront`, linked to its source host URL.
+- The Linked Data resolver/server platform used for entity hyperlinks. When URIBurner is used, identify and hyperlink it as `URIBurner` using its canonical URL `https://linkeddata.uriburner.com/`, and state that it is a Virtuoso-backed Linked Data resolver/server platform.
 
 The RDF and embedded JSON-LD provenance SHOULD mirror this visible attribution using named entities such as `:gpt5ChatInterface`, `:codexDesktopEnvironment`, `:sourceDeliveryServer`, `:uriBurnerResolver`, and `:virtuosoServer` where applicable. These entities MUST NOT use `file:` IRIs. If the server/provider cannot be determined, state `source delivery server not determined` in the human-visible attribution instead of omitting the field.
+
+#### Provenance Card Canonical Link Rule
+
+**CRITICAL**: The provenance/attribution section exists to credit real products and tools. Items in provenance cards that represent known products, platforms, or tools with stable URLs MUST link to their **canonical homepage or repository URL** — NOT to session-generated URIBurner resolver URLs built from document-local fragment IRIs. Use `🔗 Visit` as the link label for canonical product links (vs `🔗 Explore` for resolver-based entity links elsewhere in the document).
+
+Canonical URLs for standard provenance items:
+
+| Item | Canonical URL |
+|------|--------------|
+| Claude / Claude Sonnet | `https://www.anthropic.com/claude` |
+| Cowork Desktop Environment | `https://claude.ai/download` |
+| OpenLink Virtuoso Server | `https://virtuoso.openlinksw.com/` |
+| URIBurner | `https://linkeddata.uriburner.com/` |
+| KG Generator Skill | `https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator` |
+| RDF Infographic Skill | `https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill` |
+| OpenLink Software skills (general) | `https://github.com/OpenLinkSoftware/ai-agent-skills` |
+
+For products or tools not in this table, use their official homepage. If no canonical URL can be determined, omit the link rather than substituting a resolver URL.
+
+The resolver (`https://linkeddata.uriburner.com/describe/?url=...`) is for **semantic entities** defined in the document's knowledge graph (persons, concepts, organizations, FAQ items, glossary terms, etc.) — not for product attribution.
 
 ### SoftwareApplication IRI Denotation Rule
 
@@ -812,6 +846,22 @@ When the primary IRI is not DBpedia- or Wikidata-based, add `owl:sameAs` relatio
 Visible software application names in HTML and Markdown MUST link through the configured resolver using the selected RDF IRI. The KG Explorer node for the software application MUST use the same selected IRI.
 
 Before delivery, record or verify the chosen denotation basis for every `schema:SoftwareApplication`: DBpedia, Wikidata, or homepage `#this`. Do not fabricate DBpedia or Wikidata IRIs; if no confident match is found, use the homepage fallback and omit `owl:sameAs` unless a confident external identity is later established.
+
+---
+
+### Country IRI Denotation Rule
+
+For every `schema:Country` entity introduced or normalized during RDF/HTML/Markdown generation, select the subject IRI using this priority order:
+
+1. **DBpedia first** — if a confident DBpedia country resource exists, use the fully expanded DBpedia IRI as the primary country denotation IRI, for example `http://dbpedia.org/resource/South_Africa`.
+2. **Wikidata second** — if no confident DBpedia resource exists but a confident Wikidata country entity exists, use the fully expanded Wikidata IRI, for example `http://www.wikidata.org/entity/Q258`.
+3. **Document-local fallback** — only when neither authority IRI can be confirmed, use a source-grounded document hash IRI.
+
+When the primary country IRI is DBpedia-based and a confirmed Wikidata equivalent exists, add `owl:sameAs` to the Wikidata entity. When a primary country IRI is Wikidata-based and a DBpedia equivalent later becomes available, normalize to DBpedia or add `owl:sameAs` if preserving an existing artifact requires it. Do not use a local document hash IRI for a known country when DBpedia or Wikidata authority IRIs are available.
+
+Visible country names in HTML and Markdown MUST link through the configured resolver using the selected country RDF IRI. The KG Explorer node for the country MUST use the same selected IRI. If the RDF includes source-specific country observations, metrics, or rows, connect those observation nodes to the selected country IRI rather than minting a competing country identity.
+
+Before delivery, record or verify the chosen denotation basis for every `schema:Country`: DBpedia, Wikidata, or document-local fallback. Do not fabricate DBpedia or Wikidata IRIs.
 
 ---
 
@@ -872,6 +922,7 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] JavaScript syntax is valid (no missing brackets, undefined references, or silent failures in the nav IIFE).
 - [ ] Associated RDF document parses without errors and passes the `validate-kg-compliance.sh` audit.
 - [ ] Every `schema:SoftwareApplication` uses the denotation priority rule: DBpedia IRI if confirmed, else Wikidata IRI if confirmed, else official homepage URL with `#this`; non-DBpedia/non-Wikidata software IRIs include `owl:sameAs` to confirmed DBpedia/Wikidata identities when such identities exist.
+- [ ] Every `schema:Country` uses the denotation priority rule: DBpedia IRI if confirmed, else Wikidata IRI if confirmed, else source-grounded document IRI; confirmed DBpedia/Wikidata equivalents are connected with `owl:sameAs`.
 - [ ] Every resolver entity hyperlink in the HTML resolves to a valid `describe/?url=` URL (no double-encoding: `%2523` is invalid; `#` must encode to `%23` exactly once).
 - [ ] FAQ questions, FAQ answers, glossary terms, glossary definitions, the HowTo section entity, every individual HowToStep heading/label, and other visible semantic entities are ALL hyperlinked to their KG entity IRIs via the resolver pattern.
 - [ ] If a KG Explorer is present, its graph data is derived from the companion RDF artifact; if embedded, it is explicitly derived at generation time and not manually invented.
@@ -887,6 +938,7 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] If a Markdown companion was requested, it is saved in the same folder as the HTML file, uses the same filename stem with `.md`, links to the HTML file, links to the RDF file with a relative path, and has no non-resolver external semantic links.
 - [ ] If a Markdown companion was requested, the HTML POSH metadata includes `<link rel="alternate" type="text/markdown" href="{markdown-file}">`, and the embedded JSON-LD declares the Markdown file as an alternate encoding/representation using a relative `@id`.
 - [ ] If a Markdown companion was requested and RDF media entities exist, it embeds or references them: images with Markdown image syntax, videos with HTML `<video controls>`, audio with HTML `<audio controls>`, and captions/labels linked to the RDF media entity IRIs through the resolver.
+- [ ] If RDF contains SPARQL `schema:SoftwareSourceCode` examples, HTML renders them as accordions with resolver-backed query headings, escaped preformatted query text, endpoint/service links, and correctly URL-encoded live query links where an endpoint is known; Markdown mirrors them with fenced `sparql` code blocks.
 - [ ] The local RDF link (`rel="related"`) uses a relative path and the target file exists.
 - [ ] Navigation panel: drag works, resize works, collapse/expand toggles correctly, localStorage read/write does not throw, stale values are recovered from gracefully.
 - [ ] Skills attribution line present in footer with correct GitHub URL(s).
