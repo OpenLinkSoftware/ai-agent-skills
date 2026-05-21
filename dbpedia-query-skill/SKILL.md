@@ -22,6 +22,25 @@ Use this skill when users want to:
 ✅ **Multiple Output Formats**: JSON, Markdown tables, or HTML
 ✅ **Error Handling**: Graceful handling of malformed queries or no results
 
+## Strict SPARQL Report Harness Mode
+
+Use **DBpedia SPARQL Report Harness Mode** whenever the user asks to query DBpedia, convert a natural-language DBpedia question into SPARQL, generate an HTML report from DBpedia results, or reproduce/update a DBpedia query report.
+
+Harness mode constrains interpretation to a DBpedia-backed SPARQL/report workflow. Do not answer from general model knowledge when a DBpedia query is expected.
+
+### Harness Contract
+
+When active:
+
+1. **Endpoint is fixed to DBpedia** — use `https://dbpedia.org/sparql` as the semantic source unless the user explicitly supplies a different endpoint.
+2. **Generate SPARQL first** — translate the request to explicit SPARQL with standard DBpedia prefixes; include language filters where labels are human-facing.
+3. **Validate query shape before execution** — check prefixes, variable bindings, `LIMIT`, label handling, and endpoint compatibility.
+4. **Execute and retain provenance** — report the endpoint, generated query, execution route, timestamp, result count, and any fallback route used.
+5. **Result IRIs are first-class** — preserve DBpedia resource IRIs in tabular, Markdown, JSON, and HTML output.
+6. **Resolver links for reports** — visible result entities and predicate references in generated HTML/Markdown reports should link through `https://linkeddata.uriburner.com/describe/?url={encodedIRI}` unless the user explicitly asks for direct DBpedia links.
+7. **HTML report validation** — if an HTML report is generated, validate HTML structure, JavaScript syntax if present, link encoding (`describe/?url=`, no `%2523`), provenance section, source endpoint attribution, and accessibility of result tables.
+8. **Fail closed** — if DBpedia returns no reliable result or the query cannot be validated, state that clearly and show the query/provenance rather than fabricating an answer.
+
 ## DBpedia Endpoint
 
 **SPARQL Endpoint**: `https://dbpedia.org/sparql`

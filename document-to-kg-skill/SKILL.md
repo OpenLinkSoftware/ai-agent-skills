@@ -39,6 +39,30 @@ After `getSkillResource` loads this skill, the **next action must be text only**
 
 ---
 
+## Strict Harness Mode
+
+Use **Document-to-KG Harness Mode** whenever the user asks to transform a document, URL, pasted text, PDF, thread, article, or source mesh into RDF, JSON-LD, Turtle, a Knowledge Graph, or an RDF-backed HTML/MD artifact set.
+
+Harness mode constrains interpretation to this skill's document-to-RDF contract. Do not drift into a generic summary, article rewrite, standalone HTML page, or manually invented graph.
+
+### Harness Contract
+
+When active:
+
+1. **Collect or derive required inputs** — document source, canonical `{page_url}`, output RDF format, destination path, and whether HTML/Markdown companions are required.
+2. **Use `{page_url}` as entity namespace** for generated document-local IRIs, never `file:` IRIs when a canonical HTTP/HTTPS URL exists.
+3. **Generate RDF first** using schema.org and approved vocabularies; RDF is the source of truth for any companion HTML/Markdown.
+4. **Apply authority denotation rules** — `schema:SoftwareApplication` and `schema:Country` entities must use DBpedia/Wikidata-centered IRIs as described below, with `owl:sameAs` for confirmed cross references.
+5. **Inspect collection sources as collections** — when the source is a manual, documentation site, sitemap-backed site, MkDocs/Docusaurus/VitePress collection, GitBook, docs portal, or other multi-page source, inspect sitemap/search index/navigation for high-signal child pages before finalizing RDF. Always review child pages about APIs, SPARQL, endpoints, query examples, services, reporting workflows, data models, server/runtime platforms, and integration instructions when present.
+6. **Preserve SPARQL-bearing content** — when source content includes SPARQL queries, query examples, endpoint demos, or reporting/query recipes, do not summarize the query body away. Model each material query as a named `schema:SoftwareSourceCode` resource with `schema:programmingLanguage "SPARQL"`, `schema:text`, `schema:codeSampleType`, `schema:target` pointing to the endpoint/service, and `schema:potentialAction` pointing to a correctly URL-encoded live query URL when the endpoint accepts GET query parameters. Preserve documented placeholders visibly.
+7. **Validate before save** — RDF syntax, expanded DBpedia/Wikidata IRIs, no fabricated IRIs, no double-encoded resolver IRIs, no `file:` IRIs, and required prefix declarations.
+8. **If HTML/Markdown companions are requested**, hand off to the `rdf-infographic-skill` **RDF Infographic Harness Mode** and satisfy its full HTML/MD/RDF pairing, resolver, KG Explorer, navigation, attribution, and validation contract.
+9. **Fail closed on missing requirements** — if a required source, page URL, destination, resolver, or artifact scope is ambiguous and cannot be safely inferred, ask before generating.
+
+This harness is the default for requests such as "generate RDF and associated HTML and MD docs", "redo for this URL", "mesh these sources into RDF/HTML/MD", and "reproduce the HTML infographic from RDF".
+
+---
+
 ## Opening Announcement
 
 ⛔ **Send this text immediately after `getSkillResource` loads. Do not call any tool before this message is sent and the user has replied.**
@@ -128,6 +152,11 @@ Execute all five sub-tasks. Do not skip any. Do not proceed to Step 4 until all 
 - [ ] Inverse relationships explicit: every `schema:isPartOf` has corresponding `schema:hasPart`
 - [ ] `owl:sameAs` used (not `schema:sameAs`) for DBpedia cross-references
 - [ ] All DBpedia/Wikidata/Wikipedia IRIs fully expanded (not CURIEs)
+- [ ] Every `schema:SoftwareApplication` subject IRI follows the software denotation priority rule: DBpedia IRI if confirmed, else Wikidata IRI if confirmed, else official application home page URL with `#this`
+- [ ] Any non-DBpedia/non-Wikidata `schema:SoftwareApplication` IRI has `owl:sameAs` links to confirmed DBpedia/Wikidata identities when such identities exist, and `owl:` is declared as `http://www.w3.org/2002/07/owl#`
+- [ ] Every `schema:Country` subject IRI follows the country denotation priority rule: DBpedia IRI if confirmed, else Wikidata IRI if confirmed, else a source-grounded document IRI; add `owl:sameAs` links to confirmed DBpedia/Wikidata equivalents.
+- [ ] For multi-page documentation/manual sources, sitemap/search index/navigation has been reviewed for high-signal service/API/SPARQL/query/model/platform child pages, and those pages are represented or explicitly ruled out
+- [ ] SPARQL query examples, query recipes, or endpoint demos from the source are preserved as `schema:SoftwareSourceCode` with `schema:programmingLanguage "SPARQL"`, `schema:text`, target endpoint/service, and correctly URL-encoded `schema:potentialAction` live-query links where available
 - [ ] No `file:` scheme IRIs anywhere
 - [ ] All IRI-valued attributes use `@id` — no plain string literals for IRI-only properties
 - [ ] Inline double quotes within literals converted to single quotes
@@ -141,6 +170,34 @@ Execute all five sub-tasks. Do not skip any. Do not proceed to Step 4 until all 
 - [ ] `prov:wasGeneratedBy` links article to a skill entity with `schema:name`, `schema:url` (GitHub), `schema:description`
 
 **→ NEXT: Step 4.**
+
+### SoftwareApplication IRI Denotation Rule
+
+When the generated RDF names a software product, application, SaaS product, developer tool, LLM interface, browser extension, server platform, or app connector as a `schema:SoftwareApplication`, choose its subject IRI using this priority order:
+
+1. **DBpedia first** — if a confident DBpedia resource exists, use the fully expanded DBpedia IRI as the primary denotation IRI, for example `http://dbpedia.org/resource/Google_Docs`.
+2. **Wikidata second** — if no confident DBpedia resource exists but a confident Wikidata entity exists, use the fully expanded Wikidata IRI, for example `http://www.wikidata.org/entity/Q...`.
+3. **Homepage fallback** — if neither DBpedia nor Wikidata can be confirmed, use the official application/product home page URL with `#this` appended, for example `https://example.com/product/#this`.
+
+When the primary IRI is not DBpedia- or Wikidata-based, add `owl:sameAs` relations to any confirmed DBpedia or Wikidata IRIs for that application. Declare `owl:` as `http://www.w3.org/2002/07/owl#` whenever `owl:sameAs` appears. Do not use a local document hash IRI for a known software application when one of the three denotation options above is available.
+
+Do not fabricate DBpedia or Wikidata IRIs. If lookup or source evidence does not provide a confident match, use the homepage `#this` fallback and omit `owl:sameAs` until a confident DBpedia/Wikidata identity is established.
+
+---
+
+### Country IRI Denotation Rule
+
+When the generated RDF names a country as a `schema:Country`, choose its subject IRI using this priority order:
+
+1. **DBpedia first** — if a confident DBpedia country resource exists, use the fully expanded DBpedia IRI as the primary denotation IRI, for example `http://dbpedia.org/resource/South_Africa`.
+2. **Wikidata second** — if no confident DBpedia resource exists but a confident Wikidata country entity exists, use the fully expanded Wikidata IRI, for example `http://www.wikidata.org/entity/Q258`.
+3. **Document-local fallback** — only if neither authority IRI can be confirmed, use a source-grounded document hash IRI derived from `{page_url}`.
+
+When a primary country IRI is DBpedia-based and a confident Wikidata equivalent exists, add `owl:sameAs` to the Wikidata entity. When a primary country IRI is Wikidata-based and a confident DBpedia equivalent later becomes available, normalize to DBpedia or add `owl:sameAs` to the DBpedia entity if normalization would disrupt an existing artifact. Do not use local document hash IRIs for known countries when DBpedia or Wikidata authority IRIs are available.
+
+Visible country names in HTML, Markdown, and KG Explorer nodes must link through the configured resolver using the selected country RDF IRI. Country rows that carry source-specific measurements may attach those measurements directly to the selected country entity or to a named observation node connected to the country, but the country identity itself must remain DBpedia/Wikidata-centered.
+
+Do not fabricate DBpedia or Wikidata IRIs. If lookup or source evidence does not provide a confident match, use the document-local fallback and omit `owl:sameAs` until a confident identity is established.
 
 ---
 
@@ -171,11 +228,11 @@ When the user asks for an HTML infographic in addition to the RDF Knowledge Grap
 ### Entity IRIs and Resolver Links
 
 - Use `{page_url}` as the source-grounded namespace for generated entity IRIs. Do not use `file:` scheme IRIs when a canonical HTTP/HTTPS page URL exists.
-- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?uri={entity-iri}`) by default; user-designated resolver if specified; or none if user explicitly opts out.
-- Encode `#` as `%23` in resolver `uri` parameter values exactly once. `%2523` (double-encoded) is invalid.
+- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?url={entity-iri}`) by default; user-designated resolver if specified; or none if user explicitly opts out.
+- Encode `#` as `%23` in resolver `url` parameter values exactly once. `%2523` (double-encoded) is invalid.
 - Entity links must open a new tab or view using `target="_blank" rel="noopener noreferrer"`.
 - FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs via the resolver pattern.
-- Local KG entities (hash-based IRIs) route through resolver. LOD Cloud cross-references (DBpedia, Wikidata) link directly — they already resolve natively.
+- Visible semantic entities route through the configured resolver using their selected RDF IRIs, including DBpedia/Wikidata IRIs selected under the software denotation rule. The visible link target is the resolver URL; the resolver `url` parameter value is the entity IRI.
 
 ### POSH and JSON-LD Metadata
 

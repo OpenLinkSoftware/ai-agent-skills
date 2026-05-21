@@ -23,6 +23,25 @@ Use this skill when users want to:
 ✅ **Multiple Output Formats**: JSON, Markdown tables, or HTML
 ✅ **Label Service**: Automatic label resolution for human-readable results
 
+## Strict SPARQL Report Harness Mode
+
+Use **Wikidata SPARQL Report Harness Mode** whenever the user asks to query Wikidata, convert a natural-language Wikidata question into SPARQL, generate an HTML report from Wikidata results, or reproduce/update a Wikidata query report.
+
+Harness mode constrains interpretation to a Wikidata-backed SPARQL/report workflow. Do not answer from general model knowledge when a Wikidata query is expected.
+
+### Harness Contract
+
+When active:
+
+1. **Endpoint is fixed to Wikidata** — use `https://query.wikidata.org/sparql` as the semantic source unless the user explicitly supplies a different endpoint.
+2. **Generate SPARQL first** — translate the request to explicit SPARQL using Wikidata conventions: `wd:` entities, `wdt:` direct properties, `p:/ps:/pq:` statement modeling when qualifiers or references are needed, and `SERVICE wikibase:label` for human-readable labels.
+3. **Validate query shape before execution** — check prefixes, Q/P identifiers, label service, `LIMIT`, timeout risk, and whether qualifiers/references require statement modeling rather than direct `wdt:` properties.
+4. **Execute and retain provenance** — report the endpoint, generated query, execution route, timestamp, result count, user-agent path if direct, and any fallback route used.
+5. **Result IRIs are first-class** — preserve Wikidata entity IRIs and property IRIs in tabular, Markdown, JSON, and HTML output.
+6. **Resolver links for reports** — visible result entities and property references in generated HTML/Markdown reports should link through `https://linkeddata.uriburner.com/describe/?url={encodedIRI}` unless the user explicitly asks for direct Wikidata links.
+7. **HTML report validation** — if an HTML report is generated, validate HTML structure, JavaScript syntax if present, link encoding (`describe/?url=`, no `%2523`), provenance section, source endpoint attribution, and accessibility of result tables.
+8. **Fail closed** — if Wikidata returns no reliable result or the query cannot be validated, state that clearly and show the query/provenance rather than fabricating an answer.
+
 ## Wikidata Endpoint
 
 **SPARQL Endpoint**: `https://query.wikidata.org/sparql`

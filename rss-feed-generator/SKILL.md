@@ -32,6 +32,24 @@ lists posts, articles, or news items but does not publish its own feed.
 
 ---
 
+## Feed Generation Harness Mode
+
+Use **Feed Generation Harness Mode** whenever the user asks to generate, refresh, repair, or self-host an RSS/Atom feed from a web page.
+
+Harness mode constrains interpretation to feed production. Do not drift into a generic page summary or link list when a feed artifact is requested.
+
+### Harness Contract
+
+When active:
+
+1. **Template match first** — match the request to the predefined feed trigger templates before any fetch or generation.
+2. **Discover before generating** — check for existing RSS/Atom feeds via HTML `<link rel="alternate">`, HTTP `Link` headers where available, and common feed paths before synthesizing a new feed.
+3. **Extract canonical post items** — collect absolute post URLs, titles, dates when available, authors when available, and stable descriptions/excerpts.
+4. **Generate valid XML** — use the RSS 2.0 or Atom 1.0 templates, with absolute links, canonical GUID/ID values, valid dates, and UTF-8 encoding.
+5. **HTML wrapper when requested** — include a self-hostable wrapper with embedded feed discovery metadata and clear download/open links.
+6. **Validation gate** — run the validation checklist from `references/validation-checklist.md`; do not deliver until XML structure, required channel/feed fields, item IDs, dates, and absolute links pass.
+7. **Provenance** — state source page URL, generation time, item count, format, and whether the feed was discovered or synthesized.
+
 ## Predefined Prompt Templates
 
 **Always** match the user's input to a trigger template **before** executing or

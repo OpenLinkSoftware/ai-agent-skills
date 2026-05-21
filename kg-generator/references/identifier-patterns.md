@@ -32,12 +32,13 @@ schema:identifier "https://www.census.gov/naics/?input=524210&year=2022&details=
 
 ### Countries (`schema:Country`)
 
-Use the **ISO 3166-1 alpha-2 code** as a plain literal.
+Use a DBpedia/Wikidata-centered IRI for country denotation, and keep the **ISO 3166-1 alpha-2 code** as a plain literal identifier.
 
 ```turtle
-:unitedStates a schema:Country ;
+<http://dbpedia.org/resource/United_States> a schema:Country ;
     schema:name "United States" ;
-    schema:identifier "US" .
+    schema:identifier "US" ;
+    owl:sameAs <http://www.wikidata.org/entity/Q30> .
 ```
 
 | Country | Code |

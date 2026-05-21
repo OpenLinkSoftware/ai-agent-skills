@@ -24,7 +24,8 @@ Using a code block, generate a comprehensive representation of this information 
 4. Where relevant, add attributes for about, abstract, article body, and article section limited to a maximum of 30 words.
 5. Denote values of about using hash-based IRIs derived from entity home page or Wikipedia page URL.
 6. Where possible, if confident, add a DBpedia IRI to the list of about attribute values and then connect the list using owl:sameAs; note, never use schema:sameAs in this regard. In addition, never assign literal values to this attribute i.e., they MUST be IRIs by properly using @id.
-7. Where relevant, add article sections and fleshed out body to ensure richness of literal objects.
+7. For every country entity modeled as schema:Country, use a DBpedia country IRI as the primary subject IRI when confidently known; otherwise use a Wikidata country IRI when confidently known; only use a {page_url} hash IRI when neither can be confirmed. Add owl:sameAs between the selected country IRI and any confirmed DBpedia/Wikidata equivalent.
+8. Where relevant, add article sections and fleshed out body to ensure richness of literal objects.
 8. Where possible, align images with relevant article and howto step sections.
 9. Add a label to each how-to step.
 10. Add descriptions of any other relevant entity types.

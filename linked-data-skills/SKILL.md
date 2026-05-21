@@ -405,6 +405,8 @@ If any IRI fails to dereference, report as a Linked Data compliance gap and inve
 
 ## Path D — Document → RDF → Storage
 
+Path D is aligned with `document-to-kg-skill` **Document-to-KG Harness Mode**. Use this path only for document/source-to-RDF work, keep RDF as the source of truth, apply the SoftwareApplication IRI denotation rule, and validate RDF before saving. If the user requests HTML, Markdown, an infographic, or KG Explorer output, hand off to `rdf-infographic-skill` **RDF Infographic Harness Mode** after RDF generation.
+
 ### Step 1D — Collect source, format, and destination
 
 ⛔ **No tool call until all four items are confirmed.**
@@ -466,14 +468,14 @@ Confirm the full saved file path to the user.
 
 ### Optional HTML Infographic Companion For Path D
 
-When the user asks for an HTML infographic companion to Path D RDF output, apply these requirements. For the complete specification see the `rdf-infographic-skill` SKILL.md.
+When the user asks for an HTML infographic companion to Path D RDF output, apply `rdf-infographic-skill` **RDF Infographic Harness Mode**. For the complete HTML/RDF/Markdown pairing specification, resolver configuration, KG Explorer behavior, navigation panel behavior, attribution, dark mode, and validation checklist, see the `rdf-infographic-skill` SKILL.md.
 
 - Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Confirm paths before saving.
 - Use `{page_url}` as the source-grounded namespace. Never use `file:` scheme IRIs when a canonical HTTPS URL exists.
-- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?uri={entity-iri}`) by default; user-designated resolver if specified; or none if opted out.
-- Encode `#` as `%23` exactly once. `%2523` is invalid. Entity links open in new tabs.
+- Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?url={entity-iri}`) by default; user-designated resolver if specified; or none if opted out.
+- Encode `#` as `%23` exactly once in resolver `url` parameters. `%2523` is invalid. Entity links open in new tabs.
 - FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs.
-- Local KG entities route through resolver. LOD Cloud cross-references (DBpedia, Wikidata) link directly.
+- Visible semantic entities route through the configured resolver using their selected RDF IRIs, including DBpedia/Wikidata IRIs selected under the SoftwareApplication denotation rule.
 - POSH link: `<link rel="related" href="../rdf/{rdf-file}" type="text/turtle">`
 - JSON-LD `relatedLink`: `{"@id": "../rdf/{rdf-file}"}` — IRI form, never a plain string literal.
 - Skills attribution in footer: `Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`
