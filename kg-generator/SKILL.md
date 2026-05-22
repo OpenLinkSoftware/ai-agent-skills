@@ -26,6 +26,8 @@ This skill is a Knowledge Graph generation entry point. For document/source-to-R
 
 Do not let this skill drift into standalone HTML generation, source summarization, or manually invented graph visualization. RDF remains the source of truth, and companion HTML/Markdown artifacts must satisfy the RDF/HTML/MD pairing contract in `rdf-infographic-skill`.
 
+If this skill produces or templates any HTML directly, it must inherit the `rdf-infographic-skill` open-tab contract: every generated HTML `<a>` whose `href` is not a same-page fragment (`#section`) uses `target="_blank" rel="noopener noreferrer"`, while same-page fragment navigation remains same-tab. Attribution links must hyperlink the attributed label itself, not generic labels such as `Visit` or `Learn more`.
+
 ### SoftwareApplication IRI Alignment
 
 When generated RDF introduces or normalizes a `schema:SoftwareApplication`, use the denotation priority rule shared with `document-to-kg-skill` and `rdf-infographic-skill`:
@@ -67,6 +69,42 @@ When generating RDF from a documentation collection, manual, docs portal, sitema
 | User requests RDF-Turtle explicitly | Business & Market Analysis | RDF-Turtle |
 
 When uncertain, default to the **Generic** template and ask the user if they want the Business & Market Analysis variant.
+
+### RDF Format Elicitation
+
+Before generation, elicit the RDF serialization format unless already specified by the user:
+
+> "Output format: (1) RDF-Turtle only, (2) JSON-LD only, or (3) Both?"
+
+Do NOT default to dual-format generation. Only produce both when explicitly requested or when the user asks for HTML/MD companions that require a format toggle in the footer. Producing an unneeded format wastes tokens on rdflib conversion and file I/O.
+
+### Generation Modality
+
+Before generation, elicit the modality unless the user has already specified one:
+
+> "Generate via: (1) **LLM-Direct** — I write all artifacts end-to-end, (2) **Script-Assisted** — I extract entities as JSON, Python builds RDF deterministically, then I generate HTML+MD from validated RDF, or (3) **Agent's Choice** — I pick the most token-efficient mode based on content complexity?"
+
+| Mode | Mechanism | Best for |
+|------|-----------|----------|
+| **LLM-Direct** | LLM writes TTL/JSON-LD, HTML, MD end-to-end | Small posts, <15 entities, simple structure, quick iterations |
+| **Script-Assisted** | LLM outputs structured JSON entity map → Python/rdflib constructs Graph, serializes, runs compliance audit → LLM generates HTML+MD from validated RDF | Large posts, many entities, comments, images, SPARQL queries |
+| **Agent's Choice** | Agent evaluates source: entity count, comment count, media count, SPARQL presence → picks optimal mode | Default — removes decision burden, minimizes token spend |
+
+**Agent's Choice heuristic:**
+- Entities > 20, comments > 3, or SPARQL queries present → **Script-Assisted**
+- Entities ≤ 20, no comments, no SPARQL → **LLM-Direct**
+
+### Plan Presentation Rule
+
+Before executing any generation, present a tabulated plan with every item checked against the applicable validation gates. Use this format:
+
+| # | Requirement | Skill Source | Status |
+|---|---|---|---|
+| 1 | `@prefix :` = canonical source URL with `#` | kg-gen checklist | ✓ |
+| 2 | `schema:` = `http://schema.org/` (HTTP) | kg-gen checklist | ✓ |
+| ... | ... | ... | ... |
+
+If any gate has no corresponding check in the skills, mark it **MISSING GATE** and pause for the user to resolve before proceeding. Do not execute until the user approves the plan.
 
 ---
 
@@ -118,6 +156,8 @@ If the user explicitly names a protocol, follow that preference instead.
 ## Template 1 — Generic (JSON-LD)
 
 Use for general web pages, articles, blog posts, and documentation.
+
+⛔ **PRE-BUILD CHECK**: Before producing JSON-LD, re-read the "Post-Generation Checklist" below and the "Compliance Self-Audit" in the prompt. Confirm: `@base` = `{page_url}`, `schema:` = `http://schema.org/` (HTTP), FAQ → `schema:FAQPage` + `schema:mainEntity`, glossary → `schema:DefinedTermSet` + `schema:hasDefinedTerm`, person IRI priority (LinkedIn → X → Substack → hash fallback), no `file:` IRIs, `owl:sameAs` not `schema:sameAs`, no blank nodes for `schema:Answer`. Build to pass every item — do not retro-fit.
 
 ### Placeholders
 
@@ -227,6 +267,8 @@ GATE: 0 FAIL required before delivery. Every numbered rule in this prompt has a 
 ## Template 2 — Business & Market Analysis (RDF-Turtle)
 
 Use for business strategy posts, X/social threads, market analyses, and industry deep-dives.
+
+⛔ **PRE-BUILD CHECK**: Before producing RDF-Turtle, re-read the "Post-Generation Checklist" below and the "Compliance Self-Audit" in the prompt. Confirm: `@prefix :` = `{post-url}#`, `schema:` = `http://schema.org/` (HTTP), ontology with `schema:name` + `schema:description` + `schema:identifier`, all custom classes/properties have `rdfs:isDefinedBy :`, 12 FAQ + 10 glossary + 7 HowTo present, NAICS codes with `?input=&year=2022&details=` pattern, no blank nodes for `schema:Answer`, `prov:wasGeneratedBy` on `:analysis`, no `file:` IRIs. Build to pass every item — do not retro-fit.
 
 ### Placeholders
 
@@ -394,7 +436,9 @@ Always use **both** `schema:naics` and `schema:identifier` together on industry 
 
 ## HTML Infographic Companion Requirements
 
-When the user asks for an HTML infographic companion to a generated Knowledge Graph, invoke the `rdf-infographic-skill` **RDF Infographic Harness Mode** requirements. For the complete HTML/RDF/Markdown pairing specification including resolver configuration, KG Explorer behavior, navigation panel behavior, localStorage correctness, attribution, dark mode, and the full validation checklist, see the `rdf-infographic-skill` SKILL.md.
+When the user asks for an HTML infographic companion to a generated Knowledge Graph, invoke the `rdf-infographic-skill` **RDF Infographic Harness Mode** requirements.
+
+⛔ **PRE-BUILD CHECK**: Before generating HTML, load `rdf-infographic-skill` and re-read the "Harness Contract" (13-point checklist) and "Validation Checklist." Confirm: shared stem, resolver-backed entity links, POSH + JSON-LD pairing, floating nav (collapsed by default), theme toggle, KG Explorer (Basic + Advanced), attribution footer, MD parity, authority denotation rules (SoftwareApplication, Country), 0-failure delivery gate. Every item is a build target, not a post-delivery check. For the complete HTML/RDF/Markdown pairing specification including resolver configuration, KG Explorer behavior, navigation panel behavior, localStorage correctness, attribution, dark mode, and the full validation checklist, see the `rdf-infographic-skill` SKILL.md.
 
 ### Output Paths
 
@@ -420,23 +464,23 @@ When the user asks for an HTML infographic companion to a generated Knowledge Gr
 ```html
 <!-- Premium footer with 4-column grid design -->
 <footer class="footer">
-<p style="margin-bottom:20px"><a href="https://linkeddata.uriburner.com/sparql?query=..." target="_blank" class="cta-btn" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--accent);color:#fff;border-radius:12px;text-decoration:none;font-weight:600;font-size:0.95rem">Explore Knowledge Graph <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 3.5a1.5 1.5 0 0 1 0 3h-5l-.5.5 1 1a1 1 0 0 0 1.414 1.414l-2-2a1 1 0 0 0 0-1.414l-2-2a1 1 0 0 0-1.414 1.414l1 1-.5.5h5z"/></svg></a></p>
+<p style="margin-bottom:20px"><a href="https://linkeddata.uriburner.com/sparql?query=..." target="_blank" rel="noopener noreferrer" class="cta-btn" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--accent);color:#fff;border-radius:12px;text-decoration:none;font-weight:600;font-size:0.95rem">Explore Knowledge Graph <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 3.5a1.5 1.5 0 0 1 0 3h-5l-.5.5 1 1a1 1 0 0 0 1.414 1.414l-2-2a1 1 0 0 0 0-1.414l-2-2a1 1 0 0 0-1.414 1.414l1 1-.5.5h5z"/></svg></a></p>
 <div class="tech-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px;border-top:1px solid var(--line);padding-top:24px">
 <div class="tech-card" style="text-align:center;padding:16px;background:var(--panel);border-radius:12px;border:1px solid var(--line)">
 <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">AI Agent</h4>
-<a href="https://opencode.ai" target="_blank" style="color:var(--accent);font-family:'Space Grotesk';font-weight:600;font-size:0.95rem;text-decoration:none">OpenCode</a>
+<a href="https://opencode.ai" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-family:'Space Grotesk';font-weight:600;font-size:0.95rem;text-decoration:none">OpenCode</a>
 </div>
 <div class="tech-card" style="text-align:center;padding:16px;background:var(--panel);border-radius:12px;border:1px solid var(--line)">
 <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">AI Agent Skills</h4>
-<div style="font-size:0.8rem"><a href="https://github.com/anomalyco/opencode/tree/main/skill-name" target="_blank" style="color:var(--accent);text-decoration:none">skill-name</a></div>
+<div style="font-size:0.8rem"><a href="https://github.com/anomalyco/opencode/tree/main/skill-name" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none">skill-name</a></div>
 </div>
 <div class="tech-card" style="text-align:center;padding:16px;background:var(--panel);border-radius:12px;border:1px solid var(--line)">
 <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">Language Model</h4>
-<a href="https://opencode.ai/models/minimax_m2.5free" target="_blank" style="color:var(--accent);font-family:'Space Grotesk';font-weight:600;font-size:0.95rem;text-decoration:none">minimax_m2.5free</a>
+<a href="https://opencode.ai/models/minimax_m2.5free" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-family:'Space Grotesk';font-weight:600;font-size:0.95rem;text-decoration:none">minimax_m2.5free</a>
 </div>
 <div class="tech-card" style="text-align:center;padding:16px;background:var(--panel);border-radius:12px;border:1px solid var(--line)">
 <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">Server Platform</h4>
-<a href="https://virtuoso.openlinksw.com/" target="_blank" style="color:var(--accent);font-family:'Space Grotesk';font-weight:600;font-size:0.95rem;text-decoration:none">Virtuoso</a>
+<a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-family:'Space Grotesk';font-weight:600;font-size:0.95rem;text-decoration:none">Virtuoso</a>
 </div>
 </div>
 </footer>
@@ -452,14 +496,14 @@ Every HTML infographic generated from a named graph should include an About sect
 <section class="section" id="about">
 <div class="eyebrow-dark">About</div>
 <div class="section-title"><h2>About This Page</h2></div>
-<p style="color:var(--muted);line-height:1.7">This knowledge graph overview was generated by querying the <a href="https://linkeddata.uriburner.com/sparql" target="_blank" style="color:var(--accent)">URIBurner SPARQL endpoint</a> for the named graph <code>{graph-iri}</code>. The original document was transformed into RDF using {skills-used}, then uploaded to the Virtuoso-based URIBurner server. The SPARQL query retrieved {entity-types} from the knowledge graph. The HTML infographic was then rendered using {skills-used} powered by {model-id} and running on Virtuoso.</p>
+<p style="color:var(--muted);line-height:1.7">This knowledge graph overview was generated by querying the <a href="https://linkeddata.uriburner.com/sparql" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">URIBurner SPARQL endpoint</a> for the named graph <code>{graph-iri}</code>. The original document was transformed into RDF using {skills-used}, then uploaded to the Virtuoso-based URIBurner server. The SPARQL query retrieved {entity-types} from the knowledge graph. The HTML infographic was then rendered using {skills-used} powered by {model-id} and running on Virtuoso.</p>
 <p style="margin-top:16px;font-size:0.85rem;color:var(--ink)"><strong>Technology Stack:</strong></p>
 <ul style="margin-top:8px;font-size:0.85rem;color:var(--ink);list-style:disc;padding-left:20px">
-<li>AI Agent: <a href="https://opencode.ai" target="_blank" style="color:var(--accent)">OpenCode</a></li>
-<li>Skills: <a href="https://github.com/anomalyco/opencode/tree/main/skill-name" target="_blank" style="color:var(--accent)">skill-name</a></li>
-<li>Language Model: <a href="https://opencode.ai/models/{model-id}" target="_blank" style="color:var(--accent)">{model-id}</a></li>
-<li>Server Platform: <a href="https://virtuoso.openlinksw.com/" target="_blank" style="color:var(--accent)">Virtuoso</a></li>
-<li>Knowledge Graph: <a href="https://linkeddata.uriburner.com/sparql" target="_blank" style="color:var(--accent)">URIBurner</a></li>
+<li>AI Agent: <a href="https://opencode.ai" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">OpenCode</a></li>
+<li>Skills: <a href="https://github.com/anomalyco/opencode/tree/main/skill-name" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">skill-name</a></li>
+<li>Language Model: <a href="https://opencode.ai/models/{model-id}" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">{model-id}</a></li>
+<li>Server Platform: <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Virtuoso</a></li>
+<li>Knowledge Graph: <a href="https://linkeddata.uriburner.com/sparql" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">URIBurner</a></li>
 </ul>
 </section>
 ```
@@ -478,6 +522,8 @@ Substitute: `{graph-iri}`, `{skills-used}`, `{entity-types}`, `{skill-links}`, a
 ## MD Document Companion Requirements
 
 When generating a Markdown document alongside RDF and HTML outputs, the MD **MUST** follow these requirements:
+
+⛔ **PRE-BUILD CHECK**: Before writing MD, re-read the "Checklist" at the end of this section. Confirm: all entity names/property names in relationships section resolver-hyperlinked, FAQ questions resolver-hyperlinked, glossary terms resolver-hyperlinked, HowTo step titles resolver-hyperlinked, Related Resources includes relative links to companion RDF and HTML, no plain-text code blocks for relationships. Build to pass every item.
 
 ### Structure
 
@@ -521,6 +567,7 @@ The MD **MUST** include a relationships section that:
 - [ ] How-To step titles are resolver-hyperlinked.
 - [ ] Related Resources section includes relative links to companion RDF and HTML files.
 - [ ] No plain-text code blocks used for relationship descriptions that should be hyperlinked.
+- [ ] **"Explore Knowledge Graph using SPARQL" CTA link** present at the top of the Related Resources section, using a SPARQL query with an explicit `FROM <{graph-iri}>` clause scoped to the named graph IRI derived from the DAV upload location (`https://linkeddata.uriburner.com/DAV/demos/daas/{filename}.ttl`). The query must use `SELECT DISTINCT ?subject ?type (SAMPLE(?label) AS ?name) … GROUP BY ?subject ?type ORDER BY ?type LIMIT 50` — no `default-graph-uri=` URL parameter, no `FILTER(STRSTARTS(...))` workaround.
 
 ---
 
@@ -606,6 +653,8 @@ Both files share the same base namespace (`@prefix : <{source-url}#>`) and entit
 
 The footer of every HTML infographic **MUST** include a SPARQL button that lets users query the knowledge graph via URIBurner. Include format toggle tabs so users can select which RDF document to query.
 
+⛔ **PRE-BUILD CHECK**: Before writing the footer HTML/JS, re-read this section's "Required HTML Structure," "Required CSS," and "Required JavaScript." Confirm: format toggle tabs (Turtle/JSON-LD), `setSparqlFormat()` function, GRAPH IRI uses `DAV/demos/daas/{filename}` (not source URL), query URL uses `encodeURIComponent`, `#sparqlBtn` href updates on toggle.
+
 ### Required HTML Structure
 
 ```html
@@ -615,7 +664,7 @@ The footer of every HTML infographic **MUST** include a SPARQL button that lets 
         <button id="fmtJsonld" onclick="setSparqlFormat('jsonld')">JSON-LD</button>
     </div>
     <p style="margin-bottom:20px">
-        <a id="sparqlBtn" href="...">Explore Knowledge Graph using SPARQL</a>
+        <a id="sparqlBtn" href="..." target="_blank" rel="noopener noreferrer">Explore Knowledge Graph using SPARQL</a>
     </p>
 </footer>
 ```

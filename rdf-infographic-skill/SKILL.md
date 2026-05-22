@@ -57,6 +57,50 @@ When active, every generated artifact set MUST include, unless the user explicit
 
 If an input is insufficient to satisfy the harness contract, ask for the missing source, RDF, resolver, output folder, or artifact scope before generating. If an existing artifact is being repaired, preserve its RDF/HTML/MD pairing and retrofit the missing contract items rather than creating a separate one-off patch.
 
+### Template Selection And Reusable Harness Assets
+
+Skills must remain loosely coupled. The harness contract defines required behavior; it does not require one fixed visual template or one mandatory implementation helper. For future RDF-backed article collections, choose a template explicitly named by the user, infer an appropriate template from the content, or mirror the contract in a fresh implementation. Use the helper only when it fits the selected design.
+
+When choosing among template styles, read `references/template-options.md`. It includes the compact harness reference plus user-supplied Claude templates for the Gartner dashboard and Semantic Medallion editorial/technical styles.
+
+Reusable assets:
+
+- `scripts/rdf_infographic_harness.py` — optional reference helper functions for resolver URLs, query-type-specific SPARQL live URLs, a KG Explorer shell, footer attribution, and the footer "Explore Knowledge Graph using SPARQL" workbench.
+- `assets/templates/gartner-da-london-2026-claude-sonnet4-dashboard.html` — optional dashboard-style HTML template reference.
+- `assets/templates/semantic-medallion-editorial-technical.html` — optional editorial/technical HTML template reference for layered architecture and SPARQL-heavy explainers.
+- `scripts/validate-harness-contract.py` — zero-failure gate for the strict harness contract. It validates contract-equivalent features rather than enforcing a single template. Run it before delivery:
+
+```bash
+python3 /Users/kidehen/Documents/Management/Development/ai-agent-skills/rdf-infographic-skill/scripts/validate-harness-contract.py \
+  /path/to/webpages/{stem}.html \
+  --ttl /path/to/rdf/{stem}.ttl \
+  --jsonld /path/to/rdf/{stem}.jsonld
+```
+
+The validator must pass before declaring the artifact complete. If it fails, repair the selected generator/template rather than hand-editing only the published HTML.
+
+#### KG Explorer Non-Negotiables
+
+Future KG Explorers MUST use the same behavioral contract as the helper shell:
+
+- The controls tray starts closed with `id="kgToolbar" hidden`; the first visible state is graph + compact `Controls` button + node/link count.
+- `Basic` and `Advanced` are explicit mode buttons; Advanced-only controls carry `data-advanced-control hidden`.
+- `Settings` is hidden in Basic mode and only opens after switching to Advanced mode.
+- Predicate filters include wired `All` and `None` controls.
+- Graph payload is derived from companion RDF, includes no orphan links, and keeps node IDs and predicate IDs as RDF IRIs.
+- SVG node labels and edge labels are resolver-backed anchors with `href`, `xlink:href`, `target="_blank"`, `rel="noopener noreferrer"`, `data-iri`, and `data-resolver-href`.
+- Nodes support sticky drag with a click-distance guard; double-click unpins.
+
+#### Footer SPARQL Workbench Non-Negotiables
+
+The footer MUST include a real workbench, not only a static link:
+
+- `id="sparql-explorer"` section with named graph selector, query recipe selector, editable SPARQL textarea, result-format display, live query link, refresh, and copy controls.
+- SELECT links use `format=text%2Fx-html%2Btr`.
+- DESCRIBE and CONSTRUCT links use `format=text%2Fx-html-nice-turtle`.
+- Live query URLs are built with `encodeURIComponent(query)`.
+- Attribution cards include source material, companion files, skills used, generation environment, Linked Data runtime, named graphs, resolver pattern, and extraction provenance.
+
 ## Quick Workflow
 
 ### 1. Prepare Your RDF Data
@@ -914,6 +958,8 @@ Before delivery, record or verify the chosen denotation basis for every `schema:
 
 ## Footer SPARQL Button with Format Toggle
 
+⛔ **PRE-BUILD CHECK**: Before writing the footer SPARQL button, re-read this entire section. Confirm: (a) `<a id="sparqlBtn">` anchor exists with label "Explore Knowledge Graph using SPARQL"; (b) `setSparqlFormat` / `setSparqlFmt` builds `sparqlBtn.href` using the pre-encoded canonical entity-type summary query — `SPARQL_BTN_Q_PRE + encodeURIComponent(graphIri) + SPARQL_BTN_Q_POST` — never a simplified substitute; (c) the canonical query projects `?type`, `SAMPLE(?s) AS ?sampleEntity`, `SAMPLE(?label) AS ?sampleLabel`, `COUNT(?s) AS ?entityCount`, includes `OPTIONAL { ?s rdfs:label ?label }`, uses `rdf:type` (not `a`), and has a `GRAPH <{graphIri}>` clause; (d) format parameter is `text%2Fx-html%2Btr`; (e) `sparqlBtn.href` is initialised on page load; (f) switching format tabs updates `sparqlBtn.href` with the new graph IRI.
+
 Every HTML infographic that has a companion RDF file (Turtle and/or JSON-LD) **MUST** include a SPARQL button in the footer that lets users query the knowledge graph via URIBurner. Include format toggle tabs (RDF Turtle / JSON-LD) so users can select which RDF document to query.
 
 ### Required HTML Structure
@@ -1051,7 +1097,7 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] Navigation panel: drag works, resize works, collapse/expand toggles correctly, localStorage read/write does not throw, stale values are recovered from gracefully.
 - [ ] Skills attribution line present in footer with correct GitHub URL(s).
 - [ ] Provenance/attribution links use the attributed labels themselves as anchors (for example `URIBurner`, `OpenLink Virtuoso`, `D3.js`, `rdf-infographic-skill`); no generic `Visit`/`Learn more` labels.
-- [ ] Footer SPARQL button present with Turtle/JSON-LD format toggle; GRAPH clause uses `DAV/demos/daas/{filename}` path (not source URL).
+- [ ] Footer SPARQL button present with Turtle/JSON-LD format toggle; `<a id="sparqlBtn">` uses the canonical entity-type summary query (`SAMPLE(?s) AS ?sampleEntity`, `SAMPLE(?label) AS ?sampleLabel`, `COUNT(?s) AS ?entityCount`, `OPTIONAL { rdfs:label }`, `rdf:type` not `a`, `GRAPH <DAV/demos/daas/{filename}>` clause) — not a simplified substitute; format parameter is `text%2Fx-html%2Btr`; `sparqlBtn.href` initialised on load and updated on format-tab switch.
 - [ ] Dark mode: both `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` produce equivalent rendering; no hardcoded colors outside CSS variables.
 - [ ] Dark mode CSS blocks are **not** comma-combined: `html[data-theme="dark"] { … }` and `@media (prefers-color-scheme:dark) { … }` must be two entirely separate blocks. A trailing comma after a selector followed by an `@media` rule is invalid CSS and silently fails in most browsers.
 - [ ] Light/dark theme toggle is present in the **nav panel header bar** (`#fnav-header`) — not inside the collapsible `#fnav-links` section — so it is accessible whether the nav is collapsed or expanded. The button must carry `title` and `aria-label` attributes and update its icon/label to reflect the current theme state on each click.
