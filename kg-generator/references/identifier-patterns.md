@@ -85,13 +85,32 @@ Use the person's **canonical profile URL** at their primary authoritative platfo
 
 ### Organizations (`org:Organization`, `schema:Organization`)
 
-Use the **organization's official homepage URL**.
+Use the **highest-priority identity** in this order:
+1. DBpedia resource IRI (e.g., `http://dbpedia.org/resource/OpenAI`)
+2. Wikidata entity IRI (e.g., `http://www.wikidata.org/entity/Q{...}`)
+3. LinkedIn company page URL → `{url}#this`
+4. X/Twitter org account URL → `{url}#this`
+5. Official homepage URL → `{url}#this`
+6. Hash-based fallback from `{page_url}`
+
+ALL discovered platform identities MUST be linked via `owl:sameAs`.
 
 ```turtle
-:withCoverage a org:Organization ;
-    schema:url <https://withcoverage.com> ;
-    schema:identifier "https://withcoverage.com" .
+:openAI a org:Organization ;
+    schema:name "OpenAI" ;
+    schema:url <https://openai.com> ;
+    schema:identifier "http://dbpedia.org/resource/OpenAI" ;
+    owl:sameAs <http://dbpedia.org/resource/OpenAI>,
+               <https://www.linkedin.com/company/openai/> .
 ```
+
+| Platform | Pattern |
+|---|---|
+| DBpedia | `http://dbpedia.org/resource/{name}` |
+| Wikidata | `http://www.wikidata.org/entity/Q{...}` |
+| LinkedIn Company | `https://www.linkedin.com/company/{slug}/` |
+| X (Twitter) | `https://x.com/{handle}` |
+| Official homepage | Organization's canonical homepage URL |
 
 ---
 
