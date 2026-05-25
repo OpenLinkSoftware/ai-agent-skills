@@ -100,6 +100,8 @@ The footer MUST include a real workbench, not only a static link:
 - DESCRIBE and CONSTRUCT links use `format=text%2Fx-html-nice-turtle`.
 - Live query URLs are built with `encodeURIComponent(query)`.
 - Attribution cards include source material, companion files, skills used, generation environment, Linked Data runtime, named graphs, resolver pattern, and extraction provenance.
+- **SPARQL textarea escape gate** — grep the generated HTML for `\\\\n` (literal backslash-n) inside `queryFor`/`qf` function bodies. A match means the SELECT return was double-escaped and the query will display raw `\n` characters instead of newlines. If found, fix the escaping (JS strings use `\n` for newline, not `\\n`) before delivering.
+- The SELECT recipe in `queryFor`/`qf` MUST use the SAMPLE-based entity type summary query, not bare `SELECT *`.
 
 ## Quick Workflow
 
@@ -650,7 +652,7 @@ grep -c "node-type-chips\|toggleNodeType" file.html # must be ≥ 2 (HTML + JS)
 grep -c "setNodeTypeAll" file.html               # must be ≥ 2 (definition + call)
 grep -c "aria-pressed" file.html                  # must be ≥ 2 (initial HTML + JS update)
 grep -c "kg-active" file.html                     # must be ≥ 3 (CSS + add + remove)
-grep -c "simulation\.force" file.html             # must be ≥ 1
+grep -c "\.force(" file.html                      # must be ≥ 1 (matches _sim.force or simulation.force)
 ```
 
 **GATE: 0 failures required.** Do not present or link the file if any grep returns 0.
