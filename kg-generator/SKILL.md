@@ -48,6 +48,16 @@ When generated RDF introduces or normalizes a `schema:Country`, use the denotati
 
 When using DBpedia as the primary country IRI and a confirmed Wikidata equivalent exists, add `owl:sameAs` to the Wikidata entity. When using Wikidata as a fallback and a DBpedia equivalent later becomes available, normalize to DBpedia or add `owl:sameAs` if preserving an existing artifact is necessary. Do not use local document hash IRIs for known countries when DBpedia or Wikidata authority IRIs are available. Visible country names in HTML/Markdown companions and KG Explorer nodes must use the selected country IRI via the resolver pattern.
 
+### DefinedTerm / Glossary IRI Alignment
+
+When generated RDF introduces `schema:DefinedTerm` or `skos:Concept` glossary entries, cross-reference to DBpedia and Wikidata when confidence is high:
+
+1. DBpedia IRI via `owl:sameAs` if a confident DBpedia resource exists for the term.
+2. Wikidata IRI if no confident DBpedia resource exists but a confident Wikidata entity exists.
+3. No cross-reference when neither can be confirmed — do not fabricate.
+
+This applies to technology standards (WebDAV, SPARQL, HTTP), protocols (LDP, OAuth), access control models (RBAC, ABAC), storage services (Google Drive, Dropbox, S3), and other well-known concepts that have established DBpedia/Wikidata entries. The glossary concept IRI remains the document-local hash IRI; `owl:sameAs` provides the authority link.
+
 ### Collection and Service Detection
 
 When generating RDF from a documentation collection, manual, docs portal, sitemap-backed site, MkDocs/Docusaurus/VitePress collection, GitBook, or source mesh:
