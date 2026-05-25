@@ -117,12 +117,18 @@ def kg_explorer_shell(stem: str, ttl_graph_iri: str) -> str:
 
 
 def footer_sparql_workbench(ctx: HarnessContext) -> str:
-    select_query = f"""SELECT * WHERE {{
+    select_query = f"""PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?type (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?label) AS ?sampleLabel) (COUNT(?s) AS ?entityCount)
+WHERE {{
   GRAPH <{ctx.ttl_graph_iri}> {{
-    ?s ?p ?o
+    ?s rdf:type ?type .
+    OPTIONAL {{ ?s rdfs:label ?label }}
   }}
 }}
-LIMIT 50"""
+GROUP BY ?type
+ORDER BY DESC(?entityCount)"""
     return f"""
 <div class="sparql-launch" id="sparql-explorer">
   <div class="sparql-head">
@@ -159,7 +165,7 @@ def footer_sparql_script(source_article_iri: str, endpoint: str = SPARQL_ENDPOIN
   function queryFor(kind, g) {{
     if (kind === 'describe') return 'DESCRIBE <' + source + '>\\nFROM <' + g + '>';
     if (kind === 'construct') return 'CONSTRUCT {{ ?s ?p ?o }}\\nWHERE {{\\n  GRAPH <' + g + '> {{\\n    ?s ?p ?o .\\n    FILTER(?p IN (<http://schema.org/about>, <http://schema.org/mentions>, <http://schema.org/hasPart>, <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>))\\n  }}\\n}}\\nLIMIT 100';
-    return 'SELECT * WHERE {{\\n  GRAPH <' + g + '> {{\\n    ?s ?p ?o\\n  }}\\n}}\\nLIMIT 50';
+    return 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\\n\\nSELECT ?type (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?label) AS ?sampleLabel) (COUNT(?s) AS ?entityCount)\\nWHERE {{\\n  GRAPH <' + g + '> {{\\n    ?s rdf:type ?type .\\n    OPTIONAL {{ ?s rdfs:label ?label }}\\n  }}\\n}}\\nGROUP BY ?type\\nORDER BY DESC(?entityCount)';
   }}
   function fmtFor(q) {{
     const first = q.trim().split(/\\s+/, 1)[0].toUpperCase();
