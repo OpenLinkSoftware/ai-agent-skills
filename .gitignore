@@ -10,3 +10,9 @@
 bookmarklet-filesystem-ui.js
 filesystem-ui-extension/
 scripts/watch-indexes.sh
+
+# Personal agent instructions and memory (not for public repo)
+CLAUDE.md
+AGENT.md
+AGENT-basic.md
+agent-rdf-memory/
