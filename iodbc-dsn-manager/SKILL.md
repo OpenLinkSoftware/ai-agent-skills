@@ -308,6 +308,9 @@ Always post-process full IRI output with Python to apply CURIE substitutions bef
 ## Initialization Sequence
 
 When invoked:
+
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 1. Run Mode detection (Step 0) — check www_sv, then local ODBC, then ask for REST URL
 2. If www_sv binary found but not running: **ask user** "www_sv is installed but not running — start it?" → start if yes
 3. Report detected mode, OS, available driver managers, config paths

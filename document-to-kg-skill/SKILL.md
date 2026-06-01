@@ -86,6 +86,8 @@ This harness is the default for requests such as "generate RDF and associated HT
 
 Wait for the user's reply. **→ NEXT: Step 1.**
 
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 ---
 
 ## Step 1 — Collect Source, Format, and Destination
@@ -230,7 +232,7 @@ When the user asks for an HTML infographic in addition to the RDF Knowledge Grap
 - Use `{page_url}` as the source-grounded namespace for generated entity IRIs. Do not use `file:` scheme IRIs when a canonical HTTP/HTTPS page URL exists.
 - Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?url={entity-iri}`) by default; user-designated resolver if specified; or none if user explicitly opts out.
 - Encode `#` as `%23` in resolver `url` parameter values exactly once. `%2523` (double-encoded) is invalid.
-- Entity links must open a new tab or view using `target="_blank" rel="noopener noreferrer"`.
+- Every generated HTML anchor whose `href` is not a same-page fragment (`#section`) must open a new tab or view using `target="_blank" rel="noopener noreferrer"`. Same-page navigation fragment links remain same-tab and must not carry `target="_blank"`.
 - FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs via the resolver pattern.
 - Visible semantic entities route through the configured resolver using their selected RDF IRIs, including DBpedia/Wikidata IRIs selected under the software denotation rule. The visible link target is the resolver URL; the resolver `url` parameter value is the entity IRI.
 
@@ -239,14 +241,14 @@ When the user asks for an HTML infographic in addition to the RDF Knowledge Grap
 - Indicate the associated RDF document using `<link rel="related" href="../rdf/{rdf-file}" type="text/turtle">`.
 - Embed a JSON-LD structured-data island with a `WebPage` node. `schema:relatedLink` must use IRI form: `{"@id": "../rdf/{rdf-file}"}` — not a plain string literal.
 - `prov:wasGeneratedBy` must reference a `schema:SoftwareApplication` entity for each skill used, with `schema:name`, `schema:url` (GitHub), and `schema:description`.
-- Skills attribution line in the HTML footer: `Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`
+- Skills attribution line in the HTML footer: `Generated using <a target="_blank" rel="noopener noreferrer" href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`. Link attributed labels directly; do not use generic `Visit`/`Learn more` anchor text.
 
 ### Navigation, Theme, and Validation
 
 - Collapse-to-header-bar floating navigation: always-visible compact header, toggle button (− / +), draggable, resizable, closed by default.
 - Never persist collapsed dimensions as open dimensions in `localStorage`. Recover from stale or corrupt values. Use page-specific keys.
 - Dark mode: `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` must produce equivalent rendering. All colors via CSS variables — no hardcoded hex/rgba values outside `:root`.
-- **GATE: 0 failures required before delivery.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver-link validity, local RDF link existence, nav behavior, skills attribution, dark mode consistency.
+- **GATE: 0 failures required before delivery.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver-link validity, open-tab behavior for non-fragment links, local RDF link existence, nav behavior, skills attribution, dark mode consistency.
 
 ---
 

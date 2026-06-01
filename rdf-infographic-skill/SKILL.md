@@ -50,7 +50,7 @@ When active, every generated artifact set MUST include, unless the user explicit
 8. **Advanced KG settings panel** — fullscreen, center, settings button, visible close (`X`), wired physics controls, predicate display, predicate filters with Select All/Deselect All, node filters, literal filter, resolver preference, arrow style, and clear state feedback. The panel MUST use a structured compact layout that prevents form controls or action buttons from stretching into oversized cards/circles.
 9. **Attribution footer** — source material, companion files, skills used, generation environment, server/platform items where known, resolver pattern, and hyperlinked generation-environment entities.
 10. **Markdown companion parity** — Markdown mirrors the HTML narrative structure and preserves resolver-backed links for FAQ, glossary, HowTo, People, Organizations, SoftwareApplication, source/document, and media entities.
-11. **Authority denotation rules** — Person entities use profile URL `#this` IRIs using the same priority as `kg-generator`; SoftwareApplication and Country entities use DBpedia/Wikidata-centered IRIs where confidently available; DefinedTerm/skos:Concept glossary entries MUST cross-reference DBpedia via `owl:sameAs` when a confident DBpedia resource exists for the term (e.g., WebDAV, SPARQL, RBAC, ABAC, LDP, OAuth, HTTP, content negotiation, well-known storage services), falling back to Wikidata when no DBpedia entry exists; add `owl:sameAs` for confirmed DBpedia/Wikidata equivalents.
+11. **Authority denotation rules** — Person entities use profile URL `#this` IRIs using the same priority as `kg-generator`; SoftwareApplication and Country entities use DBpedia/Wikidata-centered IRIs where confidently available; DefinedTerm/skos:Concept glossary entries MUST cross-reference DBpedia via `owl:sameAs` whenever a confident DBpedia resource exists for the term, falling back to Wikidata when no DBpedia entry exists; add `owl:sameAs` for confirmed DBpedia/Wikidata equivalents.
 12. **Zero-failure delivery gate** — do not deliver until RDF parse, HTML/JS parse, resolver link audit, KG Explorer behavior checklist, nav behavior, dark mode, output path checks, and programmatic KG orphan-node checks all pass.
 13. **SPARQL query presentation** — when the RDF or source content contains `schema:SoftwareSourceCode` SPARQL examples, endpoint demos, or query recipes, render them as readable accordions with resolver-backed query-entity links, fenced/preformatted query text, a visible endpoint/service link, and a correctly URL-encoded live query link when an endpoint is known. Markdown companions must include the same query headings, resolver links, live links, and fenced `sparql` code blocks.
 14. **Open-tab HTML link behavior** — every generated HTML `<a>` whose `href` is not a same-page fragment (`#section`) MUST include `target="_blank" rel="noopener noreferrer"`. This applies to resolver links, companion RDF/Markdown/JSON-LD links, SPARQL links, media/source links, attribution links, DBpedia/Wikidata/W3C links, and footer platform/tool links. Same-page navigation links MUST remain same-tab and MUST NOT carry `target="_blank"`.
@@ -133,9 +133,19 @@ Provide or derive the following from your RDF data:
 [COLOR_PALETTE]        → Primary color scheme (optional; defaults provided)
 ```
 
-### 3. Generate the HTML Infographic
+### 3. Locate Prior Working Examples
 
-⛔ **PRE-BUILD CHECK**: Before writing HTML, re-read the "Harness Contract" (14-point checklist at the top of this skill) and the "Validation Checklist" in the "Quality Checklist" section. Confirm every clause: RDF source of truth, shared stem, resolver-backed links, POSH + JSON-LD, floating nav (collapsed default), theme toggle, KG Explorer (Basic + Advanced), attribution footer, MD parity, open-tab link behavior, 0-failure delivery gate. Build to pass — do not retro-fit.
+Before generating KG Explorer JavaScript, identify the output folder(s) where prior HTML infographics exist:
+
+- If the user specified an output path, use it.
+- If uncertain, ask: "Where are prior HTML infographic outputs saved? Provide the folder path (or a list of folders) so I can find working KG Explorer implementations."
+- List the folder contents and grep for files containing `kg-explorer`, `d3.forceSimulation`, or `renderKG` to identify candidates.
+- Present a sampling of up to 5 working examples found across the folder(s), showing filename, size, and a brief note on which KG Explorer features each implements (e.g., drag pinning, filter re-render, advanced sliders, zoom isolation).
+- Reuse the D3.js patterns from these examples rather than generating from scratch.
+
+### 4. Generate the HTML Infographic
+
+⛔ **PRE-BUILD CHECK**: Before writing HTML, re-read the "Harness Contract" (14-point checklist at the top of this skill) and the "Validation Checklist" in the "Quality Checklist" section. Confirm every clause: RDF source of truth, shared stem, resolver-backed links, POSH + JSON-LD with `"@language": "en"` in `@context`, floating nav (collapsed default), theme toggle, KG Explorer (Basic + Advanced), attribution footer, MD parity, open-tab link behavior, 0-failure delivery gate. Build to pass — do not retro-fit.
 
 Pass the RDF data and parameters to generate a complete, single-file HTML document with:
 
@@ -148,7 +158,7 @@ Pass the RDF data and parameters to generate a complete, single-file HTML docume
 - Comprehensive metadata (JSON-LD, microdata, Open Graph)
 - Professional typography and color schemes
 
-### 4. Generate a Markdown Companion (Optional)
+### 5. Generate a Markdown Companion (Optional)
 
 ⛔ **PRE-BUILD CHECK**: Before writing Markdown, re-read the full MD companion requirements in this section and the "Markdown companion parity" clause in the Harness Contract. Confirm: same filename stem as HTML with `.md` extension, saved in same folder, resolver-backed links for FAQ/glossary/HowTo/People/Organizations/SoftwareApplication entities, related link block pointing to companion RDF and HTML, fenced `sparql` code blocks with live query links, structural parity with HTML narrative.
 
@@ -516,6 +526,8 @@ When generating an RDF infographic that includes a knowledge graph visualization
 #### Basic Mode (Default)
 
 ⛔ **PRE-BUILD CHECK**: Before writing the D3.js KG Explorer code, re-read every bullet in this Basic Mode section and the "Validation Checklist" below. Confirm: multi-select filter buttons with aria-pressed, Core/Full density, search, legend, node click → resolver, drag-pin + dblclick-unpin, zoom isolation (no `svg.call(zoom)` on init, click-to-activate, click-outside-to-release), hover tooltip, edge labels with clickable hyperlinks to predicate IRIs, edge hover highlighting, predicate description mapping. Use the Programmatic Orphan-Node Gate checklist as a pre-build verification script.
+
+**Best practice**: Before generating KG Explorer JavaScript, study prior working HTML documents in the output folder. Reuse their proven D3.js patterns for drag pinning, filter re-rendering, and slider behavior rather than generating from scratch.
 
 Basic mode provides a lightweight, functional D3.js force-directed graph:
 - Multi-select filter buttons: toggle visibility by node type (Classes, Properties, Instances) with visually obvious selected/unselected states and matching `aria-pressed` values
@@ -912,7 +924,7 @@ Every generated HTML infographic **MUST** include a skills attribution line in t
 
 The GitHub URL pattern for all skills is: `https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}`. Distinguish singular vs. plural phrasing ("skill" vs. "skills") based on the number of skills used.
 
-Correspondingly, the embedded JSON-LD `WebPage` node MUST include a `prov:wasGeneratedBy` reference to a `schema:SoftwareApplication` entity for each skill, with `schema:name`, `schema:url` (GitHub), and `schema:description`. Declare the `prov:` context prefix as `http://www.w3.org/ns/prov#`.
+Correspondingly, the embedded JSON-LD `WebPage` node MUST include a `prov:wasGeneratedBy` reference to a `schema:SoftwareApplication` entity for each skill, using the canonical skill IRI with `#this` appended (e.g., `<https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this>`), with `schema:name`, `schema:url` (GitHub without `#this`), and `schema:description`. Declare the `prov:` context prefix as `http://www.w3.org/ns/prov#`.
 
 ### Generation Environment Attribution
 
@@ -1135,6 +1147,7 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] Programmatic KG orphan-node gate has passed: global embedded graph has zero orphan nodes and default rendered graph has zero orphan nodes.
 - [ ] If a Markdown companion was requested, it is saved in the same folder as the HTML file, uses the same filename stem with `.md`, links to the HTML file, links to the RDF file with a relative path, and has no non-resolver external semantic links.
 - [ ] If a Markdown companion was requested, the HTML POSH metadata includes `<link rel="alternate" type="text/markdown" href="{markdown-file}">`, and the embedded JSON-LD declares the Markdown file as an alternate encoding/representation using a relative `@id`.
+- [ ] Embedded JSON-LD `@context` includes `"@language": "en"` so all string literals inherit the English language tag, matching the `@en` tags in the companion Turtle file.
 - [ ] If a Markdown companion was requested and RDF media entities exist, it embeds or references them: images with Markdown image syntax, videos with HTML `<video controls>`, audio with HTML `<audio controls>`, and captions/labels linked to the RDF media entity IRIs through the resolver.
 - [ ] If RDF contains SPARQL `schema:SoftwareSourceCode` examples, HTML renders them as accordions with resolver-backed query headings, escaped preformatted query text, endpoint/service links, and correctly URL-encoded live query links defaulting to URIBurner; Markdown mirrors them with fenced `sparql` code blocks. No `http://example.org/` live links.
 - [ ] The local RDF link (`rel="related"`) uses a relative path and the target file exists.

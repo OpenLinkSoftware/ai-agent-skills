@@ -227,3 +227,5 @@ When invoked:
 
 ## Version
 **1.0.0** — Initial release. Single-file and directory scan modes. ASN.1 DER parsing via openssl. Beautified output with expiry status, edition decode, and module/client lists.
+
+⛔ **VERIFY BEFORE DELIVERY**: Before returning results to the user, re-read any query templates, output format requirements, or verification steps defined in this skill. Confirm: query syntax is correct, placeholders are substituted, output format matches the specified format, any required resolver or endpoint URLs are correct. Apply the CLAUDE.md Anti-Drift Protocol.

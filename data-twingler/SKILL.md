@@ -76,6 +76,8 @@ Endpoint: `https://linkeddata.uriburner.com/graphql`. Depth: 10. Introspection o
 
 ## Predefined Prompt Templates
 
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 **Always** load `references/query-templates.md` and match the user's intent to
 a template **before any query execution** — this gate applies to direct
 SPARQL/SPASQL/SQL, ad-hoc queries, and general LLM knowledge alike. No query

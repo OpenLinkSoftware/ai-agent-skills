@@ -13,6 +13,8 @@ This skill provides comprehensive guidance for using URIBurner MCP Server's suit
 
 **→ For execution modalities and environment-specific routing:** Read `references/protocol-routing.md`
 
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 ## Execution Routing
 
 Default execution order:

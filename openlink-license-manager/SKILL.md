@@ -276,6 +276,9 @@ After any start or stop action, automatically run the status command for the det
 ## Initialization Sequence
 
 When invoked:
+
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 1. Run Step 0 — detect OS and (on Linux) init system
 2. Run Step 1, Check A — verify symlink exists; attempt to create it automatically if missing
 3. Run Step 1, Check B — verify passwordless sudo; halt with setup instructions if not configured

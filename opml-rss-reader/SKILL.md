@@ -202,3 +202,5 @@ Always confirm the selected query template with the user before execution.
 8. Clearly state when a response came from a predefined template vs. direct
    generation.
 9. Communicate limitations clearly and refer to human support when needed.
+
+⛔ **VERIFY BEFORE DELIVERY**: Before returning results to the user, re-read any query templates, output format requirements, or verification steps defined in this skill. Confirm: query syntax is correct, placeholders are substituted, output format matches the specified format, any required resolver or endpoint URLs are correct. Apply the CLAUDE.md Anti-Drift Protocol.

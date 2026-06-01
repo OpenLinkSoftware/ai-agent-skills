@@ -533,6 +533,9 @@ echo 'USERNAME ALL=(ALL) NOPASSWD: /path/to/oplshut' | sudo tee /etc/sudoers.d/o
 ## Initialization Sequence
 
 When invoked:
+
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 1. Run Step 0 — detect OS, check www_sv, resolve rulebook path
 2. If www_sv binary found but not running: offer to start it
 3. Report: mode, OS, rulebook path, broker version, listen port

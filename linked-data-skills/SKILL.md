@@ -153,6 +153,8 @@ If the user explicitly names a protocol, honor that preference. See `references/
 
 ## Session Workflow
 
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 ### Opening Announcement
 
 ⛔ **The very first action after `getSkillResource` loads this skill is to send the following announcement. Do not call any tool before this message is sent and the user has replied.**
@@ -473,15 +475,15 @@ When the user asks for an HTML infographic companion to Path D RDF output, apply
 - Save RDF documents to `{rdf-output-directory}` and HTML infographics to `{html-output-directory}`. Confirm paths before saving.
 - Use `{page_url}` as the source-grounded namespace. Never use `file:` scheme IRIs when a canonical HTTPS URL exists.
 - Resolver priority: URIBurner (`https://linkeddata.uriburner.com/describe/?url={entity-iri}`) by default; user-designated resolver if specified; or none if opted out.
-- Encode `#` as `%23` exactly once in resolver `url` parameters. `%2523` is invalid. Entity links open in new tabs.
+- Encode `#` as `%23` exactly once in resolver `url` parameters. `%2523` is invalid. Every generated HTML anchor whose `href` is not a same-page fragment (`#section`) must open a new tab or view using `target="_blank" rel="noopener noreferrer"`; same-page navigation fragment links remain same-tab.
 - FAQ questions, FAQ answers, glossary terms, glossary definitions, HowTo section title, and every HowTo step heading are ALL hyperlinked to their KG entity IRIs.
 - Visible semantic entities route through the configured resolver using their selected RDF IRIs, including DBpedia/Wikidata IRIs selected under the SoftwareApplication denotation rule.
 - POSH link: `<link rel="related" href="../rdf/{rdf-file}" type="text/turtle">`
 - JSON-LD `relatedLink`: `{"@id": "../rdf/{rdf-file}"}` — IRI form, never a plain string literal.
-- Skills attribution in footer: `Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`
+- Skills attribution in footer: `Generated using <a target="_blank" rel="noopener noreferrer" href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}">skill-name</a>`. Link attributed labels directly; do not use generic `Visit`/`Learn more` anchor text.
 - Collapse-to-header-bar floating navigation, draggable, resizable. Never persist collapsed dimensions. Recover from stale localStorage. Page-specific keys.
 - Dark mode: `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` equivalent. All colors via CSS variables.
-- **GATE: 0 failures.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver links, local RDF link, nav behavior, skills attribution, dark mode consistency.
+- **GATE: 0 failures.** Validate: HTML parse, JS syntax, RDF parse + compliance audit, resolver links, open-tab behavior for non-fragment links, local RDF link, nav behavior, skills attribution, dark mode consistency.
 
 ---
 

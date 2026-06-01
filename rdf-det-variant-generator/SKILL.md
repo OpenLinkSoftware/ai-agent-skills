@@ -29,6 +29,8 @@ Use this skill when the user asks to:
 
 ## Workflow
 
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 1. Identify the DET name, target folders, and desired graph behavior.
 2. Confirm the RDF document types to support.
 3. Load the implementation checklist in `references/det-hook-checklist.md`.

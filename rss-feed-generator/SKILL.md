@@ -88,6 +88,8 @@ If the user's prompt expresses a protocol preference, follow that preference ins
 
 ## Order of Operations
 
+⛔ **PRE-BUILD CHECK**: Before producing output, re-read the relevant workflow section above and re-read any checklists or verification gates defined in this skill. Confirm each checklist item before writing output. Build to pass — do not retro-fit. Apply the CLAUDE.md Anti-Drift Protocol: re-read spec section before build, gate-first validation, section-by-section delivery.
+
 1. **Page Fetch** — Retrieve the target URL by invoking the `WEB_FETCH` function
    (defined in `https://linkeddata.uriburner.com/chat/functions/openapi.yaml`,
    endpoint `/WEB_FETCH`). Use whichever available protocol applies — REST, MCP,

@@ -15,6 +15,8 @@ Use this skill when users want to:
 - Generate HTML reports from SPARQL queries
 - Query data with better temporal coverage than DBpedia
 
+⛔ **VERIFY BEFORE DELIVERY**: Before returning results to the user, re-read any query templates, output format requirements, or verification steps defined in this skill. Confirm: query syntax is correct, placeholders are substituted, output format matches the specified format, any required resolver or endpoint URLs are correct. Apply the CLAUDE.md Anti-Drift Protocol.
+
 ## Core Capabilities
 
 ✅ **Natural Language to SPARQL**: Convert user questions into valid Wikidata SPARQL
@@ -39,7 +41,7 @@ When active:
 4. **Execute and retain provenance** — report the endpoint, generated query, execution route, timestamp, result count, user-agent path if direct, and any fallback route used.
 5. **Result IRIs are first-class** — preserve Wikidata entity IRIs and property IRIs in tabular, Markdown, JSON, and HTML output.
 6. **Resolver links for reports** — visible result entities and property references in generated HTML/Markdown reports should link through `https://linkeddata.uriburner.com/describe/?url={encodedIRI}` unless the user explicitly asks for direct Wikidata links.
-7. **HTML report validation** — if an HTML report is generated, validate HTML structure, JavaScript syntax if present, link encoding (`describe/?url=`, no `%2523`), provenance section, source endpoint attribution, and accessibility of result tables.
+7. **HTML report validation** — if an HTML report is generated, validate HTML structure, JavaScript syntax if present, link encoding (`describe/?url=`, no `%2523`), open-tab behavior for every non-fragment link, provenance section, source endpoint attribution, and accessibility of result tables.
 8. **Fail closed** — if Wikidata returns no reliable result or the query cannot be validated, state that clearly and show the query/provenance rather than fabricating an answer.
 
 ## Wikidata Endpoint
@@ -299,6 +301,8 @@ When generating HTML results:
 - Include Wikidata logo reference
 - Link to https://www.wikidata.org
 - Mention collaborative nature
+- Every generated HTML anchor whose `href` is not a same-page fragment (`#section`) must include `target="_blank" rel="noopener noreferrer"`. Same-page navigation links remain same-tab.
+- Attribution links must hyperlink the attributed label itself, not generic labels such as `Visit` or `Learn more`.
 
 ### HTML Template Structure
 ```html
