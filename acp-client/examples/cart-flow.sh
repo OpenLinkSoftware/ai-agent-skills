@@ -9,6 +9,18 @@ API_VERSION="${ACP_API_VERSION:-2026-01-30}"
 AUTH_TOKEN="${ACP_AUTH_TOKEN:?ACP_AUTH_TOKEN required}"
 ACP_ITEM_ID="${ACP_ITEM_ID:?ACP_ITEM_ID required}"
 
+# JSON helper (awk fallback when jq is unavailable)
+_json_str() {
+  local field="$1"
+  if command -v jq &>/dev/null; then
+    jq -r ".$field"
+  else
+    awk -F'"' -v f="$field" '
+      { for (i=1; i<=NF; i++) if ($i == f) { print $(i+2); exit } }
+    '
+  fi
+}
+
 echo "=== Step 1: Create cart ===" >&2
 resp=$(curl -sS -X POST "${BASE_URL}/carts" \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
@@ -27,7 +39,7 @@ resp=$(curl -sS -X POST "${BASE_URL}/carts" \
 JSON
 )
 
-cart_id=$(printf '%s' "$resp" | jq -r '.id')
+cart_id=$(printf '%s' "$resp" | _json_str id)
 echo "Cart ID: ${cart_id}" >&2
 
 echo "=== Step 2: Get cart ===" >&2

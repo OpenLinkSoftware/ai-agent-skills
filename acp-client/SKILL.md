@@ -4,8 +4,9 @@ description: >
   Intent-driven ACP (Adaptive Commerce Platform) client. Handles natural-language
   purchase requests by executing checkout, cart, and order flows against OpenLink's
   ACP API. Integrates Stripe test SPT generation for checkout completion. Supports
-  product resolution from OpenLink offer catalog.
-version: 1.0.0
+  product resolution from OpenLink offer catalog, checkout updates, cancellation,
+  and subscription payment link detection.
+version: 1.1.0
 type: skill
 ---
 
@@ -19,9 +20,13 @@ natural-language purchase intents.
 
 - "I want to purchase `{product}`" / "Buy `{product}`" / "Get me a license for `{product}`"
 - "Checkout `{product}`" / "Create a checkout for `{offer-id}`"
+- "Update checkout `{id}`" / "Change quantity for checkout `{id}`"
+- "Cancel checkout `{id}`" / "Cancel my order"
+- "Complete checkout `{id}`" / "Pay for checkout `{id}`"
 - "Add `{product}` to cart" / "Create a cart for `{product}`"
 - "Get order `{order-id}`" / "Check status of order `{order-id}`"
 - "Get a Stripe test token" / "Generate SPT for `{amount}`"
+- "Use balance" / "Pay with balance"
 - Any request referencing the ACP API, checkout sessions, carts, or OpenLink
   software license purchases.
 
@@ -44,6 +49,7 @@ natural-language purchase intents.
 | `STRIPE_PAYMENT_METHOD` | No | `pm_card_visa` |
 | `STRIPE_SPT_CURRENCY` | No | `usd` |
 | `STRIPE_SPT_MAX_AMOUNT` | No | `1000` |
+| `STRIPE_SPT_EXPIRES_AT` | No | `now + 1 hour` (auto-computed) |
 
 ## Intent-to-Flow Mapping
 
@@ -54,9 +60,11 @@ ACP flow:
 |---|---|
 | "I want to purchase `{product}`" | **Full purchase**: `create_checkout` → `get_checkout_total` → (`balance` or `spt`) → `complete_checkout` |
 | "Checkout `{product}`" | `create_checkout` → return checkout session ID and total |
+| "Update checkout `{id}`" | `update_checkout` — change items/quantity |
+| "Cancel checkout `{id}`" | `cancel_checkout` — cancel with `reason_code: buyer_cancelled` |
+| "Complete checkout `{id}`" | `complete_checkout` — fetch total, get SPT, complete |
 | "Add `{product}` to cart" | `create_cart` → return cart ID |
 | "Get order `{order-id}`" | `get_order` |
-| "Cancel checkout `{id}`" | `cancel_checkout` |
 | "Get Stripe SPT" | `get_test_spt` |
 | "Use balance" / "Pay with balance" | `complete_checkout` with `handler_id: "balance"` |
 
@@ -90,10 +98,36 @@ If `ACP_AUTH_TOKEN` is missing or invalid:
    - Copy the generated bearer token
    - Export as `ACP_AUTH_TOKEN` or paste when prompted
 
+## Subscription Payment Detection
+
+After `complete_checkout`, the response may contain a `links` array with a
+`subscription_payment` entry. If present:
+
+1. Extract the `href` value from the link with `rel: "subscription_payment"`
+2. Report to the user: "Subscription payment required. Open the link to
+   complete payment and activate: {href}"
+3. This indicates the purchase requires an additional payment step (e.g.,
+   3DS challenge) that must be completed in a browser.
+
+## Checkout Body Format
+
+The `create_checkout` and `update_checkout` operations use `items` (not
+`line_items`) and `capabilities` as an empty object:
+
+```json
+{
+  "items": [
+    { "id": "http://data.openlinksw.com/oplweb/offer/Offer-2020-10-virtuoso-8-app-developer-development-WKS-ANY#this", "quantity": 1 }
+  ],
+  "currency": "usd",
+  "capabilities": {}
+}
+```
+
 ## Output Format
 
 - **Default**: Human-readable summary (checkout ID, order ID, status, total,
-  receipt)
+  receipt, subscription payment link if present)
 - **`--json` flag**: Raw JSON from the API response, stable machine-readable
   output for agent consumption
 
@@ -102,8 +136,21 @@ If `ACP_AUTH_TOKEN` is missing or invalid:
 - `401 Unauthorized` → Bearer token missing or invalid; direct user to OAuth
   applications page
 - `404 Not Found` → Checkout/cart/order ID does not exist
+- `409 Conflict` → Idempotency key collision; retry with new UUID
 - Stripe errors → Report Stripe error message and raw response
-- Missing `jq` → Fall back to bundled `awk` JSON parsers
+- Missing `jq` → Fall back to bundled `awk` JSON parsers (`_json_str`,
+  `_json_total`, `_json_sub_payment_url`)
+
+## JSON Helper Functions
+
+The skill bundles three portable JSON extraction functions that work with or
+without `jq`:
+
+- `_json_str FIELD` — extract a top-level string field from stdin JSON
+- `_json_total` — extract `amount` where `type=="total"` from the `totals` array
+- `_json_sub_payment_url` — extract `subscription_payment` href from `links[]`
+
+See `references/acp-api-operations.md` for implementation details.
 
 ## References
 

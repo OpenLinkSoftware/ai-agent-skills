@@ -68,6 +68,25 @@ _json_total() {
 }
 ```
 
+### `_json_sub_payment_url` — extract subscription payment href from `links[]`
+
+```bash
+_json_sub_payment_url() {
+  if command -v jq &>/dev/null; then
+    jq -r '(.links // [])[] | select(.rel == "subscription_payment") | .href' 2>/dev/null | head -1
+  else
+    awk -F'"' '
+      {
+        for (i=1; i<=NF; i++) {
+          if ($i == "subscription_payment") { found=1 }
+          if (found && $i == "href") { print $(i+2); exit }
+        }
+      }
+    '
+  fi
+}
+```
+
 ---
 
 ## Checkout Sessions
@@ -137,13 +156,13 @@ TOTAL=$(curl -sS -X GET "${BASE_URL}/checkout_sessions/${CHECKOUT_ID}" \
 # 2. Fetch test SPT scoped to total
 SPT=$(curl -sS -X POST "https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens" \
   -u "${STRIPE_API_KEY}" \
-  -d "payment_method=${STRIPE_PAYMENT_METHOD}" \
+  -d "payment_method=${STRIPE_PAYMENT_METHOD:-pm_card_visa}" \
   -d "usage_limits[currency]=${STRIPE_SPT_CURRENCY:-usd}" \
   -d "usage_limits[max_amount]=${TOTAL}" \
   -d "usage_limits[expires_at]=${STRIPE_SPT_EXPIRES_AT}" | _json_str id)
 
 # 3. Complete checkout
-curl -sS -X POST "${BASE_URL}/checkout_sessions/${CHECKOUT_ID}/complete" \
+RESP=$(curl -sS -X POST "${BASE_URL}/checkout_sessions/${CHECKOUT_ID}/complete" \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
   -H "API-Version: ${API_VERSION}" \
   -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower:]')" \
@@ -163,6 +182,13 @@ curl -sS -X POST "${BASE_URL}/checkout_sessions/${CHECKOUT_ID}/complete" \
   }
 }
 JSON
+)
+
+# 4. Check for subscription payment link
+SUB_URL=$(printf '%s' "$RESP" | _json_sub_payment_url)
+if [ -n "$SUB_URL" ]; then
+  echo "SUBSCRIPTION PAYMENT REQUIRED: ${SUB_URL}"
+fi
 ```
 
 ### Complete Checkout — Account Balance
@@ -194,7 +220,7 @@ JSON
 curl -sS -X POST "${BASE_URL}/checkout_sessions/${CHECKOUT_ID}/cancel" \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
   -H "API-Version: ${API_VERSION}" \
-  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower:]')" \
+  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower]')" \
   -H "Request-Id: ${REQ_ID}" \
   -H "Content-Type: application/json" \
   -d @- <<'JSON'
@@ -277,7 +303,7 @@ JSON
 curl -sS -X POST "${BASE_URL}/carts/${CART_ID}/cancel" \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
   -H "API-Version: ${API_VERSION}" \
-  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower:]')" \
+  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower]')" \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
@@ -292,7 +318,6 @@ Generate a test Shared Payment Token directly from Stripe:
 _default_expires_at() {
   if date -v+1H +%s 2>/dev/null; then :; else date -d '+1 hour' +%s; fi
 }
-
 STRIPE_SPT_EXPIRES_AT="${STRIPE_SPT_EXPIRES_AT:-$(_default_expires_at)}"
 
 curl -sS -X POST "https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens" \
@@ -318,6 +343,8 @@ API_VERSION="${ACP_API_VERSION:-2026-01-30}"
 AUTH_TOKEN="${ACP_AUTH_TOKEN}"
 ACP_ITEM_ID="${ACP_ITEM_ID}"
 STRIPE_API_KEY="${STRIPE_API_KEY}"
+STRIPE_PAYMENT_METHOD="${STRIPE_PAYMENT_METHOD:-pm_card_visa}"
+STRIPE_SPT_CURRENCY="${STRIPE_SPT_CURRENCY:-usd}"
 REQ_ID="req_$(date +%s)"
 
 # 1. Create checkout
@@ -325,7 +352,7 @@ echo "=== Creating checkout ===" >&2
 resp=$(curl -sS -X POST "${BASE_URL}/checkout_sessions" \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
   -H "API-Version: ${API_VERSION}" \
-  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower:]')" \
+  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower]')" \
   -H "Request-Id: ${REQ_ID}" \
   -H "Content-Type: application/json" \
   -d @- <<JSON
@@ -337,28 +364,31 @@ echo "Checkout ID: ${checkout_id}" >&2
 
 # 2. Get total
 echo "=== Fetching total ===" >&2
-total=$(curl -sS -X GET "${BASE_URL}/checkout_sessions/${checkout_id}" \
-  -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -H "API-Version: ${API_VERSION}" \
-  -H "Request-Id: ${REQ_ID}" | jq -r '[.totals[] | select(.type == "total") | .amount] | first')
+total=$(printf '%s' "$resp" | jq -r '[.totals[] | select(.type == "total") | .amount] | first' 2>/dev/null) || {
+  total=$(curl -sS -X GET "${BASE_URL}/checkout_sessions/${checkout_id}" \
+    -H "Authorization: Bearer ${AUTH_TOKEN}" \
+    -H "API-Version: ${API_VERSION}" \
+    -H "Request-Id: ${REQ_ID}" | jq -r '[.totals[] | select(.type == "total") | .amount] | first')
+}
 echo "Total: ${total} minor units" >&2
 
 # 3. Get Stripe SPT
 echo "=== Fetching Stripe SPT ===" >&2
+expires_at=$(date -v+1H +%s 2>/dev/null || date -d '+1 hour' +%s)
 spt=$(curl -sS -X POST "https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens" \
   -u "${STRIPE_API_KEY}" \
-  -d "payment_method=pm_card_visa" \
-  -d "usage_limits[currency]=usd" \
+  -d "payment_method=${STRIPE_PAYMENT_METHOD}" \
+  -d "usage_limits[currency]=${STRIPE_SPT_CURRENCY}" \
   -d "usage_limits[max_amount]=${total}" \
-  -d "usage_limits[expires_at]=$(date -v+1H +%s 2>/dev/null || date -d '+1 hour' +%s)" | jq -r '.id')
+  -d "usage_limits[expires_at]=${expires_at}" | jq -r '.id')
 echo "SPT: ${spt}" >&2
 
 # 4. Complete checkout
 echo "=== Completing checkout ===" >&2
-curl -sS -X POST "${BASE_URL}/checkout_sessions/${checkout_id}/complete" \
+resp=$(curl -sS -X POST "${BASE_URL}/checkout_sessions/${checkout_id}/complete" \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
   -H "API-Version: ${API_VERSION}" \
-  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower:]')" \
+  -H "Idempotency-Key: $(uuidgen | tr '[:upper:]' '[:lower]')" \
   -H "Request-Id: ${REQ_ID}" \
   -H "Content-Type: application/json" \
   -d @- <<JSON
@@ -372,6 +402,19 @@ curl -sS -X POST "${BASE_URL}/checkout_sessions/${checkout_id}/complete" \
   }
 }
 JSON
+)
+printf '%s\n' "$resp"
+
+# 5. Check for subscription payment link
+sub_url=$(printf '%s' "$resp" | jq -r '(.links // [])[] | select(.rel == "subscription_payment") | .href' 2>/dev/null | head -1)
+if [ -n "$sub_url" ]; then
+  echo >&2
+  echo "============================================================" >&2
+  echo "  SUBSCRIPTION PAYMENT REQUIRED" >&2
+  echo "  Open the link below to complete payment and activate:" >&2
+  echo "  ${sub_url}" >&2
+  echo "============================================================" >&2
+fi
 ```
 
 ---
