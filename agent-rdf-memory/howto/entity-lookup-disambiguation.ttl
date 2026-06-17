@@ -1,0 +1,187 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<> a schema:CreativeWork ;
+    schema:about :entityLookupDisambiguation .
+
+:entityLookupDisambiguation a schema:HowTo ;
+    schema:name "Entity Lookup — Wikidata & DBpedia Disambiguation via Jaro-Winkler"@en ;
+    schema:description "How to use entity_lookup.py during knowledge graph generation workflows to resolve entity names to Wikidata Q-IDs and DBpedia IRIs with Jaro-Winkler fuzzy matching, scoped by entity type."@en ;
+    schema:dateCreated "2026-06-16T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-16T00:00:00Z"^^xsd:dateTime ;
+    schema:step :step-whenToUse, :step-importAndCall, :step-typeScope, :step-relationshipThresholds, :step-tripleInsertion, :step-cliUsage, :step-dependencies .
+
+# ── Step 1: When to Use ──────────────────────────────────────────────────────
+
+:step-whenToUse a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "When to invoke entity_lookup in a workflow"@en ;
+    schema:text """Invoke entity_lookup.lookup() during KG generation whenever you need to:
+  1. Link a KG entity to its Wikidata or DBpedia counterpart via owl:sameAs.
+  2. Find external identifiers for entities that lack them in the source material.
+  3. Verify that a guessed IRI actually resolves to the correct entity.
+  4. Enrich instance data with cross-references to the Linked Open Data cloud.
+
+The script is designed for workflow use — import it, call it, and insert its output directly
+into the TTL you are building. It does NOT write files itself; it returns structured data
+you embed into your RDF output."""@en .
+
+# ── Step 2: Import and Call ──────────────────────────────────────────────────
+
+:step-importAndCall a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Import entity_lookup and call lookup() or best()"@en ;
+    schema:text """Module interface:
+
+  from entity_lookup import lookup, best, EntityMatch
+
+  # Full search — returns all matches above threshold, sorted by score desc
+  results = lookup(
+      name="Snowflake Inc.",          # required — entity label
+      entity_type="Organization",     # optional — scope by type
+      data_source="both",             # "wikidata", "dbpedia", or "both" (default)
+      threshold=0.78,                 # optional — override minimum Jaro-Winkler score
+  )
+
+  # Single best match
+  top = best("Tim Berners-Lee", entity_type="Person")
+
+Each EntityMatch has:
+  .iri          — full IRI string (e.g. http://www.wikidata.org/entity/Q80)
+  .label        — matched label from the source
+  .score        — Jaro-Winkler similarity (0.0–1.0)
+  .source       — "wikidata" or "dbpedia"
+  .relationship — "owl:sameAs" | "skos:related" | "rdfs:seeAlso"
+  .entity_type  — resolved type if available
+  .description  — short description from the source
+  .alt_label    — first alias from the source
+  .to_turtle_triple(subject_iri) — one-liner Turtle triple string
+  .to_dict()    — serialisable dict"""@en .
+
+# ── Step 3: Type Scope ────────────────────────────────────────────────────────
+
+:step-typeScope a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Use entity_type to scope searches for better accuracy"@en ;
+    schema:text """The entity_type parameter filters Wikidata results by instance-of (P31/P279)
+and DBpedia results by ontology class. Always provide it when you know the entity's type.
+
+Currently mapped types (expand TYPE_WIKIDATA_SCOPE / TYPE_DBPEDIA_SCOPE as needed):
+
+  Organization, Company, Corporation, Business
+  Person
+  Software, SoftwareApplication
+  ProgrammingLanguage, Database
+  City, Country
+  Product, Event, Conference
+  Standard, Protocol, Technology
+  AcademicDiscipline, University
+  Website, Book, Film, Album
+  Concept, Ontology, KnowledgeGraph
+
+When entity_type is omitted, results are unfiltered (text search only).
+When entity_type is provided but filtering eliminates all candidates, the raw
+unfiltered hits are used as a fallback — better to return something plausible
+than nothing at all."""@en .
+
+# ── Step 4: Relationship Thresholds ───────────────────────────────────────────
+
+:step-relationshipThresholds a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Understand Jaro-Winkler score → relationship mapping"@en ;
+    schema:text """The script uses jellyfish.jaro_winkler_similarity to compare the queried name
+against each candidate's label (and aliases). The score determines the relationship:
+
+  >= 0.97  →  owl:sameAs      Near-certain identity. Use for exact-match disambiguation.
+  >= 0.88  →  skos:related    Strong confidence. Use when the labels are very close.
+  >= 0.78  →  rdfs:seeAlso    Plausible match. Flag for human review but include.
+  <  0.78  →  discarded        Too weak to trust.
+
+These thresholds are stored as module constants and can be overridden per call
+via the threshold= parameter. For conservative workflows, raise the floor to 0.85.
+For exhaustive linking, lower it but expect more false positives.
+
+Install jellyfish:
+  pip install jellyfish
+
+Without jellyfish, a SequenceMatcher-based fallback is used — it is less accurate
+for short names and edge cases. Always install jellyfish for production workflows."""@en .
+
+# ── Step 5: Triple Insertion ──────────────────────────────────────────────────
+
+:step-tripleInsertion a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Insert returned triples into the KG TTL being built"@en ;
+    schema:text """Each EntityMatch can produce a Turtle triple directly:
+
+  for m in lookup("OpenAI", entity_type="Organization"):
+      ttl.write(m.to_turtle_triple(subject_iri))
+
+This emits lines like:
+
+  <#OpenAI> owl:sameAs <http://www.wikidata.org/entity/Q21708232> .
+    # OpenAI (wikidata, score=1.000)
+
+Or build triples manually using the match fields:
+
+  ttl.write(f'  <#MyEntity> {m.relationship} <{m.iri}> .')
+  ttl.write(f'  <#MyEntity> rdfs:seeAlso <{m.iri}> .  # fallback for all')
+
+Rules:
+  - owl:sameAs only for score >= 0.97 AND the external entity is the same real-world thing.
+  - Never use owl:sameAs for a DBpedia/Wikidata entity that is merely related.
+  - If the best match is rdfs:seeAlso-level, consider omitting it if the KG values precision.
+  - Always verify the returned IRI actually dereferences to what you expect before
+    writing owl:sameAs — the Jaro-Winkler score is a signal, not a guarantee."""@en .
+
+# ── Step 6: CLI Usage ─────────────────────────────────────────────────────────
+
+:step-cliUsage a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Use the CLI for ad-hoc lookups and verification"@en ;
+    schema:text """Command-line interface for quick entity disambiguation:
+
+  # Basic lookup
+  python entity_lookup.py --name "Tim Berners-Lee" --type Person
+
+  # Restrict to one source
+  python entity_lookup.py --name "Snowflake Inc." --type Organization --source wikidata
+
+  # JSON output for scripting
+  python entity_lookup.py --name "OpenAI" -j
+
+  # Turtle triple output for direct TTL insertion
+  python entity_lookup.py --name "Snowflake Inc." -t Company --subject "<#SnowflakeInc>"
+
+  # Custom threshold
+  python entity_lookup.py --name "Databricks" --threshold 0.85
+
+The CLI is intended for spot-checks during KG authoring. For batch workflow use,
+import the module and call lookup() directly — API round-trips dominate, so process
+entities in sequence rather than spawning parallel subprocesses."""@en .
+
+# ── Step 7: Dependencies ──────────────────────────────────────────────────────
+
+:step-dependencies a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Install dependencies and verify the script works"@en ;
+    schema:text """Required:
+  - Python 3.9+
+  - jellyfish  (pip install jellyfish) — Jaro-Winkler similarity
+  - Internet access to wikidata.org, dbpedia.org, query.wikidata.org
+
+Optional (for DBpedia type-scoped verification beyond lookup API):
+  - SPARQLWrapper (pip install SPARQLWrapper) — if you add DBpedia SPARQL fallback
+
+Verification:
+  python entity_lookup.py --name "Tim Berners-Lee" --type Person --source wikidata
+  # Expected: Q80, owl:sameAs, score 1.000
+
+  python entity_lookup.py --name "OpenAI" -t Organization -s both
+  # Expected: Wikidata and DBpedia results with scores >= 0.90
+
+The script lives in agent-rdf-memory/scripts/entity_lookup.py relative to the project root.
+Import it by adding that directory to sys.path or running from the project root."""@en .

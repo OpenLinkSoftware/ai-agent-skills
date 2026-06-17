@@ -1,0 +1,58 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a schema:CreativeWork ;
+    schema:about :sparqlHtmlEscapeGate .
+
+:sparqlHtmlEscapeGate a schema:HowTo ;
+    schema:name "SPARQL HTML Escape Gate — Angle Brackets in <pre> Blocks"@en ;
+    schema:description "Mandatory HTML-escaping of SPARQL query text in <pre class=\"sparql-code\"> blocks. Angle brackets in GRAPH IRIs, PREFIX declarations, and triple patterns MUST be rendered as &lt; and &gt; — never raw < and > which are consumed as invisible HTML tags by browsers."@en ;
+    schema:dateCreated "2026-06-17T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
+    schema:step :step1, :step2, :step3 .
+
+:step1 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Escape at generation time, not at storage time"@en ;
+    schema:text """The RDF data store holds unescaped SPARQL text as a literal — this is the canonical form.
+HTML-escaping is a presentation concern applied at generation time when building the `<pre>` block.
+
+  # Correct: escape when rendering
+  import html
+  query_display = html.escape(query_text_from_rdf)
+
+  # Wrong: storing pre-escaped text in RDF
+  g.add((query_entity, SCHEMA.text, Literal(html.escape(query_text), lang="en")))  # NO
+
+Python's `html.escape()` converts: `<` → `&lt;`, `>` → `&gt;`, `&` → `&amp;`, `"` → `&quot;`."""@en .
+
+:step2 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Verify with grep gate before delivery"@en ;
+    schema:text """After generating HTML, run this gate:
+
+  # MUST find escaped GRAPH brackets (PASS condition):
+  grep -c 'GRAPH &lt;https\?://' file.html  # must be >= number of GRAPH-clause queries
+
+  # MUST NOT find raw angle brackets in SPARQL GRAPH clauses (FAIL if any):
+  grep -c 'GRAPH <https\?://' file.html     # must be 0
+
+If raw `<https://` is found inside a `<pre class="sparql-code">` block, the browser will
+hide the IRI. The fix is always at the generation layer — add `html.escape()` around the
+query text before embedding it in HTML. Never hand-patch the published HTML."""@en .
+
+:step3 a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Don't confuse URL-encoding with HTML-escaping"@en ;
+    schema:text """Three distinct encoding operations apply to SPARQL query text in an HTML infographic:
+
+1. **HTML-escaping** (display): `html.escape()` — converts `<` to `&lt;` for `<pre>` blocks.
+   The RDF literal is the source; the display form is derived.
+2. **URL-encoding** (live links): `encodeURIComponent()` — converts spaces, brackets, etc.
+   for embedding the query in a SPARQL endpoint URL.
+3. **RDF literal storage** (source of truth): no escaping — the raw SPARQL text as authored.
+
+These three MUST be applied independently. HTML-escaping a query that is then URL-encoded
+produces broken live links. URL-encoding a query that is then HTML-escaped produces
+double-escaped display text. Each transformation targets its own output channel."""@en .

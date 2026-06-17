@@ -101,6 +101,7 @@ The footer MUST include a real workbench, not only a static link:
 - Live query URLs are built with `encodeURIComponent(query)`.
 - Attribution cards include source material, companion files, skills used, generation environment, Linked Data runtime, named graphs, resolver pattern, and extraction provenance.
 - **SPARQL textarea escape gate** — grep the generated HTML for `\\\\n` (literal backslash-n) inside `queryFor`/`qf` function bodies. A match means the SELECT return was double-escaped and the query will display raw `\n` characters instead of newlines. If found, fix the escaping (JS strings use `\n` for newline, not `\\n`) before delivering.
+- **SPARQL HTML escape gate** — grep every `<pre class="sparql-code">` block for raw angle brackets around IRIs (`GRAPH <https?://` or `FROM <https?://`). A match means the GRAPH/FROM IRI will be invisible — the browser consumes `<https://...>` as an HTML tag. The fix is `html.escape()` on query text at generation time. Escaped form MUST read `GRAPH &lt;https://` (with `&lt;` and `&gt;`). Do NOT hand-patch the published HTML; fix the generator. See `preferences.ttl` Step 57 and `howto/sparql-html-escape-gate.ttl`.
 - The SELECT recipe in `queryFor`/`qf` MUST use the SAMPLE-based entity type summary query, not bare `SELECT *`.
 
 ## Quick Workflow

@@ -5,14 +5,14 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-06-16T18:40:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
 :sessionIndex a schema:ItemList ;
     schema:name "Agent Session Index"@en ;
     schema:dateCreated "2026-05-27T00:00:00"^^xsd:dateTime ;
-    schema:dateModified "2026-06-15T12:50:00Z"^^xsd:dateTime .
+    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime .
 
 :session20260527 a schema:ListItem ;
     schema:position 1 ;
@@ -376,3 +376,15 @@
     schema:item <sessions/2026-06-16-big_pickle-opencode-2.ttl> ;
     schema:name "Session 2026-06-16 (big-pickle + OpenCode — YouID Delegation Workflow + Local File Modification Pattern)"@en ;
     schema:description "Built T6 delegation workflow: elicitation → apply oplcert:hasIdentityDelegate to local profile files (profile.ttl, profile.jsonld, profile_rdfa.html, index.html) in user's credentials folder → user uploads. Established local-file-modification pattern as canonical approach (not server-side PATCH). Added :step-delegationLocalFiles (pos 55) to preferences.ttl + howto/youid-delegation.ttl companion. Applied delegation to link-in-bio-credentials-5 (delegator) WebID granting authority role to link-in-agent-bio-credentials (agent). Generated declarativeNetRequest rule."@en .
+
+:session20260616ClaudeCodePublicTrustAI a schema:ListItem ;
+    schema:position 57 ;
+    schema:item <sessions/2026-06-16-claude_sonnet_4_6-claude_code-2.ttl> ;
+    schema:name "Session 2026-06-16-2 (Claude Sonnet 4.6 + Claude Code — The Public Trust Problem in AI KG + Infographic)"@en ;
+    schema:description "Generated 477-triple RDF-Turtle KG + interactive HTML infographic for https://www.unaligned.io/p/the-public-trust-problem-in-ai. Business & Market Analysis template, 12 FAQ pairs, 10 glossary terms, 7 HowTo steps, 5 stakeholder groups, lightweight ontology. HTML: D3.js KG Explorer (Core 54 nodes / Full 78 nodes, 0 orphans), SPARQL workbench, resolver-backed entity links. Validator PASS after 8 targeted harness fixes (D3 CDN string, alternate link, nav label, toggleNav/toggleTheme wrappers, SPARQL workbench IDs + format strings, 8 attribution labels, predAnchor rename, compact node click handler)."@en .
+
+:session20260617BigPickleOpenCode a schema:ListItem ;
+    schema:position 58 ;
+    schema:item <sessions/2026-06-17-big-pickle-opencode.ttl> ;
+    schema:name "Session 2026-06-17 (Big Pickle + OpenCode — Satya's Convenient Truth Meshup: KG + HTML Infographic + Harness Contract Fixes)"@en ;
+    schema:description "Generated 519-triple RDF-Turtle KG + interactive HTML infographic for Saanya Ojha's 'Satya's Convenient Truth' Substack post, Satya Nadella X post, and LinkedIn discussion via Basic KG Explorer mode. 0 blank nodes, lightweight :SemanticWebLayer ontology. HTML: D3.js force graph, SPARQL workbench with 4 recipe queries, FAQ accordion, glossary grid, HowTo steps, dark/light theme, floating nav. Validator PASS after 15 targeted harness fixes (orphan xPost node, mode/density toggles, settings panel, predicate controls, literal filter, arrow markers, SPARQL format strings, recipe selector ID)."@en .

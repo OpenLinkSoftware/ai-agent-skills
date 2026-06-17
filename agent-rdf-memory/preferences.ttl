@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-06-16T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -45,7 +45,8 @@
         :topicTokenOptimizedSessionHandoff, :topicOntologyCrossReference,
         :topicNoUnauthorizedDeletion,
         :topicNoMemoryMdWrite,
-        :topicEntityLookupDisambiguation ;
+        :topicEntityLookupDisambiguation,
+        :topicSparqlHtmlEscape ;
     schema:step :step-approval, :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-mashupVsMeshup, :step-modelIdentityPreflight, :step-skillChain,
         :step-kgQueryMode,
         :step-entityDenotation, :step-memoryProtocol,
@@ -67,7 +68,8 @@
         :step-tokenOptimizedSessionHandoff, :step-ontologyCrossReference,
         :step-noUnauthorizedDeletion,
         :step-noMemoryMdWrite,
-        :step-entityLookupDisambiguation .
+        :step-entityLookupDisambiguation,
+        :step-sparqlHtmlEscape .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
 
@@ -1470,3 +1472,75 @@ a contract violation — raise the threshold or use skos:related instead."""@en 
 
 **Rationale:** The user's local credentials folder is the canonical workspace. Applying triples there gives the user full control over what gets uploaded and when. Server-side patching bypasses this control and risks inconsistent state between local and deployed profiles."""@en ;
     schema:url <howto/youid-delegation.ttl> .
+
+:step-rdfInfographicGatedWorkflow a schema:HowToStep ;
+    schema:position 56 ;
+    schema:name "RDF-to-HTML infographic: script-assisted, gate-first, port-don't-write workflow"@en ;
+    schema:text """**Rule:** Every RDF-backed HTML infographic MUST follow this three-part enforcement protocol. Deviation at any stage is a contract violation.
+
+**Why:** In session 2026-06-17, an HTML infographic for the Unaligned Newsletter article was delivered with 13 unlinked entities, 2 missing glossary terms, wrong predicate semantics (rdfs:seeAlso instead of owl:sameAs on DefinedTerms), a broken KG Explorer (SVG drag conflict), and JSON-LD @id IRIs absent from the TTL. Root cause: HTML was authored in parallel with the TTL rather than derived from it, the validator was run post-delivery rather than as a build gate, and the KG Explorer was written from scratch rather than ported.
+
+**Part 1 — Script-Assisted entity extraction (mandatory before any HTML anchor is written):**
+1. Parse the companion TTL with rdflib into a Graph.
+2. Extract a structured entity map as JSON:
+   - All schema:DefinedTerm subjects → IRI, name, description, owl:sameAs
+   - All schema:Question subjects → IRI, name (question text)
+   - All schema:HowToStep subjects → IRI, name, position
+   - All schema:Person / schema:Organization subjects → IRI, name, platform URLs
+   - All schema:ArticleSection subjects → IRI, name
+   - All other named entities (schema:name present) → IRI, name, type
+3. Use ONLY these extracted IRIs as href values in all HTML resolver-backed anchors. Never pattern-match IRI fragments from entity names.
+4. Verify every DefinedTerm has owl:sameAs (not rdfs:seeAlso) for any confirmed DBpedia/Wikidata cross-reference before generating HTML.
+
+**Part 2 — Gate-first validator protocol:**
+1. After generating the HTML skeleton (structure only, no content), run validate-harness-contract.py immediately. Fix all structural failures before adding content.
+2. After filling each major section (KG Explorer, glossary, FAQ, HowTo, SPARQL workbench), run the validator again. Fix failures before proceeding to the next section.
+3. The validator MUST return PASS before any output is shown to the user. A known-failing artifact is never delivered.
+4. Validator command:
+   python3 /Users/kidehen/Documents/Management/Development/ai-agent-skills/rdf-infographic-skill/scripts/validate-harness-contract.py \\
+     /path/to/{stem}.html --ttl /path/to/{stem}.ttl
+
+**Part 3 — Port KG Explorer, never write from scratch:**
+1. Before writing any KG Explorer JS, list the HTML output folder and grep for files containing d3.forceSimulation or updateGraph.
+2. Select a validated working example (preferably the most recent PASS-confirmed artifact).
+3. Copy the initKG() + updateGraph() + predIriMap + nid() + getFilteredData() + applyFilters() block verbatim.
+4. Parameterise only: the article base IRI (for predIriMap fallback), the predIriMap entries (derived from TTL predicates), and the kgCore/kgFull data payloads (extracted from TTL).
+5. Never rewrite D3 drag, zoom, simulation, or layer management from scratch.
+
+**Cross-reference:** :step-rdfInfographicGateEnforcement (position 35), :step-entityHrefCompanionTTL (position 49)."""@en ;
+    schema:url <howto/rdf-infographic-gated-workflow.ttl> .
+
+# ── Step 57: SPARQL HTML Escape Gate ──────────────────────────────────────────
+
+:step-sparqlHtmlEscape a schema:HowToStep ;
+    schema:position 57 ;
+    schema:name "HTML-escape SPARQL query text in <pre> blocks — angle brackets MUST be escaped"@en ;
+    schema:text """**Rule:** Every `<pre class="sparql-code">` block in generated HTML infographics MUST have its SPARQL query text HTML-escaped so that `<` and `>` characters in GRAPH/FROM IRIs, PREFIX declarations, and triple patterns are rendered as `&lt;` and `&gt;` rather than being consumed as raw HTML tags by the browser.
+
+**The problem:** SPARQL uses angle brackets for IRIs (e.g., `GRAPH <https://...>`). When inserted verbatim into an HTML `<pre>` block, the browser interprets `<https://...>` as an HTML tag and hides the entire IRI from view. The query appears to have an empty GRAPH clause when in fact the IRI is present but invisible.
+
+**The fix:** Use Python's `html.escape()` (or equivalent) on every SPARQL query text before inserting it into HTML. Example:
+
+  # Before (broken):
+  html += f'<pre class="sparql-code">{query_text}</pre>'  # < and > consumed as HTML
+
+  # After (correct):
+  import html
+  html += f'<pre class="sparql-code">{html.escape(query_text)}</pre>'  # &lt; and &gt; render correctly
+
+**What to escape:** The displayed query text inside `<pre>` blocks in SPARQL accordions. The `schema:text` value stored in RDF is the authoritative unescaped source — escaping is a presentation concern applied at HTML generation time.
+
+**What NOT to escape:** Live query URLs use `encodeURIComponent()` — URL-encoding is separate from HTML-escaping. Do NOT double-escape.
+
+**Verification gate:** After generating HTML, grep for `GRAPH\s+<https?://` inside `<pre class="sparql-code">` blocks. A match means the IRI brackets were NOT escaped and the IRI will be invisible. The check passes only when `GRAPH &lt;https://` (escaped) is found instead.
+
+  # Gate check (MUST pass):
+  grep -Pzo '(?s)<pre class="sparql-code">.*?GRAPH\s+&lt;https?://' file.html  → MUST return match
+  grep -Pzo '(?s)<pre class="sparql-code">.*?GRAPH\s+<https?://' file.html   → MUST return 0 matches
+
+**Why:** This bug was discovered when the Databricks-Virtuoso infographic's Entity Type Discovery query showed `GRAPH  {` with an empty IRI — the DAV path was present in the source but consumed as an HTML tag. The user flagged: "Aren't these escaping rules in the skills contract(s)?" — they weren't. They are now."""@en ;
+    schema:url <howto/sparql-html-escape-gate.ttl> .
+
+:topicSparqlHtmlEscape a schema:Thing ;
+    schema:name "SPARQL pre-block HTML escape gate"@en ;
+    schema:description "Standing rule: HTML-escape all SPARQL query text in <pre> blocks so angle brackets in GRAPH/FROM IRIs render as &lt; and &gt; instead of being consumed as invisible HTML tags."@en .
