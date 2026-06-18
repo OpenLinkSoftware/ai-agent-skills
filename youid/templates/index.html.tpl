@@ -25,6 +25,7 @@
 <link rel="related" href="%{jsonld_prof_url}" title="Profile (JSON-LD)" type="application/ld+json" />
 <link rel="related" href="%{pubkey_url}" title="Public Key (Turtle)" type="text/turtle" />
 <link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="%{card_ident_url}" title="This Document's Primary Topic" />
+<link rel="http://www.w3.org/ns/auth/cert#key" href="%{pubkey_url}#PublicKey" title="RSA Public Key" />
 %{rel_header_html}
 !!{em_indie_idp}
 <link rel="indieauth-metadata" href="%{em_indie_idp}/indieauth/indieauth_metadata">
@@ -501,6 +502,7 @@
 
   <!-- ═══ HERO ═══ -->
   <header class="hero" typeof="foaf:Person" resource="%{card_ident_url}">
+    <link property="cert:key" href="%{pubkey_url}#PublicKey" />
     <img src="%{photo_url}" alt="%{subj_name}" class="hero-photo" property="foaf:img" />
     <div class="hero-body">
       <h1 class="hero-name"><a href="%{webid}" property="foaf:name schema:name">%{subj_name}</a></h1>
@@ -1009,6 +1011,8 @@ document.addEventListener('DOMContentLoaded', function() {
 !!.
 
 <!-- ═══ Hidden RDFa annotations ═══ -->
+!!{em_rdfa}
 %{rdfa}
+!!.
 </body>
 </html>

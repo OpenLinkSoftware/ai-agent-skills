@@ -166,12 +166,70 @@ if python3 -c "import json; d=json.load(open('$TEMPLATE_DATA')); print(d.get('pr
     fi
 fi
 
-# Step 3: Fill all templates
-echo "=== Step 3: Filling Templates ==="
+# Step 3a: Render partial/profile templates first for embedding
+echo "=== Step 3a: Rendering Partial Templates ==="
 TPLDIR="$YOUID_DIR/templates"
 OUT="$OUT_DIR"
 
-for tpl in profile.ttl profile.jsonld profile_rdfa.html \
+# Render profile.ttl, profile.jsonld, prof_rdfa first — their output
+# gets embedded into index.html and profile_rdfa.html as %{profile_ttl},
+# %{json_ld}, and %{rdfa} respectively
+for tpl in profile.ttl profile.jsonld prof_rdfa.tpl; do
+    TPL_FILE="$TPLDIR/$tpl.tpl"
+    if [ ! -f "$TPL_FILE" ]; then
+        TPL_FILE="$TPLDIR/$tpl"
+    fi
+    if [ -f "$TPL_FILE" ]; then
+        if [ "$tpl" = "prof_rdfa.tpl" ]; then
+            OUT_FILE="$OUT/prof_rdfa.inc"
+        else
+            OUT_FILE="$OUT/$tpl"
+        fi
+        echo "  Rendering $tpl → $OUT_FILE..."
+        python3 "$SCRIPT_DIR/template_fill.py" \
+            "$TPL_FILE" \
+            "$TEMPLATE_DATA" \
+            "$OUT_FILE"
+    fi
+done
+
+# Read generated content and inject into template data for embedded rendering
+python3 -c "
+import json, os
+
+tpl_data_path = '$TEMPLATE_DATA'
+out_dir = '$OUT'
+
+with open(tpl_data_path) as f:
+    data = json.load(f)
+
+# Read generated partial/profile files
+for key, filename in [('rdfa', 'prof_rdfa.inc'),
+                       ('json_ld', 'profile.jsonld'),
+                       ('profile_ttl', 'profile.ttl')]:
+    path = os.path.join(out_dir, filename)
+    try:
+        with open(path) as f:
+            data[key] = f.read()
+        print(f'  Embedded {key}: {len(data[key])}B from {filename}')
+    except FileNotFoundError:
+        print(f'  WARNING: {filename} not found, {key} will be empty')
+        data[key] = ''
+
+# Auto-enable conditional flags for embedded content
+data['em_rdfa'] = True
+data['em_jsonld'] = True
+data['em_ttl'] = True
+
+with open(tpl_data_path, 'w') as f:
+    json.dump(data, f, indent=2)
+print('  Conditional flags enabled: em_rdfa=yes em_jsonld=yes em_ttl=yes')
+"
+
+# Step 3b: Render all remaining templates (now with embeddable content)
+echo "=== Step 3b: Filling Remaining Templates ==="
+
+for tpl in profile_rdfa.html \
            certificate.ttl certificate.jsonld certificate.rdfa.html \
            public_key.ttl public_key.jsonld public_key.rdfa.html \
            index.html vcard.vcf style.css; do
@@ -199,7 +257,7 @@ for tpl in profile.ttl profile.jsonld profile_rdfa.html \
 done
 
 # Clean up: template_data.json is a build artifact, not for deployment
-rm -f "$TEMPLATE_DATA"
+rm -f "$TEMPLATE_DATA" "$OUT/prof_rdfa.inc"
 
 # Step 4: Copy assets
 echo "=== Step 4: Copying Assets ==="

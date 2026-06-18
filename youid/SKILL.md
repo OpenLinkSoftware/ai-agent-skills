@@ -18,7 +18,13 @@ description: >
 
 # YouID Skill — Web-Scale Verifiable Digital Identity
 
-Version: 1.0.0
+Version: 1.0.1
+
+**2026-06-18 Updates:**
+- Fixed exponent extraction bug in `generate_certificate.sh:107` — `grep -A1` captured `X509v3extensions:` instead of `65537`. Replaced with `awk '/Exponent:/ {print $2}'`.
+- Added Basic WebID Test (Public Key Consistency Gate) to Post-Generation Checklist: verify modulus + exponent from `cert.p12` match `index.html`, `profile.ttl`, and `profile.jsonld`.
+- Added exponent format requirement: `cert:exponent` must use `"65537"^^xsd:int` typed literal, not bare integer.
+- Fixed `profile_rdfa.html.tpl`: `%{pdp_url_head}` → `!{pdp_url_head}`, added `!!{rel_header_html}` conditional block.
 
 ## When to Use
 
@@ -89,6 +95,7 @@ Before delivering any output to the user, the following MUST pass:
 - X.509 certificate has proper WebID SAN
 - `owl:sameAs` has no self-references
 - All artifact files exist in the output directory
+- **Basic WebID Test (Public Key Consistency Gate):** RSA public key (modulus + exponent) from `cert.p12` matches `index.html`, `profile.ttl`, and `profile.jsonld` — see Post-Generation Checklist item
 
 ## Execution Routing
 
@@ -340,6 +347,8 @@ Before delivering any generated identity to the user:
 - [ ] **X.509 valid**: `openssl x509 -in cert.pem -noout -text`
 - [ ] **WebID SAN present**: `openssl x509 -in cert.pem -noout -ext subjectAltName | grep -i URI`
 - [ ] **No self-referencing owl:sameAs**: no triple where `owl:sameAs` has identical subject and object
+- [ ] **exponent is typed literal**: `cert:exponent` in `profile.ttl` and `public_key.ttl` must use `"65537"^^xsd:int` (typed literal), never bare `65537` (`xsd:integer`) — some SPARQL processors require strict `xsd:int` matching
+- [ ] **exponent is not corrupted**: `cert:exponent` value must be `65537` (from cert), not `"X509v3extensions:"` — known bug in `generate_certificate.sh:107` fixed 2026-06-18 (`grep -A1` replaced with `awk '/Exponent:/ {print $2}'`)
 - [ ] **Entity IRIs consistent**: the `profile.ttl` entity IRIs match the `<rel>` links in `index.html`
 - [ ] **Photo accessible**: if a photo URL was provided, verify it resolves
 - [ ] **QR code functional**: the `index.html` page has a QR code pointing to itself
@@ -347,6 +356,14 @@ Before delivering any generated identity to the user:
 - [ ] **Accordion contract**: cert `<details>` starts closed (`open` attribute absent), pubkey `<details class="nested-details">` starts closed, each has `<summary>` with preview + chevron
 - [ ] **Dark mode present**: `@media (prefers-color-scheme:dark)` rule exists in CSS
 - [ ] **No external framework**: no `bootstrap`, `jquery`, or other framework imports in the HTML body
+- [ ] **Basic WebID Test PASS**: RSA public key from `cert.p12` (modulus + exponent) matches `index.html`, `profile.ttl`, and `profile.jsonld`. This is the primary local self-consistency gate. Extract via:
+  ```
+  MOD=$(openssl pkcs12 -in cert.p12 -passin pass:youid -nokeys -clcerts 2>/dev/null | openssl x509 -noout -modulus | sed 's/Modulus=//')
+  EXP=$(openssl pkcs12 -in cert.p12 -passin pass:youid -nokeys -clcerts 2>/dev/null | openssl x509 -noout -text | awk '/Exponent:/ {print $2}')
+  # Verify MOD matches cert:modulus in profile.ttl, profile.jsonld, index.html (RDFa)
+  # Verify EXP matches cert:exponent in all 3 files
+  # Exponent must be "65537"^^xsd:int (typed literal), not bare integer
+  ```
 - [ ] **Hero badges rendered**: "✓ Verified WebID", subject name, email, org all visible
 
 ## Operational Rules

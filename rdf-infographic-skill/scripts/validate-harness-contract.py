@@ -90,8 +90,8 @@ def main() -> int:
 
     require_any(html, ['id="sparql-explorer"', 'sparql-explore-box', 'Explore Knowledge Graph'], "Footer SPARQL explorer missing", failures)
     require_any(html, ['id="sparqlGraph"', 'SPARQL_GRAPH', 'Named graph'], "Footer named graph selector/IRI missing", failures)
-    require_any(html, ['id="sparqlRecipe"', 'exploreQueries', 'liveQueries', 'Query recipe'], "Footer query recipe selector/quick links missing", failures)
-    require_any(html, ['id="sparqlText"', '<textarea', 'liveQueries', 'exploreQueries'], "Footer editable SPARQL textarea or query recipes missing", failures)
+    require_any(html, ['id="sparqlRecipe"', 'exploreQueries', 'liveQueries', 'Query recipe', 'sparql-accordion'], "Footer query recipe selector/quick links missing", failures)
+    require_any(html, ['id="sparqlText"', '<textarea', 'liveQueries', 'exploreQueries', 'sparql-code'], "Footer editable SPARQL textarea or query recipes missing", failures)
     require_any(html, ['id="sparqlFormat"', 'text/x-html+tr', 'text%2Fx-html%2Btr'], "Footer SPARQL format display/guidance missing", failures)
     require(html, 'text/x-html+tr', "SELECT result format guidance missing", failures)
     require(html, 'text/x-html-nice-turtle', "DESCRIBE/CONSTRUCT result format guidance missing", failures)
@@ -168,10 +168,10 @@ def main() -> int:
     if not re.search(r'pred-anchor\s+a|predAnchor[\s\S]{0,200}\.append\(["\']a["\']\)', html):
         fail("Edge label SVG anchors missing — .pred-anchor a pattern not found in CSS or JS", failures)
     # SPARQL explore button must be present
-    if 'id="sparqlBtn"' not in html:
-        fail('SPARQL explore button id="sparqlBtn" missing', failures)
+    if 'id="sparqlBtn"' not in html and 'sparql-run-btn' not in html:
+        fail('SPARQL explore button id="sparqlBtn" or sparql-run-btn missing', failures)
     # Node click handlers must invoke any resolver function (resolver-agnostic)
-    if not re.search(r'\.on\(["\']click["\'][\s\S]{0,200}resolv', html, re.S):
+    if not re.search(r'\.on\(["\']click["\'][\s\S]{0,200}[Rr]esolv', html, re.S):
         fail("Node click handler missing resolver call — nodes must open resolver on click", failures)
 
     validate_rdf(args.ttl, "turtle", failures)

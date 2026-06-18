@@ -140,7 +140,7 @@
     <div property="rdfs:label" content="Profile Document Subject: %{subj_name}"></div>
     <div rel="foaf:primaryTopic" resource="%{rdfa_prof_url}#identity"></div>
     <div rel="oplcert:SAN" resource="%{rdfa_prof_url}#identity"></div>
-    <div rel="oplcert:hasPublicKey" resource="%{prdfa_ubkey_url}#PublicKey"></div>
+    <div rel="oplcert:hasPublicKey" resource="%{rdfa_pubkey_url}#PublicKey"></div>
     <div rel="cert:key" resource="%{rdfa_pubkey_url}#PublicKey"></div>
   </div>
 

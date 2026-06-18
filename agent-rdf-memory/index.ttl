@@ -388,3 +388,9 @@
     schema:item <sessions/2026-06-17-big-pickle-opencode.ttl> ;
     schema:name "Session 2026-06-17 (Big Pickle + OpenCode — Satya's Convenient Truth Meshup: KG + HTML Infographic + Harness Contract Fixes)"@en ;
     schema:description "Generated 519-triple RDF-Turtle KG + interactive HTML infographic for Saanya Ojha's 'Satya's Convenient Truth' Substack post, Satya Nadella X post, and LinkedIn discussion via Basic KG Explorer mode. 0 blank nodes, lightweight :SemanticWebLayer ontology. HTML: D3.js force graph, SPARQL workbench with 4 recipe queries, FAQ accordion, glossary grid, HowTo steps, dark/light theme, floating nav. Validator PASS after 15 targeted harness fixes (orphan xPost node, mode/density toggles, settings panel, predicate controls, literal filter, arrow markers, SPARQL format strings, recipe selector ID)."@en .
+
+:prefSemanticWebTerminology a schema:ListItem ;
+    schema:position 59 ;
+    schema:name "Step 59 — Terminology: 'a Semantic Web' not 'the Semantic Web'"@en ;
+    schema:description """Terminological rule added to preferences.ttl: use "a Semantic Web" (indefinite, instance-specific) rather than "the Semantic Web" (definite, global ecosystem) in all generated prose. Distinction mirrors Web/web difference."""@en ;
+    schema:about <preferences.ttl#step-terminologySemanticWeb> .

@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-18T13:05:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -46,7 +46,8 @@
         :topicNoUnauthorizedDeletion,
         :topicNoMemoryMdWrite,
         :topicEntityLookupDisambiguation,
-        :topicSparqlHtmlEscape ;
+        :topicSparqlHtmlEscape,
+        :topicYouidValidationGate ;
     schema:step :step-approval, :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-mashupVsMeshup, :step-modelIdentityPreflight, :step-skillChain,
         :step-kgQueryMode,
         :step-entityDenotation, :step-memoryProtocol,
@@ -69,7 +70,8 @@
         :step-noUnauthorizedDeletion,
         :step-noMemoryMdWrite,
         :step-entityLookupDisambiguation,
-        :step-sparqlHtmlEscape .
+        :step-sparqlHtmlEscape,
+        :step-youidValidationGate .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
 
@@ -1544,3 +1546,59 @@ a contract violation — raise the threshold or use skos:related instead."""@en 
 :topicSparqlHtmlEscape a schema:Thing ;
     schema:name "SPARQL pre-block HTML escape gate"@en ;
     schema:description "Standing rule: HTML-escape all SPARQL query text in <pre> blocks so angle brackets in GRAPH/FROM IRIs render as &lt; and &gt; instead of being consumed as invisible HTML tags."@en .
+
+:step-youidValidationGate a schema:HowToStep ;
+    schema:position 59 ;
+    schema:name "Run Basic WebID Test (PKCS#12 Public Key Consistency Gate) for youid credential bundles"@en ;
+    schema:text """Critical validation gate for the youid skill. Before deploying any WebID credential bundle, verify the RSA public key (modulus + exponent) from the PKCS#12 certificate is consistently reflected in all three local output documents: index.html, profile.ttl, and profile.jsonld.
+
+Procedure:
+  - Extract modulus and exponent from cert.p12
+  - Search each document for the same modulus hex string and exponent value
+  - All three must match. Discrepancy means the generation script has a bug.
+
+Historical bug: 2026-06-18 — generate_certificate.sh:107 had grep -A1 bug capturing "X509v3extensions:" instead of the real exponent. Fixed with awk '/Exponent:/ {print $2}'.
+
+Type requirement: exponent in profile.ttl/public_key.ttl MUST use "65537"^^xsd:int typed literal (not bare integer)."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration ;
+    schema:url <howto/youid-validation-gates.ttl> .
+
+:topicYouidValidationGate a schema:Thing ;
+    schema:name "YouID Basic WebID Test Gate"@en ;
+    schema:description "Must verify PKCS#12 cert public key matches index.html, profile.ttl, and profile.jsonld before deploying any youid credential bundle."@en .
+
+:step-reuseWorkingKG a schema:HowToStep ;
+    schema:position 58 ;
+    schema:name "Reuse working KG Explorer code from prior output files — never write D3 from scratch"@en ;
+    schema:text """Rule: When generating an HTML infographic with a D3.js KG Explorer, NEVER write the JavaScript from scratch. Instead, study the most recent working implementation in ../webpages/ — specifically neo4j-virtual-graph-*-big_pickle-2.html (Advanced) or startups-2030-*-big_pickle-1.html (Basic) — and adapt its proven D3 force graph, mode switching, settings panel, and filter logic.
+
+Why this matters:
+1. Homegrown D3 always violates the harness contract (orphan links, broken drag, filters that don't stick, missing resolver patterns)
+2. The validator's checks are designed around the structure of known-working implementations
+3. Writing stub buttons to pass validation without implementing the actual JS (e.g., mode buttons with no switchMode handler) breaks the UX and wastes user time on debugging
+
+Pattern to follow:
+- switchMode(mode) function toggles active class on #btn-basic/#btn-advanced and shows/hides #settings-panel
+- setDensity(density) function toggles active class on #density-core/#density-full
+- Settings panel uses display:none CSS (Basic) and display:block override (Advanced)
+- Advanced-only elements marked with [data-advanced-control] attribute
+
+Verification: Before delivery, test in browser: click Basic/Advanced mode, verify graph re-renders correctly in both modes."""@en .
+
+:step-terminologySemanticWeb a schema:HowToStep ;
+    schema:position 59 ;
+    schema:name "Terminology: use 'a Semantic Web' not 'the Semantic Web'"@en ;
+    schema:text """Rule: When writing prose about the Semantic Web concept, use "a Semantic Web" (indefinite article) rather than "the Semantic Web" (definite article). This is not a grammatical accident — it reflects a meaningful ontological distinction:
+
+- THE Semantic Web = the global World Wide Web represented in a more granular, machine-computable form through entity relationships based on Linked Data principles.
+- A Semantic Web = a specific deployment of machine-computable entity relationships constructed using Linked Data principles.
+
+In other words, "the Semantic Web" refers to the broader vision and ecosystem (the evolving global Web infrastructure), while "a Semantic Web" refers to a particular implementation of those principles within a specific domain, organization, or community.
+
+This distinction mirrors the analogous Web/web distinction:
+- the Web = the global World Wide Web.
+- a web = a specific interconnected network (e.g., a web of trust, an intranet web, a domain-specific web).
+
+Enforcement: In all generated content (HTML infographics, RDF descriptions, FAQ answers, glossary definitions, Markdown companions, etc.), use "a Semantic Web" (or "A Semantic Web" at sentence start) when the reference is to an instance, deployment, or specific stack. Use "the Semantic Web" only when explicitly referring to the global Web-wide vision/ecosystem.
+
+This also applies to derived phrases: "the Semantic Web stack" → "a Semantic Web stack", "the Semantic Web context" → "a Semantic Web context", etc."""@en .

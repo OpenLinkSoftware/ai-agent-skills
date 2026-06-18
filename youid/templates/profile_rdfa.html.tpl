@@ -19,10 +19,12 @@
 <link rel="related" href="%{card_url}" title="Related Document"  type="text/html" />
 <link rel="related" href="%{jsonld_prof_url}" title="Related Document" type="application/json+ld" />
 <link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="%{rdfa_prof_url}#identity" title="This Document's Primary Topic" />
-%{pdp_url_head}
+!{pdp_url_head}
 <!-- RelMeAuth Relations Start -->
+!!{rel_header_html}
 %{rel_header_html}
 <!-- RelMeAuth Relations End -->
+!!.
 
 !!{em_indie_idp}
 <!-- IndieAuth Relations Start -->

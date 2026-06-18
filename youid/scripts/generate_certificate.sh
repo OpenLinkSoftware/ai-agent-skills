@@ -103,8 +103,7 @@ VCARD_DIGEST_URI="data:text/plain;sha-256;${FP_256_NOCOLON}"
 MODULUS=$(openssl x509 -in "${OUT_DIR}/cert.pem" -modulus -noout | sed 's/Modulus=//')
 
 # Exponent (extract from cert, default 65537 for RSA)
-# Use openssl asn1parse to extract exponent
-EXPONENT=$(openssl x509 -in "${OUT_DIR}/cert.pem" -text -noout | grep -A1 "Exponent:" | tail -1 | tr -d ' ' || echo "65537")
+EXPONENT=$(openssl x509 -in "${OUT_DIR}/cert.pem" -text -noout | awk '/Exponent:/ {print $2}' || echo "65537")
 
 # Serial number
 SERIAL=$(openssl x509 -in "${OUT_DIR}/cert.pem" -serial -noout | cut -d= -f2 | tr '[:upper:]' '[:upper:]')

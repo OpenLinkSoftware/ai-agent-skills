@@ -1,0 +1,15 @@
+{
+  "name": "rdf-infographic-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "TypeScript editions of rdf-infographic-skill Python scripts (Node.js ≥ 18)",
+  "dependencies": {
+    "n3": "^1.23.0"
+  },
+  "devDependencies": {
+    "@types/n3": "^1.21.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
