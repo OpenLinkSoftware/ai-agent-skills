@@ -139,10 +139,11 @@ Fill runtime values (model, env, path, project) from current session context.
 • Active project: {current task/project or 'none yet this session'}
 • Memory store: {absolute path to agent-rdf-memory/}
 • Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
-• On-Behalf-Of WebID: https://www.linkedin.com/in/kidehen#this
 • Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
+• On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
+• owl:sameAs: https://www.linkedin.com/in/kidehen#this, https://x.com/kidehen#this, https://substack.com/@kidehen#this
 
-The cert-verified SAN URI is the canonical WebID — the primary authoritative identifier.
-owl:sameAs lists all known equivalent IRIs (LinkedIn, X, Substack, etc.).
-If verification is skipped (cert files absent, openssl unavailable) emit the WebID line
-with ⚠️ Unverified and fall back to the memory-known SAN URI rather than omitting it."""@en .
+The cert-verified SAN URI is canonical for both the agent and the delegator (On-Behalf-Of).
+owl:sameAs on the On-Behalf-Of line lists the delegator's known platform IRIs.
+If verification is skipped (cert files absent, openssl unavailable) emit all lines
+with ⚠️ Unverified and fall back to memory-known SAN URIs rather than omitting them."""@en .

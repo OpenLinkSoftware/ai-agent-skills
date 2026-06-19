@@ -1641,11 +1641,13 @@ Response format (after gate):
 • Active project: {current task/project or 'none yet this session'}
 • Memory store: {absolute path to agent-rdf-memory/}
 • Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
-• On-Behalf-Of WebID: https://www.linkedin.com/in/kidehen#this
 • Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
+• On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
+• owl:sameAs: https://www.linkedin.com/in/kidehen#this, https://x.com/kidehen#this, https://substack.com/@kidehen#this
 
-The cert-verified SAN URI is the canonical WebID. owl:sameAs lists all known equivalent IRIs.
-Always emit the WebID and Agent WebID lines even when unverified — ⚠️ is informative."""@en ;
+The cert-verified SAN URI is canonical for both the agent and the On-Behalf-Of delegator.
+owl:sameAs on the On-Behalf-Of line lists the delegator's known platform IRIs.
+Always emit the Agent WebID and On-Behalf-Of lines even when unverified — ⚠️ is informative."""@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
     schema:url <howto/verified-identity.ttl> .
 
