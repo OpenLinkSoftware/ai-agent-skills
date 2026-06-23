@@ -1555,6 +1555,9 @@ details summary::after {{ color: var(--accent); }}
       {a_form_svg}
     </div>
   </div>
+  <p style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:16px;text-align:center;">
+    ⚽ Goal &nbsp;·&nbsp; ↑ Substituted on &nbsp;·&nbsp; ↓ Substituted off &nbsp;·&nbsp; 🟨 Yellow card &nbsp;·&nbsp; 🟥 Red card
+  </p>
 </section>
 
 <!-- Squads -->
