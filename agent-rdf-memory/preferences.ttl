@@ -1690,3 +1690,65 @@ See howto/uriburner-oauth-authcode-flow.ttl for the full step-by-step with curl 
 :topicOAuthAuthCodeFlow a schema:Thing ;
     schema:name "URIBurner OAuth Authorization Code Flow"@en ;
     schema:description "OAuth2 Authorization Code grant flow with dynamic client registration and local redirect server for accessing URIBurner DAV resources. Token issuer must match resource server (linkeddata.uriburner.com), not my.openlinksw.com."@en .
+
+# ── Step 62: schema:homeLocation vs schema:birthPlace ─────────────────────────
+
+:step-residenceVsBirthplace a schema:HowToStep ;
+    schema:position 62 ;
+    schema:name "Use schema:homeLocation for residence, not schema:birthPlace"@en ;
+    schema:text """Newton, Massachusetts is Kingsley Uyi Idehen's place of RESIDENCE, not birthplace.
+
+**Rule:** When encoding a person's location in RDF-Turtle:
+- `schema:homeLocation` — city/town/place where the person currently resides
+- `schema:birthPlace` — the place where the person was BORN (a different fact)
+
+**The error that occurred:** In china-super-app-us-super-agent-big-pickle-3.ttl, the triple
+    <https://www.linkedin.com/in/kidehen#this> schema:birthPlace :newtonMassachusetts
+was generated incorrectly. Newton, Massachusetts (LinkedIn profile location) is where Kingsley resides, not where he was born. Corrected to schema:homeLocation.
+
+**How to apply:** Whenever encoding a location for Kingsley from LinkedIn data, social profiles, or X.509 certificate Locality (L=) fields, use schema:homeLocation. Only use schema:birthPlace if the actual birth city is known and explicitly stated as such by the user.
+
+**Related:** X.509 DN field L= (Locality Name) = place of residence, NOT birthplace. See howto/rdf-residence-vs-birthplace.ttl."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/rdf-residence-vs-birthplace.ttl> .
+
+# ── Step 63: No blank nodes for resolver-addressable entities ─────────────────
+
+:step-noBlankNodesForResolverEntities a schema:HowToStep ;
+    schema:position 63 ;
+    schema:name "Prohibit blank nodes for any entity that requires a resolver URL"@en ;
+    schema:text """**PRE-BUILD GATE — check before writing any RDF.**
+
+Blank nodes (`[...]` or `_:b`) have no stable IRI. Any entity that will be (a) hyperlinked in HTML via the resolver pattern, (b) referenced in a SPARQL query result, or (c) described as a first-class knowledge graph entity MUST use a named IRI — never a blank node.
+
+**Entities that MUST have named IRIs (non-exhaustive):**
+- `schema:Answer` — every FAQ answer (e.g., `:Answer1`, `:Answer2`, …)
+- `schema:HowToStep` — every HowTo step
+- `schema:DefinedTerm` — every glossary term
+- `schema:Question` — every FAQ question
+- `schema:Quotation` — every quote entity
+- Any custom ontology class instance used as a subject in the graph
+
+**Correct pattern for FAQ answers:**
+```turtle
+:FAQ1 a schema:Question ;
+    schema:acceptedAnswer :Answer1 .
+
+:Answer1 a schema:Answer ;
+    schema:text "..."@en ;
+    schema:isPartOf :FAQ1 .
+```
+
+**Wrong — blank node, no resolver URL possible:**
+```turtle
+:FAQ1 schema:acceptedAnswer [
+    a schema:Answer ;
+    schema:text "..."@en
+] .
+```
+
+**Why this gate exists:** In the youid-self-sovereign-identity infographic (2026-06-23), all 10 `schema:Answer` entities were generated as blank nodes despite the resolver-URL requirement being stated in the skill contract. The rule was implied by SKILL.md prose but had no named gate in preferences.ttl — so it was silently skipped. This step makes it an explicit pre-build blocker.
+
+**How to apply:** Before writing the FAQ section of any companion TTL, verify every `schema:acceptedAnswer` value is a named IRI. grep for `acceptedAnswer [` — if any match exists, it is a contract violation. Fix before proceeding."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/no-blank-nodes-resolver-entities.ttl> .

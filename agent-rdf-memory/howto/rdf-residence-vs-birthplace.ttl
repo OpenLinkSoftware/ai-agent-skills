@@ -1,0 +1,47 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto: <http://www.openlinksw.com/ontology/> .
+
+: a schema:CreativeWork ;
+    schema:about :residenceVsBirthplaceRule .
+
+:residenceVsBirthplaceRule a schema:HowTo ;
+    schema:name "Correctly encode residence vs birthplace in RDF-Turtle"@en ;
+    schema:dateCreated "2026-06-23T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-23T00:00:00Z"^^xsd:dateTime ;
+    schema:description "Rule for distinguishing schema:homeLocation (residence) from schema:birthPlace (place of birth) when generating RDF about Kingsley Uyi Idehen."@en ;
+    schema:step :step1, :step2, :step3 .
+
+:step1 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Identify the source of location data"@en ;
+    schema:text """Location data for Kingsley can come from multiple sources:
+- LinkedIn profile city field → this is RESIDENCE (schema:homeLocation)
+- X.509 certificate Distinguished Name L= field → this is Locality = RESIDENCE
+- Social profile location field → this is RESIDENCE
+None of these are birth records. Do not use any of these as schema:birthPlace."""@en .
+
+:step2 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Apply the correct predicate"@en ;
+    schema:text """Correct mapping:
+- Newton, Massachusetts → schema:homeLocation (place of current residence)
+- schema:birthPlace → only used if the user explicitly states a birth city
+
+The error pattern to avoid:
+  <https://www.linkedin.com/in/kidehen#this> schema:birthPlace :newtonMassachusetts .  # WRONG
+
+Correct form:
+  <https://www.linkedin.com/in/kidehen#this> schema:homeLocation :newtonMassachusetts .  # CORRECT"""@en .
+
+:step3 a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Note on X.509 Locality field"@en ;
+    schema:text """In X.509 Distinguished Names, the L= component stands for Locality Name — the city or town where the certificate holder RESIDES, not where they were born. When sponging or parsing oplcert:subject/issuer strings, map L= to schema:addressLocality or schema:homeLocation, never to schema:birthPlace."""@en .
+
+:errorRecord a schema:Thing ;
+    schema:name "Birthplace mix-up — Newton, Massachusetts"@en ;
+    schema:description "In china-super-app-us-super-agent-big-pickle-3.ttl, schema:birthPlace was incorrectly used for :newtonMassachusetts on Kingsley's person entity. Corrected to schema:homeLocation on 2026-06-23."@en ;
+    schema:dateModified "2026-06-23T00:00:00Z"^^xsd:dateTime .
