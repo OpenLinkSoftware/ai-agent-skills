@@ -453,10 +453,18 @@ def formation_svg(team_name, tactic_str, starters, colour, annotations):
 
     player_slots = []
     idx = 0
+    # Inward margin per count: fewer players → more central, more players → full width
+    _MARGINS = {1: 0, 2: 65, 3: 30, 4: 10, 5: 0}
     for li, (count, y) in enumerate(zip(lines, y_positions)):
         line_players = sorted_starters[idx: idx + count]
         idx += count
-        xs = [170] if count == 1 else [40 + round(j * 260 / (count - 1)) for j in range(count)]
+        margin = _MARGINS.get(count, 0)
+        left = 40 + margin
+        right = 300 - margin
+        if count == 1:
+            xs = [170]
+        else:
+            xs = [round(left + j * (right - left) / (count - 1)) for j in range(count)]
         for player, cx in zip(line_players, xs):
             player_slots.append((player, cx, y))
 
