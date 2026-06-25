@@ -447,6 +447,21 @@
     schema:name "Session 2026-06-25 (big-pickle + OpenCode — Hermes Agent Skills System KG Collection)"@en ;
     schema:description "Generated 370-triple RDF-Turtle KG and HTML infographic + MD companion from Hermes Agent Skills System documentation (https://hermes-agent.nousresearch.com/docs/user-guide/features/skills). Covers: /learn, progressive disclosure, SKILL.md format, Skills Hub, skill bundles, agent-managed skills, conditional activation, secure setup, external directories, bundled updates, 12 FAQ, 10 glossary terms, 7 HowTo steps, lightweight ontology. Artifacts in /LLMs/Big Pickle/rdf/, /webpages/, /md/. Turtle validated via rdflib (370 triples). Also written: whoami trigger A/B distinction update to preferences.ttl (step-whoamiFormat pos 23, step-verifiedWhoami pos 60) and howto/agent-identity.ttl."@en .
 
+:session20260625ClaudeSonnetVirtuoso083335 a schema:ListItem ;
+    schema:position 68 ;
+    schema:item <sessions/2026-06-25-claude_sonnet_4_6-claude_code.ttl> ;
+    schema:name "Session 2026-06-25 (Claude Sonnet 4.6 + Claude Code — Virtuoso 08.03.3335 AI Release HTML/RDF iterative refinement)"@en ;
+    schema:description "Extended multi-session iterative refinement of virtuoso-08-03-3335-ai-release-claude_sonnet_4_6-1.html and companion TTL. Key fixes: DBpedia canonical subjects (9 entities migrated, owl:sameAs reduced from 18→8), hero light-mode contrast (CSS vars replacing hardcoded colours), HowTo section closure (missing </section>), stale interactive workbench JS/CSS removal, sparqlBtn restoration (accidentally removed during cleanup), footer SPARQL explorer with visible SAMPLE query and syntax highlighting, left-alignment override for footer text-align:center cascade. New preferences.ttl steps 75–78 + howto/footer-sparql-explorer-gate.ttl."@en ;
+    rdfs:seeAlso <howto/footer-sparql-explorer-gate.ttl> .
+
 :sessionIndex schema:itemListElement :session20260625Gpt5CodexVirtuoso083335,
     :session20260625BigPickleWhoamiTrigger,
-    :session20260625BigPickleHermesSkill .
+    :session20260625BigPickleHermesSkill,
+    :session20260625BigPickleAcpPurchase,
+    :session20260625ClaudeSonnetVirtuoso083335 .
+
+:session20260625BigPickleAcpPurchase a schema:ListItem ;
+    schema:position 67 ;
+    schema:item <sessions/2026-06-25-big_pickle-opencode-3.ttl> ;
+    schema:name "Session 2026-06-25 (big-pickle + OpenCode — DemoFileAccessOffer2URIBurner ACP purchase on ods-qa)"@en ;
+    schema:description "Purchased DemoFileAccessOffer2URIBurner ($2.99) from ods-qa ACP via acp-client skill. Checkout created (cs_ec175890-70af-11f1-b27f-f0569f38fb9f), Stripe SPT generated via pm_card_visa, order confirmed (ord_f41bf1f4-70af-11f1-b27f-f0569f38fb9f). Subscription payment link presented — user declined to proceed with Stripe invoice. Session memory written to agent-rdf-memory/sessions/."@en .

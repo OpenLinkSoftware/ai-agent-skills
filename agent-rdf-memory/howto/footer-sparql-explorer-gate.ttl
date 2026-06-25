@@ -1,0 +1,113 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix onto:   <https://www.openlinksw.com/ontology/studio#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+: a schema:CreativeWork ;
+    schema:about :footerSparqlExplorerGate .
+
+:footerSparqlExplorerGate a schema:HowTo ;
+    schema:name "Footer SPARQL Explorer Gate"@en ;
+    schema:description "Rules governing the mandatory footer SPARQL explorer section in HTML infographics: sparqlBtn presence, SAMPLE query visibility, left-alignment, and stale interactive workbench cleanup."@en ;
+    schema:dateCreated "2026-06-25T00:00:00Z" ;
+    schema:dateModified "2026-06-25T00:00:00Z" ;
+    schema:step
+        :gate-sparqlBtnMandatory,
+        :gate-sparqlExplorerVisibleText,
+        :gate-footerTextAlignCascade,
+        :gate-staleWorkbenchCleanup .
+
+# ── Gate 1: sparqlBtn is mandatory ───────────────────────────────────────────────
+
+:gate-sparqlBtnMandatory a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "sparqlBtn is a mandatory harness element — never remove in cleanup"@en ;
+    schema:text """grep -n 'id=\"sparqlBtn\"' {file} — must match exactly once, inside <footer>.
+If the match is absent but buildSparqlBtnHref / setSparqlFmt JS functions exist: the element was accidentally removed — restore it.
+
+Distinction: the 4-accordion SPARQL workbench section and the footer sparqlBtn serve different purposes.
+- 4-accordion: recipe queries (features, FAQ, glossary, howto)
+- sparqlBtn: SAMPLE-based entity-type summary query — a required, independent deliverable
+
+Removing a 'duplicate' SPARQL section means removing an unlabelled second copy of the accordion section, NOT the footer sparqlBtn block."""@en .
+
+# ── Gate 2: SAMPLE query text must be visible ─────────────────────────────────────
+
+:gate-sparqlExplorerVisibleText a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "id='sparql-explorer' must display SAMPLE query as visible <pre class='sparql-code'>"@en ;
+    schema:text """Encoding the SAMPLE query only inside sparqlBtn.href is insufficient — users cannot read or copy it from a URL attribute.
+
+Required HTML structure in footer:
+  <div id="sparql-explorer" class="footer-sparql-cta" style="...;text-align:left">
+    <h3>Explore Knowledge Graph using SPARQL</h3>
+    <p>...description...</p>
+    <div class="sparql-block">
+      <div class="sparql-block-hdr">
+        <span class="sparql-lang-badge">SPARQL</span>
+        <button class="sparql-copy-btn" onclick="copySparqlExplorer(this)">Copy</button>
+      </div>
+      <pre class="sparql-code" id="sparql-explorer-code">...syntax-highlighted query...</pre>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px">
+      <div class="fmt-tabs">...</div>
+      <a id="sparqlBtn" class="footer-sparql-btn" href="..." target="_blank">▶ Run Query</a>
+    </div>
+  </div>
+
+Canonical SAMPLE query projections (never substitute):
+  ?type, (SAMPLE(?s) AS ?sampleEntity), (SAMPLE(?label) AS ?sampleLabel), (COUNT(?s) AS ?entityCount)
+  WHERE { GRAPH <{DAV-IRI}> { ?s rdf:type ?type . OPTIONAL { ?s rdfs:label ?label } } }
+  GROUP BY ?type ORDER BY DESC(?entityCount)
+
+Beautification pattern (established 2026-06-25):
+  Syntax tokens: .sk (keywords, var(--accent)), .sf (aggregates, #9c6bde), .sv (variables, #51cf66),
+                 .si (IRIs, #ff922b), .sp (prefix names, var(--muted))
+  IRI angle brackets: always HTML-escaped as &lt; and &gt;
+  copySparqlExplorer() must be exposed on window (defined inside D3 IIFE)."""@en .
+
+# ── Gate 3: footer text-align:center cascade ─────────────────────────────────────
+
+:gate-footerTextAlignCascade a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Override footer text-align:center cascade on the explorer div"@en ;
+    schema:text """When footer { text-align:center } is in the CSS (common for attribution grids):
+
+1. id="sparql-explorer" div MUST have text-align:left in its inline style.
+2. .fmt-tabs CSS MUST use justify-content:flex-start (not justify-content:center).
+
+Verification:
+  grep -n 'fmt-tabs' {file} — must show justify-content:flex-start
+  grep -n 'id=\"sparql-explorer\"' {file} — must show text-align:left in the style attribute
+
+The footer text-align:center is intentional for the attribution grid; overriding it only on
+the explorer section keeps both correct without touching the global rule."""@en .
+
+# ── Gate 4: stale interactive workbench cleanup ──────────────────────────────────
+
+:gate-staleWorkbenchCleanup a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Removing interactive workbench HTML requires removing companion JS and CSS"@en ;
+    schema:text """When the interactive SPARQL workbench (textarea + recipe selector + mode buttons) is removed from HTML:
+
+JS to remove:
+  const sparqlRecipes = { ... }
+  function loadSparqlRecipe(key)
+  function setSparqlMode(mode, btn)
+  function runSparqlQuery()
+  window.loadSparqlRecipe = loadSparqlRecipe
+  window.setSparqlMode = setSparqlMode
+  window.runSparqlQuery = runSparqlQuery
+  document.getElementById("sparqlRecipe").value = "features"  ← throws null-ref on DOMContentLoaded
+
+CSS to remove:
+  .sparql-form, .sparql-row, .sparql-row label, .sparql-input, .sparql-select,
+  .sparql-textarea, .sparql-run-row, .sparql-mode-btns, .sparql-mode-btn, .sparql-mode-btn.active
+
+CSS to KEEP (still used by accordion section and footer explorer):
+  .sparql-code, .sparql-run-btn, .sparql-format-note, .sparql-wb-title, .sparql-wb-sub,
+  .sparql-block, .sparql-block-hdr, .sparql-lang-badge, .sparql-copy-btn,
+  .fmt-tabs, .fmt-tab-btn, .footer-sparql-cta, .footer-sparql-btn
+
+Incident (2026-06-25): HTML removed, JS/CSS left behind. document.getElementById("sparqlRecipe")
+threw null-ref on every page load; ~200 bytes of dead CSS remained."""@en .
