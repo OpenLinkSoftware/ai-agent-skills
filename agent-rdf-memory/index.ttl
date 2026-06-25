@@ -5,7 +5,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-25T13:02:55Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -420,4 +420,18 @@
     schema:name "Session 2026-06-19 (big-pickle + OpenCode — URIBurner OAuth Authorization Code flow)"@en ;
     schema:description "Established OAuth2 Authorization Code flow with dynamic client registration and local redirect server for linkeddata.uriburner.com DAV resources. Discovered critical rule: token issuer MUST match resource server. Registered dynamic client at linkeddata.uriburner.com/OAuth2/register, executed Auth Code flow via localhost:12345, obtained Bearer token, accessed DAV resource (200 OK). Added Step 61 to preferences.ttl + howto/uriburner-oauth-authcode-flow.ttl."@en .
 
+:session20260624ClaudeCodeVirtuosoRelease a schema:ListItem ;
+    schema:position 63 ;
+    schema:item <sessions/2026-06-24-claude_sonnet_4_6-claude_code.ttl> ;
+    schema:name "Session 2026-06-24 (Claude Sonnet 4.6 + Claude Code — Virtuoso 08.03.3335 AI Release KG + Infographic)"@en ;
+    schema:description "Generated 384-triple RDF-Turtle KG + interactive HTML infographic for the Virtuoso 08.03.3335 release announcement (https://community.openlinksw.com/t/announcing-virtuoso-release-08-03-3335/6303). Source fetched via Playwright MCP. KG covers 4 major feature pillars: OPAL AI Layer (MCP Tools, multi-LLM, Skills/Agents, Vector Stores), Authentication/MPP (Passkeys, MPP/x402), Core Engine (Delta-Sharing, JSON Canonicalization), SPARQL/Middleware (Wikibase, VoID, Sponger LLM). HTML: D3 v7 KG Explorer (22 nodes/29 links, Core/Full density), SPARQL workbench (4 recipes), 12 FAQ+Lookup, 10 glossary, 7 HowTo steps, structured 8-row attribution footer. Harness validator: PASS (0 failures). Artifacts in /LLMs/Claude Generated/RDF/ and /webpages/."@en .
 
+
+
+:session20260625Gpt5CodexVirtuoso083335 a schema:ListItem ;
+    schema:position 64 ;
+    schema:item <sessions/2026-06-25-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-06-25 (GPT-5 Chat Codex - Virtuoso 08.03.3335 AI Release Showcase)"@en ;
+    schema:description "Generated a GPT-5 Chat Codex RDF-Turtle and HTML showcase for the Virtuoso 08.03.3335 release announcement, centered on AI-era relevance. Artifacts written to GPT5-Chat-Generated/rdf and webpages, generator under showcases/virtuoso-083335-ai-release, validation passed."@en .
+
+:sessionIndex schema:itemListElement :session20260625Gpt5CodexVirtuoso083335 .

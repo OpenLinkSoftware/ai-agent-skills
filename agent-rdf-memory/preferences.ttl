@@ -105,9 +105,9 @@
 
 :step-modelIdentityPreflight a schema:HowToStep ;
     schema:position 2.3 ;
-    schema:name "Determine output root folder at session initialization — never re-derive mid-session"@en ;
-    schema:text """Before writing any output file, confirm the session's output root folder has been determined. The output root is resolved once at session initialization, with model identity as the primary input. All artifacts in the session use this determined root consistently. Never re-derive, second-guess, or infer the root from agent environment name, session context, prior filenames, or any source other than the session-initialization determination."""@en ;
-    onto:hasTrigger onto:triggerArtifactGeneration ;
+    schema:name "BLOCKING GATE — resolve output root from system prompt model ID before any file write"@en ;
+    schema:text """BLOCKING GATE: No file write of any kind (HTML, RDF, Markdown, or other artifact) is permitted until the output root has been explicitly resolved from the system prompt model identifier. This resolution MUST occur at session initialization — not at write time, not on demand, not inferred from context. RESOLUTION PROCEDURE: (1) Read the system prompt for the model identifier (e.g. 'claude-sonnet-4-6', 'deepseek-v4-pro'). (2) Map it to the canonical model-specific subdirectory under /Users/kidehen/Documents/LLMs/ per step-outputDirs. (3) Confirm the resolved root before proceeding. ENFORCEMENT: If the resolved root has not been confirmed when a write is about to occur, stop — resolve it first, then write. Never fall back to kg-output/, the repo root, /tmp, or any working folder. Never re-derive mid-session. Never infer from session filenames, agent environment name, prior conversation context, or memory entries."""@en ;
+    onto:hasTrigger onto:triggerSessionStart, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
 :topicModelIdentityPreflight a schema:Thing ;
@@ -1536,11 +1536,11 @@ a contract violation — raise the threshold or use skos:related instead."""@en 
 
 **What NOT to escape:** Live query URLs use `encodeURIComponent()` — URL-encoding is separate from HTML-escaping. Do NOT double-escape.
 
-**Verification gate:** After generating HTML, grep for `GRAPH\s+<https?://` inside `<pre class="sparql-code">` blocks. A match means the IRI brackets were NOT escaped and the IRI will be invisible. The check passes only when `GRAPH &lt;https://` (escaped) is found instead.
+**Verification gate:** After generating HTML, grep for `GRAPH\\s+<https?://` inside `<pre class="sparql-code">` blocks. A match means the IRI brackets were NOT escaped and the IRI will be invisible. The check passes only when `GRAPH &lt;https://` (escaped) is found instead.
 
   # Gate check (MUST pass):
-  grep -Pzo '(?s)<pre class="sparql-code">.*?GRAPH\s+&lt;https?://' file.html  → MUST return match
-  grep -Pzo '(?s)<pre class="sparql-code">.*?GRAPH\s+<https?://' file.html   → MUST return 0 matches
+  grep -Pzo '(?s)<pre class="sparql-code">.*?GRAPH\\s+&lt;https?://' file.html  → MUST return match
+  grep -Pzo '(?s)<pre class="sparql-code">.*?GRAPH\\s+<https?://' file.html   → MUST return 0 matches
 
 **Why:** This bug was discovered when the Databricks-Virtuoso infographic's Entity Type Discovery query showed `GRAPH  {` with an empty IRI — the DAV path was present in the source but consumed as an HTML tag. The user flagged: "Aren't these escaping rules in the skills contract(s)?" — they weren't. They are now."""@en ;
     schema:url <howto/sparql-html-escape-gate.ttl> .
@@ -1683,7 +1683,7 @@ Always emit the Agent WebID and On-Behalf-Of lines even when unverified — ⚠�
 See howto/uriburner-oauth-authcode-flow.ttl for the full step-by-step with curl and Python templates.
 
 **The prompt to use next time:**
-"Use OAuth Authorization Code flow with local redirect server on localhost:12345. Register a dynamic client at linkeddata.uriburner.com's OAuth2/register, execute the Auth Code flow to get a Bearer token, then use that token to access the DAV resource. The token issuer MUST be linkeddata.uriburner.com — NOT my.openlinksw.com."@en ;
+"Use OAuth Authorization Code flow with local redirect server on localhost:12345. Register a dynamic client at linkeddata.uriburner.com's OAuth2/register, execute the Auth Code flow to get a Bearer token, then use that token to access the DAV resource. The token issuer MUST be linkeddata.uriburner.com — NOT my.openlinksw.com."""@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerCurlAuth ;
     rdfs:seeAlso <howto/uriburner-oauth-authcode-flow.ttl> .
 
@@ -1711,6 +1711,157 @@ was generated incorrectly. Newton, Massachusetts (LinkedIn profile location) is 
 **Related:** X.509 DN field L= (Locality Name) = place of residence, NOT birthplace. See howto/rdf-residence-vs-birthplace.ttl."""@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/rdf-residence-vs-birthplace.ttl> .
+
+# ── Step 64: FAQ question text must be a resolver hyperlink ──────────────────
+
+:step-faqQuestionTextHyperlink a schema:HowToStep ;
+    schema:position 64 ;
+    schema:name "Wrap FAQ question TEXT in a resolver <a> — 'Lookup' badge alone is insufficient"@en ;
+    schema:text """**PRE-BUILD GATE — applies to every FAQ section generated.**
+
+The CLAUDE.md entity hyperlinks contract states: "ALL entity text (FAQ Q&A, glossary terms/defs, HowTo title/steps) must be hyperlinked to KG entity IRIs via resolver pattern."
+
+The faq-entity-iri-gate (step 42) prescribes a 'Lookup' badge inside `.faq-q`. This badge is ADDITIONAL, not a replacement. The question text itself must ALSO be an `<a>` targeting the schema:Question entity IRI through the resolver.
+
+**Correct FAQ question HTML (both hyperlinked text AND Lookup badge):**
+```html
+<div class="faq-q" role="button" tabindex="0" onclick="toggleFaq(this)">
+  <span class="faq-q-text">
+    <a href="{resolver-url}" target="_blank" rel="noopener noreferrer"
+       onclick="event.stopPropagation()"
+       style="color:var(--accent);text-decoration:none">
+      {question text}
+    </a>
+  </span>
+  <span class="faq-q-actions">
+    <a class="faq-lookup" href="{resolver-url}" target="_blank" rel="noopener noreferrer"
+       onclick="event.stopPropagation()">Lookup</a>
+    <span class="faq-arrow">▼</span>
+  </span>
+</div>
+```
+
+**CSS required:**
+```css
+.faq-q-text a { color: var(--accent); text-decoration: none; font-weight: inherit; }
+.faq-q-text a:hover { text-decoration: underline; }
+```
+
+**Verification gate:** grep generated HTML for `class="faq-q-text"` — every match MUST contain an `<a href="https://linkeddata.uriburner.com/describe/?url=` within the same `<span>`. If any `.faq-q-text` span lacks that nested anchor, it is a contract violation.
+
+**Why this gate exists:** In the Virtuoso 08.03.3335 infographic (2026-06-24), all 12 FAQ question texts were plain `<span>` with only a 'Lookup' badge. The static validator (validate-harness-contract.py) does not check for nested anchors inside `.faq-q-text`, so the gap passed the gate but violated the entity hyperlink contract. User had to request the fix manually."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/faq-entity-iri-gate.ttl> .
+
+:topicFaqQuestionTextHyperlink a schema:Thing ;
+    schema:name "FAQ Question Text Hyperlink Gate"@en ;
+    schema:description "FAQ question TEXT must be wrapped in a resolver <a> targeting the schema:Question entity IRI — the 'Lookup' badge is additional, not a substitute. Verified by grepping .faq-q-text spans for nested resolver anchors."@en .
+
+# ── Step 65: SPARQL workbench placement — after content sections ──────────────
+
+:step-sparqlWorkbenchPlacement a schema:HowToStep ;
+    schema:position 65 ;
+    schema:name "Place the SPARQL workbench section AFTER FAQ/Glossary/HowTo — never between KG Explorer and FAQ"@en ;
+    schema:text """**PRE-BUILD GATE — applies to every HTML infographic with a SPARQL workbench.**
+
+The rdf-infographic-skill contract calls the workbench a "Footer SPARQL Workbench." This means it belongs AFTER all content sections (FAQ, Glossary, HowTo), immediately before the attribution footer. It must NOT appear between the KG Explorer and the FAQ.
+
+**Correct section order:**
+1. Hero
+2. Feature/content sections (AI Integration, Auth, Core Engine, SPARQL/Middleware, …)
+3. Knowledge Graph Explorer
+4. FAQ
+5. Glossary
+6. HowTo
+7. SPARQL Workbench  ← last content section, just above footer
+8. Footer
+
+**Verification gate:** In the generated HTML, verify that the character position of `id="sparql-workbench"` (or `id="sparql-explorer"`) is AFTER the character position of `id="howto"`. If `sparql-workbench` appears before `faq` or between `kg-explorer` and `faq`, it is a placement violation.
+
+**Why this gate exists:** In the Virtuoso 08.03.3335 infographic (2026-06-24), the SPARQL workbench was placed between the KG Explorer and the FAQ sections. The static validator checks for the workbench's text presence but not its DOM position. User had to request the move manually."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/harness-contract-compliance.ttl> .
+
+:topicSparqlWorkbenchPlacement a schema:Thing ;
+    schema:name "SPARQL Workbench Placement"@en ;
+    schema:description "The SPARQL workbench must be the last content section, placed after FAQ/Glossary/HowTo and before the attribution footer. Verified by comparing character positions of id='sparql-workbench' vs id='howto' in generated HTML."@en .
+
+# ── Step 66: KG drag sticky — never null fx/fy on dragend ────────────────────
+
+:step-kgDragSticky a schema:HowToStep ;
+    schema:position 66 ;
+    schema:name "KG Explorer sticky drag: never null d.fx/d.fy on dragend; dblclick to unpin"@en ;
+    schema:text """**PRE-BUILD GATE — applies to every D3 KG Explorer implementation.**
+
+Nodes must stay where the user drops them ("sticky pin"). This requires:
+1. On `dragstart`: set `d.fx = d.x; d.fy = d.y`
+2. On `drag`: update `d.fx = e.x; d.fy = e.y`
+3. On `dragend`: **DO NOT set `d.fx = null; d.fy = null`** — clearing these causes the node to spring back to the simulation's calculated position
+4. On `dblclick`: set `d.fx = null; d.fy = null; simulation.alpha(0.1).restart()` to unpin
+
+**D3 click vs drag:** D3 v7 drag natively suppresses the click event when the pointer moves beyond a threshold (~5px). Therefore a separate `.on("click")` handler that opens the resolver is safe alongside drag — it fires only when the user taps a node without dragging.
+
+**Correct pattern:**
+```javascript
+.call(d3.drag()
+  .on("start", (e,d) => { if(!e.active) simulation.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
+  .on("drag",  (e,d) => { d.fx=e.x; d.fy=e.y; })
+  .on("end",   (e,d) => { if(!e.active) simulation.alphaTarget(0); /* sticky — keep d.fx/d.fy */ })
+)
+.on("click",   (e,d) => { openResolver(d.iri); })
+.on("dblclick",(e,d) => { d.fx=null; d.fy=null; simulation.alpha(0.1).restart(); e.stopPropagation(); })
+```
+
+**Verification gate:** grep the generated HTML for `d\\.fx=null.*drag` or `d\\.fy=null` inside the drag `end` handler. A match is a contract violation.
+
+**Why this gate exists:** In the Virtuoso 08.03.3335 infographic (2026-06-24), the dragend handler cleared `d.fx=null; d.fy=null;` causing all nodes to spring back. The static validator checks for `d3.drag()` presence but not for the sticky pattern. User had to request the fix manually."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
+
+:topicKgDragSticky a schema:Thing ;
+    schema:name "KG Explorer Sticky Drag"@en ;
+    schema:description "D3 KG Explorer nodes must stay pinned after drag. dragend MUST NOT clear d.fx/d.fy. Double-click to unpin. Static validator cannot catch this — it is a pre-build behavioral gate."@en .
+
+# ── Step 67: IIFE scope — all onclick handlers must be window-exposed ──────────
+
+:step-iifeGlobalScope a schema:HowToStep ;
+    schema:position 67 ;
+    schema:name "All onclick/onchange handler functions defined inside an IIFE must be exposed on window"@en ;
+    schema:text """**PRE-BUILD GATE — applies to every HTML file with inline event handlers and JS IIFEs.**
+
+When JavaScript functions are defined inside an IIFE `(function(){ ... })()`, they are scoped to the IIFE closure and NOT accessible from HTML `onclick=`, `onchange=`, or similar inline event attributes. Every such function silently fails at runtime — the browser console shows "ReferenceError: X is not defined" — but no static validator catches it.
+
+**Rule:** After defining any function inside an IIFE that is called from an HTML attribute:
+```javascript
+(function(){
+  function toggleNav() { ... }
+  function toggleTheme() { ... }
+  // ... all other handlers ...
+
+  // REQUIRED — expose all inline-handler functions globally:
+  window.toggleNav    = toggleNav;
+  window.toggleTheme  = toggleTheme;
+  window.setMode      = setMode;
+  window.setDensity   = setDensity;
+  window.toggleFaq    = toggleFaq;
+  // ... etc. for every function called from onclick/onchange
+})();
+```
+
+**Verification gate (pre-delivery):**
+1. grep generated HTML for `onclick="` — collect all function names referenced
+2. For each name, verify either (a) it appears as `window.{name} =` inside an IIFE, OR (b) it is defined at module/script top level outside any IIFE
+3. Any function name found in `onclick=` but NOT exposed on `window` is a scoping violation
+
+**Alternative pattern:** Define event-handler functions at the script top level (outside the IIFE) instead. Only non-global helpers, simulation objects, and data variables need IIFE encapsulation.
+
+**Why this gate exists:** In the Virtuoso 08.03.3335 infographic (2026-06-24), all UI functions (toggleNav, toggleTheme, setMode, setDensity, toggleFaq, runSparqlQuery, etc.) were trapped inside the main IIFE, silently breaking every interactive element. The nav panel, theme toggle, FAQ accordions, KG controls, and SPARQL workbench all appeared functional in static HTML but failed at runtime. The static validator only checks for `toggleNav()` call presence in an onclick attribute — not whether the function is actually reachable."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/infographic-authoring.ttl> .
+
+:topicIifeGlobalScope a schema:Thing ;
+    schema:name "IIFE Global Scope for onclick Handlers"@en ;
+    schema:description "All functions called from HTML onclick/onchange attributes MUST be exposed on window if defined inside an IIFE. Unscoped functions silently fail at runtime — no static validator catches this. Verified by cross-referencing onclick attribute function names against window.X assignments."@en .
 
 # ── Step 63: No blank nodes for resolver-addressable entities ─────────────────
 

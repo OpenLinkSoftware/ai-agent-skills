@@ -7,7 +7,7 @@
     schema:name "Artifact Routing — Output Directories and Terminology"@en ;
     schema:description "Rules for routing generated artifacts (RDF, HTML, Markdown) to the correct model-specific output directories, plus the meshup vs mashup terminology rule."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-09T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-24T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment ;
@@ -49,3 +49,11 @@
     schema:position "5"^^xsd:integer ;
     schema:name "Model identity always wins over agent environment for output routing"@en ;
     schema:text """When the LLM model and the agent environment differ, the model identity from the system prompt determines the output path, never the agent environment name. The agent environment is a multi-model runtime — it can host many different models — so it cannot determine where artifacts should land. Only the model knows its own output directory. Example: DeepSeek V4 Pro running in Claude Code routes to DeepSeek/ (not Claude Generated/). Same principle applies for any model+environment combination. The system prompt model identifier (e.g., 'You are powered by the model deepseek-v4-pro') is authoritative. Inferring the model from session filenames, surrounding conversation context, or memory entries is prohibited. Added 2026-06-09 after World Cup 2026 meshup was misrouted to Claude Generated/ instead of DeepSeek/."""@en .
+
+# ── Step 6: Blocking Gate — Session-Start Output Root Resolution ─────────────
+
+:step-outputRootBlockingGate a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "BLOCKING GATE — resolve and confirm output root at session start; no writes before this"@en ;
+    schema:text """This is a hard blocking gate. No file write (HTML, RDF, Markdown, or any other artifact) may proceed until the output root has been resolved and confirmed from the system prompt model identifier at session initialization. PROCEDURE: (1) At session start, read the system prompt for the model ID. (2) Map it to its canonical directory under /Users/kidehen/Documents/LLMs/ via step-outputDirs. (3) Internally confirm the resolved root. (4) All subsequent writes in the session use that confirmed root without re-derivation. FAILURE MODE THAT TRIGGERED THIS RULE (2026-06-24): Claude Sonnet 4.6 saved an HTML artifact to kg-output/ in the repo working directory because the output root was never resolved at session start — the write happened opportunistically at delivery time with no pre-flight. PROHIBITED FALLBACKS: kg-output/, the repo root, /tmp, any generator work folder. The gate must be satisfied before the first write, not after the user notices the wrong path."""@en ;
+    rdfs:seeAlso <../preferences.ttl> .
