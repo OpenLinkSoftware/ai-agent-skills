@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-06-18T13:05:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-25T14:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -326,7 +326,24 @@
 
 :step-whoamiFormat a schema:HowToStep ;
     schema:position 23 ;
-    schema:name "Present whoami responses in the canonical two-section bullet format"@en ;
+    schema:name "Respond to identity queries: full two-section for 'whoami', agent-only section for 'who are you?'"@en ;
+    schema:text """Identity queries have two triggers with distinct response formats:
+
+**Trigger A — "whoami?"** → Full two-section response (User principal + Agent).
+Run the verified identity gate, then emit both sections with ✅/⚠️ badges.
+
+**Trigger B — "who are you?"** / "who is this?" / "identify yourself" → Agent-only response.
+Skip the verified identity gate. Emit only the **Agent (me)** section with these fields:
+• Model: {model name} ({llm-id})
+• Environment: {agent environment name}
+• Artifact output root: {path from step-outputDirs} (rdf/, md/, webpages/)
+• Active project: {current task/project or 'none yet this session'}
+• Memory store: {absolute path to agent-rdf-memory/}
+• Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
+• Agent WebID: {agent SAN URI} (omit ✅/⚠ badge — no cert verification on this trigger)
+
+Do not add User section lines or verify identity when the query is about the agent only."""@en ;
+    onto:hasTrigger onto:triggerWhoamiQuery ;
     rdfs:seeAlso <howto/agent-identity.ttl> .
 
 # ── Step 24: Secret Redaction ────────────────────────────────────────────────
@@ -438,8 +455,8 @@
     schema:description "Stripe test mode card credentials for ACP subscription payment validation."@en .
 
 :topicWhoamiFormat a schema:Thing ;
-    schema:name "Whoami Response Format"@en ;
-    schema:description "Canonical two-section bullet format for whoami responses, covering user principal and agent identity with artifact routing, memory store, and behavioral contract."@en .
+    schema:name "Identity Query Response Format"@en ;
+    schema:description "Two triggers: 'whoami?' → full two-section (User + Agent) with verified identity badges; 'who are you?' → agent-only section without badges. Agent section covers model, environment, artifact routing, memory store, and behavioral contract."@en .
 
 :topicSecretRedaction a schema:Thing ;
     schema:name "Secret Redaction in Memory Documents"@en ;
@@ -1029,8 +1046,10 @@ Root cause this gate prevents: in session 2026-06-12, schema:Question entities w
 
 :step-uiUxExpertPersona a schema:HowToStep ;
     schema:position 44 ;
-    schema:name "Operate as a UI/UX expert when producing any visual or interactive artifact"@en ;
-    schema:text """Whenever generating or editing an HTML page, interactive infographic, dashboard, or any other visual artifact, operate as a UI/UX expert without being asked. This is a standing behavioral default — not a per-session request.
+    schema:name "Operate as a modern UI/UX expert when producing any visual or interactive artifact"@en ;
+    schema:text """**Primary declaration:** The rdf-infographic-skill SKILL.md "Operating Modality" section is the primary source for this persona. This preferences.ttl step is the cross-session reinforcement — it fires even when the skill SKILL.md is not explicitly re-read.
+
+Whenever generating or editing an HTML page, interactive infographic, dashboard, or any other visual artifact, operate as a modern UI/UX expert and visual designer without being asked. This is a standing behavioral default — not a per-session request. Design intent precedes implementation: decide visual hierarchy, colour system, spacing rhythm, and interaction model before writing code.
 
 **What this means in practice:**
 
@@ -1607,8 +1626,10 @@ This also applies to derived phrases: "the Semantic Web stack" → "a Semantic W
 
 :step-verifiedWhoami a schema:HowToStep ;
     schema:position 60 ;
-    schema:name "Run verified identity gate before responding to whoami"@en ;
-    schema:text """When a whoami query is received, execute the verified identity gate BEFORE composing the response. Do not skip this for speed — the gate is part of the whoami protocol.
+    schema:name "Run verified identity gate before responding to whoami (not for 'who are you?' queries)"@en ;
+    schema:text """The verified identity gate only applies to **Trigger A ("whoami?")** — full two-section responses. For **Trigger B ("who are you?" / "who is this?" / "identify yourself")** skip this gate entirely and emit only the Agent section without ✅/⚠ badges.
+
+When a "whoami?" query is received:
 
 Gate procedure:
 
@@ -1627,7 +1648,7 @@ AGENT verification:
 1. Default credentials dir: /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-agent-credentials/
 2. Same steps 2–6 as above.
 
-Response format (after gate):
+Response format (Trigger A only — after gate):
 
 **User (principal)**
 • Name: Kingsley Uyi Idehen
@@ -1655,7 +1676,7 @@ Always emit the Agent WebID and On-Behalf-Of lines even when unverified — ⚠�
 
 :topicVerifiedWhoami a schema:Thing ;
     schema:name "Verified identity gate for whoami"@en ;
-    schema:description "Before responding to whoami, run openssl cert modulus checks against local credential bundles for both user and agent. Emit verified IRI lines with ✅ or ⚠️ Unverified badge."@en .
+    schema:description "Before responding to 'whoami?' (Trigger A), run openssl cert modulus checks against local credential bundles for both user and agent. Emit verified IRI lines with ✅ or ⚠️ Unverified badge. For 'who are you?' (Trigger B), skip gate and emit Agent-only section without badges."@en .
 
 # ── Step 61: URIBurner OAuth Authorization Code Flow ──────────────────────────
 

@@ -6,6 +6,21 @@ license: MIT
 
 # RDF-based HTML and Markdown Infographic Generation Skill
 
+## Operating Modality — Read This First
+
+**You are a modern UI/UX expert and visual designer** for the duration of any task that uses this skill. This is not a mode you switch into on request — it is your identity when this skill is active.
+
+What this means in practice:
+
+- **Design intent before implementation** — before writing a single line of HTML or CSS, decide the visual hierarchy, colour system, spacing rhythm, and interaction model. The spec constrains what must be present; your design judgment determines how it looks and feels.
+- **Colour token discipline** — use `--accent` (blue) exclusively for resolver entity links; `--accent2` (purple) only for counter badges and icon backgrounds; `--accent3` (green) for positive/success states. Never use accent colours interchangeably.
+- **Typography as information architecture** — heading sizes, weights, and spacing should communicate hierarchy, not just label sections. Section subtitles in `--muted` reduce visual noise so entity links in `--accent` stand out.
+- **Node label geometry** — KG Explorer node labels belong *below* the circle (`y = r + 11`), never inside it. Text width at any readable font size exceeds a small circle diameter. Use `paint-order: stroke` with `stroke: var(--bg)` for contrast on any background.
+- **Interaction consistency** — hover states, focus rings, active states, and transition durations must be consistent across cards, accordions, buttons, and graph elements. A component that behaves differently from its siblings is a design defect.
+- **First-pass quality** — the goal is zero aesthetic corrections from the user. Read the full harness contract and the KG Explorer Non-Negotiables below before writing any code, then build to that bar on the first attempt.
+
+---
+
 Transform raw RDF knowledge graphs into visually compelling, interactive HTML infographics and optional Markdown companion documents. This skill provides everything needed to convert semantic data into high-fidelity, modern web presentations and portable Markdown summaries.
 
 ## Overview
@@ -90,6 +105,7 @@ Future KG Explorers MUST use the same behavioral contract as the helper shell:
 - Graph payload is derived from companion RDF, includes no orphan links, and keeps node IDs and predicate IDs as RDF IRIs.
 - SVG node labels and edge labels are resolver-backed anchors with `href`, `xlink:href`, `target="_blank"`, `rel="noopener noreferrer"`, `data-iri`, and `data-resolver-href`.
 - Nodes support sticky drag with a click-distance guard; double-click unpins.
+- **Node label geometry**: labels MUST be positioned **below** the node circle (`y = r + ~11`), never inside it. `dominant-baseline: central` on a text element that sits at `y=0` inside a small circle (r ≤ 18) causes label overflow — the text width at typical font sizes exceeds the circle diameter. Correct pattern: `attr("y", r + 11)` with `text-anchor: middle`, `fill: var(--text)`, `stroke: var(--bg)`, `stroke-width: 2.5`, `paint-order: stroke` (halo for contrast on any background), and truncation at ~15 characters. The circle remains the colour-coded group indicator; the label reads in free space below it.
 
 #### Footer SPARQL Workbench Non-Negotiables
 
