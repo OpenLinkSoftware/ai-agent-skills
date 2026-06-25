@@ -48,7 +48,8 @@
         :topicEntityLookupDisambiguation,
         :topicSparqlHtmlEscape,
         :topicYouidValidationGate,
-        :topicOAuthAuthCodeFlow ;
+        :topicOAuthAuthCodeFlow,
+        :topicD3Loading ;
     schema:step :step-approval, :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-mashupVsMeshup, :step-modelIdentityPreflight, :step-skillChain,
         :step-kgQueryMode,
         :step-entityDenotation, :step-memoryProtocol,
@@ -73,7 +74,8 @@
         :step-entityLookupDisambiguation,
         :step-sparqlHtmlEscape,
         :step-youidValidationGate,
-        :step-uriburnerOAuthAuthCodeFlow .
+        :step-uriburnerOAuthAuthCodeFlow,
+        :step-staticD3Load, :step-singleRender .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
 
@@ -2112,3 +2114,23 @@ grep for `id="` on `<section>` elements — should return 0 matches (ids belong 
 :topicHeadingFragmentIds a schema:Thing ;
     schema:name "Section Heading Fragment Id Gate"@en ;
     schema:description "Every section heading must be an <h2> (not <div>) carrying its own id attribute, plus a .heading-anchor <a> child that appears on hover and copies the fragment URL to clipboard. Static validator has no check for heading element type, id-on-wrapper vs id-on-heading, or 🔗 icon presence."@en .
+
+# ── Step 71: Static D3 script tag ──────────────────────────────────────────────
+
+:step-staticD3Load a schema:HowToStep ;
+    schema:position 71 ;
+    schema:name "Load D3.js as static <script> in <head> — never dynamic injection"@en ;
+    schema:text "Static <script src='https://d3js.org/d3.v7.min.js'> in <head>. Never script.createElement + DOMContentLoaded — creates race condition where D3 isn't available at render time. See howto/kg-explorer-d3-patterns.ttl step 4 for full pattern."@en ;
+    rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
+
+:topicD3Loading a schema:Thing ;
+    schema:name "Static D3.js Loading Policy"@en ;
+    schema:description "D3.js must be loaded as a static script tag in <head>, not injected dynamically. Dynamic loading causes a race condition that breaks KG Explorer initialization."@en .
+
+# ── Step 72: Single render() function ──────────────────────────────────────────
+
+:step-singleRender a schema:HowToStep ;
+    schema:position 72 ;
+    schema:name "Use single render() that wipes/rebuilds SVG — not initGraph/updateGraph split"@en ;
+    schema:text "Use a single render() function that calls svg.selectAll('*').remove() and rebuilds everything. Avoids D3 data join mutation bugs from stale source/target object references. Proven in canonical competitive-analysis-head-to-head template. See howto/kg-explorer-d3-patterns.ttl step 6 for full pattern."@en ;
+    rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .

@@ -1,0 +1,46 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:about :kgExplorerCssPatterns ;
+    schema:name "KG Explorer CSS Patterns — Required CSS variables for edge/arrow visibility"@en ;
+    schema:description "CSS variable requirements for KG Explorer edge rendering. Defines --line-strong for visible edge lines and arrow markers in both light and dark themes."@en ;
+    schema:dateCreated "2026-06-25T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> .
+
+:kgExplorerCssPatterns a schema:HowTo ;
+    schema:name "KG Explorer CSS Patterns — Edge Styling Variables"@en ;
+    schema:description "CSS variables required for KG Explorer edge lines and arrow markers to be visible against both light and dark backgrounds."@en ;
+    schema:step :step-lineStrongVar, :step-edgeStrokeDefaults .
+
+# ── Step 1: --line-strong CSS variable ────────────────────────────────────
+
+:step-lineStrongVar a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Define --line-strong in both light and dark theme blocks"@en ;
+    schema:text """The JS render() function uses var(--line-strong) for edge stroke and arrow marker fill. If undefined, edges are invisible regardless of browser/theme.
+
+REQUIRED: Add --line-strong in both CSS theme blocks:
+
+:root (light mode):
+  --line-strong: #94a3b8;
+
+html[data-theme="dark"] (dark mode):
+  --line-strong: #64748b;
+
+Place these right after the existing --line: declaration in each block. Without --line-strong, edge lines and arrow markers render with invalid color and are invisible."""@en .
+
+# ── Step 2: Edge stroke defaults ──────────────────────────────────────────
+
+:step-edgeStrokeDefaults a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Use adequate edge stroke width and opacity for visibility"@en ;
+    schema:text """Edge lines in the KG Explorer must be visible at default zoom. Use these minimums:
+
+- stroke-width: 1.5px (not 1.2px or less)
+- stroke-opacity: 0.7 (not 0.5 or less)
+- Hover: stroke-width 2.5px at opacity 1, colored with colorHex.instance (#059669)
+
+Lower values (1.2px, 0.5 opacity) make edges faint against dark backgrounds and nearly invisible on light backgrounds. The hover highlight gives interactive feedback essential for discoverability of clickable edge labels."""@en .

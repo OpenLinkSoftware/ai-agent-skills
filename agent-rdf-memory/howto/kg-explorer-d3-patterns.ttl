@@ -3,14 +3,17 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<> a schema:HowTo ;
-    schema:name "KG Explorer D3 Patterns — Simulation Lifecycle, Click Guard, and kgData Regex"@en ;
-    schema:description "Three D3-specific implementation rules for KG Explorer: single simulation creation with reuse across renders, click-distance guard for drag-vs-click disambiguation, and kgData placement adjacent to IIFE opening."@en ;
+<> a schema:CreativeWork ;
+    schema:about :kgExplorerD3Patterns ;
+    schema:name "KG Explorer D3 Patterns — Load, Init, Render, Lifecycle, Click Guard, and Data Placement"@en ;
+    schema:description "Six D3-specific implementation rules for KG Explorer: static D3 loading, window load init, single render function, simulation lifecycle, click-distance guard, and kgData placement."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-05T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-25T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex ;
-    schema:step :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex ;
+    schema:about :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex,
+        :step-staticD3Load, :step-windowLoadInit, :step-singleRender ;
+    schema:step :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex,
+        :step-staticD3Load, :step-windowLoadInit, :step-singleRender ;
     rdfs:seeAlso <../preferences.ttl> .
 
 # ── Step 1: D3 Simulation Lifecycle ─────────────────────────────────────────
@@ -33,3 +36,49 @@
     schema:position "3"^^xsd:integer ;
     schema:name "Place kgData immediately adjacent to the IIFE opening"@en ;
     schema:text "The harness validator expects the JavaScript kgData declaration to be immediately followed by the IIFE opening. The IIFE (()=>{ must start immediately after the semicolon with only whitespace between. No comment lines, no blank lines with content, no section dividers. Any text between the kgData semicolon and the IIFE breaks validation."@en .
+
+# ── Step 4: Static D3 Script Tag ─────────────────────────────────────────────
+
+:step-staticD3Load a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Load D3.js as a static <script> tag in <head> — never inject dynamically"@en ;
+    schema:text """CRITICAL: D3.js MUST be loaded as a static <script src="https://d3js.org/d3.v7.min.js"></script> tag in the <head> element. NEVER use dynamic injection (script.createElement + document.head.appendChild) — this creates a race condition where D3 may not be available when the KG Explorer init runs, causing silent failure.
+
+Canonical template pattern:
+<head>
+  ...
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="application/ld+json">...</script>
+  ...
+</head>
+
+The static script tag ensures D3 is loaded synchronously with the page, available for any window.load or later event."""@en .
+
+# ── Step 5: window load init ──────────────────────────────────────────────────
+
+:step-windowLoadInit a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Use window.addEventListener('load', render) — not DOMContentLoaded"@en ;
+    schema:text """Always initialize KG Explorer with:
+
+window.addEventListener('load', () => { render(); setMode('basic'); });
+window.addEventListener('resize', () => { if(simulation) render(); });
+
+Use 'load' (not 'DOMContentLoaded') because D3.js is loaded as a static script tag and must be fully parsed before render() executes. The 'load' event fires after the entire page (including scripts, stylesheets, images) has loaded, guaranteeing D3 availability.
+
+The resize handler ensures the SVG re-renders when the viewport changes. Guard with 'if(simulation)' to avoid rendering before the first 'load' init."""@en .
+
+# ── Step 6: Single render() function ──────────────────────────────────────────
+
+:step-singleRender a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Use a single render() function that wipes and rebuilds the SVG — not initGraph/updateGraph split"@en ;
+    schema:text """PREFERRED PATTERN: A single render() function that:
+1. Calls getFiltered() to compute nodes/links
+2. Calls svg.selectAll('*').remove() to wipe the SVG entirely
+3. Recreates defs (arrow markers), link groups, node groups, and simulation from scratch
+4. Sets up zoom behavior and event handlers fresh each time
+
+This avoids D3 data join mutation bugs where stale source/target object references accumulate across filter cycles. The initGraph/updateGraph split (where graph is set up once and only links/nodes are replaced) is more fragile because D3 forceLink mutates link source/target from string IDs to object references, and the cleanup logic for this is error-prone.
+
+The single render() approach is proven in the canonical competitive-analysis-head-to-head template at rdf-infographic-skill/assets/templates/."""@en .

@@ -7,7 +7,7 @@
     schema:name "Agent Identity — Whoami Format, Verified Identity Gate, and Stripe Sandbox Card"@en ;
     schema:description "Rules for agent identity presentation: the canonical two-section bullet response to whoami (with verified identity lines for both user and agent), the certificate verification gate that runs before composing the response, and the Stripe sandbox card credentials for ACP test payments."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-25T14:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
     schema:step :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
@@ -17,8 +17,18 @@
 
 :step-whoamiFormat a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Present whoami responses in the canonical two-section bullet format"@en ;
-    schema:text """When asked 'whoami?', FIRST run the verified identity gate (Step 2 / see verified-identity.ttl), then respond in this exact format, substituting the verification badge on the two new lines:
+    schema:name "Respond to identity queries: full two-section for 'whoami', agent-only for 'who are you?'"@en ;
+    schema:text """Identity queries have two triggers:
+
+**Trigger A — "whoami?" → Full two-section (User + Agent):**
+Run the verified identity gate (Step 2), then respond with both sections.
+
+**Trigger B — "who are you?" / "who is this?" / "identify yourself" → Agent-only:**
+Skip the verified identity gate. Respond with only the Agent section. No User lines, no cert verification.
+
+After running the appropriate trigger, respond in this format:
+
+**For Trigger A ("whoami?") — Full two-section:**
 
 **User (principal)**
 • Name: Kingsley Uyi Idehen
@@ -37,6 +47,20 @@
 • Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
 • On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
 • owl:sameAs: https://www.linkedin.com/in/kidehen#this, https://x.com/kidehen#this, https://substack.com/@kidehen#this
+
+**For Trigger B ("who are you?") — Agent-only, no badges:**
+
+**Agent (me)**
+• Model: {model name} ({llm-id})
+• Environment: {agent environment name}
+• Artifact output root: {path from step-outputDirs} (rdf/, md/, webpages/)
+• Active project: {current task/project or 'none yet this session'}
+• Memory store: {absolute path to agent-rdf-memory/}
+• Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
+• Agent WebID: {agent SAN URI}
+• On-Behalf-Of: {user SAN URI}
+
+(Omit ✅/⚠ badges — no cert verification for Trigger B. Omit the User section entirely.)
 
 The cert-verified SAN URI is canonical for both the agent and the On-Behalf-Of delegator.
 The owl:sameAs on the On-Behalf-Of line lists the delegator's known platform IRIs.
