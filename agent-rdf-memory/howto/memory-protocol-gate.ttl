@@ -182,3 +182,37 @@ The hook injection is a best-effort prevention mechanism. It injects text into t
 
 See also: step 5 (step-memoryProtocol) in preferences.ttl for the protocol itself, and step-memoryProtocolGate for the enforcement step."""@en ;
     schema:dateCreated "2026-06-10T00:00:00Z"^^xsd:dateTime .
+
+# ── Gate: preferences.ttl sparse-index contract ──────────────────────────────────
+
+:step-preferencesSparseContract a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "preferences.ttl sparse-index contract — prose belongs in howto/, never inline"@en ;
+    schema:text """**PRE-WRITE GATE — applies every time a new schema:HowToStep is added to preferences.ttl.**
+
+preferences.ttl is read in full at every session start. Verbose inline schema:text values directly inflate context cost before any task begins. The architecture is a two-tier split:
+
+**Tier 1 — preferences.ttl (always loaded, must stay compact):**
+- schema:name — the rule as a noun phrase (already concise)
+- schema:text — ONE sentence only; the core rule, nothing else
+- onto:hasTrigger — when the rule fires
+- rdfs:seeAlso — pointer to the howto file with full detail
+
+**Tier 2 — howto/*.ttl (loaded on-demand, can be verbose):**
+- Full rationale, incident notes, code examples, verification gates, edge cases
+
+**The gate:**
+Before writing a new step to preferences.ttl, ask: does schema:text exceed one sentence? If yes, it belongs in the howto file. The one-sentence summary stays; everything else moves.
+
+**Verification (run after adding any new step):**
+python3 -c "
+import rdflib
+g = rdflib.Graph()
+g.parse('agent-rdf-memory/preferences.ttl', format='turtle')
+from rdflib import URIRef
+long = [(str(s).split('#')[-1], len(str(o))) for s,p,o in g.triples((None, URIRef('http://schema.org/text'), None)) if len(str(o)) > 300]
+print('Violations (>300 chars):', long or 'None')
+"
+
+**Incident (2026-06-25):** Over ~10 sessions, 55 of 79 steps accumulated multi-paragraph schema:text values totalling ~2300 lines. A subagent refactor was required to trim them, moving all prose to howto files. The problem was no gate existed to prevent re-inflation."""@en ;
+    schema:dateCreated "2026-06-25T00:00:00Z"^^xsd:dateTime .

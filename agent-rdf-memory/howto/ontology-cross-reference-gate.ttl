@@ -1,0 +1,60 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Ontology Cross-Reference Gate"@en ;
+    schema:description "Requirements for custom ontology terms in generated RDF: mandatory rdfs:label, rdfs:comment, rdfs:domain/range for properties, and at least one verified external cross-reference to schema.org, DBpedia, or Wikidata."@en ;
+    schema:dateCreated "2026-06-25T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-25T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :mainStep ;
+    schema:step :mainStep ;
+    rdfs:seeAlso <../preferences.ttl> .
+
+:mainStep a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Cross-reference gate for custom ontology classes and properties"@en ;
+    schema:text """When a custom ontology is defined during KG generation (classes and properties beyond those in standard vocabularies), every custom term MUST satisfy three requirements:
+
+Requirement A — Annotations: Every custom class and property MUST carry rdfs:label (human-readable name) and rdfs:comment (description) alongside its type declaration. The ontology itself MUST have schema:name, schema:description, rdfs:label, and rdfs:comment.
+
+Requirement B — Domain and Range: Every custom property (rdf:Property) MUST declare rdfs:domain and rdfs:range. The domain MUST be the most specific custom class or schema:Thing. The range MUST be the most specific type (xsd:string, xsd:integer, or a custom class where applicable). Neither may be omitted or defaulted.
+
+Requirement C — External Cross-References: Every custom term MUST be cross-referenced against schema.org, DBpedia, and Wikidata:
+
+For custom classes (rdfs:Class):
+1. Search schema.org for an owl:equivalentClass or rdfs:subClassOf match.
+2. Search DBpedia for the closest class resource via owl:equivalentClass or rdfs:seeAlso.
+3. Search Wikidata for the closest class entity (Q-item) via rdfs:seeAlso.
+
+For custom properties (rdf:Property):
+1. Search schema.org for an owl:equivalentProperty match.
+2. Search DBpedia for the closest property or ontology term via rdfs:subPropertyOf or rdfs:seeAlso.
+3. Search Wikidata for the closest property (P-item) via rdfs:seeAlso.
+
+Gate rules:
+1. Every custom class and property in the generated RDF MUST have: (a) rdfs:label + rdfs:comment; (b) rdfs:domain + rdfs:range (properties only); (c) at least one external cross-reference — unless explicitly waived by the user.
+2. The cross-reference IRI MUST be verified before use (see :step-externalIriVerification in preferences.ttl). A guessed or fabricated schema.org/DBpedia/Wikidata URI is a contract violation.
+3. If no shared vocabulary term exists at an appropriate semantic distance, document the gap in rdfs:comment rather than leaving the term isolated.
+4. rdfs:isDefinedBy MUST point to the document-local ontology entity. External cross-references complement, not replace, this annotation.
+5. rdfs:domain must use the most specific class available — never default to schema:Thing when a custom class from the same ontology fits.
+
+Example:
+  :StartupEra a rdfs:Class ;
+      rdfs:label "Startup Era"@en ;
+      rdfs:comment "An era of startup formation characterized by a dominant technological paradigm."@en ;
+      rdfs:subClassOf schema:Thing ;
+      rdfs:isDefinedBy :analysisOntology ;
+      rdfs:seeAlso <http://dbpedia.org/resource/Business_cycle> .
+
+  :hasTechnologistAdvantage a rdf:Property ;
+      rdfs:label "has technologist advantage"@en ;
+      rdfs:comment "Structural leverage technologists have over non-technologists in a given era."@en ;
+      rdfs:domain :StartupEra ;
+      rdfs:range xsd:string ;
+      rdfs:isDefinedBy :analysisOntology ;
+      rdfs:seeAlso <http://dbpedia.org/resource/Skill_(labor)> .
+
+Why this gate exists: In session 2026-06-13, a custom ontology was generated where (a) properties lacked rdfs:domain and rdfs:range, (b) only the ontology entity had annotations — individual classes and properties relied on schema:name alone, and (c) zero external cross-references existed. This gate ensures every ontology term is fully described, properly constrained, and semantically aligned with the broader vocabulary ecosystem."""@en .

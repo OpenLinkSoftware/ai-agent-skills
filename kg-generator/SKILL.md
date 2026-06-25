@@ -54,10 +54,10 @@ When generated RDF introduces `schema:DefinedTerm` or `skos:Concept` glossary en
 
 1. **Standards-body or platform IRI first** — if the term has a well-known W3C, schema.org, IANA, or other standards-body IRI (e.g., Semantic Web → `https://www.w3.org/2001/sw/#this`), use that as the primary IRI with `owl:sameAs` linking to the document-local representation.
 2. **DBpedia IRI second** — if no standards-body IRI exists but a confident DBpedia resource exists for the term, use via `owl:sameAs` from the document-local IRI.
-3. **Wikidata IRI third** — if no confident DBpedia resource exists but a confident Wikidata entity exists, use via `owl:sameAs` from the document-local IRI.
+3. **Wikidata IRI third** — if no confident DBpedia resource exists but a confident Wikidata entity exists, use the Wikidata IRI as the primary subject.
 4. **Document-local hash IRI** — the most common case: use a source-grounded hash IRI derived from `{page_url}` with a mnemonic fragment.
 
-When a standards-body or platform IRI exists (tier 1), it becomes the **primary subject** — the document-local IRI links to it via `owl:sameAs`. For tiers 2-3, the document-local IRI remains the primary subject; `owl:sameAs` provides the authority link to DBpedia or Wikidata. Do not hardcode a fixed list of cross-referenceable terms — evaluate each term against DBpedia/Wikidata at generation time. Do not fabricate external IRIs.
+**Canonical subject rule (applies to tiers 1–3):** When a confirmed DBpedia IRI (tier 2) or Wikidata IRI (tier 3) exists, that IRI IS the entity's subject — use it directly as the primary subject, **never** create a document-local alias and add `owl:sameAs dbr:X`. The entity IS `dbr:X`; the local alias is redundant and bloats the graph. Use `owl:sameAs` only for genuine cross-vocabulary alignment: `dbr:SPARQL owl:sameAs wd:Q54871` is correct (DBpedia ↔ Wikidata); `:sparqlConcept owl:sameAs dbr:SPARQL` is the anti-pattern to avoid. Document-local IRIs (tier 4) are correct only when no confirmed authority IRI exists. Do not hardcode a fixed list of cross-referenceable terms — evaluate each term against DBpedia/Wikidata at generation time. Do not fabricate external IRIs.
 
 ### Collection and Service Detection
 
