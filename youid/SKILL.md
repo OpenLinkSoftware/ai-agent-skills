@@ -99,7 +99,7 @@ When the user explicitly invokes the YouID skill by name or a clear identity-gen
    - A "✓ Verified WebID" badge MUST be present in all template variants
    - Social profiles MUST render for the platform (`--social-color` CSS custom property per platform)
    - The OPAL agent section MUST be wrapped in `!!{use_opal_widget}` conditional block
-   - Dark mode MUST be supported via `@media (prefers-color-scheme:dark)`
+   - Dark mode via `[data-theme="dark"]` CSS variable overrides, not `@media (prefers-color-scheme:dark)` — the `@media` rule would block the manual toggle on dark-system devices. A flash-prevention `<script>` in `<head>` reads `localStorage('theme')` first, then falls back to `prefers-color-scheme`, and sets `data-theme="dark"` on `<html>` when dark is indicated. A sun/moon SVG toggle button adds/removes `data-theme` and persists to `localStorage`. Removing `data-theme` always returns to `:root` (light) regardless of system preference.
    - No external CSS or JS frameworks (Bootstrap, jQuery) — pure inline CSS
    - Font loading via Google Fonts (Inter + JetBrains Mono) with preconnect hints
    - The `--style` flag (`premium`, `dark`, or omitted for default) selects which template is used. The output file is always `index.html` regardless of selected template.
@@ -389,7 +389,10 @@ Before delivering any generated identity to the user:
 - [ ] **QR code functional**: the `index.html` page has a QR code pointing to itself
 - [ ] **Conditional blocks correct**: if OPAL was disabled, verify no OPAL JS is embedded
 - [ ] **Accordion contract**: cert `<details>` starts closed (`open` attribute absent), pubkey `<details class="nested-details">` starts closed, each has `<summary>` with preview + chevron
-- [ ] **Dark mode present**: `@media (prefers-color-scheme:dark)` rule exists in CSS
+- [ ] **Dark mode present**: `@media (prefers-color-scheme:dark)` rule NOT used (would block manual toggle). Instead `[data-theme="dark"]` CSS block overrides `:root` variables, with flash-prevention `<script>` in `<head>`
+- [ ] **Theme toggle implemented**: `[data-theme="dark"]` CSS block overrides CSS variables, flash-prevention `<script>` in `<head>` reads `localStorage('theme')` then `prefers-color-scheme`, and a sun/moon SVG toggle button is present with click handler that sets/removes `data-theme` on `<html>` and persists to `localStorage`
+- [ ] **Platform icons exist**: every `src="p_{key}_32.png"` in `.social-grid` has a corresponding file in the output directory
+- [ ] **Platform icons use proper logos**: no icon uses `p_none.png` unless a platform-specific icon was not discoverable after searching the platform's brand page
 - [ ] **No external framework**: no `bootstrap`, `jquery`, or other framework imports in the HTML body
 - [ ] **Basic WebID Test PASS**: RSA public key from `cert.p12` (modulus + exponent) matches `index.html`, `profile.ttl`, and `profile.jsonld`. This is the primary local self-consistency gate. Extract via:
   ```
@@ -400,6 +403,10 @@ Before delivering any generated identity to the user:
   # Exponent must be "65537"^^xsd:int (typed literal), not bare integer
   ```
 - [ ] **Hero badges rendered**: "✓ Verified WebID", subject name, email, org all visible
+- [ ] **Social `owl:sameAs` present**: `profile.ttl` and `profile.jsonld` contain `owl:sameAs` entries for each social platform URL collected from the user (not just profile-document equivalences)
+- [ ] **`<link rel="me">` in head**: `index.html` has `<link rel="me">` tags for each social platform URL
+- [ ] **Social grid populated**: `index.html`'s `.social-grid` div contains platform-icon `<a>` tags with `rel="me"` for each social URL
+- [ ] **No empty social-grid**: if social links were collected, verify `.social-grid` is non-empty; if none were collected, the section should be conditionally hidden
 
 ## Operational Rules
 
@@ -410,6 +417,55 @@ Before delivering any generated identity to the user:
 5. **One identity per run.** Each skill invocation generates one NetID. For multiple identities, run the workflow multiple times.
 6. **Social relations are `owl:sameAs` targets.** Each social profile link becomes an `owl:sameAs` (Turtle/JSON-LD) and `<link rel="me">` (HTML) reference. These MUST resolve to the user's profile on that platform.
 7. **Multiple output formats are not optional.** Always generate all 6 RDF formats (Turtle, JSON-LD, RDFa HTML for profile, certificate, and public_key) + index.html + vcard.vcf by default. Skip only if the user explicitly requests a subset.
+
+## Platform Icon Reference
+
+When generating `index.html`, every social/profile platform URL in `owl:sameAs` / `schema:sameAs` needs a branded 32×32 icon in `.social-grid`. Icon files follow the naming convention `p_{key}_32.png`.
+
+| Platform | `href` pattern | Icon file | `--social-color` | Brand page for logo download |
+|----------|---------------|-----------|-------------------|------------------------------|
+| LinkedIn | `https://linkedin.com/in/{user}` | `p_linkedin_32.png` | `#0077b5` | N/A — use existing asset |
+| X/Twitter | `https://x.com/{user}` | `p_twitter_32.png` | `#000000` | N/A — use existing asset |
+| Substack | `https://substack.com/@{user}` | `p_substack_32.png` | `#FF6719` | `https://substack.com/brand` |
+| Mastodon | `https://mastodon.social/@{user}` | `p_mastodon_32.png` | `#6364ff` | N/A — use existing asset |
+| Bluesky | `https://bsky.app/profile/{user}` | `p_bluesky_32.png` | `#1185fe` | N/A — use existing asset |
+| Threads | `https://www.threads.net/@{user}` | `p_threads_32.png` | `#000000` | N/A — use existing asset |
+| GitHub | `https://github.com/{user}` | `p_github_32.png` | `#333333` | N/A — use existing asset |
+| Linktree | `https://linktr.ee/{user}` | `p_linktree_32.png` | `#39e09b` | N/A — use existing asset |
+| ID.MyOpenLink.NET | `https://id.myopenlink.net/~{name}/Public/` | `p_myopenlink_32.png` | `#2563eb` | N/A — use existing asset |
+| Carrd | `https://{user}.carrd.co/` | `p_carrd_32.png` | `#2eaadc` | N/A — use existing asset |
+| Glitch | `https://glitch.com/~{user}` | `p_glitch_32.png` | `#65387d` | N/A — use existing asset |
+| Facebook | `https://facebook.com/{user}` | `p_facebook_32.png` | `#1877f2` | N/A — use existing asset |
+| Instagram | `https://www.instagram.com/{user}` | `p_insta_32.png` | `#e4405f` | N/A — use existing asset |
+| TikTok | `https://www.tiktok.com/@{user}` | `p_tiktok_32.png` | `#000000` | N/A — use existing asset |
+| RSS | Feed URL (e.g. podcasts RSS) | `p_rss_32.png` | `#ff6600` | N/A — use existing asset |
+| Atom | Feed URL (e.g. podcasts Atom) | `p_atom_32.png` | `#ff6600` | N/A — use existing asset |
+| Email | `mailto:{email}` | `p_email_32.png` | `#666666` | `https://www.flaticon.com/free-icons/email` |
+
+### Icon Provisioning Rules
+
+1. **Prefer existing assets** — if `p_{key}_32.png` already exists in `assets/`, copy it to the output directory. No download needed.
+2. **Download from brand page** — for new platforms, visit the platform's official brand page (e.g. `https://{platform}.com/brand`) and download their logo. If the brand page URL isn't known, search for `{platform} brand assets`.
+3. **Resize to 32×32** — use macOS `sips`:
+   ```
+   curl -sL -o /tmp/icon.png "{logo-url}" && sips -z 32 32 /tmp/icon.png --out "assets/p_{key}_32.png"
+   ```
+   For PNG downloads at larger sizes, `sips -z 32 32` handles downscaling.
+4. **Fall back to `p_none.png`** — if no official logo can be found, use the generic placeholder.
+5. **Copy to output directory** — after provisioning/resizing, copy `p_{key}_32.png` from `assets/` to the credential output directory alongside `index.html`.
+
+### Social Cross-Reference Pattern
+
+When adding social platform URLs to a credential set, ALL four profile files must be updated consistently:
+
+| File | What to add |
+|------|-------------|
+| `profile.ttl` | `owl:sameAs <{url}>` on the `#netid` entity (document profiles + all social) + `schema:sameAs <{url}>` (social only) |
+| `profile.jsonld` | `"owl:sameAs": [{"@id": "{url}"}]` and `"schema:sameAs": [{"@id": "{url}"}]` on `#netid` |
+| `index.html` | `<link rel="me" href="{url}" title="{Platform}" />` in `<head>` + `<a href="{url}" target="_blank" rel="me" title="{Platform}" style="--social-color:{color}"><img src="p_{key}_32.png" alt="{Platform}" /></a>` in `.social-grid` |
+| `profile_rdfa.html` | `<link rel="me" href="{url}" title="{Platform}" />` in `${RelMeAuth Relations}` section |
+
+The `#netid` entity IRI base: `https://{host}/.../index.html#netid`
 
 ## Resources
 
@@ -467,6 +523,7 @@ youid/
     ├── museo-500-webfont.woff        # Museo 500 font (WOFF)
     ├── p_linkedin_32.png             # Social: LinkedIn
     ├── p_twitter_32.png              # Social: X/Twitter
+    ├── p_substack_32.png             # Social: Substack
     ├── p_github_32.png               # Social: GitHub
     ├── p_facebook_32.png             # Social: Facebook
     ├── p_mastodon_32.png             # Social: Mastodon
@@ -484,5 +541,6 @@ youid/
     ├── p_disha_32.png                # Link: Disha
     ├── p_glitch_32.png               # Link: Glitch
     ├── p_cal.com_32.png              # Calendar: Cal.com
+    ├── p_email_32.png                # Email (flaticon envelope icon)
     └── p_none.png                    # Default/no platform icon
 ```
