@@ -67,7 +67,7 @@ _MODEL_OUTPUT_ROOTS: dict[str, str] = {
     "gpt5":             "/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/",
     "gpt5_chat":        "/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/",
     "qwen":             "/Users/kidehen/Documents/LLMs/Alibaba Qwen/",
-    "glm":              "/Users/kidehen/Documents/LLMs/GLM/",
+    "glm":              "/Users/kidehen/Documents/LLMs/glm/",
     "big_pickle":       "/Users/kidehen/Documents/LLMs/Big Pickle/",
 }
 

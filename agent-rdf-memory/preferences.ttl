@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-06-26T12:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T12:50:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -28,6 +28,7 @@
     schema:name "Agent Standing Instructions"@en ;
     schema:description "Procedural rules the agent must follow in every session. Encoded as structured RDF so rules are queryable, resolvable, and harder to overlook than flat prose alone."@en ;
     schema:about :topicApprovalWorkflow, :topicArtifactRouting, :topicModelIdentityPreflight,
+        :topicWhoamiSameAsHyperlinks,
         :topicSkillComposition,         :topicEntityResolution, :topicCanonicalEntityIriDenotation,
         :topicEntityIriDenotationMechanics,
         :topicMemoryManagement, :topicVersionControl,
@@ -50,8 +51,10 @@
         :topicYouidValidationGate,
         :topicOAuthAuthCodeFlow,
         :topicD3Loading,
-        :topicSecretEchoRedaction ;
+        :topicSecretEchoRedaction,
+        :topicWebidVerificationServices ;
     schema:step :step-approval, :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-mashupVsMeshup, :step-modelIdentityPreflight, :step-skillChain,
+        :step-whoamiSameAsHyperlinks,
         :step-kgQueryMode,
         :step-entityDenotation, :step-memoryProtocol,
         :step-gitWorkflow, :step-attribution, :step-zipRepackage,
@@ -77,7 +80,8 @@
         :step-youidValidationGate,
         :step-uriburnerOAuthAuthCodeFlow,
         :step-staticD3Load, :step-singleRender,
-        :step-secretEchoRedaction .
+        :step-secretEchoRedaction,
+        :step-webidVerificationServiceSelection .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
 
@@ -1123,3 +1127,43 @@
     schema:text "New HowToStep entries in preferences.ttl are limited to schema:name, a one-sentence schema:text, onto:hasTrigger, and rdfs:seeAlso; all rationale, code, gates, and incident notes go in the companion howto/*.ttl file."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/memory-protocol-gate.ttl> .
+
+# ── Step 81: Study proven patterns from prior work when constructing execution plans ──
+
+:step-studyPriorPatterns a schema:HowToStep ;
+    schema:position 81 ;
+    schema:name "Study proven patterns from prior output as input to execution plan construction, in line with operator request"@en ;
+    schema:text "Before constructing an execution plan for a new HTML infographic, study proven interactive patterns and structural choices from prior working outputs under this repo. Use the study to inform the plan — but the plan must ultimately reflect what the operator's prompt actually asks for, not blindly reproduce prior patterns."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/study-prior-patterns.ttl> .
+
+:topicStudyPriorPatterns a schema:Thing ;
+    schema:name "Study Prior Patterns, Don't Mandate Reuse"@en ;
+    schema:description "The FAQ accordion pattern (.faq-item > .faq-q onclick toggle > .faq-a max-height expand) from prior documents (satyas-convenient-truth, startups-2030) is a strong signal for what works in this repo — study it, use it to inform plan construction, but let the operator's actual request determine the final approach."@en .
+
+# ── Step 82: WebID/NetID Verification Service Selection ──────────────────────
+
+:step-webidVerificationServiceSelection a schema:HowToStep ;
+    schema:position 82 ;
+    schema:name "Elicit WebID/NetID verification service selection before mTLS verification"@en ;
+    schema:text "When the user asks to verify a WebID or NetID via a remote service, elicit which service to use from the known open list (netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/, and others added over time); if the user names a service in their prompt, honor it without re-eliciting."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/webid-verification-services.ttl> .
+
+:topicWebidVerificationServices a schema:Thing ;
+    schema:name "WebID/NetID Verification Service Selection"@en ;
+    schema:description "Rules for eliciting and executing WebID/NetID verification against OpenLink's mTLS verification services. Known services: netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/. List is open and extensible. Selection is always elicited unless the user names a service in their prompt."@en ;
+    rdfs:seeAlso <howto/webid-verification-services.ttl> .
+
+# ── Step 83: whoami owl:sameAs as hyperlinks ──────────────────────────────────
+
+:step-whoamiSameAsHyperlinks a schema:HowToStep ;
+    schema:position 83 ;
+    schema:name "Emit owl:sameAs values in whoami as Markdown hyperlinks sourced from the user's WebID index.html rel=me links"@en ;
+    schema:text "Before emitting the whoami User section, grep the user's WebID index.html for <link rel='me'> entries and emit each as a Markdown hyperlink [Title](URL) — never as prose platform categories."@en ;
+    onto:hasTrigger onto:triggerWhoamiQuery ;
+    rdfs:seeAlso <howto/agent-identity.ttl> .
+
+:topicWhoamiSameAsHyperlinks a schema:Thing ;
+    schema:name "whoami owl:sameAs as Markdown hyperlinks"@en ;
+    schema:description "The owl:sameAs bullet in the whoami User section must list each platform identity as a Markdown hyperlink [Title](URL), sourced at runtime by grepping <link rel='me'> entries from the user's WebID index.html. Prose descriptions of platform categories are not acceptable."@en .

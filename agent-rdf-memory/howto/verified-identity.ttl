@@ -9,7 +9,7 @@
     schema:name "Verified Identity Gate — Whoami Certificate Verification Protocol"@en ;
     schema:description "Protocol for cryptographically verifying both the user identity and the agent identity before responding to a whoami query. Uses local PKCS#12 / PEM certificates whose public key moduli are matched against the published cert:RSAPublicKey in each party's WebID profile document."@en ;
     schema:dateCreated "2026-06-19T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-26T12:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T14:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-locateUserCert, :step-verifyUserIdentity,
                  :step-locateAgentCert, :step-verifyAgentIdentity,
@@ -130,7 +130,7 @@ Fill runtime values (model, env, path, project) from current session context.
 • Email: kidehen@openlinksw.com
 • Role: Founder & CEO, OpenLink Software
 • WebID: {user SAN URI} {✅ | ⚠️ Unverified}
-• owl:sameAs: sourced from WebID profile index.html#netid declarations — includes LinkedIn, X/Twitter, GitHub, Mastodon, Bluesky, Threads, Facebook, Instagram, TikTok, Substack, Carrd, Glitch, Linktree, myOpenLink ID, podcast feeds, mailto, and profile representation variants
+• owl:sameAs: grep <link rel="me"> from user's WebID index.html and emit each as [Title](URL) — never prose platform-category descriptions
 
 **Agent (me)**
 • Model: {model name} ({llm-id used in session filenames})

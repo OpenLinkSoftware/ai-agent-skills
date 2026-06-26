@@ -7,7 +7,7 @@
     schema:name "Artifact Routing — Output Directories and Terminology"@en ;
     schema:description "Rules for routing generated artifacts (RDF, HTML, Markdown) to the correct model-specific output directories, plus the meshup vs mashup terminology rule."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-24T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T12:30:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment ;
@@ -20,7 +20,7 @@
 :step-outputDirs a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
     schema:name "Route artifacts to model-specific output directories under the canonical LLM root"@en ;
-    schema:text """CANONICAL LLM ROOT: /Users/kidehen/Documents/LLMs/ — all generated artifacts are written beneath this root, and all local RDF searches (step-kgQueryMode) scan beneath this same root. This symmetry is intentional: the write path and the read path share one root, so any artifact written in a generation workflow is automatically discoverable in a subsequent query workflow. Model-specific subdirectories: DeepSeek V4 Pro → /Users/kidehen/Documents/LLMs/DeepSeek/{rdf,md,webpages}/. Claude Sonnet/Opus → /Users/kidehen/Documents/LLMs/Claude Generated/{RDF,md,webpages}/. MiniMax → /Users/kidehen/Documents/LLMs/MiniMax Generated/{rdf,md,webpages}/. GPT-5 Chat in Codex Desktop → /Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/{rdf,md,webpages}/. Kimi → /Users/kidehen/Documents/LLMs/kimi/{rdf,md,webpages}/. Grok → /Users/kidehen/Documents/LLMs/Grok/{rdf,md,webpages}/. Determine the output root from the active LLM model ID before writing any file. Do not use kg-output/, the repo root, or a generator work folder as the final artifact destination. Identify the active LLM from the system prompt model identifier — never infer it from session file names, surrounding conversation context, or memory entries."""@en .
+    schema:text """CANONICAL LLM ROOT: /Users/kidehen/Documents/LLMs/ — all generated artifacts are written beneath this root, and all local RDF searches (step-kgQueryMode) scan beneath this same root. This symmetry is intentional: the write path and the read path share one root, so any artifact written in a generation workflow is automatically discoverable in a subsequent query workflow. Model-specific subdirectories: DeepSeek V4 Pro → /Users/kidehen/Documents/LLMs/DeepSeek/{rdf,md,webpages}/. Claude Sonnet/Opus → /Users/kidehen/Documents/LLMs/Claude Generated/{RDF,md,webpages}/. MiniMax → /Users/kidehen/Documents/LLMs/MiniMax Generated/{rdf,md,webpages}/. GPT-5 Chat in Codex Desktop → /Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/{rdf,md,webpages}/. Kimi → /Users/kidehen/Documents/LLMs/kimi/{rdf,md,webpages}/. Grok → /Users/kidehen/Documents/LLMs/Grok/{rdf,md,webpages}/. GLM (GLM-5.1, GLM-5.2, and later GLM variants) → /Users/kidehen/Documents/LLMs/glm/{rdf,md,webpages}/ — lowercase glm/, NOT uppercase GLM/. Determine the output root from the active LLM model ID before writing any file. Do not use kg-output/, the repo root, or a generator work folder as the final artifact destination. Identify the active LLM from the system prompt model identifier — never infer it from session file names, surrounding conversation context, or memory entries."""@en .
 
 # ── Step 2: GPT-5 Chat Codex Output Dirs ─────────────────────────────────────
 

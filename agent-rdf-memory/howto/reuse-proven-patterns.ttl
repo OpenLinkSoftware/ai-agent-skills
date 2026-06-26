@@ -1,0 +1,40 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix onto: <http://example.org/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+: a schema:CreativeWork ;
+    schema:about :reuseProvenPatternsProtocol ;
+    schema:name "Proven HTML Pattern Reuse Protocol"@en ;
+    schema:description "Protocol for retrieving and reusing proven HTML interactive patterns from prior infographic output before writing new infographics."@en ;
+    schema:dateCreated "2026-06-26T18:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T18:00:00Z"^^xsd:dateTime .
+
+:reuseProvenPatternsProtocol a schema:HowTo ;
+    schema:name "How to reuse proven HTML patterns from prior infographics"@en ;
+    schema:description "Before generating any new HTML infographic, query agent-rdf-memory for prior working output files from the same LLM+agent combination. Identify which patterns were used in the most recent working output for each interactive element — FAQ accordion, glossary layout, nav panel, theme toggle, KG Explorer, sparql-explorer — and reuse those DOM structures, CSS classes, and JS functions. Do not default to untested alternative layouts."@en .
+
+:step1 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Query memory for prior infographic files"@en ;
+    schema:text "Query index.ttl and session files in agent-rdf-memory/sessions/ for infographic HTML output files from the same LLM+agent, filtered by 'rdf-infographic-skill' or 'kg-generator' in the provenance chain. Identify the most recent working output that was delivered to the user."@en .
+
+:step2 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Inventory interactive patterns in prior output"@en ;
+    schema:text "Read the identified HTML file and catalog each interactive section: FAQ accordion structure (class names, toggle mechanism, expand/collapse CSS), glossary layout (grid vs flex vs wrapping rows), nav panel (glassmorphism, header-bar, collapsible body), theme toggle (position, styling, JS), KG Explorer (render pattern, lazy-init, drag behavior), and sparql-explorer (footer section, query display, href encoding)."@en .
+
+:step3 a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Reuse — never rewrite"@en ;
+    schema:text "Copy the proven DOM structure, CSS, and JS for each interactive element from the prior working output into the new file. Adapt entity-specific content and color scheme but preserve the interaction model, class names, and layout approach. The FAQ accordion pattern (.faq-item > .faq-q onclick toggle via parentElement.classList.toggle('open') > .faq-a max-height expand) from satyas-convenient-truth and startups-2030 infographics is the canonical pattern — never use grid-row or flat-list FAQ layouts."@en .
+
+:step4 a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Verify pattern fidelity in new output"@en ;
+    schema:text "After generating the new HTML, grep for the canonical pattern signatures to confirm fidelity: grep the .faq-class names, the onclick='this.parentElement.classList.toggle' pattern for accordion, the glossary-row-wrapping layout, the nav header-bar with grab-indicator, and the theme toggle pill with data-label. If any signature is missing, revert to the prior working pattern before delivery."@en .
+
+:incidentNote a schema:Thing ;
+    schema:name "Incident: Grid-row FAQ layout used in aiam-vs-youid-comparison (2026-06-26)"@en ;
+    schema:description "When generating the aiam-vs-youid-comparison HTML infographic, the FAQ section was implemented as a flat grid-row layout instead of the established accordion pattern from satyas-convenient-truth and startups-2030. The user rejected this approach, noting that the preference to reuse proven patterns should have been retrieved from memory automatically. The HTML was subsequently reverted to the canonical accordion pattern. Root cause: preferences.ttl did not yet include a step mandating pattern reuse from prior working outputs."@en .

@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-06-26T12:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T17:00:51Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -479,4 +479,23 @@
     schema:description "Corrected whoami response format: (1) Agent section no longer includes owl:sameAs — agents don't have social profiles; (2) User owl:sameAs now sourced from WebID profile index.html#netid declarations (full multi-platform list). Updated howto/agent-identity.ttl, howto/verified-identity.ttl. No prior collection generated."@en .
 
 :sessionIndex schema:itemListElement :session20260625BigPickleIdentityComparison,
-    :session20260626BigPickleWhoamiCorrection .
+    :session20260626BigPickleWhoamiCorrection,
+    :session20260626Glm52OpenCodeWhoami .
+
+:prefWebidVerificationServices a schema:ListItem ;
+    schema:position 71 ;
+    schema:name "Step 82 — WebID/NetID verification service selection (elicit before mTLS)"@en ;
+    schema:description """New preference: when the user asks to verify a WebID or NetID via a remote service, elicit which service to use from the known open list. Known services: (1) https://netid-qa.openlinksw.com:9443/webid/ — mTLS on port 9443, supports WebID+TLS and NetID+TLS, accepts acct/http(s)/ldap/mailto/bitcoin/ethereum URI schemes, returns NetID+timestamp+sha1+emoji; (2) https://ods-qa.openlinksw.com/webid/; (3) https://linkeddata.uriburner.com/webid/; (4) https://demo.openlinksw.com/webid/. List is open and extensible — new services added over time. If the user names a service in their prompt, honor it without re-eliciting. Companion howto: howto/webid-verification-services.ttl. Complements :step-verifiedWhoami (pos 60) and :step-webidTlsVerification (pos 23.1) which perform LOCAL modulus verification."""@en ;
+    schema:about <preferences.ttl#step-webidVerificationServiceSelection> .
+
+:session20260626Glm52OpenCodeWhoami a schema:ListItem ;
+    schema:position 71 ;
+    schema:item <sessions/2026-06-26-glm_5_2-opencode.ttl> ;
+    schema:name "Session 2026-06-26 (GLM-5.2 + OpenCode — whoami with verified identity gate + GLM output path registration, first GLM-5.2 session)"@en ;
+    schema:description "First session with GLM-5.2 in OpenCode. User issued 'whoami?' then 'According to prefs.' Ran verified identity gate per :step-verifiedWhoami (pos 60) and :step-whoamiFormat (pos 23): extracted SAN URIs and moduli from both cert.pem files via openssl, compared against cert:modulus in profile.ttl for each bundle. Both matched (user C719...C07, agent DA2B...D17B). Emitted full two-section whoami response with verified badges. User then approved registering GLM as a canonical output path using lowercase glm/. Updated core.ttl (new :glmOutputPath PropertyValue), howto/artifact-routing.ttl (step-outputDirs schema:text now lists GLM with lowercase path and the NOT-uppercase note), and scripts/fill_core_template.{py,ts} (both had uppercase GLM/ — corrected to lowercase glm/). Created /Users/kidehen/Documents/LLMs/glm/rdf/ and /webpages/ subfolders alongside existing md/."@en .
+
+:session20260626Gpt5ChatCodex a schema:ListItem ;
+    schema:position 999 ;
+    schema:item <sessions/2026-06-26-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-06-26 (GPT-5 Chat Codex — Virtuoso 08.03.3335 KG Explorer theme/toggle fix)"@en ;
+    schema:description "Regenerated canonical Virtuoso 08.03.3335 RDF/HTML artifacts after fixing KG Explorer dark-mode hyperlink colors and Firefox-safe dark/light toggle behavior; validated RDF parse, syntax, and static theme contract checks."@en .
