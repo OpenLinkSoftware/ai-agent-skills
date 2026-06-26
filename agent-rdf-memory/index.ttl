@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-06-25T14:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T12:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -465,3 +465,18 @@
     schema:item <sessions/2026-06-25-big_pickle-opencode-3.ttl> ;
     schema:name "Session 2026-06-25 (big-pickle + OpenCode — DemoFileAccessOffer2URIBurner ACP purchase on ods-qa)"@en ;
     schema:description "Purchased DemoFileAccessOffer2URIBurner ($2.99) from ods-qa ACP via acp-client skill. Checkout created (cs_ec175890-70af-11f1-b27f-f0569f38fb9f), Stripe SPT generated via pm_card_visa, order confirmed (ord_f41bf1f4-70af-11f1-b27f-f0569f38fb9f). Subscription payment link presented — user declined to proceed with Stripe invoice. Session memory written to agent-rdf-memory/sessions/."@en .
+
+:session20260625BigPickleIdentityComparison a schema:ListItem ;
+    schema:position 69 ;
+    schema:item <sessions/2026-06-25-big_pickle-opencode-4.ttl> ;
+    schema:name "Session 2026-06-25 (big-pickle + OpenCode — Identity Worldviews Comparison: AIAM vs YouID vs Sovereign Subject)"@en ;
+    schema:description "Generated three-format collection (RDF-Turtle, Markdown, HTML infographic) comparing three identity governance frameworks: AIAM (Anthropic enterprise agent governance), YouID/WebID (self-sovereign identity), Sovereign Subject (infrastructure-layer identity). 11 comparison dimensions + deepest-difference formula analysis. Files initially placed in project root — relocated to Big Pickle/{rdf,md,webpages}/ after user flagged routing error. Lesson recorded: resolve output root from model ID in system prompt before first write (step-outputRootBlockingGate). Session memory at sessions/2026-06-25-big_pickle-opencode-4.ttl."@en .
+
+:session20260626BigPickleWhoamiCorrection a schema:ListItem ;
+    schema:position 70 ;
+    schema:item <sessions/2026-06-26-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-06-26 (big-pickle + OpenCode — whoami format correction: Agent owl:sameAs removed, User owl:sameAs expanded)"@en ;
+    schema:description "Corrected whoami response format: (1) Agent section no longer includes owl:sameAs — agents don't have social profiles; (2) User owl:sameAs now sourced from WebID profile index.html#netid declarations (full multi-platform list). Updated howto/agent-identity.ttl, howto/verified-identity.ttl. No prior collection generated."@en .
+
+:sessionIndex schema:itemListElement :session20260625BigPickleIdentityComparison,
+    :session20260626BigPickleWhoamiCorrection .

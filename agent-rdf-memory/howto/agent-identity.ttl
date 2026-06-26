@@ -7,7 +7,7 @@
     schema:name "Agent Identity — Whoami Format, Verified Identity Gate, and Stripe Sandbox Card"@en ;
     schema:description "Rules for agent identity presentation: the canonical two-section bullet response to whoami (with verified identity lines for both user and agent), the certificate verification gate that runs before composing the response, and the Stripe sandbox card credentials for ACP test payments."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-25T14:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-26T12:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
     schema:step :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
@@ -35,7 +35,7 @@ After running the appropriate trigger, respond in this format:
 • Email: kidehen@openlinksw.com
 • Role: Founder & CEO, OpenLink Software
 • WebID: {user SAN URI} {✅ | ⚠️ Unverified}
-• owl:sameAs: https://www.linkedin.com/in/kidehen#this, https://x.com/kidehen#this, https://substack.com/@kidehen#this
+• owl:sameAs: sourced from WebID profile index.html#netid declarations at session time — includes LinkedIn, X/Twitter, GitHub, Mastodon, Bluesky, Threads, Facebook, Instagram, TikTok, Substack, Carrd, Glitch, Linktree, myOpenLink ID, podcast feeds, mailto, and profile representation variants (JSON-LD, RDFa, Turtle)
 
 **Agent (me)**
 • Model: {model name} ({llm-id used in session filenames})
@@ -46,7 +46,6 @@ After running the appropriate trigger, respond in this format:
 • Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
 • Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
 • On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
-• owl:sameAs: https://www.linkedin.com/in/kidehen#this, https://x.com/kidehen#this, https://substack.com/@kidehen#this
 
 **For Trigger B ("who are you?") — Agent-only, no badges:**
 
@@ -61,9 +60,6 @@ After running the appropriate trigger, respond in this format:
 • On-Behalf-Of: {user SAN URI}
 
 (Omit ✅/⚠ badges — no cert verification for Trigger B. Omit the User section entirely.)
-
-The cert-verified SAN URI is canonical for both the agent and the On-Behalf-Of delegator.
-The owl:sameAs on the On-Behalf-Of line lists the delegator's known platform IRIs.
 Use the current session's model and environment — never copy from a prior session. Fill the artifact output root from step-outputDirs rules based on the active LLM model ID. Always emit the Agent WebID and On-Behalf-Of lines even when unverified."""@en .
 
 # ── Step 2: Verified Identity Gate ───────────────────────────────────────────
