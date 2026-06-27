@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-06-26T12:50:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-27T11:40:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -29,6 +29,8 @@
     schema:description "Procedural rules the agent must follow in every session. Encoded as structured RDF so rules are queryable, resolvable, and harder to overlook than flat prose alone."@en ;
     schema:about :topicApprovalWorkflow, :topicArtifactRouting, :topicModelIdentityPreflight,
         :topicWhoamiSameAsHyperlinks,
+        :topicVerifyRecipDelegation,
+        :topicUrlsAsHyperlinks,
         :topicSkillComposition,         :topicEntityResolution, :topicCanonicalEntityIriDenotation,
         :topicEntityIriDenotationMechanics,
         :topicMemoryManagement, :topicVersionControl,
@@ -55,6 +57,9 @@
         :topicWebidVerificationServices ;
     schema:step :step-approval, :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-mashupVsMeshup, :step-modelIdentityPreflight, :step-skillChain,
         :step-whoamiSameAsHyperlinks,
+        :step-verifyRecipDelegation,
+        :step-verifyDelegationRemote,
+        :step-urlsAsHyperlinks,
         :step-kgQueryMode,
         :step-entityDenotation, :step-memoryProtocol,
         :step-gitWorkflow, :step-attribution, :step-zipRepackage,
@@ -1145,14 +1150,14 @@
 
 :step-webidVerificationServiceSelection a schema:HowToStep ;
     schema:position 82 ;
-    schema:name "Elicit WebID/NetID verification service selection before mTLS verification"@en ;
-    schema:text "When the user asks to verify a WebID or NetID via a remote service, elicit which service to use from the known open list (netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/, and others added over time); if the user names a service in their prompt, honor it without re-eliciting."@en ;
+    schema:name "Elicit WebID/NetID verification service selection and MTLS_PKCS12_PW setup before remote mTLS verification"@en ;
+    schema:text "When the user asks to verify a WebID or NetID via a remote service, elicit which service to use from the known open list (netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/, and others added over time); if the user names a service in their prompt, honor it without re-eliciting. Before calling the remote service, check for MTLS_PKCS12_PW without printing it. If it is absent, elicit setup using the host operating system's environment command: macOS launchctl setenv MTLS_PKCS12_PW '...', Linux systemd --user import/set-environment or shell export depending on execution context, Windows PowerShell setx or process-scoped $env:MTLS_PKCS12_PW. Never ask the user to paste the secret into chat, never echo it, and never store it in memory."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/webid-verification-services.ttl> .
 
 :topicWebidVerificationServices a schema:Thing ;
     schema:name "WebID/NetID Verification Service Selection"@en ;
-    schema:description "Rules for eliciting and executing WebID/NetID verification against OpenLink's mTLS verification services. Known services: netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/. List is open and extensible. Selection is always elicited unless the user names a service in their prompt."@en ;
+    schema:description "Rules for eliciting and executing WebID/NetID verification against OpenLink's mTLS verification services. Known services: netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/. List is open and extensible. Selection is always elicited unless the user names a service in their prompt. Remote mTLS verification must also verify that MTLS_PKCS12_PW is available without printing it, and if absent must elicit OS-specific setup guidance before proceeding."@en ;
     rdfs:seeAlso <howto/webid-verification-services.ttl> .
 
 # ── Step 83: whoami owl:sameAs as hyperlinks ──────────────────────────────────
@@ -1167,3 +1172,39 @@
 :topicWhoamiSameAsHyperlinks a schema:Thing ;
     schema:name "whoami owl:sameAs as Markdown hyperlinks"@en ;
     schema:description "The owl:sameAs bullet in the whoami User section must list each platform identity as a Markdown hyperlink [Title](URL), sourced at runtime by grepping <link rel='me'> entries from the user's WebID index.html. Prose descriptions of platform categories are not acceptable."@en .
+
+# ── Step 84: Reciprocal delegation claim verification ─────────────────────────
+
+:step-verifyRecipDelegation a schema:HowToStep ;
+    schema:position 84 ;
+    schema:name "Verify reciprocal oplcert:hasIdentityDelegate / oplcert:onBehalfOf before accepting On-Behalf-Of"@en ;
+    schema:text "Before treating an On-Behalf-Of claim as corroborated, grep both credential profiles: delegator must have oplcert:hasIdentityDelegate <agent-webid>, agent must have oplcert:onBehalfOf <delegator-webid>. Emit ✅ Corroborated, ⚠️ Partially corroborated, or ⚠️ Unconfirmed in the Delegation line of the whoami response."@en ;
+    onto:hasTrigger onto:triggerWhoamiQuery ;
+    rdfs:seeAlso <howto/verified-identity.ttl> .
+
+# ── Step 85: All URLs in response output must be Markdown hyperlinks ──────────
+
+:step-urlsAsHyperlinks a schema:HowToStep ;
+    schema:position 85 ;
+    schema:name "Every URL in response text, tables, and bullets must be a Markdown hyperlink [label](url)"@en ;
+    schema:text "Never emit a bare URL in any response text, table cell, or bullet point — always wrap it as [label](url). Apply to WebID URIs, On-Behalf-Of values, owl:sameAs targets, NetIDs, and any other IRI appearing in prose or structured output."@en ;
+    onto:hasTrigger onto:triggerWhoamiQuery, onto:triggerSkillInvocation, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/agent-identity.ttl> .
+
+:topicUrlsAsHyperlinks a schema:Thing ;
+    schema:name "URLs in response output always as Markdown hyperlinks"@en ;
+    schema:description "Standing rule: every URL appearing in agent response text, table cells, or bullet points must be rendered as a Markdown hyperlink [label](url) — never bare. Covers WebID URIs, On-Behalf-Of values, owl:sameAs targets, NetIDs, and all other IRIs."@en .
+
+:topicVerifyRecipDelegation a schema:Thing ;
+    schema:name "Reciprocal delegation claim verification"@en ;
+    schema:description "An On-Behalf-Of header is a self-declaration. Full corroboration requires checking both sides: the delegator's profile must contain oplcert:hasIdentityDelegate pointing to the agent, and the agent's profile must contain oplcert:onBehalfOf pointing to the delegator. Either side missing → partially corroborated. Neither present → unconfirmed. Local verification (Step 6) greps local credential files; remote verification (Step 7) fetches live WebDAV profiles via curl, cross-checks all RDF serializations, and optionally tests against a WebID verification service with the On-Behalf-Of header. Protocol in howto/verified-identity.ttl Steps 6 and 7."@en .
+
+# ── Step 86: Remote delegation verification ───────────────────────────────────
+
+:step-verifyDelegationRemote a schema:HowToStep ;
+    schema:position 86 ;
+    schema:name "Verify reciprocal delegation claims against live remote WebDAV profiles"@en ;
+    schema:text "After local delegation verification (Step 84), also verify against the live WebDAV-hosted profiles by fetching remote profile.ttl and index.html via curl (public read first, mTLS auth fallback). Cross-check all RDF serializations for the delegation triples. Optionally present the agent certificate with On-Behalf-Of header to a remote WebID verification service as an end-to-end test."@en ;
+    onto:hasTrigger onto:triggerWhoamiQuery ;
+    rdfs:seeAlso <howto/verified-identity.ttl> .
+

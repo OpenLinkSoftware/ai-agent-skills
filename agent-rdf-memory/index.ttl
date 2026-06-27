@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-06-26T17:00:51Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-27T11:40:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -480,7 +480,8 @@
 
 :sessionIndex schema:itemListElement :session20260625BigPickleIdentityComparison,
     :session20260626BigPickleWhoamiCorrection,
-    :session20260626Glm52OpenCodeWhoami .
+    :session20260626Glm52OpenCodeWhoami,
+    :session20260627BigPickleRemoteDelegation .
 
 :prefWebidVerificationServices a schema:ListItem ;
     schema:position 71 ;
@@ -493,6 +494,12 @@
     schema:item <sessions/2026-06-26-glm_5_2-opencode.ttl> ;
     schema:name "Session 2026-06-26 (GLM-5.2 + OpenCode — whoami with verified identity gate + GLM output path registration, first GLM-5.2 session)"@en ;
     schema:description "First session with GLM-5.2 in OpenCode. User issued 'whoami?' then 'According to prefs.' Ran verified identity gate per :step-verifiedWhoami (pos 60) and :step-whoamiFormat (pos 23): extracted SAN URIs and moduli from both cert.pem files via openssl, compared against cert:modulus in profile.ttl for each bundle. Both matched (user C719...C07, agent DA2B...D17B). Emitted full two-section whoami response with verified badges. User then approved registering GLM as a canonical output path using lowercase glm/. Updated core.ttl (new :glmOutputPath PropertyValue), howto/artifact-routing.ttl (step-outputDirs schema:text now lists GLM with lowercase path and the NOT-uppercase note), and scripts/fill_core_template.{py,ts} (both had uppercase GLM/ — corrected to lowercase glm/). Created /Users/kidehen/Documents/LLMs/glm/rdf/ and /webpages/ subfolders alongside existing md/."@en .
+
+:session20260627BigPickleRemoteDelegation a schema:ListItem ;
+    schema:position 72 ;
+    schema:item <sessions/2026-06-27-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-06-27 (big-pickle + OpenCode — remote delegation verification + howto/preferences update)"@en ;
+    schema:description "Remote reciprocal delegation verification: confirmed oplcert:hasIdentityDelegate and oplcert:onBehalfOf triples on live WebDAV-hosted profiles (profile.ttl + all 4 RDF serializations in index.html). Added Step 7 to howto/verified-identity.ttl (remote delegation verification procedure: public curl → mTLS fallback, cross-serialization grep, optional WebID verification service with On-Behalf-Of header). Added Step 86 to preferences.ttl. Updated topicVerifyRecipDelegation description and agentBehaviorGuide step list."@en .
 
 :session20260626Gpt5ChatCodex a schema:ListItem ;
     schema:position 999 ;
