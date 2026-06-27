@@ -5,9 +5,9 @@
 
 <> a schema:HowTo ;
     schema:name "WebID/NetID Verification Service Selection — Elicit Before mTLS Verification"@en ;
-    schema:description "Rules for handling WebID/NetID verification requests. Lists known mTLS verification services and mandates user elicitation before selecting one, since the list is open and will grow over time."@en ;
+    schema:description "Rules for handling WebID/NetID verification requests. Lists known mTLS verification services, mandates user elicitation before selecting one, and requires secret-safe MTLS_PKCS12_PW setup before remote mTLS verification."@en ;
     schema:dateCreated "2026-06-26T12:50:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-26T12:50:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-27T12:40:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-webidVerificationServiceSelection, :topicWebidVerificationServices ;
     schema:step :step-webidVerificationServiceSelection ;
@@ -17,24 +17,55 @@
 
 :step-webidVerificationServiceSelection a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Elicit WebID/NetID verification service selection before mTLS verification"@en ;
+    schema:name "Elicit WebID/NetID verification service selection and MTLS_PKCS12_PW setup before mTLS verification"@en ;
     schema:text """When the user asks to verify a WebID or NetID via a remote verification service, ALWAYS elicit which service to use before issuing the mTLS curl. Do not default to a single service. Present the known services list (below) and let the user choose. If the user names a service explicitly in their prompt, honor that choice without re-eliciting (same principle as skill protocol routing).
 
 KNOWN SERVICES (open list — more will be added over time):
-  1. https://netid-qa.openlinksw.com:9443/webid/  — NetID QA, mTLS on port 9443, supports WebID+TLS and NetID+TLS, accepts URI schemes: acct, http(s), ldap, mailto, bitcoin, ethereum. Returns HTML with NetID, timestamp, sha1 digest, emoji.
-  2. https://ods-qa.openlinksw.com/webid/         — ODS QA instance.
-  3. https://linkeddata.uriburner.com/webid/      — URIBurner (production, public).
-  4. https://demo.openlinksw.com/webid/           — OpenLink demo instance.
+   1. https://ods-qa.openlinksw.com:5443/webid/   — ODS QA, mTLS on port 5443, supports WebID+TLS and NetID+TLS, accepts URI schemes: acct, http(s), ldap, mailto, bitcoin, ethereum. Returns HTML with NetID, timestamp, sha1 digest, emoji.
+   2. https://linkeddata.uriburner.com/webid/      — URIBurner (production, public).
+   3. https://demo.openlinksw.com/webid/           — OpenLink demo instance.
 
 ELICITATION FORMAT:
-  Ask the user which service to use, presenting the numbered list above. If the user has already named a service in their prompt (e.g., 'verify using https://netid-qa.openlinksw.com:9443/webid/'), skip elicitation and use the named service.
+  Ask the user which service to use, presenting the numbered list above. If the user has already named a service in their prompt (e.g., 'verify using https://ods-qa.openlinksw.com:5443/webid/'), skip elicitation and use the named service.
+
+PKCS#12 PASSWORD ENVIRONMENT GATE:
+  Before calling any remote WebID/NetID verification service, check for MTLS_PKCS12_PW without printing the value:
+    - First check the current process environment.
+    - If macOS, also check launchd with: launchctl getenv MTLS_PKCS12_PW
+    - Treat MTLS_PKCS12_PWD as a legacy alias only when a skill or existing environment already uses it; prefer MTLS_PKCS12_PW for this remote verification workflow.
+
+  If MTLS_PKCS12_PW is absent, elicit secret setup using the host operating system. Never ask the user to paste the password into chat. Provide the command appropriate to the runtime OS:
+    - macOS GUI / launchd-launched agents:
+        launchctl setenv MTLS_PKCS12_PW 'your-password'
+      Then ask the user to restart the agent process if the current process still cannot see the variable.
+
+    - Linux shell-launched session:
+        export MTLS_PKCS12_PW='your-password'
+      Run the agent from that same shell, or otherwise inject the variable into the service manager that launches it.
+
+    - Linux systemd user service:
+        systemctl --user set-environment MTLS_PKCS12_PW='your-password'
+      Restart the relevant user service/session before retrying.
+
+    - Windows PowerShell, current process only:
+        $env:MTLS_PKCS12_PW = 'your-password'
+      Start the agent from that PowerShell session.
+
+    - Windows persistent user environment:
+        setx MTLS_PKCS12_PW 'your-password'
+      Restart the agent process before retrying.
+
+  After setup, validate the PKCS#12 bundle with openssl using the variable, redirecting certificate-validation output as needed so the password is never echoed. Report only presence/validation status, not the value.
 
 EXECUTION (per service):
   - All listed services use mTLS (client certificate authentication).
-  - Extract a temporary combined PEM (cert + private key) from the user's cert.p12 using the passphrase (per :step-curlAuth and :step-secretEchoRedaction — never echo the passphrase).
-  - curl -sS -L --cert {tmpPEM} '{serviceURL}?go=Verify'
+  - Prefer direct curl PKCS#12 usage when supported:
+      curl -sS -L --cert-type P12 --cert '{cert.p12}:<value from MTLS_PKCS12_PW>' '{serviceURL}?go=Verify'
+    The secret must be supplied from the environment inside the shell process, never interpolated into logs or response text.
+  - If the platform curl cannot use PKCS#12 directly, extract a temporary combined PEM (cert + private key) from the user's cert.p12 using MTLS_PKCS12_PW (per :step-curlAuth and :step-secretEchoRedaction — never echo the passphrase).
+  - If a temp PEM is created, use: curl -sS -L --cert {tmpPEM} '{serviceURL}?go=Verify'
   - The service extracts the SAN URI from the presented X.509 certificate and returns the verified NetID, timestamp, sha1 digest, and emoji.
-  - Shred the temp PEM immediately after use.
+  - Shred/remove the temp PEM immediately after use.
 
 VERIFICATION GATE INTERACTION:
   This step complements :step-verifiedWhoami (position 60) and :step-webidTlsVerification (position 23.1). Those gates verify the local cert modulus against profile.ttl cert:modulus. This step performs REMOTE verification by a trusted OpenLink verification service. Both are valid; the user may request either or both.
@@ -45,4 +76,4 @@ OPEN LIST POLICY:
 
 :topicWebidVerificationServices a schema:Thing ;
     schema:name "WebID/NetID Verification Service Selection"@en ;
-    schema:description "Rules for eliciting and executing WebID/NetID verification against OpenLink's mTLS verification services. Known services: netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/. List is open and extensible. Selection is always elicited unless the user names a service in their prompt."@en .
+    schema:description "Rules for eliciting and executing WebID/NetID verification against OpenLink's mTLS verification services. Known services: ods-qa.openlinksw.com:5443/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/. List is open and extensible. Selection is always elicited unless the user names a service in their prompt. Before remote mTLS verification, MTLS_PKCS12_PW must be checked without printing it; if absent, setup must be elicited with the command appropriate to the host operating system."@en .

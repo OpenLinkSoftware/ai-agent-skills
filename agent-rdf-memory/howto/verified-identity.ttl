@@ -9,7 +9,7 @@
     schema:name "Verified Identity Gate — Whoami Certificate Verification Protocol"@en ;
     schema:description "Protocol for cryptographically verifying both the user identity and the agent identity before responding to a whoami query. Uses local PKCS#12 / PEM certificates whose public key moduli are matched against the published cert:RSAPublicKey in each party's WebID profile document, plus remote verification of reciprocal delegation claims against live WebDAV-hosted profiles."@en ;
     schema:dateCreated "2026-06-19T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-27T11:40:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-27T12:40:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-locateUserCert, :step-verifyUserIdentity,
                  :step-locateAgentCert, :step-verifyAgentIdentity,
@@ -208,10 +208,10 @@ PROCEDURE (run via Bash tool after Step 6 local verification passes):
 
 4. DELEGATION-HEADER VERIFICATION SERVICE (optional):
    For an end-to-end test, present the agent certificate to a remote WebID verification
-   service (e.g. netid-qa.openlinksw.com:9443/webid/) with the On-Behalf-Of header:
-     curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \\
-       -H 'On-Behalf-Of: {delegator-WebID}' \\
-       'https://netid-qa.openlinksw.com:9443/webid/?go=Verify'
+    service (e.g. ods-qa.openlinksw.com:5443/webid/) with the On-Behalf-Of header:
+      curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \
+        -H 'On-Behalf-Of: {delegator-WebID}' \
+        'https://ods-qa.openlinksw.com:5443/webid/?go=Verify'
    Note: The verification service validates the certificate-subject identity (agent) and
    accepts the On-Behalf-Of header, but does NOT independently verify the delegation
    chain by fetching the delegator's profile. Confirmation of reciprocal delegation
