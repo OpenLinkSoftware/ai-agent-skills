@@ -7,7 +7,7 @@
     schema:name "Agent Identity — Whoami Format, Verified Identity Gate, and Stripe Sandbox Card"@en ;
     schema:description "Rules for agent identity presentation: the canonical two-section bullet response to whoami (with verified identity lines for both user and agent), the certificate verification gate that runs before composing the response, and the Stripe sandbox card credentials for ACP test payments."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-26T14:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-30T12:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
     schema:step :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
@@ -35,6 +35,7 @@ After running the appropriate trigger, respond in this format:
 • Email: kidehen@openlinksw.com
 • Role: Founder & CEO, OpenLink Software
 • WebID: {user SAN URI} {✅ | ⚠️ Unverified}
+• User cert: {subject} · {SHA-256 fingerprint} · {validFrom → validTo} · modulus {✅ match | ⚠️ mismatch} with profile.ttl (omitted if no local credential files found)
 • owl:sameAs: grep <link rel="me"> from {user WebID index.html path} and emit each as [Title](URL). Example output:
   [LinkedIn](https://www.linkedin.com/in/kidehen#this) · [X](https://x.com/kidehen) · [Substack](https://substack.com/@kidehen) · [Mastodon](https://mastodon.social/@kidehen) · [Bluesky](https://bsky.app/profile/kidehen.bsky.social) · [Threads](https://www.threads.net/@kidehen) · [GitHub](https://github.com/kidehen) · [Linktree](https://linktr.ee/kidehen) · [ID.MyOpenLink.NET](https://id.myopenlink.net/~KingsleyUyiIdehen/Public/) · [Carrd](https://kidehen.carrd.co/) · [Glitch](https://glitch.com/~kidehen) · [Facebook](https://facebook.com/kidehen) · [Instagram](https://www.instagram.com/kidehen) · [TikTok](https://www.tiktok.com/@kidehen) · [RSS](https://www.openlinksw.com/data/podcasts/?a=rss) · [Atom](https://www.openlinksw.com/data/podcasts/?a=atom) · [Email](mailto:kidehen@openlinksw.com)
   Never substitute prose platform-category descriptions for the actual hyperlinked URIs.
@@ -47,7 +48,9 @@ After running the appropriate trigger, respond in this format:
 • Memory store: {absolute path to agent-rdf-memory/}
 • Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
 • Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
+• Agent cert: {subject} · {SHA-256 fingerprint} · {validFrom → validTo} · modulus {✅ match | ⚠️ mismatch} with profile.ttl
 • On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
+• Delegation: {✅ Corroborated (both profiles) | ⚠️ Partially corroborated ({which side} missing) | ⚠️ Unconfirmed}
 
 **For Trigger B ("who are you?") — Agent-only, no badges:**
 
@@ -59,6 +62,7 @@ After running the appropriate trigger, respond in this format:
 • Memory store: {absolute path to agent-rdf-memory/}
 • Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
 • Agent WebID: {agent SAN URI}
+• Agent cert: {subject} · {SHA-256 fingerprint} · {validFrom → validTo} (omitted if no local credential files found)
 • On-Behalf-Of: {user SAN URI}
 
 (Omit ✅/⚠ badges — no cert verification for Trigger B. Omit the User section entirely.)

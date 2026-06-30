@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-06-27T11:40:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-28T21:49:21Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -506,3 +506,18 @@
     schema:item <sessions/2026-06-26-gpt5_chat-codex.ttl> ;
     schema:name "Session 2026-06-26 (GPT-5 Chat Codex — Virtuoso 08.03.3335 KG Explorer theme/toggle fix)"@en ;
     schema:description "Regenerated canonical Virtuoso 08.03.3335 RDF/HTML artifacts after fixing KG Explorer dark-mode hyperlink colors and Firefox-safe dark/light toggle behavior; validated RDF parse, syntax, and static theme contract checks."@en .
+
+:session20260628Gpt5ChatCodexTrillionaires a schema:ListItem ;
+    schema:position 1000 ;
+    schema:item <sessions/2026-06-28-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-06-28 (GPT-5 Chat Codex — Project Syndicate trillionaires thesis RDF/HTML collection)"@en ;
+    schema:description "Generated RDF-Turtle and HTML collection from Nabil Ahmed's Project Syndicate commentary 'How Trillionaires Are Really Made'. Artifacts written to GPT5-Chat-Generated/rdf and webpages; generator under showcases/how-trillionaires-are-really-made; validation passed for Turtle parse, harness contract, generator syntax, kgData orphan audit, inline JS syntax, and HTML link behavior."@en .
+
+:session20260630BigPickleAgentCredsWhoami a schema:ListItem ;
+    schema:position 1001 ;
+    schema:item <sessions/2026-06-30-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-06-30 (big-pickle + OpenCode — Agent verifiable credentials in whoami output)"@en ;
+    schema:description "User ruled that if Agent verifiable credentials exist, they must appear in the Agent section of whoami output (cert subject, SHA-256 fingerprint, validity, modulus match status). Updated howto/agent-identity.ttl templates (Trigger A & B) and preferences.ttl dateModified."@en .
+
+:sessionIndex schema:itemListElement :session20260630BigPickleAgentCredsWhoami,
+    :session20260628Gpt5ChatCodexTrillionaires .

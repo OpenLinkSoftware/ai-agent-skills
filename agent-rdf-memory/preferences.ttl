@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-06-27T11:40:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-06-30T12:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -54,7 +54,9 @@
         :topicOAuthAuthCodeFlow,
         :topicD3Loading,
         :topicSecretEchoRedaction,
-        :topicWebidVerificationServices ;
+        :topicWebidVerificationServices ,
+        :topicWebidVerificationTable ,
+        :topicDelegationInsertGate ;
     schema:step :step-approval, :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-mashupVsMeshup, :step-modelIdentityPreflight, :step-skillChain,
         :step-whoamiSameAsHyperlinks,
         :step-verifyRecipDelegation,
@@ -86,7 +88,9 @@
         :step-uriburnerOAuthAuthCodeFlow,
         :step-staticD3Load, :step-singleRender,
         :step-secretEchoRedaction,
-        :step-webidVerificationServiceSelection .
+        :step-webidVerificationServiceSelection ,
+        :step-webidVerificationTable ,
+        :step-delegationInsertGate .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
 
@@ -1207,4 +1211,66 @@
     schema:text "After local delegation verification (Step 84), also verify against the live WebDAV-hosted profiles by fetching remote profile.ttl and index.html via curl (public read first, mTLS auth fallback). Cross-check all RDF serializations for the delegation triples. Optionally present the agent certificate with On-Behalf-Of header to a remote WebID verification service as an end-to-end test."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
     rdfs:seeAlso <howto/verified-identity.ttl> .
+
+# ── Step 87: Identity Verification Table Pattern ──────────────────────────────
+
+:topicWebidVerificationTable a schema:Thing ;
+    schema:name "Identity Verification Table Pattern"@en ;
+    schema:description "Structured verification table pattern for WebID/NetID identity validation. Covers: (1) Agent cert SHA-1 fingerprint extraction from PKCS#12, (2) base verification against remote ODS webid_verify.vsp, (3) On-Behalf-Of verification with delegator WebID header, (4) cross-check of delegator profile for oplcert:hasIdentityDelegate, (5) cross-check of agent profile for oplcert:onBehalfOf across all RDF serializations (TTL, JSON-LD, HTML RDFa), (6) modulus consistency check between cert and profile documents, (7) results emitted as a verification table with rows for each check and ✅/⚠️ status columns."@en .
+
+:step-webidVerificationTable a schema:HowToStep ;
+    schema:position 87 ;
+    schema:name "Run identity verification table: cert extraction → base OBO → delegation cross-check → modulus consistency → emit table"@en ;
+    schema:text "When verifying WebID/NetID identity, follow the structured table pattern: extract SHA-1 fingerprint from PKCS#12 cert, run base and OBO verification against remote service, cross-check reciprocal delegation claims on both sides across all RDF serializations, compare cert modulus with profile documents, and emit results as a verification table."@en ;
+    onto:hasTrigger onto:triggerWhoamiQuery, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/webid-verification-table.ttl> .
+
+# ── Step 88: Preferences Presentation Format ──────────────────────────────────
+
+:topicPreferencesPresentationFormat a schema:Thing ;
+    schema:name "Preferences Presentation Format"@en ;
+    schema:description "When presenting the user's preferences, use the succinct themed-table widget format (mcp__visualize__show_widget) with grouped tables by theme, step number, rule name, and one-line detail. Use this format by default unless the user explicitly requests a different form."@en .
+
+:step-preferencesPresentationFormat a schema:HowToStep ;
+    schema:position 88 ;
+    schema:name "Present preferences as a succinct themed-table widget — not a flat numbered list"@en ;
+    schema:text "When responding to 'my preferences?' or any request to display standing instructions, render a show_widget HTML table grouped by theme (Identity, Memory, Artifact Routing, RDF Authoring, HTML/KG Explorer, Skill Workflows). Use this format by default; override only if the user explicitly requests a different form."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/preferences-presentation.ttl> .
+
+# ── Step 89: Server-Side Delegation INSERT Gate ────────────────────────────────
+
+:topicDelegationInsertGate a schema:Thing ;
+    schema:name "Server-Side Delegation INSERT Gate"@en ;
+    schema:description "When registering oplcert:hasIdentityDelegate on a delegator's profile graph via SPARQL INSERT, the delegate's public key (cert:modulus + cert:exponent) must be included inline as a blank node under cert:key. Omission breaks the WebID-TLS verification chain: the delegator graph has no way to resolve the delegate's public key to corroborate the mTLS certificate presented via On-Behalf-Of."@en .
+
+:step-delegationInsertGate a schema:HowToStep ;
+    schema:position 89 ;
+    schema:name "BLOCKING GATE — SPARQL INSERT of oplcert:hasIdentityDelegate must include delegate cert:key (modulus + exponent) inline"@en ;
+    schema:text """Before executing any SPARQL INSERT that adds oplcert:hasIdentityDelegate to a delegator's profile graph, verify the INSERT also includes the delegate's cert:key with cert:modulus (xsd:hexBinary) and cert:exponent (xsd:int) as a blank node. Use the template:
+
+SPARQL
+PREFIX cert: <http://www.w3.org/ns/auth/cert#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#>
+
+INSERT DATA {
+  GRAPH <{DELEGATOR_WEBID}> {
+    <{DELEGATOR_WEBID}> oplcert:hasIdentityDelegate <{DELEGATE_WEBID}> .
+    <{DELEGATE_WEBID}> cert:key [ cert:modulus "{MODULUS}"^^xsd:hexBinary ; cert:exponent "{EXPONENT}"^^xsd:int ]
+  }
+}
+;
+
+Verify with:
+
+SPARQL
+PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#>
+ASK FROM <{DELEGATOR_WEBID}> WHERE { <{DELEGATOR_WEBID}> oplcert:hasIdentityDelegate <{DELEGATE_WEBID}> }
+
+The delegate's modulus and exponent are sourced from their local PKCS#12 cert via:
+  openssl pkcs12 -in cert.p12 -passin pass:$PW -nokeys -clcerts | openssl x509 -noout -modulus
+Exponent is always 65537 for RSA 2048."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/delegation-insert-gate.ttl> .
 

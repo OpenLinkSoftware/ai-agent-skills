@@ -1,0 +1,29 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto: <../ontology.ttl#> .
+@prefix opal: <https://www.openlinksw.com/ontology/opal/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Session Memory 2026-06-30 (big-pickle + OpenCode)"@en ;
+    schema:description "Session memory for the behavioral rule update: Agent verifiable credentials included in whoami Agent section output."@en ;
+    schema:dateCreated "2026-06-30T12:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :session .
+
+:session a schema:Event ;
+    schema:name "Session 2026-06-30 (big-pickle + OpenCode)"@en ;
+    schema:startTime "2026-06-30T12:00:00Z"^^xsd:dateTime ;
+    schema:endTime "2026-06-30T12:00:00Z"^^xsd:dateTime ;
+    schema:description "User queried whoami. Agent responded with full two-section format. User then asked about Agent's verifiable credentials. Agent presented cert modulus, SHA-256 fingerprint, validity dates, and delegation details from local credential bundle at link-in-bio-agent-credentials/. User ruled: 'If Agent verifiable credentials exist, they should be part of the Agent section of whoami output.' Updated howto/agent-identity.ttl Step 1 templates (both Trigger A and Trigger B) to include an Agent cert line with subject, SHA-256 fingerprint, validity period, and modulus match status. Updated preferences.ttl dateModified. New session memory written on onto:triggerPreferencesUpdate."@en ;
+    schema:hasPart :task-updateWhoamiFormat .
+
+:task-updateWhoamiFormat a schema:Action ;
+    schema:name "Update whoami Agent section template to include cert details"@en ;
+    schema:startTime "2026-06-30T12:00:00Z"^^xsd:dateTime ;
+    schema:agent <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid> ;
+    prov:used <../howto/agent-identity.ttl> ;
+    prov:used <../preferences.ttl> ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
