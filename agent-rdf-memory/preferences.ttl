@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-07-02T04:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -1509,3 +1509,13 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:text "After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."@en ;
     onto:hasTrigger onto:triggerSessionStart ;
     rdfs:seeAlso <howto/session-governance.ttl> .
+
+:topicFilesystemPathVerification a schema:Thing ;
+    schema:name "Filesystem Path Verification Gate"@en ;
+    schema:description "When mapping model ID to an output directory, verify the actual path exists on disk via ls before using it — never infer directory naming conventions (casing, hyphens, spacing) from entries in core.ttl or artifact-routing.ttl alone. Pure inference was the failure pattern that created this rule."@en .
+
+:step-filesystemPathVerification a schema:HowToStep ;
+    schema:position 96 ;
+    schema:name "Verify the actual filesystem path exists — never infer directory names by convention alone"@en ;
+    schema:text "When mapping model ID to output directory, list the parent directory with ls to confirm the exact name on disk before using it. Don't assume casing, hyphens, or spacing from other entries in core.ttl or artifact-routing.ttl without verification. Pure inference by convention was the failure pattern that triggered this rule."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
