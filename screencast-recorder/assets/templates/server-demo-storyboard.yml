@@ -1,4 +1,4 @@
-output: /Users/kidehen/Movies/screencasts/server-demo.webm
+output: {SCREENCAST_DIR}/server-demo.webm
 python: |
   from pathlib import Path
   root = Path("/tmp/screencast-demo")
