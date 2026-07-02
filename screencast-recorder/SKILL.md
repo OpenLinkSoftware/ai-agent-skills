@@ -20,8 +20,9 @@ shot-scraper install 2>/dev/null || python3 -m playwright install chromium
 
 ## Output Convention
 
-All recordings go to `/Users/kidehen/Movies/screencasts/` with descriptive filenames:
-`{YYYY-MM-DD}-{topic}.mp4` (with companion `.webm`)
+Recordings go to `{LLM_ROOT}/{model}/screencasts/` where `{LLM_ROOT}` is the canonical LLM root from preferences artifact-routing rules (`/Users/kidehen/Documents/LLMs/`), and `{model}` is the model-specific output directory (e.g., `Big Pickle`, `DeepSeek`, `Claude Generated`). Use descriptive filenames: `{YYYY-MM-DD}-{topic}.mp4` (with companion `.webm`).
+
+When recording, derive the path at runtime by looking up the model's output path per `agent-rdf-memory/howto/artifact-routing.ttl` and appending `screencasts/`.
 
 ## Workflow
 
@@ -62,7 +63,7 @@ python3 scripts/ttl-to-yaml.py storyboard.ttl -o storyboard.yml
 Core storyboard structure (hand-authored):
 
 ```yaml
-output: /Users/kidehen/Movies/screencasts/{filename}.webm
+output: {SCREENCAST_DIR}/{filename}.webm
 url: {starting-url}
 viewport:
   width: 1440
@@ -115,15 +116,15 @@ After recording, verify both files exist.
 Report to the user:
 
 > "Screencast recorded:
->   MP4:  /Users/kidehen/Movies/screencasts/{filename}.mp4
->   WebM: /Users/kidehen/Movies/screencasts/{filename}.webm"
+>   MP4:  {SCREENCAST_DIR}/{filename}.mp4
+>   WebM: {SCREENCAST_DIR}/{filename}.webm"
 
 ### Step 7: Log (Post-Recording)
 
 Generate an RDF Turtle log of the recording session and append to `agent-rdf-memory/`:
 
 ```bash
-python3 scripts/yaml-to-ttl.py storyboard.yml -o /Users/kidehen/Movies/screencasts/{filename}.log.ttl
+python3 scripts/yaml-to-ttl.py storyboard.yml -o {SCREENCAST_DIR}/{filename}.log.ttl
 ```
 
 This produces a queryable record of what was recorded, when, and which URLs were visited.

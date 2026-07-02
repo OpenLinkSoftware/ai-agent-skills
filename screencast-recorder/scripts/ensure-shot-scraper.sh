@@ -36,13 +36,14 @@ else
     echo "       Install via: brew install ffmpeg"
 fi
 
-# Verify output directory
-OUTPUT_DIR="/Users/kidehen/Movies/screencasts"
+# Verify output directory (can be overridden via SCREENCAST_DIR env var)
+OUTPUT_DIR="${SCREENCAST_DIR:-/tmp/screencast-output}"
 if [ -d "$OUTPUT_DIR" ]; then
     echo "[OK] Output directory: $OUTPUT_DIR"
 else
     echo "[..] Creating output directory: $OUTPUT_DIR"
     mkdir -p "$OUTPUT_DIR"
 fi
+echo "       (Set SCREENCAST_DIR env var to override)"
 
 echo "=== Prerequisites: ready ==="

@@ -2,13 +2,15 @@
 
 Reusable scene patterns for screencast storyboards, in both YAML and RDF Turtle.
 
+> **Note:** `{SCREENCAST_DIR}` is a placeholder. Resolve it from the artifact routing rules in `agent-rdf-memory/howto/artifact-routing.ttl` — derive the LLM root + model path and append `screencasts/`. Never use hardcoded paths.
+
 ## Pattern 1: Multi-URL Data Walkthrough
 
 Explore multiple linked data resources in sequence.
 
 YAML:
 ```yaml
-output: /Users/kidehen/Movies/screencasts/data-walkthrough.webm
+output: {SCREENCAST_DIR}/data-walkthrough.webm
 url: https://linkeddata.uriburner.com:5443/DAV/demos/resource-1.ttl
 viewport:
   width: 1440
@@ -78,7 +80,7 @@ RDF Turtle:
 Start a dev server, prepare demo data, record interaction:
 
 ```yaml
-output: /Users/kidehen/Movies/screencasts/server-demo.webm
+output: {SCREENCAST_DIR}/server-demo.webm
 python: |
   from pathlib import Path
   root = Path("/tmp/demo-data")
@@ -108,7 +110,7 @@ scenes:
 For mTLS-protected endpoints (port 5443). Browser picks up cert from Keychain automatically; add `--ignore-certificate-errors` for self-signed server certs.
 
 ```yaml
-output: /Users/kidehen/Movies/screencasts/auth-demo.webm
+output: {SCREENCAST_DIR}/auth-demo.webm
 url: https://linkeddata.uriburner.com:5443/some/resource
 viewport:
   width: 1440
@@ -190,5 +192,5 @@ To generate an RDF log of a completed recording:
 
 ```bash
 python3 scripts/yaml-to-ttl.py storyboard.yml \
-  -o /Users/kidehen/Movies/screencasts/2026-07-01-session.log.ttl
+  -o {SCREENCAST_DIR}/{filename}.log.ttl
 ```

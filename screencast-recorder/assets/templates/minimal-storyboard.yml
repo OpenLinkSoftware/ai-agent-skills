@@ -1,4 +1,4 @@
-output: /Users/kidehen/Movies/screencasts/demo.webm
+output: {SCREENCAST_DIR}/demo.webm
 url: https://example.com
 viewport:
   width: 1440
