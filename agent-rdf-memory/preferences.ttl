@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-07-01T12:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-02T04:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -120,7 +120,9 @@
         :step-tokenOptimizedSessionHandoff, :step-soleMemoryIndex,
         :step-sparqlMemoryLoading, :step-noUnauthorizedDeletion,
         :step-noMemoryMdWrite, :step-preferencesSparse, :step-secretEchoRedaction,
-        :step-preferencesPresentationFormat .
+        :step-preferencesPresentationFormat,
+        :step-sessionLogReconciliation,
+        :step-semanticSessionBootstrap .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -195,7 +197,7 @@
         :step-uiUxExpertPersona, :step-faqQuestionTextHyperlink,
         :step-sparqlWorkbenchPlacement, :step-sparqlBtnMandatory,
         :step-sparqlExplorerVisibleText, :step-footerTextAlignCascade,
-        :step-staleWorkbenchCleanup .
+        :step-staleWorkbenchCleanup, :step-footerCardOverflow .
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
 
@@ -234,10 +236,12 @@
 
 :howto-terminology a schema:HowTo ;
     schema:name "Terminology & Conventions"@en ;
-    schema:description "Mashup vs meshup terminology and other terminological conventions."@en ;
+    schema:description "Mashup vs meshup terminology, acronym expansion on first use, and other terminological conventions."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
-        <howto/rdf-document-authoring.ttl> ;
-    schema:step :step-mashupVsMeshup .
+        <howto/rdf-document-authoring.ttl>,
+        <howto/acronym-expansion.ttl> ;
+    schema:step :step-mashupVsMeshup,
+        :step-expandFirstUse .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Step Definitions (referenced by sub-HowTos above) ────────────────────
@@ -1043,7 +1047,7 @@
     rdfs:seeAlso <howto/kg-explorer-reuse-first.ttl> .
 
 :step-terminologySemanticWeb a schema:HowToStep ;
-    schema:position 59 ;
+    schema:position 59.1 ;
     schema:name "Terminology: use 'a Semantic Web' not 'the Semantic Web'"@en ;
     schema:text "Write 'a Semantic Web' (indefinite article) when referring to a specific deployment; write 'the Semantic Web' only when referring to the global Web-wide vision."@en ;
     rdfs:seeAlso <howto/rdf-document-authoring.ttl> .
@@ -1387,7 +1391,7 @@
 :step-preferencesPresentationFormat a schema:HowToStep ;
     schema:position 88 ;
     schema:name "Present preferences as a succinct themed-table widget — not a flat numbered list"@en ;
-    schema:text "When responding to 'my preferences?' or any request to display standing instructions, render a show_widget HTML table grouped by theme (Identity, Memory, Artifact Routing, RDF Authoring, HTML/KG Explorer, Skill Workflows). Use this format by default; override only if the user explicitly requests a different form."@en ;
+    schema:text "When responding to 'my preferences?' or any request to display standing instructions, render a category-level tabulation with columns: #, Category, Steps, Primary HowTo Files. Use the 9 sub-HowTo categories from preferences.ttl (Identity/WebID, Memory Management, Artifact Routing, RDF Authoring, HTML/KG Explorer, Ontology Generation, Skill Workflows, Virtuoso/SPARQL, Terminology). Query schema:hasPart on :agentBehaviorGuide to derive the current category list dynamically — never hardcode. Use this format by default; override only if the user explicitly requests a flat list or a different form."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/preferences-presentation.ttl> .
 
@@ -1454,3 +1458,54 @@ Exponent is always 65537 for RSA 2048."""@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/owl-property-characterization.ttl> .
 
+# ── Step 92: Footer/Attribution Card Text Overflow — BLOCKING CHECK ─────────
+
+:topicFooterCardOverflow a schema:Thing ;
+    schema:name "Long-Token Text Overflow Gate (generalized)"@en ;
+    schema:description "Any element rendering an algorithmically-derived long unbroken token (URL, IRI, camelCase identifier, base64) overflows its container unless the container defaults to min-width:0 and the text-bearing element has overflow-wrap:anywhere + word-break:break-word. Not limited to <code> tags or footer cards. Recurred 3 times across 2 sessions: 2026-06-29 (footer attribution <code> URL), 2026-07-01 (same class of footer card), 2026-07-02 (an offer card's plain-text <h4> title with no <code> wrapper, plus the shared .sparql-code <pre> class itself lacked the protection before a new panel reused it). Treat as a blocking pre-delivery check on every session touching HTML infographics, not a one-off fix scoped to one selector."@en .
+
+:step-footerCardOverflow a schema:HowToStep ;
+    schema:position 92 ;
+    schema:name "ANY card/heading/pre containing a long unbroken token can overflow — not just <code> URLs — verify via scrollWidth before delivery"@en ;
+    schema:text "GENERALIZED RULE: any element that might render an algorithmically-derived long unbroken token (URL, IRI, camelCase identifier, base64) needs overflow-wrap:anywhere + word-break:break-word, regardless of whether it's wrapped in <code> — plain-text headings (e.g. an offer card's <h4> title built from an offer's IRI local name) are equally at risk. Grid/flex card containers need min-width:0 as a baseline default on the shared card class, not an opt-in added per-card after the fact. CRITICAL: when reusing an existing shared CSS class (e.g. .sparql-code) for new content, audit that class itself for this protection first — the bug propagates silently through reuse into every existing place that class is used, not just the new instance. Before delivering any HTML infographic, verify via preview_eval that el.scrollWidth <= el.clientWidth on every card, heading, and pre/code block containing a long token; do not rely on a screenshot alone."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/infographic-authoring.ttl> .
+
+# ── Step 93: Acronym Expansion on First Use ──────────────────────────────────
+
+:topicAcronymExpansion a schema:Thing ;
+    schema:name "Acronym Expansion on First Use"@en ;
+    schema:description "Every acronym/initialism must be expanded to its full form on first use per response or generated artifact, with the acronym given parenthetically — e.g. 'Attribute-Based Access Control (ABAC)', not bare 'ABAC'. Common web/tech acronyms (HTML, URL, HTTP, CSS, JSON, API, PDF, AI, ID) are exempt. Triggered 2026-07-01 after domain-specific acronyms (ABAC, MPP, ACP, SPT, WebID-TLS, LOAC) were left unexpanded across a chat response and generated report."@en .
+
+:step-expandFirstUse a schema:HowToStep ;
+    schema:position 93 ;
+    schema:name "Expand every acronym/initialism on first use — full term, acronym in parentheses"@en ;
+    schema:text "The first time an acronym/initialism appears in a chat response or generated artifact, write it as 'Full Expanded Term (ACRONYM)'; bare acronym is fine after that within the same response/artifact. Applies per artifact, not globally across a session. Common web/tech acronyms (HTML, URL, HTTP, CSS, JSON, API, PDF, AI, ID, IP) are exempt. Glossary DefinedTerm entries name the expansion in schema:name itself, so ordering doesn't apply to them."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/acronym-expansion.ttl> .
+
+# ── Step 94: Session-Log Reconciliation on Structural Violation ──────────────
+
+:topicSessionLogReconciliation a schema:Thing ;
+    schema:name "Session-Log Reconciliation on Structural Violation"@en ;
+    schema:description "When a structural violation is discovered in preferences.ttl or any howto/*.ttl file — an orphan step, a missing cross-reference, a duplicate entity, or a contract breach — the agent must trace the violation to its source commit and session log before fixing it. Blind repair erases the decision context; forensic reconciliation surfaces the originating agent's reasoning and enables corrective feedback. Triggered by any audit that finds a non-zero violation count."@en .
+
+:step-sessionLogReconciliation a schema:HowToStep ;
+    schema:position 94 ;
+    schema:name "Trace every structural violation to its source session log before applying the fix"@en ;
+    schema:text "When a structural violation is found in preferences.ttl or any howto/*.ttl file: (1) git log/blame to find the commit that introduced it, (2) grep the session log for that date/agent to surface the originating decision context, (3) cite both the commit and the session in the fix report. Never fix silently — the session log is the diagnostic record that distinguishes a judgment error from a mechanical omission."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/session-governance.ttl> .
+
+# ── Step 95: Semantic Prompt → Session Context Bootstrapping ────────────────
+
+:topicSemanticSessionBootstrap a schema:Thing ;
+    schema:name "Semantic Prompt → Session Context Bootstrapping"@en ;
+    schema:description "On every session start, after the mandatory memory protocol (core/prefs/index reads), the agent must analyze the user's prompt for key concepts, entities, and task types, then grep/query index.ttl and session file descriptions for semantically related past sessions, and load the top 3–5 most relevant ones as bootstrap context. This turns the session corpus from a passive archive into an active retrieval source."@en .
+
+:step-semanticSessionBootstrap a schema:HowToStep ;
+    schema:position 95 ;
+    schema:name "On session start, analyze the prompt for key concepts and load related session logs as bootstrap context"@en ;
+    schema:text "After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    rdfs:seeAlso <howto/session-governance.ttl> .
