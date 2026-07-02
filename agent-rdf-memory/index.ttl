@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-07-01T20:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -542,5 +542,12 @@
     schema:name "Session 2026-07-01 (Claude Sonnet 4.6 + Claude Code — AI Agent Memory Context Engineering Collection)"@en ;
     schema:description "Generated TTL (491 triples, 0 blank nodes), MD, and HTML collection on AI agent memory as context engineering, synthesising ByteByteGo and agent-rdf-memory sources. Added Comparative Analysis section (9-dimension ByteByteGo vs agent-rdf-memory table). Fixed TTL structural gaps (DefinedTermSet, inDefinedTermSet, FAQPage, schema:hasPart wiring). Fixed pre-existing Turtle_(syntax) unescaped-parens bug. HTML harness: 21 failures → 0 (kgData pure JSON, d3@7 CDN, Section navigation aria-label, settings-panel id, pred-anchor class, data-resolver-href, resolverHref click handler, 8-label attribution footer, Named graph + text/x-html-nice-turtle guidance). Preferences Step 88 encoded: preferences displayed as themed-table widget by default."@en .
 
+:session20260702BigPickleScreencast a schema:ListItem ;
+    schema:position 1005 ;
+    schema:item <sessions/2026-07-02-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-07-02 (big-pickle + OpenCode — screencast-recorder skill test, ACP purchase workflow screencast)"@en ;
+    schema:description "Created screencast-recorder skill (16 files). Executed ACP purchase for World Cup 2026 DAAS resource ($2.99) on ods-qa. Built 7-slide animated HTML presentation. Recorded screencast at ~/Movies/screencasts/ (MP4+WebM). Stripe Pay button blocked by cross-origin Elements iframe. Wrote session log to agent-rdf-memory/sessions/."@en .
+
 :sessionIndex schema:itemListElement :session20260701Gpt5ChatCodexAiAbsorption ,
-    :session20260701ClaudeSonnet46ContextEngineering .
+    :session20260701ClaudeSonnet46ContextEngineering ,
+    :session20260702BigPickleScreencast .
