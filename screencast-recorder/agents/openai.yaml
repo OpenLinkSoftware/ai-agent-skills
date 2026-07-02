@@ -1,0 +1,6 @@
+interface:
+  display_name: "Screencast Recorder"
+  short_description: "Record screencast videos of browser interactions"
+  icon_small: ""
+  icon_large: ""
+  default_prompt: "Record a screencast of this session's work"

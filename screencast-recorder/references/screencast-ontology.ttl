@@ -1,0 +1,333 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sc: <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/screencast-recorder/ontology#>.
+
+<> a schema:CreativeWork ;
+    schema:name "Screencast Recorder Ontology"@en ;
+    schema:description "Hybrid ontology for representing shot-scraper video storyboards as RDF Turtle. Reuses schema.org classes (HowTo, HowToStep, HowToDirection, ClickAction, WriteAction, NavigateAction, ActivateAction, SuspendAction, CreateAction, VideoObject) and defines custom subclasses for browser automation actions missing from schema.org."@en ;
+    schema:dateCreated "2026-07-01"^^xsd:date ;
+    schema:dateModified "2026-07-01T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :screencastOntology .
+
+:screencastOntology a owl:Ontology ;
+    schema:name "Screencast Recorder Ontology"@en ;
+    schema:description "OWL ontology defining vocabulary for browser screencast storyboards. Subclasses of schema.org action types plus custom datatype properties for action parameters (selectors, text, durations, scroll offsets, cursor config)."@en ;
+    owl:imports <http://schema.org/> .
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Document Entity & Naming Convention ──────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════
+
+# While this ontology file uses the hash-based `sc:` prefix to reference
+# its own terms, storyboard documents SHOULD use a document-local `:`
+# prefix with their own `#` namespace. For example:
+#
+#   @prefix : <#> .
+#   @prefix schema: <http://schema.org/> .
+#   @prefix sc: <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/screencast-recorder/ontology#> .
+#
+# This allows multiple storyboard files to reference the same ontology
+# while maintaining unique entity IRIs per document.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Custom Action Classes ────────────────────────────────────────────────
+# ── All rdfs:subClassOf of schema.org actions per cross-reference gate  ──
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ── Scroll Action ──────────────────────────────────────────────────────────
+
+sc:ScrollAction a rdfs:Class ;
+    rdfs:label "Scroll Action"@en ;
+    rdfs:comment "Scrolling the page by a pixel offset or to a specific element. scrollX, scrollY define the offset; duration enables smooth scrolling."@en ;
+    rdfs:subClassOf schema:InteractAction ;
+    rdfs:isDefinedBy sc: ;
+    rdfs:seeAlso schema:InteractAction .
+
+# ── Wait For Action ────────────────────────────────────────────────────────
+
+sc:WaitForAction a rdfs:Class ;
+    rdfs:label "Wait For Action"@en ;
+    rdfs:comment "Wait for a DOM element matching a CSS/locator selector to appear. Uses Playwright locator syntax (CSS selectors, text=, etc.)."@en ;
+    rdfs:subClassOf schema:InteractAction ;
+    rdfs:isDefinedBy sc: ;
+    rdfs:seeAlso schema:InteractAction .
+
+# ── JavaScript Action ──────────────────────────────────────────────────────
+
+sc:JavascriptAction a rdfs:Class ;
+    rdfs:label "JavaScript Action"@en ;
+    rdfs:comment "Run JavaScript code in the current Playwright page context. Can read and modify DOM, localStorage, and browser APIs."@en ;
+    rdfs:subClassOf schema:InteractAction ;
+    rdfs:isDefinedBy sc: ;
+    rdfs:seeAlso schema:InteractAction .
+
+# ── Shell Command ──────────────────────────────────────────────────────────
+
+sc:ShellCommand a rdfs:Class ;
+    rdfs:label "Shell Command"@en ;
+    rdfs:comment "Run a shell command on the host system (not in the browser). The string form is run through the shell; a list form runs directly without a shell."@en ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:isDefinedBy sc: ;
+    rdfs:seeAlso schema:Action .
+
+# ── Python Action ──────────────────────────────────────────────────────────
+
+sc:PythonAction a rdfs:Class ;
+    rdfs:label "Python Action"@en ;
+    rdfs:comment "Run Python code using the same Python executable running shot-scraper. Runs on the host system, not in the browser."@en ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:isDefinedBy sc: ;
+    rdfs:seeAlso schema:Action .
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Custom Datatype Properties ───────────────────────────────────────────
+# ── All have rdfs:domain, rdfs:range, rdfs:isDefinedBy                 ──
+# ── OWL characterizations: FunctionalProperty + AsymmetricProperty     ──
+# ──   + IrreflexiveProperty (default for single-value properties)      ──
+# ═══════════════════════════════════════════════════════════════════════════
+
+sc:selector a rdf:Property ;
+    rdfs:label "selector"@en ;
+    rdfs:comment "CSS or Playwright locator selector for identifying a DOM element. Examples: button#submit, .nav-link, text=Quick start."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:actionText a rdf:Property ;
+    rdfs:label "action text"@en ;
+    rdfs:comment "Text payload for fill/type actions. Also used for scene-level JavaScript and Python code blocks."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:delayMs a rdf:Property ;
+    rdfs:label "delay milliseconds"@en ;
+    rdfs:comment "Millisecond delay between keystrokes for the type action."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:scrollX a rdf:Property ;
+    rdfs:label "scroll X offset"@en ;
+    rdfs:comment "Horizontal pixel offset for scroll action."@en ;
+    rdfs:domain sc:ScrollAction ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:scrollY a rdf:Property ;
+    rdfs:label "scroll Y offset"@en ;
+    rdfs:comment "Vertical pixel offset for scroll action."@en ;
+    rdfs:domain sc:ScrollAction ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:scrollToTarget a rdf:Property ;
+    rdfs:label "scroll to target"@en ;
+    rdfs:comment "CSS selector of the element to scroll into view."@en ;
+    rdfs:domain sc:ScrollAction ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:pressKey a rdf:Property ;
+    rdfs:label "press key"@en ;
+    rdfs:comment "Keyboard key to press. Examples: Enter, Tab, ControlOrMeta+A, Escape."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:clickButton a rdf:Property ;
+    rdfs:label "click button"@en ;
+    rdfs:comment "Mouse button for click action. Values: left (default), right, middle."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:clickCount a rdf:Property ;
+    rdfs:label "click count"@en ;
+    rdfs:comment "Number of consecutive clicks (default 1, use 2 for double-click)."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:screenshotOutput a rdf:Property ;
+    rdfs:label "screenshot output path"@en ;
+    rdfs:comment "File path for a screenshot taken during the storyboard. Relative paths resolve against the working directory."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:fullPage a rdf:Property ;
+    rdfs:label "full page screenshot"@en ;
+    rdfs:comment "If true, captures the full page content rather than just the current viewport."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:pauseDuration a rdf:Property ;
+    rdfs:label "pause duration"@en ;
+    rdfs:comment "Duration in seconds to pause recording and keep displaying the current frame."@en ;
+    rdfs:domain schema:HowToDirection ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:smoothDuration a rdf:Property ;
+    rdfs:label "smooth scroll duration"@en ;
+    rdfs:comment "Duration in seconds for smooth scrolling animation."@en ;
+    rdfs:domain sc:ScrollAction ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+# ── Cursor Configuration Properties ─────────────────────────────────────────
+
+sc:cursorVisible a rdf:Property ;
+    rdfs:label "cursor visible"@en ;
+    rdfs:comment "Show the cursor dot in the recorded video."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:cursorClicks a rdf:Property ;
+    rdfs:label "cursor clicks"@en ;
+    rdfs:comment "Show click rings in the recorded video."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:cursorColor a rdf:Property ;
+    rdfs:label "cursor color"@en ;
+    rdfs:comment "CSS color for the cursor dot and click rings. Example: '#ff4f00'."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:cursorSize a rdf:Property ;
+    rdfs:label "cursor dot size"@en ;
+    rdfs:comment "Diameter of the cursor dot in pixels."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:cursorClickSize a rdf:Property ;
+    rdfs:label "cursor click ring size"@en ;
+    rdfs:comment "Diameter of the click ring in pixels."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+# ── Viewport / Display Properties ───────────────────────────────────────────
+
+sc:viewportWidth a rdf:Property ;
+    rdfs:label "viewport width"@en ;
+    rdfs:comment "Browser viewport width in pixels."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:viewportHeight a rdf:Property ;
+    rdfs:label "viewport height"@en ;
+    rdfs:comment "Browser viewport height in pixels."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+# ── Top-Level Configuration Properties ──────────────────────────────────────
+
+sc:serverCommand a rdf:Property ;
+    rdfs:label "server command"@en ;
+    rdfs:comment "Shell command or argument list to start a development server for the duration of the recording. The server process is terminated when recording completes."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:shellCommand a rdf:Property ;
+    rdfs:label "shell command"@en ;
+    rdfs:comment "Shell command to run before the server starts. Runs before python: and server: blocks. The string form is run through the shell."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:pythonCode a rdf:Property ;
+    rdfs:label "Python code"@en ;
+    rdfs:comment "Python code to run before the server starts. Runs after sh: and before server:. Useful for preparing demo data, files, or database state."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:javascriptCode a rdf:Property ;
+    rdfs:label "JavaScript code"@en ;
+    rdfs:comment "JavaScript to run in the browser page context after initial URL load and before scene recording starts. Runs once, before the first scene."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:waitForSelector a rdf:Property ;
+    rdfs:label "wait for selector"@en ;
+    rdfs:comment "CSS/locator selector to wait for after page loads, before recording begins. Uses Playwright locator syntax."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:waitForUrlPattern a rdf:Property ;
+    rdfs:label "wait for URL pattern"@en ;
+    rdfs:comment "URL string or glob pattern to wait for after page loads, before recording begins. Example: '**/dashboard'."@en ;
+    rdfs:domain schema:HowTo ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+# ── Recording Metadata Properties ───────────────────────────────────────────
+
+sc:outputPath a rdf:Property ;
+    rdfs:label "output file path"@en ;
+    rdfs:comment "Full filesystem path to the recorded video output file."@en ;
+    rdfs:domain schema:VideoObject ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:recordedWith a rdf:Property ;
+    rdfs:label "recorded with"@en ;
+    rdfs:comment "Name and version of the recording tool used (e.g., 'shot-scraper 1.10')."@en ;
+    rdfs:domain schema:VideoObject ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
+
+sc:storyboardFile a rdf:Property ;
+    rdfs:label "storyboard file"@en ;
+    rdfs:comment "Path to the storyboard YAML file used for the recording."@en ;
+    rdfs:domain schema:VideoObject ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy sc: ;
+    a owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty .
