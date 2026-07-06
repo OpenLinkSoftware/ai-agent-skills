@@ -1,0 +1,27 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:about :acronymExpansionHowTo .
+
+:acronymExpansionHowTo a schema:HowTo ;
+    schema:name "Acronym Expansion on First Use"@en ;
+    schema:description "Standing rule: every acronym or initialism must be expanded to its full form on first use in any response or generated artifact, with the acronym itself given parenthetically."@en ;
+    schema:dateCreated "2026-07-01T23:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-01T23:30:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-expandFirstUse ;
+    rdfs:seeAlso <../preferences.ttl> .
+
+:step-expandFirstUse a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Expand every acronym/initialism on first use, per document/response — full term, acronym in parentheses"@en ;
+    schema:text """RULE: The first time an acronym or initialism appears in a chat response or a generated artifact (HTML, Markdown, RDF literal text, session memory prose), it must be written as the full expanded term followed by the acronym in parentheses. Example: 'Attribute-Based Access Control (ABAC)', not bare 'ABAC'. Subsequent uses within the same response/artifact may use the bare acronym.
+
+SCOPE: Applies per artifact, not globally across a whole session — a new HTML report, a new chat response, and a new RDF document each get their own "first use." Within one continuous chat response, expand once near the top and use the acronym freely afterward. Within one generated document (HTML page, TTL file), expand on the first occurrence in that document's prose (e.g., the Overview section of an infographic, or the earliest descriptive schema:description in a TTL file) — glossary DefinedTerm entries are exempt from this ordering requirement since the term name itself IS the definition target (e.g., :termABAC schema:name "ABAC (Attribute-Based Access Control)"@en is correct regardless of where it falls structurally).
+
+EXCEPTIONS: Extremely common acronyms that function as ordinary words in technical English do not require expansion — e.g. HTML, URL, HTTP, CSS, JSON, API, PDF, AI, ID, IP, USA. When in doubt, expand it; the cost of over-expanding a niche term is near zero, the cost of leaving a reader guessing is not.
+
+FAILURE MODE THAT TRIGGERED THIS RULE (2026-07-01): Multiple domain-specific acronyms (ABAC, MPP, ACP, SPT, WebID-TLS, LOAC) were used bare on first mention across chat responses and a generated HTML/RDF report before this rule existed, forcing the user to ask for expansions after the fact."""@en .

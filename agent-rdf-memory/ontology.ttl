@@ -189,3 +189,56 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
 :triggerSessionEnd a :MemoryWriteTrigger ;
     schema:name "Session End"@en ;
     schema:description "Fired at the explicit or inferred end of a session. Final write captures all remaining unrecorded events."@en .
+
+:triggerSessionStart a :MemoryWriteTrigger ;
+    schema:name "Session Start"@en ;
+    schema:description "Fired at the start of every session, after the mandatory memory protocol reads. Triggers semantic prompt analysis and related-session context bootstrapping from the session corpus."@en .
+
+:triggerLogOffloadThreshold a :MemoryWriteTrigger ;
+    schema:name "Log Offload Threshold Reached"@en ;
+    schema:description "Fired when a single tool result exceeds the size threshold defined in howto/symbolic-log-offloading.ttl, mandating creation of an :OffloadedLog and a :SessionSymbolNode instead of retaining the raw output in context."@en .
+
+# ── Symbolic Short-Term Log Offloading Vocabulary ────────────────────────────
+#
+# Every location referenced here is an IRI, never a string literal path —
+# file:// for local scratch/session files, https:// for WebDAV-hosted logs,
+# and urn:agent-rdf-memory:... for content triplified into a Virtuoso named
+# graph. This keeps the vocabulary storage-agnostic: scaling from ad hoc local
+# files to a shared quad store is a matter of minting a different kind of IRI,
+# not changing the schema. See howto/no-blank-nodes-resolver-entities.ttl for
+# the underlying rule that entities must be resolvable resources, not blank
+# nodes keyed by opaque literals.
+#
+# Ontology-discovery gate (per howto/ontology-discovery.ttl) run 2026-07-06:
+# PROV-O — already imported by this ontology — defines prov:atLocation
+# (owl:ObjectProperty; domain: union of Activity, Agent, Entity,
+# InstantaneousEvent; range: prov:Location; non-functional, so a resource may
+# carry multiple location values "at varying levels of granularity"). This is
+# an exact fit for :OffloadedLog's storage location(s) — including the case
+# where a single offloaded log has BOTH a file:// location and an additional
+# urn: named-graph location — so it is reused directly instead of minting
+# :hasLogIRI and :storedInGraph as bespoke properties. Per user instruction,
+# external cross-references (schema.org/DBpedia/Wikidata) are waived for this
+# ontology document — Requirement C of howto/ontology-cross-reference-gate.ttl
+# is explicitly not applied here.
+
+:OffloadedLog a rdfs:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Offloaded Log"@en ;
+    rdfs:comment "A raw, verbatim tool-output blob written outside the live session context, addressed by one or more IRIs rather than embedded inline."@en ;
+    schema:description "Represents one offloaded tool-call result. Its location(s) are carried via prov:atLocation (reused from PROV-O rather than a custom property) so the same class works whether the content lives as a local file, a WebDAV resource, or a Virtuoso named graph — or more than one of these at once."@en ;
+    rdfs:isDefinedBy : .
+
+:SessionSymbolNode a rdfs:Class ;
+    rdfs:subClassOf schema:Thing ;
+    rdfs:label "Session Symbol Node"@en ;
+    rdfs:comment "The compact in-context stand-in for an OffloadedLog. Always minted as its own IRI (urn:agent-rdf-memory:node:{session-id}:{slug}) — never a blank node distinguished by a literal identifier property."@en ;
+    schema:description "A lightweight, resolvable reference the agent keeps in its reasoning instead of the raw offloaded content. The {slug} local-name segment (n3, n4, ...) is part of the IRI itself and doubles as the short prose label ('see node n3')."@en ;
+    rdfs:isDefinedBy : .
+
+:offloadsTo a owl:ObjectProperty ;
+    rdfs:label "offloads to"@en ;
+    rdfs:comment "Links a SessionSymbolNode IRI to the OffloadedLog IRI holding its raw content."@en ;
+    rdfs:domain :SessionSymbolNode ;
+    rdfs:range :OffloadedLog ;
+    rdfs:isDefinedBy : .

@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-03T15:43:19Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -128,13 +128,13 @@
 
 :howto-artifact-routing a schema:HowTo ;
     schema:name "Artifact Output Routing"@en ;
-    schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, artifact placement elicitation, and remote WebDAV upload."@en ;
+    schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, prompt-specified model-name override prevention, artifact placement elicitation, and remote WebDAV upload."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
         <howto/remote-webdav-upload.ttl> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-modelIdentityPreflight, :step-defaultOutputRoot,
-        :step-modelOverEnvironment, :step-artifactPlacement,
-        :step-remoteWebdavUpload .
+        :step-modelOverEnvironment, :step-noPromptModelOverride, :step-artifactPlacement,
+        :step-remoteWebdavUpload, :step-savedPromptsFolder .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
 
@@ -155,7 +155,8 @@
         <howto/entity-lookup-disambiguation.ttl>,
         <howto/rdf-residence-vs-birthplace.ttl>,
         <howto/no-blank-nodes-resolver-entities.ttl>,
-        <howto/rdf-document-authoring.ttl> ;
+        <howto/rdf-document-authoring.ttl>,
+        <howto/position-integer-type.ttl> ;
     schema:step :step-entityDenotation, :step-documentEntity, :step-documentAbout,
         :step-entityTypeGate, :step-externalIriVerification,
         :step-entityLinkPlacement, :step-canonicalIriCompliance,
@@ -164,7 +165,8 @@
         :step-entityHrefCompanionTTL, :step-sparqlAbsolutePrefixIRI,
         :step-owlSameAsVsSkosRelated, :step-entityLookupDisambiguation,
         :step-residenceVsBirthplace, :step-noBlankNodesForResolverEntities,
-        :step-dbpediaCanonicalSubject, :step-terminologySemanticWeb .
+        :step-dbpediaCanonicalSubject, :step-terminologySemanticWeb,
+        :step-positionIntegerType .
 
 # ── 5. HTML Infographic & KG Explorer ───────────────────────────────────────
 
@@ -182,7 +184,8 @@
         <howto/sparql-html-escape-gate.ttl>,
         <howto/study-prior-patterns.ttl>,
         <howto/kg-curation-attribution.ttl>,
-        <howto/ui-ux-expert-persona.ttl> ;
+        <howto/ui-ux-expert-persona.ttl>,
+        <howto/kg-explorer-edge-property-typing.ttl> ;
     schema:step :step-attribution, :step-darkModeCSS, :step-kgExplorerReuse,
         :step-templateSelection, :step-kgNavPlacement, :step-kgNavCollapsed,
         :step-kgControlsMasterClose, :step-kgNoOrphans, :step-kgToolbarGroups,
@@ -197,7 +200,8 @@
         :step-uiUxExpertPersona, :step-faqQuestionTextHyperlink,
         :step-sparqlWorkbenchPlacement, :step-sparqlBtnMandatory,
         :step-sparqlExplorerVisibleText, :step-footerTextAlignCascade,
-        :step-staleWorkbenchCleanup, :step-footerCardOverflow .
+        :step-staleWorkbenchCleanup, :step-footerCardOverflow, :step-edgePropertyTyping,
+        :step-noRawUrlDump, :step-edgeResolverHref, :step-entityLevelAuthorship .
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
 
@@ -206,9 +210,11 @@
     schema:description "Cross-reference gate for custom ontology terms, OWL property characterization from nine semantic categories, and shared ontology discovery via prefix.cc before inventing new predicates."@en ;
     rdfs:seeAlso <howto/ontology-cross-reference-gate.ttl>,
         <howto/owl-property-characterization.ttl>,
-        <howto/ontology-discovery.ttl> ;
+        <howto/ontology-discovery.ttl>,
+        <howto/kg-explorer-edge-property-typing.ttl> ;
     schema:step :step-ontologyCrossReference,
-        :step-owlPropertyCharacterization .
+        :step-owlPropertyCharacterization,
+        :step-mintingRunsOntologyGates .
 
 # ── 7. Skill Chain & Workflows ──────────────────────────────────────────────
 
@@ -264,21 +270,21 @@
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
 :step-gpt5ChatCodexOutputDirs a schema:HowToStep ;
-    schema:position 2.1 ;
+    schema:position 3 ;
     schema:name "GPT-5 Chat Codex writes generated collections to GPT5-Chat-Generated root folders"@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
 # ── Step 2.2: Terminology — Mashup vs Meshup ─────────────────────────────────
 
 :step-mashupVsMeshup a schema:HowToStep ;
-    schema:position 2.2 ;
+    schema:position 4 ;
     schema:name "Never use 'mashup' — always use 'meshup' for semantic content fusion, on input and output"@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
 # ── Step 2.3: Model Identity Pre-Flight Gate ─────────────────────────────────
 
 :step-modelIdentityPreflight a schema:HowToStep ;
-    schema:position 2.3 ;
+    schema:position 5 ;
     schema:name "BLOCKING GATE — resolve output root from system prompt model ID before any file write"@en ;
     schema:text "No file write is permitted until the output root has been resolved from the system prompt model identifier at session initialization."@en ;
     onto:hasTrigger onto:triggerSessionStart, onto:triggerArtifactGeneration ;
@@ -291,14 +297,14 @@
 # ── Step 3: Skill Chain ──────────────────────────────────────────────────────
 
 :step-skillChain a schema:HowToStep ;
-    schema:position 3 ;
+    schema:position 6 ;
     schema:name "Use kg-generator → rdf-infographic-skill chain for RDF/MD/HTML collections"@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl> .
 
 # ── Step 3a: KG Query Mode ───────────────────────────────────────────────────
 
 :step-kgQueryMode a schema:HowToStep ;
-    schema:position 3.1 ;
+    schema:position 7 ;
     schema:name "Use data-twingler for KG question answering — kg-only and kg-hybrid modes, local-first, provenance-linked"@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl> .
 
@@ -306,7 +312,7 @@
 # UNTOUCHED — already has rdfs:seeAlso to canonical-entity-iri-denotation.ttl
 
 :step-entityDenotation a schema:HowToStep ;
-    schema:position 4 ;
+    schema:position 8 ;
     schema:name "Assign canonical entity IRIs per denotation rulesets"@en ;
     schema:text "Assign canonical entity IRIs following the priority ladder in the referenced howto files."@en ;
     rdfs:seeAlso <howto/canonical-entity-iri-denotation.ttl>,
@@ -316,7 +322,7 @@
 # ── Step 5: Memory Protocol ──────────────────────────────────────────────────
 
 :step-memoryProtocol a schema:HowToStep ;
-    schema:position 5 ;
+    schema:position 9 ;
     schema:name "Read agent-rdf-memory/ before tasks, write immediately on trigger events"@en ;
     onto:hasTrigger
         onto:triggerPreferencesUpdate ,
@@ -330,154 +336,154 @@
 # ── Step 6: Git Workflow ─────────────────────────────────────────────────────
 
 :step-gitWorkflow a schema:HowToStep ;
-    schema:position 6 ;
+    schema:position 10 ;
     schema:name "Commit and push only when explicitly asked"@en ;
     rdfs:seeAlso <howto/session-governance.ttl> .
 
 # ── Step 7: Footer Attribution ───────────────────────────────────────────────
 
 :step-attribution a schema:HowToStep ;
-    schema:position 7 ;
+    schema:position 11 ;
     schema:name "Use <p> prose format for footer attribution, never chip <div>"@en ;
     rdfs:seeAlso <howto/infographic-authoring.ttl> .
 
 # ── Step 8: ZIP Repackage ────────────────────────────────────────────────────
 
 :step-zipRepackage a schema:HowToStep ;
-    schema:position 8 ;
+    schema:position 12 ;
     schema:name "Delete ZIP before recreating — zip -r on existing archive does not remove deleted files"@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl> .
 
 # ── Step 9: Dark Mode CSS ────────────────────────────────────────────────────
 
 :step-darkModeCSS a schema:HowToStep ;
-    schema:position 9 ;
+    schema:position 13 ;
     schema:name "Dark mode: two-block CSS, link contrast, general a rule, bright accent"@en ;
     rdfs:seeAlso <howto/infographic-authoring.ttl> .
 
 # ── Step 10: KG Explorer Template Reuse ──────────────────────────────────────
 
 :step-kgExplorerReuse a schema:HowToStep ;
-    schema:position 10 ;
+    schema:position 14 ;
     schema:name "Reuse the validated template for KG Explorer — never regenerate from scratch"@en ;
     rdfs:seeAlso <howto/infographic-authoring.ttl> .
 
 # ── Step 10.05: Template Selection by Content Type ───────────────────────────
 
 :step-templateSelection a schema:HowToStep ;
-    schema:position 10.05 ;
+    schema:position 15 ;
     schema:name "Select the correct template from assets/templates/ based on content type"@en ;
     rdfs:seeAlso <howto/infographic-authoring.ttl> .
 
 # ── Step 10.1: KG Explorer — Nav placement ───────────────────────────────────
 
 :step-kgNavPlacement a schema:HowToStep ;
-    schema:position 10.1 ;
+    schema:position 16 ;
     schema:name "Float nav must be top-LEFT; KG Explorer Controls button is always top-RIGHT"@en ;
     rdfs:seeAlso <howto/kg-explorer-ui-patterns.ttl> .
 
 # ── Step 10.2: KG Explorer — Float nav starts collapsed ──────────────────────
 
 :step-kgNavCollapsed a schema:HowToStep ;
-    schema:position 10.2 ;
+    schema:position 17 ;
     schema:name "Float nav must start COLLAPSED per rdf-infographic-skill contract"@en ;
     rdfs:seeAlso <howto/kg-explorer-ui-patterns.ttl> .
 
 # ── Step 10.3: KG Explorer — Controls as master reset ────────────────────────
 
 :step-kgControlsMasterClose a schema:HowToStep ;
-    schema:position 10.3 ;
+    schema:position 18 ;
     schema:name "toggleToolbar() must be a master reset — close all child panels when collapsing the tray"@en ;
     rdfs:seeAlso <howto/kg-explorer-ui-patterns.ttl> .
 
 # ── Step 10.4: KG Explorer — No orphan nodes ─────────────────────────────────
 
 :step-kgNoOrphans a schema:HowToStep ;
-    schema:position 10.4 ;
+    schema:position 19 ;
     schema:name "getFilteredData() must restrict nodes to those appearing in at least one active link"@en ;
     rdfs:seeAlso <howto/kg-explorer-ui-patterns.ttl> .
 
 # ── Step 10.5: KG Explorer — Toolbar group labels ────────────────────────────
 
 :step-kgToolbarGroups a schema:HowToStep ;
-    schema:position 10.5 ;
+    schema:position 20 ;
     schema:name "Wrap toolbar controls in .tb-group + .tb-label for visual hierarchy"@en ;
     rdfs:seeAlso <howto/kg-explorer-ui-patterns.ttl> .
 
 # ── Step 10.6: KG Explorer — Settings panel UX ───────────────────────────────
 
 :step-kgSettingsPanel a schema:HowToStep ;
-    schema:position 10.6 ;
+    schema:position 21 ;
     schema:name "Settings panel: slider cards with live value readouts, predicate grid, state-reflecting gear button"@en ;
     rdfs:seeAlso <howto/kg-explorer-ui-patterns.ttl> .
 
 # ── Step 11: Harness Validator ID Conventions ────────────────────────────────
 
 :step-harnessIds a schema:HowToStep ;
-    schema:position 11 ;
+    schema:position 22 ;
     schema:name "Match exact HTML IDs and attributes expected by the harness validator"@en ;
     rdfs:seeAlso <howto/harness-contract-compliance.ttl> .
 
 # ── Step 12: Footer Attribution Label Casing ─────────────────────────────────
 
 :step-footerLabels a schema:HowToStep ;
-    schema:position 12 ;
+    schema:position 23 ;
     schema:name "Use exact lowercase label strings in footer attribution cards"@en ;
     rdfs:seeAlso <howto/harness-contract-compliance.ttl> .
 
 # ── Step 13: SPARQL Format Guidance Text ─────────────────────────────────────
 
 :step-sparqlFormat a schema:HowToStep ;
-    schema:position 13 ;
+    schema:position 24 ;
     schema:name "Include visible SPARQL result format guidance prose in HTML"@en ;
     rdfs:seeAlso <howto/harness-contract-compliance.ttl> .
 
 # ── Step 14: KG Compliance Script ERE Regex Bug ──────────────────────────────
 
 :step-complianceBug a schema:HowToStep ;
-    schema:position 14 ;
+    schema:position 25 ;
     schema:name "Work around macOS ERE regex bug in validate-kg-compliance.sh"@en ;
     rdfs:seeAlso <howto/harness-contract-compliance.ttl> .
 
 # ── Step 15: KG Explorer Simulation Lifecycle ────────────────────────────────
 
 :step-simulationLifecycle a schema:HowToStep ;
-    schema:position 15 ;
+    schema:position 26 ;
     schema:name "Create D3 forceSimulation once and reuse it across renders"@en ;
     rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
 
 # ── Step 16: Click-Distance Guard ────────────────────────────────────────────
 
 :step-clickGuard a schema:HowToStep ;
-    schema:position 16 ;
+    schema:position 27 ;
     schema:name "Use a click-distance guard to distinguish drag from click"@en ;
     rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
 
 # ── Step 17: kgData to IIFE Regex Constraint ─────────────────────────────────
 
 :step-kgDataRegex a schema:HowToStep ;
-    schema:position 17 ;
+    schema:position 28 ;
     schema:name "Place kgData immediately adjacent to the IIFE opening"@en ;
     rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
 
 # ── Step 18: Document Entity Declaration ─────────────────────────────────────
 
 :step-documentEntity a schema:HowToStep ;
-    schema:position 18 ;
+    schema:position 29 ;
     schema:name "Declare the document entity in every TTL file using <>"@en ;
     rdfs:seeAlso <howto/rdf-document-authoring.ttl> .
 
 # ── Step 19: Document Entity schema:about ────────────────────────────────────
 
 :step-documentAbout a schema:HowToStep ;
-    schema:position 19 ;
+    schema:position 30 ;
     schema:name "Use schema:about for the document entity"@en ;
     rdfs:seeAlso <howto/rdf-document-authoring.ttl> .
 
 # ── Step 20: No Fabricated URLs ──────────────────────────────────────────────
 
 :step-noFabricatedUrls a schema:HowToStep ;
-    schema:position 20 ;
+    schema:position 31 ;
     schema:name "Never fabricate, guess, or hallucinate URLs"@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/session-governance.ttl> .
@@ -485,21 +491,21 @@
 # ── Step 21: Authenticated curl in Skill Workflows ───────────────────────────
 
 :step-curlAuth a schema:HowToStep ;
-    schema:position 21 ;
+    schema:position 32 ;
     schema:name "Elicit user confirmation before optionally using authenticated curl with PKCS#12/PEM certificate and/or On-Behalf-Of"@en ;
     rdfs:seeAlso <howto/session-governance.ttl> .
 
 # ── Step 22: Stripe Sandbox Card ─────────────────────────────────────────────
 
 :step-stripeSandboxCard a schema:HowToStep ;
-    schema:position 22 ;
+    schema:position 33 ;
     schema:name "Use Stripe sandbox card credentials for ACP test payments"@en ;
     rdfs:seeAlso <howto/agent-identity.ttl> .
 
 # ── Step 23: Whoami Format ────────────────────────────────────────────────────
 
 :step-whoamiFormat a schema:HowToStep ;
-    schema:position 23 ;
+    schema:position 34 ;
     schema:name "Respond to identity queries: full two-section for 'whoami', agent-only section for 'who are you?'"@en ;
     schema:text "For 'whoami?' emit a full two-section User and Agent response; for 'who are you?' emit the Agent section only."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
@@ -508,7 +514,7 @@
 # ── Step 23.1: WebID-TLS Verification ─────────────────────────────────────────
 
 :step-webidTlsVerification a schema:HowToStep ;
-    schema:position 23.1 ;
+    schema:position 35 ;
     schema:name "Verify WebID-TLS credentials — local first, remote fallback"@en ;
     schema:text "Verify WebID-TLS credentials by comparing RSA modulus from local cert against profile.ttl cert:modulus, falling back to ODS webid_verify.vsp only if local files are absent."@en ;
     rdfs:seeAlso <howto/agent-identity.ttl> .
@@ -516,7 +522,7 @@
 # ── Step 24: Secret Redaction ────────────────────────────────────────────────
 
 :step-secretRedaction a schema:HowToStep ;
-    schema:position 24 ;
+    schema:position 36 ;
     schema:name "Redact passwords, API secrets, and credentials in all session memory, lessons, trace, and log documents"@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/session-governance.ttl> .
@@ -524,7 +530,7 @@
 # ── Step 25: Prompt Recording ─────────────────────────────────────────────────
 
 :step-promptRecording a schema:HowToStep ;
-    schema:position 25 ;
+    schema:position 37 ;
     schema:name "Record verbatim user prompts in session memory files for intent-to-outcome traceability"@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerNamedWorkflow, onto:triggerBehaviorGapIdentified, onto:triggerSessionEnd ;
     rdfs:seeAlso <howto/session-governance.ttl> .
@@ -532,14 +538,14 @@
 # ── Step 26: Retrieval Tool Order ────────────────────────────────────────────
 
 :step-retrievalToolOrder a schema:HowToStep ;
-    schema:position 26 ;
+    schema:position 38 ;
     schema:name "Content retrieval tool order: Chrome MCP → Playwright → PinchTab → Sponger last resort"@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl> .
 
 # ── Step 27: Default Output Root ─────────────────────────────────────────────
 
 :step-defaultOutputRoot a schema:HowToStep ;
-    schema:position 27 ;
+    schema:position 39 ;
     schema:name "Default output root for HTML infographic artifacts — defer to model-specific routing"@en ;
     schema:text "There is no single default output root; always determine the output root from the active LLM identity per step-outputDirs — never hardcode a path."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
@@ -547,10 +553,19 @@
 # ── Step 27.1: Model Identity vs Agent Environment Tiebreaker ──────────────
 
 :step-modelOverEnvironment a schema:HowToStep ;
-    schema:position 27.1 ;
+    schema:position 40 ;
     schema:name "Model identity always wins over agent environment for output routing"@en ;
     schema:text "When model identity and agent environment differ, the system prompt model identifier determines the output path — never the agent environment name."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/artifact-routing.ttl> .
+
+# ── Step 27.2: No Prompt-Specified Model Override ───────────────────────────
+
+:step-noPromptModelOverride a schema:HowToStep ;
+    schema:position 41 ;
+    schema:name "BLOCKING GATE — user-supplied filenames or roots cannot override active model identity"@en ;
+    schema:text "A user-supplied model name in an output root, filename, or attribution label that conflicts with the active model identified by the system prompt must be treated as stale and normalized to the active model identity."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
 # ── Topic Entities (schema:about targets for the container document) ─────────
@@ -661,9 +676,9 @@
 # ── Step 28: Virtuoso SPARQL URL Format Parameters ───────────────────────────
 
 :step-virtuosoSparqlFormats a schema:HowToStep ;
-    schema:position 28 ;
+    schema:position 42 ;
     schema:name "Use correct &format= parameter for each SPARQL query type on Virtuoso endpoints"@en ;
-    schema:text "SELECT → text/x-html+tr (format=text%2Fx-html%2Btr). CONSTRUCT → text/x-html-nice-turtle (format=text%2Fx-html-nice-turtle). DESCRIBE → text/x-html-nice-turtle. Never apply the SELECT format to CONSTRUCT/DESCRIBE or vice versa."@en ;
+    schema:text "Use percent-encoded format=text%2Fx-html%2Btr for SELECT and format=text%2Fx-html-nice-turtle for CONSTRUCT/DESCRIBE — never swap the two."@en ;
     rdfs:seeAlso <howto/virtuoso-sparql-formats.ttl> .
 
 :topicEntityTypeGate a schema:Thing ;
@@ -679,7 +694,7 @@
 # ── Step 29: Entity, Property, and Type IRI Gate ──────────────────────────────
 
 :step-entityTypeGate a schema:HowToStep ;
-    schema:position 29 ;
+    schema:position 43 ;
     schema:name "Verify every entity type, property IRI, and type IRI against the declared vocabulary"@en ;
     schema:text "Before using any RDF type or property IRI, verify it exists in its declared vocabulary — never fabricate or assume schema:ceo, schema:ArticleSection, or similar terms."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
@@ -692,7 +707,7 @@
 # ── Step 30: External IRI Verification Gate ────────────────────────────────────
 
 :step-externalIriVerification a schema:HowToStep ;
-    schema:position 30 ;
+    schema:position 44 ;
     schema:name "Verify every external IRI (Wikidata, DBpedia) by dereferencing before use"@en ;
     schema:text "Before adding any Wikidata or DBpedia IRI to RDF, dereference it to confirm the referent matches — never use an IRI that merely looks right without verification."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
@@ -706,7 +721,7 @@
 # ── Step 31: Entity Hyperlink Placement Gate ──────────────────────────────────
 
 :step-entityLinkPlacement a schema:HowToStep ;
-    schema:position 31 ;
+    schema:position 45 ;
     schema:name "Elicit hyperlink mode, then verify entity-link placement in HTML"@en ;
     schema:text "Elicit hyperlink mode (Mode A: first-reference-only or Mode B: all references) before adding entity links, then apply consistently throughout the HTML."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
@@ -720,7 +735,7 @@
 # ── Step 32: Canonical IRI Compliance Gate ───────────────────────────────────
 
 :step-canonicalIriCompliance a schema:HowToStep ;
-    schema:position 32 ;
+    schema:position 46 ;
     schema:name "Audit every entity for canonical IRI compliance after KG generation"@en ;
     schema:text "After generating RDF, audit every entity to ensure it uses the highest-priority canonical platform IRI (DBpedia, Wikidata, LinkedIn) rather than a document-local IRI."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
@@ -734,7 +749,7 @@
 # ── Step 33: Concept/Term Entity Hyperlinking Gate ─────────────────────────────
 
 :step-conceptEntityHyperlinking a schema:HowToStep ;
-    schema:position 33 ;
+    schema:position 47 ;
     schema:name "Hyperlink concept/term entities (DefinedTerm, custom ontology classes) in HTML on first reference"@en ;
     schema:text "Concept and term entities (schema:DefinedTerm, custom ontology classes) must be hyperlinked in HTML on first reference, using the same resolver pattern as person and organization entities."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
@@ -751,7 +766,7 @@
     schema:description "Decision about where generated output artifacts (HTML, RDF, Markdown) should be placed relative to each other and to the source content. Locations depend on publication intent — they may share a folder or use dedicated subfolders (rdf/, webpages/, md/). Elicit user preference before assuming placement."@en .
 
 :step-rdfInfographicGateEnforcement a schema:HowToStep ;
-    schema:position 35 ;
+    schema:position 49 ;
     schema:name "Run validate-harness-contract.py before delivering any rdf-infographic-skill HTML artifact"@en ;
     schema:text "Before delivering any rdf-infographic-skill HTML artifact, run validate-harness-contract.py and achieve 0 failures — this is a blocking gate."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
@@ -762,13 +777,13 @@
     schema:description "Requirement to run validate-harness-contract.py and achieve 0 failures before delivering any rdf-infographic-skill HTML artifact. Added 2026-06-10 after edge-label and SPARQL button defects were delivered without gate execution."@en .
 
 :step-artifactPlacement a schema:HowToStep ;
-    schema:position 34 ;
+    schema:position 48 ;
     schema:name "Elicit user preference for generated file placement before writing outputs"@en ;
     schema:text "Before writing output files, elicit or look up the user's preferred placement layout for rdf/, webpages/, and md/ artifacts."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerPreferencesUpdate .
 
 :step-opalSessionVocabulary a schema:HowToStep ;
-    schema:position 36 ;
+    schema:position 50 ;
     schema:name "Use OPAL Analytics Ontology vocabulary as default in all session log TTL files"@en ;
     schema:text "All session memory TTL files must use OPAL Analytics Ontology vocabulary (opal:ChatSession, opal:ChatModel, opal:LLMProvider) as the primary vocabulary unless overridden by an operator."@en ;
     onto:hasTrigger onto:triggerSessionWrite ;
@@ -781,7 +796,7 @@
 # ── Step 37: No Blank Nodes in RDF Output ─────────────────────────────────────
 
 :step-noBlankNodes a schema:HowToStep ;
-    schema:position 37 ;
+    schema:position 51 ;
     schema:name "Never use blank nodes in generated RDF Turtle — all resources must be named IRIs"@en ;
     schema:text "Never use blank nodes in generated RDF — all resources must be named IRIs; use comma-separated objects instead of collection syntax."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
@@ -794,7 +809,7 @@
 # ── Step 38: Remote WebDAV Upload ─────────────────────────────────────────────
 
 :step-remoteWebdavUpload a schema:HowToStep ;
-    schema:position 38 ;
+    schema:position 52 ;
     schema:name "After generating artifacts, offer to upload to remote WebDAV (URIBurner default)"@en ;
     schema:text "After completing any artifact, offer to upload it to a remote WebDAV server (URIBurner DAV is the default) using curl PUT with mTLS credentials."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
@@ -813,7 +828,7 @@
 # ── Step 39: Memory Protocol Validation Gate ─────────────────────────────────
 
 :step-memoryProtocolGate a schema:HowToStep ;
-    schema:position 39 ;
+    schema:position 53 ;
     schema:name "Validate memory protocol compliance with transcript audit gate"@en ;
     schema:text "After every session, run validate-memory-protocol.py on the session transcript to confirm all 5 mandatory protocol steps were executed."@en ;
     onto:hasTrigger onto:triggerSessionEnd ;
@@ -828,7 +843,7 @@
 # ── Step 40: Token-Optimized Session Handoff ─────────────────────────────────
 
 :step-tokenOptimizedSessionHandoff a schema:HowToStep ;
-    schema:position 40 ;
+    schema:position 54 ;
     schema:name "For repeated similar generation tasks, start a fresh session with a compact validated-pattern handoff"@en ;
     schema:text "For repeated similar generation tasks, start a fresh session seeded with a compact handoff naming the latest validated template, contract fixes, output routing, and validation gates."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation, onto:triggerNamedWorkflow ;
@@ -843,14 +858,14 @@
 # ── Step 41: Virtuoso Workbench Query Deduplication ──────────────────────────
 
 :step-virtuosoWorkbenchQueryDedup a schema:HowToStep ;
-    schema:position 41 ;
+    schema:position 55 ;
     schema:name "Scope all Virtuoso workbench SPARQL queries to the derived named graph to prevent cross-graph duplicates"@en ;
     schema:text "Scope all Virtuoso SPARQL queries to the relevant named graph using FROM to prevent cross-graph duplicate results in the quad store."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/virtuoso-workbench-query-dedup.ttl> .
 
 :step-faqEntityIriGate a schema:HowToStep ;
-    schema:position 42 ;
+    schema:position 56 ;
     schema:name "FAQ entity IRI pre-build gate: confirm schema:Question entities exist in companion TTL before writing FAQ HTML"@en ;
     schema:text "Before generating FAQ HTML, confirm schema:Question entities exist in the companion TTL and use their resolver-wrapped DAV IRIs as hrefs — never external concept IRIs."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
@@ -859,7 +874,7 @@
 # ── Step 43: Ontology Cross-Reference Gate ────────────────────────────────────
 
 :step-ontologyCrossReference a schema:HowToStep ;
-    schema:position 43 ;
+    schema:position 57 ;
     schema:name "Cross-reference custom ontology terms against shared vocabularies via OWL equivalence and alignment properties; mandate domain, range, and annotations"@en ;
     schema:text "Every custom ontology class and property must carry rdfs:label, rdfs:comment, rdfs:domain/range, and at least one verified cross-reference to schema.org, DBpedia, or Wikidata."@en ;
     rdfs:seeAlso <howto/ontology-cross-reference-gate.ttl> ;
@@ -873,7 +888,7 @@
 # ── Step 44: UI/UX Expert Persona ─────────────────────────────────────────────
 
 :step-uiUxExpertPersona a schema:HowToStep ;
-    schema:position 44 ;
+    schema:position 58 ;
     schema:name "Operate as a modern UI/UX expert when producing any visual or interactive artifact"@en ;
     schema:text "Operate as a modern UI/UX expert on all visual artifacts: enforce the accent color system (--accent blue for entity links), explicit hyperlink CSS, label precision, and cross-section visual coherence."@en ;
     onto:hasTrigger onto:triggerSkillInvocation ;
@@ -883,10 +898,28 @@
     schema:name "UI/UX Expert Persona"@en ;
     schema:description "Standing behavioral default: operate as a UI/UX expert whenever producing any visual or interactive artifact. Enforces color system discipline, hyperlink consistency (--accent blue for entity links), label precision, and cross-section visual coherence. Never requires explicit per-session activation by the user."@en .
 
+# ── Step 114: No Raw URL Dump ──────────────────────────────────────────────────
+
+:step-noRawUrlDump a schema:HowToStep ;
+    schema:position 115 ;
+    schema:name "Never dump a raw percent-encoded URL as visible wrapped text — style live-query links as compact pill affordances"@en ;
+    schema:text "Never render a live-query link's full encoded URL as plain wrapped text — style it as a compact pill-styled <a> labeled with intent instead."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/ui-ux-expert-persona.ttl> .
+
+# ── Step 115: KG Explorer Edge Resolver Href Parity ────────────────────────────
+
+:step-edgeResolverHref a schema:HowToStep ;
+    schema:position 116 ;
+    schema:name "KG Explorer edge label anchors must route through the resolver exactly like node labels — never the bare predicate IRI"@en ;
+    schema:text "Edge label <a> href/xlink:href must be resolverUrl(predicateIri(d)), matching the resolver treatment already applied to node labels."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl>, <howto/kg-explorer-edge-property-typing.ttl> .
+
 # ── Step 45: agent-rdf-memory/index.ttl as Sole Discovery Mechanism ──────────
 
 :step-soleMemoryIndex a schema:HowToStep ;
-    schema:position 45 ;
+    schema:position 59 ;
     schema:name "Use agent-rdf-memory/index.ttl as the sole session memory discovery mechanism"@en ;
     schema:text "agent-rdf-memory/index.ttl is the sole memory discovery index — never write to MEMORY.md; the canonical write targets are preferences.ttl, howto/*.ttl, core.ttl, index.ttl, and sessions/*.ttl."@en ;
     rdfs:seeAlso <howto/sparql-memory-loading.ttl> .
@@ -898,7 +931,7 @@
 # ── Step 46: SPARQL-Based Session Memory Loading ──────────────────────────────
 
 :step-sparqlMemoryLoading a schema:HowToStep ;
-    schema:position 46 ;
+    schema:position 60 ;
     schema:name "Support SPARQL-based session memory loading via elicited endpoint selection"@en ;
     schema:text "At session initialization, elicit SPARQL endpoint preference or default to file reads; if SPARQL is chosen, use Virtuoso Sponger pragmas to load preferences and howto files in one round-trip."@en ;
     rdfs:seeAlso <howto/sparql-memory-loading.ttl> .
@@ -910,7 +943,7 @@
 # ── Step 47: KG Curation Attribution Pattern ──────────────────────────────────
 
 :step-kgCurationAttribution a schema:HowToStep ;
-    schema:position 47 ;
+    schema:position 61 ;
     schema:name "Apply KG curation attribution pattern in hero-meta and infographic headers"@en ;
     schema:text "In hero-meta and headers, attribute KG curation as: 'KG curated by {skills} and {llm} on behalf of [Kingsley Idehen](resolver-IRI)' with all parties hyperlinked."@en ;
     rdfs:seeAlso <howto/kg-curation-attribution.ttl> .
@@ -919,10 +952,28 @@
     schema:name "KG Curation Attribution Pattern"@en ;
     schema:description "Hero-meta and infographic header attribution pattern: 'KG curated by {skills} and {llm} on behalf of [Kingsley Idehen](resolver-IRI)' — exposes the full provenance chain of skills, AI agent, and human principal."@en .
 
+# ── Step 116: Entity-Level Article/Content Authorship Delegation ──────────────
+
+:step-entityLevelAuthorship a schema:HowToStep ;
+    schema:position 117 ;
+    schema:name "Article/entity authorship must reflect whoami's agent-operates-for-principal semantics — never set schema:author of agent-synthesized content directly to the principal"@en ;
+    schema:text "Apply the same skills+agent-on-behalf-of-principal delegation pattern used for document-level curation credit at the entity level too, for any sub-entity the agent authors on the principal's behalf."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/kg-curation-attribution.ttl> .
+
+# ── Step 117: saved-prompts/ Sibling Folder ────────────────────────────────────
+
+:step-savedPromptsFolder a schema:HowToStep ;
+    schema:position 118 ;
+    schema:name "Reusable reproduction prompts go in a saved-prompts/ sibling folder under the model output root, never inside md/"@en ;
+    schema:text "Write reusable reproduction prompts to {model-root}/saved-prompts/{slug}-reproduction-prompt.md — a sibling of rdf/, md/, and webpages/, never a file placed inside md/."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/artifact-routing.ttl>, <core.ttl> .
+
 # ── Step 48: Use schema:author — Never foaf:maker ─────────────────────────────
 
 :step-schemaAuthorOverFoafMaker a schema:HowToStep ;
-    schema:position 48 ;
+    schema:position 62 ;
     schema:name "Use schema:author instead of foaf:maker — always"@en ;
     schema:text "Use schema:author for document and CreativeWork attribution in all RDF serializations — never foaf:maker."@en ;
     rdfs:seeAlso <howto/rdf-document-authoring.ttl> .
@@ -932,7 +983,7 @@
     schema:description "Standing rule: always use schema:author for document/creative work attribution. foaf:maker is never used."@en .
 
 :step-entityHrefCompanionTTL a schema:HowToStep ;
-    schema:position 49 ;
+    schema:position 63 ;
     schema:name "Entity hrefs in HTML infographics must resolve from the companion TTL via the resolver pattern"@en ;
     schema:text "All entity hyperlinks in HTML infographics must be resolver-wrapped IRIs sourced from the companion TTL — never external Wikipedia, W3C, or GitHub IRIs."@en ;
     rdfs:seeAlso <howto/entity-href-companion-ttl.ttl> .
@@ -942,7 +993,7 @@
     schema:description "Standing rule: all HTML infographic entity hrefs must be resolver-wrapped IRIs from the companion TTL, not external sources."@en .
 
 :step-sparqlAbsolutePrefixIRI a schema:HowToStep ;
-    schema:position 50 ;
+    schema:position 64 ;
     schema:name "SPARQL accordion PREFIX IRIs must always be absolute DAV IRIs — never relative IRIs"@en ;
     schema:text "All PREFIX declarations in SPARQL accordion queries must use absolute DAV IRIs derived from the skills contract — never relative IRIs."@en ;
     rdfs:seeAlso <howto/sparql-absolute-prefix-iri.ttl> .
@@ -954,7 +1005,7 @@
 # ── Step 51: No Unauthorized File Deletion ─────────────────────────────────────
 
 :step-noUnauthorizedDeletion a schema:HowToStep ;
-    schema:position 51 ;
+    schema:position 65 ;
     schema:name "Never delete files without explicit user approval"@en ;
     schema:text "Never delete any file without explicit user approval — flag and ask, never delete and explain."@en ;
     rdfs:seeAlso <howto/no-unauthorized-deletion.ttl> .
@@ -966,7 +1017,7 @@
 # ── Step 52: MEMORY.md Is a Fallback, Not a Write Target ──────────────────────
 
 :step-noMemoryMdWrite a schema:HowToStep ;
-    schema:position 52 ;
+    schema:position 66 ;
     schema:name "MEMORY.md is a read-only fallback — never write to it unless preferences.ttl is inaccessible"@en ;
     schema:text "Never write to MEMORY.md under normal operation — preferences.ttl and its companion howto/*.ttl files are the sole canonical write targets."@en ;
     rdfs:seeAlso <howto/no-memory-md-write.ttl> .
@@ -978,7 +1029,7 @@
 # ── Step 53: owl:sameAs vs skos:related assignment rule ──────────────────────
 
 :step-owlSameAsVsSkosRelated a schema:HowToStep ;
-    schema:position 53 ;
+    schema:position 67 ;
     schema:name "owl:sameAs vs skos:related for LOD cross-references"@en ;
     schema:text "Use owl:sameAs only when a KG entity co-denotes the exact same individual as the DBpedia or Wikidata resource; use skos:related for associative or contextual links."@en ;
     rdfs:seeAlso <howto/owl-sameas-vs-skos-related.ttl> .
@@ -990,7 +1041,7 @@
 # ── Step 54: Entity Lookup Disambiguation Script ─────────────────────────────
 
 :step-entityLookupDisambiguation a schema:HowToStep ;
-    schema:position 54 ;
+    schema:position 68 ;
     schema:name "Use entity_lookup.py for Jaro-Winkler disambiguation of DBpedia/Wikidata IDs"@en ;
     schema:text "When assigning Wikidata or DBpedia IRIs to KG entities, use agent-rdf-memory/scripts/entity_lookup.py which applies Jaro-Winkler similarity scoring to return confidence-thresholded owl:sameAs, skos:related, or rdfs:seeAlso relationships."@en ;
     rdfs:seeAlso <howto/entity-lookup-disambiguation.ttl> .
@@ -1006,13 +1057,13 @@
 # ── Step 55: YouID Delegation — Local File Modification ──────────────────────
 
 :step-delegationLocalFiles a schema:HowToStep ;
-    schema:position 55 ;
+    schema:position 69 ;
     schema:name "Apply delegation triples to local profile files, not server-side PATCH"@en ;
     schema:text "Apply WebID On-Behalf-Of delegation triples to local profile files (profile.ttl, profile.jsonld, profile_rdfa.html, index.html), then let the user upload — never HTTP PATCH the live server."@en ;
     rdfs:seeAlso <howto/youid-delegation.ttl> .
 
 :step-rdfInfographicGatedWorkflow a schema:HowToStep ;
-    schema:position 56 ;
+    schema:position 70 ;
     schema:name "RDF-to-HTML infographic: script-assisted, gate-first, port-don't-write workflow"@en ;
     schema:text "Every RDF-to-HTML infographic must follow three parts: script-assisted entity extraction from companion TTL, gate-first validator protocol (PASS before any delivery), and port KG Explorer from prior working output rather than writing D3 from scratch."@en ;
     rdfs:seeAlso <howto/rdf-infographic-gated-workflow.ttl> .
@@ -1020,7 +1071,7 @@
 # ── Step 57: SPARQL HTML Escape Gate ──────────────────────────────────────────
 
 :step-sparqlHtmlEscape a schema:HowToStep ;
-    schema:position 57 ;
+    schema:position 71 ;
     schema:name "HTML-escape SPARQL query text in <pre> blocks — angle brackets MUST be escaped"@en ;
     schema:text "HTML-escape all SPARQL query text in pre class='sparql-code' blocks so angle brackets in GRAPH/FROM IRIs render as &amp;lt; and &amp;gt; rather than being consumed as HTML tags."@en ;
     rdfs:seeAlso <howto/sparql-html-escape-gate.ttl> .
@@ -1030,7 +1081,7 @@
     schema:description "Standing rule: HTML-escape all SPARQL query text in <pre> blocks so angle brackets in GRAPH/FROM IRIs render as &lt; and &gt; instead of being consumed as invisible HTML tags."@en .
 
 :step-youidValidationGate a schema:HowToStep ;
-    schema:position 59 ;
+    schema:position 73 ;
     schema:name "Run Basic WebID Test (PKCS#12 Public Key Consistency Gate) for youid credential bundles"@en ;
     schema:text "Before deploying any WebID credential bundle, verify the PKCS#12 RSA modulus and exponent are consistently reflected in index.html, profile.ttl, and profile.jsonld."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
@@ -1041,19 +1092,19 @@
     schema:description "Must verify PKCS#12 cert public key matches index.html, profile.ttl, and profile.jsonld before deploying any youid credential bundle."@en .
 
 :step-reuseWorkingKG a schema:HowToStep ;
-    schema:position 58 ;
+    schema:position 72 ;
     schema:name "Reuse working KG Explorer code from prior output files — never write D3 from scratch"@en ;
     schema:text "When generating an HTML infographic with D3 KG Explorer, copy the proven D3 force graph, mode switching, settings panel, and filter logic from the most recent working output — never write from scratch."@en ;
     rdfs:seeAlso <howto/kg-explorer-reuse-first.ttl> .
 
 :step-terminologySemanticWeb a schema:HowToStep ;
-    schema:position 59.1 ;
+    schema:position 74 ;
     schema:name "Terminology: use 'a Semantic Web' not 'the Semantic Web'"@en ;
     schema:text "Write 'a Semantic Web' (indefinite article) when referring to a specific deployment; write 'the Semantic Web' only when referring to the global Web-wide vision."@en ;
     rdfs:seeAlso <howto/rdf-document-authoring.ttl> .
 
 :step-verifiedWhoami a schema:HowToStep ;
-    schema:position 60 ;
+    schema:position 75 ;
     schema:name "Run verified identity gate before responding to whoami (not for 'who are you?' queries)"@en ;
     schema:text "Before responding to 'whoami?', run openssl modulus checks against local cert bundles for both user and agent, then emit the two-section response with verified or unverified badges."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
@@ -1066,7 +1117,7 @@
 # ── Step 61: URIBurner OAuth Authorization Code Flow ──────────────────────────
 
 :step-uriburnerOAuthAuthCodeFlow a schema:HowToStep ;
-    schema:position 61 ;
+    schema:position 76 ;
     schema:name "Use OAuth Authorization Code flow with local server for URIBurner resources"@en ;
     schema:text "For URIBurner DAV resources returning 401, use the OAuth Authorization Code flow with dynamic client registration at linkeddata.uriburner.com — the token issuer must match the resource server."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerCurlAuth ;
@@ -1079,7 +1130,7 @@
 # ── Step 62: schema:homeLocation vs schema:birthPlace ─────────────────────────
 
 :step-residenceVsBirthplace a schema:HowToStep ;
-    schema:position 62 ;
+    schema:position 77 ;
     schema:name "Use schema:homeLocation for residence, not schema:birthPlace"@en ;
     schema:text "Newton, Massachusetts is Kingsley's residence — use schema:homeLocation, not schema:birthPlace, for locations derived from LinkedIn or X.509 Locality fields."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
@@ -1088,7 +1139,7 @@
 # ── Step 64: FAQ question text must be a resolver hyperlink ──────────────────
 
 :step-faqQuestionTextHyperlink a schema:HowToStep ;
-    schema:position 64 ;
+    schema:position 79 ;
     schema:name "Wrap FAQ question TEXT in a resolver <a> — 'Lookup' badge alone is insufficient"@en ;
     schema:text "Wrap FAQ question text in a resolver anchor targeting the schema:Question entity IRI — the 'Lookup' badge is additional, not a substitute for the text hyperlink."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1101,7 +1152,7 @@
 # ── Step 65: SPARQL workbench placement — after content sections ──────────────
 
 :step-sparqlWorkbenchPlacement a schema:HowToStep ;
-    schema:position 65 ;
+    schema:position 80 ;
     schema:name "Place the SPARQL workbench section AFTER FAQ/Glossary/HowTo — never between KG Explorer and FAQ"@en ;
     schema:text "Place the SPARQL workbench section after FAQ/Glossary/HowTo and immediately before the footer — never between the KG Explorer and FAQ."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1114,7 +1165,7 @@
 # ── Step 66: KG drag sticky — never null fx/fy on dragend ────────────────────
 
 :step-kgDragSticky a schema:HowToStep ;
-    schema:position 66 ;
+    schema:position 81 ;
     schema:name "KG Explorer sticky drag: never null d.fx/d.fy on dragend; dblclick to unpin"@en ;
     schema:text "KG Explorer nodes must remain pinned after drag — dragend must NOT clear d.fx/d.fy; use double-click to unpin."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1127,7 +1178,7 @@
 # ── Step 67: IIFE scope — all onclick handlers must be window-exposed ──────────
 
 :step-iifeGlobalScope a schema:HowToStep ;
-    schema:position 67 ;
+    schema:position 82 ;
     schema:name "All onclick/onchange handler functions defined inside an IIFE must be exposed on window"@en ;
     schema:text "Every function called from an HTML onclick or onchange attribute that is defined inside an IIFE must be explicitly exposed on window."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1140,7 +1191,7 @@
 # ── Step 63: No blank nodes for resolver-addressable entities ─────────────────
 
 :step-noBlankNodesForResolverEntities a schema:HowToStep ;
-    schema:position 63 ;
+    schema:position 78 ;
     schema:name "Prohibit blank nodes for any entity that requires a resolver URL"@en ;
     schema:text "Any entity that requires a resolver URL (FAQ answers, HowTo steps, glossary terms) must use a named IRI — never a blank node."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1149,7 +1200,7 @@
 # ── Step 68: sparqlBtn must be <a> in footer with real SPARQL href ─────────────
 
 :step-sparqlBtnFooterAnchor a schema:HowToStep ;
-    schema:position 68 ;
+    schema:position 83 ;
     schema:name "sparqlBtn must be an <a> element in the footer with a pre-built SPARQL href — not a <button> scroll trigger at page top"@en ;
     schema:text "The id='sparqlBtn' element must be an anchor in the footer with a pre-built SPARQL href — never a button scroll trigger at the top of the page."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1162,7 +1213,7 @@
 # ── Step 69: Theme toggle must be in nav header bar — always visible ───────────
 
 :step-themeToggleInNavHeader a schema:HowToStep ;
-    schema:position 69 ;
+    schema:position 84 ;
     schema:name "Theme toggle must live in the nav panel header bar — not a separate controls bar, not inside the collapsible nav body"@en ;
     schema:text "The theme toggle must be inside the nav panel header bar (always-visible strip) — not in a separate controls bar and not in the collapsible nav body."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1175,7 +1226,7 @@
 # ── Step 70: Section heading fragment identifiers + 🔗 copy-to-clipboard ───────
 
 :step-headingFragmentIds a schema:HowToStep ;
-    schema:position 70 ;
+    schema:position 85 ;
     schema:name "Every section heading must carry a stable id + hover anchor with copy-to-clipboard"@en ;
     schema:text "Every section heading must be an h2 carrying its own stable id, plus a hidden .heading-anchor child that appears on hover and copies the fragment URL to clipboard."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1188,9 +1239,9 @@
 # ── Step 71: Static D3 script tag ──────────────────────────────────────────────
 
 :step-staticD3Load a schema:HowToStep ;
-    schema:position 71 ;
+    schema:position 86 ;
     schema:name "Load D3.js as static <script> in <head> — never dynamic injection"@en ;
-    schema:text "Static <script src='https://d3js.org/d3.v7.min.js'> in <head>. Never script.createElement + DOMContentLoaded — creates race condition where D3 isn't available at render time. See howto/kg-explorer-d3-patterns.ttl step 4 for full pattern."@en ;
+    schema:text "Load D3.js as a static <script> tag in <head> — never via script.createElement + DOMContentLoaded, which creates a race condition."@en ;
     rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
 
 :topicD3Loading a schema:Thing ;
@@ -1200,9 +1251,9 @@
 # ── Step 72: Single render() function ──────────────────────────────────────────
 
 :step-singleRender a schema:HowToStep ;
-    schema:position 72 ;
+    schema:position 87 ;
     schema:name "Use single render() that wipes/rebuilds SVG — not initGraph/updateGraph split"@en ;
-    schema:text "Use a single render() function that calls svg.selectAll('*').remove() and rebuilds everything. Avoids D3 data join mutation bugs from stale source/target object references. Proven in canonical competitive-analysis-head-to-head template. See howto/kg-explorer-d3-patterns.ttl step 6 for full pattern."@en ;
+    schema:text "Use a single render() function that wipes and rebuilds the SVG from scratch — never an initGraph/updateGraph split, which is prone to D3 data-join mutation bugs."@en ;
     rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
 
 # ── Step 73: Secret value echo protection ──────────────────────────────────────
@@ -1212,7 +1263,7 @@
     schema:description "Never echo API keys, bearer tokens, or other credentials in command output, shell traces, or displayed text. When executing authenticated curl commands or processing responses that contain secrets, ensure the secret values are never visible in stdout, stderr, or any output shown to the user — even when piping through tee or debugging helpers. Interactions may be recorded for training or demo purposes."@en .
 
 :step-secretEchoRedaction a schema:HowToStep ;
-    schema:position 73 ;
+    schema:position 88 ;
     schema:name "Never echo secret values in command output or displayed text"@en ;
     schema:text "Never display API keys, bearer tokens, or credential values in command output — always append a trailing colon to curl -u flags, never tee raw responses containing secrets to stderr."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
@@ -1221,20 +1272,11 @@
 # ── Step 74: DBpedia IRI as canonical subject — no local-alias + owl:sameAs ────
 
 :step-dbpediaCanonicalSubject a schema:HowToStep ;
-    schema:position 74 ;
+    schema:position 89 ;
     schema:name "When a DBpedia IRI exists for an entity, use it as the primary subject — never a document-local alias with owl:sameAs dbr:X"@en ;
     schema:text "When a verified DBpedia IRI exists for an entity, use it as the primary RDF subject — never create a document-local alias with owl:sameAs dbr:X."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/canonical-iri-compliance-gate.ttl> .
-
-# ── Step 79: KG Explorer lazy-init via IntersectionObserver ──────────────────────
-
-:step-kgLazyInit a schema:HowToStep ;
-    schema:position 79 ;
-    schema:name "KG Explorer must not activate until its section enters the viewport — use a one-shot IntersectionObserver"@en ;
-    schema:text "KG Explorer must not activate until its section enters the viewport — initialize D3 via a one-shot IntersectionObserver, not on DOMContentLoaded."@en ;
-    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
-    rdfs:seeAlso <howto/kg-explorer-d3-patterns.ttl> .
 
 :topicDbpediaCanonicalSubject a schema:Thing ;
     schema:name "DBpedia Canonical Subject Gate"@en ;
@@ -1243,7 +1285,7 @@
 # ── Step 75: sparqlBtn is a mandatory harness element — never remove in cleanup ──
 
 :step-sparqlBtnMandatory a schema:HowToStep ;
-    schema:position 75 ;
+    schema:position 90 ;
     schema:name "The footer id='sparqlBtn' anchor is a mandatory harness contract element — never remove it when cleaning up duplicate SPARQL sections"@en ;
     schema:text "The footer id='sparqlBtn' anchor is a mandatory harness element — when removing duplicate SPARQL sections, never remove the footer anchor itself."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1252,7 +1294,7 @@
 # ── Step 76: id="sparql-explorer" must display SAMPLE query text visibly ─────────
 
 :step-sparqlExplorerVisibleText a schema:HowToStep ;
-    schema:position 76 ;
+    schema:position 91 ;
     schema:name "The footer id='sparql-explorer' section must display the SAMPLE query as visible pre.sparql-code text, not only encode it in the sparqlBtn href"@en ;
     schema:text "The id='sparql-explorer' footer section must display the SAMPLE entity-type summary query as visible, syntax-highlighted pre.sparql-code text with a Copy button — not only encoded in the sparqlBtn href."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1261,7 +1303,7 @@
 # ── Step 77: footer text-align:center cascade gate ───────────────────────────────
 
 :step-footerTextAlignCascade a schema:HowToStep ;
-    schema:position 77 ;
+    schema:position 92 ;
     schema:name "When footer text-align:center is in the CSS, the id='sparql-explorer' div must override with text-align:left; .fmt-tabs must use justify-content:flex-start"@en ;
     schema:text "When the footer CSS uses text-align:center, the id='sparql-explorer' div must override with text-align:left and .fmt-tabs must use justify-content:flex-start."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1270,7 +1312,7 @@
 # ── Step 78: stale interactive workbench cleanup gate ────────────────────────────
 
 :step-staleWorkbenchCleanup a schema:HowToStep ;
-    schema:position 78 ;
+    schema:position 93 ;
     schema:name "When removing the interactive SPARQL workbench HTML, also remove its companion JS functions and CSS classes"@en ;
     schema:text "When removing interactive SPARQL workbench HTML, also remove its companion JS functions (sparqlRecipes, loadSparqlRecipe, setSparqlMode, runSparqlQuery) and their CSS classes."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1279,7 +1321,7 @@
 # ── Step 79: KG Explorer lazy-init via IntersectionObserver ──────────────────────
 
 :step-kgLazyInit a schema:HowToStep ;
-    schema:position 79 ;
+    schema:position 94 ;
     schema:name "KG Explorer must not activate until its section enters the viewport — use a one-shot IntersectionObserver"@en ;
     schema:text "Defer initKG() until #kg-svg-wrap enters the viewport via a one-shot IntersectionObserver(threshold:0.1); the resize handler's existing if(simulation) guard keeps it dormant until then."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
@@ -1288,7 +1330,7 @@
 # ── Step 80: preferences.ttl must stay sparse — prose belongs in howto/ ─────────
 
 :step-preferencesSparse a schema:HowToStep ;
-    schema:position 80 ;
+    schema:position 95 ;
     schema:name "Every new preferences.ttl step must be a name + one-sentence schema:text + rdfs:seeAlso — never inline prose"@en ;
     schema:text "New HowToStep entries in preferences.ttl are limited to schema:name, a one-sentence schema:text, onto:hasTrigger, and rdfs:seeAlso; all rationale, code, gates, and incident notes go in the companion howto/*.ttl file."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
@@ -1297,9 +1339,9 @@
 # ── Step 81: Study proven patterns from prior work when constructing execution plans ──
 
 :step-studyPriorPatterns a schema:HowToStep ;
-    schema:position 81 ;
+    schema:position 96 ;
     schema:name "Study proven patterns from prior output as input to execution plan construction, in line with operator request"@en ;
-    schema:text "Before constructing an execution plan for a new HTML infographic, study proven interactive patterns and structural choices from prior working outputs under this repo. Use the study to inform the plan — but the plan must ultimately reflect what the operator's prompt actually asks for, not blindly reproduce prior patterns."@en ;
+    schema:text "Before planning a new HTML infographic, study proven patterns from prior working outputs to inform — never blindly reproduce — a plan that reflects what the operator's prompt actually asks for."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/study-prior-patterns.ttl> .
 
@@ -1310,9 +1352,9 @@
 # ── Step 82: WebID/NetID Verification Service Selection ──────────────────────
 
 :step-webidVerificationServiceSelection a schema:HowToStep ;
-    schema:position 82 ;
+    schema:position 97 ;
     schema:name "Elicit WebID/NetID verification service selection and MTLS_PKCS12_PW setup before remote mTLS verification"@en ;
-    schema:text "When the user asks to verify a WebID or NetID via a remote service, elicit which service to use from the known open list (netid-qa.openlinksw.com:9443/webid/, ods-qa.openlinksw.com/webid/, linkeddata.uriburner.com/webid/, demo.openlinksw.com/webid/, and others added over time); if the user names a service in their prompt, honor it without re-eliciting. Before calling the remote service, check for MTLS_PKCS12_PW without printing it. If it is absent, elicit setup using the host operating system's environment command: macOS launchctl setenv MTLS_PKCS12_PW '...', Linux systemd --user import/set-environment or shell export depending on execution context, Windows PowerShell setx or process-scoped $env:MTLS_PKCS12_PW. Never ask the user to paste the secret into chat, never echo it, and never store it in memory."@en ;
+    schema:text "Elicit which WebID/NetID verification service to use from the known list before any remote mTLS call, and check for MTLS_PKCS12_PW via the OS environment without ever printing, echoing, or storing it."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/webid-verification-services.ttl> .
 
@@ -1324,7 +1366,7 @@
 # ── Step 83: whoami owl:sameAs as hyperlinks ──────────────────────────────────
 
 :step-whoamiSameAsHyperlinks a schema:HowToStep ;
-    schema:position 83 ;
+    schema:position 98 ;
     schema:name "Emit owl:sameAs values in whoami as Markdown hyperlinks sourced from the user's WebID index.html rel=me links"@en ;
     schema:text "Before emitting the whoami User section, grep the user's WebID index.html for <link rel='me'> entries and emit each as a Markdown hyperlink [Title](URL) — never as prose platform categories."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
@@ -1337,18 +1379,18 @@
 # ── Step 84: Reciprocal delegation claim verification ─────────────────────────
 
 :step-verifyRecipDelegation a schema:HowToStep ;
-    schema:position 84 ;
+    schema:position 99 ;
     schema:name "Verify reciprocal oplcert:hasIdentityDelegate / oplcert:onBehalfOf before accepting On-Behalf-Of"@en ;
-    schema:text "Before treating an On-Behalf-Of claim as corroborated, grep both credential profiles: delegator must have oplcert:hasIdentityDelegate <agent-webid>, agent must have oplcert:onBehalfOf <delegator-webid>. Emit ✅ Corroborated, ⚠️ Partially corroborated, or ⚠️ Unconfirmed in the Delegation line of the whoami response."@en ;
+    schema:text "Before accepting an On-Behalf-Of claim as corroborated, grep both credential profiles for the reciprocal oplcert:hasIdentityDelegate / oplcert:onBehalfOf triples and report the result in the whoami Delegation line."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
     rdfs:seeAlso <howto/verified-identity.ttl> .
 
 # ── Step 85: All URLs in response output must be Markdown hyperlinks ──────────
 
 :step-urlsAsHyperlinks a schema:HowToStep ;
-    schema:position 85 ;
+    schema:position 100 ;
     schema:name "Every URL in response text, tables, and bullets must be a Markdown hyperlink [label](url)"@en ;
-    schema:text "Never emit a bare URL in any response text, table cell, or bullet point — always wrap it as [label](url). Apply to WebID URIs, On-Behalf-Of values, owl:sameAs targets, NetIDs, and any other IRI appearing in prose or structured output."@en ;
+    schema:text "Never emit a bare URL in any response text, table cell, or bullet point — always wrap it as a Markdown hyperlink [label](url)."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery, onto:triggerSkillInvocation, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/agent-identity.ttl> .
 
@@ -1363,9 +1405,9 @@
 # ── Step 86: Remote delegation verification ───────────────────────────────────
 
 :step-verifyDelegationRemote a schema:HowToStep ;
-    schema:position 86 ;
+    schema:position 101 ;
     schema:name "Verify reciprocal delegation claims against live remote WebDAV profiles"@en ;
-    schema:text "After local delegation verification (Step 84), also verify against the live WebDAV-hosted profiles by fetching remote profile.ttl and index.html via curl (public read first, mTLS auth fallback). Cross-check all RDF serializations for the delegation triples. Optionally present the agent certificate with On-Behalf-Of header to a remote WebID verification service as an end-to-end test."@en ;
+    schema:text "After local delegation verification, also verify against the live remote WebDAV-hosted profiles by fetching profile.ttl and index.html via curl, public read first."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
     rdfs:seeAlso <howto/verified-identity.ttl> .
 
@@ -1376,9 +1418,9 @@
     schema:description "Structured verification table pattern for WebID/NetID identity validation. Covers: (1) Agent cert SHA-1 fingerprint extraction from PKCS#12, (2) base verification against remote ODS webid_verify.vsp, (3) On-Behalf-Of verification with delegator WebID header, (4) cross-check of delegator profile for oplcert:hasIdentityDelegate, (5) cross-check of agent profile for oplcert:onBehalfOf across all RDF serializations (TTL, JSON-LD, HTML RDFa), (6) modulus consistency check between cert and profile documents, (7) results emitted as a verification table with rows for each check and ✅/⚠️ status columns."@en .
 
 :step-webidVerificationTable a schema:HowToStep ;
-    schema:position 87 ;
+    schema:position 102 ;
     schema:name "Run identity verification table: cert extraction → base OBO → delegation cross-check → modulus consistency → emit table"@en ;
-    schema:text "When verifying WebID/NetID identity, follow the structured table pattern: extract SHA-1 fingerprint from PKCS#12 cert, run base and OBO verification against remote service, cross-check reciprocal delegation claims on both sides across all RDF serializations, compare cert modulus with profile documents, and emit results as a verification table."@en ;
+    schema:text "Verify WebID/NetID identity via the structured table pattern: cert fingerprint, base/OBO verification, delegation cross-check, modulus consistency, then emit a verification table."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/webid-verification-table.ttl> .
 
@@ -1389,9 +1431,9 @@
     schema:description "When presenting the user's preferences, use the succinct themed-table widget format (mcp__visualize__show_widget) with grouped tables by theme, step number, rule name, and one-line detail. Use this format by default unless the user explicitly requests a different form."@en .
 
 :step-preferencesPresentationFormat a schema:HowToStep ;
-    schema:position 88 ;
+    schema:position 103 ;
     schema:name "Present preferences as a succinct themed-table widget — not a flat numbered list"@en ;
-    schema:text "When responding to 'my preferences?' or any request to display standing instructions, render a category-level tabulation with columns: #, Category, Steps, Primary HowTo Files. Use the 9 sub-HowTo categories from preferences.ttl (Identity/WebID, Memory Management, Artifact Routing, RDF Authoring, HTML/KG Explorer, Ontology Generation, Skill Workflows, Virtuoso/SPARQL, Terminology). Query schema:hasPart on :agentBehaviorGuide to derive the current category list dynamically — never hardcode. Use this format by default; override only if the user explicitly requests a flat list or a different form."@en ;
+    schema:text "When asked to display preferences, render a category-level table (#, Category, Steps, Primary HowTo Files) derived dynamically from :agentBehaviorGuide's schema:hasPart — never a hardcoded flat list."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/preferences-presentation.ttl> .
 
@@ -1402,32 +1444,9 @@
     schema:description "When registering oplcert:hasIdentityDelegate on a delegator's profile graph via SPARQL INSERT, the delegate's public key (cert:modulus + cert:exponent) must be included inline as a blank node under cert:key. Omission breaks the WebID-TLS verification chain: the delegator graph has no way to resolve the delegate's public key to corroborate the mTLS certificate presented via On-Behalf-Of."@en .
 
 :step-delegationInsertGate a schema:HowToStep ;
-    schema:position 89 ;
+    schema:position 104 ;
     schema:name "BLOCKING GATE — SPARQL INSERT of oplcert:hasIdentityDelegate must include delegate cert:key (modulus + exponent) inline"@en ;
-    schema:text """Before executing any SPARQL INSERT that adds oplcert:hasIdentityDelegate to a delegator's profile graph, verify the INSERT also includes the delegate's cert:key with cert:modulus (xsd:hexBinary) and cert:exponent (xsd:int) as a blank node. Use the template:
-
-SPARQL
-PREFIX cert: <http://www.w3.org/ns/auth/cert#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#>
-
-INSERT DATA {
-  GRAPH <{DELEGATOR_WEBID}> {
-    <{DELEGATOR_WEBID}> oplcert:hasIdentityDelegate <{DELEGATE_WEBID}> .
-    <{DELEGATE_WEBID}> cert:key [ cert:modulus "{MODULUS}"^^xsd:hexBinary ; cert:exponent "{EXPONENT}"^^xsd:int ]
-  }
-}
-;
-
-Verify with:
-
-SPARQL
-PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#>
-ASK FROM <{DELEGATOR_WEBID}> WHERE { <{DELEGATOR_WEBID}> oplcert:hasIdentityDelegate <{DELEGATE_WEBID}> }
-
-The delegate's modulus and exponent are sourced from their local PKCS#12 cert via:
-  openssl pkcs12 -in cert.p12 -passin pass:$PW -nokeys -clcerts | openssl x509 -noout -modulus
-Exponent is always 65537 for RSA 2048."""@en ;
+    schema:text "Before executing a SPARQL INSERT of oplcert:hasIdentityDelegate, ensure it also includes the delegate's cert:key (modulus + exponent) inline as a blank node."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/delegation-insert-gate.ttl> .
 
@@ -1438,9 +1457,9 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:description "The On-Behalf-Of HTTP header value must be a bare WebID URI without angle brackets. Format: 'On-Behalf-Of: https://example.com/path#fragment' — not '<https://example.com/path#fragment>'. Angle brackets cause the delegation verification to fail, returning 402 Payment Required even when the delegation chain is correct on both sides."@en .
 
 :step-oboHeaderFormat a schema:HowToStep ;
-    schema:position 90 ;
+    schema:position 105 ;
     schema:name "On-Behalf-Of header value: bare WebID URI — never angle brackets"@en ;
-    schema:text "The On-Behalf-Of HTTP header value must be a bare WebID URI without angle brackets. Correct: On-Behalf-Of: https://example.com/path#fragment. Incorrect: On-Behalf-Of: <https://example.com/path#fragment>. Angle brackets cause delegation resolution failure (402/401)."@en ;
+    schema:text "The On-Behalf-Of HTTP header value must be a bare WebID URI without angle brackets, since angle brackets cause delegation resolution failure (402/401)."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerCurlAuth ;
     rdfs:seeAlso <howto/youid-delegation.ttl> .
 
@@ -1452,9 +1471,9 @@ Exponent is always 65537 for RSA 2048."""@en ;
     rdfs:seeAlso <howto/owl-property-characterization.ttl> .
 
 :step-owlPropertyCharacterization a schema:HowToStep ;
-    schema:position 91 ;
+    schema:position 106 ;
     schema:name "Characterize every generated custom object property with applicable OWL constructs from the nine semantic categories"@en ;
-    schema:text "Every custom owl:ObjectProperty defined during KG/ontology generation must carry at least one OWL characteristic beyond rdfs:domain/range, chosen from the nine semantic categories. Classification/status properties default to owl:FunctionalProperty + owl:AsymmetricProperty + owl:IrreflexiveProperty."@en ;
+    schema:text "Every custom owl:ObjectProperty must carry at least one OWL characteristic from the nine semantic categories, defaulting classification/status properties to Functional + Asymmetric + Irreflexive."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/owl-property-characterization.ttl> .
 
@@ -1465,9 +1484,9 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:description "Any element rendering an algorithmically-derived long unbroken token (URL, IRI, camelCase identifier, base64) overflows its container unless the container defaults to min-width:0 and the text-bearing element has overflow-wrap:anywhere + word-break:break-word. Not limited to <code> tags or footer cards. Recurred 3 times across 2 sessions: 2026-06-29 (footer attribution <code> URL), 2026-07-01 (same class of footer card), 2026-07-02 (an offer card's plain-text <h4> title with no <code> wrapper, plus the shared .sparql-code <pre> class itself lacked the protection before a new panel reused it). Treat as a blocking pre-delivery check on every session touching HTML infographics, not a one-off fix scoped to one selector."@en .
 
 :step-footerCardOverflow a schema:HowToStep ;
-    schema:position 92 ;
+    schema:position 107 ;
     schema:name "ANY card/heading/pre containing a long unbroken token can overflow — not just <code> URLs — verify via scrollWidth before delivery"@en ;
-    schema:text "GENERALIZED RULE: any element that might render an algorithmically-derived long unbroken token (URL, IRI, camelCase identifier, base64) needs overflow-wrap:anywhere + word-break:break-word, regardless of whether it's wrapped in <code> — plain-text headings (e.g. an offer card's <h4> title built from an offer's IRI local name) are equally at risk. Grid/flex card containers need min-width:0 as a baseline default on the shared card class, not an opt-in added per-card after the fact. CRITICAL: when reusing an existing shared CSS class (e.g. .sparql-code) for new content, audit that class itself for this protection first — the bug propagates silently through reuse into every existing place that class is used, not just the new instance. Before delivering any HTML infographic, verify via preview_eval that el.scrollWidth <= el.clientWidth on every card, heading, and pre/code block containing a long token; do not rely on a screenshot alone."@en ;
+    schema:text "Any element that may render a long unbroken token (URL, IRI, identifier) needs overflow-wrap:anywhere and word-break:break-word, verified via el.scrollWidth <= el.clientWidth before delivery."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/infographic-authoring.ttl> .
 
@@ -1478,9 +1497,9 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:description "Every acronym/initialism must be expanded to its full form on first use per response or generated artifact, with the acronym given parenthetically — e.g. 'Attribute-Based Access Control (ABAC)', not bare 'ABAC'. Common web/tech acronyms (HTML, URL, HTTP, CSS, JSON, API, PDF, AI, ID) are exempt. Triggered 2026-07-01 after domain-specific acronyms (ABAC, MPP, ACP, SPT, WebID-TLS, LOAC) were left unexpanded across a chat response and generated report."@en .
 
 :step-expandFirstUse a schema:HowToStep ;
-    schema:position 93 ;
+    schema:position 108 ;
     schema:name "Expand every acronym/initialism on first use — full term, acronym in parentheses"@en ;
-    schema:text "The first time an acronym/initialism appears in a chat response or generated artifact, write it as 'Full Expanded Term (ACRONYM)'; bare acronym is fine after that within the same response/artifact. Applies per artifact, not globally across a session. Common web/tech acronyms (HTML, URL, HTTP, CSS, JSON, API, PDF, AI, ID, IP) are exempt. Glossary DefinedTerm entries name the expansion in schema:name itself, so ordering doesn't apply to them."@en ;
+    schema:text "Expand every acronym on first use per artifact as 'Full Term (ACRONYM)', except common web/tech acronyms and glossary DefinedTerm entries."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/acronym-expansion.ttl> .
 
@@ -1491,9 +1510,9 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:description "When a structural violation is discovered in preferences.ttl or any howto/*.ttl file — an orphan step, a missing cross-reference, a duplicate entity, or a contract breach — the agent must trace the violation to its source commit and session log before fixing it. Blind repair erases the decision context; forensic reconciliation surfaces the originating agent's reasoning and enables corrective feedback. Triggered by any audit that finds a non-zero violation count."@en .
 
 :step-sessionLogReconciliation a schema:HowToStep ;
-    schema:position 94 ;
+    schema:position 109 ;
     schema:name "Trace every structural violation to its source session log before applying the fix"@en ;
-    schema:text "When a structural violation is found in preferences.ttl or any howto/*.ttl file: (1) git log/blame to find the commit that introduced it, (2) grep the session log for that date/agent to surface the originating decision context, (3) cite both the commit and the session in the fix report. Never fix silently — the session log is the diagnostic record that distinguishes a judgment error from a mechanical omission."@en ;
+    schema:text "Trace every structural violation found in preferences.ttl or howto/*.ttl to its originating commit and session log before applying the fix, and cite both in the fix report."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/session-governance.ttl> .
 
@@ -1504,9 +1523,9 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:description "On every session start, after the mandatory memory protocol (core/prefs/index reads), the agent must analyze the user's prompt for key concepts, entities, and task types, then grep/query index.ttl and session file descriptions for semantically related past sessions, and load the top 3–5 most relevant ones as bootstrap context. This turns the session corpus from a passive archive into an active retrieval source."@en .
 
 :step-semanticSessionBootstrap a schema:HowToStep ;
-    schema:position 95 ;
+    schema:position 110 ;
     schema:name "On session start, analyze the prompt for key concepts and load related session logs as bootstrap context"@en ;
-    schema:text "After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."@en ;
+    schema:text "At session start, extract key concepts from the user's prompt and load the 3–5 most semantically relevant prior session logs as bootstrap context."@en ;
     onto:hasTrigger onto:triggerSessionStart ;
     rdfs:seeAlso <howto/session-governance.ttl> .
 
@@ -1515,7 +1534,72 @@ Exponent is always 65537 for RSA 2048."""@en ;
     schema:description "When mapping model ID to an output directory, verify the actual path exists on disk via ls before using it — never infer directory naming conventions (casing, hyphens, spacing) from entries in core.ttl or artifact-routing.ttl alone. Pure inference was the failure pattern that created this rule."@en .
 
 :step-filesystemPathVerification a schema:HowToStep ;
-    schema:position 96 ;
+    schema:position 111 ;
     schema:name "Verify the actual filesystem path exists — never infer directory names by convention alone"@en ;
-    schema:text "When mapping model ID to output directory, list the parent directory with ls to confirm the exact name on disk before using it. Don't assume casing, hyphens, or spacing from other entries in core.ttl or artifact-routing.ttl without verification. Pure inference by convention was the failure pattern that triggered this rule."@en ;
-    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+    schema:text "List the parent directory with ls to confirm the exact output directory name on disk before writing, rather than inferring casing or spacing by convention."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/filesystem-path-verification.ttl> .
+
+# ── Step 97: KG Explorer Edge Property Typing ────────────────────────────────
+
+:topicEdgePropertyTyping a schema:Thing ;
+    schema:name "KG Explorer Edges Must Resolve to rdf:Property Instances, Never schema:DefinedTerm"@en ;
+    schema:description "An edge in a KG Explorer represents a relationship/predicate, not a concept definition. Its resolver link must dereference to an owl:ObjectProperty/rdf:Property instance, never a schema:DefinedTerm glossary entry — even when a glossary term is topically related and conveniently already dereferenceable. If no suitable real-world predicate exists for an informal/diagram-only edge, mint a locally-namespaced owl:ObjectProperty with domain/range plus at least one OWL characteristic (per Step 91), and back it with an actual triple in the companion TTL — not just a JS array entry. Found 2026-07-02: three edge labels (mTLS, feeds, gates) in a hand-built KG Explorer were wired to glossary DefinedTerm entries instead of properties."@en .
+
+:step-edgePropertyTyping a schema:HowToStep ;
+    schema:position 112 ;
+    schema:name "Type-check every KG Explorer edge's resolver target — reject schema:DefinedTerm, mint a characterized owl:ObjectProperty if no real predicate exists"@en ;
+    schema:text "Before setting a KG Explorer edge's resolver href, reuse a real predicate if one exists as an actual triple, otherwise mint a characterized owl:ObjectProperty with a backing triple — never link an edge to a schema:DefinedTerm."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/kg-explorer-edge-property-typing.ttl>, <howto/owl-property-characterization.ttl> .
+
+# ── Step 98: Minting a New Property Never Skips the Ontology Gates ──────────
+
+:topicMintingSkipsOntologyGates a schema:Thing ;
+    schema:name "A Narrow Fix Task Does Not Exempt New Terms From the General Ontology Gates"@en ;
+    schema:description "Found 2026-07-03: when Step 97's fix minted :authenticatesVia, :feedsInto, :gatesAccessTo as owl:ObjectProperty instances, the pre-existing, general-purpose ontology-discovery.ttl (search prefix.cc/known vocabularies before inventing a predicate, present findings for user accept/reject) and ontology-cross-reference-gate.ttl (rdfs:label/comment, domain/range, rdfs:isDefinedBy to a document-local owl:Ontology entity, plus a verified external cross-reference or documented gap) were never run. The narrow instruction ('make this edge resolve to a real Property, not a DefinedTerm') was satisfied literally while silently bypassing the broader, already-established minting protocol it depends on. User caught it directly: 'you haven't followed the howto guide in prefs for handling new terms and their associated ontology.'"@en .
+
+:step-mintingRunsOntologyGates a schema:HowToStep ;
+    schema:position 113 ;
+    schema:name "Any time a new class or property is minted for ANY reason (edge typing, glossary expansion, KG generation, etc.), run the general ontology-discovery and cross-reference gates in full — no exceptions for narrowly-scoped fixes"@en ;
+    schema:text "Minting any new class or property for any reason always triggers the ontology-discovery and cross-reference gates in full, regardless of how narrowly the triggering task is framed."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/ontology-discovery.ttl>, <howto/ontology-cross-reference-gate.ttl>, <howto/kg-explorer-edge-property-typing.ttl> .
+
+# ── Step 113: schema:position Objects Must Be xsd:integer, Sequential, Non-Decimal ──
+
+:topicPositionIntegerType a schema:Thing ;
+    schema:name "schema:position Objects Must Be Plain or Typed xsd:integer, Never Decimal, Never Duplicated"@en ;
+    schema:description "Found 2026-07-03 in preferences.ttl itself: 15 schema:HowToStep entities used decimal schema:position values (e.g. 2.1, 10.05, 59.1) as an ad-hoc insertion mechanism for slotting a new step between two existing integers, producing xsd:decimal-typed literals instead of xsd:integer. A duplicate entity (:step-kgLazyInit) was also found declared twice at the same position (79). Both defects were invisible to rdflib parsing (decimals and duplicates are syntactically valid Turtle) and only surfaced when the user inspected the data directly."@en .
+
+:step-positionIntegerType a schema:HowToStep ;
+    schema:position 114 ;
+    schema:name "Never use a decimal schema:position to slot a step between two existing integers — renumber the full sequence instead"@en ;
+    schema:text "schema:position on a schema:HowToStep (or any ordered schema:ItemList-style member) must always be an xsd:integer object — a bare Turtle integer literal (e.g. 42) or an explicitly typed one (e.g. \"42\"^^xsd:integer). Never insert a new step at a decimal position (2.1, 10.05) to avoid renumbering — this produces an xsd:decimal object, which violates the type contract even though it parses without error. When inserting a step between two existing integer positions, renumber the ENTIRE downstream sequence to consecutive integers (a scripted sort-and-reassign over all schema:position triples in the file, not manual editing one at a time) so no gaps, decimals, or duplicate positions remain. After renumbering, verify programmatically: extract every schema:position value, confirm all are integer-typed, and confirm the full set is exactly {1..N} with no duplicates and no decimals — do not rely on rdflib parsing success alone, since decimals and duplicate positions both parse cleanly."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified .
+
+# ── Step 118: Symbolic Short-Term Log Offloading ─────────────────────────────
+
+:topicSymbolicLogOffloading a schema:Thing ;
+    schema:name "Offload Large Tool Outputs to IRI-Addressed Logs, Keep Only Symbol Nodes in Context"@en ;
+    schema:description "Added 2026-07-06 after comparing agent-rdf-memory against TencentDB Agent Memory's Mermaid symbol-graph approach: this repo had a session-boundary token-optimization step (token-optimized-session-handoff.ttl) but nothing for within-session compression of large tool outputs (big file reads, long command output, bulk SPARQL/SQL results). New onto:OffloadedLog and onto:SessionSymbolNode classes address this, with every storage location expressed as an IRI (file:, https:, or urn: for Virtuoso named graphs) — never a string literal path — and every symbol node minted as its own IRI rather than a blank node keyed by a literal, per the no-blank-nodes-resolver-entities.ttl rule."@en .
+
+:step-symbolicLogOffloading a schema:HowToStep ;
+    schema:position 119 ;
+    schema:name "Offload large tool outputs to an IRI-addressed log and keep only a symbolic node reference in context"@en ;
+    schema:text "Offload oversized tool results to an IRI-addressed onto:OffloadedLog and stand in for it with an onto:SessionSymbolNode (its own IRI, never a blank node), recalling detail via that IRI instead of re-running the tool call."@en ;
+    onto:hasTrigger onto:triggerLogOffloadThreshold ;
+    rdfs:seeAlso <howto/symbolic-log-offloading.ttl>, <howto/no-blank-nodes-resolver-entities.ttl>, <howto/token-optimized-session-handoff.ttl> .
+
+# ── Step 120: Elicit Before Applying a Gate's Conditional Default ───────────
+
+:topicElicitBeforeConditionalDefault a schema:Thing ;
+    schema:name "Elicit User Preference Before Applying a Gate's Conditional Default"@en ;
+    schema:description "Found 2026-07-06: applied ontology-cross-reference-gate.ttl Requirement C's default (add DBpedia cross-references) to ontology.ttl without eliciting whether this user wants that in this file, since the gate's own text says 'unless explicitly waived by the user.' User corrected: 'You are supposed to elicit guidance if I haven't provided clear operational preferences.' Any gate phrased with a user-conditioned exception must be elicited explicitly, not assumed, whenever no prior preference already covers it."@en .
+
+:step-elicitBeforeConditionalDefault a schema:HowToStep ;
+    schema:position 120 ;
+    schema:name "Elicit user preference before applying a gate's user-conditioned default, rather than assuming it"@en ;
+    schema:text "When a gate's own text names a user-conditioned exception and no prior preference already answers it, elicit the user's preference before writing anything that depends on the answer."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/elicit-before-conditional-default.ttl>, <howto/ontology-cross-reference-gate.ttl> .
