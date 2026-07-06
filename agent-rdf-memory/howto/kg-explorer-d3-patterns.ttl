@@ -11,9 +11,9 @@
     schema:dateModified "2026-06-25T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex,
-        :step-staticD3Load, :step-windowLoadInit, :step-singleRender ;
+        :step-staticD3Load, :step-windowLoadInit, :step-singleRender, :step-edgeResolverHref ;
     schema:step :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex,
-        :step-staticD3Load, :step-windowLoadInit, :step-singleRender ;
+        :step-staticD3Load, :step-windowLoadInit, :step-singleRender, :step-edgeResolverHref ;
     rdfs:seeAlso <../preferences.ttl> .
 
 # ── Step 1: D3 Simulation Lifecycle ─────────────────────────────────────────
@@ -82,3 +82,19 @@ The resize handler ensures the SVG re-renders when the viewport changes. Guard w
 This avoids D3 data join mutation bugs where stale source/target object references accumulate across filter cycles. The initGraph/updateGraph split (where graph is set up once and only links/nodes are replaced) is more fragile because D3 forceLink mutates link source/target from string IDs to object references, and the cleanup logic for this is error-prone.
 
 The single render() approach is proven in the canonical competitive-analysis-head-to-head template at rdf-infographic-skill/assets/templates/."""@en .
+
+# ── Step 7: Edge label anchors must use the resolver, exactly like node labels ──
+
+:step-edgeResolverHref a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Edge label <a> href must be resolverUrl(predicateIri(d)), never the bare predicate IRI"@en ;
+    schema:text """Found 2026-07-05: a KG Explorer built by adapting a prior validated template set the edge label anchor's href to the raw predicate IRI (predicateIri(d), e.g. http://schema.org/hasPart) while node labels correctly used resolverUrl(d.id). The resolver-wrapped URL was computed into an unused data-resolver-href attribute but never applied as the actual href — so clicking a node opened the URIBurner describe page, but clicking an edge label bypassed the resolver entirely and went straight to the bare vocabulary IRI. This is inconsistent, silent (no console error, no visual difference), and easy to carry forward via template reuse.
+
+FIX: edge label anchors must set both href and xlink:href to resolverUrl(predicateIri(d)) — identical resolver treatment to node labels:
+  edgeLabelSel = g.append('g')...selectAll('a').data(data.links).enter().append('a')
+    .attr('href', d=> resolverUrl(predicateIri(d))).attr('xlink:href', d=> resolverUrl(predicateIri(d)))
+    .attr('target','_blank').attr('rel','noopener noreferrer')
+    .attr('data-iri', d=>predicateIri(d))
+    .attr('data-resolver-href', d=>resolverUrl(predicateIri(d)))
+
+VERIFY: after building any KG Explorer, query the live DOM for a '.pred-anchor a' (or equivalent edge-label anchor) and confirm getAttribute('href') starts with the resolver base (https://linkeddata.uriburner.com/describe/?url=...), not a bare http://schema.org/... or other vocabulary IRI. Do this in addition to — not instead of — the edge-target rdf:type check in howto/kg-explorer-edge-property-typing.ttl; that file governs what the edge resolves TO, this step governs whether the click even goes THROUGH the resolver at all."""@en .

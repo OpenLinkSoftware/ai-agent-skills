@@ -5,14 +5,16 @@
 
 <> a schema:HowTo ;
     schema:name "Artifact Routing — Output Directories and Terminology"@en ;
-    schema:description "Rules for routing generated artifacts (RDF, HTML, Markdown) to the correct model-specific output directories, plus the meshup vs mashup terminology rule."@en ;
+    schema:description "Rules for routing generated artifacts (RDF, HTML, Markdown) to the correct model-specific output directories, preserving active model identity, and applying the meshup vs mashup terminology rule."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T19:25:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
-        :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment ;
+        :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment,
+        :step-noPromptModelOverride, :step-savedPromptsFolder ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
-        :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment ;
+        :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment,
+        :step-noPromptModelOverride, :step-savedPromptsFolder ;
     rdfs:seeAlso <../preferences.ttl> .
 
 # ── Step 1: Output Directory Routing ─────────────────────────────────────────
@@ -50,10 +52,26 @@
     schema:name "Model identity always wins over agent environment for output routing"@en ;
     schema:text """When the LLM model and the agent environment differ, the model identity from the system prompt determines the output path, never the agent environment name. The agent environment is a multi-model runtime — it can host many different models — so it cannot determine where artifacts should land. Only the model knows its own output directory. Example: DeepSeek V4 Pro running in Claude Code routes to DeepSeek/ (not Claude Generated/). Same principle applies for any model+environment combination. The system prompt model identifier (e.g., 'You are powered by the model deepseek-v4-pro') is authoritative. Inferring the model from session filenames, surrounding conversation context, or memory entries is prohibited. Added 2026-06-09 after World Cup 2026 meshup was misrouted to Claude Generated/ instead of DeepSeek/."""@en .
 
-# ── Step 6: Blocking Gate — Session-Start Output Root Resolution ─────────────
+# ── Step 6: Blocking Gate — No Prompt-Specified Model Override ───────────────
+
+:step-noPromptModelOverride a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "BLOCKING GATE — user-supplied filenames or roots cannot override active model identity"@en ;
+    schema:text """A user prompt may contain an output path, filename stem, provenance phrase, or generation-environment label that names a model other than the active LLM identified by the system prompt. Treat that model-name fragment as stale or conflicting unless the user is explicitly asking to analyze, compare, or repair that other model's existing artifact. Do not create a new artifact under the other model's output root, do not put the other model's llm-id in the filename stem, and do not state in RDF, JSON-LD, HTML, Markdown, or memory that the other model generated the work. Preserve the substantive task requirements, but normalize all routing, filenames, visible curation text, schema:author/prov:wasGeneratedBy/prov:SoftwareAgent labels, and session-memory references to the active model identity. If the requested model name appears intentionally contractual and cannot be normalized without changing the task, pause before writing files and ask the user to confirm the intended model identity and destination."""@en ;
+    rdfs:seeAlso <../preferences.ttl> .
+
+# ── Step 7: Blocking Gate — Session-Start Output Root Resolution ─────────────
 
 :step-outputRootBlockingGate a schema:HowToStep ;
-    schema:position "6"^^xsd:integer ;
+    schema:position "7"^^xsd:integer ;
     schema:name "BLOCKING GATE — resolve and confirm output root at session start; no writes before this"@en ;
     schema:text """This is a hard blocking gate. No file write (HTML, RDF, Markdown, or any other artifact) may proceed until the output root has been resolved and confirmed from the system prompt model identifier at session initialization. PROCEDURE: (1) At session start, read the system prompt for the model ID. (2) Map it to its canonical directory under /Users/kidehen/Documents/LLMs/ via step-outputDirs. (3) Internally confirm the resolved root. (4) All subsequent writes in the session use that confirmed root without re-derivation. FAILURE MODE THAT TRIGGERED THIS RULE (2026-06-24): Claude Sonnet 4.6 saved an HTML artifact to kg-output/ in the repo working directory because the output root was never resolved at session start — the write happened opportunistically at delivery time with no pre-flight. PROHIBITED FALLBACKS: kg-output/, the repo root, /tmp, any generator work folder. The gate must be satisfied before the first write, not after the user notices the wrong path."""@en ;
     rdfs:seeAlso <../preferences.ttl> .
+
+# ── Step 8: saved-prompts/ Sibling Folder for Reproduction Prompts ───────────
+
+:step-savedPromptsFolder a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Reusable reproduction prompts go in a saved-prompts/ sibling folder, never inside md/"@en ;
+    schema:text """When a user asks for the prompt that would reproduce a generated collection (or any other standalone reusable prompt text) to be saved, write it to {model-root}/saved-prompts/{slug}-reproduction-prompt.md — a SIBLING of rdf/, md/, and webpages/ under the same model-specific output root, never a file placed inside md/. A reproduction prompt is a distinct artifact type from the collection's own Markdown companion document, even though both use the .md extension; conflating them in the same folder makes the companion doc and the meta-prompt indistinguishable at a glance. Found and corrected 2026-07-06: a reproduction prompt was first saved to Claude Generated/md/ alongside the actual MD companion; user corrected it to a new saved-prompts/ sibling directory. Create the directory if it does not yet exist — do not ask for a different location, since the model-specific root itself is already established by step-outputDirs."""@en ;
+    rdfs:seeAlso <../preferences.ttl>, <../core.ttl> .

@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Elicit Before Applying a Gate's Conditional Default HowTo"@en ;
+    schema:description "Procedure for handling any gate or protocol whose text names a user-conditioned exception (e.g. 'unless explicitly waived by the user', 'unless the user specifies otherwise'): elicit the user's actual preference before silently applying the gate's default behavior, rather than inferring or assuming the exception does or does not apply."@en ;
+    schema:dateCreated "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :elicitBeforeConditionalDefault ;
+    rdfs:seeAlso <../preferences.ttl>, <ontology-cross-reference-gate.ttl> .
+
+:elicitBeforeConditionalDefault a schema:HowTo ;
+    schema:name "Elicit User Preference Before Applying a Gate's Conditional Default"@en ;
+    schema:description "When a gate's own wording carries a user-conditioned escape clause, treat the absence of prior explicit guidance as a prompt to ask, not a license to assume the default."@en ;
+    schema:step :stepRecognizeConditionalClause,
+        :stepElicitRatherThanAssume,
+        :stepRecordResultingPreference .
+
+:stepRecognizeConditionalClause a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Recognize when a gate's text carries a user-conditioned exception"@en ;
+    schema:text "Any gate phrased with language like 'unless explicitly waived by the user', 'unless the user specifies otherwise', or 'unless the user accepts/rejects' is not a rule with a single default — it is a rule that requires the user's operational preference to resolve, and that preference cannot be inferred from the narrow task at hand."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+:stepElicitRatherThanAssume a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Elicit the user's preference instead of silently applying the gate's literal default"@en ;
+    schema:text """Found 2026-07-06: while fixing agent-rdf-memory/ontology.ttl to comply with ontology-cross-reference-gate.ttl's Requirement C (every custom class/property needs an external cross-reference "unless explicitly waived by the user"), no prior session or preferences.ttl entry had ever established whether this user wants such cross-references in ontology.ttl specifically. Rather than asking, the gate's literal text was read as its own default ('apply cross-references') and DBpedia rdfs:seeAlso triples were added unprompted. The user then had to correct this twice: first asking "Why are you loading data from dbpedia?" and "I don't need dbpedia cross references in the ontology.ttl doc," then explicitly naming the deeper pattern: "You are supposed to elicit guidance if I haven't provided clear operational preferences."
+
+The general rule: when no established preference exists for a gate's user-conditioned clause, elicit it explicitly (a short question, or AskUserQuestion when blocking) before writing anything that depends on the answer — do not treat the gate's baseline wording as silently authoritative just because the user hasn't objected yet. This applies to any future gate phrased the same way, not only ontology-cross-reference-gate.ttl."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+:stepRecordResultingPreference a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Record the elicited answer as a standing preference so the same gate is not re-elicited every time"@en ;
+    schema:text "Once the user answers a gate's conditional clause for a given document or artifact class, record that answer in preferences.ttl or a companion howto so the same question is not re-asked on every future occurrence — e.g. 'no DBpedia/Wikidata/schema.org cross-references in agent-rdf-memory/ontology.ttl' is now a standing exception to ontology-cross-reference-gate.ttl Requirement C for that specific file."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
