@@ -1,0 +1,9 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "type": "Note",
+  "attributedTo": "{ACTOR_URI}",
+  "content": "{CONTENT}",
+  "to": ["{TO}"],
+  "cc": ["{CC}"],
+  "published": "{PUBLISHED}"
+}
