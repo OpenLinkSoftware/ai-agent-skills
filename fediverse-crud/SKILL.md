@@ -111,7 +111,7 @@ LOCATION=$(curl -sk -D - -X POST "$OUTBOX" \
 Run the end-to-end test script:
 
 ```bash
-.opencode/skills/fediverse-crud/scripts/test-fediverse.sh
+fediverse-crud/scripts/test-fediverse.sh
 ```
 
 The script elicits the server, handles, and scopes at runtime. It does not hardcode any accounts.
