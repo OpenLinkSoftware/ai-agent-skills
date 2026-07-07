@@ -42,6 +42,8 @@ OUTBOX=""
 INBOX2=""
 SHARED_INBOX=""
 TOKEN=""
+ACCEPT_LD='Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+ACCEPT_AP='Accept: application/activity+json'
 
 # --- Phase 1: Resolve actors via WebFinger ---
 resolve_actor() {
@@ -86,7 +88,10 @@ echo ""
 
 # --- Phase 2: Fetch actor documents ---
 echo "--- Phase 2: Actor Documents ---"
-actor_doc=$(curl -skL -H "Accept: application/activity+json" "$ACTOR_URI" 2>/dev/null)
+actor_doc=$(curl -skL -H "$ACCEPT_LD" "$ACTOR_URI" 2>/dev/null)
+if [ -z "$actor_doc" ]; then
+  actor_doc=$(curl -skL -H "$ACCEPT_AP" "$ACTOR_URI" 2>/dev/null)
+fi
 OUTBOX=$(echo "$actor_doc" | jq -r '.outbox // empty')
 INBOX=$(echo "$actor_doc" | jq -r '.inbox // empty')
 SHARED_INBOX=$(echo "$actor_doc" | jq -r '.endpoints.sharedInbox // empty')
@@ -94,7 +99,10 @@ echo "  Outbox: $OUTBOX"
 echo "  Inbox: $INBOX"
 echo "  SharedInbox: $SHARED_INBOX"
 
-actor2_doc=$(curl -skL -H "Accept: application/activity+json" "$ACTOR2_URI" 2>/dev/null)
+actor2_doc=$(curl -skL -H "$ACCEPT_LD" "$ACTOR2_URI" 2>/dev/null)
+if [ -z "$actor2_doc" ]; then
+  actor2_doc=$(curl -skL -H "$ACCEPT_AP" "$ACTOR2_URI" 2>/dev/null)
+fi
 INBOX2=$(echo "$actor2_doc" | jq -r '.inbox // empty')
 echo "  Actor2 Inbox: $INBOX2"
 echo ""
@@ -245,9 +253,16 @@ ap_post() {
 
 ap_get() {
   local uri="$1"
-  curl -sk -H "Authorization: Bearer $TOKEN" \
-    -H "Accept: application/activity+json" \
-    "$uri" 2>/dev/null
+  local resp
+  resp=$(curl -sk -w "%{http_code}" -H "Authorization: Bearer $TOKEN" \
+    -H "$ACCEPT_LD" "$uri" 2>/dev/null)
+  local code="${resp: -3}"
+  if [ "$code" = "406" ]; then
+    curl -sk -H "Authorization: Bearer $TOKEN" \
+      -H "$ACCEPT_AP" "$uri" 2>/dev/null
+  else
+    echo "${resp:0:-3}"
+  fi
 }
 
 now_iso() {
@@ -256,6 +271,27 @@ now_iso() {
 
 TIMESTAMP=$(now_iso)
 CREATED_NOTE_ID=""
+
+# --- Phase 3b: Ensure outbox is a proper collection (W3C §5.1) ---
+echo "--- Phase 3b: Outbox Collection Setup (W3C §5.1) ---"
+echo "  Checking outbox: $OUTBOX"
+IS_COL=$(curl -sk -X PROPFIND "${OUTBOX%/}" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Depth: 0" 2>/dev/null | grep -c 'resourcetype.*collection')
+if [ "$IS_COL" -eq 0 ]; then
+  echo "  Outbox is not a collection. Recreating as MKCOL..."
+  curl -sk -X DELETE "${OUTBOX%/}" -H "Authorization: Bearer $TOKEN" -o /dev/null 2>/dev/null || true
+  MKCOL_CODE=$(curl -sk -w "%{http_code}" -X MKCOL "${OUTBOX%/}" \
+    -H "Authorization: Bearer $TOKEN" 2>/dev/null)
+  if [ "$MKCOL_CODE" = "201" ]; then
+    record "Outbox MKCOL" "PASS" "created as collection"
+  else
+    record "Outbox MKCOL" "FAIL" "HTTP $MKCOL_CODE"
+  fi
+else
+  record "Outbox MKCOL" "PASS" "already a collection"
+fi
+echo ""
 
 # --- Phase 4: Write operations ---
 echo "--- Phase 4: Write Operations ---"
@@ -387,7 +423,7 @@ fi
 if [ -n "$CREATED_NOTE_ID" ]; then
   echo "  Verifying deletion (expect 410) ..."
   DEL_CHECK=$(curl -sk -o /dev/null -w "%{http_code}" \
-    -H "Accept: application/activity+json" \
+    -H "$ACCEPT_LD" \
     "$CREATED_NOTE_ID" 2>/dev/null)
   if [ "$DEL_CHECK" = "410" ]; then
     record "Delete verify (410)" "PASS" "$DEL_CHECK"

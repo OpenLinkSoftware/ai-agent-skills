@@ -16,6 +16,7 @@ Create, read, and manage ActivityPub activities on any Fediverse server.
 - "read/show my inbox/outbox" — GET and paginate collections
 - "send an ActivityPub activity" — any of the above
 - "test the fediverse" — run the test harness
+- "show me an example of fediverse/activitypub" — run the W3C spec-based demo suite
 - "remote delivery" — verify server-to-server fan-out
 
 ## Workflow
@@ -29,7 +30,7 @@ Prompt the user for:
 | `INSTANCE` | "Fediverse instance hostname" | `localhost` or `fediverse.demo.openlinksw.com` |
 | `USER_HANDLE` | "Your handle" | `demo` |
 | `SECOND_USER` | "Target handle (for Follow/delivery)" | `kidehen` |
-| `SCOPES` | "OAuth scopes" | `read write follow push` |
+| `SCOPES` | "OAuth scopes" | `openid webid` |
 
 ### Step 2: Resolve actor
 
@@ -40,7 +41,7 @@ Prompt the user for:
 ### Step 3: Fetch actor document
 
 ```bash
-curl -sL -H "Accept: application/activity+json" "{actor_uri}"
+curl -sL -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" "{actor_uri}"
 ```
 
 Parse the response to extract:
@@ -52,6 +53,8 @@ Parse the response to extract:
 - `endpoints.oauthAuthorizationEndpoint`
 - `endpoints.oauthTokenEndpoint`
 
+Note: Per W3C ActivityPub §3.2, servers MUST serve `application/ld+json` and SHOULD serve `application/activity+json`. Try `application/ld+json` first; fall back to `application/activity+json` if the server returns 406.
+
 ### Step 4: Authenticate
 
 Delegated to the existing OAuth Authorization Code flow:
@@ -59,11 +62,29 @@ Delegated to the existing OAuth Authorization Code flow:
 - Reference: `agent-rdf-memory/howto/uriburner-oauth-authcode-flow.ttl`
 - Implementation: `oa2.py` (in this repo's root) or equivalent
 - OIDC discovery: `{instance}/.well-known/openid-configuration`
-- Scopes at runtime: elicit from user (`read write follow push`)
+- Scopes at runtime: elicit from user (`openid webid`)
 
 **Do not create new auth scripts.** Use the existing pattern.
 
-### Step 5: Elicit operation parameters from the user
+### Step 5: Ensure outbox is a proper collection
+
+Some servers need the outbox initialized as an LDP container before it can hold child resources. Check via PROPFIND:
+
+```bash
+# Check if outbox exists as a collection
+PROPFIND_RESP=$(curl -sk -X PROPFIND "$OUTBOX" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Depth: 0")
+```
+
+If the outbox is missing or is a plain resource (not a collection):
+1. DELETE the old outbox resource
+2. Create it as a collection via MKCOL
+3. Re-fetch the outbox to confirm it's a container
+
+This is needed for spec compliance — per W3C ActivityPub §5.1, the outbox MUST be an OrderedCollection.
+
+### Step 6: Elicit operation parameters from the user
 
 Before building any payload, capture the user's input for the operation:
 
@@ -78,7 +99,7 @@ Before building any payload, capture the user's input for the operation:
 
 Present the user's input back for confirmation before proceeding.
 
-### Step 6: Execute ActivityPub operation
+### Step 7: Execute ActivityPub operation
 
 **Write operations**: Populate the template from `assets/templates/{type}.jsonld` with the user's captured input and `POST` to the actor's `outbox`:
 
@@ -96,11 +117,19 @@ LOCATION=$(curl -sk -D - -X POST "$OUTBOX" \
   -d @/tmp/payload.json 2>&1 | grep -i "^location:" | sed 's/[Ll]ocation: //;s/\r//')
 ```
 
-**Always capture the `Location` header** from the 201 response — this is the canonical ActivityPub resource URL. The response body HTML may contain a different internal ID.
+**Always capture the `Location` header** from the 201 response — this is the canonical ActivityPub resource URL. Per W3C ActivityPub §6, the server MUST generate a new id and return it in the Location header.
 
-**Read operations**: Bearer GET on inbox/outbox/object URIs with `Accept: application/activity+json`. Walk pagination via `first`/`next`.
+**Verify the created resource**: Fetch the resource at the Location URL. Per §6.2.1, bare objects submitted to the outbox SHOULD be wrapped in a Create activity by the server. Check `type` in the response:
+- If `type` is `Create` → server wrapped the object correctly
+- If `type` is the original type (e.g. `Note`) → server stored it raw
 
-### Step 7: Verify delivery (for Follow)
+**Read operations**: Bearer GET on inbox/outbox/object URIs. Try Accept headers in this order per W3C §3.2:
+1. `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` (MUST)
+2. `application/activity+json` (SHOULD)
+
+Walk pagination via `first`/`next`.
+
+### Step 8: Verify delivery (for Follow)
 
 1. POST a Follow activity to User A's outbox targeting User B's actor URI
 2. GET User B's inbox (with User B's token) to confirm the Follow arrived
@@ -115,6 +144,19 @@ fediverse-crud/scripts/test-fediverse.sh
 ```
 
 The script elicits the server, handles, and scopes at runtime. It does not hardcode any accounts.
+
+## W3C Spec Demo Suite
+
+Invoke with: "show me an example of fediverse" or "run the w3c test suite"
+
+The demo performs these spec-verifying steps against the user's chosen server:
+
+1. **§4.1 Actor resolution**: WebFinger acct:user@host → GET actor document → verify inbox, outbox, preferredUsername exist
+2. **§5.1 Outbox as OrderedCollection**: PROPFIND outbox → if not a collection, MKCOL to create it
+3. **§6 Client-to-server POST**: POST bare Note to outbox → expect 201 with Location header
+4. **§6.2.1 Create wrapping**: GET the Location URL → verify the server wrapped the Note in a Create activity
+5. **§6.11 Delivery**: Verify the created activity appears in the outbox collection
+6. **§3.2 Content negotiation**: Verify both `application/ld+json` and `application/activity+json` Accept headers
 
 ## Template Variables
 
