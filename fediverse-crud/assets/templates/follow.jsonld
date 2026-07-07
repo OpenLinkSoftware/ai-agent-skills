@@ -1,0 +1,6 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "type": "Follow",
+  "actor": "{ACTOR_URI}",
+  "object": "{TARGET_ACTOR_URI}"
+}

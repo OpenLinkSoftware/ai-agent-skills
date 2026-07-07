@@ -1,0 +1,11 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "type": "Undo",
+  "actor": "{ACTOR_URI}",
+  "object": {
+    "type": "{UNDO_TYPE}",
+    "object": "{OBJECT_URI}"
+  },
+  "to": ["{TO}"],
+  "published": "{PUBLISHED}"
+}
