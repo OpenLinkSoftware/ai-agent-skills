@@ -1,0 +1,8 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "type": "Like",
+  "actor": "{ACTOR_URI}",
+  "object": "{OBJECT_URI}",
+  "to": ["{TO}"],
+  "published": "{PUBLISHED}"
+}
