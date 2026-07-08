@@ -2,24 +2,18 @@
 
 ## Content Negotiation
 
-Per W3C ActivityPub §3.2 (Retrieving objects):
-
-> Servers MUST present the ActivityStreams object representation in response to
-> `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`, and SHOULD
-> also present the ActivityStreams representation in response to
-> `application/activity+json` as well.
-
-Fetch Actor or ActivityStreams objects with `application/ld+json` first (MUST), then fall back to `application/activity+json` (SHOULD):
+Fetch Actor or ActivityStreams objects with the correct Accept header:
 
 ```bash
-# Primary (W3C MUST)
-curl -sL -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" "{uri}"
-
-# Fallback (W3C SHOULD)
 curl -sL -H "Accept: application/activity+json" "{uri}"
 ```
 
 Virtuoso servers return a **303 redirect** to a `.jsonld` representation. Always use `-L` to follow it.
+
+Fallback Accept header:
+```bash
+-H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
+```
 
 ## WebFinger Discovery
 
@@ -161,110 +155,32 @@ sed -e "s|{ACTOR_URI}|$ACTOR_URI|g" \
 }
 ```
 
-## Outbox Setup (Collection Initialization)
-
-Per W3C ActivityPub §5.1, the outbox MUST be an OrderedCollection. Some servers
-require the outbox to be created as an LDP container first.
-
-Check if the outbox exists as a collection:
-
-```bash
-# PROPFIND the outbox to check its resourcetype
-PROPFIND_RESP=$(curl -sk -X PROPFIND "$OUTBOX" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Depth: 0")
-# Look for <D:resourcetype><D:collection/></D:resourcetype>
-```
-
-If the outbox is a plain resource or missing:
-
-```bash
-# Delete old outbox resource (if it exists)
-curl -sk -X DELETE "$OUTBOX" -H "Authorization: Bearer $TOKEN"
-
-# Create as a collection (LDP BasicContainer)
-curl -sk -X MKCOL "$OUTBOX" -H "Authorization: Bearer $TOKEN"
-
-# Verify
-curl -sk -X PROPFIND "$OUTBOX" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Depth: 0" | grep resourcetype
-```
-
-Once the outbox is a proper collection, POST will create child resources with
-unique IDs returned in the Location header.
-
-## Create Activity Wrapping
-
-Per W3C ActivityPub §6.2.1, when a bare object (not a subtype of Activity) is
-POSTed to the outbox, the server MUST wrap it in a Create activity:
-
-```json
-// Client POSTs a bare Note
-{
-  "type": "Note",
-  "content": "Hello",
-  "to": ["https://www.w3.org/ns/activitystreams#Public"]
-}
-
-// Server converts to:
-{
-  "type": "Create",
-  "id": "https://server/outbox/uuid",    // ← Location header
-  "actor": "{actor}",
-  "object": {
-    "type": "Note",
-    "id": "https://server/note/uuid",     // ← server-assigned ID
-    "attributedTo": "{actor}",
-    "content": "Hello",
-    "to": ["https://www.w3.org/ns/activitystreams#Public"]
-  },
-  "published": "{timestamp}",
-  "to": ["https://www.w3.org/ns/activitystreams#Public"]
-}
-```
-
-To verify the wrapping:
-```bash
-curl -skL -H "Authorization: Bearer $TOKEN" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
-  "$LOCATION_URL" | jq '.type'
-# Expected: "Create"
-# If "Note": server stored raw without wrapping
-```
-
 ## Write Operations (POST to Outbox)
 
 ```bash
 PAYLOAD=$(cat /tmp/payload.json)
-LOCATION=$(curl -sk -D - -X POST "$OUTBOX" \
+RESPONSE=$(curl -sk -X POST "$OUTBOX" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
-  -d "$PAYLOAD" 2>&1 | grep -i "^location:" | sed 's/[Ll]ocation: //;s/\r//')
-# Location is the new Activity's URL per §6
+  -d "$PAYLOAD")
+ACTIVITY_ID=$(echo "$RESPONSE" | jq -r '.id')
 ```
 
 ## Read Operations
 
-Per W3C §3.2, try Accept headers in priority order:
-1. `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` (MUST)
-2. `application/activity+json` (SHOULD)
-
 ### Inbox
 ```bash
-curl -skL -H "Authorization: Bearer $TOKEN" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
+curl -sk -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/activity+json" \
   "$INBOX" | jq '.'
 ```
 
 ### Outbox
 ```bash
-curl -skL -H "Authorization: Bearer $TOKEN" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
+curl -sk -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/activity+json" \
   "$OUTBOX" | jq '.'
 ```
-
-If the server returns 406, retry with `application/activity+json`:
 
 ### Pagination
 
@@ -329,73 +245,7 @@ The `sharedInbox` endpoint is used for server-scoped delivery — multiple recip
 
 | Content | Media Type |
 |---------|-----------|
-| ActivityPub actor/object | `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` (W3C MUST) |
-| ActivityPub (alt) | `application/activity+json` (W3C SHOULD) |
+| ActivityPub actor/object | `application/activity+json` |
+| ActivityPub (alt) | `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` |
 | WebFinger | `application/jrd+json` |
 | JSON-LD | `application/ld+json` |
-
-## W3C Spec Conformance Tests
-
-Reference: https://test.activitypub.rocks/
-
-Run these checks to verify server compliance:
-
-### Test 1: Actor Document (§4.1)
-```bash
-ACTOR=$(curl -skL -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
-  "$ACTOR_URI")
-echo "$ACTOR" | jq -e '.type' || echo "FAIL: no type"
-echo "$ACTOR" | jq -e '.id' || echo "FAIL: no id"
-echo "$ACTOR" | jq -e '.inbox' || echo "FAIL: no inbox"
-echo "$ACTOR" | jq -e '.outbox' || echo "FAIL: no outbox"
-echo "$ACTOR" | jq -e '.preferredUsername' || echo "FAIL: no preferredUsername"
-```
-
-### Test 2: Content Negotiation (§3.2)
-```bash
-# MUST support application/ld+json
-S1=$(curl -skL -o /dev/null -w "%{http_code}" "$ACTOR_URI" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"")
-[ "$S1" = "200" ] && echo "PASS: ld+json" || echo "FAIL: ld+json → $S1"
-
-# SHOULD support application/activity+json
-S2=$(curl -skL -o /dev/null -w "%{http_code}" "$ACTOR_URI" \
-  -H "Accept: application/activity+json")
-[ "$S2" = "200" ] && echo "PASS: activity+json" || echo "SHOULD: activity+json → $S2"
-```
-
-### Test 3: Outbox as OrderedCollection (§5.1)
-```bash
-OUTBOX_DATA=$(curl -skL -H "Authorization: Bearer $TOKEN" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
-  "$OUTBOX")
-echo "$OUTBOX_DATA" | jq -e '.type == "OrderedCollection"' || echo "FAIL: not OrderedCollection"
-```
-
-### Test 4: POST to Outbox returns Location (§6)
-```bash
-LOCATION=$(curl -sk -D - -X POST "$OUTBOX" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
-  -d '{"@context":"https://www.w3.org/ns/activitystreams","type":"Note","content":"<p>test</p>","to":["https://www.w3.org/ns/activitystreams#Public"]}' \
-  2>&1 | grep -i "^location:")
-[ -n "$LOCATION" ] && echo "PASS: Location returned" || echo "FAIL: no Location"
-```
-
-### Test 5: Create Activity Wrapping (§6.2.1)
-```bash
-CREATED=$(curl -skL -H "Authorization: Bearer $TOKEN" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" \
-  "$LOCATION_URL")
-TYPE=$(echo "$CREATED" | jq -r '.type')
-[ "$TYPE" = "Create" ] && echo "PASS: wrapped in Create" || echo "NOTE: stored as $TYPE"
-```
-
-### Test 6: Object ID Assignment (§3.1, §6)
-```bash
-OBJ_ID=$(echo "$CREATED" | jq -r '.object.id // .id')
-HTTP_CODE=$(curl -skL -o /dev/null -w "%{http_code}" "$OBJ_ID" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Accept: application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"")
-[ "$HTTP_CODE" = "200" ] && echo "PASS: object dereferenceable" || echo "FAIL: object → $HTTP_CODE"
-```
