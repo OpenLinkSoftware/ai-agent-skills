@@ -113,7 +113,8 @@
         <howto/token-optimized-session-handoff.ttl>,
         <howto/sparql-memory-loading.ttl>,
         <howto/no-unauthorized-deletion.ttl>,
-        <howto/no-memory-md-write.ttl> ;
+        <howto/no-memory-md-write.ttl>,
+        <howto/symbolic-log-offloading.ttl> ;
     schema:step :step-approval, :step-memoryProtocol, :step-gitWorkflow,
         :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
         :step-promptRecording, :step-memoryProtocolGate,
@@ -122,7 +123,7 @@
         :step-noMemoryMdWrite, :step-preferencesSparse, :step-secretEchoRedaction,
         :step-preferencesPresentationFormat,
         :step-sessionLogReconciliation,
-        :step-semanticSessionBootstrap .
+        :step-semanticSessionBootstrap, :step-symbolicLogOffloading .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -130,11 +131,12 @@
     schema:name "Artifact Output Routing"@en ;
     schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, prompt-specified model-name override prevention, artifact placement elicitation, and remote WebDAV upload."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
-        <howto/remote-webdav-upload.ttl> ;
+        <howto/remote-webdav-upload.ttl>,
+        <howto/filesystem-path-verification.ttl> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-modelIdentityPreflight, :step-defaultOutputRoot,
         :step-modelOverEnvironment, :step-noPromptModelOverride, :step-artifactPlacement,
-        :step-remoteWebdavUpload, :step-savedPromptsFolder .
+        :step-remoteWebdavUpload, :step-savedPromptsFolder, :step-filesystemPathVerification .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
 
@@ -185,7 +187,8 @@
         <howto/study-prior-patterns.ttl>,
         <howto/kg-curation-attribution.ttl>,
         <howto/ui-ux-expert-persona.ttl>,
-        <howto/kg-explorer-edge-property-typing.ttl> ;
+        <howto/kg-explorer-edge-property-typing.ttl>,
+        <howto/resolver-double-encoding-gate.ttl> ;
     schema:step :step-attribution, :step-darkModeCSS, :step-kgExplorerReuse,
         :step-templateSelection, :step-kgNavPlacement, :step-kgNavCollapsed,
         :step-kgControlsMasterClose, :step-kgNoOrphans, :step-kgToolbarGroups,
@@ -201,7 +204,8 @@
         :step-sparqlWorkbenchPlacement, :step-sparqlBtnMandatory,
         :step-sparqlExplorerVisibleText, :step-footerTextAlignCascade,
         :step-staleWorkbenchCleanup, :step-footerCardOverflow, :step-edgePropertyTyping,
-        :step-noRawUrlDump, :step-edgeResolverHref, :step-entityLevelAuthorship .
+        :step-noRawUrlDump, :step-edgeResolverHref, :step-entityLevelAuthorship,
+        :step-resolverDoubleEncodingGate, :step-unclosedAnchorSwallowsBlock .
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
 
@@ -211,10 +215,12 @@
     rdfs:seeAlso <howto/ontology-cross-reference-gate.ttl>,
         <howto/owl-property-characterization.ttl>,
         <howto/ontology-discovery.ttl>,
-        <howto/kg-explorer-edge-property-typing.ttl> ;
+        <howto/kg-explorer-edge-property-typing.ttl>,
+        <howto/elicit-before-conditional-default.ttl> ;
     schema:step :step-ontologyCrossReference,
         :step-owlPropertyCharacterization,
-        :step-mintingRunsOntologyGates .
+        :step-mintingRunsOntologyGates,
+        :step-elicitBeforeConditionalDefault .
 
 # ── 7. Skill Chain & Workflows ──────────────────────────────────────────────
 
@@ -584,7 +590,10 @@
 
 :topicEntityResolution a schema:Thing ;
     schema:name "Entity IRI Resolution"@en ;
-    schema:description "Priority rules for assigning IRIs to people, organizations, software, and countries using LinkedIn, DBpedia, Wikidata, and hash-based fallbacks."@en .
+    schema:description "Priority rules for assigning IRIs to people, organizations, software, and countries using LinkedIn, DBpedia, Wikidata, and hash-based fallbacks."@en ;
+    rdfs:seeAlso <howto/canonical-entity-iri-denotation.ttl>,
+        <entities/people.ttl>, <entities/organizations.ttl>,
+        <entities/tools.ttl>, <entities/concepts.ttl> .
 
 :topicCanonicalEntityIriDenotation a schema:Thing ;
     schema:name "Canonical Entity IRI Denotation"@en ;
@@ -1603,3 +1612,17 @@
     schema:text "When a gate's own text names a user-conditioned exception and no prior preference already answers it, elicit the user's preference before writing anything that depends on the answer."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/elicit-before-conditional-default.ttl>, <howto/ontology-cross-reference-gate.ttl> .
+
+:step-resolverDoubleEncodingGate a schema:HowToStep ;
+    schema:position 121 ;
+    schema:name "Never wrap an already resolver-wrapped URL a second time — grep every call site of an IRI-vs-resolver-URL helper pair before declaring a fix complete"@en ;
+    schema:text "When a generator has two IRI helpers (e.g. a raw-IRI function and a resolver-wrapping function), a render function that itself calls the resolver wrapper must only ever receive the raw IRI, never the pre-wrapped URL. Passing a resolver-wrapped URL into another rlink()/resolver call double-encodes it (describe/?url=<percent-encoded-describe-url>), which decodes to another resolver URL instead of the entity IRI and silently fails to resolve. Grep the entire generator for every call site of both helpers before declaring the fix complete — fixing only the call sites you remember reproduces the same bug in the sites you missed. validate-harness-contract.py now greps for the double-encoding signature (%2523 or %253A%252F%252F inside a describe/?url= href) as a standing gate."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/resolver-double-encoding-gate.ttl> .
+
+:step-unclosedAnchorSwallowsBlock a schema:HowToStep ;
+    schema:position 122 ;
+    schema:name "BLOCKING GATE — every <summary><a>...</a></summary> anchor must be explicitly closed; an unclosed <a> swallows the sibling <pre>/query-text block"@en ;
+    schema:text "Recurring defect, flagged by the user a second time on 2026-07-08 in aaron-levie-enterprise-ai-agent-issues-semantic-web-virtuoso-claude_sonnet_5-1.html's footer SPARQL workbench accordion — a <summary><a href=...> resolver link left without its closing </a> before </summary> causes the browser's HTML parser to keep the anchor open across the </summary> boundary, so the following <pre class=\"sparql-code\"> query-text block renders entirely as link text (blue/underlined, sometimes visually indistinguishable from 'missing' text at a glance). The query text was NOT actually missing from the DOM or the textarea .value — it was present but visually disguised as a giant hyperlink, which is why prior fixes to the SPARQL escape/newline gates (step-sparqlHtmlEscape, step-sparqlBtnMandatory) did not catch it: those gates check for escaping and encoding correctness, not tag closure. Root cause in this case: the </a> was dropped during template adaptation (surgical text swap of the accordion title) from the reuse-first source candidate (how-to-plagiarize-talisman-claude_sonnet_5-1.html), which had it correctly closed. MANDATORY GREP GATE before delivering any HTML infographic with a footer SPARQL accordion: grep -oE '<summary><a[^>]*>[^<]*</summary>' file.html — any match (i.e. a <summary><a> whose next tag is </summary> with no intervening </a>) is a FAIL. Also visually verify by expanding the accordion in the live preview and confirming the query text renders in normal (non-link) color, not just checking the JS-populated textarea's .value in isolation — the textarea and the static <pre> accordion are two separate elements and one being correct does not guarantee the other is."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/sparql-html-escape-gate.ttl> .

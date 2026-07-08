@@ -580,3 +580,48 @@
     schema:name "Session 2026-07-06 (Claude Sonnet 5 + Claude Code — Symbolic Short-Term Log Offloading design)"@en ;
     schema:description "Compared agent-rdf-memory to TencentDB Agent Memory's layered Mermaid-symbol-graph approach; found a gap — no within-session compression of large tool outputs (existing token-optimized-session-handoff.ttl only compresses at session boundaries). Added onto:OffloadedLog and onto:SessionSymbolNode classes to ontology.ttl, with onto:hasLogIRI and onto:storedInGraph as owl:ObjectProperty (IRI-valued, never string-literal paths — file:// for local refs, https:// for WebDAV, urn:agent-rdf-memory:... for Virtuoso named graphs), plus onto:triggerLogOffloadThreshold. Every SessionSymbolNode is minted as its own IRI (urn:agent-rdf-memory:node:{session-id}:{slug}), never a blank node keyed by a literal, per no-blank-nodes-resolver-entities.ttl. Created howto/symbolic-log-offloading.ttl (6 steps) and added preferences.ttl Step 118 (:step-symbolicLogOffloading, one-sentence schema:text per Step 94 sparsity gate)."@en ;
     rdfs:seeAlso <howto/symbolic-log-offloading.ttl> .
+
+:session20260707ClaudeSonnet5HowToPlagiarize a schema:ListItem ;
+    schema:position 1010 ;
+    schema:item <sessions/2026-07-07-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-07 (Claude Sonnet 5 + Claude Code — How to Plagiarize (Jessica Talisman) KG Collection)"@en ;
+    schema:description "Generated RDF-Turtle (647 triples, 0 blank nodes, 0 self-referential owl:sameAs), HTML infographic, and Markdown companion from Jessica Talisman's LinkedIn Pulse article 'How to Plagiarize'. Custom ontology (:PlagiarismTactic, :CopyrightMyth, :LegalCase, :PlagiarismQualifier), 12 FAQ, 10 glossary, 7 HowTo steps. Author IRI resolved to https://www.linkedin.com/in/jmtalisman#this via Chrome MCP read_page href scan. kgData (172 nodes/547 links, 0 orphans) generated programmatically from the TTL via rdflib rather than hand-typed. First harness-validator pass failed 17 items (id mismatches, missing literal attribution labels, missing named-graph selector); all fixed by patching the Python HTML-assembly script and re-validating to PASS. Caught and fixed a self-introduced bug: literal backslash-n text rendering as visible newline characters at the page top, from bash-heredoc double-escaping in string concatenation — found via preview screenshot. Added a click-distance/anchor guard on the KG node click handler to stop a double-tab-open bug (both the wrapping anchor href and an explicit resolver click handler were present). Verified interactively via Claude Preview: nav, KG Controls tray, Basic/Advanced mode, settings panel, theme toggle — 0 console errors."@en .
+
+:sessionIndex schema:itemListElement :session20260707ClaudeSonnet5HowToPlagiarize .
+
+:session20260708Gpt5ChatCodexEnterpriseAiAgentsLinkedData a schema:ListItem ;
+    schema:position 1011 ;
+    schema:item <sessions/2026-07-08-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-08 (GPT-5 Chat Codex — Enterprise AI Agents Linked Data Operating Model Collection)"@en ;
+    schema:description "Generated RDF-Turtle, Markdown, and HTML collection from Aaron Levie's X post about enterprise AI-agent adoption issues, with sameAs LinkedIn post metadata and the supplied FDE/IRE talent ontology reference. The collection maps operating-model silos, data fragmentation, context moats, outcome metrics, multi-model routing, talent gaps, and workflow transformation to Semantic Web and Linked Data principles, using OpenLink Virtuoso as the implementation exemplar. Browser retrieval was used per user request: X and FDE/IRE page succeeded; LinkedIn returned about:blank in Browser and was supplemented with direct public metadata. Validation passed: Turtle parsed to 486 triples; rdf-infographic harness passed; browser localhost render showed 24 KG nodes, 16 links, collapsed navigation, companion links, and SPARQL workbench."@en .
+
+:sessionIndex schema:itemListElement :session20260708Gpt5ChatCodexEnterpriseAiAgentsLinkedData,
+    :entityPeople, :entityOrganizations, :entityTools, :entityConcepts .
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Entity Registry Index ────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════
+
+:entityPeople a schema:ListItem ;
+    schema:position 1100 ;
+    schema:item <entities/people.ttl> ;
+    schema:name "Entity Registry: People (Kingsley Idehen, Tony Seale)"@en ;
+    schema:description "Canonical schema:Person entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
+
+:entityOrganizations a schema:ListItem ;
+    schema:position 1101 ;
+    schema:item <entities/organizations.ttl> ;
+    schema:name "Entity Registry: Organizations (OpenLink Software)"@en ;
+    schema:description "Canonical schema:Organization entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
+
+:entityTools a schema:ListItem ;
+    schema:position 1102 ;
+    schema:item <entities/tools.ttl> ;
+    schema:name "Entity Registry: Tools & Software (skills, LLM models, environments, Virtuoso, URIBurner, OPAL)"@en ;
+    schema:description "Canonical schema:SoftwareApplication entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
+
+:entityConcepts a schema:ListItem ;
+    schema:position 1103 ;
+    schema:item <entities/concepts.ttl> ;
+    schema:name "Entity Registry: Concepts (Semantic Web, Linked Data, WebID, DPKI, meshup, etc.)"@en ;
+    schema:description "Canonical schema:DefinedTerm entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
