@@ -1,0 +1,223 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix dbo: <http://dbpedia.org/ontology/> .
+
+<> a schema:CreativeWork ;
+    schema:name "Entity Registry: Tools & Software"@en ;
+    schema:description "Canonical schema:SoftwareApplication and schema:SoftwareSourceCode entity IRIs for skills, LLM models, agent environments, and recurring software products across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a tool or software entity."@en ;
+    schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :kgGeneratorSkill, :rdfInfographicSkill,
+        :claudeSonnet, :gpt5ChatCodex, :deepseekV4Pro, :grok43,
+        :bigPickle, :glm, :kimi, :minimax, :qwen,
+        :claudeCodeEnv, :openCodeEnv, :chatCodexEnv, :grokCliEnv,
+        :virtuoso, :uriburner, :opal ;
+    rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
+        <../howto/canonical-entity-iri-denotation.ttl> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Skills ────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── kg-generator skill ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this
+# First resolved in: sessions/2026-05-27.ttl (earliest session)
+# Appears in 40+ session files under prov:wasGeneratedBy, schema:instrument
+
+:kgGeneratorSkill a schema:SoftwareApplication ;
+    schema:name "kg-generator"@en ;
+    schema:description "AI agent skill that generates comprehensive Knowledge Graphs (RDF-Turtle by default, or JSON-LD) from content at file: or http(s): scheme URLs. Part of the OpenLinkSoftware ai-agent-skills repository."@en ;
+    schema:url "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" ;
+    owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> ;
+    rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication IRI convention. First referenced in sessions/2026-05-27.ttl and appears as prov:wasGeneratedBy target in 40+ session files."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ── rdf-infographic-skill ──────────────────────────────────────────────────────
+#
+# Canonical IRI: https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this
+# First resolved in: sessions/2026-05-27.ttl (earliest session)
+# Appears in 40+ session files under prov:wasGeneratedBy, schema:instrument
+
+:rdfInfographicSkill a schema:SoftwareApplication ;
+    schema:name "rdf-infographic-skill"@en ;
+    schema:description "AI agent skill that generates sophisticated, interactive HTML infographics from RDF data in any format. Part of the OpenLinkSoftware ai-agent-skills repository."@en ;
+    schema:url "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill" ;
+    owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this> ;
+    rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication IRI convention. First referenced in sessions/2026-05-27.ttl and appears as prov:wasGeneratedBy target in 40+ session files."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── LLM Models ────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Priority ladder for LLM models: DBpedia → Wikidata → Provider homepage #this
+# Most LLM models lack DBpedia/Wikidata entries; the provider homepage + #this
+# convention is used as the canonical IRI. These IRIs are naming conventions —
+# many provider homepages block automated dereference (403). schema:version
+# differentiates model variants sharing the same product IRI.
+
+# ── Claude (Sonnet 4.6, Sonnet 5, Opus 4.7/4.8) ───────────────────────────────
+
+:claudeSonnet a schema:SoftwareApplication ;
+    schema:name "Claude"@en ;
+    schema:description "Anthropic's Claude AI model family. Multiple versions have been used across sessions: Claude Sonnet 4.6, Claude Sonnet 5, Claude Opus 4.7, Claude Opus 4.8."@en ;
+    schema:url "https://claude.ai/" ;
+    owl:sameAs <https://claude.ai/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention per SoftwareApplication priority ladder (no DBpedia/Wikidata entry). Anthropic's product homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention, not a dereferenceable endpoint. Individual model versions are identified by schema:version."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ── GPT-5 Chat Codex ───────────────────────────────────────────────────────────
+
+:gpt5ChatCodex a schema:SoftwareApplication ;
+    schema:name "GPT-5"@en ;
+    schema:description "OpenAI's GPT-5 model, accessed via Chat Codex desktop environment. Most frequently appearing model across session files (GPT-5 Chat Codex)."@en ;
+    schema:url "https://chatgpt.com/" ;
+    owl:sameAs <https://chatgpt.com/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention per SoftwareApplication priority ladder (no DBpedia/Wikidata entry). Individual model versions are identified by schema:version."@en ;
+    schema:dateCreated "2026-05-28T00:00:00Z"^^xsd:dateTime .
+
+# ── DeepSeek V4 Pro ────────────────────────────────────────────────────────────
+
+:deepseekV4Pro a schema:SoftwareApplication ;
+    schema:name "DeepSeek"@en ;
+    schema:description "DeepSeek AI model. DeepSeek V4 Pro has been used across multiple sessions (Claude Code environment)."@en ;
+    schema:url "https://chat.deepseek.com/" ;
+    owl:sameAs <https://chat.deepseek.com/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. Provider homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention."@en ;
+    schema:dateCreated "2026-05-28T00:00:00Z"^^xsd:dateTime .
+
+# ── Grok 4.3 ───────────────────────────────────────────────────────────────────
+
+:grok43 a schema:SoftwareApplication ;
+    schema:name "Grok"@en ;
+    schema:description "xAI's Grok model. Grok 4.3 used extensively across 16+ session files (Grok CLI environment)."@en ;
+    schema:url "https://x.ai/" ;
+    owl:sameAs <https://x.ai/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. Provider homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention."@en ;
+    schema:dateCreated "2026-05-30T00:00:00Z"^^xsd:dateTime .
+
+# ── Big Pickle ─────────────────────────────────────────────────────────────────
+
+:bigPickle a schema:SoftwareApplication ;
+    schema:name "Big Pickle"@en ;
+    schema:description "Big Pickle AI model, accessed via OpenCode environment. Used across multiple sessions for KG generation and identity management tasks."@en ;
+    schema:url "https://bigpickle.ai/" ;
+    owl:sameAs <https://bigpickle.ai/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. The IRI https://bigpickle.ai/ has not been verified as dereferenceable — treat as naming convention per SoftwareApplication priority ladder fallback."@en ;
+    schema:dateCreated "2026-06-03T00:00:00Z"^^xsd:dateTime .
+
+# ── GLM (5.1, 5.2) ─────────────────────────────────────────────────────────────
+
+:glm a schema:SoftwareApplication ;
+    schema:name "GLM"@en ;
+    schema:description "Zhipu AI's GLM model family. GLM-5.1 and GLM-5.2 have been used across multiple sessions (OpenCode environment)."@en ;
+    schema:url "https://chatglm.cn/" ;
+    owl:sameAs <https://chatglm.cn/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. Provider homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention."@en ;
+    schema:dateCreated "2026-06-01T00:00:00Z"^^xsd:dateTime .
+
+# ── kimi (k2.6) ────────────────────────────────────────────────────────────────
+
+:kimi a schema:SoftwareApplication ;
+    schema:name "kimi"@en ;
+    schema:description "Moonshot AI's kimi model. kimi-k2.6 used across multiple sessions (OpenCode environment)."@en ;
+    schema:url "https://kimi.moonshot.cn/" ;
+    owl:sameAs <https://kimi.moonshot.cn/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. Provider homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention."@en ;
+    schema:dateCreated "2026-05-28T00:00:00Z"^^xsd:dateTime .
+
+# ── MiniMax (M2.5free) ─────────────────────────────────────────────────────────
+
+:minimax a schema:SoftwareApplication ;
+    schema:name "MiniMax"@en ;
+    schema:description "MiniMax AI model. MiniMax M2.5free used in session 2026-05-28 (OpenCode environment)."@en ;
+    schema:url "https://minimaxi.com/" ;
+    owl:sameAs <https://minimaxi.com/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. Provider homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention."@en ;
+    schema:dateCreated "2026-05-28T00:00:00Z"^^xsd:dateTime .
+
+# ── Qwen (3.6 Plus) ────────────────────────────────────────────────────────────
+
+:qwen a schema:SoftwareApplication ;
+    schema:name "Qwen"@en ;
+    schema:description "Alibaba's Qwen model. Qwen 3.6 Plus used in early sessions (OpenCode environment)."@en ;
+    schema:url "https://chat.qwen.ai/" ;
+    owl:sameAs <https://chat.qwen.ai/#this> ;
+    rdfs:comment "Canonical entity IRI. Provider homepage + #this convention. Provider homepage blocks automated dereference (HTTP 403) — the IRI is a naming convention."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Agent Environments (Runtime) ──────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+
+:claudeCodeEnv a schema:SoftwareApplication ;
+    schema:name "Claude Code"@en ;
+    schema:description "Anthropic's Claude Code CLI — the agent environment/harness that hosts Claude models for task execution. The most common agent environment across session files."@en ;
+    schema:url "https://claude.ai/code" ;
+    owl:sameAs <https://claude.ai/code#this> ;
+    rdfs:comment "Canonical entity IRI. Product page + #this convention. Referenced as the 'Claude Code' agent environment in session filenames and core.ttl agent identity template."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+:openCodeEnv a schema:SoftwareApplication ;
+    schema:name "OpenCode"@en ;
+    schema:description "OpenCode AI agent environment — hosts Big Pickle, GLM, kimi, MiniMax, and Qwen models."@en ;
+    schema:url "https://opencode.ai/" ;
+    owl:sameAs <https://opencode.ai/#this> ;
+    rdfs:comment "Canonical entity IRI. Product page + #this convention. Referenced as the 'opencode' agent environment in session filenames (e.g., 2026-06-03-big_pickle-opencode.ttl). The owl:sameAs target https://opencode.ai/#this appears in multiple session files."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+:chatCodexEnv a schema:SoftwareApplication ;
+    schema:name "Chat Codex"@en ;
+    schema:description "Chat Codex desktop environment — hosts GPT-5 model for task execution."@en ;
+    schema:url "https://codex.desktop/" ;
+    owl:sameAs <https://codex.desktop/#this> ;
+    rdfs:comment "Canonical entity IRI. Product page + #this convention. Referenced as the 'chat-codex' agent environment in session filenames (e.g., 2026-05-28-gpt5_chat-codex.ttl)."@en ;
+    schema:dateCreated "2026-05-28T00:00:00Z"^^xsd:dateTime .
+
+:grokCliEnv a schema:SoftwareApplication ;
+    schema:name "Grok CLI"@en ;
+    schema:description "xAI's Grok command-line interface — hosts Grok 4.3 model for task execution."@en ;
+    schema:url "https://x.ai/" ;
+    owl:sameAs <https://x.ai/cli#this> ;
+    rdfs:comment "Canonical entity IRI. Product CLI + #this convention. Referenced as the 'grok-cli' agent environment in session filenames (e.g., 2026-05-30-grok_4_3-grok-cli.ttl)."@en ;
+    schema:dateCreated "2026-05-30T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Recurring Software Products ───────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Virtuoso Universal Server ──────────────────────────────────────────────────
+
+:virtuoso a schema:SoftwareApplication ;
+    schema:name "Virtuoso Universal Server"@en ;
+    schema:description "OpenLink Software's multi-model database engine and middleware platform. Provides SQL, SPARQL, RDF, and GraphQL capabilities with built-in WebDAV, SPARQL endpoint, and RDF sponging."@en ;
+    schema:url "https://virtuoso.openlinksw.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Virtuoso_Universal_Server> ;
+    rdfs:comment "Canonical entity IRI. DBpedia resource (verified HTTP 200, 2026-07-08). Recurring entity across session files as SPARQL endpoint target and RDF infrastructure."@en ;
+    schema:dateCreated "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+# ── URIBurner ──────────────────────────────────────────────────────────────────
+
+:uriburner a schema:SoftwareApplication ;
+    schema:name "URIBurner"@en ;
+    schema:description "OpenLink Software's Linked Data generator and SPARQL endpoint service. Provides RDF sponging, entity description, and linked-data meshup capabilities at linkeddata.uriburner.com."@en ;
+    schema:url "https://linkeddata.uriburner.com/" ;
+    owl:sameAs <https://linkeddata.uriburner.com/#this> ;
+    rdfs:comment "Canonical entity IRI. Service homepage + #this convention. Recurring entity across session files as the default WebDAV upload target, SPARQL endpoint, and resolver service."@en ;
+    schema:dateCreated "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+# ── OPAL (OpenLink AI Layer) ───────────────────────────────────────────────────
+
+:opal a schema:SoftwareApplication ;
+    schema:name "OPAL"@en ;
+    schema:description "OpenLink AI Layer — OpenLink Software's AI-agent framework providing MCP Tools, multi-LLM routing, Skills/Agents, and Vector Store integration within Virtuoso."@en ;
+    schema:url "https://www.openlinksw.com/opal/" ;
+    owl:sameAs <https://www.openlinksw.com/ontology/opal/#this> ;
+    rdfs:comment "Canonical entity IRI. OPAL ontology namespace + #this convention. Referenced in agent-rdf-memory/ontology.ttl and session files as the analytics vocabulary provider (opal:ChatSession, opal:ChatModel, etc.)."@en ;
+    schema:dateCreated "2026-06-24T00:00:00Z"^^xsd:dateTime .

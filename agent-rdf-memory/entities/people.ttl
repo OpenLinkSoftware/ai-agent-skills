@@ -1,0 +1,50 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+
+<> a schema:CreativeWork ;
+    schema:name "Entity Registry: People"@en ;
+    schema:description "Canonical schema:Person entity IRIs for individuals recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a person entity, and MUST register newly resolved person IRIs here rather than only in session files."@en ;
+    schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :kingsleyIdehen, :tonySeale ;
+    rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
+        <../howto/canonical-entity-iri-denotation.ttl>,
+        <../howto/entity-iri-denotation-mechanics.ttl> .
+
+# ── Kingsley Uyi Idehen ────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/in/kidehen#this
+# Priority ladder: LinkedIn #this (1st) → X/Twitter #this → Substack #this
+# First resolved in: agent-rdf-memory/core.ttl (:user entity)
+# Identity equivalences in: agent-rdf-memory/preferences.ttl (lines 18-20)
+
+:kingsleyIdehen a schema:Person ;
+    schema:name "Kingsley Uyi Idehen"@en ;
+    schema:email "kidehen@openlinksw.com" ;
+    schema:jobTitle "Founder & CEO"@en ;
+    schema:worksFor <http://dbpedia.org/resource/OpenLink_Software> ;
+    owl:sameAs <https://linkedin.com/in/kidehen#this>,
+               <https://www.linkedin.com/in/kidehen#this>,
+               <https://x.com/kidehen#this>,
+               <https://substack.com/@kidehen#this> ;
+    rdfs:comment "Canonical entity IRI. First resolved in agent-rdf-memory/core.ttl (:user entity) and preferences.ttl (identity equivalence declarations). Linkedin.com (non-www) is the canonical form; www.linkedin.com is the www variant reconciled via owl:sameAs."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ── Tony Seale ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.linkedin.com/in/tonyseale#this
+# Priority ladder: LinkedIn www #this (1st) → LinkedIn uk #this
+# First resolved in: agent-rdf-memory/preferences.ttl (lines 22-25)
+
+:tonySeale a schema:Person ;
+    schema:name "Tony Seale"@en ;
+    owl:sameAs <https://www.linkedin.com/in/tonyseale#this>,
+               <https://uk.linkedin.com/in/tonyseale#this>,
+               <https://www.linkedin.com/in/tonyseale/#this> ;
+    rdfs:comment "Canonical entity IRI. First resolved in agent-rdf-memory/preferences.ttl (identity equivalence declarations, lines 22-25). www.linkedin.com is the canonical form; uk.linkedin.com and trailing-slash variant are aliases reconciled via owl:sameAs."@en ;
+    schema:dateCreated "2026-06-12T00:00:00Z"^^xsd:dateTime .

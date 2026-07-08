@@ -19,7 +19,7 @@ agent-rdf-memory/
 │   └── youid-validation-gates.ttl
 ├── sessions/              ← episodic memory (YYYY-MM-DD-{llm}-{env}.ttl)
 ├── projects/              ← project-specific knowledge
-├── entities/              ← people, tools, preferences
+├── entities/              ← people, organizations, tools, concepts
 └── scripts/               ← validation & utility scripts
 ```
 

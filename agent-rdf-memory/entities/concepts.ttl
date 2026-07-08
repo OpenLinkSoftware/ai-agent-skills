@@ -1,0 +1,119 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+
+<> a schema:CreativeWork ;
+    schema:name "Entity Registry: Concepts & Defined Terms"@en ;
+    schema:description "Canonical schema:DefinedTerm entity IRIs for recurring conceptual entities across the agent RDF memory system. Concepts are abstract notions (Semantic Web, Linked Data, WebID, DPKI) that recur across KG generations and session analyses. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a concept entity, using the highest-priority canonical IRI available."@en ;
+    schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :semanticWeb, :linkedData, :knowledgeGraph, :sparqlConcept, :rdfConcept,
+        :webid, :dpki, :selfSovereignIdentity, :meshup ;
+    rdfs:seeAlso <../preferences.ttl>,
+        <../howto/canonical-entity-iri-denotation.ttl>,
+        <../howto/owl-sameas-vs-skos-related.ttl> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── DBpedia-Backed Concepts ────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# These concepts have verified DBpedia resource IRIs (HTTP 200 dereference,
+# verified 2026-07-08). The DBpedia IRI is the canonical form.
+
+# ── Semantic Web ───────────────────────────────────────────────────────────────
+
+:semanticWeb a schema:DefinedTerm ;
+    schema:name "Semantic Web"@en ;
+    schema:description "A web of linked data — an extension of the World Wide Web in which information is given well-defined meaning via RDF, enabling machines and humans to cooperate. Distinct from 'the Semantic Web' (global vision); 'a Semantic Web' refers to a specific deployment instance."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Semantic_Web> ;
+    skos:related :linkedData, :rdfConcept, :sparqlConcept ;
+    rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). Recurring concept across session analyses and KG generations. Terminology: use 'a Semantic Web' (indefinite) for instance-specific deployments per step-terminologySemanticWeb."@en ;
+    schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
+
+# ── Linked Data ────────────────────────────────────────────────────────────────
+
+:linkedData a schema:DefinedTerm ;
+    schema:name "Linked Data"@en ;
+    schema:description "A method of publishing structured data using HTTP IRIs, RDF, and SPARQL so that it can be interlinked and become more useful through semantic queries. The fourth principle in Tim Berners-Lee's 5-star open data deployment scheme."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Linked_data> ;
+    skos:related :semanticWeb, :rdfConcept, :sparqlConcept ;
+    rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). Recurring concept — comparison dimension in multiple KG analyses (Enterprise AI Agents, Systems of Record, YouID/SSI)."@en ;
+    schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
+
+# ── Knowledge Graph ────────────────────────────────────────────────────────────
+
+:knowledgeGraph a schema:DefinedTerm ;
+    schema:name "Knowledge Graph"@en ;
+    schema:description "A structured representation of information as entities and their relationships, typically encoded in RDF and queryable via SPARQL. Knowledge graphs enable semantic integration across heterogeneous data sources."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Knowledge_graph> ;
+    skos:related :semanticWeb, :linkedData, :rdfConcept ;
+    rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). One of the most recurring concepts across all session analyses and KG generations."@en ;
+    schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
+
+# ── SPARQL ─────────────────────────────────────────────────────────────────────
+
+:sparqlConcept a schema:DefinedTerm ;
+    schema:name "SPARQL"@en ;
+    schema:description "SPARQL Protocol and RDF Query Language — the W3C standard query language for RDF data. Enables federated queries across distributed SPARQL endpoints via SERVICE clauses."@en ;
+    owl:sameAs <http://dbpedia.org/resource/SPARQL> ;
+    skos:related :rdfConcept, :semanticWeb, :linkedData ;
+    rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). Recurring concept — SPARQL workbench and accordion queries are a standard component of HTML infographics per harness contract."@en ;
+    schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
+
+# ── RDF ────────────────────────────────────────────────────────────────────────
+
+:rdfConcept a schema:DefinedTerm ;
+    schema:name "RDF"@en ;
+    schema:description "Resource Description Framework — the W3C standard for representing information about resources in the Web. Uses subject-predicate-object triples and HTTP IRIs to create a distributed, self-describing data graph."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Resource_Description_Framework> ;
+    skos:related :sparqlConcept, :semanticWeb, :linkedData ;
+    rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). Foundational concept — RDF is the data model underlying all KG generation and entity resolution in this system."@en ;
+    schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Document-Local Concepts (no verified DBpedia/Wikidata IRI) ────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# These concepts lack verified external canonical IRIs. The document-local IRI
+# (hash fragment) serves as the canonical form until an external IRI is verified.
+
+# ── WebID ──────────────────────────────────────────────────────────────────────
+
+:webid a schema:DefinedTerm ;
+    schema:name "WebID"@en ;
+    schema:description "A W3C standard for decentralized digital identity using HTTP IRIs. A WebID profile document (Turtle, JSON-LD, RDFa) links a person or agent to their public keys, enabling WebID-TLS authentication without passwords."@en ;
+    skos:related :dpki, :selfSovereignIdentity ;
+    rdfs:comment "Document-local entity IRI. No verified DBpedia/Wikidata entry exists for 'WebID' as a distinct concept (DBpedia has 'WebID' as a disambiguation page, not a concept page). Recurring concept across sessions — core topic of YouID identity cards, WebID-TLS verification, and identity delegation."@en ;
+    schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime .
+
+# ── DPKI (Decentralized Public Key Infrastructure) ─────────────────────────────
+
+:dpki a schema:DefinedTerm ;
+    schema:name "DPKI"@en ;
+    schema:description "Decentralized Public Key Infrastructure — an approach to public key management that eliminates centralized certificate authorities by using decentralized identifiers (DIDs), distributed ledgers, or WebID-based key discovery."@en ;
+    skos:related :webid, :selfSovereignIdentity ;
+    rdfs:comment "Document-local entity IRI. No verified external IRI exists. Recurring concept in YouID/WebID identity analyses and the Browser PKI Gap narrative."@en ;
+    schema:dateCreated "2026-06-19T00:00:00Z"^^xsd:dateTime .
+
+# ── Self-Sovereign Identity ────────────────────────────────────────────────────
+
+:selfSovereignIdentity a schema:DefinedTerm ;
+    schema:name "Self-Sovereign Identity"@en ;
+    schema:description "A model of digital identity where individuals and organizations have sole ownership and control over their identity data, credentials, and authentication mechanisms — without relying on centralized identity providers."@en ;
+    skos:related :webid, :dpki ;
+    rdfs:comment "Document-local entity IRI. No verified external IRI exists (DBpedia/Wikidata cover 'Self-sovereign identity' but the exact IRI and label need verification before owl:sameAs). Recurring concept — central theme of YouID identity comparisons (AIAM vs YouID vs Sovereign Subject)."@en ;
+    schema:dateCreated "2026-06-19T00:00:00Z"^^xsd:dateTime .
+
+# ── meshup ─────────────────────────────────────────────────────────────────────
+
+:meshup a schema:DefinedTerm ;
+    schema:name "meshup"@en ;
+    schema:description "Semantic content fusion — the process of combining and enriching information from multiple sources using Linked Data and RDF to produce a semantically coherent, queryable knowledge graph. The preferred term per step-mashupVsMeshup (position 4 in preferences.ttl)."@en ;
+    skos:related :semanticWeb, :linkedData ;
+    rdfs:comment "Document-local entity IRI. Terminological preference recorded in preferences.ttl step-mashupVsMeshup (position 4): never use 'mashup' — always use 'meshup' for semantic content fusion."@en ;
+    schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
