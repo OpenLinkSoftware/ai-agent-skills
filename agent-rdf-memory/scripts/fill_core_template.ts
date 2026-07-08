@@ -3,7 +3,7 @@
  * Identical behavior to fill_core_template.py.
  *
  * Usage:
- *   npx tsx fill_core_template.ts --model "DeepSeek V4 Pro" --env "Claude Code" --output-root "/Users/kidehen/Documents/LLMs/DeepSeek/"
+ *   npx tsx fill_core_template.ts --model "DeepSeek V4 Pro" --env "Claude Code" --output-root "$LLM_ROOT/DeepSeek/"
  *   LLM_MODEL="DeepSeek V4 Pro" AGENT_ENV="Claude Code" npx tsx fill_core_template.ts
  *   npx tsx fill_core_template.ts --model "..." --env "..." --out /tmp/core-filled.ttl
  *
@@ -16,21 +16,29 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const MODEL_OUTPUT_ROOTS: Record<string, string> = {
-  deepseek:        "/Users/kidehen/Documents/LLMs/DeepSeek/",
-  deepseek_v4pro:  "/Users/kidehen/Documents/LLMs/DeepSeek/",
-  claude:          "/Users/kidehen/Documents/LLMs/Claude Generated/",
-  claude_sonnet:   "/Users/kidehen/Documents/LLMs/Claude Generated/",
-  minimax:         "/Users/kidehen/Documents/LLMs/MiniMax Generated/",
-  kimi:            "/Users/kidehen/Documents/LLMs/kimi/",
-  kimi_k2:         "/Users/kidehen/Documents/LLMs/kimi/",
-  grok:            "/Users/kidehen/Documents/LLMs/Grok/",
-  gpt5:            "/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/",
-  gpt5_chat:       "/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/",
-  qwen:            "/Users/kidehen/Documents/LLMs/Alibaba Qwen/",
-  glm:             "/Users/kidehen/Documents/LLMs/glm/",
-  big_pickle:      "/Users/kidehen/Documents/LLMs/Big Pickle/",
+const LLM_ROOT = process.env["LLM_ROOT"] ??
+  join(require("node:os").homedir?.() ?? process.env["HOME"] ?? "~", "Documents", "LLMs");
+
+const MODEL_SUBDIRS: Record<string, string> = {
+  deepseek:        "DeepSeek/",
+  deepseek_v4pro:  "DeepSeek/",
+  claude:          "Claude Generated/",
+  claude_sonnet:   "Claude Generated/",
+  minimax:         "MiniMax Generated/",
+  kimi:            "kimi/",
+  kimi_k2:         "kimi/",
+  grok:            "Grok/",
+  gpt5:            "GPT5-Chat-Generated/",
+  gpt5_chat:       "GPT5-Chat-Generated/",
+  qwen:            "Alibaba Qwen/",
+  glm:             "glm/",
+  big_pickle:      "Big Pickle/",
 };
+
+const MODEL_OUTPUT_ROOTS: Record<string, string> = {};
+for (const [k, v] of Object.entries(MODEL_SUBDIRS)) {
+  MODEL_OUTPUT_ROOTS[k] = join(LLM_ROOT, v);
+}
 
 function findCoreTtl(): string {
   // Resolve relative to this script: agent-rdf-memory/scripts/ → ../core.ttl

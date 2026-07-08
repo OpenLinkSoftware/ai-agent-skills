@@ -20,7 +20,7 @@ shot-scraper install 2>/dev/null || python3 -m playwright install chromium
 
 ## Output Convention
 
-Recordings go to `{LLM_ROOT}/{model}/screencasts/` where `{LLM_ROOT}` is the canonical LLM root from preferences artifact-routing rules (`/Users/kidehen/Documents/LLMs/`), and `{model}` is the model-specific output directory (e.g., `Big Pickle`, `DeepSeek`, `Claude Generated`). Use descriptive filenames: `{YYYY-MM-DD}-{topic}.mp4` (with companion `.webm`).
+Recordings go to `{LLM_ROOT}/{model}/screencasts/` where `{LLM_ROOT}` is the canonical LLM root from preferences artifact-routing rules (`{LLM_ROOT}`), and `{model}` is the model-specific output directory (e.g., `Big Pickle`, `DeepSeek`, `Claude Generated`). Use descriptive filenames: `{YYYY-MM-DD}-{topic}.mp4` (with companion `.webm`).
 
 When recording, derive the path at runtime by looking up the model's output path per `agent-rdf-memory/howto/artifact-routing.ttl` and appending `screencasts/`.
 

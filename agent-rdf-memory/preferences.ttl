@@ -800,7 +800,7 @@
 
 :topicOpalSessionVocabulary a schema:Thing ;
     schema:name "OPAL Analytics Ontology for Session Logs"@en ;
-    schema:description "Standing requirement to use opal:ChatSession, opal:ChatModel, opal:LLMProvider, opal:ChatMessage and related OPAL properties in all session memory TTL files. Default unless overridden by operator. Ontology at /Users/kidehen/Documents/RDF_Ontologies/OpenLink/opal-analytics-ontology-2.ttl"@en .
+    schema:description "Standing requirement to use opal:ChatSession, opal:ChatModel, opal:LLMProvider, opal:ChatMessage and related OPAL properties in all session memory TTL files. Default unless overridden by operator. Ontology at {ONTOLOGY_ROOT}/OpenLink/opal-analytics-ontology-2.ttl"@en .
 
 # ── Step 37: No Blank Nodes in RDF Output ─────────────────────────────────────
 

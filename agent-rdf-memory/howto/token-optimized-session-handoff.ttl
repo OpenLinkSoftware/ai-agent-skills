@@ -42,10 +42,10 @@
     schema:name "Seed the new session with a compact validated-pattern handoff"@en ;
     schema:text """Use a compact handoff instead of copying the whole thread. For GPT-5 Chat Codex showcases RDF/HTML collections, include:
 
-Use /Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/showcases/space-datacenters-thesis-analysis/generate_collection.mjs as the latest validated pattern.
+Use {LLM_ROOT}/GPT5-Chat-Generated/showcases/space-datacenters-thesis-analysis/generate_collection.mjs as the latest validated pattern.
 
 Critical fixes to preserve:
-- Output RDF/JSON-LD/HTML to /Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/{rdf,webpages}/.
+- Output RDF/JSON-LD/HTML to {LLM_ROOT}/GPT5-Chat-Generated/{rdf,webpages}/.
 - Use kg-generator plus rdf-infographic-skill contract.
 - SPARQL Graph IRI must be https://linkeddata.uriburner.com/DAV/demos/daas/{stem}.ttl, not the source article URL.
 - Run validate-harness-contract.py and RDF parse checks before delivery.

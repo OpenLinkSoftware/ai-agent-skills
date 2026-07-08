@@ -215,7 +215,7 @@
     schema:position 33 ;
     schema:item <sessions/2026-06-05-gpt5_chat-codex.ttl> ;
     schema:name "Session 2026-06-05 (GPT-5 Chat Codex — global AGENTS.md bootstrap for AGENT.md and RDF memory protocol)"@en ;
-    schema:description "Behavior gap fix for Codex Desktop: /Users/kidehen/.codex/AGENTS.md was empty, so Codex did not load the canonical ai-agent-skills/AGENT.md and preferences.ttl contract when launched from unrelated project workspaces. Added a global bootstrap with absolute paths to AGENT.md and agent-rdf-memory/, including new-project handling through agent-rdf-memory/projects/."@en .
+    schema:description "Behavior gap fix for Codex Desktop: {HOME}/.codex/AGENTS.md was empty, so Codex did not load the canonical ai-agent-skills/AGENT.md and preferences.ttl contract when launched from unrelated project workspaces. Added a global bootstrap with absolute paths to AGENT.md and agent-rdf-memory/, including new-project handling through agent-rdf-memory/projects/."@en .
 
 :session20260607BigPickleOpenCode a schema:ListItem ;
     schema:position 34 ;
@@ -493,7 +493,7 @@
     schema:position 71 ;
     schema:item <sessions/2026-06-26-glm_5_2-opencode.ttl> ;
     schema:name "Session 2026-06-26 (GLM-5.2 + OpenCode — whoami with verified identity gate + GLM output path registration, first GLM-5.2 session)"@en ;
-    schema:description "First session with GLM-5.2 in OpenCode. User issued 'whoami?' then 'According to prefs.' Ran verified identity gate per :step-verifiedWhoami (pos 60) and :step-whoamiFormat (pos 23): extracted SAN URIs and moduli from both cert.pem files via openssl, compared against cert:modulus in profile.ttl for each bundle. Both matched (user C719...C07, agent DA2B...D17B). Emitted full two-section whoami response with verified badges. User then approved registering GLM as a canonical output path using lowercase glm/. Updated core.ttl (new :glmOutputPath PropertyValue), howto/artifact-routing.ttl (step-outputDirs schema:text now lists GLM with lowercase path and the NOT-uppercase note), and scripts/fill_core_template.{py,ts} (both had uppercase GLM/ — corrected to lowercase glm/). Created /Users/kidehen/Documents/LLMs/glm/rdf/ and /webpages/ subfolders alongside existing md/."@en .
+    schema:description "First session with GLM-5.2 in OpenCode. User issued 'whoami?' then 'According to prefs.' Ran verified identity gate per :step-verifiedWhoami (pos 60) and :step-whoamiFormat (pos 23): extracted SAN URIs and moduli from both cert.pem files via openssl, compared against cert:modulus in profile.ttl for each bundle. Both matched (user C719...C07, agent DA2B...D17B). Emitted full two-section whoami response with verified badges. User then approved registering GLM as a canonical output path using lowercase glm/. Updated core.ttl (new :glmOutputPath PropertyValue), howto/artifact-routing.ttl (step-outputDirs schema:text now lists GLM with lowercase path and the NOT-uppercase note), and scripts/fill_core_template.{py,ts} (both had uppercase GLM/ — corrected to lowercase glm/). Created {LLM_ROOT}/glm/rdf/ and /webpages/ subfolders alongside existing md/."@en .
 
 :session20260627BigPickleRemoteDelegation a schema:ListItem ;
     schema:position 72 ;

@@ -111,7 +111,8 @@ Before delivering any output to the user, the following MUST pass:
 - X.509 certificate has proper WebID SAN
 - `owl:sameAs` has no self-references
 - All artifact files exist in the output directory
-- **Basic WebID Test (Public Key Consistency Gate):** RSA public key (modulus + exponent) from `cert.p12` matches `index.html`, `profile.ttl`, and `profile.jsonld` — see Post-Generation Checklist item
+- **Basic WebID Test (Public Key Consistency Gate):** RSA public key (modulus + exponent) from `cert.p12` matches `index.html`, `profile.ttl`, and `profile.jsonld` — automated in Step 5 of `generate_identity.sh`, blocks generation on failure
+- **Delegation Consistency Gate:** If any output file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf` triples, they MUST match identically across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (all 4 representations: POSH, embedded JSON-LD, embedded Turtle, hidden RDFa) — automated in Step 6 of `generate_identity.sh`, blocks generation on failure
 
 ## Execution Routing
 
@@ -398,14 +399,8 @@ Before delivering any generated identity to the user:
 - [ ] **Platform icons exist**: every `src="p_{key}_32.png"` in `.social-grid` has a corresponding file in the output directory
 - [ ] **Platform icons use proper logos**: no icon uses `p_none.png` unless a platform-specific icon was not discoverable after searching the platform's brand page
 - [ ] **No external framework**: no `bootstrap`, `jquery`, or other framework imports in the HTML body
-- [ ] **Basic WebID Test PASS**: RSA public key from `cert.p12` (modulus + exponent) matches `index.html`, `profile.ttl`, and `profile.jsonld`. This is the primary local self-consistency gate. Extract via:
-  ```
-  MOD=$(openssl pkcs12 -in cert.p12 -passin pass:youid -nokeys -clcerts 2>/dev/null | openssl x509 -noout -modulus | sed 's/Modulus=//')
-  EXP=$(openssl pkcs12 -in cert.p12 -passin pass:youid -nokeys -clcerts 2>/dev/null | openssl x509 -noout -text | awk '/Exponent:/ {print $2}')
-  # Verify MOD matches cert:modulus in profile.ttl, profile.jsonld, index.html (RDFa)
-  # Verify EXP matches cert:exponent in all 3 files
-  # Exponent must be "65537"^^xsd:int (typed literal), not bare integer
-  ```
+- [x] **Basic WebID Test PASS** — **AUTO-GATED** in Step 5 of `generate_identity.sh`. The orchestrator extracts modulus + exponent from `cert.p12` and cross-references `profile.ttl`, `profile.jsonld`, and `index.html` (RDFa) using `rdflib` and `HTMLParser`. Generation is blocked with exit code 1 on any mismatch. Manual check no longer required.
+- [x] **Delegation Consistency Test PASS** — **AUTO-GATED** in Step 6 of `generate_identity.sh`. If any file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf`, the gate verifies identical triples across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (embedded JSON-LD + RDFa rel/property attrs). Skips cleanly if no delegation triples are present. Blocks generation on failure.
 - [ ] **Hero badges rendered**: "✓ Verified WebID", subject name, email, org all visible
 - [ ] **Social `owl:sameAs` present**: `profile.ttl` and `profile.jsonld` contain `owl:sameAs` entries for each social platform URL collected from the user (not just profile-document equivalences)
 - [ ] **`<link rel="me">` in head**: `index.html` has `<link rel="me">` tags for each social platform URL

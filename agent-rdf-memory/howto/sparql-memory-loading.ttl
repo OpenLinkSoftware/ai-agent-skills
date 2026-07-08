@@ -59,7 +59,7 @@ If no stored preference exists (first session), present this elicitation:
 File reads (option 1) is the pre-selected default. It is overridden if the user actively chooses SPARQL or any other method via elicitation. The elicitation occurs on every first session — the default does not silently apply without presenting the choice.
 
 For option 2, the agent constructs file:// URIs from the known agent-rdf-memory/ path:
-  file:///Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/preferences.ttl
+  file://{REPO_ROOT}/agent-rdf-memory/preferences.ttl
   (and equivalents for core.ttl, index.ttl, howto/*.ttl)
 
 For option 3, the user supplies the endpoint URL and the base URI for the TTL files.
@@ -126,8 +126,8 @@ DESCRIBE <{core-ttl-url}>
 
 ── URL placeholder resolution ────────────────────────────────────────────────
 
-{preferences-ttl-url} = "file:///Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/preferences.ttl"
-{core-ttl-url}        = "file:///Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/core.ttl"
+{preferences-ttl-url} = "file://{REPO_ROOT}/agent-rdf-memory/preferences.ttl"
+{core-ttl-url}        = "file://{REPO_ROOT}/agent-rdf-memory/core.ttl"
 
 These are the standard values for local Virtuoso at localhost:8890/sparql.
 The user substitutes a different URI only if the default file:// path does not match their setup
@@ -142,8 +142,8 @@ The named graph IRI is the file:// URI itself — use FROM <file:///…/preferen
     schema:text """The named graph IRI is always the URI the Sponger was given to fetch.
 
 Standard case (local Virtuoso, file:// URIs):
-  FROM <file:///Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/preferences.ttl>
-  FROM <file:///Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/core.ttl>
+  FROM <file://{REPO_ROOT}/agent-rdf-memory/preferences.ttl>
+  FROM <file://{REPO_ROOT}/agent-rdf-memory/core.ttl>
 
 DAV case (files uploaded to Virtuoso's WebDAV store):
   FROM <http://localhost:8890/DAV/home/dba/agent-rdf-memory/preferences.ttl>

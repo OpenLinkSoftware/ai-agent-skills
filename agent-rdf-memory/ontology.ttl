@@ -73,7 +73,7 @@
 # Canonical ontology URI for imports:
 # <https://www.openlinksw.com/ontology/opal/>
 # Local copy for offline resolution:
-# <file:///Users/kidehen/Documents/RDF_Ontologies/OpenLink/opal-analytics-ontology-2.ttl>
+# <file://{ONTOLOGY_ROOT}/OpenLink/opal-analytics-ontology-2.ttl>
 
 # ── TBox Cross-References to opal-analytics-ontology-2 ─────────────────────
 

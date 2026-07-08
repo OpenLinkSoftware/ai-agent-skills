@@ -23,10 +23,10 @@
     schema:name "Search prior task outputs for the 3 most recent KG Explorer implementations"@en ;
     schema:text """Scan the LLM output directories for HTML files containing a working KG Explorer pattern. Search order: most recent first.
 Primary scan paths:
-  /Users/kidehen/Documents/LLMs/Claude Generated/webpages/
-  /Users/kidehen/Documents/LLMs/DeepSeek/webpages/
-  /Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/webpages/
-  /Users/kidehen/Documents/LLMs/MiniMax Generated/webpages/
+  {LLM_ROOT}/Claude Generated/webpages/
+  {LLM_ROOT}/DeepSeek/webpages/
+  {LLM_ROOT}/GPT5-Chat-Generated/webpages/
+  {LLM_ROOT}/MiniMax Generated/webpages/
 Candidate identification: grep for 'function initGraph' AND 'd3.forceSimulation' AND 'function updateGraph' in each HTML file. Sort by file modification time (newest first). Take the first 3 that match all three patterns. Proceed to step-reuseValidate with this ordered candidate list."""@en ;
     onto:hasTrigger onto:triggerSkillInvocation .
 

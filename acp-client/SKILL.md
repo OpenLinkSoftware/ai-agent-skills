@@ -119,7 +119,7 @@ browser automation. PinchTab is a fallback if Playwright is unavailable.
 
 Set the wrapper script path before use:
 ```bash
-export PWCLI="/Users/kidehen/Documents/Management/Development/ai-agent-skills/.opencode/skills/playwright/scripts/playwright_cli.sh"
+export PWCLI="{REPO_ROOT}/.opencode/skills/playwright/scripts/playwright_cli.sh"
 ```
 
 ### Prerequisites
