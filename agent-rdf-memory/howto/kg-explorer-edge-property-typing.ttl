@@ -1,0 +1,52 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:about :edgePropertyTypingHowTo .
+
+:edgePropertyTypingHowTo a schema:HowTo ;
+    schema:name "KG Explorer Edges Must Resolve to rdf:Property Instances, Never schema:DefinedTerm"@en ;
+    schema:description "An edge in any KG Explorer visualization represents a relationship/predicate between two nodes. Its resolver link must dereference to an rdf:Property or owl:ObjectProperty instance — never to a schema:DefinedTerm glossary entry, which defines a concept in prose but is not itself a relationship type."@en ;
+    schema:dateCreated "2026-07-02T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-03T14:12:36Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-typeCheck, :step-mintIfMissing, :step-reuseExternal, :step-verify ;
+    rdfs:seeAlso <ontology-discovery.ttl>, <ontology-cross-reference-gate.ttl> .
+
+:step-typeCheck a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Before linking any KG Explorer edge label, ask: what RDF type does this IRI actually have?"@en ;
+    schema:text """A category error found 2026-07-02: three informal edge labels in a hand-built KG Explorer (mTLS, feeds, gates) were resolver-linked to schema:DefinedTerm glossary entries (termMTLS, termLooseCoupling, termABAC) because those were the nearest already-existing dereferenceable entities in the companion TTL. This is wrong: a schema:DefinedTerm is a concept DEFINITION (prose explaining what a term means); an edge is a RELATIONSHIP INSTANCE (a predicate connecting two specific nodes). Linking an edge to a glossary term conflates 'here is what mTLS means' with 'here is the actual authenticates-via relationship drawn on this graph' — different RDF types serving different purposes, even when they're topically related.
+
+RULE: before setting an edge's resolver href, check the target IRI's rdf:type. If it resolves to schema:DefinedTerm (or any non-property type), it is the WRONG target for an edge, regardless of how topically relevant it seems."""@en .
+
+:step-mintIfMissing a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "If no suitable property exists, mint one — characterized, not decorative, and never skipping the ontology gates"@en ;
+    schema:text """BLOCKING PRECONDITION — found 2026-07-03: three edge properties (:authenticatesVia, :feedsInto, :gatesAccessTo) were minted directly to satisfy step-typeCheck (the rdf:Property-not-DefinedTerm rule) WITHOUT running the two pre-existing, general ontology gates that already govern minting any custom class or property: howto/ontology-discovery.ttl (query prefix.cc / known vocabularies for an existing predicate BEFORE inventing one, and present findings for user accept/reject) and howto/ontology-cross-reference-gate.ttl (every custom term needs rdfs:label, rdfs:comment, rdfs:domain/range, rdfs:isDefinedBy pointing to a document-local owl:Ontology entity, and at least one verified external cross-reference or a documented gap). Fixing an edge's RDF *type* is not sufficient on its own — a newly-typed owl:ObjectProperty is itself a new ontology term and must clear the SAME gates as any other custom term. Do not let a narrowly-scoped fix (this file) become a shortcut around the general-purpose gates it depends on.
+
+Sequence when step-typeCheck determines no suitable existing predicate is already used in the document's own triples (see step-reuseExternal): (1) run howto/ontology-discovery.ttl's prefix.cc / vocabulary search for the relationship being modeled; (2) present any candidates found to the user for accept/reject — never silently apply; (3) only after that, mint the local owl:ObjectProperty per the pattern below, satisfying howto/ontology-cross-reference-gate.ttl in full (rdfs:isDefinedBy + rdfs:seeAlso to the accepted external term, or a documented gap in rdfs:comment if genuinely none exists).
+
+When an edge represents an informal/report-specific relationship with no corresponding real-world predicate (e.g. a diagram-only 'feeds into' or 'gates access to' relationship), mint a proper owl:ObjectProperty in the document's own namespace:
+
+  :propertyName a owl:ObjectProperty, {additional characteristics} ;
+      rdfs:label "human readable label"@en ;
+      rdfs:domain {class or entity} ;
+      rdfs:range {class or entity} ;
+      rdfs:comment "what this relationship means and why it was minted locally rather than reused"@en .
+
+Per the OWL Property Characterization gate (preferences.ttl Step 91), every custom object property must carry at least one characteristic beyond domain/range — owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty, owl:TransitiveProperty, etc., chosen for what's actually true of the relationship (e.g. a layer-flow relationship is typically irreflexive and asymmetric: a layer doesn't feed into itself, and the relationship doesn't run backward).
+
+Then USE the property as a real triple in the companion TTL (e.g. :idUserA :authenticatesVia :layerAuthentication .) — don't just declare the property and leave the KG Explorer's JS edge array as the only place the relationship exists. A visualized edge with no backing triple is decorative, not a knowledge graph."""@en .
+
+:step-reuseExternal a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Prefer reusing a real external predicate over minting a local one"@en ;
+    schema:text "Before minting a local property, check whether the edge already corresponds to a real predicate used elsewhere in the same document's triples — e.g. oplcert:onBehalfOf or schema:offers. If the relationship is already expressed as an actual triple using a well-known vocabulary predicate, link the edge to THAT predicate's IRI directly. Only mint a local property (per step-mintIfMissing) when no such predicate exists."@en .
+
+:step-verify a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Verify every distinct edge label's resolver target live, not by inspection alone"@en ;
+    schema:text "After wiring edge hrefs, query the live DOM (not just the source code) for every distinct edge label's href, and separately confirm each target IRI is declared with the correct rdf:type in the companion TTL — a owl:ObjectProperty (or rdf:Property), never a schema:DefinedTerm. Do this for every distinct label, not just the first one checked, since edge label maps are keyed by string and easy to leave one stale entry in."@en .

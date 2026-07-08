@@ -10,7 +10,7 @@
     schema:name "HowTo: KG Curation Attribution Pattern"@en ;
     schema:description "Companion howto for preferences.ttl Step 47. Specifies the pattern for crediting knowledge graph curation in hero-meta lines and infographic headers: skills + AI agent acting on behalf of the human principal."@en ;
     schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-14T12:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-05T00:00:00Z"^^xsd:dateTime ;
     schema:about :HowToKgCurationAttribution .
 
 # ── HowTo ─────────────────────────────────────────────────────────────────────
@@ -22,7 +22,8 @@
                 :stepHtmlMarkup,
                 :stepSubstitutionRules,
                 :stepAntiPatterns,
-                :stepRdfDelegation .
+                :stepRdfDelegation,
+                :stepEntityLevelAuthorship .
 
 # ── Steps ─────────────────────────────────────────────────────────────────────
 
@@ -122,3 +123,19 @@ Kingsley's WebID IRI: https://www.linkedin.com/in/kidehen#this
 
 ✅ "KG curated by [kg-generator], [rdf-infographic-skill], and [Claude Sonnet 4.6] on behalf of [Kingsley Idehen]"
    where [] = hyperlinked to canonical URLs and resolver IRI respectively."""@en .
+
+# ── Step 6: Entity-level authorship — the same delegation rule applies below the document level ──
+
+:stepEntityLevelAuthorship a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Never set schema:author of an agent-authored entity directly to the principal — apply the same delegation chain used at document level"@en ;
+    schema:text """Found 2026-07-05: a generated collection modeled seven distinct 'Critical Perspective' entities distilling Kingsley Idehen's known public views, and set schema:author on each directly to Kingsley's WebID (<https://www.linkedin.com/in/kidehen#this>). This overclaims — the agent synthesized that specific text (informed by Kingsley's general public writing, not transcribed from a specific source document), it was not typed by Kingsley personally. Whoami semantics already establish the agent operates FOR/ON BEHALF OF the principal (:connection schema:additionalType "operates-for" in core.ttl) — that relationship must be reflected in authorship attribution on every entity the agent itself authors, not just at the top-level document/WebPage.
+
+RULE: whenever the agent authors a specific sub-document entity (a critique, commentary, summary, or any distinct schema:CreativeWork/schema:Comment-typed node) that represents or is framed around the principal's views, apply the SAME three-layer delegation pattern used for whole-document curation credit (see stepRdfDelegation), at the ENTITY level:
+  - schema:author           → the generating skill/agent entity (e.g. the kg-generator SoftwareAgent), NOT the principal's WebID directly
+  - schema:accountablePerson → the principal's WebID (whose perspective/accountability this represents)
+  - the skill/agent entity itself carries prov:actedOnBehalfOf → the principal's WebID (already required by stepRdfDelegation)
+
+This distinguishes "I (the agent) wrote this distillation of your views, on your behalf" (correct) from "you personally wrote this text" (incorrect, and factually false when the agent synthesized rather than quoted). Visible prose (hero-meta, section intros, footer attribution) must use matching language: "curated by {skills+agent} on behalf of {principal}" or "the AI agent authored this on behalf of {principal}" — never a bare "by {principal}" or "authored by {principal}" for agent-synthesized content.
+
+Anti-pattern: schema:author <principal-webid> on an entity the agent itself wrote. Correct pattern: schema:author <agent-entity> ; schema:accountablePerson <principal-webid> ."""@en .

@@ -6,16 +6,16 @@
 
 <> a schema:HowTo ;
     schema:name "Session Governance — Approval, Memory, Git, and Safety Rules"@en ;
-    schema:description "Seven standing rules governing how the agent conducts every session: approval before acting, memory protocol, git discipline, URL fabrication prohibition, curl authentication elicitation, secret redaction, and verbatim prompt recording."@en ;
+    schema:description "Nine standing rules governing how the agent conducts every session: approval before acting, memory protocol, git discipline, URL fabrication prohibition, curl authentication elicitation, secret redaction, verbatim prompt recording, session log reconciliation, and semantic session bootstrap."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-05T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-approval, :step-memoryProtocol, :step-gitWorkflow,
         :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
-        :step-promptRecording ;
+        :step-promptRecording, :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
     schema:step :step-approval, :step-memoryProtocol, :step-gitWorkflow,
         :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
-        :step-promptRecording ;
+        :step-promptRecording, :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
     rdfs:seeAlso <../preferences.ttl> .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
@@ -76,3 +76,19 @@
     schema:name "Record verbatim user prompts in session memory files for intent-to-outcome traceability"@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerNamedWorkflow, onto:triggerBehaviorGapIdentified, onto:triggerSessionEnd ;
     schema:text """Every session memory write MUST model the user prompt(s) using opal:ChatMessage with opal:messageRole 'user', opal:messageContent pointing to an opal:PromptText entity carrying the verbatim prompt string in rdf:value. Link the ChatMessage to the session via opal:hasMessage / opal:messageOf. Also record key assistant responses as opal:ChatMessage with opal:messageRole 'assistant', opal:usesTools (boolean), opal:timestamp, and opal:messageContent → opal:PromptText with a concise summary of the response or action taken. When a single session handles multiple distinct prompts, create one opal:ChatMessage per meaningful prompt boundary. This creates a causal chain from intent (prompt) to outcome (artifact/skill invocation/correction) that is queryable alongside preferences and session traces. The opal vocabulary is defined in the opal-analytics-ontology-2 at https://www.openlinksw.com/ontology/opal/ . Prefer opal terms over ad-hoc vocabulary — the ontology was purpose-built for modeling LLM chat interactions as RDF knowledge graphs."""@en .
+
+# ── Step 8: Session Log Reconciliation ───────────────────────────────────────
+
+:step-sessionLogReconciliation a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Trace every structural violation to its source session log before applying the fix"@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    schema:text """When a structural violation is found in preferences.ttl or any howto/*.ttl file: (1) git log/blame to find the commit that introduced it, (2) grep the session log for that date/agent to surface the originating decision context, (3) cite both the commit and the session in the fix report. Never fix silently — the session log is the diagnostic record that distinguishes a judgment error from a mechanical omission."""@en .
+
+# ── Step 9: Semantic Session Bootstrap ───────────────────────────────────────
+
+:step-semanticSessionBootstrap a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "On session start, analyze the prompt for key concepts and load related session logs as bootstrap context"@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    schema:text """After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."""@en .

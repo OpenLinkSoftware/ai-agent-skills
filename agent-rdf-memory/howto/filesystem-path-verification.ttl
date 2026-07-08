@@ -1,0 +1,21 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Filesystem Path Verification Gate"@en ;
+    schema:description "Standing rule: verify the actual filesystem path exists on disk before writing to it, rather than inferring directory naming conventions from other entries in memory."@en ;
+    schema:dateCreated "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-filesystemPathVerification ;
+    schema:step :step-filesystemPathVerification ;
+    rdfs:seeAlso <../preferences.ttl>, <artifact-routing.ttl> .
+
+:step-filesystemPathVerification a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Verify the actual filesystem path exists — never infer directory names by convention alone"@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    schema:text """When mapping model ID to output directory, list the parent directory with ls to confirm the exact name on disk before using it. Don't assume casing, hyphens, or spacing from other entries in core.ttl or artifact-routing.ttl without verification. Pure inference by convention was the failure pattern that triggered this rule."""@en .

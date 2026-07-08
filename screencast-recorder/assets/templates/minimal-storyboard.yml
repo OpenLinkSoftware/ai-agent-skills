@@ -1,0 +1,21 @@
+output: {SCREENCAST_DIR}/demo.webm
+url: https://example.com
+viewport:
+  width: 1440
+  height: 900
+cursor:
+  visible: true
+  clicks: true
+  color: "#1a73e8"
+wait_for: body
+
+scenes:
+- name: "Scene 1 — Page loads"
+  do:
+  - pause: 2
+
+- name: "Scene 2 — Interaction"
+  open: https://example.com/target
+  wait_for: body
+  do:
+  - pause: 2

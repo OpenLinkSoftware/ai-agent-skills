@@ -1,0 +1,36 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "schema:position Must Be xsd:integer — Never Decimal, Never Duplicated"@en ;
+    schema:description "Requirements for the schema:position object on any ordered entity (schema:HowToStep, schema:ItemList members, etc.): must be xsd:integer-typed, sequential, and unique within its ordered set."@en ;
+    schema:dateCreated "2026-07-03T15:43:19Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-03T15:43:19Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-typeRequirement, :step-noDecimalInsertion, :step-renumberOnInsert, :step-verifyProgrammatically ;
+    schema:step :step-typeRequirement, :step-noDecimalInsertion, :step-renumberOnInsert, :step-verifyProgrammatically ;
+    rdfs:seeAlso <../preferences.ttl> .
+
+:step-typeRequirement a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "schema:position objects must be xsd:integer"@en ;
+    schema:text "A bare Turtle integer literal (e.g. `schema:position 42 ;`) or an explicitly typed one (`schema:position \"42\"^^xsd:integer ;`) are both valid. An untyped decimal (`schema:position 2.1 ;`) is xsd:decimal, not xsd:integer, and violates the contract even though it parses without error in any RDF library."@en .
+
+:step-noDecimalInsertion a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Never use a decimal position to slot a new step between two existing integers"@en ;
+    schema:text """Found 2026-07-03: preferences.ttl had accumulated 15 decimal schema:position values (2.1, 2.2, 2.3, 3.1, 10.05, 10.1-10.6, 23.1, 27.1, 59.1) — each one an ad-hoc insertion of a new HowToStep between two existing integer-numbered steps, done to avoid renumbering everything downstream. This is the wrong shortcut: it produces a typed-decimal object where an integer is required, and it makes the position sequence non-obvious to a reader (is 10.05 before or after 10.1?).
+
+A duplicate was also found in the same file: :step-kgLazyInit was declared twice, both at position 79, with slightly different schema:text — a copy-paste residue from an earlier edit that was never caught because rdflib parses duplicate subjects/positions without complaint."""@en .
+
+:step-renumberOnInsert a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Inserting a step means renumbering the full downstream sequence to consecutive integers"@en ;
+    schema:text "When a new step needs to sit between position N and N+1, renumber every step from N+1 onward (or, more robustly, re-sort and reassign 1..total across the entire ordered set) so the result is a clean, gapless, decimal-free, duplicate-free sequence 1..N. Do this with a script that parses every schema:position triple, sorts by current value with file-order as a tiebreak, and reassigns 1..N — not by hand-editing individual position values one at a time, which is how the original 15-decimal and 1-duplicate state accumulated silently over multiple sessions."@en .
+
+:step-verifyProgrammatically a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Verify the full position set after any renumbering — don't trust successful parsing alone"@en ;
+    schema:text "After renumbering, extract every schema:position value in the file and confirm programmatically: (a) every value is integer-typed (no decimal points), (b) the full set is exactly {1, 2, ..., N} with N equal to the count of ordered entities, (c) no value repeats. rdflib.Graph().parse() succeeding is not sufficient evidence of correctness — both decimal positions and duplicate-position entities parse cleanly as valid Turtle; only an explicit check over the extracted position values catches them."@en .

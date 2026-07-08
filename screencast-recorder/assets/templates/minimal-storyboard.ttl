@@ -1,0 +1,39 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix sc: <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/screencast-recorder/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:storyboard a schema:HowTo ;
+  schema:name "Demo Screencast"@en ;
+  schema:url <https://example.com> ;
+  schema:result [
+    a schema:VideoObject ;
+    schema:name "demo.webm"@en ;
+    schema:encodingFormat "video/webm"
+  ] ;
+  sc:viewportWidth 1440 ;
+  sc:viewportHeight 900 ;
+  sc:cursorVisible true ;
+  sc:cursorClicks true ;
+  sc:cursorColor "#1a73e8" ;
+  schema:step :scene-1, :scene-2 .
+
+:scene-1 a schema:HowToStep ;
+  schema:position 1 ;
+  schema:name "Scene 1 — Page loads"@en ;
+  schema:direction [
+    a sc:PauseAction ;
+    sc:pauseDuration 2.0
+  ] .
+
+:scene-2 a schema:HowToStep ;
+  schema:position 2 ;
+  schema:name "Scene 2 — Interaction"@en ;
+  schema:url <https://example.com/target> ;
+  schema:direction [
+    a sc:WaitForAction ;
+    sc:selector "body"
+  ], [
+    a sc:PauseAction ;
+    sc:pauseDuration 2.0
+  ] .

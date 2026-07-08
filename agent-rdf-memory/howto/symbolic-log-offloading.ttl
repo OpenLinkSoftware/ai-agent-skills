@@ -1,0 +1,61 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Symbolic Short-Term Log Offloading HowTo"@en ;
+    schema:description "Procedure for offloading large tool-call outputs to an IRI-addressed OffloadedLog and keeping only a compact SessionSymbolNode reference in the live context, instead of retaining verbose raw output inline."@en ;
+    schema:dateCreated "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T20:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :symbolicLogOffloading ;
+    rdfs:seeAlso <../preferences.ttl>, <../ontology.ttl>, <no-blank-nodes-resolver-entities.ttl>, <virtuoso-workbench-query-dedup.ttl>, <sparql-memory-loading.ttl>, <token-optimized-session-handoff.ttl> .
+
+:symbolicLogOffloading a schema:HowTo ;
+    schema:name "Offload Large Tool Outputs to IRI-Addressed Logs, Keep Only Symbol Nodes in Context"@en ;
+    schema:description "A within-session token-usage optimization pattern: instead of retaining a verbose tool result inline, write it to an IRI-addressed location (local file, WebDAV resource, or Virtuoso named graph) and keep only a resolvable SessionSymbolNode reference in reasoning, recalling the full content on demand rather than re-fetching it."@en ;
+    schema:step :stepIdentifyOffloadCandidate,
+        :stepChooseOffloadLocation,
+        :stepMintSessionSymbolNode,
+        :stepKeepSymbolNotBlob,
+        :stepRecallViaIRI,
+        :stepPersistIfRuleRelevant .
+
+:stepIdentifyOffloadCandidate a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Identify when a tool result is an offload candidate"@en ;
+    schema:text "Treat any tool result whose content exceeds roughly 2000 characters as an offload candidate when it is not itself the primary deliverable of the task — full file dumps, long Bash/log output, and bulk SPARQL/SQL result sets. Do not offload short, directly relevant results or the artifact the user actually asked for."@en ;
+    onto:hasTrigger onto:triggerLogOffloadThreshold .
+
+:stepChooseOffloadLocation a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Choose the offload location in priority order: Virtuoso graph, local file IRI, or existing external IRI"@en ;
+    schema:text """Choose the storage location for the offloaded content, always identified by an IRI, never a string literal path:
+
+1. If a Virtuoso SPARQL endpoint is already configured for the project or session (per sparql-memory-loading.ttl / the data-twingler skill), and the content is reasonably triplifiable (tabular SQL/SPARQL results), load it into a session-scoped named graph minted as urn:agent-rdf-memory:log:{session-id}:{slug}. Record this graph IRI via prov:atLocation on the onto:OffloadedLog instance (reused from PROV-O rather than a bespoke property — see ontology.ttl's 2026-07-06 discovery note).
+2. Otherwise, write the raw verbatim content to a local scratch/session ref file and mint a file:// IRI for it: file:///.../agent-rdf-memory/sessions/refs/{session-id}/{slug}.md — mirroring the sessions/YYYY-MM-DD-{llm-id}-{agent-env}.ttl naming convention so refs stay session-scoped. Record this IRI via prov:atLocation.
+3. If the content is already externally addressable (a fetched URL's response body, a WebDAV resource), do not re-store it — reuse its existing https:// IRI directly as a prov:atLocation value.
+4. prov:atLocation is non-functional (an entity may carry more than one), so an onto:OffloadedLog may legitimately have both a file:// location and an additional urn: named-graph location at once — record both rather than picking one."""@en .
+
+:stepMintSessionSymbolNode a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Mint the SessionSymbolNode as its own IRI, never a blank node with a literal key"@en ;
+    schema:text "Create an onto:SessionSymbolNode instance identified by its own IRI: urn:agent-rdf-memory:node:{session-id}:{slug}, e.g. urn:agent-rdf-memory:node:2026-07-06-claude-sonnet-5:n3. Never represent it as a blank node distinguished only by a literal identifier property — per no-blank-nodes-resolver-entities.ttl, entities must be resolvable resources. Link it to its onto:OffloadedLog via onto:offloadsTo, and optionally back to the originating opal:ChatMessage via prov:wasDerivedFrom. Give it a short schema:name label (e.g. \\\"large SQL dump\\\") for human-readable prose reference."@en .
+
+:stepKeepSymbolNotBlob a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Keep only the symbol node reference in reasoning, not the raw blob"@en ;
+    schema:text "After offloading, do not carry the raw tool output forward in reasoning or subsequent messages. Refer to it only by its SessionSymbolNode IRI and short label (e.g. 'see node n3 for the full SQL result'). This is a behavioral instruction about what the agent keeps in its own working context, not a data structure that must be re-serialized on every turn."@en .
+
+:stepRecallViaIRI a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Recall offloaded detail via its IRI instead of re-running the original tool call"@en ;
+    schema:text "When a prior offloaded detail becomes relevant again in the same session, resolve it via its recorded prov:atLocation value rather than re-invoking the original tool call: for file:// IRIs, read or grep the local ref path directly; for quad-store-resident logs (a urn: named-graph prov:atLocation value), run SELECT ... FROM <graph-iri> WHERE {...} against the configured SPARQL endpoint, following the derived-named-graph and DISTINCT-as-safety convention in virtuoso-workbench-query-dedup.ttl."@en .
+
+:stepPersistIfRuleRelevant a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Persist the symbol node and log only if it later proves relevant to a recorded rule"@en ;
+    schema:text "If a SessionSymbolNode and its OffloadedLog turn out to matter to a preference or rule captured in preferences.ttl, add their triples to that session's .ttl file under schema:hasPart, linked via rdfs:seeAlso to the log's IRI. Otherwise leave the ref unregistered — it simply ages out with the session, since it was never meant to be a durable memory artifact, only a within-session token-saving device."@en .

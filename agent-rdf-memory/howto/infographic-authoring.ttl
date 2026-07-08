@@ -7,12 +7,12 @@
     schema:name "Infographic Authoring — Attribution, Dark Mode, KG Explorer Reuse, Template Selection"@en ;
     schema:description "Four rules governing the authoring of HTML infographics: footer attribution format, dark mode CSS requirements, KG Explorer template reuse mandate, and template selection by content type."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-05T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-02T03:30:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-attribution, :step-darkModeCSS,
-        :step-kgExplorerReuse, :step-templateSelection ;
+        :step-kgExplorerReuse, :step-templateSelection, :step-footerCardOverflow ;
     schema:step :step-attribution, :step-darkModeCSS,
-        :step-kgExplorerReuse, :step-templateSelection ;
+        :step-kgExplorerReuse, :step-templateSelection, :step-footerCardOverflow ;
     rdfs:seeAlso <../preferences.ttl> .
 
 # ── Step 1: Footer Attribution ───────────────────────────────────────────────
@@ -48,3 +48,19 @@
     schema:position "4"^^xsd:integer ;
     schema:name "Select the correct template from assets/templates/ based on content type"@en ;
     schema:text """Select template from rdf-infographic-skill/assets/templates/ by content type. Four options and their decision trigger: (1) COMPETITIVE/HEAD-TO-HEAD → assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html — trigger: source compares two or more named platforms, products, or systems. Dark premium aesthetic, hero dual-badges, horizontal timeline, split comparison matrix, two-column capability panels. (2) GARTNER DASHBOARD → assets/templates/gartner-da-london-2026-claude-sonnet4-dashboard.html — trigger: conference report, strategy briefing, field notes, or dense operational dashboard with many metrics/chips. Top horizontal nav bar. (3) SEMANTIC MEDALLION EDITORIAL/TECHNICAL → assets/templates/semantic-medallion-editorial-technical.html — trigger: architecture explainer, SPARQL tutorial, layered/staged system (Bronze/Silver/Gold/Platinum). Narrow reading column, query accordions. (4) HARNESS REFERENCE → scripts/rdf_infographic_harness.py — fallback when none of the above clearly fits. Decision shortcut: comparing platforms → COMPETITIVE; conference/strategy → GARTNER; architecture/SPARQL → SEMANTIC MEDALLION; otherwise → HARNESS."""@en .
+
+# ── Step 5: Footer/Attribution Card Text Overflow ────────────────────────────
+
+:step-footerCardOverflow a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "ANY card/heading/pre with a long unbroken token can overflow — not just <code> URLs in footer cards"@en ;
+    schema:text """Recurring defect (fixed 2026-06-29, recurred 2026-07-01, recurred again 2026-07-02 in a DIFFERENT element type): a container rendering a long unbroken token overflows its boundary. Root cause: white-space:normal alone only breaks at spaces; a single unbroken token (URL, IRI, camelCase identifier, base64) has no spaces to break at, and CSS grid/flex items default to min-width:auto (sized to their largest unbreakable content), so the container refuses to shrink and the token spills out.
+
+The 2026-07-02 recurrence proved the defect is NOT limited to <code> tags or footer cards: it hit an offer card's plain-text <h4> title (a camelCase identifier extracted from an offer's IRI local name, no <code> wrapper at all), and nearly hit a NEW panel because it reused the existing .sparql-code <pre> class — which itself had never carried the fix, so the bug would have propagated silently through reuse.
+
+GENERALIZED MANDATORY CSS — apply as a baseline default on shared classes, not as an opt-in per instance:
+  {any-card-class} { min-width: 0 }
+  {any-text-element-that-may-carry-a-long-token} { overflow-wrap: anywhere; word-break: break-word }
+This includes: attribution/footer cards, offer/source/id cards' <h4> titles, and any <pre>/<code> block (including shared ones like .sparql-code) — audit the SHARED CLASS ITSELF before reusing it for new content, don't assume a class used elsewhere in the same document already has the protection.
+
+VERIFICATION: after generating or editing any card, heading, or pre/code block that may contain a long token, check el.scrollWidth <= el.clientWidth via preview_eval — do not rely on a screenshot alone, overflow can be subtle at normal viewport widths. This is a BLOCKING check before delivery, not an optional nicety — it has now recurred twice already after being fixed, in two different element types."""@en .

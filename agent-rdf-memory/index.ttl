@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-07-01T20:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -542,5 +542,41 @@
     schema:name "Session 2026-07-01 (Claude Sonnet 4.6 + Claude Code — AI Agent Memory Context Engineering Collection)"@en ;
     schema:description "Generated TTL (491 triples, 0 blank nodes), MD, and HTML collection on AI agent memory as context engineering, synthesising ByteByteGo and agent-rdf-memory sources. Added Comparative Analysis section (9-dimension ByteByteGo vs agent-rdf-memory table). Fixed TTL structural gaps (DefinedTermSet, inDefinedTermSet, FAQPage, schema:hasPart wiring). Fixed pre-existing Turtle_(syntax) unescaped-parens bug. HTML harness: 21 failures → 0 (kgData pure JSON, d3@7 CDN, Section navigation aria-label, settings-panel id, pred-anchor class, data-resolver-href, resolverHref click handler, 8-label attribution footer, Named graph + text/x-html-nice-turtle guidance). Preferences Step 88 encoded: preferences displayed as themed-table widget by default."@en .
 
+:session20260702BigPickleScreencast a schema:ListItem ;
+    schema:position 1005 ;
+    schema:item <sessions/2026-07-02-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-07-02 (big-pickle + OpenCode — screencast-recorder skill test, ACP purchase workflow screencast)"@en ;
+    schema:description "Created screencast-recorder skill (16 files). Executed ACP purchase for World Cup 2026 DAAS resource ($2.99) on ods-qa. Built 7-slide animated HTML presentation. Recorded screencast at ~/Movies/screencasts/ (MP4+WebM). Stripe Pay button blocked by cross-origin Elements iframe. Wrote session log to agent-rdf-memory/sessions/."@en .
+
+:session20260702BigPickleOpal402Gate a schema:ListItem ;
+    schema:position 1006 ;
+    schema:item <sessions/2026-07-02-big_pickle-opencode-2.ttl> ;
+    schema:name "Session 2026-07-02 (big-pickle + OpenCode — OPAL 402 gate screencast, shop card link investigation)"@en ;
+    schema:description "Investigated shop card link differences between production and QA (origin/feature/402 and origin/feature/separate_license_details_modal). Stitched two .mov recordings (402 gate + post-auth access) into single MP4 with ffmpeg cross-fade. Fixed 12 hardcoded paths in screencast-recorder skill (PR #59)."@en .
+
 :sessionIndex schema:itemListElement :session20260701Gpt5ChatCodexAiAbsorption ,
-    :session20260701ClaudeSonnet46ContextEngineering .
+    :session20260701ClaudeSonnet46ContextEngineering ,
+    :session20260702BigPickleScreencast ,
+    :session20260702BigPickleOpal402Gate .
+
+:session20260705Gpt5ChatCodexKarpLinkedData a schema:ListItem ;
+    schema:position 1007 ;
+    schema:item <sessions/2026-07-05-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-05 (GPT-5 Chat Codex — theCUBE 319 Linked Data systems-of-record analysis collection)"@en ;
+    schema:description "Generated RDF-Turtle, Markdown, and HTML collection from theCUBE Research article 319 about Alex Karp, frontier models, and enterprise AI. Added missing systems-of-record and Linked Data perspective: enterprise Systems of Intelligence should be grounded in authoritative systems of record and enterprise knowledge graphs deployed as a Semantic Web using HTTP IRIs, RDF views, resolver-backed entities, ABAC/data-space policy facts, and SPARQL inspection. Validation passed: Turtle parsed to 846 triples; blank-node scan clean; inline HTML script syntax OK; anchor audit clean; KG data has 64 nodes, 35 links, zero orphan links; rdf-infographic harness passed."@en .
+
+:session20260705ClaudeSonnet5KarpSystemsOfRecord a schema:ListItem ;
+    schema:position 1008 ;
+    schema:item <sessions/2026-07-05-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-05 (Claude Sonnet 5 + Claude Code — theCUBE 319 Karp Systems-of-Record/Knowledge-Graph critique collection)"@en ;
+    schema:description "Generated RDF-Turtle (513 triples, 0 blank nodes), Markdown, and HTML collection from theCUBE Research article 319 about Alex Karp, frontier models, and enterprise AI. Modeled theCUBE's System of Intelligence/Engagement/Data Capitalism framework, five control-point layers, and two scenarios, then added a distinct :CriticalPerspective class (7 instances) carrying Kingsley Uyi Idehen's independently authored Linked-Data/Semantic-Web critique of the article's underspecified Systems of Record and vendor-proprietary ontology framing (Palantir Ontology, Databricks Unity Catalog). HTML built by adapting the validated ai-absorption-problem-claude_sonnet_5-1.html template (KG-Explorer reuse-first protocol) with kgData (116 nodes/223 links) generated programmatically from the RDF via rdflib. Fixed two Turtle CURIE syntax bugs (trailing-dot and parenthesized local names) and a duplicate </head>/</body></html> assembly bug. Verified in-browser: JS syntax, JSON-LD parse, FAQ accordion, KG Explorer render, SPARQL workbench."@en .
+
+:sessionIndex schema:itemListElement :session20260705Gpt5ChatCodexKarpLinkedData ,
+    :session20260705ClaudeSonnet5KarpSystemsOfRecord .
+
+:session20260706ClaudeSonnet5SymbolicLogOffloading a schema:ListItem ;
+    schema:position 1009 ;
+    schema:item <sessions/2026-07-06-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-06 (Claude Sonnet 5 + Claude Code — Symbolic Short-Term Log Offloading design)"@en ;
+    schema:description "Compared agent-rdf-memory to TencentDB Agent Memory's layered Mermaid-symbol-graph approach; found a gap — no within-session compression of large tool outputs (existing token-optimized-session-handoff.ttl only compresses at session boundaries). Added onto:OffloadedLog and onto:SessionSymbolNode classes to ontology.ttl, with onto:hasLogIRI and onto:storedInGraph as owl:ObjectProperty (IRI-valued, never string-literal paths — file:// for local refs, https:// for WebDAV, urn:agent-rdf-memory:... for Virtuoso named graphs), plus onto:triggerLogOffloadThreshold. Every SessionSymbolNode is minted as its own IRI (urn:agent-rdf-memory:node:{session-id}:{slug}), never a blank node keyed by a literal, per no-blank-nodes-resolver-entities.ttl. Created howto/symbolic-log-offloading.ttl (6 steps) and added preferences.ttl Step 118 (:step-symbolicLogOffloading, one-sentence schema:text per Step 94 sparsity gate)."@en ;
+    rdfs:seeAlso <howto/symbolic-log-offloading.ttl> .

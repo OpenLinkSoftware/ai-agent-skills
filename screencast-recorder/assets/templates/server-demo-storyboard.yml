@@ -1,0 +1,29 @@
+output: {SCREENCAST_DIR}/server-demo.webm
+python: |
+  from pathlib import Path
+  root = Path("/tmp/screencast-demo")
+  root.mkdir(parents=True, exist_ok=True)
+  (root / "index.html").write_text(
+    "<html><body><h1>Demo App</h1><p>Prepared for screencast.</p></body></html>"
+  )
+server: python3 -m http.server 8765 --directory /tmp/screencast-demo
+url: http://localhost:8765/
+viewport:
+  width: 1440
+  height: 900
+cursor:
+  visible: true
+  clicks: true
+  color: "#1a73e8"
+wait_for: h1
+
+scenes:
+- name: "App loads from local server"
+  do:
+  - pause: 2
+
+- name: "Interact with the demo"
+  do:
+  - click: "a"
+  - wait_for: body
+  - pause: 2

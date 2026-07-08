@@ -23,7 +23,8 @@
                 :stepLabelPrecision,
                 :stepSectionHeadingTreatment,
                 :stepAccordionToggleLinks,
-                :stepCrossSessionConsistency .
+                :stepCrossSessionConsistency,
+                :stepNoRawUrlDump .
 
 # ── Steps ─────────────────────────────────────────────────────────────────────
 
@@ -87,6 +88,17 @@ Failure mode: FAQ question links render as white (#e8ecf5) or unstyled, losing t
 New sections MUST visually match existing sections — same accent usage, same link styling, same badge patterns.
 Never introduce ad-hoc color overrides or layout variants that diverge from the already-established design.
 If the user provides feedback about aesthetics, record the specific rule in preferences.ttl immediately rather than relying on conversational context."""@en .
+
+:stepNoRawUrlDump a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Never render a raw percent-encoded URL as visible wrapped text"@en ;
+    schema:text """Any generated live-query link (SPARQL workbench 'refresh live link' preview, resolver href preview, etc.) MUST NOT display its full encoded URL as plain wrapped/word-broken text in the page body — this dumps a wall of %-escapes beneath action buttons and breaks visual hierarchy.
+Instead, render it as a compact styled affordance consistent with the design token system:
+  - a small pill-shaped <a> (chip background, border-radius, var(--chip)/var(--line)) labeled with intent, e.g. "View live query URL ↗"
+  - color: var(--accent); text-decoration: none at rest, underline on hover
+  - href set programmatically to the full URL; target="_blank" rel="noopener noreferrer"
+  - the label text stays static; only the href updates on refresh — never overwrite textContent with the raw URL
+Failure mode observed: the rdf-infographic-skill SPARQL-workbench template (copied verbatim from a prior session's HTML as a structural base) rendered `preview.textContent = btn.href` — a raw ~500-character percent-encoded URL wrapped as plain muted text under the Refresh/Copy buttons. This is a template-inherited flaw, not a one-off: check every reused template section against the design system rather than assuming prior output was already compliant."""@en .
 
 # ── Why This HowTo Was Created ────────────────────────────────────────────────
 

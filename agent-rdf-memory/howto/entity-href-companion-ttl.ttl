@@ -9,7 +9,7 @@
     schema:name "Entity Href Sourcing from Companion TTL"@en ;
     schema:description "All entity hyperlinks in generated HTML infographics must be resolver-wrapped IRIs sourced from the companion TTL published at its DAV path — never external Wikipedia, W3C, schema.org, or GitHub IRIs for entities defined in the companion TTL."@en ;
     schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-02T05:20:00Z"^^xsd:dateTime ;
     schema:step :step1, :step2, :step3, :step4, :step5 .
 
 :step1 a schema:HowToStep ;
@@ -68,11 +68,14 @@ INTENTIONAL external IRIs (leave unchanged):
 
 :step5 a schema:HowToStep ;
     schema:position 5 ;
-    schema:name "Post-edit verification"@en ;
-    schema:text """After updating all hrefs, verify with grep:
+    schema:name "BLOCKING CHECK — bare-fragment hrefs silently resolve to nothing; verify before calling any document done"@en ;
+    schema:text """Recurred 2026-07-02: a full report (FAQ, Glossary, HowTo — 41 static hrefs, plus 2 more in KG-explorer JS) was built with the resolver *wrapper* applied correctly everywhere, but the ?url= parameter itself was only ever '%23{fragment}' (a bare fragment, no scheme/host/path) — e.g. describe/?url=%23q0 decodes to describe/?url=#q0, which is meaningless input to the resolver. This is easy to miss: every link LOOKS resolver-wrapped at a glance (same https://linkeddata.uriburner.com/describe/?url= prefix), and the document may already use the correct absolute DAV base elsewhere (SPARQL FROM clause, KG-explorer data-graph-iri) without that base ever being applied to entity hrefs. Do not assume applying the wrapper means the href is well-formed — decode and check.
 
-Count companion TTL resolver hrefs:
-  grep -c 'linkeddata.uriburner.com/describe/?url=https%3A%2F%2Flinkeddata.uriburner.com%2FDAV' file.html
+This is now a MANDATORY BLOCKING CHECK, not an optional post-edit nicety, run before delivering any HTML infographic with resolver-linked entities:
+  grep -c 'describe/?url=%23' file.html   # MUST be 0 — any match is a bare-fragment href with no base IRI
+  grep -c 'linkeddata.uriburner.com/describe/?url=https%3A%2F%2Flinkeddata.uriburner.com%2FDAV' file.html   # should roughly match the count of internal entity hrefs
+
+Also check runtime-constructed hrefs, not just static HTML: KG-explorer / D3 code often builds an `iriFor` or similar JS object mapping node IDs to IRIs — grep that object literally for bare `'#...'` string values (e.g. `:'#layerAuthentication'`), since those bypass static-HTML grep entirely and only surface as broken links when clicked.
 
 Confirm zero stale external entity hrefs remain where companion TTL IRIs should be:
   grep -c 'href="https://en.wikipedia.org' file.html   # expect 0 for entities in companion TTL
