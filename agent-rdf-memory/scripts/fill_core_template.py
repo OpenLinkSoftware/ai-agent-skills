@@ -10,11 +10,11 @@ Usage:
     python fill_core_template.py \
         --model "DeepSeek V4 Pro" \
         --env "Claude Code" \
-        --output-root "/Users/kidehen/Documents/LLMs/DeepSeek/"
+        --output-root "$LLM_ROOT/DeepSeek/"
 
     # CLI with env vars
     LLM_MODEL="DeepSeek V4 Pro" AGENT_ENV="Claude Code" \
-    OUTPUT_ROOT="/Users/kidehen/Documents/LLMs/DeepSeek/" \
+    OUTPUT_ROOT="$LLM_ROOT/DeepSeek/" \
     python fill_core_template.py
 
     # Write to file
@@ -24,7 +24,7 @@ Usage:
     # Import as module
     from fill_core_template import fill
     filled = fill(model="DeepSeek V4 Pro", env="Claude Code",
-                  output_root="/Users/kidehen/Documents/LLMs/DeepSeek/")
+                  output_root=os.path.join(_LLM_ROOT, "DeepSeek"))
 """
 
 import argparse
@@ -54,21 +54,30 @@ def _find_core_ttl() -> Path:
 
 # ── Output root lookup (model → path mapping) ─────────────────────────────────
 
-# Mirrors the output paths defined in core.ttl itself, plus additional entries.
+# Canonical LLM root — resolved from env var or defaulted to ~/Documents/LLMs.
+_LLM_ROOT = os.environ.get(
+    "LLM_ROOT",
+    os.path.join(os.path.expanduser("~"), "Documents", "LLMs")
+)
+# Model → subdirectory mapping. Each value is the model-specific directory name
+# under _LLM_ROOT (with trailing separator so join-and-append works naturally).
+_MODEL_SUBDIRS: dict[str, str] = {
+    "deepseek":         "DeepSeek/",
+    "deepseek_v4pro":   "DeepSeek/",
+    "claude":           "Claude Generated/",
+    "claude_sonnet":    "Claude Generated/",
+    "minimax":          "MiniMax Generated/",
+    "kimi":             "kimi/",
+    "kimi_k2":          "kimi/",
+    "grok":             "Grok/",
+    "gpt5":             "GPT5-Chat-Generated/",
+    "gpt5_chat":        "GPT5-Chat-Generated/",
+    "qwen":             "Alibaba Qwen/",
+    "glm":              "glm/",
+    "big_pickle":       "Big Pickle/",
+}
 _MODEL_OUTPUT_ROOTS: dict[str, str] = {
-    "deepseek":         "/Users/kidehen/Documents/LLMs/DeepSeek/",
-    "deepseek_v4pro":   "/Users/kidehen/Documents/LLMs/DeepSeek/",
-    "claude":           "/Users/kidehen/Documents/LLMs/Claude Generated/",
-    "claude_sonnet":    "/Users/kidehen/Documents/LLMs/Claude Generated/",
-    "minimax":          "/Users/kidehen/Documents/LLMs/MiniMax Generated/",
-    "kimi":             "/Users/kidehen/Documents/LLMs/kimi/",
-    "kimi_k2":          "/Users/kidehen/Documents/LLMs/kimi/",
-    "grok":             "/Users/kidehen/Documents/LLMs/Grok/",
-    "gpt5":             "/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/",
-    "gpt5_chat":        "/Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/",
-    "qwen":             "/Users/kidehen/Documents/LLMs/Alibaba Qwen/",
-    "glm":              "/Users/kidehen/Documents/LLMs/glm/",
-    "big_pickle":       "/Users/kidehen/Documents/LLMs/Big Pickle/",
+    k: os.path.join(_LLM_ROOT, v) for k, v in _MODEL_SUBDIRS.items()
 }
 
 

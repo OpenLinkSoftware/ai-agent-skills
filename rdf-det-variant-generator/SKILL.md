@@ -14,8 +14,8 @@ Use this skill when building a custom DAV DET derived from the `RDFImport` patte
 - Variants for multiple RDF document types
 - Verification SQL and WebDAV probes
 - Packaging guidance for:
-  - `/Users/kidehen/Documents/Management/Development/virtuoso-engine/binsrc/yacutia/sql/`
-  - `/Users/kidehen/Documents/Management/Development/ods-virtuoso/briefcase/sql/`
+  - `{HOME}/Documents/Management/Development/virtuoso-engine/binsrc/yacutia/sql/`
+  - `{HOME}/Documents/Management/Development/ods-virtuoso/briefcase/sql/`
 
 ## Trigger Conditions
 

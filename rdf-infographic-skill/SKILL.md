@@ -86,7 +86,7 @@ Reusable assets:
 - `scripts/validate-harness-contract.py` — zero-failure gate for the strict harness contract. It validates contract-equivalent features rather than enforcing a single template. Run it before delivery:
 
 ```bash
-python3 /Users/kidehen/Documents/Management/Development/ai-agent-skills/rdf-infographic-skill/scripts/validate-harness-contract.py \
+python3 {REPO_ROOT}/rdf-infographic-skill/scripts/validate-harness-contract.py \
   /path/to/webpages/{stem}.html \
   --ttl /path/to/rdf/{stem}.ttl \
   --jsonld /path/to/rdf/{stem}.jsonld
@@ -642,7 +642,7 @@ Advanced mode provides a full-featured visualization with settings panel, inspir
 - Dragged nodes MUST pin/stick at their drop destination; double-click to pin/unpin node
 - Local storage for preferences where useful (physics settings, resolver preference, arrow style). Page theme belongs to the navigation panel theme toggle, not the graph toolbar
 
-**Implementation reference**: See `/Users/kidehen/Documents/Management/Development/OSDS_extension/src/graph_gen.js` for complete implementation details.
+**Implementation reference**: See `{HOME}/Documents/Management/Development/OSDS_extension/src/graph_gen.js` for complete implementation details.
 
 #### Mode Selection
 

@@ -74,43 +74,43 @@
 
 :deepseekOutputPath a schema:PropertyValue ;
     schema:name "DeepSeek V4 Pro output path"@en ;
-    schema:description "Generated artifacts (RDF, MD, HTML) from DeepSeek V4 Pro sessions go to /Users/kidehen/Documents/LLMs/DeepSeek/ with subfolders rdf/, md/, webpages/."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/DeepSeek/" ;
+    schema:description "Generated artifacts (RDF, MD, HTML) from DeepSeek V4 Pro sessions go to {LLM_ROOT}/DeepSeek/ with subfolders rdf/, md/, webpages/."@en ;
+    schema:value "{LLM_ROOT}/DeepSeek/" ;
     schema:dateCreated "2026-05-28"^^xsd:date .
 
 :minimaxOutputPath a schema:PropertyValue ;
     schema:name "MiniMax output path"@en ;
-    schema:description "Generated artifacts from MiniMax sessions go to /Users/kidehen/Documents/LLMs/MiniMax Generated/ with subfolders rdf/, md/, webpages/."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/MiniMax Generated/" ;
+    schema:description "Generated artifacts from MiniMax sessions go to {LLM_ROOT}/MiniMax Generated/ with subfolders rdf/, md/, webpages/."@en ;
+    schema:value "{LLM_ROOT}/MiniMax Generated/" ;
     schema:dateCreated "2026-05-28"^^xsd:date .
 
 :claudeOutputPath a schema:PropertyValue ;
     schema:name "Claude output path"@en ;
-    schema:description "Generated artifacts from Claude sessions go to /Users/kidehen/Documents/LLMs/Claude Generated/ with subfolders RDF/, md/, webpages/, saved-prompts/. saved-prompts/ holds reusable reproduction-prompt .md files for a collection — a sibling of md/, not a file inside it, since a reproduction prompt is a distinct artifact type from the companion Markdown document."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/Claude Generated/" ;
+    schema:description "Generated artifacts from Claude sessions go to {LLM_ROOT}/Claude Generated/ with subfolders RDF/, md/, webpages/, saved-prompts/. saved-prompts/ holds reusable reproduction-prompt .md files for a collection — a sibling of md/, not a file inside it, since a reproduction prompt is a distinct artifact type from the companion Markdown document."@en ;
+    schema:value "{LLM_ROOT}/Claude Generated/" ;
     schema:dateCreated "2026-05-28"^^xsd:date ;
     schema:dateModified "2026-07-06"^^xsd:date .
 
 :kimiOutputPath a schema:PropertyValue ;
     schema:name "kimi output path"@en ;
-    schema:description "Generated artifacts from kimi sessions go to /Users/kidehen/Documents/LLMs/kimi/ with subfolders rdf/, md/, webpages/. Default destination until further notice."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/kimi/" ;
+    schema:description "Generated artifacts from kimi sessions go to {LLM_ROOT}/kimi/ with subfolders rdf/, md/, webpages/. Default destination until further notice."@en ;
+    schema:value "{LLM_ROOT}/kimi/" ;
     schema:dateCreated "2026-05-28"^^xsd:date .
 
 :grokOutputPath a schema:PropertyValue ;
     schema:name "Grok 4.3 output path"@en ;
-    schema:description "Generated artifacts (RDF, MD, HTML) from Grok 4.3 sessions operating in Full Contract Mode go to /Users/kidehen/Documents/LLMs/Grok/ with subfolders rdf/, md/, webpages/."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/Grok/" ;
+    schema:description "Generated artifacts (RDF, MD, HTML) from Grok 4.3 sessions operating in Full Contract Mode go to {LLM_ROOT}/Grok/ with subfolders rdf/, md/, webpages/."@en ;
+    schema:value "{LLM_ROOT}/Grok/" ;
     schema:dateCreated "2026-05-30"^^xsd:date .
 
 :glmOutputPath a schema:PropertyValue ;
     schema:name "GLM output path"@en ;
-    schema:description "Generated artifacts (RDF, MD, HTML) from GLM sessions (GLM-5.1, GLM-5.2, and later GLM variants) go to /Users/kidehen/Documents/LLMs/glm/ with subfolders rdf/, md/, webpages/. Lowercase glm/ is the canonical directory name — not uppercase GLM/."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/glm/" ;
+    schema:description "Generated artifacts (RDF, MD, HTML) from GLM sessions (GLM-5.1, GLM-5.2, and later GLM variants) go to {LLM_ROOT}/glm/ with subfolders rdf/, md/, webpages/. Lowercase glm/ is the canonical directory name — not uppercase GLM/."@en ;
+    schema:value "{LLM_ROOT}/glm/" ;
     schema:dateCreated "2026-06-26"^^xsd:date .
 
 :bigPickleOutputPath a schema:PropertyValue ;
     schema:name "Big Pickle output path"@en ;
-    schema:description "Generated artifacts (RDF, MD, HTML, screencasts) from Big Pickle (OpenCode) sessions go to /Users/kidehen/Documents/LLMs/Big Pickle/ with subfolders rdf/, md/, webpages/, screencasts/."@en ;
-    schema:value "/Users/kidehen/Documents/LLMs/Big Pickle/" ;
+    schema:description "Generated artifacts (RDF, MD, HTML, screencasts) from Big Pickle (OpenCode) sessions go to {LLM_ROOT}/Big Pickle/ with subfolders rdf/, md/, webpages/, screencasts/."@en ;
+    schema:value "{LLM_ROOT}/Big Pickle/" ;
     schema:dateCreated "2026-07-02"^^xsd:date .

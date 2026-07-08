@@ -231,8 +231,8 @@ Format: `YYYYMMDD-hometeam-vs-awayteam.html`
 - Home team (per KG) always first
 
 **Output path (per model routing rules):**  
-- Claude Sonnet/Opus → `/Users/kidehen/Documents/LLMs/Claude Generated/webpages/`
-- DeepSeek → `/Users/kidehen/Documents/LLMs/DeepSeek/webpages/`
+- Claude Sonnet/Opus → `{LLM_ROOT}/Claude Generated/webpages/`
+- DeepSeek → `{LLM_ROOT}/DeepSeek/webpages/`
 - (see preferences.ttl `step-outputDirs` for full routing table)
 
 ## Step 3 — Run the script
@@ -337,7 +337,7 @@ Run before saving. All must pass:
 # Norway vs Senegal (match ID 400021491)
 python3 scripts/report_template_create.py \
   400021491 \
-  "/Users/kidehen/Documents/LLMs/Claude Generated/webpages/20260623-norway-vs-senegal.html"
+  "{LLM_ROOT}/Claude Generated/webpages/20260623-norway-vs-senegal.html"
 ```
 
 Output: self-contained HTML, ~84 KB, passes all 12 verification gates.

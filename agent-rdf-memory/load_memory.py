@@ -17,7 +17,10 @@ WHY THIS GATE EXISTS (do not remove):
 """
 import json, os, glob, re
 
-BASE = '/Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory'
+BASE = os.environ.get(
+    'AGENT_RDF_MEMORY',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)))
+)
 MAX_SESSION = 3072   # cap most-recent session at 3 KB
 
 # ═══════════════════════════════════════════════════════════════════════════════

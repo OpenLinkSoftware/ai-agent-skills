@@ -76,10 +76,10 @@ Use the current session's model and environment — never copy from a prior sess
     schema:text """This gate runs BEFORE responding to whoami. It fills the ✓ / ⚠ badges.
 
 USER verification — default creds dir:
-  /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-credentials-5/
+  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/
 
 AGENT verification — default creds dir:
-  /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-agent-credentials/
+  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/
 
 Both dirs can be overridden by eliciting a different path from the user.
 

@@ -28,14 +28,14 @@
 :userCredentials a schema:Thing ;
     schema:name "User credential bundle"@en ;
     schema:description "Default local directory containing cert.pem / cert.p12 for the user's WebID."@en ;
-    schema:value "/Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-credentials-5/"@en ;
+    schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/"@en ;
     oplcert:SAN <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl#identity> ;
     schema:url <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl> .
 
 :agentCredentials a schema:Thing ;
     schema:name "Agent credential bundle"@en ;
     schema:description "Default local directory containing cert.pem / cert.p12 for the agent's WebID (CN=Kingsley Idehen's Agent)."@en ;
-    schema:value "/Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-agent-credentials/"@en ;
+    schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/"@en ;
     oplcert:SAN <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity> ;
     schema:url <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl> .
 
@@ -45,7 +45,7 @@
     schema:position "1"^^xsd:integer ;
     schema:name "Locate user credential file"@en ;
     schema:text """Default user credentials directory:
-  /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-credentials-5/
+  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/
 
 Elicit an override from the user if they want to verify a different credential set.
 
@@ -92,7 +92,7 @@ Known values (as of 2026-06-16):
     schema:position "3"^^xsd:integer ;
     schema:name "Locate agent credential file"@en ;
     schema:text """Default agent credentials directory:
-  /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-agent-credentials/
+  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/
 
 The agent certificate subject is:
   CN=Kingsley Idehen's Agent / emailAddress=kidehen@openlinksw.com / O=Personal Data Space
@@ -159,8 +159,8 @@ PROCEDURE (run via Bash tool after Steps 1–4):
    proceed to Step 7.
 
 Known credential dirs (as of 2026-06-18):
-  Delegator (user):  /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-credentials-5/
-  Delegate  (agent): /Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/link-in-bio-agent-credentials/
+  Delegator (user):  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/
+  Delegate  (agent): {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/
 
 Expected corroborating triples:
   Delegator profile.ttl line ~145:

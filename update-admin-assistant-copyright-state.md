@@ -20,7 +20,7 @@ Update the OpenLink Admin Assistant so its displayed copyright text reads `© 19
 4. Record proof and close the task. — needs: verification output — risks: none
 
 ## Work Log
-- Found the Admin Assistant source tree at `/Users/kidehen/Documents/Management/Development/multi-tier-stuff/wwww_sv`.
+- Found the Admin Assistant source tree at `{HOME}/Documents/Management/Development/multi-tier-stuff/wwww_sv`.
 - Confirmed the UI pages render `[productname copyright]` from `include/common.tcl`.
 - Updated the `productname copyright` branch in `include/common.tcl`.
 - Corrected an encoding issue by using the ASCII-safe HTML entity `\&copy\;` so the UI renders `©`.

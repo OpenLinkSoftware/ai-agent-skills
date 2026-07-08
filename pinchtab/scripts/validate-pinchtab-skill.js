@@ -50,7 +50,7 @@ check("no .DS_Store in skill package", !exists(".DS_Store"));
 const help = spawnSync("pinchtab", ["--help"], { encoding: "utf8" });
 check("pinchtab CLI is runnable", help.status === 0, (help.stderr || help.stdout || "").trim());
 
-const codexSkills = "/Users/kidehen/.codex/skills";
+const codexSkills = path.join(require("os").homedir(), ".codex", "skills");
 try {
   const stat = fs.lstatSync(codexSkills);
   if (stat.isSymbolicLink()) {

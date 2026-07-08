@@ -2,8 +2,12 @@
 import rdflib, json, urllib.parse, sys, html as _html
 from rdflib import RDF, RDFS, OWL
 
-TTL_PATH = '/Users/kidehen/Documents/LLMs/DeepSeek/rdf/databricks-virtuoso-kg-deepseek_v4pro-1.ttl'
-OUT_PATH = '/Users/kidehen/Documents/LLMs/DeepSeek/webpages/databricks-virtuoso-kg-deepseek_v4pro-1.html'
+TTL_PATH = os.environ.get("TTL_PATH", os.path.join(
+    os.environ.get("LLM_ROOT", os.path.join(os.path.expanduser("~"), "Documents", "LLMs")),
+    "DeepSeek/rdf/databricks-virtuoso-kg-deepseek_v4pro-1.ttl"))
+OUT_PATH = os.environ.get("OUT_PATH", os.path.join(
+    os.environ.get("LLM_ROOT", os.path.join(os.path.expanduser("~"), "Documents", "LLMs")),
+    "DeepSeek/webpages/databricks-virtuoso-kg-deepseek_v4pro-1.html"))
 RESOLVER = 'https://linkeddata.uriburner.com/describe/?url='
 SOURCE = 'https://community.openlinksw.com/t/from-databricks-tables-to-a-virtual-knowledge-graph-with-virtuoso/6293'
 STEM = 'databricks-virtuoso-kg-deepseek_v4pro-1'

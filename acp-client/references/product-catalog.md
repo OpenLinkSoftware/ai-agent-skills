@@ -2,9 +2,9 @@
 
 Resolved from the following TTL sources:
 
-- `/Users/kidehen/Documents/Management/Marketing/Virtuoso/Virtuoso Data Web/Virtuoso-Enterprise-Offers-Licenses-Prices.ttl`
-- `/Users/kidehen/Documents/Management/Marketing/Virtuoso/Virtuoso Data Web/OPALOffers-Licenses-Prices-Knowledge-Graph-Access.ttl`
-- `/Users/kidehen/Documents/Management/Marketing/UDA/UDA Data Web/Lite Edition/UDALiteOffers-Licenses-Prices-Oct-2024.ttl`
+- `{HOME}/Documents/Management/Marketing/Virtuoso/Virtuoso Data Web/Virtuoso-Enterprise-Offers-Licenses-Prices.ttl`
+- `{HOME}/Documents/Management/Marketing/Virtuoso/Virtuoso Data Web/OPALOffers-Licenses-Prices-Knowledge-Graph-Access.ttl`
+- `{HOME}/Documents/Management/Marketing/UDA/UDA Data Web/Lite Edition/UDALiteOffers-Licenses-Prices-Oct-2024.ttl`
 
 ## How to Use
 

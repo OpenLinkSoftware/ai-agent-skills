@@ -1,0 +1,35 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Resolver URL Double-Encoding Gate"@en ;
+    schema:description "Companion howto for preferences.ttl Step 121. Found 2026-07-07 in the 'How to Plagiarize' collection: every entity hyperlink in the document (idea-theft cards, myth cards, FAQ, glossary, both HowTo sections) was double-encoded because a Python HTML generator had two IRI helpers — e(frag) returning a fully resolver-wrapped URL, and content lists built with e(...) whose values were then passed through rlink() a second time inside the render functions."@en ;
+    schema:dateCreated "2026-07-07T00:00:00Z"^^xsd:dateTime ;
+    schema:about :HowToResolverDoubleEncodingGate .
+
+:HowToResolverDoubleEncodingGate a schema:HowTo ;
+    schema:name "Resolver URL Double-Encoding Gate"@en ;
+    schema:description "How to avoid and detect double-encoded describe/?url= resolver links across an entire generated document."@en ;
+    schema:step :stepTwoHelpers, :stepSweepAllCallSites, :stepDecodeCheck, :stepValidatorGate .
+
+:stepTwoHelpers a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Keep a raw-IRI helper distinct from the resolver-wrapping helper"@en ;
+    schema:text "Define two functions with unambiguous names: iri(frag) returns the bare entity IRI (BASE + frag); e(frag) or rlink(iri) returns the fully resolver-wrapped URL. Any list of (iri, label, text) tuples that will be passed through a render function that itself calls rlink() on the first element MUST use the raw iri(frag) helper, never the pre-wrapped one."@en .
+
+:stepSweepAllCallSites a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Grep every call site of both helpers before declaring a fix complete"@en ;
+    schema:text "A partial fix that corrects only the call sites you remember (e.g. the original content lists) while missing a newly-added or overlooked list (e.g. a second HowTo section added later, or a 'See also' cross-reference list added in the same fix) reproduces the exact bug in the sites you missed. Search the whole file for the wrapping helper's name before finishing."@en .
+
+:stepDecodeCheck a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Verify by decoding: one url-decode pass must yield a clean entity IRI"@en ;
+    schema:text "Pull a sample href out of the generated HTML, url-decode its query parameter once, and confirm the result is the bare entity IRI (https://source#fragment) — not another describe/?url=... resolver URL. If decoding once still leaves percent-encoding or another describe/?url=, it is double-wrapped."@en .
+
+:stepValidatorGate a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "validate-harness-contract.py greps for the double-encoding signature as a standing gate"@en ;
+    schema:text "The shared validator now fails the build if it finds describe/?url= followed by %2523 (double-encoded '#') or %253A%252F%252F (double-encoded '://') anywhere in the generated HTML. This catches double-wrapped resolver hrefs automatically on every future collection without relying on the author noticing."@en .
