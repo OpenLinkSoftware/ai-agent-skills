@@ -1,0 +1,29 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
+@prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
+@prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+<#ApiAccessProductShape> a sh:NodeShape ;
+    sh:targetClass schema:WebAPI ;
+    sh:property [ sh:path schema:provider ; sh:minCount 0 ] ;
+    sh:property [ sh:path schema:url ; sh:minCount 1 ] .
+<#ApiAccessLicenseShape> a sh:NodeShape ;
+    sh:targetClass opllic:ProductLicense ;
+    sh:property [ sh:path opllic:uriParameter ; sh:maxCount 0 ] ;
+    sh:property [ sh:path opllic:graphParameter ; sh:maxCount 0 ] ;
+    sh:property [ sh:path oplsof:hasOperatingSystemFamily ; sh:hasValue oplsof:OSFamilyAny ] ;
+    sh:property [ sh:path oplsof:hasDatabaseFamily ; sh:hasValue oplsof:WorldWideWeb ] .
+<#ApiAccessPaidLicenseShape> a sh:NodeShape ;
+    sh:targetClass opllic:ProductLicense ;
+    sh:property [ sh:path opllic:hasDuration ; sh:minCount 1 ] .
+<#ApiAccessOfferShape> a sh:NodeShape ;
+    sh:targetClass schema:Offer ;
+    sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupApiAccess#this> ] ;
+    sh:property [ sh:path schema:url ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ] .
+<#ApiAccessPaidPriceShape> a sh:NodeShape ;
+    sh:targetClass schema:UnitPriceSpecification ;
+    sh:property [ sh:path schema:price ; sh:minCount 1 ; sh:datatype xsd:decimal ] ;
+    sh:property [ sh:path oplofr:interval ; sh:minCount 1 ; sh:hasValue "month" ] ;
+    sh:property [ sh:path oplofr:intervalCount ; sh:minCount 1 ; sh:hasValue 1 ] .

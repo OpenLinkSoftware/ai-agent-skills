@@ -1,0 +1,40 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
+@prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
+@prefix wdrs:  <http://www.w3.org/2007/05/powder-s#> .
+@prefix gr:    <http://purl.org/goodrelations/v1#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+<#DocumentShape> a sh:NodeShape ;
+    sh:targetClass schema:CreativeWork ;
+    sh:property [ sh:path schema:name ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path schema:author ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:datePublished ; sh:minCount 1 ; sh:datatype xsd:dateTime ] ;
+    sh:property [ sh:path schema:dateModified ; sh:minCount 1 ; sh:datatype xsd:dateTime ] .
+<#PriceSpecificationShape> a sh:NodeShape ;
+    sh:targetClass schema:UnitPriceSpecification ;
+    sh:property [ sh:path schema:priceCurrency ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path schema:price ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:decimal ] ;
+    sh:property [ sh:path schema:validFrom ; sh:minCount 1 ; sh:datatype xsd:dateTime ] ;
+    sh:property [ sh:path schema:validThrough ; sh:minCount 1 ; sh:datatype xsd:dateTime ] .
+<#DurationShape> a sh:NodeShape ;
+    sh:targetClass opllic:Duration ;
+    sh:property [ sh:path schema:name ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] .
+<#BaseOfferShape> a sh:NodeShape ;
+    sh:targetClass schema:Offer ;
+    sh:property [ sh:path schema:itemOffered ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:priceSpecification ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:businessFunction ; sh:minCount 1 ; sh:hasValue <http://purl.org/goodrelations/v1#Sell> ] ;
+    sh:property [ sh:path oplofr:offerNumber ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:validFrom ; sh:minCount 1 ; sh:datatype xsd:dateTime ] ;
+    sh:property [ sh:path schema:validThrough ; sh:minCount 1 ; sh:datatype xsd:dateTime ] .
+<#BaseLicenseShape> a sh:NodeShape ;
+    sh:targetClass opllic:ProductLicense ;
+    sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ] ;
+    sh:property [ sh:path opllic:productLicenseOf ; sh:minCount 1 ] ;
+    sh:property [ sh:path opllic:partOf ; sh:minCount 1 ] ;
+    sh:property [ sh:path opllic:hasDuration ; sh:minCount 1 ] .
