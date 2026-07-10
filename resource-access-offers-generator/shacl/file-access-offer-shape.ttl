@@ -1,0 +1,20 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
+@prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
+@prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+<#FileAccessProductShape> a sh:NodeShape ;
+    sh:targetClass schema:WebAPI ;
+    sh:property [ sh:path schema:applicationCategory ; sh:minCount 1 ; sh:hasValue "File Access" ] ;
+    sh:property [ sh:path schema:provider ; sh:minCount 0 ] ;
+    sh:property [ sh:path schema:url ; sh:minCount 0 ] .
+<#FileAccessLicenseShape> a sh:NodeShape ;
+    sh:targetClass opllic:ProductLicense ;
+    sh:property [ sh:path opllic:uriParameter ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path oplsof:hasOperatingSystemFamily ; sh:hasValue oplsof:OSFamilyAny ] ;
+    sh:property [ sh:path oplsof:hasDatabaseFamily ; sh:hasValue oplsof:WorldWideWeb ] .
+<#FileAccessOfferShape> a sh:NodeShape ;
+    sh:targetClass schema:Offer ;
+    sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupFileAccess#this> ] ;
+    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ] .
