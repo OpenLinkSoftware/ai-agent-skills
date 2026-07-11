@@ -1,0 +1,77 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Destructive Command Guard"@en ;
+    schema:description "Blocking patterns for dangerous shell commands that must never be executed. Covers recursive deletion, force pushes, filesystem wipes, fork bombs, and pipe-to-shell patterns."@en ;
+    schema:dateCreated "2026-07-11T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-11T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-gitForcePush, :step-gitResetHard, :step-recursiveDelete,
+        :step-forkBomb, :step-diskWipe, :step-formatFilesystem,
+        :step-worldWritable, :step-pipeToShell, :step-destroyNull,
+        :step-systemShutdown ;
+    schema:step :step-gitForcePush, :step-gitResetHard, :step-recursiveDelete,
+        :step-forkBomb, :step-diskWipe, :step-formatFilesystem,
+        :step-worldWritable, :step-pipeToShell, :step-destroyNull,
+        :step-systemShutdown ;
+    rdfs:seeAlso <../preferences.ttl> .
+
+# ── Git Safety ──────────────────────────────────────────────────────────────
+
+:step-gitForcePush a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "BLOCK: git push --force / git push -f"@en ;
+    schema:text "Force pushing destroys remote history and can irreversibly overwrite collaborators' work. Never execute under any circumstances."@en .
+
+:step-gitResetHard a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "BLOCK: git reset --hard"@en ;
+    schema:text "Hard reset destroys uncommitted changes and unstaged work. Always use soft reset or stash first."@en .
+
+# ── Filesystem Destruction ──────────────────────────────────────────────────
+
+:step-recursiveDelete a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "BLOCK: rm -rf / rm -r (recursive delete)"@en ;
+    schema:text "Recursive deletion without explicit user approval is prohibited. Flag and ask — never delete and explain."@en .
+
+:step-diskWipe a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "BLOCK: dd if=/dev/zero (disk wipe)"@en ;
+    schema:text "Raw disk writes destroy all data irreversibly. Never execute."@en .
+
+:step-formatFilesystem a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "BLOCK: mkfs (format filesystem)"@en ;
+    schema:text "Formatting destroys all data on the target partition. Never execute without explicit system administration context."@en .
+
+:step-worldWritable a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "BLOCK: chmod -R 777 (world-writable)"@en ;
+    schema:text "Making files world-writable creates security vulnerabilities. Never apply recursively."@en .
+
+# ── Execution Hazards ───────────────────────────────────────────────────────
+
+:step-forkBomb a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "BLOCK: :(){ :|:& };: (fork bomb)"@en ;
+    schema:text "Fork bombs exhaust system resources and crash the system. Never execute."@en .
+
+:step-pipeToShell a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "BLOCK: curl | bash / wget | bash (pipe to shell)"@en ;
+    schema:text "Piping remote content directly to shell executes arbitrary code without inspection. Always download, inspect, then execute."@en .
+
+:step-destroyNull a schema:HowToStep ;
+    schema:position 9 ;
+    schema:name "BLOCK: mv /* /dev/null (destroy via null device)"@en ;
+    schema:text "Moving files to /dev/null destroys them irreversibly. Never execute."@en .
+
+:step-systemShutdown a schema:HowToStep ;
+    schema:position 10 ;
+    schema:name "BLOCK: shutdown / reboot / halt"@en ;
+    schema:text "System shutdown commands interrupt all running processes. Never execute without explicit user request and confirmation."@en .

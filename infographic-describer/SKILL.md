@@ -1,6 +1,6 @@
 ---
 name: infographic-describer
-description: Generate RDF-Turtle descriptions (schema:ImageObject, schema:VideoObject, schema:WebPage) for infographic files in a WebDAV directory, using SHACL shapes as the property contract. Trigger when: user asks to describe infographics, generate metadata for a DAV directory, create RDF descriptions for image/video collections, or apply a SHACL shape to bulk-describe files. Handles content negotiation (HTML describe pages vs SPARQL DESCRIBE), filename-derived metadata, thumbnail URL detection, and category inference.
+description: "Generate RDF-Turtle descriptions (schema:ImageObject, schema:VideoObject, schema:WebPage) for infographic files in a WebDAV directory, using SHACL shapes as the property contract. Trigger when: user asks to describe infographics, generate metadata for a DAV directory, create RDF descriptions for image/video collections, or apply a SHACL shape to bulk-describe files. Handles content negotiation (HTML describe pages vs SPARQL DESCRIBE), filename-derived metadata, thumbnail URL detection, and category inference."
 ---
 
 # Infographic Describer

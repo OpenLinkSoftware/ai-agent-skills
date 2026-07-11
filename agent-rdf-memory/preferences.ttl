@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-07-03T15:43:19Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-11T00:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -29,7 +29,8 @@
     schema:description "Procedural rules the agent must follow in every session. Encoded as structured RDF so rules are queryable, resolvable, and harder to overlook than flat prose alone."@en ;
     schema:about :topic-identity-webid, :topic-memory-management, :topic-artifact-routing,
         :topic-rdf-authoring, :topic-html-kg-explorer, :topic-ontology-generation,
-        :topic-skill-workflows, :topic-virtuoso-sparql, :topic-terminology ;
+        :topic-skill-workflows, :topic-virtuoso-sparql, :topic-terminology,
+        :topic-activitypub, :topic-destructive-command-guard ;
     schema:hasPart :howto-identity-webid,
         :howto-memory-management,
         :howto-artifact-routing,
@@ -38,7 +39,9 @@
         :howto-ontology-generation,
         :howto-skill-workflows,
         :howto-virtuoso-sparql,
-        :howto-terminology .
+        :howto-terminology,
+        :howto-activitypub,
+        :howto-destructive-command-guard .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Topic Entities (simplified — one per sub-HowTo) ──────────────────────
@@ -158,7 +161,8 @@
         <howto/rdf-residence-vs-birthplace.ttl>,
         <howto/no-blank-nodes-resolver-entities.ttl>,
         <howto/rdf-document-authoring.ttl>,
-        <howto/position-integer-type.ttl> ;
+        <howto/position-integer-type.ttl>,
+        <howto/example-iri-anti-pattern.ttl> ;
     schema:step :step-entityDenotation, :step-documentEntity, :step-documentAbout,
         :step-entityTypeGate, :step-externalIriVerification,
         :step-entityLinkPlacement, :step-canonicalIriCompliance,
@@ -168,7 +172,7 @@
         :step-owlSameAsVsSkosRelated, :step-entityLookupDisambiguation,
         :step-residenceVsBirthplace, :step-noBlankNodesForResolverEntities,
         :step-dbpediaCanonicalSubject, :step-terminologySemanticWeb,
-        :step-positionIntegerType .
+        :step-positionIntegerType, :step-exampleIriAntiPattern .
 
 # ── 5. HTML Infographic & KG Explorer ───────────────────────────────────────
 
@@ -254,6 +258,30 @@
         <howto/acronym-expansion.ttl> ;
     schema:step :step-mashupVsMeshup,
         :step-expandFirstUse .
+
+# ── 10. ActivityPub & Fediverse Protocol ────────────────────────────────────
+
+:topic-activitypub a schema:Thing ;
+    schema:name "ActivityPub & Fediverse Protocol"@en ;
+    schema:description "ActivityPub protocol compliance rules for Fediverse CRUD operations: actor document endpoint sourcing, WebFinger resolution, content negotiation, and server-to-server delivery verification."@en .
+
+:howto-activitypub a schema:HowTo ;
+    schema:name "ActivityPub & Fediverse Protocol"@en ;
+    schema:description "Protocol-level gates for ActivityPub and Fediverse operations: all endpoint URLs must be sourced from the actor document, never guessed by convention."@en ;
+    rdfs:seeAlso <howto/activitypub-actor-document-gate.ttl> ;
+    schema:step :step-activitypubActorDocumentGate .
+
+# ── 11. Destructive Command Guard ──────────────────────────────────────────
+
+:topic-destructive-command-guard a schema:Thing ;
+    schema:name "Destructive Command Guard"@en ;
+    schema:description "Blocking patterns for dangerous shell commands: force pushes, recursive deletes, fork bombs, disk wipes, pipe-to-shell, and other irreversible operations."@en .
+
+:howto-destructive-command-guard a schema:HowTo ;
+    schema:name "Destructive Command Guard"@en ;
+    schema:description "Standing rule: never execute destructive shell commands. Covers git force operations, recursive deletion, filesystem wipes, fork bombs, and pipe-to-shell patterns."@en ;
+    rdfs:seeAlso <howto/destructive-command-guard.ttl> ;
+    schema:step :step-destructiveCommandGuard .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Step Definitions (referenced by sub-HowTos above) ────────────────────
@@ -1136,6 +1164,19 @@
     schema:name "URIBurner OAuth Authorization Code Flow"@en ;
     schema:description "OAuth2 Authorization Code grant flow with dynamic client registration and local redirect server for accessing URIBurner DAV resources. Token issuer must match resource server (linkeddata.uriburner.com), not my.openlinksw.com."@en .
 
+# ── Step 61a: ActivityPub Actor Document Endpoint Source Gate ─────────────
+
+:step-activitypubActorDocumentGate a schema:HowToStep ;
+    schema:position 78 ;
+    schema:name "BLOCKING GATE — all ActivityPub endpoint URLs (inbox, outbox, sharedInbox, followers, following) MUST be sourced from the actor document, never guessed"@en ;
+    schema:text "Every ActivityPub endpoint URL used for read or write operations must be read from the actor document's corresponding property — never constructed by appending path segments to the actor URI."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/activitypub-actor-document-gate.ttl> .
+
+:topicActivitypubActorDocumentGate a schema:Thing ;
+    schema:name "ActivityPub Actor Document Endpoint Source Gate"@en ;
+    schema:description "Blocking protocol gate: all ActivityPub endpoint URLs must be read from the actor document — never guessed by convention."@en .
+
 # ── Step 62: schema:homeLocation vs schema:birthPlace ─────────────────────────
 
 :step-residenceVsBirthplace a schema:HowToStep ;
@@ -1626,3 +1667,19 @@
     schema:text "Recurring defect, flagged by the user a second time on 2026-07-08 in aaron-levie-enterprise-ai-agent-issues-semantic-web-virtuoso-claude_sonnet_5-1.html's footer SPARQL workbench accordion — a <summary><a href=...> resolver link left without its closing </a> before </summary> causes the browser's HTML parser to keep the anchor open across the </summary> boundary, so the following <pre class=\"sparql-code\"> query-text block renders entirely as link text (blue/underlined, sometimes visually indistinguishable from 'missing' text at a glance). The query text was NOT actually missing from the DOM or the textarea .value — it was present but visually disguised as a giant hyperlink, which is why prior fixes to the SPARQL escape/newline gates (step-sparqlHtmlEscape, step-sparqlBtnMandatory) did not catch it: those gates check for escaping and encoding correctness, not tag closure. Root cause in this case: the </a> was dropped during template adaptation (surgical text swap of the accordion title) from the reuse-first source candidate (how-to-plagiarize-talisman-claude_sonnet_5-1.html), which had it correctly closed. MANDATORY GREP GATE before delivering any HTML infographic with a footer SPARQL accordion: grep -oE '<summary><a[^>]*>[^<]*</summary>' file.html — any match (i.e. a <summary><a> whose next tag is </summary> with no intervening </a>) is a FAIL. Also visually verify by expanding the accordion in the live preview and confirming the query text renders in normal (non-link) color, not just checking the JS-populated textarea's .value in isolation — the textarea and the static <pre> accordion are two separate elements and one being correct does not guarantee the other is."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/sparql-html-escape-gate.ttl> .
+
+:step-exampleIriAntiPattern a schema:HowToStep ;
+    schema:position 123 ;
+    schema:name "example.com/example.org IRIs in illustrative RDF/YAML-LD/JSON-LD examples are an anti-pattern — check the primary source for a real example first, else use relative hash IRIs"@en ;
+    schema:text "Before inventing an illustrative code example, check whether the document's primary source already has a real one to reproduce; if none exists, use relative hash IRIs scoped to the document's own base — never example.com/example.org placeholder domains or a non-dereferenceable urn: scheme."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/example-iri-anti-pattern.ttl> .
+
+# ── Step 124: Destructive Command Guard ──────────────────────────────────────
+
+:step-destructiveCommandGuard a schema:HowToStep ;
+    schema:position 124 ;
+    schema:name "BLOCK: never execute destructive shell commands — force push, recursive delete, fork bomb, disk wipe, pipe-to-shell"@en ;
+    schema:text "Never execute destructive shell commands including: git push --force/-f, git reset --hard, rm -rf/-r, dd if=/dev/zero, mkfs, chmod -R 777, :(){ :|:& };:, curl|bash, wget|bash, mv /* /dev/null, shutdown/reboot/halt. These patterns are blocked unconditionally — no context or task justifies their execution."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/destructive-command-guard.ttl> .
