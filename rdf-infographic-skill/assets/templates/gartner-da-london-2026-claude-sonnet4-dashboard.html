@@ -534,8 +534,8 @@ section:nth-child(even){background:var(--bg2)}
         <div class="settings-divider"></div>
         <div class="settings-section-title">Arrow Style</div>
         <div class="settings-radio-group">
-          <label><input type="radio" name="arrow-style" value="single" checked onchange="setArrowStyle('single')">Single →</label>
-          <label><input type="radio" name="arrow-style" value="dual" onchange="setArrowStyle('dual')">Dual ↔</label>
+          <label><input type="radio" name="arrow-style" value="single" checked onchange="setArrowStyle('single')">Directed →</label>
+          <label><input type="radio" name="arrow-style" value="none" onchange="setArrowStyle('none')">Hidden</label>
         </div>
         <div class="settings-divider"></div>
         <div class="settings-section-title">Literal Filter</div>
@@ -1120,7 +1120,6 @@ function renderAdvanced(){
   const W=svg.node().clientWidth||800, H=svg.node().clientHeight||520;
   const defs=svg.append('defs');
   defs.append('marker').attr('id','arr-adv').attr('viewBox','0 -4 8 8').attr('refX',18).attr('refY',0).attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto').append('path').attr('d','M0,-4L8,0L0,4').attr('fill','#7c6af7');
-  defs.append('marker').attr('id','arr-adv-start').attr('viewBox','0 -4 8 8').attr('refX',-10).attr('refY',0).attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto-start-reverse').append('path').attr('d','M0,-4L8,0L0,4').attr('fill','#7c6af7');
   const g=svg.append('g');
   svg.call(d3.zoom().scaleExtent([.2,4]).on('zoom',e=>g.attr('transform',e.transform)));
   const linkData=links.map(l=>({source:typeof l.source==='object'?l.source.id:l.source,target:typeof l.target==='object'?l.target.id:l.target,label:l.label}));
@@ -1135,8 +1134,7 @@ function renderAdvanced(){
   if(!advPhysicsEnabled) advSim.stop();
   const link=g.append('g').selectAll('line').data(linkData).join('line')
     .attr('class','link-line').attr('stroke','#7c6af755').attr('stroke-width',1.4)
-    .attr('marker-end','url(#arr-adv)')
-    .attr('marker-start',advArrowStyle==='dual'?'url(#arr-adv-start)':null)
+    .attr('marker-end',advArrowStyle==='none'?null:'url(#arr-adv)')
     .on('mouseenter',function(){d3.select(this).attr('stroke','#a78bfa').attr('stroke-opacity',1).attr('stroke-width',2.8);})
     .on('mouseleave',function(){d3.select(this).attr('stroke','#7c6af755').attr('stroke-opacity',1).attr('stroke-width',1.4);});
   // Edge labels as true SVG hyperlinks

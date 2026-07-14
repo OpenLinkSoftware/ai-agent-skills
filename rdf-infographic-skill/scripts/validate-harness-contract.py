@@ -38,6 +38,11 @@ def require_any_regex(html: str, patterns: list[str], label: str, failures: list
         fail(label, failures)
 
 
+def forbid_regex(html: str, pattern: str, label: str, failures: list[str]) -> None:
+    if re.search(pattern, html, re.S):
+        fail(label, failures)
+
+
 def validate_rdf(path: str | None, fmt: str, failures: list[str]) -> None:
     if not path:
         return
@@ -82,6 +87,8 @@ def main() -> int:
     require_any(html, ['id="literalToggle"', 'literal', 'Literals'], "Literal filter missing", failures)
     require_any(html, ['id="resolverPreference"', 'resolver', 'RESOLVER'], "Resolver preference/pattern missing", failures)
     require_any(html, ['id="arrowStyle"', 'arrow', 'marker-end'], "Arrow style/directed arrows missing", failures)
+    forbid_regex(html, r'''(value=["']dual["']|arrowStyle\s*=\s*['"]dual['"]|>\s*Dual\b)''', "Dual-arrow option/default found — KG Explorer edges must be single, directed (subject-to-object) arrowheads only; use 'directed'/'none', never 'dual'", failures)
+    forbid_regex(html, r'''marker-start\s*[:=]\s*['"]?url\(#''', "marker-start found on a KG Explorer edge — edges must carry marker-end only (single directed arrowhead), never a start-side arrowhead implying bidirectionality", failures)
     require(html, 'd3@7', "D3 runtime missing", failures)
     require_any(html, ['clickDistance(6)', 'd3.drag()', '.drag()'], "D3 drag behavior missing", failures)
     require_any_regex(html, [r'\.append\([\'"]a[\'"]\).*?(href|xlink:href)', r'<a[^>]+href="https://linkeddata\.uriburner\.com/describe/\?url='], "Resolver-backed SVG/label anchors missing", failures)

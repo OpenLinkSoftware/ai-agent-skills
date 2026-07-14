@@ -624,7 +624,7 @@ Advanced mode provides a full-featured visualization with settings panel, inspir
 - **Node Filtering**: Chips for each node type (person, organization, place, concept, event, literal, resource), Select All/Deselect All where the node-type set is broad enough to need bulk actions. Chips must have clear selected/unselected visuals and matching `aria-pressed` values.
 - **Literal Text Filtering**: Text input to show only literal relationships containing specified text
 - **Resolver Preference**: Options for "None", "URIBurner" (https://linkeddata.uriburner.com/describe/?url={uri}), or "Custom" with pattern input
-- **Arrow Style**: "Dual arrows" (render every triple) vs "Single arrow" (merge mutual predicates)
+- **Arrow Visibility**: "Directed" (single subject→object arrowhead, always) vs "Hidden" (no arrowheads). Dual/bidirectional arrowheads on a single edge MUST NEVER be used — the graph is an RDF directed graph, and every edge represents one directional subject→predicate→object statement, never a symmetric relationship.
 - **Color-coded Legend**: Dynamic legend showing node type colors with toggle chips
 
 **Interaction:**

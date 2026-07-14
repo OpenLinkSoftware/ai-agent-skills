@@ -1,0 +1,29 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: example.com/example.org IRIs Are an Anti-Pattern in Illustrative RDF/YAML-LD/JSON-LD Examples"@en ;
+    schema:description "Companion howto for preferences.ttl Step 123. When a document's own thesis is about hyperlinks/dereferenceable HTTP IRIs as the identifier mechanism, inventing an example that uses example.com/example.org (or worse, a non-dereferenceable urn: scheme) undercuts the argument. Prefer a real, sourced example from the primary spec/document; if none exists, use relative hash IRIs scoped to the document's own base, never example.com/example.org."@en ;
+    schema:dateCreated "2026-07-10T00:00:00Z"^^xsd:dateTime ;
+    schema:about :HowToExampleIriAntiPattern .
+
+:HowToExampleIriAntiPattern a schema:HowTo ;
+    schema:name "Example IRI Anti-Pattern Gate"@en ;
+    schema:step :stepCheckSpecFirst, :stepRelativeHashFallback, :stepWhyExampleDomainFails .
+
+:stepCheckSpecFirst a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Before inventing an illustrative code example, check whether the primary source/spec already has one"@en ;
+    schema:text "Found 2026-07-10: generated an illustrative YAML-LD before/after example for a collection about a LinkedIn post announcing a W3C YAML-LD working draft. User asked 'Doesn't the YAML-LD spec doc have an example?' — it did (Example 1/Example 2 in the actual W3C YAML-LD 1.0 Working Draft, resolved via the post's shortened lnkd.in link, https://www.w3.org/TR/yaml-ld-10/). The spec's own introductory example (Proxima Centauri b, using real dbo:/dbp:/dbr:/schema: DBpedia and Schema.org HTTP IRIs) was strictly better than any invented example: authoritative, sourced, and already using genuine dereferenceable HTTP IRIs. RULE: when a post/document links to (or names) a primary specification, technical standard, or reference document, check whether that source already contains a worked example before inventing one. Fetch the real page (resolve any shortlink redirects first — LinkedIn's lnkd.in interstitial reveals the true target URL without needing to click through) and extract the example verbatim (use a JS eval / textContent read on the exact <pre>/<code> element, not OCR-style screenshot transcription, to avoid whitespace/indentation errors) with a citation link to the specific example anchor if the source page exposes one."@en .
+
+:stepRelativeHashFallback a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "If no real example exists, use relative hash IRIs scoped to the document base — never example.com/example.org/urn:"@en ;
+    schema:text "When a genuinely illustrative (curator-invented) code example is unavoidable, use relative hash IRIs anchored to the document's own base — e.g. #vault-ld-design-notes or {document-base}#vault-ld-design-notes — never https://example.com/ or https://example.org/ placeholder domains, and never a non-dereferenceable urn: scheme. This applies as a blanket rule, not just when the surrounding document's thesis is specifically about hyperlinks — example.com/example.org IRIs read as filler/placeholder content in any RDF, JSON-LD, or YAML-LD example, and relative hash IRIs are both more honest (obviously local to the illustration) and demonstrate the identifier pattern without implying a fake external resource exists."@en .
+
+:stepWhyExampleDomainFails a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Why example.com/example.org undermines a Linked Data argument specifically"@en ;
+    schema:text "example.com and example.org (RFC 2606 reserved documentation domains) are technically dereferenceable, which is why an earlier pass used them as a 'fix' for a prior urn:-scheme anti-pattern. But in a document whose central claim is 'hyperlinks are real, standards-based identifiers that connect to a shared graph,' a placeholder domain still reads as fake — it signals 'this identifier does not really participate in the graph,' which is the opposite of the point being illustrated. A real example (see stepCheckSpecFirst) or a relative hash IRI honestly scoped to the document (see stepRelativeHashFallback) both avoid this failure mode; example.com/example.org is a middle ground that satisfies the letter of 'use an HTTP IRI' while failing the spirit of the argument."@en .

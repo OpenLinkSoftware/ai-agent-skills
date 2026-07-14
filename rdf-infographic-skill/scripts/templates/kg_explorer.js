@@ -36,7 +36,7 @@ function initKGExplorer(config) {
   var activeNodeTypes = { Class: true, Property: true, Instance: true };
   var literalFilter = '';
   var resolverPref = options.resolver || 'uriburner';
-  var arrowStyle = 'single';
+  var arrowStyle = 'directed';
   var kgCharge = -300;
   var kgLinkDist = 120;
   var kgPhysics = true;
@@ -153,7 +153,6 @@ function initKGExplorer(config) {
       return m;
     }
     defs.appendChild(createMarker('arrow-end', 20));
-    defs.appendChild(createMarker('arrow-start', 0));
     svg.appendChild(defs);
 
     var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -177,8 +176,7 @@ function initKGExplorer(config) {
 
     var linkLines = d3.select(g).selectAll('line.link-line').data(linkGroups).join('line')
       .attr('stroke', '#94A3B8').attr('stroke-width', 1.5).attr('stroke-opacity', 0.5)
-      .attr('marker-end', 'url(#arrow-end)')
-      .attr('marker-start', function(d) { return arrowStyle === 'dual' ? 'url(#arrow-start)' : null; });
+      .attr('marker-end', function(d) { return arrowStyle === 'none' ? null : 'url(#arrow-end)'; });
 
     var linkGs = d3.select(g).selectAll('g.link-label-group').data(linkGroups).join('g').attr('class', 'link-label-group');
     linkGs.append('text')
