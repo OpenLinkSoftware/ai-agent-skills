@@ -15,14 +15,12 @@
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
 
-# Identity equivalence — canonical (non-www) IRI and www form are the same person
-<https://linkedin.com/in/kidehen#this>
-    owl:sameAs <https://www.linkedin.com/in/kidehen#this> .
-
-# Tony Seale — canonical IRI is the www LinkedIn form; uk subdomain and trailing-slash variant are aliases
-<https://www.linkedin.com/in/tonyseale#this>
-    owl:sameAs <https://uk.linkedin.com/in/tonyseale#this>,
-               <https://www.linkedin.com/in/tonyseale/#this> .
+# Person identity equivalences (Kingsley Uyi Idehen, Tony Seale, and all other
+# recurring people) are the single-source-of-truth in entities/people.ttl.
+# Do NOT declare owl:sameAs person-identity blocks here — this file is the
+# behavioral contract, not the entity registry; the two were previously
+# duplicated (found and corrected 2026-07-14).
+<> rdfs:seeAlso <entities/people.ttl> .
 
 :agentBehaviorGuide a schema:HowTo ;
     schema:name "Agent Standing Instructions"@en ;

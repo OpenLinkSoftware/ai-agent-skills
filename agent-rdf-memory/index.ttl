@@ -634,6 +634,12 @@
     schema:name "Entity Registry: Concepts (Semantic Web, Linked Data, WebID, DPKI, meshup, etc.)"@en ;
     schema:description "Canonical schema:DefinedTerm entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
 
+:entityOntologyTerms a schema:ListItem ;
+    schema:position 1104 ;
+    schema:item <entities/ontology-terms.ttl> ;
+    schema:name "Entity Registry: TBox Alignment (owl:equivalentClass/equivalentProperty axioms for re-minted classes and properties)"@en ;
+    schema:description "Created 2026-07-14 from the TBox census of DAV named graphs (656 local terms, 86 recurring): repairs the FDE/IRE #-vs-## IRI split (12 classes + 4 properties), designates canonical IRIs for generator-template analysis classes/properties (KeyPrinciple ×5 IRIs, hasLaborTAM ×4, etc.), and records a watchlist of label collisions that must NOT be aligned. Uses owl:equivalentClass/equivalentProperty (not owl:sameAs) so Virtuoso/FuXi reasoners can merge instance data across graphs."@en .
+
 :prefCrossDocumentLocalTermReuse a schema:ListItem ;
     schema:position 127 ;
     schema:name "Step 127 — Reuse resolver-dereferenceable local ontology terms from ANY prior task run, not only related documents"@en ;
