@@ -32,6 +32,10 @@ function requireAnyRegex(html: string, patterns: RegExp[], label: string): void 
   if (!patterns.some(p => p.test(html))) fail(label);
 }
 
+function forbidRegex(html: string, pattern: RegExp, label: string): void {
+  if (pattern.test(html)) fail(label);
+}
+
 function parseArgs(argv: string[]): { html: string; ttl?: string; jsonld?: string } {
   let html = "";
   let ttl: string | undefined;
@@ -103,6 +107,8 @@ async function main(): Promise<number> {
   requireAny(html, ['id="literalToggle"', 'literal', 'Literals'], "Literal filter missing");
   requireAny(html, ['id="resolverPreference"', 'resolver', 'RESOLVER'], "Resolver preference/pattern missing");
   requireAny(html, ['id="arrowStyle"', 'arrow', 'marker-end'], "Arrow style/directed arrows missing");
+  forbidRegex(html, /(value=["']dual["']|arrowStyle\s*=\s*['"]dual['"]|>\s*Dual\b)/s, "Dual-arrow option/default found — KG Explorer edges must be single, directed (subject-to-object) arrowheads only; use 'directed'/'none', never 'dual'");
+  forbidRegex(html, /marker-start\s*[:=]\s*['"]?url\(#/s, "marker-start found on a KG Explorer edge — edges must carry marker-end only (single directed arrowhead), never a start-side arrowhead implying bidirectionality");
   require(html, 'd3@7', "D3 runtime missing");
   requireAny(html, ['clickDistance(6)', 'd3.drag()', '.drag()'], "D3 drag behavior missing");
   requireAnyRegex(html, [/\.append\(['"]a['"]\)[\s\S]{0,200}(href|xlink:href)/, /<a[^>]+href="https:\/\/linkeddata\.uriburner\.com\/describe\/\?url=/], "Resolver-backed SVG/label anchors missing");

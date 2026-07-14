@@ -722,8 +722,8 @@ html[data-theme="light"] #fnav-links ul{background:rgba(255,255,255,0.92)}
     <div class="kg-sg">
       <label>Arrow Style</label>
       <select id="arrow-style" onchange="render()">
-        <option value="dual">Dual arrows</option>
-        <option value="single">Single (deduplicate)</option>
+        <option value="dedup">Deduplicated</option>
+        <option value="all">All Edges</option>
       </select>
     </div>
     <div class="kg-sg">
@@ -1074,7 +1074,7 @@ function getFiltered(){
     links=links.filter(l=>litIds.has(l.source)||litIds.has(l.target));
     nodes=nodes.filter(n=>litIds.has(n.id)||links.some(l=>l.source===n.id||l.target===n.id));
   }
-  if(document.getElementById('arrow-style')?.value==='single'){
+  if(document.getElementById('arrow-style')?.value!=='all'){
     const seen=new Set();
     links=links.filter(l=>{const k=[l.source,l.target].sort().join('||')+'||'+l.label;if(seen.has(k))return false;seen.add(k);return true;});
   }

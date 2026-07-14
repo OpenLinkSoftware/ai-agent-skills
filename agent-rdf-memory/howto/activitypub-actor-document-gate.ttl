@@ -1,0 +1,63 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "ActivityPub Actor Document Endpoint Source Gate"@en ;
+    schema:description "Blocking protocol gate: all ActivityPub endpoint URLs (inbox, outbox, sharedInbox, followers, following) MUST be sourced from the actor document — never guessed by convention."@en ;
+    schema:dateCreated "2026-07-09"^^xsd:date ;
+    schema:about :actorDocumentGate .
+
+:actorDocumentGate a schema:HowTo ;
+    schema:name "How to source ActivityPub endpoint URLs from the actor document"@en ;
+    schema:description "The ActivityPub specification requires that all endpoint URLs — inbox, outbox, sharedInbox, followers, following — be read from the actor document. Guessing by appending path segments to the actor URI is a protocol violation. The server's actual paths may differ entirely from the actor URI path (e.g., /DAV/home/{user}/outbox/ vs /dataspace/person/{user}/outbox). Every ActivityPub CRUD operation depends on correct endpoint URLs."@en ;
+    schema:step :stepFetchActorDoc, :stepExtractEndpoints, :stepNeverGuess, :stepFailOnMissing .
+
+:stepFetchActorDoc a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Fetch the actor document with content negotiation"@en ;
+    schema:text """After resolving the actor URI via WebFinger (self link, type application/activity+json), fetch the actor document:
+  curl -skL -H "Accept: application/activity+json" "{actor_uri}"
+Follow 303 redirects. The response is a JSON-LD document conforming to the ActivityStreams 2.0 vocabulary, containing all endpoint URLs as top-level properties."""@en .
+
+:stepExtractEndpoints a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Extract all endpoint URLs from the actor document — never use only the actor URI"@en ;
+    schema:text """From the fetched actor document JSON, read every endpoint property needed for CRUD operations:
+  - outbox      (required for Note, Like, Announce, Follow, Delete, Undo POSTs)
+  - inbox       (required for reading delivered activities, verifying delivery)
+  - sharedInbox (in endpoints{} sub-object; used for server-to-server delivery)
+  - followers   (used for follower collection reads)
+  - following   (used for following collection reads)
+
+On Virtuoso ODS instances, these typically live under /DAV/home/{user}/:
+  outbox:      https://{host}/DAV/home/{user}/outbox/
+  inbox:       https://{host}/DAV/home/{user}/inbox/
+  sharedInbox: https://{host}/DAV/sharedInbox/
+
+NOT under the dataspace path:
+  https://{host}/dataspace/person/{user}/outbox   ← WRONG (guessed)
+
+The DAV path and the dataspace path are distinct — only the actor document knows the real values."""@en .
+
+:stepNeverGuess a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Never construct or guess any ActivityPub endpoint URL by convention"@en ;
+    schema:text """Do NOT construct any ActivityPub endpoint URL by these patterns:
+  - {actor_uri}/outbox
+  - {actor_uri}/inbox
+  - {actor_uri}/followers
+  - {instance}/users/{handle}/outbox
+  - {instance}/api/activitypub/{handle}/outbox
+These are all guesses. The server may use any path structure it chooses. Only the actor document's properties are authoritative. Using a guessed URL leads to silent failures (403, 'Permission denied') that are indistinguishable from ACL issues, wasting diagnostic effort. This applies to all CRUD operations — read (inbox GET), write (outbox POST), delivery verification (sharedInbox), and Follow management (followers/following)."""@en .
+
+:stepFailOnMissing a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "If the actor document cannot be fetched or lacks required endpoint properties, stop"@en ;
+    schema:text """Do not proceed with any ActivityPub operation if:
+1. The actor document cannot be fetched (network error, 404, 500)
+2. The actor document response is empty or malformed JSON
+3. A required endpoint property (e.g., 'outbox' for writes, 'inbox' for reads) is absent from the actor document
+Report the specific failure to the user and do not attempt to guess or fall back to a constructed URL."""@en .

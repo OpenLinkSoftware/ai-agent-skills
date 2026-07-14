@@ -598,6 +598,14 @@
 :sessionIndex schema:itemListElement :session20260708Gpt5ChatCodexEnterpriseAiAgentsLinkedData,
     :entityPeople, :entityOrganizations, :entityTools, :entityConcepts .
 
+:session20260712Gpt5ChatCodexDefaultQuestionRouting a schema:ListItem ;
+    schema:position 1012 ;
+    schema:item <sessions/2026-07-12-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-12 (GPT-5 Chat Codex — Skills/KG-First Question Routing)"@en ;
+    schema:description "Updated preferences.ttl, howto/skill-invocation.ttl, and data-twingler SKILL.md so user questions route through skills/KG first unless the user explicitly opts out, asks not to use KG/local RDF/SPARQL, or the task is clearly trivial/self-contained. If the skill route is unavailable, weak, empty, or incomplete, the assistant must ask before falling back to general model knowledge."@en .
+
+:sessionIndex schema:itemListElement :session20260712Gpt5ChatCodexDefaultQuestionRouting .
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Entity Registry Index ────────────────────────────────────────────────
 # ═══════════════════════════════════════════════════════════════════════════
@@ -625,3 +633,10 @@
     schema:item <entities/concepts.ttl> ;
     schema:name "Entity Registry: Concepts (Semantic Web, Linked Data, WebID, DPKI, meshup, etc.)"@en ;
     schema:description "Canonical schema:DefinedTerm entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
+
+:prefCrossDocumentLocalTermReuse a schema:ListItem ;
+    schema:position 127 ;
+    schema:name "Step 127 — Reuse resolver-dereferenceable local ontology terms from ANY prior task run, not only related documents"@en ;
+    schema:description "Identified 2026-07-14, then corrected same day: preferences.ttl had gates for external shared-vocabulary discovery (prefix.cc) and real-world entity IRI denotation, but none for reusing THIS AGENT'S OWN previously-minted, DAV-published, resolver-dereferenceable document-local DefinedTerms/classes/properties (e.g. avc:abac, karp:CriticalPerspective). Initial framing wrongly conditioned reuse on the new document being a topically-related companion/sequel; the user clarified that resolver-IRI dereferenceability makes any minted term reusable in ANY future task regardless of topic — the point is preventing custom term bloat across the full output corpus, not just within a series."@en ;
+    schema:about <preferences.ttl#step-crossDocumentLocalTermReuse> ;
+    rdfs:seeAlso <howto/cross-document-local-term-reuse.ttl> .

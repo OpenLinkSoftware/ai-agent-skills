@@ -1,0 +1,35 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Resolver-IRI Reuse of Document-Local Ontology Terms Across ANY Future Task Run"@en ;
+    schema:description "Protocol for treating every schema:DefinedTerm, custom rdfs:Class, and custom rdf:Property minted during ANY doc-collection production task as a standing, resolver-dereferenceable term available for reuse in ANY future task run — not only a topically-related companion/sequel — so that custom term bloat does not accumulate across the agent's output corpus."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :mainStep ;
+    schema:step :mainStep ;
+    rdfs:seeAlso <../preferences.ttl>, <ontology-discovery.ttl>, <canonical-entity-iri-denotation.ttl>, <ontology-cross-reference-gate.ttl>, <../entities/concepts.ttl> .
+
+:mainStep a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Any doc-collection production run's local ontology terms are permanently reusable in ANY future run via their resolver IRI — check before minting a new one, regardless of topical relation"@en ;
+    schema:text """This gate is distinct from the two adjacent ontology gates already in memory: ontology-discovery.ttl covers discovering EXTERNAL shared vocabularies (prefix.cc) before inventing new predicates; canonical-entity-iri-denotation.ttl covers real-world entity IRIs (people, organizations). Neither covers a third, more fundamental case: once a document-local schema:DefinedTerm, rdfs:Class, or rdf:Property is minted during a doc-collection production task and published to DAV (linkeddata.uriburner.com/DAV/demos/daas/{filename}), it becomes dereferenceable through the standard resolver IRI pattern (linkeddata.uriburner.com/describe/?url={encoded-IRI}) — the same mechanism used for every other entity hyperlink in this system. Dereferenceability is what makes the term reusable: any future task, on ANY topic, can reference that same term by its bound prefix instead of minting a new local equivalent, exactly as it would for a schema.org or DBpedia term.
+
+CORRECTION to the original framing of this gate (2026-07-14): the rule is NOT conditioned on the new document being an explicit companion, sequel, or rebuttal to the term's origin document. That framing was too narrow — it only captured a 'trilogy' or 'series' relationship. The actual mechanism is broader and unconditional: because the term is resolver-dereferenceable the moment it is published, it is reusable in ANY subsequent doc-collection production task, whether or not the new task is topically or thematically related to the one that minted it. Restricting reuse to 'companion documents' would still allow the same conceptual term (e.g. 'ABAC', 'enterprise knowledge graph', 'reasoning/learning separation') to be re-minted under a fresh disjoint local IRI every time an unrelated topic happens to touch on it — which is exactly the 'custom term bloat' this rule exists to prevent.
+
+Observed trend (2026-07-14) across three related RDF Knowledge Graphs, used as illustrative evidence, not as the scope boundary of the rule:
+1. ai-value-capture-response-claude_sonnet_5-1.ttl (prefix avc:) mints local DefinedTerms :abac, :enterpriseKnowledgeGraph, :reasoningLearningSeparation, :linkedDataPrinciples, :semanticWeb, :agentHarness, :dereference, :knowledgeCaptureVsExfiltration, :enterpriseOwnedLearningCurve, :iriDenotation.
+2. reverse-information-paradox-claude_sonnet_5-1.ttl imports the avc: prefix bound to the FIRST document's own DAV URL and reuses avc:abac, avc:enterpriseKnowledgeGraph, avc:reasoningLearningSeparation AS-IS, instead of re-minting a differently-named local equivalent. It also reuses theCUBE Research's karp:CriticalPerspective class and karp:respondsTo property, minted in a third, earlier document.
+3. Real-world entity IRIs (e.g. <https://linkedin.com/in/kidehen#this>, dbr:OpenLink_Software) are likewise carried forward rather than redeclared per-document — the same discipline this rule extends from entities to document-local ONTOLOGY terms, and from 'related documents only' to the full accumulated corpus.
+
+Rule: before minting ANY new schema:DefinedTerm, rdfs:Class, or rdf:Property in ANY doc-collection production task, first check whether an equivalent term already exists among this agent's previously-published, resolver-dereferenceable local terms — via the entities/ registry (entities/concepts.ttl and any future ontology-term-specific registry), via a targeted SPARQL query against the DAV-hosted graphs, or by recalling prior session/output files known to define the concept. If an equivalent term already exists:
+(a) Add an @prefix binding for the origin document's namespace, using ITS OWN canonical DAV URL as the IRI base — never restate or copy the term's definition into the new document's own namespace.
+(b) Reference the existing term directly by its bound prefix (e.g. avc:abac) wherever the new document would otherwise define an equivalent concept.
+(c) Do NOT create a new local term with a different name for the same concept, regardless of whether the new document is topically related to the term's origin — that duplicates meaning under two disjoint IRIs and defeats the cross-document graph merge Linked Data is supposed to provide for free, and is precisely the custom-term-bloat failure mode this rule targets.
+(d) Only mint a genuinely new local term when the concept is new to the agent's accumulated corpus, or represents a meaningfully narrower/broader refinement of an existing term — in which case link it via rdfs:subClassOf / rdfs:seeAlso / skos:broader to the prior term rather than silently duplicating it.
+(e) When a term proves broadly reusable across two or more unrelated productions, consider promoting it into entities/concepts.ttl (or a parallel ontology-terms registry) as a standing, curated entry — mirroring how real-world entities already get promoted into the entities/ registry.
+
+Why this gate exists and was corrected: the initial version of this rule (created earlier in the same session) required the new document to be an explicit companion/sequel/rebuttal before reuse applied. The user clarified that the underlying mechanism — resolver-IRI dereferenceability — has no such precondition: any locally-minted term, once published, is reusable by any future task regardless of topic, and the whole point of checking first is to prevent custom term bloat from accumulating across the agent's full output corpus, not just within a single narrative series."""@en .
