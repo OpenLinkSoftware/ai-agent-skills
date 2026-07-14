@@ -10,6 +10,7 @@
 bookmarklet-filesystem-ui.js
 filesystem-ui-extension/
 scripts/watch-indexes.sh
+webacl/
 
 # Personal agent instructions and memory (not for public repo)
 CLAUDE.md
