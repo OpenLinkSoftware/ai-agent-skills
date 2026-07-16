@@ -8,8 +8,10 @@ Queryable behavioral contract for AI agents, encoded as RDF-Turtle. All standing
 agent-rdf-memory/
 ├── README.md              ← this file
 ├── core.ttl               ← user identity, agent identity template, output paths
-├── preferences.ttl        ← hub: 9 sub-HowTos, 105 HowToStep definitions
-├── ontology.ttl           ← custom vocabulary (triggers, prompt types)
+├── preferences.ttl        ← public-safe hub: sub-HowTos + HowToStep definitions
+├── preferences.private.ttl← optional local-only private overlay (gitignored)
+├── preferences.private.example.ttl ← public template for private overlays
+├── ontology.ttl           ← vocabulary (triggers, prompt intents, context routing)
 ├── index.ttl              ← session index (one schema:ListItem per session)
 ├── howto/                 ← companion specification files (one per sub-HowTo)
 │   ├── agent-identity.ttl
@@ -29,9 +31,13 @@ Before any task, the agent must:
 
 1. List `agent-rdf-memory/` and all subfolders
 2. Read `core.ttl`
-3. Read `preferences.ttl`
-4. Read `index.ttl`
-5. Follow `index.ttl` references to relevant `sessions/` or `projects/` files
+3. Read public `preferences.ttl`
+4. If present, read local-only `preferences.private.ttl`; private overlay assertions take precedence over public defaults
+5. Read `ontology.ttl` for prompt-intent classes, retrieval policies, and context-routing predicates
+6. Read `index.ttl` for session pointers
+7. Analyze the current prompt intent, then prefer ontology-routed SPARQL context selection against the configured endpoint
+8. Follow selected `rdfs:seeAlso` references to relevant `howto/*.ttl`, `sessions/`, or `projects/` files
+9. If SPARQL is unavailable or incomplete, fall back to direct file reads
 
 See `howto/session-governance.ttl` for the full protocol.
 
@@ -46,6 +52,28 @@ See `howto/session-governance.ttl` for the full protocol.
 ```
 
 Each sub-HowTo has `rdfs:seeAlso` links to companion `howto/*.ttl` files that contain the full specification text. Steps in `preferences.ttl` are sparse pointers (name + one-sentence `schema:text` + `rdfs:seeAlso`). All rationale, code, gates, and incident notes live in the howto files.
+
+## Public and private preferences
+
+`preferences.ttl` is intended to be public-safe: reusable behavioral rules, public howto pointers, and shared operational structure belong there. Personal endpoint order, identity-specific defaults, private paths, credentials, or local-only preferences belong in `preferences.private.ttl`.
+
+`preferences.private.ttl` is gitignored. The harness loads it only when present and treats its assertions as an overlay over the public graph. Use `preferences.private.example.ttl` as the public template for the overlay shape.
+
+## Ontology-routed SPARQL context selection
+
+`ontology.ttl` defines prompt-intent and context-routing vocabulary such as `:PromptIntent`, `:RetrievalPolicy`, `:routesToTopic`, `:requiresHowTo`, `:optionalHowTo`, `:preferredContextSource`, and `:requiresRecentSession`.
+
+The expected flow is:
+
+1. Minimum bootstrap from public memory files plus optional private overlay
+2. Prompt-intent classification, for example `:VirtuosoSparqlTroubleshooting`
+3. SPARQL SELECT over `{CNAME}`-bound graph IRIs to retrieve relevant preference topics, howto documents, retrieval policy, and recent-session context
+4. Targeted howto/session expansion
+5. File-based fallback when endpoint retrieval is unavailable
+
+`{CNAME}` is a runtime HTTPS SPARQL endpoint placeholder, not a literal host. Public files keep it endpoint-neutral; private overlays or task-specific configuration determine the operating value. Use `https://{CNAME}/sparql` as the general pattern, including localhost when HTTPS is selected. Use `http://localhost:8890/sparql` only for the local Virtuoso 8890 endpoint; port 8890 is not a general CNAME template.
+
+Named graph IRIs must be discovered from the target store. For local Virtuoso RDF Import DET loads, the loaded graph IRI may be `urn:dav:/DAV/home/{USER}/rdf-import-test/{file}.ttl`, while entity IRIs inside the graph may use `http:/DAV/home/{USER}/rdf-import-test/{file}.ttl#...`. Use `SELECT ?g ?type (COUNT(*) AS ?count) (SAMPLE(?s) AS ?sample)` grouped by `?g` and `?type` to determine the graph/entity IRI pattern before producing context-selector URLs.
 
 ## Sub-HowTo map
 
@@ -93,6 +121,7 @@ grep -l "schema:step.*step-whoamiFormat" agent-rdf-memory/preferences.ttl
 
 ## Related
 
-- `CLAUDE.md` / `AGENT.md` — prose reference (authoritative upon conflict: `preferences.ttl` wins)
-- `SESSION-START-HOOK.md` — runtime injection mechanism for session initialization
+- `AGENTS.md` — Codex-facing protocol entry point
+- `SESSION-START-HOOK.md` — runtime injection and SPARQL-preferred context-selection design
+- `preferences.private.example.ttl` — public template for local-only private preference overlays
 - `scripts/validate-memory-protocol.py` — post-session audit gate

@@ -57,6 +57,68 @@ On every session start, the hook runs a Python script that reads:
 
 The combined content is returned as `additionalContext`, making it part of the model's context window from the first turn. Agents follow `rdfs:seeAlso` into the relevant howto doc on demand for full step details.
 
+
+## SPARQL-Preferred Context Selection
+
+The hook remains fallback-safe: direct file reads are still mandatory enough to
+bootstrap a session. When a Virtuoso endpoint is available, the preferred path is
+to use SPARQL after prompt-intent analysis:
+
+1. Load the minimum memory contract (`core.ttl`, `ontology.ttl`,
+   public `preferences.ttl`, optional private `preferences.private.ttl`,
+   `index.ttl`).
+2. Classify the user prompt into an ontology intent such as
+   `:VirtuosoSparqlTroubleshooting`, `:RdfAuthoringTask`,
+   `:IdentityWebIdTask`, `:ArtifactRoutingTask`, `:KgExplorerTask`,
+   `:MemoryProtocolTask`, or `:SkillWorkflowTask`.
+3. Query `ontology.ttl` for `:routesToTopic`, `:requiresHowTo`,
+   `:optionalHowTo`, `:retrievalPolicy`, `:preferredContextSource`, and
+   `:requiresRecentSession`.
+4. Query `preferences.ttl`, the selected `howto/*.ttl` graph(s), and
+   `index.ttl`/session graphs for the compact context pack needed for that
+   prompt.
+5. If the endpoint path fails or returns insufficient context, fall back to the
+   existing file-based reads.
+
+Private overlays take precedence over public defaults when the same intent or
+policy is asserted in both graphs. The public `preferences.private.example.ttl`
+file documents the overlay shape without publishing private values.
+
+`{CNAME}` is a template placeholder in reusable HTTPS SPARQL endpoint examples.
+Bind it at runtime from the private overlay when present, otherwise from public
+endpoint configuration or the current task context. The general pattern is
+`https://{CNAME}/sparql`, including localhost when HTTPS is selected. The URL
+`http://localhost:8890/sparql` is a local-only Virtuoso endpoint pattern; do not
+rewrite it as `http://{CNAME}:8890/sparql` for remote targets. Public harness
+files should not encode personal endpoint order, private paths, credentials, or
+identity-specific preferences; those belong in gitignored `preferences.private.ttl`.
+
+Named graph IRIs are discovered, not guessed. For local Virtuoso RDF Import DET
+loads, graph IRIs commonly use `urn:dav:/DAV/home/{USER}/rdf-import-test/{file}`
+while entity IRIs inside those graphs use `http:/DAV/home/{USER}/rdf-import-test/{file}#...`.
+Use the SAMPLE-by-type graph discovery query before generating context-selector
+URLs for a newly loaded corpus.
+
+Example first-stage selector:
+
+```sparql
+PREFIX onto:   <http:/DAV/home/{USER}/rdf-import-test/ontology.ttl#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?intent ?topic ?howto ?optionalHowto ?policy ?source ?recentRequired
+WHERE {
+  GRAPH <urn:dav:/DAV/home/{USER}/rdf-import-test/ontology.ttl> {
+    VALUES ?intent { onto:VirtuosoSparqlTroubleshooting }
+    OPTIONAL { ?intent onto:routesToTopic ?topic }
+    OPTIONAL { ?intent onto:requiresHowTo ?howto }
+    OPTIONAL { ?intent onto:optionalHowTo ?optionalHowto }
+    OPTIONAL { ?intent onto:retrievalPolicy ?policy }
+    OPTIONAL { ?intent onto:preferredContextSource ?source }
+    OPTIONAL { ?intent onto:requiresRecentSession ?recentRequired }
+  }
+}
+```
+
 ## Files Changed
 
 | File | Change |

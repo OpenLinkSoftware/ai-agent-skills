@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-07-11T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T19:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -133,10 +133,12 @@
     schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, prompt-specified model-name override prevention, artifact placement elicitation, and remote WebDAV upload."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
         <howto/remote-webdav-upload.ttl>,
-        <howto/filesystem-path-verification.ttl> ;
+        <howto/filesystem-path-verification.ttl>,
+        <howto/model-identity-resolution.ttl> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-modelIdentityPreflight, :step-defaultOutputRoot,
-        :step-modelOverEnvironment, :step-noPromptModelOverride, :step-artifactPlacement,
+        :step-modelOverEnvironment, :step-noPromptModelOverride, :step-modelIdentityResolution,
+        :step-artifactPlacement,
         :step-remoteWebdavUpload, :step-savedPromptsFolder, :step-filesystemPathVerification .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
@@ -192,7 +194,9 @@
         <howto/kg-explorer-edge-property-typing.ttl>,
         <howto/resolver-double-encoding-gate.ttl>,
         <howto/openlink-brand-color-scheme.ttl>,
-        <howto/dav-public-url-default.ttl> ;
+        <howto/dav-public-url-default.ttl>,
+        <howto/reader-facing-copy-gate.ttl>,
+        <howto/workbench-brevity-gate.ttl> ;
     schema:step :step-attribution, :step-darkModeCSS, :step-kgExplorerReuse,
         :step-templateSelection, :step-kgNavPlacement, :step-kgNavCollapsed,
         :step-kgControlsMasterClose, :step-kgNoOrphans, :step-kgToolbarGroups,
@@ -210,7 +214,8 @@
         :step-staleWorkbenchCleanup, :step-footerCardOverflow, :step-edgePropertyTyping,
         :step-noRawUrlDump, :step-edgeResolverHref, :step-entityLevelAuthorship,
         :step-resolverDoubleEncodingGate, :step-unclosedAnchorSwallowsBlock,
-        :step-openlinkBrandColorScheme, :step-davPublicUrlDefault .
+        :step-openlinkBrandColorScheme, :step-davPublicUrlDefault,
+        :step-readerFacingCopyGate, :step-workbenchBrevityGate .
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
 
@@ -232,11 +237,12 @@
 
 :howto-skill-workflows a schema:HowTo ;
     schema:name "Skill Chain & Workflows"@en ;
-    schema:description "kg-generator → rdf-infographic-skill chain, KG query modes, ZIP repackaging, content retrieval tool order, OPAL session vocabulary, and URIBurner OAuth authorization code flow."@en ;
+    schema:description "kg-generator → rdf-infographic-skill chain, KG query modes, SPARQL endpoint search order override, ZIP repackaging, content retrieval tool order, OPAL session vocabulary, and URIBurner OAuth authorization code flow."@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl>,
         <howto/opal-session-vocabulary.ttl>,
         <howto/uriburner-oauth-authcode-flow.ttl> ;
-    schema:step :step-skillChain, :step-kgQueryMode, :step-zipRepackage,
+    schema:step :step-skillChain, :step-kgQueryMode, :step-sparqlEndpointSearchOrder,
+        :step-zipRepackage,
         :step-retrievalToolOrder, :step-opalSessionVocabulary,
         :step-uriburnerOAuthAuthCodeFlow .
 
@@ -342,6 +348,15 @@
 :step-kgQueryMode a schema:HowToStep ;
     schema:position 7 ;
     schema:name "Answer questions from skills/KG first — ask before falling back to model knowledge"@en ;
+    rdfs:seeAlso <howto/skill-invocation.ttl> .
+
+# ── Step 3b: SPARQL Endpoint Search Order Override ────────────────────────────
+
+:step-sparqlEndpointSearchOrder a schema:HowToStep ;
+    schema:position 131 ;
+    schema:name "When user signals KG-only mode or names URIBurner, skip local search and query the SPARQL endpoint first"@en ;
+    schema:text "The data-twingler skill defaults to local-first search (Step 0). When the user says 'KG-only mode', 'use URIBurner', 'query the endpoint', or otherwise signals they want live SPARQL results, skip the local vector search entirely and proceed directly to Graph IRI Discovery on the default endpoint. Also: when the first local search pass returns zero matches, pivot to the endpoint immediately — do not repeat local search with variant terms."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/skill-invocation.ttl> .
 
 # ── Step 4: Entity Denotation ────────────────────────────────────────────────
@@ -604,6 +619,15 @@
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
+# ── Step 27.3: Model Identity Resolution Chain ──────────────────────────────
+
+:step-modelIdentityResolution a schema:HowToStep ;
+    schema:position 42 ;
+    schema:name "BLOCKING GATE — resolve model identity from three-source chain; never leave unresolved"@en ;
+    schema:text "RESOLVE from (1) system prompt → (2) env vars (ANTHROPIC_MODEL, OPENAI_MODEL, etc.) → (3) elicit user. Never return 'unresolved' or guess from session context. Map to core.ttl output path once resolved."@en ;
+    onto:hasTrigger onto:triggerSessionStart, onto:triggerWhoamiQuery, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/model-identity-resolution.ttl> .
+
 # ── Topic Entities (schema:about targets for the container document) ─────────
 
 :topicApprovalWorkflow a schema:Thing ;
@@ -803,6 +827,11 @@
 :topicArtifactPlacement a schema:Thing ;
     schema:name "Generated Artifact Placement"@en ;
     schema:description "Decision about where generated output artifacts (HTML, RDF, Markdown) should be placed relative to each other and to the source content. Locations depend on publication intent — they may share a folder or use dedicated subfolders (rdf/, webpages/, md/). Elicit user preference before assuming placement."@en .
+
+:topicModelIdentityResolution a schema:Thing ;
+    schema:name "Model Identity Resolution Chain"@en ;
+    schema:description "Three-source blocking gate for resolving the active LLM model identity: (1) system prompt, (2) environment variables (ANTHROPIC_MODEL, OPENAI_MODEL, etc.), (3) elicit from user. Never guess from session context, never leave 'unresolved'. Feeds both artifact routing and whoami responses. Companion procedure in howto/model-identity-resolution.ttl."@en ;
+    rdfs:seeAlso <howto/model-identity-resolution.ttl> .
 
 :step-rdfInfographicGateEnforcement a schema:HowToStep ;
     schema:position 49 ;
@@ -1712,3 +1741,39 @@
     schema:text "Before minting a new local DefinedTerm, class, or property in any doc-collection production task, check this agent's prior published output for an equivalent resolver-dereferenceable term and reuse it via its bound prefix, regardless of topical relation, to avoid custom term bloat."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/cross-document-local-term-reuse.ttl>, <howto/ontology-discovery.ttl>, <howto/canonical-entity-iri-denotation.ttl>, <entities/concepts.ttl> .
+
+# ── Step 128: Reader-Facing Copy Gate for HTML Infographics ─────────────────
+
+:step-readerFacingCopyGate a schema:HowToStep ;
+    schema:position 128 ;
+    schema:name "Reader-facing HTML copy must not expose artifact mechanics unless the section is explicitly technical"@en ;
+    schema:text "In generated HTML infographics and article collections, visible main-flow headings, subtitles, card blurbs, and section intros must help readers understand the topic, not describe RDF/entity/extraction/resolver mechanics. Remove nonessential subtitles when the heading and content already carry the section."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/reader-facing-copy-gate.ttl>, <howto/ui-ux-expert-persona.ttl>, <howto/infographic-authoring.ttl> .
+
+# ── Step 129: Workbench Brevity Gate for Technical Sections ─────────────────
+
+:step-workbenchBrevityGate a schema:HowToStep ;
+    schema:position 129 ;
+    schema:name "Technical workbenches must be compact and non-redundant while preserving required controls"@en ;
+    schema:text "In SPARQL, KG settings, query, and other technical workbench sections, expose only the controls, labels, status text, and links needed to perform the task. Avoid stacked labels, explanatory paragraphs, duplicate query previews, and repeated format guidance when controls already carry that meaning."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/workbench-brevity-gate.ttl>, <howto/footer-sparql-explorer-gate.ttl>, <howto/ui-ux-expert-persona.ttl> .
+
+# ── Step 130: Chat-Response File Links Must Be Portable ──────────────────────
+
+:step-chatResponsePortableLinks a schema:HowToStep ;
+    schema:position 130 ;
+    schema:name "Chat-response markdown file links must use paths relative to the working directory, never absolute local filesystem paths"@en ;
+    schema:text "An absolute local path used as a chat-response markdown link href is functionally a file: URL once opened off this machine, so compute it relative to the working directory instead, even across '../' traversal to a sibling directory."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/chat-response-portable-file-links.ttl>, <howto/dav-public-url-default.ttl>, <howto/artifact-routing.ttl> .
+
+# ── Step 132: Entity Registry Census Verification ────────────────────────────
+
+:step-entityRegistryCensusVerification a schema:HowToStep ;
+    schema:position 132 ;
+    schema:name "Verify registry additions against already-read documents; exclude corpus owl:sameAs errors surfaced by a census rather than propagating them"@en ;
+    schema:text "Before writing a schema:Person, DefinedTerm, or TBox registry entry, grep the actual source document for its real asserted IRI instead of guessing a plausible slug, and manually review any census-surfaced owl:sameAs cluster before reuse since corpus documents can themselves contain entity-resolution errors."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/entity-registry-census-verification.ttl>, <howto/external-iri-verification.ttl>, <entities/people.ttl> .

@@ -7,11 +7,12 @@
     schema:name "Agent Identity — Whoami Format, Verified Identity Gate, and Stripe Sandbox Card"@en ;
     schema:description "Rules for agent identity presentation: the canonical two-section bullet response to whoami (with verified identity lines for both user and agent), the certificate verification gate that runs before composing the response, and the Stripe sandbox card credentials for ACP test payments."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-30T12:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
     schema:step :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
-    rdfs:seeAlso <../preferences.ttl>, <verified-identity.ttl> .
+    rdfs:seeAlso <../preferences.ttl>, <verified-identity.ttl>,
+        <filesystem-path-verification.ttl> .
 
 # ── Step 1: Whoami Format ─────────────────────────────────────────────────────
 
@@ -75,13 +76,13 @@ Use the current session's model and environment — never copy from a prior sess
     schema:name "Run the verified identity gate before composing the whoami response"@en ;
     schema:text """This gate runs BEFORE responding to whoami. It fills the ✓ / ⚠ badges.
 
-USER verification — default creds dir:
-  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/
+USER verification — creds dir (resolved by verified-identity.ttl Step 0 blocking gate):
+  {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
 
-AGENT verification — default creds dir:
-  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/
+AGENT verification — creds dir (resolved by verified-identity.ttl Step 0 blocking gate):
+  {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
 
-Both dirs can be overridden by eliciting a different path from the user.
+Both dirs are resolved at session start by the blocking gate. If resolution fails, the gate elicits from the user — never guess a path.
 
 For each party (user, then agent):
   1. Find cert.pem (or cert.p12 → empty passphrase) in the credentials dir.

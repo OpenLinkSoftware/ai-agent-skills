@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-16T00:35:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -481,7 +481,8 @@
 :sessionIndex schema:itemListElement :session20260625BigPickleIdentityComparison,
     :session20260626BigPickleWhoamiCorrection,
     :session20260626Glm52OpenCodeWhoami,
-    :session20260627BigPickleRemoteDelegation .
+    :session20260627BigPickleRemoteDelegation,
+    :session20260715BigPickleOpencode .
 
 :prefWebidVerificationServices a schema:ListItem ;
     schema:position 71 ;
@@ -506,6 +507,12 @@
     schema:item <sessions/2026-06-26-gpt5_chat-codex.ttl> ;
     schema:name "Session 2026-06-26 (GPT-5 Chat Codex — Virtuoso 08.03.3335 KG Explorer theme/toggle fix)"@en ;
     schema:description "Regenerated canonical Virtuoso 08.03.3335 RDF/HTML artifacts after fixing KG Explorer dark-mode hyperlink colors and Firefox-safe dark/light toggle behavior; validated RDF parse, syntax, and static theme contract checks."@en .
+
+:session20260715BigPickleOpencode a schema:ListItem ;
+    schema:position 1000 ;
+    schema:item <sessions/2026-07-15-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-07-15 (big-pickle + OpenCode — Memory Protocol Violation + KG-Only Retry + Endpoint-First Optimization)"@en ;
+    schema:description "User asked 'How to Evaluate Claims About AI Infrastructure Efficiency?' — agent violated memory protocol by not reading preferences/core/index before responding. User flagged, agent acknowledged, then retried using data-twingler skill against URIBurner. T5 HowTo workflow found exact match in graph generative-ai-engineering-disaster-claude_code-1.ttl. Delivered 6-step HowTo, 10 FAQ Q&A, 7 glossary terms as structured text with resolver-hyperlinked IRIs. User noted URIBurner bif:contains queries are faster than local TTL/MD search. Optimization applied: (1) added :step-sparqlEndpointSearchOrder (pos 131) to preferences.ttl for KG-only override and early-exit-on-zero-match; (2) updated data-twingler SKILL.md Rule 1 with endpoint-first override clause and early-exit-on-zero-match clause; (3) updated Step 0 preamble and workflow diagram."@en .
 
 :session20260628Gpt5ChatCodexTrillionaires a schema:ListItem ;
     schema:position 1000 ;
@@ -604,7 +611,25 @@
     schema:name "Session 2026-07-12 (GPT-5 Chat Codex — Skills/KG-First Question Routing)"@en ;
     schema:description "Updated preferences.ttl, howto/skill-invocation.ttl, and data-twingler SKILL.md so user questions route through skills/KG first unless the user explicitly opts out, asks not to use KG/local RDF/SPARQL, or the task is clearly trivial/self-contained. If the skill route is unavailable, weak, empty, or incomplete, the assistant must ask before falling back to general model knowledge."@en .
 
-:sessionIndex schema:itemListElement :session20260712Gpt5ChatCodexDefaultQuestionRouting .
+:sessionIndex schema:itemListElement :session20260712Gpt5ChatCodexDefaultQuestionRouting,
+    :session20260714DeepSeekV4ProPiWhoamiGateFix,
+    :session20260715BigPickleOpencode .
+
+:session20260714DeepSeekV4ProPiWhoamiGateFix a schema:ListItem ;
+    schema:position 68 ;
+    schema:item <sessions/2026-07-14-deepseek_v4pro-pi.ttl> ;
+    schema:name "Session 2026-07-14 (DeepSeek V4 Pro + Pi — Whoami Gate Laziness Fix & Model Identity Resolution Chain)"@en ;
+    schema:description "Agent skipped verified identity gate on initial whoami, left model identity unresolved. Corrected: full cert modulus verification (user ✅, agent ✅, delegation ✅ corroborated). Added :step-modelIdentityResolution (pos 42) BLOCKING GATE with three-source chain (system prompt → env vars → elicit) + companion howto/model-identity-resolution.ttl."@en .
+
+
+:session20260715Gpt5ChatCodexSparqlContextRouting a schema:ListItem ;
+    schema:position 1013 ;
+    schema:item <sessions/2026-07-15-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-15 (GPT-5 Chat Codex — Ontology-Routed SPARQL Context Selection for agent-rdf-memory)"@en ;
+    schema:description "Applied the approved harness update: ontology.ttl now defines prompt-intent and retrieval-policy routing terms, including endpoint-neutral {CNAME} templates and private-overlay support plus urn:dav graph-template guidance for local Virtuoso RDF Import DET loads so user-specific endpoint selection can live in gitignored preferences.private.ttl; AGENTS.md and SESSION-START-HOOK.md now describe mandatory bootstrap followed by prompt-intent analysis, ontology-routed SPARQL context selection, SPARQL-preferred recent-session lookup, targeted howto/session expansion, and direct file-read fallback."@en ;
+    rdfs:seeAlso <ontology.ttl>, <AGENTS.md>, <SESSION-START-HOOK.md> .
+
+:sessionIndex schema:itemListElement :session20260715Gpt5ChatCodexSparqlContextRouting .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Entity Registry Index ────────────────────────────────────────────────
@@ -613,8 +638,8 @@
 :entityPeople a schema:ListItem ;
     schema:position 1100 ;
     schema:item <entities/people.ttl> ;
-    schema:name "Entity Registry: People (Kingsley Idehen, Tony Seale)"@en ;
-    schema:description "Canonical schema:Person entity IRIs. Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry."@en .
+    schema:name "Entity Registry: People (43 entries — Kingsley Idehen, Tony Seale, plus 41 corpus-recurring people)"@en ;
+    schema:description "Created 2026-07-08 to replace ad-hoc entity resolution in session files with a standing, queryable registry. Expanded 2026-07-14 via a schema:Person census over DAV named graphs (1,271 instances, 41 recurring in >= 3 documents, promoted). Same pass corrected 3 pre-existing entries (Jaya Gupta, Alex Karp, Aaron Levie) whose canonical IRIs had never been verified against actual corpus documents, and excluded two entity-resolution errors found in source data (Abhi Yadav / Richard MacManus incorrectly owl:sameAs'd to unrelated DBpedia concept pages)."@en .
 
 :entityOrganizations a schema:ListItem ;
     schema:position 1101 ;

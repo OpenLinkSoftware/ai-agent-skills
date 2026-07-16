@@ -33,14 +33,16 @@
     rdfs:comment "A web article used as the source for knowledge graph generation."@en ;
     rdfs:isDefinedBy : .
 
-:hasSource a rdf:Property ;
+:hasSource a owl:ObjectProperty, owl:FunctionalProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty ;
     rdfs:label "has source"@en ;
+    rdfs:comment "Links a generated artifact to the single source article it was produced from."@en ;
     rdfs:domain :GeneratedArtifact ;
     rdfs:range :SourceArticle ;
     rdfs:isDefinedBy : .
 
-:hasArtifactPath a rdf:Property ;
+:hasArtifactPath a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:label "has artifact path"@en ;
+    rdfs:comment "Links a generated artifact to its single local filesystem path."@en ;
     rdfs:domain :GeneratedArtifact ;
     rdfs:range xsd:string ;
     rdfs:isDefinedBy : .
@@ -153,12 +155,12 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
     rdfs:label "Memory Write Trigger"@en ;
     rdfs:comment "A workflow activity that mandates an immediate write to the agent session memory file."@en ;
     schema:name "Memory Write Trigger"@en ;
-    schema:description "Subclass of prov:Activity (equivalent to event:Event) representing a discrete workflow event that triggers a mandatory write to sessions/YYYY-MM-DD-{llm-id}-{agent-env}.ttl."@en ;
+    schema:description "A narrow subclass of both prov:Activity and event:Event (rdfs:subClassOf, not owl:equivalentClass — event:Event is the generic Event Ontology top class, far broader than this trigger vocabulary) representing a discrete workflow event that triggers a mandatory write to sessions/YYYY-MM-DD-{llm-id}-{agent-env}.ttl."@en ;
     rdfs:isDefinedBy : .
 
-:hasTrigger a rdf:Property ;
+:hasTrigger a owl:ObjectProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty ;
     rdfs:label "has trigger"@en ;
-    rdfs:comment "Links a schema:HowToStep to the MemoryWriteTrigger instances that mandate a session memory write."@en ;
+    rdfs:comment "Links a schema:HowToStep to the MemoryWriteTrigger instances that mandate a session memory write. Not owl:FunctionalProperty — a single step commonly fires multiple triggers, as seen throughout preferences.ttl."@en ;
     schema:name "has trigger"@en ;
     rdfs:domain schema:HowToStep ;
     rdfs:range :MemoryWriteTrigger ;
@@ -241,4 +243,220 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
     rdfs:comment "Links a SessionSymbolNode IRI to the OffloadedLog IRI holding its raw content."@en ;
     rdfs:domain :SessionSymbolNode ;
     rdfs:range :OffloadedLog ;
+    rdfs:isDefinedBy : .
+
+# ── Prompt Intent and SPARQL Context Routing Vocabulary ──────────────────────
+#
+# These terms let the session-start harness move from a prompt's inferred
+# intent to the exact preference topics, howto documents, recent-session
+# context, and endpoint policy needed for that turn. The design is
+# endpoint-neutral: {CNAME} is a template variable for the target host or full
+# endpoint family, not a synonym for localhost. Implementations may bind it to
+# local Virtuoso on :8890 or :443, URIBurner, Demo, or a user-specified endpoint.
+
+:PromptIntent a rdfs:Class ;
+    rdfs:subClassOf schema:Intangible ;
+    rdfs:label "Prompt Intent"@en ;
+    rdfs:comment "A classified task intent derived from the user's prompt and used to route targeted RDF memory context."@en ;
+    rdfs:isDefinedBy : .
+
+:RetrievalPolicy a rdfs:Class ;
+    rdfs:subClassOf schema:Intangible ;
+    rdfs:label "Retrieval Policy"@en ;
+    rdfs:comment "A policy describing whether context retrieval should prefer a SPARQL endpoint, local files, URIBurner, or a user-specified endpoint."@en ;
+    rdfs:isDefinedBy : .
+
+:ContextSource a rdfs:Class ;
+    rdfs:subClassOf schema:Intangible ;
+    rdfs:label "Context Source"@en ;
+    rdfs:comment "A source category used by the memory harness, such as ontology.ttl, preferences.ttl, index.ttl, howto documents, and session graphs."@en ;
+    rdfs:isDefinedBy : .
+
+:EndpointTemplate a rdfs:Class ;
+    rdfs:subClassOf schema:Intangible ;
+    rdfs:label "Endpoint Template"@en ;
+    rdfs:comment "A templated SPARQL endpoint and graph-base description. {CNAME} is substituted with the selected local, remote, or user-specified target."@en ;
+    rdfs:isDefinedBy : .
+
+:routesToTopic a owl:ObjectProperty ;
+    rdfs:label "routes to topic"@en ;
+    rdfs:comment "Links a PromptIntent to the preference topic that contains the governing operational rules."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:range schema:Thing ;
+    rdfs:isDefinedBy : .
+
+:requiresHowTo a owl:ObjectProperty ;
+    rdfs:label "requires howto"@en ;
+    rdfs:comment "Links a PromptIntent to a howto RDF document that must be consulted when that intent applies."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:isDefinedBy : .
+
+:optionalHowTo a owl:ObjectProperty ;
+    rdfs:label "optional howto"@en ;
+    rdfs:comment "Links a PromptIntent to a howto RDF document that may be consulted when the prompt's details require it."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:isDefinedBy : .
+
+:retrievalPolicy a owl:ObjectProperty ;
+    rdfs:label "retrieval policy"@en ;
+    rdfs:comment "Links a PromptIntent to its preferred context retrieval policy."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:range :RetrievalPolicy ;
+    rdfs:isDefinedBy : .
+
+:requiresRecentSession a owl:DatatypeProperty ;
+    rdfs:label "requires recent session"@en ;
+    rdfs:comment "Boolean flag indicating that the harness must retrieve recent or intent-relevant session context."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:preferredContextSource a owl:ObjectProperty ;
+    rdfs:label "preferred context source"@en ;
+    rdfs:comment "Links a PromptIntent to the context source categories that should be queried first."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:range :ContextSource ;
+    rdfs:isDefinedBy : .
+
+:triggerPhrase a owl:DatatypeProperty ;
+    rdfs:label "trigger phrase"@en ;
+    rdfs:comment "Lexical hint used only for intent classification or fallback retrieval; context selection should follow structured ontology links once intent is known."@en ;
+    rdfs:domain :PromptIntent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:endpointUrlTemplate a owl:DatatypeProperty ;
+    rdfs:label "endpoint URL template"@en ;
+    rdfs:comment "Templated SPARQL endpoint URL. https://{CNAME}/sparql is the general endpoint pattern, including localhost when HTTPS is selected; http://localhost:8890/sparql is a local-only Virtuoso endpoint pattern and must not be generalized to non-local CNAME values."@en ;
+    rdfs:domain :EndpointTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:graphBaseTemplate a owl:DatatypeProperty ;
+    rdfs:label "graph base template"@en ;
+    rdfs:comment "Templated named-graph IRI base used in generated context-selector queries. Local Virtuoso imports may use urn:dav:/DAV/... graph IRIs even when entity IRIs use http:/DAV/... bases."@en ;
+    rdfs:domain :EndpointTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:entityBaseTemplate a owl:DatatypeProperty ;
+    rdfs:label "entity base template"@en ;
+    rdfs:comment "Templated entity IRI base used for prefixes and VALUES subjects inside imported RDF graphs. This may differ from the named graph IRI base."@en ;
+    rdfs:domain :EndpointTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:sparqlEndpointPreferred a :RetrievalPolicy ;
+    schema:name "SPARQL endpoint preferred"@en ;
+    schema:description "Use ontology-routed SELECT queries against the configured SPARQL endpoint first; fall back to local file reads if the endpoint is unavailable or incomplete."@en .
+
+:localFilesFallback a :RetrievalPolicy ;
+    schema:name "Local files fallback"@en ;
+    schema:description "Read agent-rdf-memory files directly when endpoint lookup is unavailable, incomplete, or inappropriate for the task."@en .
+
+:userSpecifiedEndpointPreferred a :RetrievalPolicy ;
+    schema:name "User-specified endpoint preferred"@en ;
+    schema:description "Use the endpoint URL explicitly provided by the user for the current task."@en .
+
+:OntologyContextSource a :ContextSource ;
+    schema:name "ontology.ttl"@en .
+
+:PreferencesContextSource a :ContextSource ;
+    schema:name "preferences.ttl"@en .
+
+:IndexContextSource a :ContextSource ;
+    schema:name "index.ttl"@en .
+
+:HowToContextSource a :ContextSource ;
+    schema:name "howto/*.ttl"@en .
+
+:SessionContextSource a :ContextSource ;
+    schema:name "sessions/*.ttl or session named graphs"@en .
+
+:AgentRdfMemoryEndpointTemplate a :EndpointTemplate ;
+    schema:name "Agent RDF Memory SPARQL endpoint template"@en ;
+    schema:description "Bind {CNAME} to the selected target. Public harness templates remain endpoint-neutral; private overlays may define a user-specific endpoint order. Use https://{CNAME}/sparql as the general HTTPS pattern, including localhost when HTTPS is selected. Use http://localhost:8890/sparql only for the local Virtuoso 8890 endpoint; port 8890 is not a general CNAME template. Do not hardcode localhost in reusable harness queries unless that endpoint has been selected for the current run. For local Virtuoso RDF Import DET loads, discover named graph IRIs with SAMPLE() aggregation and expect graph IRIs such as urn:dav:/DAV/home/kidehen/rdf-import-test/{file}.ttl while entity IRIs use http:/DAV/home/kidehen/rdf-import-test/{file}.ttl#... ."@en ;
+    :endpointUrlTemplate "https://{CNAME}/sparql" ;
+    :endpointUrlTemplate "http://localhost:8890/sparql" ;
+    :graphBaseTemplate "https://{CNAME}/DAV/home/kidehen/ai-related/" ;
+    :graphBaseTemplate "urn:dav:/DAV/home/{USER}/rdf-import-test/" ;
+    :entityBaseTemplate "http:/DAV/home/{USER}/rdf-import-test/" .
+
+:SparqlTask a rdfs:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "SPARQL Task"@en ;
+    rdfs:comment "Prompt intent involving SPARQL query construction, diagnosis, endpoint usage, or result interpretation."@en ;
+    rdfs:isDefinedBy : .
+
+:VirtuosoSparqlTroubleshooting a owl:Class ;
+    rdfs:subClassOf :SparqlTask ;
+    rdfs:label "Virtuoso SPARQL Troubleshooting"@en ;
+    rdfs:comment "Prompt intent for diagnosing Virtuoso SPARQL endpoint, compiler, full-text search, named graph, format, or describe-page issues."@en ;
+    :routesToTopic <preferences.ttl#topic-virtuoso-sparql> ;
+    :requiresHowTo <howto/virtuoso-sparql-formats.ttl>, <howto/virtuoso-workbench-query-dedup.ttl> ;
+    :optionalHowTo <howto/sparql-absolute-prefix-iri.ttl>, <howto/sparql-memory-loading.ttl> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :IndexContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "SPARQL compiler", "Virtuoso 37000", "SP031", "bif:contains", "describe page", "default-graph-uri", "format=text/x-html+tr" ;
+    rdfs:isDefinedBy : .
+
+:RdfAuthoringTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "RDF Authoring Task"@en ;
+    :routesToTopic <preferences.ttl#topic-rdf-authoring> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "RDF", "Turtle", "JSON-LD", "IRI", "blank node", "schema:about" ;
+    rdfs:isDefinedBy : .
+
+:IdentityWebIdTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "Identity and WebID Task"@en ;
+    :routesToTopic <preferences.ttl#topic-identity-webid> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "whoami", "who am I", "WebID", "delegation", "On-Behalf-Of", "NetID" ;
+    rdfs:isDefinedBy : .
+
+:ArtifactRoutingTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "Artifact Routing Task"@en ;
+    :routesToTopic <preferences.ttl#topic-artifact-routing> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "output path", "save", "artifact", "DAV", "publish", "route" ;
+    rdfs:isDefinedBy : .
+
+:KgExplorerTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "KG Explorer Task"@en ;
+    :routesToTopic <preferences.ttl#topic-html-kg-explorer> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "KG Explorer", "D3", "graph visualization", "SPARQL workbench", "harness" ;
+    rdfs:isDefinedBy : .
+
+:MemoryProtocolTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "Memory Protocol Task"@en ;
+    :routesToTopic <preferences.ttl#topic-memory-management> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :IndexContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "memory protocol", "agent-rdf-memory", "preferences.ttl", "index.ttl", "ontology.ttl", "sessions" ;
+    rdfs:isDefinedBy : .
+
+:SkillWorkflowTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "Skill Workflow Task"@en ;
+    :routesToTopic <preferences.ttl#topic-skill-workflows> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "skill", "workflow", "kg-only", "URIBurner", "data-twingler", "SPARQL endpoint" ;
     rdfs:isDefinedBy : .
