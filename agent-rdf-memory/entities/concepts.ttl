@@ -16,7 +16,11 @@
     schema:about :semanticWeb, :linkedData, :knowledgeGraph, :sparqlConcept, :rdfConcept,
         :webid, :dpki, :selfSovereignIdentity, :meshup,
         :forwardDeployedEngineer, :inwardRedeployedEngineer, :aiLiteracySkill, :skillLifecycleState,
-        :rdfView, :federatedGraphQuery, :rdfQuadStore ;
+        :rdfView, :federatedGraphQuery, :rdfQuadStore,
+        :ontology, :owlConcept, :skosConcept, :webdav, :provO, :abac, :digitalTwin,
+        :promptInjection, :vibeCoding, :systemOfRecord, :modelContextProtocol, :semanticLayer,
+        :contextEngineering, :agenticWeb, :aiAgent, :agentIdentity, :contextGraph,
+        :decisionTrace, :containment, :aiGovernance ;
     rdfs:seeAlso <../preferences.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl>,
         <../howto/owl-sameas-vs-skos-related.ttl>,
@@ -54,7 +58,9 @@
 :knowledgeGraph a schema:DefinedTerm ;
     schema:name "Knowledge Graph"@en ;
     schema:description "A structured representation of information as entities and their relationships, typically encoded in RDF and queryable via SPARQL. Knowledge graphs enable semantic integration across heterogeneous data sources."@en ;
-    owl:sameAs <http://dbpedia.org/resource/Knowledge_graph> ;
+    owl:sameAs <http://dbpedia.org/resource/Knowledge_graph>,
+        <https://metadataweekly.substack.com/p/ontologies-context-graphs-and-semantic#knowledgeGraph>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#termKnowledgeGraph> ;
     skos:related :semanticWeb, :linkedData, :rdfConcept ;
     rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). One of the most recurring concepts across all session analyses and KG generations."@en ;
     schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
@@ -64,7 +70,11 @@
 :sparqlConcept a schema:DefinedTerm ;
     schema:name "SPARQL"@en ;
     schema:description "SPARQL Protocol and RDF Query Language — the W3C standard query language for RDF data. Enables federated queries across distributed SPARQL endpoints via SERVICE clauses."@en ;
-    owl:sameAs <http://dbpedia.org/resource/SPARQL> ;
+    owl:sameAs <http://dbpedia.org/resource/SPARQL>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#sparqlQueryLanguage>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#termSPARQL>,
+        <https://medium.com/virtuoso-blog/dynamically-generating-documents-from-sparql-queries-7d6589505100#sparqlQueryLanguage> ;
+    skos:altLabel "SPARQL Query Language"@en ;
     skos:related :rdfConcept, :semanticWeb, :linkedData ;
     rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). Recurring concept — SPARQL workbench and accordion queries are a standard component of HTML infographics per harness contract."@en ;
     schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
@@ -74,7 +84,11 @@
 :rdfConcept a schema:DefinedTerm ;
     schema:name "RDF"@en ;
     schema:description "Resource Description Framework — the W3C standard for representing information about resources in the Web. Uses subject-predicate-object triples and HTTP IRIs to create a distributed, self-describing data graph."@en ;
-    owl:sameAs <http://dbpedia.org/resource/Resource_Description_Framework> ;
+    owl:sameAs <http://dbpedia.org/resource/Resource_Description_Framework>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#termRDF>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#rdfStandard>,
+        <https://x.com/kidehen/status/2055725483535282591#rdfTerm> ;
+    skos:altLabel "RDF — Resource Description Framework"@en ;
     skos:related :sparqlConcept, :semanticWeb, :linkedData ;
     rdfs:comment "Canonical entity IRI. DBpedia resource verified via HTTP 200 dereference (2026-07-08). Foundational concept — RDF is the data model underlying all KG generation and entity resolution in this system."@en ;
     schema:dateCreated "2026-05-29T00:00:00Z"^^xsd:dateTime .
@@ -91,6 +105,8 @@
 :webid a schema:DefinedTerm ;
     schema:name "WebID"@en ;
     schema:description "A W3C standard for decentralized digital identity using HTTP IRIs. A WebID profile document (Turtle, JSON-LD, RDFa) links a person or agent to their public keys, enabling WebID-TLS authentication without passwords."@en ;
+    owl:sameAs <https://medium.com/virtuoso-blog/dynamically-generating-documents-from-sparql-queries-7d6589505100#gtWebID>,
+        <https://medium.com/virtuoso-blog/dynamically-generating-documents-from-sparql-queries-7d6589505100#webid> ;
     skos:related :dpki, :selfSovereignIdentity ;
     rdfs:comment "Document-local entity IRI. No verified DBpedia/Wikidata entry exists for 'WebID' as a distinct concept (DBpedia has 'WebID' as a disambiguation page, not a concept page). Recurring concept across sessions — core topic of YouID identity cards, WebID-TLS verification, and identity delegation."@en ;
     schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime .
@@ -135,7 +151,10 @@
 :forwardDeployedEngineer a schema:DefinedTerm ;
     schema:name "Forward Deployed Engineer (FDE)"@en ;
     schema:description "An outward-facing engineering role embedded in customer environments to deploy and adapt AI systems in real-world contexts; the execution and integration interface between an AI vendor's systems and a customer's operations."@en ;
-    owl:sameAs irefde:ForwardDeployedEngineer ;
+    owl:sameAs irefde:ForwardDeployedEngineer,
+        <https://www.forbes.com/sites/stevebanker/2026/05/16/palantir-says-saas-is-dead/#termFDE>,
+        <https://www.forbes.com/sites/stevebanker/2026/05/16/palantir-says-saas-is-dead#forwardDeployedTerm> ;
+    skos:altLabel "Forward-Deployed Engineer"@en ;
     skos:related :inwardRedeployedEngineer, :aiLiteracySkill ;
     rdfs:comment "Origin class: irefde:ForwardDeployedEngineer in the FDE/IRE Enterprise Skills, Lifecycle & Provenance Ontology (ire-fde-ontology-roles). Reused, not restated, in the Aaron Levie enterprise-AI-agent-issues KG (2026-07-08)."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
@@ -151,7 +170,9 @@
 :aiLiteracySkill a schema:DefinedTerm ;
     schema:name "AI Literacy Skill"@en ;
     schema:description "One of nine core capabilities (LLM mastery, agent engineering, skill engineering, data space tooling, API interoperability, HTTP protocol mastery, linked data and semantic web, data access protocols, declarative query languages) required to move an enterprise from AI consumption to AI-native operational design."@en ;
-    owl:sameAs irefde:AILiteracySkill ;
+    owl:sameAs irefde:AILiteracySkill,
+        <https://x.com/kidehen/status/2055725483535282591#AILiteracy> ;
+    skos:altLabel "AI Literacy Skills"@en ;
     skos:related :forwardDeployedEngineer, :inwardRedeployedEngineer, :skillLifecycleState ;
     rdfs:comment "Origin class: irefde:AILiteracySkill in the FDE/IRE Enterprise Skills, Lifecycle & Provenance Ontology (ire-fde-ontology-roles)."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
@@ -186,4 +207,212 @@
     schema:description "A triple store extended with a fourth, named-graph element per statement, used to attach provenance, source, or department context to every fact."@en ;
     skos:related :rdfConcept, :federatedGraphQuery ;
     rdfs:comment "Document-local entity IRI, first minted as :termQuadStore in the Aaron Levie enterprise-AI-agent-issues KG (2026-07-08). No verified external DBpedia/Wikidata IRI exists for this specific technical concept."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Corpus-Distilled Concepts (URIBurner DAV named-graph DefinedTerm census) ──
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Promoted 2026-07-14 per step-crossDocumentLocalTermReuse (position 127 in
+# preferences.ttl). Method: SPARQL census of all schema:DefinedTerm instances
+# across named graphs matching https://linkeddata.uriburner.com/DAV/demos/daas/*
+# (149 graphs, 2,141 instances, 1,163 distinct concepts after normalization).
+# Every concept below recurred across >= 3 independently generated documents —
+# i.e. it was re-minted repeatedly under disjoint document-local IRIs. These
+# entries end that: future doc-collection tasks MUST reuse the canonical IRIs
+# below instead of minting yet another local equivalent. owl:sameAs links each
+# entry to its verified DBpedia IRI (where one exists) and to the most-recurrent
+# previously-published document IRI, preserving cross-corpus graph merge.
+# All DBpedia IRIs verified via https://dbpedia.org/data/{resource}.json
+# (HTTP 200, own rdfs:label + description, 2026-07-14).
+
+# ── DBpedia-backed (verified external canonical IRI) ──────────────────────────
+
+:ontology a schema:DefinedTerm ;
+    schema:name "Ontology"@en ;
+    schema:description "A formal model of classes, properties, and relationships shared by a community of interest — the schema layer that makes knowledge graphs machine-computable and reasonable-over."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Ontology_(information_science)>,
+        <https://x.com/kidehen/status/2055725483535282591#ontologyTerm> ;
+    skos:related :knowledgeGraph, :owlConcept, :skosConcept ;
+    rdfs:comment "Recurred in 10 corpus documents under disjoint local IRIs. Canonical: DBpedia (verified 2026-07-14); most-recurrent published local IRI linked via owl:sameAs."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:owlConcept a schema:DefinedTerm ;
+    schema:name "OWL (Web Ontology Language)"@en ;
+    schema:description "The W3C Web Ontology Language, used for formal class/property definitions and reasoning structures atop RDF."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Web_Ontology_Language>,
+        <https://www.linkedin.com/pulse/context-gap-jessica-talisman-pexvc#concept-owl> ;
+    skos:related :ontology, :rdfConcept ;
+    rdfs:comment "Recurred in 5 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:skosConcept a schema:DefinedTerm ;
+    schema:name "SKOS (Simple Knowledge Organization System)"@en ;
+    schema:description "W3C model for controlled vocabularies, concept schemes, taxonomies, and thesauri."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Simple_Knowledge_Organization_System>,
+        <https://www.linkedin.com/pulse/context-gap-jessica-talisman-pexvc#concept-skos> ;
+    skos:related :ontology, :owlConcept ;
+    rdfs:comment "Recurred in 3 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:webdav a schema:DefinedTerm ;
+    schema:name "WebDAV"@en ;
+    schema:description "HTTP extension for distributed authoring — used across this corpus as the mounted-folder workflow for publishing generated RDF and HTML artifacts to resolvable URLs."@en ;
+    owl:sameAs <http://dbpedia.org/resource/WebDAV>,
+        <https://www.linkedin.com/pulse/context-gap-jessica-talisman-pexvc#concept-webdav> ;
+    skos:related :linkedData ;
+    rdfs:comment "Recurred in 3 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:provO a schema:DefinedTerm ;
+    schema:name "PROV-O (Provenance Ontology)"@en ;
+    schema:description "The W3C provenance ontology recording which activity generated a piece of data, by whom, and from what — used across this corpus to link agent activity to attributable outcomes."@en ;
+    owl:sameAs <http://dbpedia.org/resource/PROV_(Provenance)>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#termPROVO>,
+        <https://moderndata101.substack.com/p/the-semantic-medallion#provOntology> ;
+    skos:altLabel "PROV-O — Provenance Ontology"@en ;
+    skos:broader :ontology ;
+    skos:related :rdfConcept ;
+    rdfs:seeAlso <https://www.w3.org/TR/prov-o/> ;
+    rdfs:comment "Recurred in 3 corpus documents, plus provenance-oriented-ontology variants elsewhere. Canonical: DBpedia (verified 2026-07-14); W3C Recommendation via rdfs:seeAlso."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:abac a schema:DefinedTerm ;
+    schema:name "Attribute-Based Access Control (ABAC)"@en ;
+    schema:description "Fine-grained access control that grants or denies dereference/use of a resource based on attributes of the requester, resource, action, and context, rather than fixed roles alone."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Attribute-based_access_control>,
+        <https://linkeddata.uriburner.com/DAV/demos/daas/ai-value-capture-response-claude_sonnet_5-1.ttl#abac>,
+        <https://www.linkedin.com/pulse/software-losing-its-head-seema-amble-6qmnc#term-accessControl> ;
+    skos:broader <https://medium.com/virtuoso-blog/dynamically-generating-documents-from-sparql-queries-7d6589505100#accessControl> ;
+    skos:related :webid, :agentIdentity ;
+    rdfs:comment "Recurred in 3+ corpus documents including the avc: trilogy (ai-value-capture-response, reverse-information-paradox). Canonical: DBpedia (verified 2026-07-14); avc:abac was the first agent-minted IRI and is preserved via owl:sameAs."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:digitalTwin a schema:DefinedTerm ;
+    schema:name "Digital Twin"@en ;
+    schema:description "A virtual replica of a person, object, or process — in this corpus most often an AI-generated copy of a person trained on their archives, capable of interactive pseudo-conversation."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Digital_twin>,
+        <https://om.co/2026/05/26/the-copy-and-the-guru#termDigitalTwin> ;
+    rdfs:comment "Recurred in 5 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:promptInjection a schema:DefinedTerm ;
+    schema:name "Prompt Injection"@en ;
+    schema:description "Malicious instructions embedded in content that an AI agent reads, causing it to act against its principal's intent."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Prompt_injection>,
+        <https://www.anthropic.com/engineering/how-we-contain-claude#term-prompt-injection> ;
+    skos:related :containment, :agentIdentity ;
+    rdfs:comment "Recurred in 3 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:vibeCoding a schema:DefinedTerm ;
+    schema:name "Vibe Coding"@en ;
+    schema:description "Building software via AI without traditional engineering rigor — natural-language-driven development where AI-generated code creates real economic value."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Vibe_coding>,
+        <https://dejiolowe.com/2026/03/30/ai-will-only-help-those-with-agency/#vibeCodingTerm> ;
+    skos:related :aiAgent ;
+    rdfs:comment "Recurred in 3 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:systemOfRecord a schema:DefinedTerm ;
+    schema:name "System of Record"@en ;
+    schema:description "The authoritative source of truth for business data, process state, and institutional context."@en ;
+    owl:sameAs <http://dbpedia.org/resource/System_of_record>,
+        <https://www.linkedin.com/pulse/software-losing-its-head-seema-amble-6qmnc#systemOfRecord>,
+        <https://www.linkedin.com/posts/darlenenewman_there-are-three-kinds-of-ai-enablement-programs-share-7465379435911847937-HBbM/#systems-of-record> ;
+    skos:altLabel "Systems of Record"@en ;
+    skos:related :knowledgeGraph, :semanticLayer ;
+    rdfs:comment "Recurred in 3 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:modelContextProtocol a schema:DefinedTerm ;
+    schema:name "Model Context Protocol (MCP)"@en ;
+    schema:description "An open protocol for exposing tools, resources, and prompts to AI agent clients — JSON-RPC over transports such as Streamable HTTP — now the de facto standard for AI-to-tool communication."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Model_Context_Protocol>,
+        <https://joost.blog/agent-ready/#mcpProtocol> ;
+    skos:related :aiAgent, :agenticWeb ;
+    rdfs:comment "Recurred in 6 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:semanticLayer a schema:DefinedTerm ;
+    schema:name "Semantic Layer"@en ;
+    schema:description "A data abstraction layer that defines metrics once and governs them centrally, enabling self-serve consumption without SQL — optimized for measurement and human consumption through BI tools."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Semantic_layer>,
+        <https://metadataweekly.substack.com/p/ontologies-context-graphs-and-semantic#semanticLayer> ;
+    skos:related :knowledgeGraph, :contextGraph, :systemOfRecord ;
+    rdfs:comment "Recurred in 6 corpus documents. Canonical: DBpedia (verified 2026-07-14)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+# ── Document-local canonical (no verified external IRI; most-recurrent published IRI is canonical) ──
+
+:contextEngineering a schema:DefinedTerm ;
+    schema:name "Context Engineering"@en ;
+    schema:description "The discipline of designing a system that provides the right information and tools, in the right format, to give an LLM everything it needs to accomplish a task."@en ;
+    owl:sameAs <https://metadataweekly.substack.com/p/ontologies-context-graphs-and-semantic#contextEngineering> ;
+    skos:related :contextGraph, :knowledgeGraph, :aiAgent ;
+    rdfs:comment "Recurred in 8 corpus documents — the most re-minted non-registry concept in the census. No verified DBpedia/Wikidata IRI as of 2026-07-14; the most-recurrent published document IRI is canonical."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:agenticWeb a schema:DefinedTerm ;
+    schema:name "Agentic Web"@en ;
+    schema:description "A Web pattern in which user-directed agents act across sites and data spaces — part of the human web, not separate from it — reducing platform lock-in via shared open standards."@en ;
+    owl:sameAs <https://vivianvoss.net/blog/linkedin-reach-you-did-not-earn#term-agentic-web> ;
+    skos:related :aiAgent, :modelContextProtocol, :linkedData ;
+    rdfs:comment "Recurred in 6 corpus documents. No verified DBpedia/Wikidata IRI as of 2026-07-14 (dbpedia:Agentic_AI is adjacent but not identical)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:aiAgent a schema:DefinedTerm ;
+    schema:name "AI Agent"@en ;
+    schema:description "A machine actor that can read context, call tools, execute actions, and operate software without a human UI."@en ;
+    owl:sameAs <https://www.linkedin.com/pulse/software-losing-its-head-seema-amble-6qmnc#aiAgent>,
+        <https://www.unaligned.io/p/ai-agents-and-the-new-enterprise-workforce-layer#aiAgents> ;
+    skos:altLabel "AI Agents"@en ;
+    skos:related :agenticWeb, :agentIdentity, :modelContextProtocol ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Intelligent_agent> ;
+    rdfs:comment "Recurred in 6 corpus documents (plus plural-label variants). dbpedia:Intelligent_agent is the closest external class (linked via rdfs:seeAlso; used directly as a term subject in one corpus doc) but predates and does not capture the tool-calling LLM-agent sense used across this corpus — kept document-local pending a verified exact match."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:agentIdentity a schema:DefinedTerm ;
+    schema:name "Agent Identity"@en ;
+    schema:description "The authorization model that determines whether an agent acts as itself, as a user, or both — the foundation for agent accountability and delegation."@en ;
+    owl:sameAs <https://www.anthropic.com/engineering/how-we-contain-claude#term-agent-identity> ;
+    skos:related :webid, :abac, :containment ;
+    rdfs:comment "Recurred in 6 corpus documents. No verified external IRI; directly adjacent to this system's WebID/delegation practice (oplcert:hasIdentityDelegate, On-Behalf-Of)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:contextGraph a schema:DefinedTerm ;
+    schema:name "Context Graph"@en ;
+    schema:description "A knowledge graph capturing decision reasoning and operational context — answering 'Why was X allowed to happen?' rather than just 'What happened?' — including procedure specifications, execution histories, and agent roles."@en ;
+    owl:sameAs <https://metadataweekly.substack.com/p/ontologies-context-graphs-and-semantic#contextGraph> ;
+    skos:broader :knowledgeGraph ;
+    skos:related :decisionTrace, :contextEngineering, :semanticLayer ;
+    rdfs:comment "Recurred in 5 corpus documents. No verified external IRI as of 2026-07-14."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:decisionTrace a schema:DefinedTerm ;
+    schema:name "Decision Trace"@en ;
+    schema:description "Evidence of why a decision was allowed to happen at a particular time — the auditable unit a context graph accumulates."@en ;
+    owl:sameAs <https://www.linkedin.com/pulse/context-gap-jessica-talisman-pexvc#concept-decision-trace>,
+        <https://www.linkedin.com/pulse/token-budget-wars-jaya-gupta-ibacc/#decisionTraces> ;
+    skos:altLabel "Decision Traces"@en ;
+    skos:related :contextGraph, :provO ;
+    rdfs:comment "Recurred in 5 corpus documents. No verified external IRI as of 2026-07-14."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:containment a schema:DefinedTerm ;
+    schema:name "Containment (AI Agent)"@en ;
+    schema:description "Hard environment-level limits on what an AI agent can access or affect, independent of model-level alignment."@en ;
+    owl:sameAs <https://www.anthropic.com/engineering/how-we-contain-claude#term-containment> ;
+    skos:related :promptInjection, :agentIdentity, :abac ;
+    rdfs:comment "Recurred in 3 corpus documents. No verified external IRI as of 2026-07-14."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:aiGovernance a schema:DefinedTerm ;
+    schema:name "AI Governance"@en ;
+    schema:description "Structured oversight of AI systems to ensure they protect human rights, privacy, and dignity through enforceable standards."@en ;
+    owl:sameAs <https://www.unaligned.io/p/ai-regulation-becomes-a-moral-issue#termAIGovernance> ;
+    skos:broader <https://www.linkedin.com/pulse/software-losing-its-head-seema-amble-6qmnc#governance>,
+        <https://www.linkedin.com/posts/tonyseale_did-you-start-building-your-ontology-as-a-share-7463353332565356545-jY54#termGovernance> ;
+    skos:related :containment, :agentIdentity ;
+    rdfs:comment "Recurred in 3 corpus documents. No verified external IRI as of 2026-07-14 (dbpedia:Regulation_of_artificial_intelligence is adjacent but narrower — regulation is one instrument of governance)."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .

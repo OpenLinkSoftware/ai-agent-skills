@@ -1,0 +1,17 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto: <ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Private Agent RDF Memory Preferences Example"@en ;
+    schema:description "Copy this structure to preferences.private.ttl for local-only preferences. Do not put personal endpoint order, identity-specific rules, credentials, or private paths in the public preferences.ttl file."@en ;
+    schema:dateCreated "2026-07-15T00:00:00Z"^^xsd:dateTime .
+
+:PrivateEndpointSelectionPolicy a onto:RetrievalPolicy ;
+    schema:name "Private endpoint selection order"@en ;
+    schema:description "Example: local endpoint first, then a remote endpoint, then local Turtle document processing. Replace this text with your private policy in preferences.private.ttl."@en .
+
+# Example overlay assertion. Private graph values should be prioritized by the
+# harness when both public and private retrieval policies are available.
+# onto:VirtuosoSparqlTroubleshooting onto:retrievalPolicy :PrivateEndpointSelectionPolicy .

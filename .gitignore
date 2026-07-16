@@ -19,6 +19,7 @@ AGENT-basic.md
 AGENT-prior.md
 CLAUDE-prior.md
 agent-rdf-memory/projects/
+agent-rdf-memory/preferences.private.ttl
 agent-rdf-memory/sessions/*
 !agent-rdf-memory/sessions/2026-06-15-deepseek_v4pro-claude_code.ttl
 !agent-rdf-memory/sessions/2026-06-15-gpt5_chat-codex.ttl
@@ -41,6 +42,9 @@ __pycache__/
 # Generated output files
 gptree_output.txt
 .gptree_config
+
+# Third-party skills
+first-customer-finder/
 
 # Temp/unnamed files
 zi3vYccB

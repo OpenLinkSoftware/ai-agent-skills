@@ -1,0 +1,116 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Model Identity Resolution Gate"@en ;
+    schema:description "Blocking gate: resolve the active LLM model identity from three chained sources. No file write, artifact routing decision, or whoami response may proceed with 'unresolved' model identity."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-modelIdentityResolution ;
+    schema:step :step-resolutionSourceChain, :step-resolutionEnvVarFallback,
+        :step-resolutionElicitUser, :step-resolutionProhibitedDefaults ;
+    rdfs:seeAlso <../preferences.ttl>, <artifact-routing.ttl> .
+
+# ── Step 1: Three-Source Resolution Chain ────────────────────────────────────
+
+:step-resolutionSourceChain a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Resolve model identity from three sources in strict priority order"@en ;
+    schema:text """The agent MUST resolve its active model identity from these three sources, in strict priority:
+
+SOURCE 1 — System Prompt (highest priority):
+  Read the system prompt for explicit model identification phrases:
+    "You are powered by the model {name}"
+    "You are {name}"
+    "Model: {name}"
+    "{provider} {model-name}"
+  If the prompt names a model, use it as the canonical model identity.
+
+SOURCE 2 — Environment Variables (fallback when Source 1 is silent or ambiguous):
+  When the system prompt says only generic text like "You are an expert coding assistant
+  operating inside {harness-name}" without naming a model, check these env vars:
+    ANTHROPIC_MODEL      (e.g., claude-deepseek-v4-pro[1m])
+    ANTHROPIC_BASE_URL   (e.g., https://api.deepseek.com/anthropic → DeepSeek backend)
+    OPENAI_MODEL         (e.g., gpt-5)
+    GOOGLE_MODEL         (e.g., gemini-2.5-pro)
+    MODEL                (generic fallback)
+  Parse the value to extract the canonical model name and family. If ANTHROPIC_BASE_URL
+  points to a different provider (e.g., api.deepseek.com), the MODEL env var value
+  determines the model family, but note the routing in session context.
+
+SOURCE 3 — Elicit from User (last resort):
+  If both Source 1 and Source 2 fail to yield a model identity, ask the user:
+    "I cannot determine which LLM model I am. Which model is powering this session?"
+  Do not proceed with any file write or whoami response until the user answers.
+
+This chain mirrors the WebID-TLS verification pattern (local first, remote fallback)
+and the credentials-root resolution gate (search, then elicit — never guess).
+All three sources are inexpensive to check (prompt text, env vars, one user question),
+so there is no legitimate reason to skip the chain and return 'unresolved'."""@en .
+
+# ── Step 2: Map Resolved Identity to Output Root ─────────────────────────────
+
+:step-resolutionEnvVarFallback a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Map the resolved model identity to its canonical output root via core.ttl"@en ;
+    schema:text """Once the model identity is resolved, map it to its output path:
+
+1. Match the model family to a core.ttl output path entity:
+     DeepSeek V4 Pro / claude-deepseek-v4-pro → :deepseekOutputPath → {LLM_ROOT}/DeepSeek/
+     Claude Sonnet / Opus → :claudeOutputPath → {LLM_ROOT}/Claude Generated/
+     GPT-5 Chat → (see step-gpt5ChatCodexOutputDirs) → {LLM_ROOT}/GPT5-Chat-Generated/
+     Grok → :grokOutputPath → {LLM_ROOT}/Grok/
+     GLM → :glmOutputPath → {LLM_ROOT}/glm/
+     Big Pickle → :bigPickleOutputPath → {LLM_ROOT}/Big Pickle/
+     kimi → :kimiOutputPath → {LLM_ROOT}/kimi/
+     MiniMax → :minimaxOutputPath → {LLM_ROOT}/MiniMax Generated/
+
+2. If no matching core.ttl entry exists, elicit from the user where artifacts should
+   be routed — never default to a random model's directory.
+
+3. Confirm the resolved root internally. All subsequent writes in the session use
+   this root without re-derivation.
+
+This step feeds both artifact routing (:step-outputDirs) and whoami responses
+(:step-whoamiFormat)."""@en ;
+    rdfs:seeAlso <../core.ttl>, <artifact-routing.ttl> .
+
+# ── Step 3: Elicit When Unmappable ───────────────────────────────────────────
+
+:step-resolutionElicitUser a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Elicit from user when the resolved model identity has no core.ttl mapping"@en ;
+    schema:text """EDGE CASE: a model identity is resolved (Source 1 or Source 2 succeeds) but
+has no matching output path in core.ttl. Prompt the user:
+
+  "I've identified my model as {model-name}, but there is no output path defined for
+  it in core.ttl. Where should I route generated artifacts? Options: (1) add a new
+  entry to core.ttl, (2) reuse an existing model's path, (3) specify a custom path."
+
+Wait for the user's response before writing any files.
+
+This gate exists because new LLMs are added regularly, and defaulting to a
+wrong model's directory (the 2026-06-09 World Cup meshup bug) or writing to
+kg-output/ (the 2026-06-24 bug) are both worse than a 30-second elicitation."""@en .
+
+# ── Step 4: Prohibited Defaults ──────────────────────────────────────────────
+
+:step-resolutionProhibitedDefaults a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Prohibited model identity defaults — never guess, never leave unresolved"@en ;
+    schema:text """EXPLICITLY PROHIBITED when model identity cannot be resolved:
+  • "model identity not specified in runtime" (leave unresolved)
+  • Guessing from session file context
+  • Guessing from conversation history
+  • Guessing from working directory path
+  • Defaulting to Claude Generated/ or any other model's directory
+  • Using kg-output/, /tmp, or the repo root as a fallback destination
+
+Every one of these is worse than a 30-second user elicitation. The model identity
+resolution chain (Sources 1–3) is the only valid path — if all three fail, stop
+and ask. An agent that cannot identify itself cannot responsibly route artifacts
+or respond to whoami."""@en .

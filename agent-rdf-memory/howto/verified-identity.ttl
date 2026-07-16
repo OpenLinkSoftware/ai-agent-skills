@@ -9,33 +9,57 @@
     schema:name "Verified Identity Gate — Whoami Certificate Verification Protocol"@en ;
     schema:description "Protocol for cryptographically verifying both the user identity and the agent identity before responding to a whoami query. Uses local PKCS#12 / PEM certificates whose public key moduli are matched against the published cert:RSAPublicKey in each party's WebID profile document, plus remote verification of reciprocal delegation claims against live WebDAV-hosted profiles."@en ;
     schema:dateCreated "2026-06-19T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-27T12:40:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-locateUserCert, :step-verifyUserIdentity,
+    schema:about :step-resolveCredentialsRoot,
+                 :step-locateUserCert, :step-verifyUserIdentity,
                  :step-locateAgentCert, :step-verifyAgentIdentity,
                  :step-verifyDelegationClaims,
                  :step-verifyDelegationRemote,
                  :step-assembleVerifiedWhoami ;
-    schema:step :step-locateUserCert, :step-verifyUserIdentity,
+    schema:step :step-resolveCredentialsRoot,
+                :step-locateUserCert, :step-verifyUserIdentity,
                 :step-locateAgentCert, :step-verifyAgentIdentity,
                 :step-verifyDelegationClaims,
                 :step-verifyDelegationRemote,
                 :step-assembleVerifiedWhoami ;
-    rdfs:seeAlso <../preferences.ttl>, <agent-identity.ttl> .
+    rdfs:seeAlso <../preferences.ttl>, <agent-identity.ttl>,
+        <filesystem-path-verification.ttl> .
+
+# ── Step 0: Resolve Credentials Root (BLOCKING GATE) ─────────────────────────
+
+:step-resolveCredentialsRoot a schema:HowToStep ;
+    schema:position "0"^^xsd:integer ;
+    schema:name "BLOCKING GATE — resolve the YouID credentials root before any cert verification; never guess"@en ;
+    schema:text """This is a hard blocking gate. No certificate verification and no whoami response may proceed until the YouID credentials root has been resolved and verified on disk.
+
+PROCEDURE:
+1. Do NOT guess a path. Do NOT infer from session memory or conversation context.
+2. Search common parent trees for directories matching 'Templates/YouID/link-in-bio-credentials-*' and 'Templates/YouID/link-in-bio-agent-credentials*' using 'ls' or 'find' (timeboxed).
+3. A valid credential directory MUST contain cert.pem (or cert.p12). Verify with 'ls <dir>/cert.pem' before accepting.
+4. If found → set the resolved credential root as the session's active path and proceed.
+5. If NOT found → ELICIT from the user:
+     'I cannot locate your YouID credential bundles. Where are they stored? Provide the path to the parent directory containing Templates/YouID/.'
+   Wait for the user's response before proceeding.
+
+PROHIBITED FALLBACKS: guessing a path, using a path from a prior session file, constructing a path by convention alone, searching without timeboxing (which can hang on large filesystems).
+
+This gate exists because {CREDENTIALS_ROOT} was a dangling template placeholder with no resolution procedure — agents guessed wrong paths (e.g., ~/Documents/Management/Credentials/ instead of ~/Documents/Management/Marketing/WebID/). The gate must be satisfied before Step 1."""@en ;
+    rdfs:seeAlso <filesystem-path-verification.ttl> .
 
 # ── Canonical credentials ─────────────────────────────────────────────────────
 
 :userCredentials a schema:Thing ;
     schema:name "User credential bundle"@en ;
-    schema:description "Default local directory containing cert.pem / cert.p12 for the user's WebID."@en ;
-    schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/"@en ;
+    schema:description "Local directory containing cert.pem / cert.p12 for the user's WebID. Resolved at runtime by :step-resolveCredentialsRoot — never hardcoded."@en ;
+    schema:value "Resolved by :step-resolveCredentialsRoot at session start — append /Templates/YouID/link-in-bio-credentials-5/ to the resolved root."@en ;
     oplcert:SAN <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl#identity> ;
     schema:url <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl> .
 
 :agentCredentials a schema:Thing ;
     schema:name "Agent credential bundle"@en ;
-    schema:description "Default local directory containing cert.pem / cert.p12 for the agent's WebID (CN=Kingsley Idehen's Agent)."@en ;
-    schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/"@en ;
+    schema:description "Local directory containing cert.pem / cert.p12 for the agent's WebID (CN=Kingsley Idehen's Agent). Resolved at runtime by :step-resolveCredentialsRoot — never hardcoded."@en ;
+    schema:value "Resolved by :step-resolveCredentialsRoot at session start — append /Templates/YouID/link-in-bio-agent-credentials/ to the resolved root."@en ;
     oplcert:SAN <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity> ;
     schema:url <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl> .
 
@@ -44,10 +68,10 @@
 :step-locateUserCert a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
     schema:name "Locate user credential file"@en ;
-    schema:text """Default user credentials directory:
-  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/
+    schema:text """User credentials directory (resolved by :step-resolveCredentialsRoot at session start):
+  {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
 
-Elicit an override from the user if they want to verify a different credential set.
+The credential root MUST have been resolved by the blocking gate (Step 0) before this step runs. If the user provided a different credential set path, use that instead.
 
 Look for (in order of preference):
   1. cert.pem   — PEM-encoded certificate (no passphrase needed)
@@ -91,9 +115,10 @@ Known values (as of 2026-06-16):
 :step-locateAgentCert a schema:HowToStep ;
     schema:position "3"^^xsd:integer ;
     schema:name "Locate agent credential file"@en ;
-    schema:text """Default agent credentials directory:
-  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/
+    schema:text """Agent credentials directory (resolved by :step-resolveCredentialsRoot at session start):
+  {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
 
+The credential root MUST have been resolved by the blocking gate (Step 0) before this step runs.
 The agent certificate subject is:
   CN=Kingsley Idehen's Agent / emailAddress=kidehen@openlinksw.com / O=Personal Data Space
 
@@ -158,9 +183,9 @@ PROCEDURE (run via Bash tool after Steps 1–4):
 5. For EXPLICIT remote verification of live WebDAV profiles (not just fallback),
    proceed to Step 7.
 
-Known credential dirs (as of 2026-06-18):
-  Delegator (user):  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/
-  Delegate  (agent): {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/
+Known credential dirs (resolved by :step-resolveCredentialsRoot at session start):
+  Delegator (user):  {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
+  Delegate  (agent): {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
 
 Expected corroborating triples:
   Delegator profile.ttl line ~145:
@@ -209,8 +234,8 @@ PROCEDURE (run via Bash tool after Step 6 local verification passes):
 4. DELEGATION-HEADER VERIFICATION SERVICE (optional):
    For an end-to-end test, present the agent certificate to a remote WebID verification
     service (e.g. ods-qa.openlinksw.com:5443/webid/) with the On-Behalf-Of header:
-      curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \
-        -H 'On-Behalf-Of: {delegator-WebID}' \
+      curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \\
+        -H 'On-Behalf-Of: {delegator-WebID}' \\
         'https://ods-qa.openlinksw.com:5443/webid/?go=Verify'
    Note: The verification service validates the certificate-subject identity (agent) and
    accepts the On-Behalf-Of header, but does NOT independently verify the delegation

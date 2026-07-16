@@ -1,0 +1,42 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto:   <https://www.openlinksw.com/ontology/> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Reader-Facing Copy Gate for HTML Infographics"@en ;
+    schema:description "Prevents generated HTML infographics from exposing artifact mechanics in visible section subtitles, headings, cards, and blurbs unless the section is explicitly a technical provenance or workbench section."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :HowToReaderFacingCopyGate .
+
+:HowToReaderFacingCopyGate a schema:HowTo ;
+    schema:name "Reader-Facing Copy Gate"@en ;
+    schema:description "Visible copy in article-style HTML collections must help readers understand the subject matter, not explain that the page was generated from RDF, entities, extraction steps, or resolver mechanics."@en ;
+    schema:step :stepReaderValue,
+                :stepAvoidArtifactMechanics,
+                :stepAllowedTechnicalZones,
+                :stepPreDeliveryScan .
+
+:stepReaderValue a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Visible section copy must serve reader comprehension"@en ;
+    schema:text "Headings, subtitles, card blurbs, and section introductions in the main reading flow must communicate topic meaning, argument structure, or user value. They must not describe implementation details of the generated artifact."@en .
+
+:stepAvoidArtifactMechanics a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Do not expose RDF/entity/extraction mechanics in reader-facing copy"@en ;
+    schema:text """Avoid phrases such as 'resolves to its RDF section entity', 'extracted from the article', 'question entities', 'answer entities', 'from the RDF', 'derived from the RDF', 'artifact', 'companion graph', 'knowledge graph entity', and similar implementation descriptions in the main article flow. If the visible sentence would make more sense to the generator than to the reader, remove it or rewrite it around the topic."""@en .
+
+:stepAllowedTechnicalZones a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Technical wording is allowed only in explicit provenance and workbench zones"@en ;
+    schema:text "Technical provenance, RDF, resolver, named-graph, SPARQL, validation, and generation-environment wording is allowed in the footer, SPARQL workbench, KG explorer controls, metadata panels, source/provenance sections, or documentation specifically intended for technical inspection."@en .
+
+:stepPreDeliveryScan a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Scan main-flow visible copy before delivery"@en ;
+    schema:text "Before delivering an HTML infographic or article collection, scan visible main-flow subtitles and card blurbs for artifact-mechanics phrases. Remove nonessential subtitles entirely when the heading and content already carry the section. Keep semantic links and RDF backing invisible unless they help the reader's task."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified .
