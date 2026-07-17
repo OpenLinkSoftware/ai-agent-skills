@@ -1,0 +1,55 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Screencast Distribution Artifacts"@en ;
+    schema:description "Routing and attribution rules for screencast bundles, including HTML documents that embed or distribute video recordings with captions and voiceover."@en ;
+    schema:dateCreated "2026-07-17T18:44:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-17T19:14:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :screencastDistributionWorkflow ;
+    rdfs:seeAlso <../preferences.ttl>, <artifact-routing.ttl>, <kg-curation-attribution.ttl>, <infographic-authoring.ttl> .
+
+:screencastDistributionWorkflow a schema:HowTo ;
+    schema:name "Route and Attribute Screencast Distribution Bundles"@en ;
+    schema:description "A screencast bundle may include video, audio, captions, storyboard files, logs, poster frames, and an HTML wrapper. The HTML wrapper follows screencast routing, not ordinary webpage routing, when its purpose is to embed or distribute the recording."@en ;
+    schema:step :stepClassifyBundle,
+        :stepRouteToScreencasts,
+        :stepUseRelativeMediaLinks,
+        :stepApplyAttribution,
+        :stepEmbedRichMetadata,
+        :stepValidateBundle .
+
+:stepClassifyBundle a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Classify HTML that embeds a screencast as part of the screencast bundle"@en ;
+    schema:text "If the HTML document's primary purpose is to play, frame, describe, or distribute a screencast/video recording, treat it as a screencast distribution artifact rather than an ordinary HTML webpage collection."@en .
+
+:stepRouteToScreencasts a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Route the final bundle to {model-root}/screencasts/"@en ;
+    schema:text "Place the final HTML wrapper, MP4/WebM files, voiceover MP3, VTT/SRT captions, poster frames, logs, and storyboard files in the model-specific screencasts/ folder. For GPT-5 Chat Codex Desktop, that is {LLM_ROOT}/GPT5-Chat-Generated/screencasts/."@en .
+
+:stepUseRelativeMediaLinks a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Use bundle-relative media links"@en ;
+    schema:text "Inside the distributable HTML wrapper, link to local MP4/WebM/MP3/VTT/SRT/poster assets using relative href/src values when those assets are in the same screencasts/ folder. Do not use file: URLs or absolute /Users/... paths in distributable HTML."@en .
+
+:stepApplyAttribution a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Apply hero and footer on-behalf-of attribution"@en ;
+    schema:text "HTML wrappers for screencasts still inherit generated-HTML attribution rules: include a hero-meta or equivalent visible hero attribution and a footer attribution variant that names the producing skills, the AI agent/model, and the human principal using the on-behalf-of pattern. Follow kg-curation-attribution.ttl and use <p> prose in the footer rather than chip-style attribution divs."@en ;
+    rdfs:seeAlso <kg-curation-attribution.ttl>, <infographic-authoring.ttl> .
+
+:stepEmbedRichMetadata a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Embed rich JSON-LD and POSH metadata"@en ;
+    schema:text "Every screencast HTML wrapper must include rich machine-readable metadata: a script type=\"application/ld+json\" graph describing the WebPage/CreativeWork, VideoObject, AudioObject, caption sidecars, producing skills/agents, principal/accountablePerson, and prov:actedOnBehalfOf delegation; plus POSH head links/meta such as rel=\"author\", rel=\"me\", rel=\"about\", rel=\"alternate\" for captions, rel=\"enclosure\" for video/audio, description, author, Open Graph, and Twitter card metadata. Validate the JSON-LD parses before delivery."@en ;
+    rdfs:seeAlso <kg-curation-attribution.ttl>, <rdf-document-authoring.ttl> .
+
+:stepValidateBundle a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Validate the bundle before delivery"@en ;
+    schema:text "Before delivery, verify that the HTML file lives in screencasts/, every relative media/caption link resolves, embedded JSON-LD parses, POSH links are present, the MP4 contains expected video/audio/subtitle streams when applicable, and no stale canonical copy remains in webpages/ unless explicitly requested as a separate webpage artifact."@en .
