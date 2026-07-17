@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Resolvable IRI Payload Presentation"@en ;
+    schema:description "Presentation rule for query/tool results containing both human labels and resolvable IRIs: hyperlink labels and avoid redundant raw-IRI columns by default."@en ;
+    schema:dateCreated "2026-07-17T15:35:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-17T15:35:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :resolvableIriPayloadPresentation ;
+    rdfs:seeAlso <../preferences.ttl> .
+
+:resolvableIriPayloadPresentation a schema:HowTo ;
+    schema:name "Present Resolvable IRIs as Hyperlinked Labels"@en ;
+    schema:description "Default response presentation for payloads that pair labels/titles with resolvable IRIs."@en ;
+    schema:step :stepDetectLabelIriPairs, :stepRenderLabelAsLink, :stepPreserveRawWhenRequested .
+
+:stepDetectLabelIriPairs a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Detect label/title plus resolvable IRI pairs in payloads"@en ;
+    schema:text "When a result payload includes a human-readable label/title/name column and a URL/IRI column for the same entity, treat the IRI as the hyperlink target for the label rather than as a separate reader-facing value."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
+
+:stepRenderLabelAsLink a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Render labels as Markdown hyperlinks and omit redundant IRI columns"@en ;
+    schema:text "In chat-response tables and lists, render the label as [label](IRI) and remove the redundant raw-IRI column by default. This keeps result tables compact while preserving dereferenceability."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
+
+:stepPreserveRawWhenRequested a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Preserve raw IRI columns when explicitly requested"@en ;
+    schema:text "If the user asks for raw IRIs, machine-readable tables, debugging output, CSV/TSV-style columns, or separate identifier columns, include the raw IRI column in addition to or instead of hyperlinks."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .

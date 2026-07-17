@@ -66,6 +66,30 @@ Use default endpoint. Format `text/x-html+tr`. Max 20 rows. Tabulate results.
 - Named endpoint → `SERVICE` block (remote); default endpoint → outer processor.
 - `SERVICE` block **must** contain a `SELECT` with an inner `LIMIT`.
 
+### Remote SPARQL Endpoint Intent
+**Trigger:** User names a known remote knowledge graph or endpoint brand, even
+when the prompt does not include the endpoint URL literally. Examples:
+`DBpedia`, `Wikidata`, `Bio2RDF`, `UniProt`, or "Using DBpedia...".
+
+For API, REST, MCP, OPAL, or A2A-mediated execution, normalize the intent to a
+remote SPARQL call before invoking a backend function:
+
+| Mention | Endpoint URL |
+|---|---|
+| `DBpedia` | `https://dbpedia.org/sparql` |
+| `Wikidata` | `https://query.wikidata.org/sparql` |
+
+Required parameter contract:
+- Remote SPARQL function: provide both `url` and `query`.
+- Local SPARQL function: provide `query` and `format`.
+- SPASQL function: provide `sql`; include `max_rows`, `timeout`, and `format`
+  when the function surface supports them.
+
+Never call an OPAL/A2A backend query function with only the natural-language
+prompt when the target function requires structured parameters. If the user
+names a remote KG such as DBpedia, first generate the concrete SPARQL query and
+bind the endpoint URL, then invoke the function.
+
 ### SPASQL
 Wraps SPARQL inside SQL: `FROM (SPARQL ... WHERE ...) AS <alias>`
 
@@ -144,9 +168,10 @@ enumeration has been attempted.
 ### Step 0 — Local Vector Search (Local-First, Pre-Graph Discovery)
 
 **Every** T5, T6, T7, and T8 query MUST execute a local vector search
-**before** any endpoint call. This inverts the workflow: local RDF files
-are the primary data space; URIBurner and fallback endpoints are the
-secondary layer.
+**before** any endpoint call — unless the user signals KG-only mode or
+names an endpoint (see Rule 1 override). This inverts the workflow: local
+RDF files are the primary data space; URIBurner and fallback endpoints are
+the secondary layer.
 
 #### Folder Resolution
 
@@ -417,6 +442,7 @@ examine `?s1` and `?o1`:
 | Function | Signature | Use Case |
 |---|---|---|
 | `UB.DBA.sparqlQuery` | `(query, format)` | SPARQL |
+| `OAI.DBA.sparqlRemoteQuery` | `(url, query)` | Remote SPARQL |
 | `Demo.demo.execute_spasql_query` | `(sql, maxrows, timeout)` | SPASQL |
 | `UB.DBA.sparqlQuery` | `(sql, url)` | SQL |
 | `DB.DBA.graphqlQuery` | `(query)` | GraphQL |
@@ -428,11 +454,54 @@ speed are not valid reasons to bypass the template gate.
 
 Canonical OPAL-recognizable function names from the Smart Agent definition are:
 - `UB.DBA.sparqlQuery` with signature `(query, format)` for SPARQL
+- `OAI.DBA.sparqlRemoteQuery` with signature `(url, query)` for remote SPARQL
 - `Demo.demo.execute_spasql_query` with signature `(sql, maxrows, timeout)` for SPASQL
 - `UB.DBA.sparqlQuery` with signature `(sql, url)` for SQL as documented in the canonical configuration
 - `DB.DBA.graphqlQuery` with signature `(query)` for GraphQL
 
 Treat OPAL as an agent routing layer over these named functions, not merely another transport.
+
+### OPAL/A2A Parameter Preflight
+
+Before invoking Data Twingler through OPAL Agent routing or A2A, build and
+verify the exact structured function arguments that the selected backend
+function requires.
+
+For a prompt such as:
+
+```text
+Using DBpedia, list movies by Spike Lee.
+```
+
+The preflight MUST produce either:
+
+```json
+{
+  "function": "OAI.DBA.sparqlRemoteQuery",
+  "arguments": {
+    "url": "https://dbpedia.org/sparql",
+    "query": "PREFIX dbr: <http://dbpedia.org/resource/> ... SELECT ..."
+  }
+}
+```
+
+or, when the route is SPASQL:
+
+```json
+{
+  "function": "Demo.demo.execute_spasql_query",
+  "arguments": {
+    "sql": "SPARQL PREFIX dbr: <http://dbpedia.org/resource/> ... SELECT ...",
+    "maxrows": 20,
+    "timeout": 30
+  }
+}
+```
+
+Abort with an actionable error before the backend call if any required
+parameter is missing. Report the missing parameter name and the intended
+function. Do not send a backend function call with an empty, null, or
+natural-language-only placeholder for `url`, `query`, or `sql`.
 
 ---
 
@@ -455,7 +524,12 @@ The local-first workflow inverts the traditional order:
 The local-first + KG-hybrid workflow:
 
 ```
-Step 0 (Local Vector Search) → Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Variants → Fallback Endpoints → Final Report
+[User signals KG-only?] → YES → Step 1a (bif:contains Keyword) directly
+                     ↓ NO
+Step 0 (Local Vector Search) → [zero match?] → YES → Step 1a (bif:contains)
+                              ↓ match found → checkpoint → user confirms → answer
+                                                      ↓ declines → Step 1a
+Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Variants → Fallback Endpoints → Final Report
 ```
 
 1. **Local Vector Search** (Step 0) — Executes first, before any endpoint call.
@@ -507,6 +581,14 @@ Step 0 (Local Vector Search) → Step 1a (bif:contains Keyword) → Step 1b (vve
    checkpoint before proceeding to endpoint queries. Do not skip local search
    because an endpoint "should" have the answer or because a KG was recently
    generated — the local file is the source of truth.
+   - **Endpoint-first override:** When the user signals KG-only mode, names
+     URIBurner, or says "query the endpoint", skip Step 0 entirely and proceed
+     directly to Graph IRI Discovery on the default endpoint. Per
+     `preferences.ttl` step `:step-sparqlEndpointSearchOrder`.
+   - **Early-exit on zero match:** If the first local search pass returns zero
+     matches, pivot to the endpoint immediately. Do not repeat local search
+     with variant terms — the endpoint's `bif:contains` full-text index is
+     faster and more comprehensive than additional local file scanning.
 2. Use predefined templates **before any query execution** — direct queries,
    ad-hoc SPARQL/SPASQL/SQL, and general LLM knowledge all come after template
    matching is attempted and either succeeds or is honestly exhausted.
@@ -546,3 +628,8 @@ Step 0 (Local Vector Search) → Step 1a (bif:contains Keyword) → Step 1b (vve
 14. Leverage caching (TTL 3600s) and parallel execution.
 15. Tabulate all query results by default.
 16. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
+17. For OPAL/A2A-routed execution, run the OPAL/A2A Parameter Preflight before
+    backend invocation. Remote KG prompts such as "Using DBpedia..." must bind
+    the remote endpoint URL and concrete SPARQL query; SPASQL prompts must bind
+    the `sql` string. Never rely on the backend to infer these required
+    parameters from only the natural-language message.

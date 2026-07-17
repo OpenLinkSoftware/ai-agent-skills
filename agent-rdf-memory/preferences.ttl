@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-07-14T19:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-17T18:44:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -124,7 +124,8 @@
         :step-noMemoryMdWrite, :step-preferencesSparse, :step-secretEchoRedaction,
         :step-preferencesPresentationFormat,
         :step-sessionLogReconciliation,
-        :step-semanticSessionBootstrap, :step-symbolicLogOffloading .
+        :step-semanticSessionBootstrap, :step-symbolicLogOffloading,
+        :step-resolvableIriPayloadPresentation .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -132,13 +133,14 @@
     schema:name "Artifact Output Routing"@en ;
     schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, prompt-specified model-name override prevention, artifact placement elicitation, and remote WebDAV upload."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
+        <howto/screencast-distribution-artifacts.ttl>,
         <howto/remote-webdav-upload.ttl>,
         <howto/filesystem-path-verification.ttl>,
         <howto/model-identity-resolution.ttl> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-modelIdentityPreflight, :step-defaultOutputRoot,
         :step-modelOverEnvironment, :step-noPromptModelOverride, :step-modelIdentityResolution,
-        :step-artifactPlacement,
+        :step-artifactPlacement, :step-screencastDistributionArtifacts,
         :step-remoteWebdavUpload, :step-savedPromptsFolder, :step-filesystemPathVerification .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
@@ -1777,3 +1779,39 @@
     schema:text "Before writing a schema:Person, DefinedTerm, or TBox registry entry, grep the actual source document for its real asserted IRI instead of guessing a plausible slug, and manually review any census-surfaced owl:sameAs cluster before reuse since corpus documents can themselves contain entity-resolution errors."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/entity-registry-census-verification.ttl>, <howto/external-iri-verification.ttl>, <entities/people.ttl> .
+
+# ── Step 133: HTTP Interactions Use curl First; MCP Tools Are Last Resort ────
+
+:step-curlFirstMcpLastResort a schema:HowToStep ;
+    schema:position 133 ;
+    schema:name "Use curl (or other local CLI tools) for HTTP interactions; invoke MCP server tools only as a last resort"@en ;
+    schema:text "For fetching pages, WebDAV PROPFIND/PUT, feed retrieval, and endpoint probing, always reach for curl and local CLI utilities first. MCP tools (execute_sql_query, EXECUTE_SQL_SCRIPT, WEB_FETCH, etc.) are a last resort, justified only when the task genuinely requires privileged server-side access that no local CLI path (curl, isql with known credentials, filesystem) can provide. Stated by Kingsley on 2026-07-16 after an MCP SQL call was used where a curl PROPFIND sufficed."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/curl-first-mcp-last-resort.ttl> .
+
+# ── Step 134: VSP Artifacts Route to a vsps/ Subfolder of the Model Output Root ──
+
+:step-vspArtifactsFolder a schema:HowToStep ;
+    schema:position 134 ;
+    schema:name "Generated VSP (Virtuoso Server Page) artifacts go in a vsps/ subfolder under the model-specific output root"@en ;
+    schema:text "VSP pages and their deployment companions (SQL deploy scripts, READMEs) are routed to {model-root}/vsps/ — a sibling of rdf/, md/, webpages/, and saved-prompts/ under the output root resolved by artifact-routing step-outputDirs (e.g. Claude models → {LLM_ROOT}/Claude Generated/vsps/). Never leave them in the working repo or a generator work folder. Stated by Kingsley on 2026-07-16 when a weblog index.vsp was first placed in a repo-root vsp-weblog/ folder."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/artifact-routing.ttl> .
+
+# ── Step 135: Resolvable IRI Payload Presentation ───────────────────────────
+
+:step-resolvableIriPayloadPresentation a schema:HowToStep ;
+    schema:position 135 ;
+    schema:name "When result payloads contain resolvable IRIs, hyperlink the label and omit redundant raw-IRI columns by default"@en ;
+    schema:text "For chat-response tables or lists derived from query/tool payloads that include both a human label/title and its resolvable IRI, render the human label/title as a Markdown hyperlink to that IRI and drop any redundant separate IRI column unless the user explicitly asks for raw IRIs, debugging output, or machine-readable tabular columns."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/resolvable-iri-payload-presentation.ttl> .
+
+# ── Step 136: Screencast Distribution Artifacts ─────────────────────────────
+
+:step-screencastDistributionArtifacts a schema:HowToStep ;
+    schema:position 136 ;
+    schema:name "HTML documents that embed screencasts are screencast distribution artifacts and go in the model screencasts/ folder"@en ;
+    schema:text "When an HTML document embeds or primarily distributes a screencast, route that HTML wrapper plus caption sidecars, narration assets, and the video files to {model-root}/screencasts/ rather than {model-root}/webpages/. Use bundle-relative media links, and apply the same hero-meta and footer on-behalf-of attribution rules used for generated HTML artifacts."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/screencast-distribution-artifacts.ttl>, <howto/artifact-routing.ttl>, <howto/kg-curation-attribution.ttl>, <howto/infographic-authoring.ttl> .

@@ -1,0 +1,22 @@
+@prefix schema: <http://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <#> .
+
+:howto a schema:HowTo ;
+    schema:name "curl first; MCP tools last resort"@en ;
+    schema:dateCreated "2026-07-16"^^xsd:date ;
+    schema:description "Tool-selection order for HTTP and data interactions, stated by Kingsley Idehen on 2026-07-16."@en ;
+    schema:step :step1, :step2, :step3 .
+
+:step1 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:text "HTTP interactions (GET, PUT, PROPFIND, feed fetches, endpoint probes, content negotiation) use curl via Bash. WebDAV listings use 'curl -X PROPFIND -H \"Depth: 1\"'."@en .
+
+:step2 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:text "Database access prefers local CLI (isql) when credentials are available; filesystem reads/writes prefer local tools."@en .
+
+:step3 a schema:HowToStep ;
+    schema:position 3 ;
+    schema:text "MCP server tools are the LAST resort — only when privileged server-side access is required and no curl/CLI path exists. State the justification before using them."@en .
