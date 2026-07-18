@@ -13,7 +13,7 @@
     schema:about :step-modelIdentityResolution ;
     schema:step :step-resolutionSourceChain, :step-resolutionEnvVarFallback,
         :step-resolutionElicitUser, :step-resolutionProhibitedDefaults ;
-    rdfs:seeAlso <../preferences.ttl>, <artifact-routing.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-modelIdentityResolution>, <artifact-routing.ttl> .
 
 # ── Step 1: Three-Source Resolution Chain ────────────────────────────────────
 

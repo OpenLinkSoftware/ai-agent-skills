@@ -13,7 +13,7 @@
         :step-zipRepackage, :step-retrievalToolOrder ;
     schema:step :step-skillChain, :step-kgQueryMode,
         :step-zipRepackage, :step-retrievalToolOrder ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-skillChain>, <../preferences.ttl#step-zipRepackage>, <../preferences.ttl#step-kgQueryMode>, <../preferences.ttl#step-retrievalToolOrder>, <../preferences.ttl#step-sparqlEndpointSearchOrder> .
 
 # ── Step 1: Skill Chain ───────────────────────────────────────────────────────
 

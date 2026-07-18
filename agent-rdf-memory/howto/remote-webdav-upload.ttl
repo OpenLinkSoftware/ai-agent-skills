@@ -13,7 +13,7 @@
         :step-constructCurl, :step-executeConfirm ;
     schema:step :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
         :step-constructCurl, :step-executeConfirm ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-remoteWebdavUpload> .
 
 # ── Step 1: Offer Upload ──────────────────────────────────────────────────────
 

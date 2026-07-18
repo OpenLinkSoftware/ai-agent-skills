@@ -5,24 +5,35 @@
 
 <> a schema:HowTo ;
     schema:name "Entity Registry Additions Must Be Verified Against Read Documents, and Census Results Must Be Checked for Upstream owl:sameAs Errors"@en ;
-    schema:description "Two lessons from the 2026-07-14 people.ttl expansion: (1) a registry entry's canonical IRI must be checked against an already-read source document, never asserted from a plausible-looking guess; (2) a cross-document census (concepts, TBox terms, or people) surfaces not only reuse opportunities but also pre-existing entity-resolution errors in the corpus, which must be excluded rather than propagated into the registry."@en ;
+    schema:description "Two lessons from the 2026-07-14 people.ttl expansion (a schema:Person census promoting 41 recurring people into entities/people.ttl): (1) a registry entry's canonical IRI must be checked against an already-read source document, never asserted from a plausible-looking guess; (2) a cross-document census (concepts, TBox terms, or people) surfaces not only reuse opportunities but also pre-existing entity-resolution errors in the corpus, which must be excluded rather than propagated into the registry."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :mainStep ;
-    schema:step :mainStep ;
-    rdfs:seeAlso <../preferences.ttl>, <external-iri-verification.ttl>,
+    schema:step :step-verifyAgainstSource, :step-skepticalSameAsReview ;
+    schema:workExample :workExample-fabricatedSlugs ;
+    rdfs:seeAlso <../preferences.ttl#step-entityRegistryCensusVerification>,
+        <external-iri-verification.ttl>,
         <canonical-entity-iri-denotation.ttl>, <cross-document-local-term-reuse.ttl>,
         <../entities/people.ttl> .
 
-:mainStep a schema:HowToStep ;
+# ── Step 1: Verify Registry Entries Against Read Sources ─────────────────────
+
+:step-verifyAgainstSource a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Verify every registry entry against an already-read document; treat census-surfaced owl:sameAs links skeptically before reusing them"@en ;
-    schema:text """Found 2026-07-14 during a schema:Person census promoting 41 recurring people into entities/people.ttl. Three entries added earlier in the same session (Jaya Gupta, Alex Karp, Aaron Levie) carried unverified canonical IRIs:
-- :jayaGupta had linkedin.com/in/jayagupta#this — the real slug, confirmed by re-reading ai-value-capture-response-claude_sonnet_5-1.ttl (already read earlier in the same session), is jayagupta10.
+    schema:name "Grep the actual source document for the real asserted IRI before writing any registry entry"@en ;
+    schema:text "Before writing ANY schema:Person (or DefinedTerm, or TBox term) registry entry, grep the actual source document(s) already read in the session for the real asserted IRI — do not reconstruct a plausible vanity-slug from the person's name. If the source document isn't already in context, fetch and check it before writing the entry; do not trust a pre-existing registry entry as ground truth without one grep pass against real source content, since prior entries can themselves be wrong."@en .
+
+# ── Step 2: Review Census-Surfaced owl:sameAs Links ──────────────────────────
+
+:step-skepticalSameAsReview a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Review each owl:sameAs cluster's members in human-legible form before merging into a registry"@en ;
+    schema:text "A union-find merge over owl:sameAs edges will silently propagate upstream entity-resolution errors into a shared registry unless each cluster's members are read and sanity-checked. A person entity merged with an abstract concept resource is an obvious tell, but a census script alone will not catch it; a human-legible dump of cluster members must be reviewed before the registry file is written. Exclude such erroneous links from the registry rather than reproducing them, and do not attempt to correct the erroneous source documents unless asked. Examples from the 2026-07-14 census: Abhi Yadav's schema:Person entity was incorrectly owl:sameAs'd to dbr:Graph_(discrete_mathematics) (likely keyword-triggered by the article title 'What Is an Audience Interest Graph'), and Richard MacManus's entity was incorrectly owl:sameAs'd to dbr:Agent_(artificial_intelligence) (likely triggered by his article 'What is the Agentic Web')."@en .
+
+# ── Worked Example: Fabricated/Unverified IRIs Caught by the Census ──────────
+
+:workExample-fabricatedSlugs a schema:CreativeWork ;
+    schema:name "Three unverified canonical IRIs corrected during the 2026-07-14 census"@en ;
+    schema:text """- :jayaGupta had linkedin.com/in/jayagupta#this — the real slug, confirmed by re-reading ai-value-capture-response-claude_sonnet_5-1.ttl (already read earlier in the same session), is jayagupta10.
 - :aaronLevie had linkedin.com/in/aaron-levie#this — the real slug, confirmed by re-reading aaron-levie-enterprise-ai-agent-issues-...ttl (already read earlier in the same session), is boxaaron.
-- :alexKarp had a fabricated linkedin.com/in/alexkarp#this — no document in the corpus ever asserts a personal LinkedIn IRI for Karp, only dbr:Alex_Karp. The invented slug violated the no-fabricated-URLs rule and was only caught by grep-checking the actual file content rather than trusting the existing registry entry.
-
-Rule: before writing ANY schema:Person (or DefinedTerm, or TBox term) registry entry, grep the actual source document(s) already read in the session for the real asserted IRI — do not reconstruct a plausible vanity-slug from the person's name. If the source document isn't already in context, fetch and check it before writing the entry; do not trust a pre-existing registry entry as ground truth without one grep pass against real source content, since prior entries can themselves be wrong.
-
-Second, separate lesson from the same census: the SPARQL query surfaced two entity-resolution defects already baked into published corpus documents — Abhi Yadav's schema:Person entity was incorrectly owl:sameAs'd to dbr:Graph_(discrete_mathematics) (likely triggered by the article title 'What Is an Audience Interest Graph' keyword-matching a wrong DBpedia concept page during generation), and Richard MacManus's entity was incorrectly owl:sameAs'd to dbr:Agent_(artificial_intelligence) (likely triggered by his article 'What is the Agentic Web'). A union-find merge over owl:sameAs edges will silently propagate these errors into a shared registry unless each cluster's members are read and sanity-checked — a person entity merged with an abstract concept resource is an obvious tell, but a census script alone will not catch it; a human-legible dump of cluster members must be reviewed before the registry file is written. Exclude such links from the registry rather than reproducing them, and do not attempt to correct the erroneous source documents unless asked."""@en .
+- :alexKarp had a fabricated linkedin.com/in/alexkarp#this — no document in the corpus ever asserts a personal LinkedIn IRI for Karp, only dbr:Alex_Karp. The invented slug violated the no-fabricated-URLs rule and was only caught by grep-checking the actual file content rather than trusting the existing registry entry."""@en .

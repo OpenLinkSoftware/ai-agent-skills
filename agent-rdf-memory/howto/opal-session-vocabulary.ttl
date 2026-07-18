@@ -14,7 +14,7 @@
     schema:about :opalSessionGuide ;
     schema:step :step-prefixes, :step-sessionEntity, :step-modelAndProvider,
                 :step-taskMessages, :step-dataProperties, :step-override ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-opalSessionVocabulary> .
 
 # ── Ontology reference ────────────────────────────────────────────────────────
 

@@ -6,16 +6,24 @@
 
 <> a schema:HowTo ;
     schema:name "Filesystem Path Verification Gate"@en ;
-    schema:description "Standing rule: verify the actual filesystem path exists on disk before writing to it, rather than inferring directory naming conventions from other entries in memory."@en ;
+    schema:description "Standing rule: verify the actual filesystem path exists on disk before writing to it, rather than inferring directory naming conventions from other entries in memory. Pure inference by convention was the failure pattern that triggered this rule (2026-07-06)."@en ;
     schema:dateCreated "2026-07-06T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-filesystemPathVerification ;
-    schema:step :step-filesystemPathVerification ;
-    rdfs:seeAlso <../preferences.ttl>, <artifact-routing.ttl> .
+    schema:step :step-listBeforeWrite, :step-noConventionInference ;
+    rdfs:seeAlso <../preferences.ttl#step-filesystemPathVerification>, <artifact-routing.ttl> .
 
-:step-filesystemPathVerification a schema:HowToStep ;
+# ── Step 1: List Before Writing ──────────────────────────────────────────────
+
+:step-listBeforeWrite a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Verify the actual filesystem path exists — never infer directory names by convention alone"@en ;
+    schema:name "List the parent directory to confirm the exact on-disk name before using a path"@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
-    schema:text """When mapping model ID to output directory, list the parent directory with ls to confirm the exact name on disk before using it. Don't assume casing, hyphens, or spacing from other entries in core.ttl or artifact-routing.ttl without verification. Pure inference by convention was the failure pattern that triggered this rule."""@en .
+    schema:text "When mapping a model ID (or any other key) to an output directory, list the parent directory with ls to confirm the exact name on disk before writing to it."@en .
+
+# ── Step 2: Never Infer by Convention ────────────────────────────────────────
+
+:step-noConventionInference a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Never assume casing, hyphens, or spacing from other memory entries"@en ;
+    schema:text "Don't assume casing, hyphens, or spacing of a directory name from other entries in core.ttl or artifact-routing.ttl without verification against the actual filesystem."@en .

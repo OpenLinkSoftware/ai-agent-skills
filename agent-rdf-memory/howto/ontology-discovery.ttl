@@ -14,7 +14,7 @@
         :step-ontologySuggest, :step-ontologyApply ;
     schema:step :step-prefixCCLookup, :step-ontologyEvaluate,
         :step-ontologySuggest, :step-ontologyApply ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-mintingRunsOntologyGates>, <../preferences.ttl#step-crossDocumentLocalTermReuse> .
 
 # ── Step 1: Lookup at prefix.cc ────────────────────────────────────────────
 

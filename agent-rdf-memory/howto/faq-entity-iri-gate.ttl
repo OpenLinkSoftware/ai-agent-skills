@@ -13,7 +13,7 @@
     schema:about :faqEntityIriGate ;
     schema:step :step-checkTtlForQuestions, :step-createIfMissing,
                 :step-deriveEntityIri, :step-writeHtmlHref, :step-verify ;
-    rdfs:seeAlso <../preferences.ttl>, <rdf-infographic-compliance-gate.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-faqEntityIriGate>, <../preferences.ttl#step-faqQuestionTextHyperlink>, <rdf-infographic-compliance-gate.ttl> .
 
 :faqEntityIriGate a schema:HowTo ;
     schema:name "FAQ Entity IRI Gate — Pre-Build Verification"@en ;

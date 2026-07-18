@@ -11,7 +11,7 @@
     schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :elicitBeforeConditionalDefault ;
-    rdfs:seeAlso <../preferences.ttl>, <ontology-cross-reference-gate.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-elicitBeforeConditionalDefault>, <ontology-cross-reference-gate.ttl> .
 
 :elicitBeforeConditionalDefault a schema:HowTo ;
     schema:name "Elicit User Preference Before Applying a Gate's Conditional Default"@en ;

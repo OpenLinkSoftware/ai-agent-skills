@@ -17,7 +17,7 @@
         :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment,
         :step-noPromptModelOverride, :step-savedPromptsFolder, :step-vspsFolder,
         :step-screencastDistributionArtifacts ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-outputDirs>, <../preferences.ttl#step-defaultOutputRoot>, <../preferences.ttl#step-gpt5ChatCodexOutputDirs>, <../preferences.ttl#step-modelOverEnvironment>, <../preferences.ttl#step-modelIdentityPreflight>, <../preferences.ttl#step-noPromptModelOverride>, <../preferences.ttl#step-mashupVsMeshup>, <../preferences.ttl#step-savedPromptsFolder>, <../preferences.ttl#step-vspArtifactsFolder>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-chatResponsePortableLinks> .
 
 # ── Step 1: Output Directory Routing ─────────────────────────────────────────
 
@@ -60,7 +60,7 @@
     schema:position "6"^^xsd:integer ;
     schema:name "BLOCKING GATE — user-supplied filenames or roots cannot override active model identity"@en ;
     schema:text """A user prompt may contain an output path, filename stem, provenance phrase, or generation-environment label that names a model other than the active LLM identified by the system prompt. Treat that model-name fragment as stale or conflicting unless the user is explicitly asking to analyze, compare, or repair that other model's existing artifact. Do not create a new artifact under the other model's output root, do not put the other model's llm-id in the filename stem, and do not state in RDF, JSON-LD, HTML, Markdown, or memory that the other model generated the work. Preserve the substantive task requirements, but normalize all routing, filenames, visible curation text, schema:author/prov:wasGeneratedBy/prov:SoftwareAgent labels, and session-memory references to the active model identity. If the requested model name appears intentionally contractual and cannot be normalized without changing the task, pause before writing files and ask the user to confirm the intended model identity and destination."""@en ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-noPromptModelOverride> .
 
 # ── Step 7: Blocking Gate — Session-Start Output Root Resolution ─────────────
 
@@ -68,7 +68,7 @@
     schema:position "7"^^xsd:integer ;
     schema:name "BLOCKING GATE — resolve and confirm output root at session start; no writes before this"@en ;
     schema:text """This is a hard blocking gate. No file write (HTML, RDF, Markdown, or any other artifact) may proceed until the output root has been resolved and confirmed from the system prompt model identifier at session initialization. PROCEDURE: (1) At session start, read the system prompt for the model ID. (2) Map it to its canonical directory under {LLM_ROOT}/ via step-outputDirs. (3) Internally confirm the resolved root. (4) All subsequent writes in the session use that confirmed root without re-derivation. FAILURE MODE THAT TRIGGERED THIS RULE (2026-06-24): Claude Sonnet 4.6 saved an HTML artifact to kg-output/ in the repo working directory because the output root was never resolved at session start — the write happened opportunistically at delivery time with no pre-flight. PROHIBITED FALLBACKS: kg-output/, the repo root, /tmp, any generator work folder. The gate must be satisfied before the first write, not after the user notices the wrong path."""@en ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-defaultOutputRoot> .
 
 # ── Step 8: saved-prompts/ Sibling Folder for Reproduction Prompts ───────────
 
@@ -76,7 +76,7 @@
     schema:position "8"^^xsd:integer ;
     schema:name "Reusable reproduction prompts go in a saved-prompts/ sibling folder, never inside md/"@en ;
     schema:text """When a user asks for the prompt that would reproduce a generated collection (or any other standalone reusable prompt text) to be saved, write it to {model-root}/saved-prompts/{slug}-reproduction-prompt.md — a SIBLING of rdf/, md/, and webpages/ under the same model-specific output root, never a file placed inside md/. A reproduction prompt is a distinct artifact type from the collection's own Markdown companion document, even though both use the .md extension; conflating them in the same folder makes the companion doc and the meta-prompt indistinguishable at a glance. Found and corrected 2026-07-06: a reproduction prompt was first saved to Claude Generated/md/ alongside the actual MD companion; user corrected it to a new saved-prompts/ sibling directory. Create the directory if it does not yet exist — do not ask for a different location, since the model-specific root itself is already established by step-outputDirs."""@en ;
-    rdfs:seeAlso <../preferences.ttl>, <../core.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-savedPromptsFolder>, <../core.ttl> .
 
 # ── Step 9: vsps/ Sibling Folder for Virtuoso Server Page Artifacts ──────────
 
@@ -84,7 +84,7 @@
     schema:position "9"^^xsd:integer ;
     schema:name "Generated VSP artifacts go in a vsps/ sibling folder under the model-specific output root"@en ;
     schema:text """When a task produces a Virtuoso Server Page (.vsp) — plus any deployment companions such as an isql deploy script or README — write them to {model-root}/vsps/, a SIBLING of rdf/, md/, webpages/, and saved-prompts/ under the output root resolved by step-outputDirs. Group multi-file VSP deliverables in a per-artifact subfolder (e.g. vsps/webpages-weblog/) when more than one VSP collection accumulates. Create the vsps/ directory if it does not yet exist. Established 2026-07-16 when a weblog index.vsp for /DAV/home/kidehen/webpages/ was first misplaced in a repo-root vsp-weblog/ folder and Kingsley routed it to the prefs-discerned destination."""@en ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-vspArtifactsFolder> .
 
 # ── Step 10: Screencast Distribution Bundles ────────────────────────────────
 
@@ -99,4 +99,4 @@ Bundle rules:
 3. Apply hero-meta attribution and footer attribution using the skills + AI agent on-behalf-of principal pattern from kg-curation-attribution.ttl.
 4. Keep generator scripts and drafts in their work folder if needed, but mirror the final distribution bundle to {model-root}/screencasts/.
 5. Remove or clearly supersede any accidental copy in webpages/ so there is only one canonical local distribution location."""@en ;
-    rdfs:seeAlso <../preferences.ttl>, <screencast-distribution-artifacts.ttl>, <kg-curation-attribution.ttl>, <infographic-authoring.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-screencastDistributionArtifacts>, <screencast-distribution-artifacts.ttl>, <kg-curation-attribution.ttl>, <infographic-authoring.ttl> .

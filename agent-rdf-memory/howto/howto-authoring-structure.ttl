@@ -1,0 +1,43 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "HowTo Authoring Structure — Queryable Steps, Anchored Cross-References"@en ;
+    schema:description "Structural contract for every howto/*.ttl memory file. Why this rule exists: a 2026-07-18 corpus audit found 9 of 75 howto files collapsed multiple requirements, gate rules, examples, and rationale into a single schema:HowToStep prose literal (unqueryable by SPARQL), and 36 files carried a bare rdfs:seeAlso <../preferences.ttl> with no fragment — a cyclic link that bounced between documents without landing on any specific step. The audit also surfaced 3 files with invalid Turtle (illegal string escapes, long literals closed with a single quote, one truncated mid-literal) that had never been parse-checked."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-oneRequirementPerStep, :step-contentSlotting,
+        :step-anchoredCrossReferences, :step-parseValidation ;
+    rdfs:seeAlso <../preferences.ttl#step-howtoAuthoringStructure> .
+
+# ── Step 1: One Requirement Per Step ─────────────────────────────────────────
+
+:step-oneRequirementPerStep a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Model each distinct requirement as its own positioned schema:HowToStep"@en ;
+    schema:text "A howto's schema:HowTo entity must decompose its procedure into multiple schema:HowToStep entities with sequential integer schema:position values — one requirement, gate, or action per step. Never collapse several requirements, enforcement rules, examples, and rationale into a single step's schema:text prose literal: a SPARQL query over the memory graph must be able to address each requirement individually. A file is only legitimately single-step when it genuinely prescribes exactly one atomic action."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
+
+# ── Step 2: Content Slotting ─────────────────────────────────────────────────
+
+:step-contentSlotting a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Route examples to schema:workExample and rationale/provenance to schema:description"@en ;
+    schema:text "Worked examples (sample Turtle, CSS blocks, command transcripts) belong in a schema:workExample entity (a schema:CreativeWork linked from the HowTo), not inside a step's schema:text. The 'why this rule exists' narrative — the triggering session, date, and failure mode — belongs in the HowTo's schema:description (or a provenance note), not in step text. Step text states only what to do and how."@en .
+
+# ── Step 3: Anchored Cross-References ────────────────────────────────────────
+
+:step-anchoredCrossReferences a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Cross-reference preferences.ttl only via #step-… (or #topic…) fragment anchors — never the bare document"@en ;
+    schema:text "A howto file's rdfs:seeAlso toward preferences.ttl must target the specific entity that references it back, e.g. <../preferences.ttl#step-ontologyCrossReference> — never a bare <../preferences.ttl>, which dumps the reader into a 130+-step document with no landing point. (The reverse direction is asymmetric: preferences.ttl steps may link a howto file whole, because the file IRI denotes the HowTo entity itself.) Any step reference made in prose (e.g. 'see :step-externalIriVerification in preferences.ttl') must also exist as a real rdfs:seeAlso triple so graph traversal can follow it. Do not assert the same rdfs:seeAlso object twice on one subject."@en .
+
+# ── Step 4: Parse Validation ─────────────────────────────────────────────────
+
+:step-parseValidation a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Parse-validate every created or edited memory .ttl file before finishing the task"@en ;
+    schema:text "After writing or editing any agent-rdf-memory .ttl file, parse it with a real Turtle parser (e.g. python3 -c \"from rdflib import Graph; Graph().parse('<file>', format='turtle')\") and fix any error before ending the turn. Recurring defect classes to watch: long literals opened with triple quotes but closed with a single quote; illegal backslash escapes (\\? and similar) inside string literals; '#' inside a prefixed name (use a full <IRI> when a fragment is needed); files truncated mid-literal."@en .

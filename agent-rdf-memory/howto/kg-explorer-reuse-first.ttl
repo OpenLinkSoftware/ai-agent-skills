@@ -14,7 +14,7 @@
         :step-reuseAdapt, :step-reuseFallback ;
     schema:step :step-reuseSearch, :step-reuseValidate,
         :step-reuseAdapt, :step-reuseFallback ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-reuseWorkingKG> .
 
 # ── Step 1: Search for recent candidates ───────────────────────────────────
 

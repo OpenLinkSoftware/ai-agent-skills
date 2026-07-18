@@ -13,7 +13,7 @@
     schema:about :step-auditAllEntities, :step-priorityLadderEnforcement, :step-crossReferenceAudit ;
     schema:step :step-auditAllEntities, :step-priorityLadderEnforcement, :step-crossReferenceAudit ;
     schema:step :step-approveExceptions, :step-htmlResolverUrlSync ;
-    rdfs:seeAlso <../preferences.ttl>,
+    rdfs:seeAlso <../preferences.ttl#step-canonicalIriCompliance>, <../preferences.ttl#step-dbpediaCanonicalSubject>, <../preferences.ttl#step-entityDenotation>,
         <canonical-entity-iri-denotation.ttl>,
         <entity-iri-denotation-mechanics.ttl> .
 

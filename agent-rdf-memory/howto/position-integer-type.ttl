@@ -11,7 +11,7 @@
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-typeRequirement, :step-noDecimalInsertion, :step-renumberOnInsert, :step-verifyProgrammatically ;
     schema:step :step-typeRequirement, :step-noDecimalInsertion, :step-renumberOnInsert, :step-verifyProgrammatically ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-positionIntegerType> .
 
 :step-typeRequirement a schema:HowToStep ;
     schema:position 1 ;

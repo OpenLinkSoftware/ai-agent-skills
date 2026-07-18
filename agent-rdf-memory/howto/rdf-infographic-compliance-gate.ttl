@@ -13,7 +13,7 @@
     schema:about :harnessGate ;
     schema:step :step-locateArtifacts, :step-runValidator, :step-interpretOutput,
                 :step-fixAndRerun, :step-updateMemory ;
-    rdfs:seeAlso <../preferences.ttl>, <harness-contract-compliance.ttl>, <faq-entity-iri-gate.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-rdfInfographicGateEnforcement>, <../preferences.ttl#step-faqEntityIriGate>, <harness-contract-compliance.ttl>, <faq-entity-iri-gate.ttl> .
 
 # ── Primary entity ────────────────────────────────────────────────────────────
 

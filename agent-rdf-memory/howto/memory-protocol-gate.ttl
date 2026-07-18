@@ -13,7 +13,7 @@
     schema:about :protocolGate ;
     schema:step :step-understandGate, :step-locateTranscript, :step-runValidator,
                 :step-interpretFailures, :step-fixAndReaudit ;
-    rdfs:seeAlso <../preferences.ttl>, <session-governance.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-memoryProtocolGate>, <../preferences.ttl#step-preferencesSparse>, <session-governance.ttl> .
 
 # ── Primary entity ────────────────────────────────────────────────────────────
 

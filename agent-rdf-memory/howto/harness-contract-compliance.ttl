@@ -13,7 +13,7 @@
         :step-sparqlFormat, :step-complianceBug ;
     schema:step :step-harnessIds, :step-footerLabels,
         :step-sparqlFormat, :step-complianceBug ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-harnessIds>, <../preferences.ttl#step-sparqlFormat>, <../preferences.ttl#step-footerLabels>, <../preferences.ttl#step-headingFragmentIds>, <../preferences.ttl#step-sparqlBtnFooterAnchor>, <../preferences.ttl#step-sparqlWorkbenchPlacement>, <../preferences.ttl#step-complianceBug> .
 
 # ── Step 1: Harness Validator ID Conventions ─────────────────────────────────
 

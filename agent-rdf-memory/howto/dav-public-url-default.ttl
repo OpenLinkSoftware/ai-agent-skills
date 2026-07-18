@@ -6,27 +6,44 @@
 
 <> a schema:HowTo ;
     schema:name "DAV-Hosted URL Is the Default Public Rendition for Cross-Document Links"@en ;
-    schema:description "When a generated HTML or Markdown artifact links to a DIFFERENT generated document (not its own companion .ttl/.md/.html triplet), the default target is the public https://linkeddata.uriburner.com/DAV/demos/daas/{filename} URL for that other document — never a filesystem-relative path or a file: URL — unless the user explicitly overrides the destination for that link."@en ;
+    schema:description "When a generated HTML or Markdown artifact links to a DIFFERENT generated document (not its own companion .ttl/.md/.html triplet), the default target is the public https://linkeddata.uriburner.com/DAV/demos/daas/{filename} URL for that other document — never a filesystem-relative path or a file: URL — unless the user explicitly overrides the destination for that link. Found 2026-07-14 in reverse-information-paradox-claude_sonnet_5-1.html: a cross-article link used a bare filesystem-relative href that silently resolved to a file:///Users/... path once opened from disk — a link that only works on the machine that generated it. The user caught it and asked why the link wasn't the public DAV form instead."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-davPublicUrlDefault ;
-    schema:step :step-davPublicUrlDefault .
+    schema:step :step-classifyLinkCategory, :step-davUrlForCrossDocument,
+        :step-relativeForOwnCompanions, :step-crossDocVerification ;
+    rdfs:seeAlso <../preferences.ttl#step-davPublicUrlDefault> .
 
-:step-davPublicUrlDefault a schema:HowToStep ;
+# ── Step 1: Classify the Link ────────────────────────────────────────────────
+
+:step-classifyLinkCategory a schema:HowToStep ;
     schema:position 1 ;
-    schema:name "Cross-document links (to a different generated document) default to the DAV-hosted https://linkeddata.uriburner.com/DAV/demos/daas/{filename} URL"@en ;
-    schema:text """Found 2026-07-14 in reverse-information-paradox-claude_sonnet_5-1.html: the Critical Perspective section's "companion critique of Alex Karp's frontier-model framing" link used a bare filesystem-relative href (karp-frontier-models-enterprise-ai-claude_sonnet_5-1.html#missing-perspective, and ../webpages/... in the Markdown companion). Because the working directory at generation time was a local filesystem path, this relative href silently resolved to file:///Users/kidehen/Documents/LLMs/Claude Generated/webpages/karp-frontier-models-enterprise-ai-claude_sonnet_5-1.html#missing-perspective once opened from disk — a link that only works on the machine that generated it, not a public, shareable URL. The user caught it and asked why the link wasn't the public https://linkeddata.uriburner.com/DAV/demos/daas/karp-frontier-models-enterprise-ai-claude_sonnet_5-1.html#missing-perspective form instead.
+    schema:name "Classify every same-collection HTML/MD link: own companion triplet vs a different document"@en ;
+    schema:text "Distinguish two categories of same-collection HTML/MD link before choosing the href form: (1) OWN COMPANION FILES — the document's own .ttl/.md/.html triplet generated together in the same run (the footer 'Companion files' card links); (2) LINKS TO A DIFFERENT DOCUMENT — any hyperlink to a distinct, separately-generated document (a different article's HTML page, a different companion critique, a sibling analysis referenced by content rather than by the artifact-routing triplet relationship)."@en .
 
-RULE: distinguish two categories of same-collection HTML/MD link:
+# ── Step 2: DAV URL for Cross-Document Links ─────────────────────────────────
 
-1. OWN COMPANION FILES — the document's own .ttl/.md/.html triplet generated together in the same run (the footer "Companion files" card links, e.g. ../rdf/{slug}.ttl and ../md/{slug}.md from the .html, or ../webpages/{slug}.html from the .md). These remain filesystem-relative, matching the established, unchallenged pattern already used across the karp/ai-value-capture-response/reverse-information-paradox trilogy's own footers. Do not change this category.
-
-2. LINKS TO A DIFFERENT DOCUMENT — any hyperlink to a distinct, separately-generated document (a different article's HTML page, a different companion critique, a sibling analysis referenced by content rather than by the artifact-routing triplet relationship). These default to the public DAV-hosted URL: https://linkeddata.uriburner.com/DAV/demos/daas/{filename-with-extension}#{fragment}. This is the same DAV path convention already used for SPARQL GRAPH IRIs in the kg-generator/rdf-infographic-skill contract (Document IRI vs SPARQL GRAPH IRI section) — reuse it here for ordinary browsable hyperlinks too, not only SPARQL FROM clauses.
+:step-davUrlForCrossDocument a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Default cross-document links to https://linkeddata.uriburner.com/DAV/demos/daas/{filename}#{fragment}"@en ;
+    schema:text """Links to a DIFFERENT document default to the public DAV-hosted URL: https://linkeddata.uriburner.com/DAV/demos/daas/{filename-with-extension}#{fragment}. This is the same DAV path convention already used for SPARQL GRAPH IRIs in the kg-generator/rdf-infographic-skill contract (Document IRI vs SPARQL GRAPH IRI section) — reuse it here for ordinary browsable hyperlinks too, not only SPARQL FROM clauses.
 
 WHY DAV, NOT A RELATIVE PATH: a relative path is only valid inside the exact local folder layout that existed at generation time. It breaks the moment the HTML is opened from a different location, shared standalone, or the linked document hasn't been (or won't be) placed at that exact relative offset. The DAV URL is the actual public, dereferenceable location these documents are uploaded to — it works regardless of where the linking document itself is opened from.
 
-OVERRIDE: this is a default, not an absolute rule. If the user explicitly names a different target (a specific URL, a different resolver, an intentional relative path for a same-run local preview) for a specific link, honor that instruction for that link instead.
+OVERRIDE: this is a default, not an absolute rule. If the user explicitly names a different target (a specific URL, a different resolver, an intentional relative path for a same-run local preview) for a specific link, honor that instruction for that link instead."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .
 
-VERIFICATION: grep the generated HTML/MD for href/link patterns pointing at another document's filename with a relative (non-https://) prefix; any match to a DIFFERENT document (not this document's own .ttl/.md/.html triplet) is a FAIL."""@en ;
-    onto:hasTrigger onto:triggerArtifactGeneration ;
+# ── Step 3: Relative Paths for Own Companions ────────────────────────────────
+
+:step-relativeForOwnCompanions a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Keep a document's own companion-triplet links filesystem-relative"@en ;
+    schema:text "A document's own .ttl/.md/.html triplet links (e.g. ../rdf/{slug}.ttl and ../md/{slug}.md from the .html, or ../webpages/{slug}.html from the .md) remain filesystem-relative, matching the established, unchallenged pattern already used across the karp/ai-value-capture-response/reverse-information-paradox trilogy's own footers. Do not change this category."@en .
+
+# ── Step 4: Verification ─────────────────────────────────────────────────────
+
+:step-crossDocVerification a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Grep generated artifacts for relative hrefs pointing at a different document"@en ;
+    schema:text "Grep the generated HTML/MD for href/link patterns pointing at another document's filename with a relative (non-https://) prefix; any match to a DIFFERENT document (not this document's own .ttl/.md/.html triplet) is a FAIL."@en ;
     rdfs:seeAlso <infographic-authoring.ttl>, <entity-href-companion-ttl.ttl> .

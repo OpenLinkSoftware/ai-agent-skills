@@ -6,22 +6,32 @@
 
 <> a schema:HowTo ;
     schema:name "Chat-Response File Links Must Be Portable — Relative-to-CWD or Canonical URL, Never Absolute Local Paths"@en ;
-    schema:description "Markdown file links inside chat responses must not use absolute local filesystem paths (e.g. /Users/kidehen/...), which silently behave like file: URLs and only resolve on the machine that generated them — the same failure class already forbidden for RDF/HTML artifact content."@en ;
+    schema:description "Markdown file links inside chat responses must not use absolute local filesystem paths (e.g. /Users/kidehen/...), which silently behave like file: URLs and only resolve on the machine that generated them — the same failure class already forbidden for RDF/HTML artifact content. Found 2026-07-15 in the generative-ai-engineering-disaster collection session: after the output-directory routing gate (artifact-routing.ttl) moved artifacts outside the working directory, every subsequent chat-response markdown link to those files used the absolute local path as the href. The user caught this and connected it directly to the existing file:-scheme prohibition."@en ;
     schema:dateCreated "2026-07-15T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-chatResponsePortableLinks ;
-    schema:step :step-chatResponsePortableLinks ;
-    rdfs:seeAlso <dav-public-url-default.ttl> .
+    schema:step :step-relativeToCwd, :step-scopeDistinction, :step-hrefVerification ;
+    rdfs:seeAlso <../preferences.ttl#step-chatResponsePortableLinks> .
 
-:step-chatResponsePortableLinks a schema:HowToStep ;
+# ── Step 1: Compute Relative Paths ───────────────────────────────────────────
+
+:step-relativeToCwd a schema:HowToStep ;
     schema:position 1 ;
-    schema:name "Use a path relative to the working directory for chat-response file links; never an absolute local filesystem path"@en ;
-    schema:text """Found 2026-07-15 in the generative-ai-engineering-disaster collection session: after the output-directory routing gate (howto/artifact-routing.ttl) moved artifacts to {LLM_ROOT}/Claude Generated/{rdf,webpages}/ (outside the ai-agent-skills repo working directory), every subsequent chat-response markdown link to those files used the absolute local path as the href, e.g. [rdf/....ttl](/Users/kidehen/Documents/LLMs/Claude Generated/rdf/....ttl). The user caught this and connected it directly to the existing file:-scheme prohibition (dav-public-url-default.ttl, kg-generator's 'No file: scheme IRIs' compliance gate): an absolute /Users/... href is functionally identical to a file: URL once rendered or opened outside this exact session/machine — it is not portable.
+    schema:name "Compute chat-response file hrefs relative to the working directory; never use an absolute local filesystem path"@en ;
+    schema:text "When formatting a markdown link to a local file in a chat response (per the system prompt's own 'format file references as markdown links, path relative to working directory' instruction), always compute the path relative to the current working directory with os.path.relpath (or equivalent) — even when that means a longer '../../../' traversal to reach a sibling directory outside the repo (e.g. {LLM_ROOT}/Claude Generated/... reached from an ai-agent-skills cwd). Never fall back to the absolute filesystem path merely because the target is outside the working directory; a longer relative path is still portable, an absolute one never is."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration .
 
-RULE: when formatting a markdown link to a local file in a chat response (per the system prompt's own 'format file references as markdown links, path relative to working directory' instruction), always compute the path relative to the current working directory with os.path.relpath (or equivalent) — even when that means a longer '../../../' traversal to reach a sibling directory outside the repo (e.g. {LLM_ROOT}/Claude Generated/... reached from an ai-agent-skills cwd). Never fall back to the absolute filesystem path merely because the target is outside the working directory; a longer relative path is still portable, an absolute one never is.
+# ── Step 2: Scope Distinction ────────────────────────────────────────────────
 
-SCOPE DISTINCTION FROM dav-public-url-default.ttl: that rule governs links INSIDE generated HTML/MD artifacts to a DIFFERENT generated document (defaulting to the public DAV URL once uploaded). This rule governs links the agent writes directly in its OWN chat responses to files on the local filesystem — a different surface, same underlying principle (no non-portable local-machine-only paths), different prescribed fix (relative-to-cwd, since chat-response file links are not meant to be public web hyperlinks and no DAV upload has necessarily happened yet).
-
-VERIFICATION: before sending a markdown file link in a chat response, check the href does not start with the literal absolute root (e.g. /Users/, /home/, C:\\) — if it does, recompute it relative to the working directory first."""@en ;
-    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+:step-scopeDistinction a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Distinguish this rule's surface (chat responses) from dav-public-url-default.ttl's surface (generated artifacts)"@en ;
+    schema:text "dav-public-url-default.ttl governs links INSIDE generated HTML/MD artifacts to a DIFFERENT generated document (defaulting to the public DAV URL once uploaded). This rule governs links the agent writes directly in its OWN chat responses to files on the local filesystem — a different surface, same underlying principle (no non-portable local-machine-only paths), different prescribed fix (relative-to-cwd, since chat-response file links are not meant to be public web hyperlinks and no DAV upload has necessarily happened yet)."@en ;
     rdfs:seeAlso <dav-public-url-default.ttl>, <artifact-routing.ttl> .
+
+# ── Step 3: Verification ─────────────────────────────────────────────────────
+
+:step-hrefVerification a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Check every chat-response file href against absolute-root prefixes before sending"@en ;
+    schema:text "Before sending a markdown file link in a chat response, check the href does not start with the literal absolute root (e.g. /Users/, /home/, C:\\\\) — if it does, recompute it relative to the working directory first."@en .

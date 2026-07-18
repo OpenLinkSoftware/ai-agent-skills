@@ -13,7 +13,7 @@
         :step-schemaAuthorOverFoafMaker-detail, :step-terminologySemanticWeb-detail ;
     schema:step :step-documentEntity, :step-documentAbout, :step-noBlankNodes-detail,
         :step-schemaAuthorOverFoafMaker-detail, :step-terminologySemanticWeb-detail ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-documentEntity>, <../preferences.ttl#step-documentAbout>, <../preferences.ttl#step-noBlankNodes>, <../preferences.ttl#step-schemaAuthorOverFoafMaker>, <../preferences.ttl#step-terminologySemanticWeb> .
 
 # ── Step 1: Document Entity Declaration ──────────────────────────────────────
 
@@ -81,13 +81,13 @@ Why: The user confirmed schema:author is the sole authorship term. foaf:maker ad
 
 :step-terminologySemanticWeb-detail a schema:HowToStep ;
     schema:position "5"^^xsd:integer ;
-    schema:name "Terminology: use 'a Semantic Web' not 'the Semantic Web'"@en ;
-    schema:text """When writing prose about the Semantic Web concept, use "a Semantic Web" (indefinite article) rather than "the Semantic Web" (definite article). This reflects a meaningful ontological distinction:
+    schema:name "Terminology: 'the Semantic Web' is unacceptable — always 'a Semantic Web' or 'purpose-specific Semantic Webs'"@en ;
+    schema:text """TIGHTENED 2026-07-18: the definite-article phrase "the Semantic Web" is unacceptable in all contexts, including references to the global vision. Always use one of:
 
-- THE Semantic Web = the global World Wide Web represented in a more granular, machine-computable form through entity relationships based on Linked Data principles.
-- A Semantic Web = a specific deployment of machine-computable entity relationships constructed using Linked Data principles.
+- "a Semantic Web" (indefinite, singular) — a specific deployment of machine-computable entity relationships constructed using Linked Data principles.
+- "purpose-specific Semantic Webs" (plural) — the general phenomenon of many such deployments, each webby and dereferenceable, none canonical or singular.
 
-In other words, "the Semantic Web" refers to the broader vision and ecosystem (the evolving global Web infrastructure), while "a Semantic Web" refers to a particular implementation of those principles within a specific domain, organization, or community.
+There is no single "the Semantic Web" to refer to — even the original W3C vision is, in this framing, one purpose-specific Semantic Web among many, not a definite, singular, already-realized thing. This supersedes the prior wording of this rule, which permitted "the Semantic Web" when referring to the global Web-wide vision; that exception no longer applies. Caught during the loops-to-graphs-semantic-web-context-claude_code-1 meshup (2026-07-18), where "the Semantic Web vision" and "what the Semantic Web does not supply" both had to be rewritten.
 
 This distinction mirrors the analogous Web/web distinction:
 - the Web = the global World Wide Web.
