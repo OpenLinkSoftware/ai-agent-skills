@@ -49,3 +49,7 @@ first-customer-finder/
 # Temp/unnamed files
 zi3vYccB
 zii6taXt
+
+# Stray working files in repo root (scripts and RDF docs belong elsewhere)
+/*.py
+/*.ttl
