@@ -13,7 +13,7 @@
         :step-kgExplorerReuse, :step-templateSelection, :step-footerCardOverflow ;
     schema:step :step-attribution, :step-darkModeCSS,
         :step-kgExplorerReuse, :step-templateSelection, :step-footerCardOverflow ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-templateSelection>, <../preferences.ttl#step-darkModeCSS>, <../preferences.ttl#step-attribution>, <../preferences.ttl#step-iifeGlobalScope>, <../preferences.ttl#step-kgExplorerReuse>, <../preferences.ttl#step-themeToggleInNavHeader>, <../preferences.ttl#step-footerCardOverflow>, <../preferences.ttl#step-openlinkBrandColorScheme>, <../preferences.ttl#step-readerFacingCopyGate>, <../preferences.ttl#step-screencastDistributionArtifacts> .
 
 # ── Step 1: Footer Attribution ───────────────────────────────────────────────
 

@@ -16,7 +16,7 @@
     schema:step :step-approval, :step-memoryProtocol, :step-gitWorkflow,
         :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
         :step-promptRecording, :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-memoryProtocol>, <../preferences.ttl#step-approval>, <../preferences.ttl#step-gitWorkflow>, <../preferences.ttl#step-noFabricatedUrls>, <../preferences.ttl#step-curlAuth>, <../preferences.ttl#step-secretRedaction>, <../preferences.ttl#step-secretEchoRedaction>, <../preferences.ttl#step-promptRecording>, <../preferences.ttl#step-sessionLogReconciliation>, <../preferences.ttl#step-semanticSessionBootstrap> .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
 

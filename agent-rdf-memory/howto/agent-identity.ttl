@@ -11,7 +11,7 @@
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
     schema:step :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
-    rdfs:seeAlso <../preferences.ttl>, <verified-identity.ttl>,
+    rdfs:seeAlso <../preferences.ttl#step-whoamiFormat>, <../preferences.ttl#step-webidTlsVerification>, <../preferences.ttl#step-urlsAsHyperlinks>, <../preferences.ttl#step-whoamiSameAsHyperlinks>, <../preferences.ttl#step-stripeSandboxCard>, <verified-identity.ttl>,
         <filesystem-path-verification.ttl> .
 
 # ── Step 1: Whoami Format ─────────────────────────────────────────────────────

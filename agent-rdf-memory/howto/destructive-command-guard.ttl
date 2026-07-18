@@ -18,7 +18,7 @@
         :step-forkBomb, :step-diskWipe, :step-formatFilesystem,
         :step-worldWritable, :step-pipeToShell, :step-destroyNull,
         :step-systemShutdown ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-destructiveCommandGuard> .
 
 # ── Git Safety ──────────────────────────────────────────────────────────────
 

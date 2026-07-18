@@ -16,7 +16,7 @@
     schema:step :step-kgTopicBaseUri, :step-kgTopicTitleMatch,
         :step-kgTopicForeignEntities, :step-kgTopicNoReuse,
         :step-kgTopicValidatorCrossCheck ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#topicSemanticFidelity> .
 
 # ── Gate 1: Base URI ───────────────────────────────────────────────────────
 

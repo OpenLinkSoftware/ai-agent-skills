@@ -15,7 +15,7 @@
         :step-localIriProhibition ;
     schema:step :step-canonicalPriority, :step-owlSameAsVsSchemaSameAs,
         :step-localIriProhibition ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-entityDenotation>, <../preferences.ttl#step-crossDocumentLocalTermReuse> .
 
 # ── Step 1: Canonical IRI Priority ──────────────────────────────────────────
 

@@ -93,4 +93,4 @@
   curl ... -H "On-Behalf-Of: https://example.com/dataspace/person/user@example.com"
 Incorrect (causes 402/401):
   curl ... -H "On-Behalf-Of: <https://example.com/dataspace/person/user@example.com>"
-Angle brackets cause delegation resolution failure even when the reciprocal delegation triples are correctly installed on both sides. The SPARQL endpoint interprets the angle brackets as literal characters, breaking the WebID lookup chain."@en .
+Angle brackets cause delegation resolution failure even when the reciprocal delegation triples are correctly installed on both sides. The SPARQL endpoint interprets the angle brackets as literal characters, breaking the WebID lookup chain."""@en .

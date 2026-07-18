@@ -12,7 +12,7 @@
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :mainStep ;
     schema:step :mainStep, :step-symmetry, :step-cardinality, :step-hierarchy, :step-inverse, :step-composition ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-owlPropertyCharacterization>, <../preferences.ttl#step-edgePropertyTyping> .
 
 :mainStep a schema:HowToStep ;
     schema:position 1 ;

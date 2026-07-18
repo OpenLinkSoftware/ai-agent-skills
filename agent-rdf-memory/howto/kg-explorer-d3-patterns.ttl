@@ -14,7 +14,7 @@
         :step-staticD3Load, :step-windowLoadInit, :step-singleRender, :step-edgeResolverHref ;
     schema:step :step-simulationLifecycle, :step-clickGuard, :step-kgDataRegex,
         :step-staticD3Load, :step-windowLoadInit, :step-singleRender, :step-edgeResolverHref ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-staticD3Load>, <../preferences.ttl#step-singleRender>, <../preferences.ttl#step-kgDataRegex>, <../preferences.ttl#step-kgLazyInit>, <../preferences.ttl#step-kgDragSticky>, <../preferences.ttl#step-clickGuard>, <../preferences.ttl#step-simulationLifecycle>, <../preferences.ttl#step-edgeResolverHref> .
 
 # ── Step 1: D3 Simulation Lifecycle ─────────────────────────────────────────
 

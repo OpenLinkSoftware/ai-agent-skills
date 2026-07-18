@@ -115,7 +115,8 @@
         <howto/sparql-memory-loading.ttl>,
         <howto/no-unauthorized-deletion.ttl>,
         <howto/no-memory-md-write.ttl>,
-        <howto/symbolic-log-offloading.ttl> ;
+        <howto/symbolic-log-offloading.ttl>,
+        <howto/howto-authoring-structure.ttl> ;
     schema:step :step-approval, :step-memoryProtocol, :step-gitWorkflow,
         :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
         :step-promptRecording, :step-memoryProtocolGate,
@@ -125,7 +126,8 @@
         :step-preferencesPresentationFormat,
         :step-sessionLogReconciliation,
         :step-semanticSessionBootstrap, :step-symbolicLogOffloading,
-        :step-resolvableIriPayloadPresentation .
+        :step-resolvableIriPayloadPresentation,
+        :step-howtoAuthoringStructure .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -948,8 +950,7 @@
     schema:name "Cross-reference custom ontology terms against shared vocabularies via OWL equivalence and alignment properties; mandate domain, range, and annotations"@en ;
     schema:text "Every custom ontology class and property must carry rdfs:label, rdfs:comment, rdfs:domain/range, and at least one verified cross-reference to schema.org, DBpedia, or Wikidata."@en ;
     rdfs:seeAlso <howto/ontology-cross-reference-gate.ttl> ;
-    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
-    rdfs:seeAlso <howto/ontology-cross-reference-gate.ttl> .
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation .
 
 :topicOntologyCrossReference a schema:Thing ;
     schema:name "Ontology Cross-Reference Gate"@en ;
@@ -1169,8 +1170,8 @@
 
 :step-terminologySemanticWeb a schema:HowToStep ;
     schema:position 74 ;
-    schema:name "Terminology: use 'a Semantic Web' not 'the Semantic Web'"@en ;
-    schema:text "Write 'a Semantic Web' (indefinite article) when referring to a specific deployment; write 'the Semantic Web' only when referring to the global Web-wide vision."@en ;
+    schema:name "Terminology: 'the Semantic Web' is unacceptable — always 'a Semantic Web' or 'purpose-specific Semantic Webs'"@en ;
+    schema:text "TIGHTENED 2026-07-18: 'the Semantic Web' (definite article) is never acceptable, including for the global vision. Always write 'a Semantic Web' (indefinite, singular deployment) or 'purpose-specific Semantic Webs' (plural, the general phenomenon). This supersedes the prior exception that permitted 'the Semantic Web' for the global Web-wide vision."@en ;
     rdfs:seeAlso <howto/rdf-document-authoring.ttl> .
 
 :step-verifiedWhoami a schema:HowToStep ;
@@ -1815,3 +1816,12 @@
     schema:text "When an HTML document embeds or primarily distributes a screencast, route that HTML wrapper plus caption sidecars, narration assets, and the video files to {model-root}/screencasts/ rather than {model-root}/webpages/. Use bundle-relative media links, and apply the same hero-meta and footer on-behalf-of attribution rules used for generated HTML artifacts."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/screencast-distribution-artifacts.ttl>, <howto/artifact-routing.ttl>, <howto/kg-curation-attribution.ttl>, <howto/infographic-authoring.ttl> .
+
+# ── Step 137: HowTo Authoring Structure ─────────────────────────────────────
+
+:step-howtoAuthoringStructure a schema:HowToStep ;
+    schema:position 137 ;
+    schema:name "Author howto/*.ttl files as multi-step queryable HowTos with anchored cross-references, and parse-validate before finishing"@en ;
+    schema:text "Every howto/*.ttl must use one schema:HowToStep per requirement, anchor cross-references to preferences.ttl via #step-… fragments (never the bare document), and be parse-validated with a Turtle parser before the task ends."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/howto-authoring-structure.ttl> .

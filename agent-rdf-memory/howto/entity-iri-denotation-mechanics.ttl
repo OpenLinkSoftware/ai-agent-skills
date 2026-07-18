@@ -15,7 +15,7 @@
         :step-sameAsSelfRefProhibition ;
     schema:step :step-fragmentPlacement, :step-wwwNonWwwReconciliation,
         :step-sameAsSelfRefProhibition ;
-    rdfs:seeAlso <../preferences.ttl>, <canonical-entity-iri-denotation.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-entityDenotation>, <canonical-entity-iri-denotation.ttl> .
 
 # ── Step 1: Fragment Placement ──────────────────────────────────────────────
 

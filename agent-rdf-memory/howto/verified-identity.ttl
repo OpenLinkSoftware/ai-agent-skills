@@ -23,7 +23,7 @@
                 :step-verifyDelegationClaims,
                 :step-verifyDelegationRemote,
                 :step-assembleVerifiedWhoami ;
-    rdfs:seeAlso <../preferences.ttl>, <agent-identity.ttl>,
+    rdfs:seeAlso <../preferences.ttl#step-verifiedWhoami>, <../preferences.ttl#step-verifyRecipDelegation>, <../preferences.ttl#step-verifyDelegationRemote>, <agent-identity.ttl>,
         <filesystem-path-verification.ttl> .
 
 # ── Step 0: Resolve Credentials Root (BLOCKING GATE) ─────────────────────────
@@ -253,7 +253,7 @@ OUTPUT:
   ✅ Delegation corroborated remotely (both profiles live + cross-serialization)
   ⚠️ Delegation remote mismatch (profile content differs from local — flag for user review)
   ⚠️ Delegation unverifiable remotely (profiles unreachable even with auth)"""@en ;
-    rdfs:seeAlso <../preferences.ttl>, <../howto/webid-verification-services.ttl>,
+    rdfs:seeAlso <../preferences.ttl#step-verifyDelegationRemote>, <../howto/webid-verification-services.ttl>,
         <../howto/agent-identity.ttl> .
 
 # ── Step 5: Assemble verified whoami response ─────────────────────────────────

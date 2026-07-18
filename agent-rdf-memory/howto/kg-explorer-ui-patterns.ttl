@@ -15,7 +15,7 @@
     schema:step :step-kgNavPlacement, :step-kgNavCollapsed,
         :step-kgControlsMasterClose, :step-kgNoOrphans,
         :step-kgToolbarGroups, :step-kgSettingsPanel ;
-    rdfs:seeAlso <../preferences.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-kgNavPlacement>, <../preferences.ttl#step-kgNavCollapsed>, <../preferences.ttl#step-kgSettingsPanel>, <../preferences.ttl#step-kgToolbarGroups>, <../preferences.ttl#step-kgControlsMasterClose>, <../preferences.ttl#step-kgNoOrphans> .
 
 # ── Step 1: KG Explorer — Nav placement ─────────────────────────────────────
 

@@ -33,10 +33,10 @@ Python's `html.escape()` converts: `<` → `&lt;`, `>` → `&gt;`, `&` → `&amp
     schema:text """After generating HTML, run this gate:
 
   # MUST find escaped GRAPH brackets (PASS condition):
-  grep -c 'GRAPH &lt;https\?://' file.html  # must be >= number of GRAPH-clause queries
+  grep -c 'GRAPH &lt;https\\?://' file.html  # must be >= number of GRAPH-clause queries
 
   # MUST NOT find raw angle brackets in SPARQL GRAPH clauses (FAIL if any):
-  grep -c 'GRAPH <https\?://' file.html     # must be 0
+  grep -c 'GRAPH <https\\?://' file.html     # must be 0
 
 If raw `<https://` is found inside a `<pre class="sparql-code">` block, the browser will
 hide the IRI. The fix is always at the generation layer — add `html.escape()` around the

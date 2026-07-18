@@ -26,7 +26,7 @@ A token issued by my.openlinksw.com has `iss: https://my.openlinksw.com` and is 
 Always register and authenticate against the resource server's OWN OIDC provider.
 - URIBurner OIDC discovery: https://linkeddata.uriburner.com/.well-known/openid-configuration
 - my.openlinksw.com OIDC discovery: https://my.openlinksw.com/.well-known/openid-configuration
-The resource server only accepts tokens it issued itself."@en .
+The resource server only accepts tokens it issued itself."""@en .
 
 :stepDiscoverOidc a schema:HowToStep ;
     schema:position 2 ;
@@ -37,7 +37,7 @@ Extract key endpoints:
 - authorization_endpoint: https://linkeddata.uriburner.com/OAuth2/authorize
 - token_endpoint: https://linkeddata.uriburner.com/OAuth2/token
 - registration_endpoint: https://linkeddata.uriburner.com/OAuth2/register
-Scopes include: openid, profile, email, webid, offline_access, claudeai, mcp:tools"@en .
+Scopes include: openid, profile, email, webid, offline_access, claudeai, mcp:tools"""@en .
 
 :stepDynamicRegister a schema:HowToStep ;
     schema:position 3 ;
@@ -53,7 +53,7 @@ Scopes include: openid, profile, email, webid, offline_access, claudeai, mcp:too
       "token_endpoint_auth_method": "none"
     }'
 Returns client_id, client_secret, and registration metadata.
-IMPORTANT: If the token endpoint requires auth_method "none" but still requires client_secret, include it in the token exchange POST body."@en .
+IMPORTANT: If the token endpoint requires auth_method "none" but still requires client_secret, include it in the token exchange POST body."""@en .
 
 :stepStartLocalServer a schema:HowToStep ;
     schema:position 4 ;
@@ -68,7 +68,7 @@ Implementation in Python:
               auth_code = params["code"][0]
               # respond with success HTML page
           # then proceed to token exchange
-Key: The redirect_uri registered in step 3 must exactly match the local server URL."@en .
+Key: The redirect_uri registered in step 3 must exactly match the local server URL."""@en .
 
 :stepBrowserAuth a schema:HowToStep ;
     schema:position 5 ;
@@ -83,7 +83,7 @@ Key: The redirect_uri registered in step 3 must exactly match the local server U
   webbrowser.open(auth_url)
 The user authenticates (social login, WebID-TLS, SQL credentials).
 The browser redirects to http://localhost:12345/callback?code={auth_code}.
-The local server captures the authorization code."@en .
+The local server captures the authorization code."""@en .
 
 :stepExchangeCode a schema:HowToStep ;
     schema:position 6 ;
@@ -100,7 +100,7 @@ Response includes:
 - refresh_token (for token renewal)
 - id_token (JWT with claims: sub=WebID, iss=issuer, aud=client_id)
 The id_token's "webid" claim contains the user's WebID, e.g.:
-  https://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com#this"@en .
+  https://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com#this"""@en .
 
 :stepAccessResource a schema:HowToStep ;
     schema:position 7 ;
@@ -114,4 +114,9 @@ After expiry (3600s), use the refresh_token to obtain a new access_token:
     -d "grant_type=refresh_token" \\
     -d "refresh_token={refresh_token}" \\
     -d "client_id={client_id}" \\
-    -d "client_secret={client_secret}"
+    -d "client_secret={client_secret}\""""@en .
+
+:stepReuseToken a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "Reuse the cached access_token until expiry; refresh instead of re-authenticating"@en ;
+    schema:text "Cache the access_token and reuse it for subsequent requests to the same resource server until it expires (3600s). On expiry, use the refresh_token grant (see step 7) to obtain a new access_token instead of restarting the full Authorization Code flow. Only re-run the browser authorization when no valid refresh_token remains. (This step block was reconstructed 2026-07-18; the original file was truncated mid-literal at the end of step 7 and this step existed only as a dangling reference in the HowTo's schema:step list.)"@en .

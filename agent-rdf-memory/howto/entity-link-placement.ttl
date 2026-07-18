@@ -15,7 +15,7 @@
         :step-exceptions ;
     schema:step :step-elicitMode, :step-modeA, :step-modeB, :step-verify,
         :step-exceptions ;
-    rdfs:seeAlso <../preferences.ttl>, <canonical-entity-iri-denotation.ttl>,
+    rdfs:seeAlso <../preferences.ttl#step-entityLinkPlacement>, <canonical-entity-iri-denotation.ttl>,
         <entity-type-gate.ttl> .
 
 # ── Primary entity ────────────────────────────────────────────────────────────
