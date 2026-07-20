@@ -243,12 +243,14 @@
     schema:name "Skill Chain & Workflows"@en ;
     schema:description "kg-generator → rdf-infographic-skill chain, KG query modes, SPARQL endpoint search order override, ZIP repackaging, content retrieval tool order, OPAL session vocabulary, and URIBurner OAuth authorization code flow."@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl>,
+        <howto/webdav-weblog-engine-gate.ttl>,
         <howto/opal-session-vocabulary.ttl>,
         <howto/uriburner-oauth-authcode-flow.ttl> ;
     schema:step :step-skillChain, :step-kgQueryMode, :step-sparqlEndpointSearchOrder,
         :step-zipRepackage,
         :step-retrievalToolOrder, :step-opalSessionVocabulary,
-        :step-uriburnerOAuthAuthCodeFlow .
+        :step-uriburnerOAuthAuthCodeFlow,
+        :step-webdavWeblogEngineGate .
 
 # ── 8. Virtuoso & SPARQL ────────────────────────────────────────────────────
 
@@ -1798,6 +1800,15 @@
     schema:text "VSP pages and their deployment companions (SQL deploy scripts, READMEs) are routed to {model-root}/vsps/ — a sibling of rdf/, md/, webpages/, and saved-prompts/ under the output root resolved by artifact-routing step-outputDirs (e.g. Claude models → {LLM_ROOT}/Claude Generated/vsps/). Never leave them in the working repo or a generator work folder. Stated by Kingsley on 2026-07-16 when a weblog index.vsp was first placed in a repo-root vsp-weblog/ folder."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
+
+# ── Step 134: WebDAV Weblog Engine Gate ─────────────────────────────────────
+
+:step-webdavWeblogEngineGate a schema:HowToStep ;
+    schema:position 138 ;
+    schema:name "WebDAV weblog requests require a VSP/isql engine bundle unless static HTML is explicit"@en ;
+    schema:text "When the user asks to generate a weblog from a WebDAV URL, invoke weblog-from-webdav and treat the request as a VSP/isql weblog-engine task. First inspect the DAV collection and search prior memory for VSP/WebDAV weblog deployments. If no executable index.vsp weblog is present, produce a complete deployable bundle: index.vsp, deploy SQL using string_output() + DAV_RES_UPLOAD_STRSES_INT, route SQL when needed, optional facet/category SQL when requested, README/run notes, and verification queries. Static HTML is only an optional preview and only satisfies the request when the user explicitly asks for static-only output."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/webdav-weblog-engine-gate.ttl> .
 
 # ── Step 135: Resolvable IRI Payload Presentation ───────────────────────────
 

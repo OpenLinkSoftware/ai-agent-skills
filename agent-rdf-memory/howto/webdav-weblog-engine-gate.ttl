@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "WebDAV Weblog Engine Gate"@en ;
+    schema:description "Blocking gate for requests that generate weblogs from WebDAV URLs. A WebDAV weblog means a VSP/isql weblog engine over ordinary WebDAV files unless the user explicitly asks for static HTML."@en ;
+    schema:dateCreated "2026-07-20T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :stepInterpretAsVspEngine, :stepStudyPriorWeblogWork,
+        :stepProduceDeployableBundle, :stepStaticOnlyRequiresExplicitRequest,
+        :stepValidateBeforeDelivery ;
+    rdfs:seeAlso <../preferences.ttl#step-webdavWeblogEngineGate>,
+        <../preferences.ttl#step-vspArtifactsFolder>,
+        <../preferences.ttl#step-studyPriorPatterns> .
+
+:stepInterpretAsVspEngine a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Interpret WebDAV weblog generation as a VSP/isql engine task"@en ;
+    schema:text "When the user asks to generate a weblog from a WebDAV URL, invoke weblog-from-webdav and treat the target as a Virtuoso Server Pages weblog over ordinary WebDAV files. Inspect whether an executable index.vsp weblog is already present before choosing publication or bootstrap mode."@en .
+
+:stepStudyPriorWeblogWork a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Search prior memory for VSP/WebDAV deployment lessons before authoring"@en ;
+    schema:text "Before writing VSP or SQL, search prior memory and local prior work for DAV_RES_UPLOAD_STRSES_INT, string_output, HTTP_PATH, index.vsp, raw <?vsp, vsp_user, and weblog-from-webdav. Carry forward the known fixes for stream upload, VSP route mapping, raw VSP rendering, and isql macro-substitution traps."@en .
+
+:stepProduceDeployableBundle a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Produce the complete deployable bundle when the engine is missing"@en ;
+    schema:text "If the target collection lacks a working executable weblog, produce index.vsp plus deploy SQL using string_output() and DAV_RES_UPLOAD_STRSES_INT, route SQL when needed, optional facet/category SQL when requested, run notes, and verification queries for DB.DBA.HTTP_PATH and WS.WS.SYS_DAV_RES. Route these artifacts to the model-specific vsps/ folder."@en .
+
+:stepStaticOnlyRequiresExplicitRequest a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Static HTML is only a preview unless explicitly requested"@en ;
+    schema:text "A static HTML page or local lens does not satisfy a WebDAV weblog request unless the user explicitly asks for static-only output. If created, present it as an optional preview beside the VSP/isql bundle, not as the weblog deliverable."@en .
+
+:stepValidateBeforeDelivery a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Validate the generated bundle or verify the live deployment before delivery"@en ;
+    schema:text "Before saying the WebDAV weblog is done, either verify the live deployed route and feeds or run the generated-bundle validator supplied by weblog-from-webdav. If credentials are unavailable, state that live deployment is blocked but the deployable bundle has passed validation."@en .
