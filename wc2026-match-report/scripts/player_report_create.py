@@ -597,11 +597,12 @@ def build_html(d, image, accent, accent2):
         sh=int(round(fin["attemptAtGoal"])); sot=int(round(fin["attemptAtGoalOnTarget"]))
         home_lbl = f"{team} {m['ts']}–{m['os']} {m['opp']}" if m["home"] else f"{m['opp']} {m['os']}–{m['ts']} {team}"
         stats = [("Assists" if a!=1 else "Assist", a, "#22BB66" if a else ""),
-                 ("Goals", g, "#FFD700" if g else "") if g else ("Distance (m)", f"{int(round(fin['totalDistance'])):,}", ""),
-                 ("Played", f"{fin['timePlayed']:.0f}", ""),
-                 ("Passes", pc, ""), ("Pass Acc", pacc, ""),
-                 ("Shots", sh, ""), ("SoT", sot, ""),
-                 ("Top Speed", round(fin["topSpeed"],1), "")]
+                 ("Goals", g, "#FFD700" if g else ""),
+                 ("Distance (m)", f"{int(round(fin['totalDistance'])):,}", "")]
+        stats += [("Played", f"{fin['timePlayed']:.0f}", ""),
+                  ("Passes", pc, ""), ("Pass Acc", pacc, ""),
+                  ("Shots", sh, ""), ("SoT", sot, ""),
+                  ("Top Speed", round(fin["topSpeed"],1), "")]
         cells = "".join(f'<div class="match-stat"><div class="val"{f" style=color:{c}" if c else ""}>{v}</div>'
                         f'<div class="lbl">{lbl}</div></div>' for lbl,v,c in stats)
         return (f'<div class="match-card"><div class="match-card-header">'
