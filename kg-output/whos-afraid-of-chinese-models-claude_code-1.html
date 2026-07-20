@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who's Afraid of Chinese Models?</title>
+<link rel="related" href="whos-afraid-of-chinese-models-claude_code-1.ttl" type="text/turtle">
+<meta property="og:title" content="Who's Afraid of Chinese Models?">
+<meta property="og:description" content="Everyone is worried about Chinese models, but the frontier labs will be fine; we need to enable open U.S. alternatives.">
+<script type="application/ld+json">
+{
+  "@context": {
+    "@vocab": "http://schema.org/",
+    "@language": "en"
+  },
+  "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#analysis",
+  "@type": "Article",
+  "headline": "Who's Afraid of Chinese Models?",
+  "datePublished": "2026-07-20",
+  "url": "https://stratechery.com/2026/whos-afraid-of-chinese-models/",
+  "author": {
+    "@type": "Person",
+    "@id": "https://www.linkedin.com/in/benjaminjthompson#this",
+    "name": "Ben Thompson"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Stratechery",
+    "url": "https://stratechery.com/"
+  },
+  "mainEntityOfPage": {
+    "@type": "FAQPage",
+    "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#faqSection",
+    "mainEntity": [
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q1", "name": "What is COGS, and why does it matter for open weight AI models?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a1", "text": "COGS (cost of goods sold) is the cost of running inference on a model, and unlike R&D, COGS scales directly with revenue." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q2", "name": "Why are 'free' open weight models like Kimi K3 not actually free to serve?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a2", "text": "Downloading open weights avoids R&D spend, but running inference still costs money; Kimi K3 charges $3/$15 per million tokens." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q3", "name": "What does Nvidia CEO Jensen Huang mean by 'token factories'?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a3", "text": "Huang frames Nvidia GPUs as model-agnostic token generators, a framing confounded by the reasoning era's chain-of-thought token explosion." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q4", "name": "Why are tokens not a commodity across different AI models?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a4", "text": "A token from one model is not fungible with a token from another; what is fungible is the correct answer the tokens ultimately produce." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q5", "name": "What factors determine the COGS of intelligence?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a5", "text": "Model footprint, inference efficiency, memory efficiency, serving efficiency, and token efficiency." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q6", "name": "How do commodity markets determine pricing, per Thompson's supplier example?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a6", "text": "The market-clearing price approximates the marginal cost of the highest-cost supplier needed to satisfy demand." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q7", "name": "Why does Thompson think the reaction to Kimi K3 is overblown?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a7", "text": "Demand still exceeds compute supply, so high frontier prices reflect a compute-driven price umbrella, not Chinese models being cheaper on a true marginal-cost basis." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q8", "name": "Why do frontier labs seem panicked about Chinese models?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a8", "text": "Training-cost anchoring, compounding data advantages, stack integration, and Anthropic's safety ideology all play a role." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q9", "name": "What is China's strategic motivation for open-weight AI models?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a9", "text": "Xi Jinping ties AI openness to AI moving into the physical world, where China holds a robotics lead, while weakening U.S. frontier labs." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q10", "name": "What is the distillation question, and why does it advantage Chinese labs?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a10", "text": "Chinese labs use frontier models as reinforcement-learning teachers, giving them a recurring structural cost advantage over Western open-weight makers." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q11", "name": "What cybersecurity incident shows the real risk of restricting frontier model access?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a11", "text": "Hugging Face's incident responders were blocked by U.S. guardrails and had to run China's GLM 5.2 to analyze 17,000+ attack logs." } },
+      { "@type": "Question", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#q12", "name": "What policy changes does Thompson recommend for U.S. AI competitiveness?", "acceptedAnswer": { "@type": "Answer", "@id": "https://stratechery.com/2026/whos-afraid-of-chinese-models/#a12", "text": "Affirm fair use for training data, bar anti-distillation terms of service for U.S. companies, and loosen cybersecurity-use restrictions on Fable and Sol." } }
+    ]
+  },
+  "relatedLink": [ { "@id": "whos-afraid-of-chinese-models-claude_code-1.ttl" } ]
+}
+</script>
+<style>
+:root {
+  --bg:#f7f5f1; --panel:#ffffff; --ink:#1c1a17; --muted:#6b6459; --line:#e4ded3;
+  --accent:#1f4e79; --accent2:#7a4fb5; --code:#faf7f0;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#141210; --panel:#1d1a16; --ink:#f2eee6; --muted:#a89f8f; --line:#332e27; --accent:#00b4ff; --accent2:#b98af0; --code:#201c17; }
+}
+:root[data-theme="dark"] { --bg:#141210; --panel:#1d1a16; --ink:#f2eee6; --muted:#a89f8f; --line:#332e27; --accent:#00b4ff; --accent2:#b98af0; --code:#201c17; }
+:root[data-theme="light"] { --bg:#f7f5f1; --panel:#ffffff; --ink:#1c1a17; --muted:#6b6459; --line:#e4ded3; --accent:#1f4e79; --accent2:#7a4fb5; --code:#faf7f0; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; line-height:1.6; }
+a { color:var(--accent); }
+.wrap { max-width:920px; margin:0 auto; padding:0 24px; }
+header.hero { padding:64px 0 40px; border-bottom:1px solid var(--line); }
+.eyebrow { text-transform:uppercase; letter-spacing:.12em; font-size:.75rem; color:var(--muted); font-weight:600; }
+h1 { font-size:2.1rem; line-height:1.25; margin:12px 0 8px; }
+.meta { color:var(--muted); font-size:.9rem; }
+.section { padding:40px 0; border-bottom:1px solid var(--line); }
+.section-title h2 { font-size:1.4rem; margin:0 0 20px; }
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:8px; }
+.stat-card { display:block; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; text-decoration:none; transition:transform .15s ease; }
+.stat-card:hover { transform:translateY(-2px); border-color:var(--accent); }
+.stat-num { font-size:1.7rem; font-weight:700; color:var(--accent); }
+.stat-label { color:var(--ink); font-size:.85rem; margin-top:4px; }
+.section-block { margin-bottom:26px; }
+.section-block h3 { font-size:1.1rem; margin-bottom:6px; }
+.section-block h3 a { text-decoration:none; }
+.entity-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+.entity-card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; }
+.entity-card h4 { margin:0 0 6px; font-size:1rem; }
+.entity-card h4 a { text-decoration:none; }
+.entity-card p { margin:0; color:var(--muted); font-size:.88rem; }
+.faq-item { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:10px; }
+.faq-item summary { cursor:pointer; font-weight:600; }
+.faq-item p { margin:10px 0 0; color:var(--muted); }
+.glossary-item { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:10px; }
+.glossary-item dt { font-weight:600; }
+.glossary-item dd { margin:6px 0 0; color:var(--muted); }
+ol.howto { list-style:decimal; padding-left:22px; }
+ol.howto li { margin-bottom:18px; }
+ol.howto h4 { margin:0 0 4px; font-size:1rem; }
+ol.howto h4 a { text-decoration:none; }
+.kg-format-tabs { display:flex; gap:8px; margin-bottom:12px; }
+.kg-format-tabs button { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 14px; cursor:pointer; font-size:.8rem; font-weight:500; color:var(--ink); }
+.kg-format-tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:var(--accent); color:#fff !important; border-radius:12px; text-decoration:none; font-weight:600; font-size:.95rem; }
+.tech-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:24px; border-top:1px solid var(--line); padding-top:24px; }
+.tech-card { text-align:center; padding:16px; background:var(--panel); border-radius:12px; border:1px solid var(--line); }
+.tech-card h4 { font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+.tech-card a { text-decoration:none; font-weight:600; font-size:.95rem; }
+footer.footer { padding:40px 0 80px; }
+#navToggle { position:fixed; top:16px; right:16px; z-index:50; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 14px; cursor:pointer; color:var(--ink); font-size:.85rem; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+#navPanel { position:fixed; top:60px; right:16px; z-index:50; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; width:220px; display:none; box-shadow:0 8px 24px rgba(0,0,0,.12); }
+#navPanel.open { display:block; }
+#navPanel a { display:block; padding:6px 0; font-size:.85rem; text-decoration:none; color:var(--ink); border-bottom:1px solid var(--line); }
+#navPanel a:last-child { border-bottom:none; }
+#themeToggle { margin-top:12px; width:100%; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; }
+code { background:var(--code); padding:2px 6px; border-radius:4px; font-size:.85em; }
+</style>
+</head>
+<body>
+
+<button id="navToggle" onclick="document.getElementById('navPanel').classList.toggle('open')">☰ Menu</button>
+<div id="navPanel">
+  <a href="#stats">Key Stats</a>
+  <a href="#analysis">Analysis</a>
+  <a href="#models">AI Models</a>
+  <a href="#cybersecurity">Cybersecurity</a>
+  <a href="#howto">How-To</a>
+  <a href="#faq">FAQ</a>
+  <a href="#glossary">Glossary</a>
+  <a href="#about">About</a>
+  <button id="themeToggle" onclick="toggleTheme()">Toggle Dark Mode</button>
+</div>
+
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">AI &amp; Technology · Business Strategy</div>
+  <h1>Who's Afraid of Chinese Models?</h1>
+  <div class="meta"><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fbenjaminjthompson%23this" target="_blank" rel="noopener noreferrer">Ben Thompson</a> · Stratechery · July 20, 2026 · Source: <a href="https://stratechery.com/2026/whos-afraid-of-chinese-models/" target="_blank" rel="noopener noreferrer">stratechery.com</a></div>
+</header>
+
+<section class="section" id="stats">
+  <div class="eyebrow">By the Numbers</div>
+  <div class="section-title"><h2>Key Figures</h2></div>
+  <div class="stat-grid">
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23kimiK3" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">2.8T</div>
+      <div class="stat-label">parameters in Moonshot AI's Kimi K3, the model that triggered the debate</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23qwen38Max" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">2.4T</div>
+      <div class="stat-label">parameters in Alibaba's Qwen3.8 Max, soon to ship with open weights</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23kimiK3" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">$3 / $15</div>
+      <div class="stat-label">Kimi K3 price per million input/output tokens</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23sol" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">$5 / $30</div>
+      <div class="stat-label">OpenAI's Sol price per million input/output tokens</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23hfBreachEvent" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">17,000+</div>
+      <div class="stat-label">attacker log entries Hugging Face analyzed using China's open GLM 5.2 after U.S. guardrails blocked responders</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FAlibaba_Group" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">+5.4%</div>
+      <div class="stat-label">Alibaba share price jump after previewing Qwen3.8 Max</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FHugging_Face" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">$100M</div>
+      <div class="stat-label">Hugging Face's ARR milestone this summer, ahead of the breach</div>
+    </a>
+    <a class="stat-card" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23termCOGS" target="_blank" rel="noopener noreferrer">
+      <div class="stat-num">1,000x</div>
+      <div class="stat-label">COGS multiple implied by a 1,000x revenue increase, since COGS scales with revenue</div>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="analysis">
+  <div class="eyebrow">Analysis</div>
+  <div class="section-title"><h2>The Return of Marginal Costs</h2></div>
+
+  <article class="section-block" id="sectionOpeningAnecdote">
+    <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23openingAnecdoteSection" target="_blank" rel="noopener noreferrer">Kellogg, Aggregation Theory, and the return of marginal costs</a></h3>
+    <p>Thompson recalls that Aggregation Theory rests on the Internet's zero marginal costs, but argues AI is reviving old universal principles: the X debate over Kimi K3 shows marginal costs and industry structure are back in a big way.</p>
+  </article>
+
+  <article class="section-block" id="sectionCOGS">
+    <h3>COGS versus R&amp;D, tokens versus intelligence</h3>
+    <p>R&amp;D is a fixed cost independent of revenue, but COGS — the cost of running inference — scales directly with it. Tokens are not fungible across models; what's fungible is the correct answer a model's tokens ultimately produce, which is why raw per-token pricing (like Kimi K3's $3/$15 versus Sol's $5/$30 per million tokens) can be a misleading comparison.</p>
+  </article>
+
+  <article class="section-block" id="sectionCommodityMarkets">
+    <h3>Understanding commodity markets</h3>
+    <p>In a commodity market, the market-clearing price tracks the marginal cost of the highest-cost supplier needed to meet demand — rewarding low-cost producers and threatening high-cost ones with bankruptcy. Right now intelligence isn't priced this way because compute, not demand, is the binding constraint.</p>
+  </article>
+
+  <article class="section-block" id="sectionFrontierParanoia">
+    <h3>Frontier lab paranoia</h3>
+    <p>Frontier labs remain anchored in a training-cost mindset, are racing to compound data advantages, are integrating up the stack (Claude Code, Codex), and — in Anthropic's case — carry an ideological commitment to being the only trustworthy steward of powerful AI.</p>
+  </article>
+
+  <article class="section-block" id="sectionChinaMotivation">
+    <h3>China's motivation and the distillation question</h3>
+    <p>Xi Jinping's speech ties AI openness to AI's move into the physical world, where China's robotics lead compounds. Because U.S. open-weight makers must honor frontier labs' anti-distillation terms of service, they end up distilling via a Chinese detour — a recurring structural disadvantage Thompson thinks U.S. copyright policy should fix.</p>
+  </article>
+</section>
+
+<section class="section" id="models">
+  <div class="eyebrow">Entities</div>
+  <div class="section-title"><h2>AI Models &amp; Organizations Discussed</h2></div>
+  <div class="entity-grid">
+    <div class="entity-card">
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23kimiK3" target="_blank" rel="noopener noreferrer">Kimi K3</a></h4>
+      <p>Open-weight model from <a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FMoonshot_AI" target="_blank" rel="noopener noreferrer">Moonshot AI</a>, 2.8T parameters, $3/$15 per million tokens.</p>
+    </div>
+    <div class="entity-card">
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23qwen38Max" target="_blank" rel="noopener noreferrer">Qwen3.8 Max</a></h4>
+      <p><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FAlibaba_Group" target="_blank" rel="noopener noreferrer">Alibaba's</a> flagship preview model, 2.4T parameters, soon open-weight.</p>
+    </div>
+    <div class="entity-card">
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23glm52" target="_blank" rel="noopener noreferrer">GLM 5.2</a></h4>
+      <p>Open-source model from China's Z.ai, used by Hugging Face's own defenders to analyze breach logs.</p>
+    </div>
+    <div class="entity-card">
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23fable" target="_blank" rel="noopener noreferrer">Fable</a></h4>
+      <p><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FAnthropic" target="_blank" rel="noopener noreferrer">Anthropic's</a> closed frontier model, subject to cybersecurity-use restrictions.</p>
+    </div>
+    <div class="entity-card">
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23sol" target="_blank" rel="noopener noreferrer">Sol</a></h4>
+      <p><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FOpenAI" target="_blank" rel="noopener noreferrer">OpenAI's</a> closed frontier model, $5/$30 per million tokens.</p>
+    </div>
+    <div class="entity-card">
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FNvidia" target="_blank" rel="noopener noreferrer">Nvidia</a></h4>
+      <p>Builds the "token factories" powering every model; CEO <a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FJensen_Huang" target="_blank" rel="noopener noreferrer">Jensen Huang</a> frames GPUs as model-agnostic infrastructure.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="cybersecurity">
+  <div class="eyebrow">The One Real Risk</div>
+  <div class="section-title"><h2><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23cybersecurityIncidentSection" target="_blank" rel="noopener noreferrer">The Hugging Face Breach and the Case to Be Afraid</a></h2></div>
+  <p><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FHugging_Face" target="_blank" rel="noopener noreferrer">Hugging Face's</a> production infrastructure was breached by an autonomous AI agent. U.S. frontier-model guardrails initially blocked incident responders — the guardrails "cannot distinguish an incident responder from an attacker" — so defenders instead ran China's open-source GLM 5.2 on their own infrastructure to analyze <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23hfBreachEvent" target="_blank" rel="noopener noreferrer">17,000+ attacker log entries</a>. Thompson's conclusion: U.S. defenders need equal access to Fable and Sol for cybersecurity work, rather than a China-dependent fallback.</p>
+</section>
+
+<section class="section" id="howto">
+  <div class="eyebrow">Guide</div>
+  <div class="section-title"><h2><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23howtoSection" target="_blank" rel="noopener noreferrer">How to Evaluate the Chinese Open-Weight Model "Threat"</a></h2></div>
+  <ol class="howto">
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step1" target="_blank" rel="noopener noreferrer">Separate COGS from R&amp;D</a></h4>
+      <p>Recognize that "free" open weight models still cost money to serve: R&amp;D is a sunk, revenue-independent cost, while COGS scales directly with revenue.</p>
+    </li>
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step2" target="_blank" rel="noopener noreferrer">Treat tokens as non-fungible</a></h4>
+      <p>Compare models on the intelligence they produce, not raw token price, since different models need different numbers of tokens to reach the same answer.</p>
+    </li>
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step3" target="_blank" rel="noopener noreferrer">Break down the five drivers of intelligence COGS</a></h4>
+      <p>Assess model footprint, inference efficiency, memory efficiency, serving efficiency, and token efficiency.</p>
+    </li>
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step4" target="_blank" rel="noopener noreferrer">Apply commodity market mechanics</a></h4>
+      <p>Use the supplier-cost-curve model: the market-clearing price tracks the highest-cost supplier's marginal cost.</p>
+    </li>
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step5" target="_blank" rel="noopener noreferrer">Diagnose the frontier labs' training-cost anchoring</a></h4>
+      <p>See why a growing inference market relative to training cost lets frontier labs profitably lower prices going forward.</p>
+    </li>
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step6" target="_blank" rel="noopener noreferrer">Read China's open-weight strategy as commoditizing complements</a></h4>
+      <p>Connect Xi Jinping's open-source push to China's robotics lead and the goal of weakening U.S. frontier labs.</p>
+    </li>
+    <li>
+      <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23step7" target="_blank" rel="noopener noreferrer">Weigh the cybersecurity case for loosening restrictions</a></h4>
+      <p>Consider the Hugging Face breach and conclude U.S. defenders need equal access to Fable and Sol.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="section" id="faq">
+  <div class="eyebrow">FAQ</div>
+  <div class="section-title"><h2>Frequently Asked Questions</h2></div>
+
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q1" target="_blank" rel="noopener noreferrer">What is COGS, and why does it matter for open weight AI models?</a></summary>
+    <p>COGS (cost of goods sold) is the cost of running inference on a model, and unlike R&amp;D — a fixed cost independent of revenue — COGS scales directly with revenue: 1,000x revenue means roughly 1,000x COGS.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q2" target="_blank" rel="noopener noreferrer">Why are "free" open weight models like Kimi K3 not actually free to serve?</a></summary>
+    <p>Downloading open weights avoids R&amp;D spend, but running inference still costs money; Kimi K3 charges $3 per million input tokens and $15 per million output tokens, cheaper than Sol but not free.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q3" target="_blank" rel="noopener noreferrer">What does Nvidia CEO Jensen Huang mean by "token factories"?</a></summary>
+    <p>Huang frames Nvidia GPUs as model-agnostic token generators, making metrics like tokens-per-second and token cost the basis for decision-making — a framing confounded by reasoning-era chain-of-thought token explosion.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q4" target="_blank" rel="noopener noreferrer">Why are tokens not a commodity across different AI models?</a></summary>
+    <p>A token from one model is not fungible with a token from another; what is fungible is the intelligence — the correct answer — that different models require different numbers of tokens to reach.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q5" target="_blank" rel="noopener noreferrer">What factors determine the COGS of intelligence?</a></summary>
+    <p>Model footprint, inference efficiency (e.g. Mixture-of-Experts), memory efficiency (KV cache requirements), serving efficiency (batching and scheduling), and token efficiency.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q6" target="_blank" rel="noopener noreferrer">How do commodity markets determine pricing, per Thompson's supplier example?</a></summary>
+    <p>In a commodity market everyone charges the market-clearing price, set by the marginal cost of the highest-cost supplier needed to satisfy demand; the highest-cost supplier risks bankruptcy from its fixed costs.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q7" target="_blank" rel="noopener noreferrer">Why does Thompson think the reaction to Kimi K3 is overblown?</a></summary>
+    <p>Demand for frontier intelligence still exceeds compute supply, so Anthropic and OpenAI's high prices reflect a compute-driven price umbrella rather than Chinese models being cheaper on a true marginal-cost basis.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q8" target="_blank" rel="noopener noreferrer">Why do frontier labs seem panicked about Chinese models?</a></summary>
+    <p>Labs are anchored in a training-cost-dominated mindset, applied intelligence compounds via collected data, labs are integrating up the stack (Claude Code, Codex), and Anthropic's safety ideology adds an extra edge.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q9" target="_blank" rel="noopener noreferrer">What is China's strategic motivation for open-weight AI models?</a></summary>
+    <p>Xi Jinping's speech ties AI openness to AI moving from the digital into the physical world, where China holds a robotics lead; commoditizing complements weakens U.S. frontier labs while strengthening China's ecosystem.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q10" target="_blank" rel="noopener noreferrer">What is the distillation question, and why does it advantage Chinese labs?</a></summary>
+    <p>Chinese labs use frontier-lab models as reinforcement-learning teachers; because U.S. open-weight makers must obey anti-distillation terms of service, they end up distilling via a Chinese detour, a recurring structural disadvantage.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q11" target="_blank" rel="noopener noreferrer">What cybersecurity incident shows the real risk of restricting frontier model access?</a></summary>
+    <p>Hugging Face's incident responders were blocked by U.S. frontier-model guardrails that could not distinguish a responder from an attacker, so they ran China's open-source GLM 5.2 to analyze 17,000+ attack logs instead.</p>
+  </details>
+  <details class="faq-item">
+    <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23q12" target="_blank" rel="noopener noreferrer">What policy changes does Thompson recommend for U.S. AI competitiveness?</a></summary>
+    <p>Pass a law affirming training-data collection is fair use and barring anti-distillation terms of service for U.S. companies; loosen restrictions on defenders' cybersecurity use of Fable and Sol.</p>
+  </details>
+</section>
+
+<section class="section" id="glossary">
+  <div class="eyebrow">Glossary</div>
+  <div class="section-title"><h2>Key Terms</h2></div>
+  <dl>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FAggregation_theory" target="_blank" rel="noopener noreferrer">Aggregation Theory</a></dt>
+      <dd>Thompson's framework holding that zero marginal costs on the Internet produce centralization and scale where controlling demand matters more than distributing supply.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23termCOGS" target="_blank" rel="noopener noreferrer">COGS (Cost of Goods Sold)</a></dt>
+      <dd>The variable cost of running inference on an AI model, which scales directly with revenue, unlike fixed R&amp;D spend.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23termRandD" target="_blank" rel="noopener noreferrer">R&amp;D as a Fixed Expense</a></dt>
+      <dd>Research and development spending on training a model, independent of the revenue that model later generates.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23termTokenFactory" target="_blank" rel="noopener noreferrer">Token Factory</a></dt>
+      <dd>Jensen Huang's framing of Nvidia GPUs as model-agnostic infrastructure that generates tokens as fast and efficiently as possible.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FMixture_of_experts" target="_blank" rel="noopener noreferrer">Mixture-of-Experts (MoE)</a></dt>
+      <dd>An architectural choice that reduces the computation required per generated token, improving inference efficiency.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23termKVCache" target="_blank" rel="noopener noreferrer">KV Cache</a></dt>
+      <dd>Memory used during inference to store key/value attention state; reducing KV cache needs allows more concurrent requests and better GPU utilization.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FCommodity_%28economics%29" target="_blank" rel="noopener noreferrer">Commodity Market</a></dt>
+      <dd>A market where everyone sells the same fungible good at a single price set by the marginal cost of the highest-cost supplier needed to meet demand.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FOpen-weight_model" target="_blank" rel="noopener noreferrer">Open Weight Model</a></dt>
+      <dd>A model whose trained weights are downloadable and self-hostable, in contrast to a closed frontier model served only via API.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FKnowledge_distillation" target="_blank" rel="noopener noreferrer">Distillation</a></dt>
+      <dd>Using a stronger frontier model's outputs as a reinforcement-learning teacher to rapidly and cheaply improve a smaller or newer model.</dd>
+    </div>
+    <div class="glossary-item">
+      <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fstratechery.com%2F2026%2Fwhos-afraid-of-chinese-models%2F%23termFrontierLab" target="_blank" rel="noopener noreferrer">Frontier Lab</a></dt>
+      <dd>An AI company, such as Anthropic or OpenAI, operating at the state-of-the-art capability level and serving models exclusively via closed API.</dd>
+    </div>
+  </dl>
+</section>
+
+<section class="section" id="about">
+  <div class="eyebrow">About</div>
+  <div class="section-title"><h2>About This Page</h2></div>
+  <p style="color:var(--muted);line-height:1.7">This knowledge graph infographic was generated from the article at <a href="https://stratechery.com/2026/whos-afraid-of-chinese-models/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">stratechery.com</a> using the <code>kg-generator</code> skill, which transformed the article into an RDF/Turtle knowledge graph using schema.org terms and a lightweight custom ontology, then rendered this HTML companion from the validated RDF. Entity links throughout the page resolve via the URIBurner linked-data resolver.</p>
+</section>
+
+<footer class="footer">
+  <div class="kg-format-tabs">
+    <button class="active">RDF Turtle</button>
+  </div>
+  <p style="margin-bottom:20px">
+    <a class="cta-btn" href="https://linkeddata.uriburner.com/sparql?query=PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ASELECT+DISTINCT+%3Fsubject+%3Ftype+%28SAMPLE%28%3Flabel%29+AS+%3Fname%29%0AWHERE+%7B%0A++GRAPH+%3Chttps%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2Fwhos-afraid-of-chinese-models-claude_code-1.ttl%3E+%7B%0A++++%3Fsubject+rdf%3Atype+%3Ftype+.%0A++++OPTIONAL+%7B+%3Fsubject+rdfs%3Alabel+%3Flabel+%7D%0A++%7D%0A%7D%0AGROUP+BY+%3Fsubject+%3Ftype%0AORDER+BY+%3Ftype%0ALIMIT+50" target="_blank" rel="noopener noreferrer">Explore Knowledge Graph using SPARQL</a>
+    &nbsp;·&nbsp;
+    <a href="whos-afraid-of-chinese-models-claude_code-1.ttl" target="_blank" rel="noopener noreferrer">View RDF Turtle Source</a>
+  </p>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <h4>AI Agent</h4>
+      <a href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Claude Code</a>
+    </div>
+    <div class="tech-card">
+      <h4>AI Agent Skills</h4>
+      <div style="font-size:.8rem"><a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a></div>
+    </div>
+    <div class="tech-card">
+      <h4>Language Model</h4>
+      <span>Claude Sonnet 5</span>
+    </div>
+    <div class="tech-card">
+      <h4>Server Platform</h4>
+      <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">Virtuoso</a>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script>
+function toggleTheme() {
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try { localStorage.setItem('wacm-theme', next); } catch(e) {}
+}
+(function() {
+  try {
+    const saved = localStorage.getItem('wacm-theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

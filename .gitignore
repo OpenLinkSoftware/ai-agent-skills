@@ -1,3 +1,6 @@
+# Secrets
+.opal-a2a.env
+
 # macOS
 .DS_Store
 .AppleDouble

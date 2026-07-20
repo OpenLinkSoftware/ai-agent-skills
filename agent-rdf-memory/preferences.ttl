@@ -243,12 +243,14 @@
     schema:name "Skill Chain & Workflows"@en ;
     schema:description "kg-generator → rdf-infographic-skill chain, KG query modes, SPARQL endpoint search order override, ZIP repackaging, content retrieval tool order, OPAL session vocabulary, and URIBurner OAuth authorization code flow."@en ;
     rdfs:seeAlso <howto/skill-invocation.ttl>,
+        <howto/webdav-weblog-engine-gate.ttl>,
         <howto/opal-session-vocabulary.ttl>,
         <howto/uriburner-oauth-authcode-flow.ttl> ;
     schema:step :step-skillChain, :step-kgQueryMode, :step-sparqlEndpointSearchOrder,
         :step-zipRepackage,
         :step-retrievalToolOrder, :step-opalSessionVocabulary,
-        :step-uriburnerOAuthAuthCodeFlow .
+        :step-uriburnerOAuthAuthCodeFlow,
+        :step-webdavWeblogEngineGate .
 
 # ── 8. Virtuoso & SPARQL ────────────────────────────────────────────────────
 
@@ -1799,6 +1801,15 @@
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
+# ── Step 134: WebDAV Weblog Engine Gate ─────────────────────────────────────
+
+:step-webdavWeblogEngineGate a schema:HowToStep ;
+    schema:position 138 ;
+    schema:name "WebDAV weblog requests require a VSP/isql engine bundle unless static HTML is explicit"@en ;
+    schema:text "When the user asks to generate a weblog from a WebDAV URL, invoke weblog-from-webdav and treat the request as a VSP/isql weblog-engine task. First inspect the DAV collection and search prior memory for VSP/WebDAV weblog deployments. If no executable index.vsp weblog is present, produce a complete deployable bundle: index.vsp, deploy SQL using string_output() + DAV_RES_UPLOAD_STRSES_INT, route SQL when needed, optional facet/category SQL when requested, README/run notes, and verification queries. Static HTML is only an optional preview and only satisfies the request when the user explicitly asks for static-only output."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/webdav-weblog-engine-gate.ttl> .
+
 # ── Step 135: Resolvable IRI Payload Presentation ───────────────────────────
 
 :step-resolvableIriPayloadPresentation a schema:HowToStep ;
@@ -1825,3 +1836,12 @@
     schema:text "Every howto/*.ttl must use one schema:HowToStep per requirement, anchor cross-references to preferences.ttl via #step-… fragments (never the bare document), and be parse-validated with a Turtle parser before the task ends."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/howto-authoring-structure.ttl> .
+
+# ── Step 139: Python Default; JavaScript Only When Explicitly Required ─────
+
+:step-pythonDefaultJsFallback a schema:HowToStep ;
+    schema:position 139 ;
+    schema:name "Write new scripts in Python by default; use JavaScript/Node only when explicitly required"@en ;
+    schema:text "For new standalone scripts, default to Python and use JavaScript/Node only when explicitly required."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/python-default-js-fallback.ttl> .

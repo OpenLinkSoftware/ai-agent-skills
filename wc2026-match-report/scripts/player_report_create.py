@@ -691,12 +691,16 @@ def build_html(d, image, accent, accent2):
                 f'&format=text%2Fx-html%2Btr&timeout=30&run=+Run+Query+')
     q_profile = f"""PREFIX fifa: <https://www.openlinksw.com/ontology/fifa#>
 
-DESCRIBE <{d['player_iri']}>
-FROM <{KG}>"""
+SELECT DISTINCT ?property ?value
+FROM <{KG}>
+WHERE {{
+  <{d['player_iri']}> ?property ?value .
+}}
+ORDER BY ?property ?value"""
     q_ana = f"""PREFIX fifa: <https://www.openlinksw.com/ontology/fifa#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?matchLabel ?timePlayed ?assists ?goals ?totalDistance ?passes ?threat ?topSpeed
+SELECT DISTINCT ?matchLabel ?timePlayed ?assists ?goals ?totalDistance ?passes ?threat ?topSpeed
 FROM <{KG}> FROM <{ANA}>
 WHERE {{
   ?m a fifa:Match ; rdfs:label ?matchLabel .
@@ -710,7 +714,7 @@ WHERE {{
     q_events = f"""PREFIX fifa: <https://www.openlinksw.com/ontology/fifa#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?matchLabel ?typeLabel ?minute ?positionX ?positionY
+SELECT DISTINCT ?matchLabel ?typeLabel ?minute ?positionX ?positionY
 FROM <{KG}>
 WHERE {{
   ?m a fifa:Match ; rdfs:label ?matchLabel ; fifa:hasEvent ?e .

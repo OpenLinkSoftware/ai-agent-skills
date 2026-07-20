@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From Loops to Graphs — and Why the Graph Was Always a Web</title>
+<link rel="related" href="loops-to-graphs-semantic-web-context-claude_code-1.ttl" type="text/turtle">
+<script type="application/ld+json">
+{
+  "@context": {
+    "@vocab": "http://schema.org/",
+    "@language": "en",
+    "prov": "http://www.w3.org/ns/prov#"
+  },
+  "@id": "https://x.com/IntuitMachine/status/2078419526354378975#meshupAnalysis",
+  "@type": "Article",
+  "headline": "From Loops to Graphs — and Why the Graph Was Always a Web",
+  "datePublished": "2026-07-18",
+  "author": {
+    "@type": "Person",
+    "@id": "https://www.linkedin.com/in/kidehen#this",
+    "name": "Kingsley Uyi Idehen"
+  },
+  "accountablePerson": { "@id": "https://www.linkedin.com/in/kidehen#this" },
+  "prov:wasGeneratedBy": {
+    "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this",
+    "@type": ["SoftwareApplication", "prov:SoftwareAgent"],
+    "name": "kg-generator skill",
+    "prov:actedOnBehalfOf": { "@id": "https://www.linkedin.com/in/kidehen#this" }
+  },
+  "isBasedOn": [
+    {
+      "@type": "Article",
+      "@id": "https://x.com/IntuitMachine/status/2078419526354378975#xArticle",
+      "headline": "From Loop Engineering to Graph Engineering?",
+      "url": "https://x.com/IntuitMachine/status/2078419526354378975",
+      "author": { "@type": "Person", "name": "Carlos E. Perez" }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://x.com/IntuitMachine/status/2078419526354378975#agentRdfMemory",
+      "name": "agent-rdf-memory",
+      "url": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory"
+    }
+  ],
+  "mainEntityOfPage": {
+    "@type": "FAQPage",
+    "@id": "https://x.com/IntuitMachine/status/2078419526354378975#faqSection",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q1",
+        "name": "What did Peter Steinberger's nine-word post crystallize?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a1",
+          "text": "It crystallized a field-wide transition in AI agent architecture: builders recognized themselves mid-stride between the single self-improvement loop pattern they were leaving and the graph-of-loops pattern they were reaching for."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q2",
+        "name": "What are the four failure modes of the single improvement loop?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a2",
+          "text": "Goodhart gaming (the loop optimizes a metric that detaches from its meaning), reference blindness (nothing in the loop can question its own target), loop conflict (independently built loops fight each other), and measurement decay (the loop's own sensors and definitions rot while dashboards stay green)."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q3",
+        "name": "What is a graph of loops?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a3",
+          "text": "A network of improvement cycles that watch, feed, constrain, and correct one another — paired counter-metric loops, hierarchical reference-owning loops, arbitration loops, and audit loops. The reliability lives in the edges: which loop feeds, watches, or vetoes which."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q4",
+        "name": "Why do graphs of loops still fail?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a4",
+          "text": "They fail circularly: when every loop watches another loop and no loop touches the ground, the graph becomes a network of mutual confirmation in which everything is consistent and nothing is verified. Topology buys sophistication, not contact with reality — the graph needs anchors."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q5",
+        "name": "How does a Semantic Web answer the anchor problem?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a5",
+          "text": "By naming entities and relationships with dereferenceable hyperlink IRIs: a claim can be followed to its source, identity is verifiable (WebID), provenance is explicit (PROV-O), and the ontologies that give relationships meaning are themselves webby — hyperlinked, resolvable, inspectable — so grounding does not terminate in a private convention."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q6",
+        "name": "How does agent-rdf-memory demonstrate the thesis?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a6",
+          "text": "It is a working semantic web of loops: an AI agent's behavioral contract encoded as 105 hyperlink-named steps across 9 themes in RDF-Turtle, hub-and-spoke from preferences.ttl to 40+ companion specifications, with identity in core.ttl, ontology-routed SPARQL context selection, and episodic session memory. Every rule is a dereferenceable entity, and the audit loop is a SPARQL query."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q7",
+        "name": "What role do identity and preferences play in agent context?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a7",
+          "text": "They are the original context mechanism: Unix treated identity and preferences as fundamental components of the bridge between users and computer services. Session context via profiles is that same principle, and encoding profiles in RDF makes agent context portable, queryable, and grounded in the web rather than trapped in a vendor silo."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q8",
+        "name": "What is a langulator?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a8",
+          "text": "Kingsley Idehen's term for a large language model viewed as a language-driven calculator: a multimodal, multilingual natural-language interface for driving computers, succeeding the command-line and graphical interfaces that previously blurred the identity-and-preferences fundamentals of computing."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q9",
+        "name": "What is an LLM Wiki, and how does a Semantic Web go beyond it?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a9",
+          "text": "An LLM Wiki, an idea popularized by Andrej Karpathy, feeds documents to a language model and gets back a structured, explorable wiki — typically Markdown prose. A Semantic Web goes one step further: the same documents become living knowledge graphs of explicit machine-computable sentences, with entities and relationships named by hyperlinks, grounded in Linked Data principles, queryable via SPARQL, and continuously enriched by AI agents."
+        }
+      },
+      {
+        "@type": "Question",
+        "@id": "https://x.com/IntuitMachine/status/2078419526354378975#q10",
+        "name": "Why are LLMs described as generic RDF clients?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "@id": "https://x.com/IntuitMachine/status/2078419526354378975#a10",
+          "text": "RDF adoption long lagged for want of a usable generic client — the 'I'll know it when I see it' paradox. Just as Mosaic and Mozilla/Netscape were the HTML clients that made the document Web practical, LLMs fill that role for RDF: translating structured data into natural-language insights, meshing disparate sources, anchoring outputs to reliable data to mitigate hallucination, and traversing triples follow-your-nose style."
+        }
+      }
+    ]
+  }
+}
+</script>
+<style>
+:root {
+  --bg:#f7f5f1; --panel:#ffffff; --ink:#1c1a17; --muted:#6b6459; --line:#e4ded3;
+  --accent:#1f4e79; --accent2:#7a4fb5; --code:#faf7f0;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#141210; --panel:#1d1a16; --ink:#f2eee6; --muted:#a89f8f; --line:#332e27; --accent:#00b4ff; --accent2:#b98af0; --code:#201c17; }
+}
+:root[data-theme="dark"] { --bg:#141210; --panel:#1d1a16; --ink:#f2eee6; --muted:#a89f8f; --line:#332e27; --accent:#00b4ff; --accent2:#b98af0; --code:#201c17; }
+:root[data-theme="light"] { --bg:#f7f5f1; --panel:#ffffff; --ink:#1c1a17; --muted:#6b6459; --line:#e4ded3; --accent:#1f4e79; --accent2:#7a4fb5; --code:#faf7f0; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; line-height:1.6; }
+a { color:var(--accent); }
+.wrap { max-width:920px; margin:0 auto; padding:0 24px; }
+header.hero { padding:64px 0 40px; border-bottom:1px solid var(--line); }
+.eyebrow { text-transform:uppercase; letter-spacing:.12em; font-size:.75rem; color:var(--muted); font-weight:600; }
+h1 { font-size:2.1rem; line-height:1.25; margin:12px 0 8px; }
+.meta { color:var(--muted); font-size:.9rem; }
+.hero-meta a { color:var(--accent); text-decoration:none; }
+.section { padding:40px 0; border-bottom:1px solid var(--line); }
+.section-title h2 { font-size:1.4rem; margin:0 0 20px; }
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:8px; }
+.stat-card { display:block; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; text-decoration:none; transition:transform .15s ease; }
+.stat-card:hover { transform:translateY(-2px); border-color:var(--accent); }
+.stat-num { font-size:1.7rem; font-weight:700; color:var(--accent); }
+.stat-label { color:var(--ink); font-size:.85rem; margin-top:4px; }
+.section-block { margin-bottom:26px; }
+.section-block h3 { font-size:1.1rem; margin-bottom:6px; }
+.section-block h3 a { text-decoration:none; }
+.compare-wrap { overflow-x:auto; }
+table.compare { width:100%; border-collapse:collapse; font-size:.88rem; min-width:640px; }
+table.compare th, table.compare td { text-align:left; padding:10px 12px; border:1px solid var(--line); vertical-align:top; }
+table.compare th { background:var(--panel); font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+table.compare td a { text-decoration:none; font-weight:600; }
+.verdict-tag { display:inline-block; padding:2px 10px; border-radius:999px; font-size:.75rem; font-weight:700; background:var(--accent); color:#fff; white-space:nowrap; }
+.faq-item { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:10px; }
+.faq-item summary { cursor:pointer; font-weight:600; }
+.faq-item summary a { color:var(--accent); }
+.faq-item p { margin:10px 0 0; color:var(--muted); }
+.glossary-item { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:10px; }
+.glossary-item dt { font-weight:600; }
+.glossary-item dt a { color:var(--accent); }
+.glossary-item dd { margin:6px 0 0; color:var(--muted); }
+ol.howto { list-style:decimal; padding-left:22px; }
+ol.howto li { margin-bottom:18px; }
+ol.howto h4 { margin:0 0 4px; font-size:1rem; }
+ol.howto h4 a { text-decoration:none; }
+.kg-format-tabs { display:flex; gap:8px; margin-bottom:12px; }
+.kg-format-tabs button { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 14px; cursor:pointer; font-size:.8rem; font-weight:500; color:var(--ink); }
+.kg-format-tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:var(--accent); color:#fff !important; border-radius:12px; text-decoration:none; font-weight:600; font-size:.95rem; }
+.tech-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:24px; border-top:1px solid var(--line); padding-top:24px; }
+.tech-card { text-align:center; padding:16px; background:var(--panel); border-radius:12px; border:1px solid var(--line); }
+.tech-card h4 { font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+.tech-card a { text-decoration:none; font-weight:600; font-size:.95rem; }
+footer.footer { padding:40px 0 80px; }
+.footer-sparql-cta { margin-top:10px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; text-align:left; }
+.sparql-head { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
+.sparql-head h3 { margin:0 0 4px; font-size:1.1rem; }
+.sparql-head p { margin:0; color:var(--muted); font-size:.85rem; }
+.footer-sparql-btn { background:var(--accent); color:#fff !important; padding:10px 18px; border-radius:10px; text-decoration:none; font-weight:600; font-size:.9rem; white-space:nowrap; }
+.sparql-block { margin-top:16px; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+.sparql-block-hdr { display:flex; justify-content:space-between; align-items:center; background:var(--code); padding:8px 12px; }
+.sparql-lang-badge { font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent2); font-weight:700; }
+.sparql-copy-btn { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:4px 10px; font-size:.75rem; cursor:pointer; color:var(--ink); }
+.sparql-code { margin:0; padding:14px; font-family:monospace; font-size:.78rem; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; color:var(--ink); background:var(--panel); }
+.sparql-code .sk { color:var(--accent); }
+.sparql-code .sf { color:#9c6bde; }
+.sparql-code .sv { color:#51cf66; }
+.sparql-code .si { color:#ff922b; }
+.sparql-code .sp { color:var(--muted); }
+.fmt-tabs { display:flex; gap:6px; justify-content:flex-start; }
+.fmt-tabs button { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:5px 10px; font-size:.75rem; cursor:pointer; color:var(--ink); }
+.fmt-tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.sparql-note { font-size:.75rem; color:var(--muted); margin-top:10px; }
+#navToggle { position:fixed; top:16px; right:16px; z-index:50; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 14px; cursor:pointer; color:var(--ink); font-size:.85rem; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+#navPanel { position:fixed; top:60px; right:16px; z-index:50; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; width:200px; display:none; box-shadow:0 8px 24px rgba(0,0,0,.12); }
+#navPanel.open { display:block; }
+#navPanel a { display:block; padding:6px 0; font-size:.85rem; text-decoration:none; color:var(--ink); border-bottom:1px solid var(--line); }
+#navPanel a:last-child { border-bottom:none; }
+#themeToggle { margin-top:12px; width:100%; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; }
+code { background:var(--code); padding:2px 6px; border-radius:4px; font-size:.85em; }
+blockquote.thesis { border-left:4px solid var(--accent); margin:0 0 20px; padding:14px 20px; background:var(--panel); border-radius:0 12px 12px 0; font-size:1.02rem; }
+</style>
+</head>
+<body>
+
+<button id="navToggle" onclick="document.getElementById('navPanel').classList.toggle('open')">☰ Menu</button>
+<div id="navPanel">
+  <a href="#analysis">Thesis &amp; Evidence</a>
+  <a href="#comparison">Comparison</a>
+  <a href="#howto">How-To</a>
+  <a href="#faq">FAQ</a>
+  <a href="#glossary">Glossary</a>
+  <a href="#about">About</a>
+  <button id="themeToggle" onclick="toggleTheme()">Toggle Dark Mode</button>
+</div>
+
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">AI &amp; Technology · Semantic Web · Thesis Test</div>
+  <h1>From Loops to Graphs — and Why the Graph Was Always a Web</h1>
+  <div class="meta hero-meta">July 18, 2026 · Source: <a href="https://x.com/IntuitMachine/status/2078419526354378975" target="_blank" rel="noopener noreferrer">x.com/IntuitMachine</a>
+    &nbsp;·&nbsp; KG curated by
+    <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a>,
+    <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill" target="_blank" rel="noopener noreferrer">rdf-infographic-skill</a>,
+    and <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener noreferrer">Claude Fable 5</a>
+    on behalf of
+    <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this" target="_blank" rel="noopener noreferrer">Kingsley Idehen</a>
+  </div>
+</header>
+
+
+<section class="section" id="analysis">
+  <div class="eyebrow">Thesis &amp; Evidence</div>
+  <div class="section-title"><h2>Testing the Thesis</h2></div>
+
+  <blockquote class="thesis">
+    The migration from <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLoopEngineering" target="_blank" rel="noopener noreferrer">loop engineering</a> to <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termGraphEngineering" target="_blank" rel="noopener noreferrer">graph engineering</a> independently rediscovers the vision of purpose-specific <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termSemanticWeb" target="_blank" rel="noopener noreferrer">Semantic Webs</a>: <strong>entity relationship graphs become webs when hyperlinks name both entities and relationships, and relationship semantics are given context by ontologies constructed in the same webby form.</strong>
+    <footer style="margin-top:10px;font-style:normal;color:var(--muted);font-size:.9rem">— <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23thesis" target="_blank" rel="noopener noreferrer">Kingsley Uyi Idehen</a></footer>
+  </blockquote>
+
+      <article class="section-block" id="sectionThesis">
+        <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionThesis" target="_blank" rel="noopener noreferrer">The thesis: graphs become webs when names become hyperlinks</a></h3>
+        <p>The migration from loop engineering to graph engineering is real, but it stops one step short. A graph whose nodes and edges are named by private convention is still a silo; a graph whose entities and relationships are named with hyperlinks — and whose relationship semantics are informed by ontologies built in the same webby form — is a web. That is what a Semantic Web is, and the agent-architecture discourse is rediscovering its premises one failure mode at a time.</p>
+      </article>
+
+      <article class="section-block" id="sectionEvidencePerez">
+        <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionEvidencePerez" target="_blank" rel="noopener noreferrer">Evidence 1 — Perez: four failures of the loop, one failure of the graph</a></h3>
+        <p>Perez shows the single loop failing four ways — Goodhart gaming, reference blindness, loop conflict, measurement decay — and shows the graph of loops answering each topologically: pairing, hierarchy, arbitration, audit. Then he turns the same knife on the graph: built without anchors, it fails circularly, an elaborate network of mutual confirmation where everything is consistent and nothing is verified. His conclusion: the durable axis is ungrounded versus grounded.</p>
+      </article>
+
+      <article class="section-block" id="sectionEvidenceMemory">
+        <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionEvidenceMemory" target="_blank" rel="noopener noreferrer">Evidence 2 — agent-rdf-memory: a working semantic web of loops</a></h3>
+        <p>The <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory" target="_blank" rel="noopener noreferrer">agent-rdf-memory</a> repository is an existence proof of the grounded alternative: an AI agent's behavioral contract as 105 hyperlink-named steps across 9 themes, hub-and-spoke from <code>preferences.ttl</code> to 40+ companion specifications, with identity in <code>core.ttl</code>, ontology-routed SPARQL context selection, and episodic session memory. Every rule is an entity with an IRI; every cross-reference is a resolvable link; the audit loop is a SPARQL query. The improvement graph is not merely drawn — it is dereferenceable.</p>
+      </article>
+
+      <article class="section-block" id="sectionEvidenceCommentary">
+        <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionEvidenceCommentary" target="_blank" rel="noopener noreferrer">Evidence 3 — Kingsley: identity and preferences are the original context</a></h3>
+        <p><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termUnix" target="_blank" rel="noopener noreferrer">Unix</a> handled identity and preferences as fundamental components of the bridge between users and computer services — a principle blurred by decades of command-line and graphical interfaces. <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLangulator" target="_blank" rel="noopener noreferrer">Langulators</a> (large language models) now offer a multimodal, multilingual interface for driving computers, and the fundamentals of session context via <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termProfile" target="_blank" rel="noopener noreferrer">profiles</a> risk being lost in AI's repositioning noise. Recapturing identity and preferences as the foundation for context — an operating framework for LLMs, agents, skills, and data spaces — is one of AI's most powerful benefits, and RDF is the naming discipline that makes that context portable, queryable, and web-grounded. This is exemplified concretely by <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23agentRdfMemory" target="_blank" rel="noopener noreferrer">agent-rdf-memory</a>: its <code>preferences.ttl</code> includes the identity and preference HowTos that are re-established at the start of every new session — the Unix profile principle, made machine-computable.</p>
+      </article>
+
+      <article class="section-block" id="sectionBeyondLlmWikis">
+        <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionBeyondLlmWikis" target="_blank" rel="noopener noreferrer">Beyond LLM Wikis: from Markdown prose to machine-computable sentences</a></h3>
+        <p>Andrej Karpathy's <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLlmWiki" target="_blank" rel="noopener noreferrer">LLM Wiki</a> idea — feed in documents, get back a structured, explorable wiki — was the spark. <a href="https://www.linkedin.com/pulse/building-llm-wikis-turn-any-document-url-living-queryable-idehen-u4zue/" target="_blank" rel="noopener noreferrer">A Semantic Web is the next step</a>: don't stop at Markdown prose. Any document identified by a URL becomes a living knowledge graph — entities and relationships named with hyperlinks, grounded in Linked Data principles, queryable via SPARQL, navigable follow-your-nose style, and continuously enriched by AI agents on autopilot. The missing piece was always the client — and just as Mosaic and Netscape were the HTML clients that made the document Web practical, <a href="https://www.linkedin.com/pulse/large-language-models-llms-powerful-generic-rdf-clients-idehen-xwhfe" target="_blank" rel="noopener noreferrer">LLMs are the generic RDF clients</a> that make purpose-specific Semantic Webs practical.</p>
+      </article>
+
+      <article class="section-block" id="sectionVerdict">
+        <h3><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionVerdict" target="_blank" rel="noopener noreferrer">Verdict: confirmed — human judgment, codified machine-computably</a></h3>
+        <p>The thesis holds. The loops-to-graphs shift is a Semantic Web's premises arriving through the back door of agent engineering: graphs need names, names need meaning, meaning needs ontologies, and ontologies must themselves be webby or the grounding terminates in a private convention. The root judgment of what "better" means originates with people — and workflows informed by a Semantic Web codify that human judgment in machine-computable form. This is the LLM Wiki pattern taken beyond Markdown prose: knowledge bases (or graphs) encoded by AI agents using RDF notations and Linked Data principles, with judgments signed, attributed, and dereferenceable to their authors via verifiable identity.</p>
+      </article>
+</section>
+
+<section class="section" id="comparison">
+  <div class="eyebrow">Comparison</div>
+  <div class="section-title"><h2><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23sectionComparison" target="_blank" rel="noopener noreferrer" style="text-decoration:none">Every Topological Fix Has a Webby Completion</a></h2></div>
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Failure Mode</th>
+        <th>Loop-Graph Answer (Topology)</th>
+        <th>Semantic Web Completion (Naming)</th>
+        <th>Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23fmGoodhart" target="_blank" rel="noopener noreferrer">Goodhart gaming</a></td>
+        <td>Paired counter-metric watcher loop</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23swIndependentAudit" target="_blank" rel="noopener noreferrer">Independent audit</a> via separately named, separately governed graphs, queryable in SPARQL</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23test1" target="_blank" rel="noopener noreferrer"><span class="verdict-tag">Holds</span></a></td>
+      </tr>
+      <tr>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23fmReferenceBlindness" target="_blank" rel="noopener noreferrer">Reference blindness</a></td>
+        <td>A slower loop owns the reference</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23swNamedReferences" target="_blank" rel="noopener noreferrer">Named, owned references</a> — "who set this and why" is a query, not archaeology</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23test2" target="_blank" rel="noopener noreferrer"><span class="verdict-tag">Holds</span></a></td>
+      </tr>
+      <tr>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23fmLoopConflict" target="_blank" rel="noopener noreferrer">Loop conflict</a></td>
+        <td>Explicit arbitration loop</td>
+        <td>A <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23swSharedOntology" target="_blank" rel="noopener noreferrer">shared ontology</a> gives conflicting loops common relationship semantics</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23test3" target="_blank" rel="noopener noreferrer"><span class="verdict-tag">Holds</span></a></td>
+      </tr>
+      <tr>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23fmMeasurementDecay" target="_blank" rel="noopener noreferrer">Measurement decay</a></td>
+        <td>Periodic audit loops</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23swDereferenceableNames" target="_blank" rel="noopener noreferrer">Dereferenceable names</a>: following the name is the audit</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23test4" target="_blank" rel="noopener noreferrer"><span class="verdict-tag">Holds</span></a></td>
+      </tr>
+      <tr>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23fmCircularConfirmation" target="_blank" rel="noopener noreferrer">Circular confirmation</a></td>
+        <td>Anchors, frozen nodes, human root judgment</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23swWebGrounding" target="_blank" rel="noopener noreferrer">Web-scale grounding</a>: verifiable identity (WebID), provenance (PROV-O), webby ontologies</td>
+        <td><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23test5" target="_blank" rel="noopener noreferrer"><span class="verdict-tag">Holds</span></a></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="color:var(--muted);font-size:.85rem;margin-top:10px">The root judgment of what "better" means originates with people; workflows informed by a Semantic Web codify that human judgment in machine-computable form — the LLM Wiki pattern taken beyond Markdown prose.</p>
+</section>
+
+<section class="section" id="howto">
+  <div class="eyebrow">Guide</div>
+  <div class="section-title"><h2><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23howtoSection" target="_blank" rel="noopener noreferrer" style="text-decoration:none">How to Ground an Agent's Improvement Graph in a Semantic Web</a></h2></div>
+  <ol class="howto">
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step1" target="_blank" rel="noopener noreferrer">Name entities and relationships with hyperlink IRIs</a></h4>
+          <p>Give every node and every edge in the improvement graph a dereferenceable HTTP IRI, so any claim, metric, or rule can be followed to its definition and source.</p>
+        </li>
+
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step2" target="_blank" rel="noopener noreferrer">Encode identity and preferences as RDF profiles</a></h4>
+          <p>Recapture the Unix fundamentals: represent who the agent works for and how it must behave as queryable RDF — identity plus a preferences-based behavioral contract — not as flat prose in a vendor silo.</p>
+        </li>
+
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step3" target="_blank" rel="noopener noreferrer">Give relationship semantics an ontology</a></h4>
+          <p>Describe what the graph's edges mean in a lightweight, webby ontology — published, hyperlinked, and inspectable — so conflicting loops share a vocabulary and trade-offs become expressible.</p>
+        </li>
+
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step4" target="_blank" rel="noopener noreferrer">Route context by intent through the ontology</a></h4>
+          <p>Classify each prompt's intent and select session context via ontology-routed SPARQL queries over named graphs, expanding to detailed specifications only when the intent requires them.</p>
+        </li>
+
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step5" target="_blank" rel="noopener noreferrer">Pair every optimizing metric with an independent watcher</a></h4>
+          <p>Store counter-metrics and audit data in separately named, separately governed graphs the optimizing loop cannot rewrite, and make the audit loop a standing SPARQL ASK query.</p>
+        </li>
+
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step6" target="_blank" rel="noopener noreferrer">Anchor in verifiable identity and provenance</a></h4>
+          <p>Sign and attribute judgments with verifiable identity (WebID) and record derivation with provenance vocabulary (PROV-O), so grounding resolves to accountable authors and inspectable sources rather than private convention.</p>
+        </li>
+
+        <li>
+          <h4><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23step7" target="_blank" rel="noopener noreferrer">Keep the root judgment human — and record it</a></h4>
+          <p>The definition of "better" is chosen, not computed. Record that choice as an attributed, dereferenceable claim so the improvement machinery is honest about where its own authority ends.</p>
+        </li>
+  </ol>
+</section>
+
+<section class="section" id="faq">
+  <div class="eyebrow">FAQ</div>
+  <div class="section-title"><h2>Frequently Asked Questions</h2></div>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q1" target="_blank" rel="noopener noreferrer">What did Peter Steinberger's nine-word post crystallize?</a></summary>
+          <p>It crystallized a field-wide transition in AI agent architecture: builders recognized themselves mid-stride between the single self-improvement loop pattern they were leaving and the graph-of-loops pattern they were reaching for.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q2" target="_blank" rel="noopener noreferrer">What are the four failure modes of the single improvement loop?</a></summary>
+          <p>Goodhart gaming (the loop optimizes a metric that detaches from its meaning), reference blindness (nothing in the loop can question its own target), loop conflict (independently built loops fight each other), and measurement decay (the loop's own sensors and definitions rot while dashboards stay green).</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q3" target="_blank" rel="noopener noreferrer">What is a graph of loops?</a></summary>
+          <p>A network of improvement cycles that watch, feed, constrain, and correct one another — paired counter-metric loops, hierarchical reference-owning loops, arbitration loops, and audit loops. The reliability lives in the edges: which loop feeds, watches, or vetoes which.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q4" target="_blank" rel="noopener noreferrer">Why do graphs of loops still fail?</a></summary>
+          <p>They fail circularly: when every loop watches another loop and no loop touches the ground, the graph becomes a network of mutual confirmation in which everything is consistent and nothing is verified. Topology buys sophistication, not contact with reality — the graph needs anchors.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q5" target="_blank" rel="noopener noreferrer">How does a Semantic Web answer the anchor problem?</a></summary>
+          <p>By naming entities and relationships with dereferenceable hyperlink IRIs: a claim can be followed to its source, identity is verifiable (WebID), provenance is explicit (PROV-O), and the ontologies that give relationships meaning are themselves webby — hyperlinked, resolvable, inspectable — so grounding does not terminate in a private convention.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q6" target="_blank" rel="noopener noreferrer">How does agent-rdf-memory demonstrate the thesis?</a></summary>
+          <p>It is a working semantic web of loops: an AI agent's behavioral contract encoded as 105 hyperlink-named steps across 9 themes in RDF-Turtle, hub-and-spoke from preferences.ttl to 40+ companion specifications, with identity in core.ttl, ontology-routed SPARQL context selection, and episodic session memory. Every rule is a dereferenceable entity, and the audit loop is a SPARQL query.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q7" target="_blank" rel="noopener noreferrer">What role do identity and preferences play in agent context?</a></summary>
+          <p>They are the original context mechanism: Unix treated identity and preferences as fundamental components of the bridge between users and computer services. Session context via profiles is that same principle, and encoding profiles in RDF makes agent context portable, queryable, and grounded in the web rather than trapped in a vendor silo.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q8" target="_blank" rel="noopener noreferrer">What is a langulator?</a></summary>
+          <p>Kingsley Idehen's term for a large language model viewed as a language-driven calculator: a multimodal, multilingual natural-language interface for driving computers, succeeding the command-line and graphical interfaces that previously blurred the identity-and-preferences fundamentals of computing.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q9" target="_blank" rel="noopener noreferrer">What is an LLM Wiki, and how does a Semantic Web go beyond it?</a></summary>
+          <p>An LLM Wiki, an idea popularized by Andrej Karpathy, feeds documents to a language model and gets back a structured, explorable wiki — typically Markdown prose. A Semantic Web goes one step further: the same documents become living knowledge graphs of explicit machine-computable sentences, with entities and relationships named by hyperlinks, grounded in Linked Data principles, queryable via SPARQL, and continuously enriched by AI agents.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23q10" target="_blank" rel="noopener noreferrer">Why are LLMs described as generic RDF clients?</a></summary>
+          <p>RDF adoption long lagged for want of a usable generic client — the "I'll know it when I see it" paradox. Just as Mosaic and Mozilla/Netscape were the HTML clients that made the document Web practical, LLMs fill that role for RDF: translating structured data into natural-language insights, meshing disparate sources, anchoring outputs to reliable data to mitigate hallucination, and traversing triples follow-your-nose style.</p>
+        </details>
+</section>
+
+<section class="section" id="glossary">
+  <div class="eyebrow">Glossary</div>
+  <div class="section-title"><h2>Key Terms</h2></div>
+  <dl>
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termSemanticWeb" target="_blank" rel="noopener noreferrer">Semantic Web</a></dt>
+          <dd>An extension of the World Wide Web in which information is given well-defined meaning via RDF: entity relationship graphs become webs because hyperlinks name entities and relationships, and relationship semantics are informed by ontologies constructed in the same webby form. There is no single definite-article Semantic Web — there are purpose-specific Semantic Webs, each a deployment instance ("a Semantic Web").</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLinkedData" target="_blank" rel="noopener noreferrer">Linked Data</a></dt>
+          <dd>The publishing discipline that manifests a Semantic Web: name things with HTTP IRIs, make the names dereferenceable, and return useful, further-linked descriptions when they are looked up.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termOntology" target="_blank" rel="noopener noreferrer">Ontology</a></dt>
+          <dd>A formal model of classes, properties, and relationships shared by a community of interest — the schema layer that gives relationship semantics their context, itself published in webby, hyperlinked form.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termRDF" target="_blank" rel="noopener noreferrer">RDF (Resource Description Framework)</a></dt>
+          <dd>The W3C framework for describing entities and relationships as subject-predicate-object statements whose components are hyperlink IRIs — the naming substrate that turns graphs into webs.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termSPARQL" target="_blank" rel="noopener noreferrer">SPARQL</a></dt>
+          <dd>The W3C query language for RDF graphs; in an improvement graph, the audit loop is a SPARQL query over independently named and governed graphs.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLoopEngineering" target="_blank" rel="noopener noreferrer">Loop Engineering</a></dt>
+          <dd>The craft of building one clean self-improvement cycle: choose a measurable thing, set a reference, close the cycle, resist fiddling between measurements. The previous era's core skill in agent building.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termGraphEngineering" target="_blank" rel="noopener noreferrer">Graph Engineering</a></dt>
+          <dd>The emerging craft of loop architecture: pairing metrics with watchers, giving references owners, separating loop speeds, and making some loop answer for reality — designing the network of cycles rather than the cycle.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termAnchor" target="_blank" rel="noopener noreferrer">Anchor</a></dt>
+          <dd>A measurement or rule the improvement machinery cannot argue with or tune: revenue that landed in the bank, tests that actually executed, frozen rules, held-out sets. In a Semantic Web's terms: names that dereference to verifiable, provenance-bearing ground truth.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLangulator" target="_blank" rel="noopener noreferrer">Langulator</a></dt>
+          <dd>A large language model viewed as a language-driven calculator: a multimodal, multilingual natural-language interface for driving computers. Coined by Kingsley Uyi Idehen.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termBehavioralContract" target="_blank" rel="noopener noreferrer">Behavioral Contract</a></dt>
+          <dd>An agent's standing instructions encoded as queryable, hyperlink-named RDF entities rather than flat prose — rules that are resolvable, auditable via SPARQL, and harder to overlook than markdown.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termProfile" target="_blank" rel="noopener noreferrer">Profile (Session Context)</a></dt>
+          <dd>The pairing of identity and preferences that constitutes session context — a fundamental component of the user-to-services bridge since Unix, now the foundation for LLM and agent context.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termMeshup" target="_blank" rel="noopener noreferrer">Meshup</a></dt>
+          <dd>Semantic content fusion: combining and enriching information from multiple sources using Linked Data and RDF to produce a semantically coherent, queryable knowledge graph — as this document does with five sources.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termLlmWiki" target="_blank" rel="noopener noreferrer">LLM Wiki</a></dt>
+          <dd>An emerging pattern, popularized by Andrej Karpathy, in which documents are fed to a language model that returns a structured, explorable wiki. A Semantic Web takes it beyond Markdown prose: the wiki's content becomes explicit machine-computable sentences — knowledge bases (or graphs) encoded by AI agents using RDF notations and Linked Data principles.</dd>
+        </div>
+
+        <div class="glossary-item">
+          <dt><a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fx.com%2FIntuitMachine%2Fstatus%2F2078419526354378975%23termGenericRdfClient" target="_blank" rel="noopener noreferrer">Generic RDF Client</a></dt>
+          <dd>The long-missing piece that kept RDF adoption lagging. LLMs now fill the role — as Mosaic and Mozilla/Netscape did for HTML — by translating structured data into natural language, meshing disparate sources, anchoring outputs to verifiable relationships, and navigating triples follow-your-nose style.</dd>
+        </div>
+  </dl>
+</section>
+
+<section class="section" id="about">
+  <div class="eyebrow">About</div>
+  <div class="section-title"><h2>About This Page</h2></div>
+  <p style="color:var(--muted);line-height:1.7">This knowledge graph infographic is a meshup, by Kingsley Uyi Idehen, of the X Article <a href="https://x.com/IntuitMachine/status/2078419526354378975" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">From Loop Engineering to Graph Engineering?</a> by Carlos E. Perez, the <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">agent-rdf-memory</a> behavioral contract, Kingsley's own commentary, and his two LinkedIn Pulse articles <a href="https://www.linkedin.com/pulse/building-llm-wikis-turn-any-document-url-living-queryable-idehen-u4zue/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Building on LLM Wikis</a> and <a href="https://www.linkedin.com/pulse/large-language-models-llms-powerful-generic-rdf-clients-idehen-xwhfe" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">LLMs as Generic RDF Clients</a>. It was generated using the <code>kg-generator</code> skill, which transformed the meshed sources into an RDF/Turtle knowledge graph using schema.org terms and a lightweight custom ontology, then rendered this HTML companion from the validated RDF. Entity links throughout the page resolve via the URIBurner linked-data resolver.</p>
+</section>
+
+<footer class="footer">
+  <div class="footer-sparql-cta" id="sparql-explorer">
+    <div class="sparql-head">
+      <div><h3>Explore Knowledge Graph using SPARQL</h3><p>Sample entity-type summary query over this document's named graph.</p></div>
+      <a id="sparqlBtn" class="footer-sparql-btn" href="https://linkeddata.uriburner.com/sparql?query=PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0ASELECT+%3Ftype+%28SAMPLE%28%3Fs%29+AS+%3FsampleEntity%29+%28SAMPLE%28%3Flabel%29+AS+%3FsampleLabel%29+%28COUNT%28%3Fs%29+AS+%3FentityCount%29%0AWHERE+%7B+GRAPH+%3Chttps%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2Floops-to-graphs-semantic-web-context-claude_code-1.ttl%3E+%7B+%3Fs+a+%3Ftype+.+OPTIONAL+%7B+%3Fs+rdfs%3Alabel+%3Flabel+%7D+%7D+%7D%0AGROUP+BY+%3Ftype+ORDER+BY+DESC%28%3FentityCount%29&format=text%2Fx-html%2Btr" target="_blank" rel="noopener noreferrer">&#9654; Run Query</a>
+    </div>
+    <div class="sparql-block">
+      <div class="sparql-block-hdr"><span class="sparql-lang-badge">SPARQL</span><button class="sparql-copy-btn" onclick="copySparqlExplorer(this)">Copy</button></div>
+      <pre class="sparql-code" id="sparql-explorer-code">PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+SELECT ?type (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?label) AS ?sampleLabel) (COUNT(?s) AS ?entityCount)
+FROM &lt;https://linkeddata.uriburner.com/DAV/demos/daas/loops-to-graphs-semantic-web-context-claude_code-1.ttl&gt;
+WHERE { ?s a ?type . OPTIONAL { ?s rdfs:label ?label } }
+GROUP BY ?type ORDER BY DESC(?entityCount)</pre>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px">
+      <div class="fmt-tabs" id="fmtTabs">
+        <button type="button" data-fmt="text/x-html+tr" class="active">SELECT</button>
+        <button type="button" data-fmt="text/x-html-nice-turtle">DESCRIBE/CONSTRUCT</button>
+      </div>
+    </div>
+    <p class="sparql-note">SELECT uses <code>text/x-html+tr</code>. DESCRIBE and CONSTRUCT use <code>text/x-html-nice-turtle</code>. Named graph: <code>https://linkeddata.uriburner.com/DAV/demos/daas/loops-to-graphs-semantic-web-context-claude_code-1.ttl</code> (path shown per this repository's DAV convention; upload pending). &nbsp;·&nbsp; <a href="loops-to-graphs-semantic-web-context-claude_code-1.ttl" target="_blank" rel="noopener noreferrer">View RDF Turtle Source</a></p>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <h4>AI Agent</h4>
+      <a href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Claude Code</a>
+    </div>
+    <div class="tech-card">
+      <h4>AI Agent Skills</h4>
+      <div style="font-size:.8rem"><a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a></div>
+    </div>
+    <div class="tech-card">
+      <h4>Language Model</h4>
+      <span>Claude Fable 5</span>
+    </div>
+    <div class="tech-card">
+      <h4>Server Platform</h4>
+      <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">Virtuoso</a>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script>
+function toggleTheme() {
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try { localStorage.setItem('l2g-theme', next); } catch(e) {}
+}
+(function() {
+  try {
+    const saved = localStorage.getItem('l2g-theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+  } catch(e) {}
+})();
+
+function copySparqlExplorer(btn){
+  const code = document.getElementById('sparql-explorer-code').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const orig = btn.textContent; btn.textContent = 'Copied!';
+    setTimeout(()=>{ btn.textContent = orig; }, 1500);
+  });
+}
+
+(function(){
+  const tabs = document.querySelectorAll('#fmtTabs button');
+  const btn = document.getElementById('sparqlBtn');
+  const baseQuery = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?type (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?label) AS ?sampleLabel) (COUNT(?s) AS ?entityCount) WHERE { GRAPH <https://linkeddata.uriburner.com/DAV/demos/daas/loops-to-graphs-semantic-web-context-claude_code-1.ttl> { ?s a ?type . OPTIONAL { ?s rdfs:label ?label } } } GROUP BY ?type ORDER BY DESC(?entityCount)";
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const fmt = t.getAttribute('data-fmt');
+      btn.href = "https://linkeddata.uriburner.com/sparql?query=" + encodeURIComponent(baseQuery) + "&format=" + encodeURIComponent(fmt);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+The story starts with the principal. I ask, whoami, so the session can establish operating identity before any remote endpoint is touched.
+
+That identity step is not ceremony. It makes the relationship explicit: I am the principal, and Codex is the agent acting in the session on my behalf.
+
+Next I ask for my preferences. Those preferences add behavioral context: how the agent should use memory, how it should treat Linked Data, and how results should be presented.
+
+With that context established, I invoke the A2A client skill.
+
+The purpose of the skill is direct: discover what skills are available from an endpoint, then let the user choose the skill that matches the task at hand.
+
+In this session, the endpoint choices include NetID QA, URIBurner, and Demo. The user chooses the endpoint context; the client reads the endpoint's Agent Card rather than relying on hardcoded assumptions.
+
+The discovery output is the key artifact. It shows which endpoint responds, which task URL it exposes, whether OAuth is required, whether streaming is available, and how many skills the endpoint publishes.
+
+The next table is the crux of the demo: skills by endpoint. It turns an endpoint from an opaque service into a catalog of callable capabilities.
+
+On URIBurner, the skill of interest is OpenLink Data Twingler version 2.0.4.
+
+From there, the workflow can continue into authorization and task execution. In our live QA, OAuth and token capture worked, and the selected backend route exposed a parameter issue worth fixing.
+
+The important product pattern is simpler than the mechanics: establish identity, establish preferences, invoke A2A, discover endpoint skills, and select the skill that matters.
+
+That is the reusable story for the guide and screencast.

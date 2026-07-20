@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Discovery and Use over A2A</title>
+  <meta name="description" content="Guide and captioned voiceover screencast showing principal-agent session context, preference discovery, A2A endpoint skill discovery, and selection of OpenLink Data Twingler on URIBurner.">
+  <meta name="author" content="GPT-5 Chat Codex, acting on behalf of Kingsley Idehen">
+  <meta name="keywords" content="A2A, OPAL, OpenLink, Data Twingler, URIBurner, WebID, Linked Data, screencast, agent skills">
+  <meta name="dcterms.title" content="Skill Discovery and Use over A2A">
+  <meta name="dcterms.creator" content="GPT-5 Chat Codex">
+  <meta name="dcterms.contributor" content="Kingsley Idehen">
+  <meta name="dcterms.created" content="2026-07-17">
+  <meta name="dcterms.modified" content="2026-07-17">
+  <meta name="schema:name" content="Skill Discovery and Use over A2A">
+  <meta name="schema:description" content="A2A client skill demo guide with embedded captioned voiceover screencast.">
+  <meta name="schema:accountablePerson" content="https://www.linkedin.com/in/kidehen#this">
+  <meta name="schema:encodingFormat" content="text/html">
+  <meta property="og:type" content="video.other">
+  <meta property="og:title" content="Skill Discovery and Use over A2A">
+  <meta property="og:description" content="Principal-agent context, preferences, A2A skill discovery, and selected URIBurner Data Twingler skill.">
+  <meta property="og:video" content="2026-07-17-a2a-client-skill-demo-captioned-voiceover.mp4">
+  <meta property="og:video:type" content="video/mp4">
+  <meta name="twitter:card" content="player">
+  <meta name="twitter:title" content="Skill Discovery and Use over A2A">
+  <meta name="twitter:description" content="Captioned voiceover screencast for A2A endpoint skill discovery and skill selection.">
+  <link rel="author" href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this">
+  <link rel="me" href="https://www.linkedin.com/in/kidehen#this">
+  <link rel="about" href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/a2a-client">
+  <link rel="about" href="https://linkeddata.uriburner.com">
+  <link rel="alternate" type="text/vtt" href="a2a-client-skill-demo.vtt" title="English captions">
+  <link rel="alternate" type="application/x-subrip" href="a2a-client-skill-demo.srt" title="English captions">
+  <link rel="enclosure" type="video/mp4" href="2026-07-17-a2a-client-skill-demo-captioned-voiceover.mp4">
+  <link rel="enclosure" type="audio/mpeg" href="2026-07-17-a2a-client-skill-demo-voiceover.mp3">
+  <script type="application/ld+json">
+  {
+    "@context": {
+      "@vocab": "https://schema.org/",
+      "schema": "https://schema.org/",
+      "prov": "http://www.w3.org/ns/prov#",
+      "oplcert": "http://www.openlinksw.com/schemas/cert#"
+    },
+    "@graph": [
+      {
+        "@id": "#page",
+        "@type": ["WebPage", "CreativeWork", "LearningResource"],
+        "name": "Skill Discovery and Use over A2A",
+        "headline": "Establish context. Discover endpoint skills. Select the skill that matters.",
+        "description": "Guide and embedded captioned voiceover screencast showing principal-agent session context, preference discovery, A2A endpoint skill discovery, and selection of OpenLink Data Twingler on URIBurner.",
+        "dateCreated": "2026-07-17",
+        "dateModified": "2026-07-17",
+        "inLanguage": "en",
+        "encodingFormat": "text/html",
+        "author": { "@id": "#gpt5-chat-codex" },
+        "accountablePerson": { "@id": "https://www.linkedin.com/in/kidehen#this" },
+        "about": [
+          { "@id": "#a2a-client-skill" },
+          { "@id": "#screencast" },
+          { "@id": "#uriburner-endpoint" },
+          { "@id": "#data-twingler-skill" }
+        ],
+        "hasPart": [
+          { "@id": "#screencast" },
+          { "@id": "#captions-vtt" },
+          { "@id": "#captions-srt" }
+        ],
+        "prov:wasGeneratedBy": [
+          { "@id": "#a2a-client-skill" },
+          { "@id": "#screencast-recorder-skill" },
+          { "@id": "#gpt5-chat-codex" }
+        ]
+      },
+      {
+        "@id": "#screencast",
+        "@type": ["VideoObject", "LearningResource"],
+        "name": "A2A Client Skill Demo Screencast",
+        "description": "Captioned voiceover screencast demonstrating identity, preferences, A2A Agent Card discovery, endpoint skill selection, and supporting interaction evidence.",
+        "contentUrl": "2026-07-17-a2a-client-skill-demo-captioned-voiceover.mp4",
+        "encodingFormat": "video/mp4",
+        "duration": "PT2M6S",
+        "uploadDate": "2026-07-17",
+        "caption": "English captions are embedded in the MP4 and provided as VTT and SRT sidecars.",
+        "transcript": "The story starts with the principal, establishes the agent relationship and preferences, then invokes the A2A client skill to discover endpoint skills and select OpenLink Data Twingler on URIBurner.",
+        "isPartOf": { "@id": "#page" },
+        "associatedMedia": [
+          { "@id": "#voiceover" },
+          { "@id": "#captions-vtt" },
+          { "@id": "#captions-srt" }
+        ],
+        "author": { "@id": "#gpt5-chat-codex" },
+        "accountablePerson": { "@id": "https://www.linkedin.com/in/kidehen#this" }
+      },
+      {
+        "@id": "#voiceover",
+        "@type": "AudioObject",
+        "name": "A2A Client Skill Demo Voiceover",
+        "contentUrl": "2026-07-17-a2a-client-skill-demo-voiceover.mp3",
+        "encodingFormat": "audio/mpeg",
+        "duration": "PT2M6S"
+      },
+      {
+        "@id": "#captions-vtt",
+        "@type": "MediaObject",
+        "name": "English captions, WebVTT",
+        "contentUrl": "a2a-client-skill-demo.vtt",
+        "encodingFormat": "text/vtt",
+        "inLanguage": "en"
+      },
+      {
+        "@id": "#captions-srt",
+        "@type": "MediaObject",
+        "name": "English captions, SubRip",
+        "contentUrl": "a2a-client-skill-demo.srt",
+        "encodingFormat": "application/x-subrip",
+        "inLanguage": "en"
+      },
+      {
+        "@id": "https://www.linkedin.com/in/kidehen#this",
+        "@type": "Person",
+        "name": "Kingsley Idehen",
+        "givenName": "Kingsley",
+        "familyName": "Idehen",
+        "email": "mailto:kidehen@openlinksw.com",
+        "jobTitle": "Founder & CEO",
+        "worksFor": { "@id": "https://www.openlinksw.com/#this" },
+        "sameAs": [
+          "https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this",
+          "https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid"
+        ]
+      },
+      {
+        "@id": "https://www.openlinksw.com/#this",
+        "@type": "Organization",
+        "name": "OpenLink Software"
+      },
+      {
+        "@id": "#gpt5-chat-codex",
+        "@type": ["SoftwareApplication", "prov:SoftwareAgent"],
+        "name": "GPT-5 Chat Codex",
+        "applicationCategory": "AI coding agent",
+        "url": "https://openai.com/codex/",
+        "prov:actedOnBehalfOf": { "@id": "https://www.linkedin.com/in/kidehen#this" },
+        "oplcert:onBehalfOf": { "@id": "https://www.linkedin.com/in/kidehen#this" }
+      },
+      {
+        "@id": "#a2a-client-skill",
+        "@type": ["SoftwareApplication", "prov:SoftwareAgent"],
+        "name": "a2a-client",
+        "url": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/a2a-client",
+        "applicationCategory": "Codex skill",
+        "prov:actedOnBehalfOf": { "@id": "https://www.linkedin.com/in/kidehen#this" }
+      },
+      {
+        "@id": "#screencast-recorder-skill",
+        "@type": ["SoftwareApplication", "prov:SoftwareAgent"],
+        "name": "screencast-recorder",
+        "url": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/screencast-recorder",
+        "applicationCategory": "Codex skill",
+        "prov:actedOnBehalfOf": { "@id": "https://www.linkedin.com/in/kidehen#this" }
+      },
+      {
+        "@id": "#uriburner-endpoint",
+        "@type": "EntryPoint",
+        "name": "URIBurner A2A endpoint",
+        "urlTemplate": "https://linkeddata.uriburner.com/chat/api/a2a"
+      },
+      {
+        "@id": "#data-twingler-skill",
+        "@type": "SoftwareApplication",
+        "name": "OpenLink Data Twingler v2.0.4",
+        "applicationCategory": "A2A endpoint skill",
+        "identifier": "system-data-twingler-config",
+        "provider": { "@id": "https://www.openlinksw.com/#this" }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2933;
+      --muted: #586574;
+      --line: #d8dee7;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --accent: #0f766e;
+      --accent-2: #a33f2b;
+      --accent-3: #6b8e23;
+      --code: #27313f;
+      --mark: #fff4cc;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 32px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+    }
+    .brand {
+      font-weight: 750;
+      font-size: 15px;
+      color: var(--code);
+    }
+    .nav {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .nav a { color: var(--muted); text-decoration: none; }
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      align-content: center;
+      padding: 72px 8vw 40px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(15,118,110,0.08), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f7faf9 100%);
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 750;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: .08em;
+    }
+    h1 {
+      max-width: 980px;
+      margin: 14px 0 18px;
+      font-size: 64px;
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .subhead {
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.45;
+    }
+    .hero-meta {
+      max-width: 980px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .hero-meta a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .promise {
+      max-width: 980px;
+      margin-top: 36px;
+      padding-left: 18px;
+      border-left: 5px solid var(--accent);
+      font-size: 28px;
+      line-height: 1.35;
+      font-weight: 680;
+    }
+    section {
+      padding: 68px 8vw;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+    section:nth-of-type(even) { background: var(--soft); }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+    h3 {
+      margin: 32px 0 12px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+    p {
+      max-width: 900px;
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.58;
+    }
+    .kicker {
+      color: var(--accent-2);
+      font-weight: 750;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+      gap: 28px;
+      align-items: start;
+      margin-top: 24px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 22px;
+      overflow: hidden;
+    }
+    .panel h3:first-child { margin-top: 0; }
+    .terminal {
+      background: #202832;
+      color: #edf2f7;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .terminal .prompt { color: #8ee3d2; }
+    .terminal .warn { color: #ffd166; }
+    .terminal .ok { color: #a3e635; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #eef3f2;
+      color: #25313d;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    tr:last-child td { border-bottom: 0; }
+    .highlight-row td { background: var(--mark); }
+    .status-ok { color: var(--accent); font-weight: 750; }
+    .status-fail { color: var(--accent-2); font-weight: 750; }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      margin: 28px 0 6px;
+    }
+    .flow div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px;
+      font-weight: 700;
+      min-height: 84px;
+    }
+    .flow span {
+      display: block;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .movie-grid {
+      columns: 2;
+      column-gap: 28px;
+      margin-top: 18px;
+      max-width: 900px;
+    }
+    .movie-grid a {
+      display: block;
+      break-inside: avoid;
+      padding: 7px 0;
+      border-bottom: 1px solid #edf0f3;
+      text-decoration: none;
+    }
+    details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      margin: 18px 0;
+    }
+    summary {
+      cursor: pointer;
+      padding: 14px 18px;
+      font-weight: 750;
+    }
+    details .inside { padding: 0 18px 18px; overflow-x: auto; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--code);
+      overflow-wrap: anywhere;
+    }
+    .caption-note {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .video-wrap {
+      margin-top: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101820;
+      overflow: hidden;
+    }
+    video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: #101820;
+    }
+    .asset-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    .asset-links a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: #fff;
+      text-decoration: none;
+      font-weight: 650;
+    }
+    footer {
+      padding: 34px 8vw;
+      background: #202832;
+      color: #edf2f7;
+      text-align: left;
+    }
+    footer p {
+      margin: 0 0 10px;
+      color: #dbe3ea;
+      font-size: 14px;
+      line-height: 1.55;
+      max-width: 1050px;
+    }
+    footer a {
+      color: #8ee3d2;
+      text-decoration: none;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .footer-label {
+      color: #a7b3bf;
+      font-size: 12px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    @media (max-width: 900px) {
+      h1 { font-size: 42px; }
+      .two-col, .flow { grid-template-columns: 1fr; }
+      .movie-grid { columns: 1; }
+      .topbar { align-items: flex-start; flex-direction: column; padding: 12px 18px; }
+      section, .hero { padding-left: 22px; padding-right: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Skill Discovery and Use over A2A</div>
+    <nav class="nav" aria-label="Sections">
+      <a href="#identity">Identity</a>
+      <a href="#preferences">Preferences</a>
+      <a href="#screencast">Screencast</a>
+      <a href="#discovery">Discovery</a>
+      <a href="#skills">Skills</a>
+      <a href="#interaction">Interaction</a>
+      <a href="#results">Results</a>
+      <a href="#attribution">Attribution</a>
+    </nav>
+  </header>
+
+  <main>
+    <article class="hero" id="top">
+      <div class="eyebrow">Guide Demo + Screencast</div>
+      <h1>Establish context. Discover endpoint skills. Select the skill that matters.</h1>
+      <p class="subhead">The demo starts with the principal establishing operating identity, then adds preferences as behavioral context, then invokes the A2A client skill to discover and select capabilities from the chosen endpoint.</p>
+      <p class="hero-meta">
+        Demo guide and screencast assembled by
+        <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/a2a-client" target="_blank" rel="noopener noreferrer">a2a-client</a>,
+        <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/screencast-recorder" target="_blank" rel="noopener noreferrer">screencast-recorder</a>,
+        and <a href="https://openai.com/codex/" target="_blank" rel="noopener noreferrer">GPT-5 Chat Codex</a>
+        on behalf of
+        <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this" target="_blank" rel="noopener noreferrer">Kingsley Idehen</a>.
+      </p>
+      <div class="promise">I am the principal. Codex is the agent. The A2A skill discovers what my chosen endpoint can do, then helps select the skill of interest.</div>
+    </article>
+
+    <section id="screencast">
+      <div class="kicker">Voiceover Screencast</div>
+      <h2>Playable Demo Recording</h2>
+      <p>The final cut should follow the simple story: principal identity, agent relationship, preferences, A2A invocation, endpoint skill discovery, and selected skill. The MP4 includes embedded English captions; the page also supplies the VTT track for browser caption controls.</p>
+      <div class="video-wrap">
+        <video controls preload="metadata">
+          <source src="2026-07-17-a2a-client-skill-demo-captioned-voiceover.mp4" type="video/mp4">
+          <track kind="captions" src="a2a-client-skill-demo.vtt" srclang="en" label="English captions" default>
+          Your browser does not support embedded video playback.
+        </video>
+      </div>
+      <div class="asset-links" aria-label="Screencast assets">
+        <a href="2026-07-17-a2a-client-skill-demo-captioned-voiceover.mp4">Captioned voiceover MP4</a>
+        <a href="2026-07-17-a2a-client-skill-demo-voiceover.mp3">Voiceover MP3</a>
+        <a href="a2a-client-skill-demo.vtt">VTT captions</a>
+        <a href="a2a-client-skill-demo.srt">SRT captions</a>
+      </div>
+    </section>
+
+    <section id="identity">
+      <div class="kicker">Scene 1</div>
+      <h2>Principal-Agent Context</h2>
+      <p>The interaction opens with <code>whoami?</code>. That establishes the operating identity for the session and makes the relationship explicit: Kingsley is the principal, and Codex is the agent acting in the session on his behalf.</p>
+      <div class="terminal"><span class="prompt">user&gt;</span> whoami?
+
+<strong>User (principal)</strong>
+• Name: Kingsley Uyi Idehen
+• Email: kidehen@openlinksw.com
+• Role: Founder &amp; CEO, OpenLink Software
+• WebID: link-in-bio credentials NetID <span class="ok">verified</span>
+• Delegation: local profiles corroborate agent acting on behalf of user
+
+<strong>Agent (me)</strong>
+• Model: GPT-5 Chat Codex
+• Environment: Codex Desktop
+• Memory store: agent-rdf-memory/
+• Behavioral contract: preferences.ttl
+• Agent WebID: link-in-bio agent NetID <span class="ok">verified</span></div>
+    </section>
+
+    <section id="preferences">
+      <div class="kicker">Scene 2</div>
+      <h2>Preferences Add Behavioral Context</h2>
+      <p>The second opening interaction is <code>What are my preferences?</code>. Those preferences add session context that guides agent behavior: memory use, endpoint-aware workflows, Linked Data handling, and compact hyperlink-first presentation.</p>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Category</th><th>Steps</th><th>Primary HowTo Files</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Identity, WebID &amp; Delegation</td><td>14</td><td><code>agent-identity.ttl</code>, <code>verified-identity.ttl</code></td></tr>
+          <tr><td>2</td><td>Memory Management &amp; Session Governance</td><td>20</td><td><code>session-governance.ttl</code>, <code>memory-protocol-gate.ttl</code></td></tr>
+          <tr><td>3</td><td>Artifact Output Routing</td><td>11</td><td><code>artifact-routing.ttl</code>, <code>model-identity-resolution.ttl</code></td></tr>
+          <tr><td>4</td><td>RDF Authoring &amp; Entity Resolution</td><td>21</td><td><code>canonical-entity-iri-denotation.ttl</code>, <code>entity-link-placement.ttl</code></td></tr>
+          <tr><td>5</td><td>HTML Infographic &amp; KG Explorer</td><td>49</td><td><code>infographic-authoring.ttl</code>, <code>kg-explorer-d3-patterns.ttl</code></td></tr>
+          <tr><td>6</td><td>Skill Chain &amp; Workflows</td><td>7</td><td><code>skill-invocation.ttl</code>, <code>uriburner-oauth-authcode-flow.ttl</code></td></tr>
+          <tr class="highlight-row"><td>7</td><td>Resolvable IRI Payload Presentation</td><td>1</td><td><code>resolvable-iri-payload-presentation.ttl</code></td></tr>
+        </tbody>
+      </table>
+      <p class="caption-note">Session-relevant preference: when a payload includes a label and a resolvable IRI, present the label as the hyperlink and omit the redundant raw IRI column by default.</p>
+    </section>
+
+    <section id="value">
+      <div class="kicker">Scene 3</div>
+      <h2>Invoke the A2A Skill</h2>
+      <p>Once identity and preferences are established, the user invokes the A2A client skill. Its job is to discover endpoint capabilities and help choose the skill of interest.</p>
+      <div class="flow">
+        <div>Identity<span>Who is the principal?</span></div>
+        <div>Delegation<span>Who is the agent?</span></div>
+        <div>Preferences<span>What behavior should guide the session?</span></div>
+        <div>Discover<span>What skills does the chosen endpoint offer?</span></div>
+        <div>Select<span>Which skill is of interest?</span></div>
+      </div>
+    </section>
+
+    <section id="discovery">
+      <div class="kicker">Scenes 4-5</div>
+      <h2>Endpoint Discovery</h2>
+      <p>The A2A skill discovers capabilities from endpoint Agent Cards. Endpoint choices remain user-controlled; the client does not hardcode a CNAME as the default.</p>
+      <table>
+        <thead>
+          <tr><th>Endpoint</th><th>Agent Card</th><th>A2A URL</th><th>Auth</th><th>Streaming</th><th>Skills</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>https://netid-qa.openlinksw.com</code></td><td class="status-fail">404</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>No card at <code>/.well-known/agent.json</code></td></tr>
+          <tr><td><code>https://netid-qa.openlinksw.com:8443</code></td><td class="status-ok">OK</td><td><code>https://netid-qa.openlinksw.com:8443/chat/api/a2a</code></td><td>OAuth2</td><td>true</td><td>9</td><td>Working NetID QA base</td></tr>
+          <tr><td><code>https://linkeddata.uriburner.com</code></td><td class="status-ok">OK</td><td><code>https://linkeddata.uriburner.com/chat/api/a2a</code></td><td>OAuth2</td><td>true</td><td>13</td><td>URIBurner endpoint</td></tr>
+          <tr><td><code>https://demo.openlinksw.com</code></td><td class="status-ok">OK</td><td><code>https://demo.openlinksw.com/chat/api/a2a</code></td><td>OAuth2</td><td>true</td><td>37</td><td>Demo endpoint</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="skills">
+      <div class="kicker">Scenes 6-7</div>
+      <h2>Skills by Endpoint</h2>
+      <p>The crux of the demo is discovery of skills and selection of a skill of interest on the chosen endpoint. Data Twingler on URIBurner is highlighted because that is the selected skill for the session.</p>
+      <table>
+        <thead><tr><th>Endpoint</th><th>Skill ID</th><th>Skill Name</th></tr></thead>
+        <tbody>
+          <tr><td>NetID QA <code>:8443</code></td><td><code>system-data-twingler-config</code></td><td>OpenLink Data Twingler v2.0.4</td></tr>
+          <tr class="highlight-row"><td>URIBurner</td><td><code>system-data-twingler-config</code></td><td>OpenLink Data Twingler v2.0.4</td></tr>
+          <tr><td>URIBurner</td><td><code>system-virtuoso-support-assistant-config</code></td><td>Virtuoso Support Agent v1.1.71</td></tr>
+          <tr><td>URIBurner</td><td><code>system-opml-rss-news-reader</code></td><td>OPML and RSS News Reader Assistant v1.0.40</td></tr>
+          <tr><td>URIBurner</td><td><code>system-md~linked-data-agent-2</code></td><td>linked-data-agent-2</td></tr>
+          <tr><td>Demo</td><td><code>system-data-twingler-config</code></td><td>OpenLink Data Twingler v2.0.64</td></tr>
+          <tr><td>Demo</td><td><code>system-virtuoso-support-agent-canonical</code></td><td>Virtuoso Support Agent v1.2.09</td></tr>
+          <tr><td>Demo</td><td><code>system-fint-assistant-sparql</code></td><td>Fint Demo Agent (SPARQL) v1.0.1</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>Full discovery table is available in the session transcript</summary>
+        <div class="inside">
+          <p>The guide version should render the complete skills-by-endpoint table as an expandable section. The screencast can pause on the highlighted URIBurner Data Twingler row.</p>
+        </div>
+      </details>
+    </section>
+
+    <section id="interaction">
+      <div class="kicker">Optional Continuation</div>
+      <h2>After Selection: Interaction Evidence</h2>
+      <div class="two-col">
+        <div>
+          <p>After skill selection, the workflow can continue into authorization and task execution. These details are useful QA evidence, but they support the story rather than define it.</p>
+          <div class="terminal"><span class="prompt">task</span>
+OpenLink Data Twingler v2.0.4:
+Using DBpedia, list movies by Spike Lee.
+
+<span class="warn">unauthenticated send</span> HTTP 401
+<span class="ok">oauth</span> browser login completed
+<span class="ok">token</span> .opal-a2a.env written
+<span class="ok">retry</span> authenticated request reached OPAL
+<span class="warn">backend</span> Data Twingler missing-parameter error</div>
+        </div>
+        <div class="panel">
+          <h3>What Worked</h3>
+          <p><span class="pill">Discovery</span> <span class="pill">OAuth</span> <span class="pill">Token capture</span> <span class="pill">Authenticated reach</span></p>
+          <h3>What Needs Fixing</h3>
+          <p>The Data Twingler backend route returned a missing-parameter error after authentication. The screencast should present this as a QA finding, not as a failure of the discovery/auth workflow.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="kicker">Supporting Output</div>
+      <h2>Result Presentation Preference</h2>
+      <p>The DBpedia result remains useful as supporting evidence for the presentation preference: when a payload includes a title and a resolvable IRI, the title should be the hyperlink and the redundant IRI column should be omitted.</p>
+      <div class="movie-grid" aria-label="DBpedia movies directed by Spike Lee">
+        <a href="http://dbpedia.org/resource/25th_Hour">25th Hour</a>
+        <a href="http://dbpedia.org/resource/4_Little_Girls">4 Little Girls</a>
+        <a href="http://dbpedia.org/resource/A_Huey_P._Newton_Story">A Huey P. Newton Story</a>
+        <a href="http://dbpedia.org/resource/American_Utopia_(film)">American Utopia (film)</a>
+        <a href="http://dbpedia.org/resource/Bad_25_(film)">Bad 25 (film)</a>
+        <a href="http://dbpedia.org/resource/Bamboozled">Bamboozled</a>
+        <a href="http://dbpedia.org/resource/BlacKkKlansman">BlacKkKlansman</a>
+        <a href="http://dbpedia.org/resource/Chi-Raq">Chi-Raq</a>
+        <a href="http://dbpedia.org/resource/Clockers_(film)">Clockers (film)</a>
+        <a href="http://dbpedia.org/resource/Crooklyn">Crooklyn</a>
+        <a href="http://dbpedia.org/resource/Da_5_Bloods">Da 5 Bloods</a>
+        <a href="http://dbpedia.org/resource/Da_Sweet_Blood_of_Jesus">Da Sweet Blood of Jesus</a>
+        <a href="http://dbpedia.org/resource/Do_the_Right_Thing">Do the Right Thing</a>
+        <a href="http://dbpedia.org/resource/Get_on_the_Bus">Get on the Bus</a>
+        <a href="http://dbpedia.org/resource/Girl_6">Girl 6</a>
+        <a href="http://dbpedia.org/resource/He_Got_Game">He Got Game</a>
+        <a href="http://dbpedia.org/resource/Inside_Man">Inside Man</a>
+        <a href="http://dbpedia.org/resource/Jungle_Fever">Jungle Fever</a>
+        <a href="http://dbpedia.org/resource/Malcolm_X_(1992_film)">Malcolm X (1992 film)</a>
+        <a href="http://dbpedia.org/resource/Miracle_at_St._Anna">Miracle at St. Anna</a>
+        <a href="http://dbpedia.org/resource/Mo'_Better_Blues">Mo' Better Blues</a>
+        <a href="http://dbpedia.org/resource/Oldboy_(2013_film)">Oldboy (2013 film)</a>
+        <a href="http://dbpedia.org/resource/Red_Hook_Summer">Red Hook Summer</a>
+        <a href="http://dbpedia.org/resource/School_Daze">School Daze</a>
+        <a href="http://dbpedia.org/resource/She's_Gotta_Have_It">She's Gotta Have It</a>
+        <a href="http://dbpedia.org/resource/Summer_of_Sam">Summer of Sam</a>
+        <a href="http://dbpedia.org/resource/The_Original_Kings_of_Comedy">The Original Kings of Comedy</a>
+        <a href="http://dbpedia.org/resource/When_the_Levees_Broke">When the Levees Broke</a>
+      </div>
+    </section>
+
+    <section id="close">
+      <div class="kicker">Close</div>
+      <h2>Takeaway</h2>
+      <table>
+        <thead><tr><th>Result</th><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Principal identity established</td><td class="status-ok">Done</td><td>The session knows who the agent is working for.</td></tr>
+          <tr><td>Agent relationship established</td><td class="status-ok">Done</td><td>The agent role is explicit in the session context.</td></tr>
+          <tr><td>Preferences loaded</td><td class="status-ok">Done</td><td>Behavioral context guides the work.</td></tr>
+          <tr><td>A2A skill invoked</td><td class="status-ok">Done</td><td>The skill discovers capabilities from endpoint Agent Cards.</td></tr>
+          <tr><td>Skill of interest selected</td><td class="status-ok">Done</td><td>URIBurner Data Twingler v2.0.4 is the selected skill.</td></tr>
+          <tr><td>Task execution evidence</td><td class="status-fail">Supporting QA</td><td>OAuth worked; backend route exposed a parameter issue for follow-up.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer id="attribution">
+    <p class="footer-label">Attribution</p>
+    <p>
+      This HTML guide and embedded screencast were assembled by
+      <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/a2a-client" target="_blank" rel="noopener noreferrer">a2a-client</a>,
+      <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/screencast-recorder" target="_blank" rel="noopener noreferrer">screencast-recorder</a>,
+      and <a href="https://openai.com/codex/" target="_blank" rel="noopener noreferrer">GPT-5 Chat Codex</a>
+      on behalf of
+      <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this" target="_blank" rel="noopener noreferrer">Kingsley Idehen</a>.
+    </p>
+    <p>
+      Distribution bundle: HTML guide, captioned voiceover MP4, narration MP3, VTT captions, and SRT captions in the GPT5-Chat-Generated screencasts folder.
+    </p>
+  </footer>
+</body>
+</html>

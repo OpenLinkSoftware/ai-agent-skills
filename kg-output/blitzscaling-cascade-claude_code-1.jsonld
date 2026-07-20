@@ -1,0 +1,1852 @@
+[
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis",
+    "@type": [
+      "http://schema.org/Article"
+    ],
+    "http://schema.org/accountablePerson": [
+      {
+        "@id": "https://www.linkedin.com/in/kidehen#this"
+      }
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this"
+      }
+    ],
+    "http://schema.org/citation": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable"
+      },
+      {
+        "@id": "https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow"
+      },
+      {
+        "@id": "https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/"
+      }
+    ],
+    "http://schema.org/dateCreated": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#date",
+        "@value": "2026-07-18"
+      }
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "A synthesis tracing the causal chain from frontier AI labs' blitzscaling bet, through quadratic-cost externalization onto the shared compute/memory market and hyperscaler capex/circular-revenue exposure, to DeepSeek's inevitable scale-out commoditization disruption."
+      }
+    ],
+    "http://schema.org/hasPart": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage1BlitzscalingBet"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage2CostExternalization"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage3CapexConsequence"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage4CommoditizationDisruption"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "The Blitzscaling Cascade: From Frontier-Lab Bet to DeepSeek's Disruption"
+      }
+    ],
+    "http://www.w3.org/ns/prov#wasGeneratedBy": [
+      {
+        "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this"
+      },
+      {
+        "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q7",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a7"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What event exposed the fragility of the scale-up bet?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection",
+    "@type": [
+      "http://schema.org/DefinedTermSet",
+      "http://www.w3.org/2004/02/skos/core#ConceptScheme"
+    ],
+    "http://schema.org/hasDefinedTerm": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termBlitzscaling"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termCircularRevenue"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termComputeMultiplier"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termCostExternalization"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termDeepSeekShock"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termGridConstraint"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termInnovatorsDilemma"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termQuadraticScaling"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termScaleOut"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termScaleUp"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ]
+  },
+  {
+    "@id": "http://dbpedia.org/resource/DeepSeek",
+    "@type": [
+      "http://schema.org/Organization"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "DeepSeek"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CapexConsequence",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "A stage where a scaling bet materializes as concentrated capital expenditure and balance-sheet exposure for infrastructure providers."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Capex Consequence"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Capital_expenditure"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q1",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a1"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What is blitzscaling, and how does it apply to frontier AI labs?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a3",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Onto the shared computing market: AI firms may be purchasing 70% of the world's high-end memory supply, hard-drive prices rose from $350 to $800 in two years, and US data-center capacity is being expanded roughly eightfold."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a9",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Google, Meta, Microsoft-OpenAI, and xAI optimized within their existing constraints — cloud infrastructure they already owned — rather than questioning whether the scale-up model itself was the right bet."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termDeepSeekShock",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "The market reaction — including Nvidia's $593 billion single-day loss, the largest in US equity history — to DeepSeek demonstrating comparable model capability at dramatically lower training cost."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "DeepSeek Shock"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CostExternalization",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "A stage where the unit-cost consequence of a scaling bet is pushed onto a shared external market rather than absorbed internally."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Cost Externalization"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Externality"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage2CostExternalization",
+    "@type": [
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CostExternalization"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Classic blitzscaling externalizes cost onto competitors or investors; frontier labs externalize theirs onto the whole computing market — AI firms may be buying 70% of the world's high-end memory, hard-drive prices rose from $350 to $800 in two years, and US data-center capacity is being expanded roughly eightfold."
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Externalized Cost Onto the Shared Compute Market"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#cascadesTo": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage3CapexConsequence"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#evidencedBy": [
+      {
+        "@id": "https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#invertsReturnsOf": [
+      {
+        "@id": "http://dbpedia.org/resource/Blitzscaling"
+      }
+    ]
+  },
+  {
+    "@id": "http://dbpedia.org/resource/OpenAI",
+    "@type": [
+      "http://schema.org/Organization"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "OpenAI"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step7",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Apply the historical pattern"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Map the event onto the recurring scale-up-to-scale-out cycle (mainframe to mobile, big iron to internet) to judge whether the disruption is a one-off or, per Sinofsky, inevitable."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#theAtlantic",
+    "@type": [
+      "http://schema.org/Organization"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "The Atlantic"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable",
+    "@type": [
+      "http://schema.org/Article",
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#SourceAnalysis"
+    ],
+    "http://schema.org/about": [
+      {
+        "@language": "en",
+        "@value": "Scale-out commoditization inevitably disrupting hyperscalers' scale-up AI bet, following the historical mainframe-to-mobile pattern."
+      }
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stevenSinofsky"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "DeepSeek Has Been Inevitable"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step3",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Trace where the cost lands"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Follow the externalized cost onto the shared market — memory supply, hardware prices, data-center buildout — rather than assuming it stays contained to the lab making the bet."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q8",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a8"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "How does Steven Sinofsky frame DeepSeek's emergence as inevitable?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a5",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Roughly 45% of Microsoft's $625 billion commercial backlog traces to a single customer, OpenAI, which has never generated a profit and is projected to burn $12-15 billion in 2026 operating losses."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termComputeMultiplier",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Dario Amodei's vaguely defined term for techniques claimed to improve AI model efficiency, without public evidence that quadratic scaling has been solved."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Compute Multiplier"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#SourceAnalysis",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "One of the three published analyses synthesized into this mashup."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Source Analysis"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://schema.org/CreativeWork"
+      }
+    ]
+  },
+  {
+    "@id": "http://dbpedia.org/resource/Nvidia",
+    "@type": [
+      "http://schema.org/Organization"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Nvidia"
+      }
+    ]
+  },
+  {
+    "@id": "http://dbpedia.org/resource/Blitzscaling",
+    "@type": [
+      "http://schema.org/Book"
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "https://www.linkedin.com/in/chrisyeh/#this"
+      },
+      {
+        "@id": "https://www.linkedin.com/in/reidhoffman/#this"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q9",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a9"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Why couldn't US hyperscalers see the disruption coming?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a8",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "As the predictable 'scale-out' commoditization phase that follows every 'scale-up' technology cycle — mainframe to mini to micro to mobile, big iron to distributed computing to internet — with hyperscalers missing it because massive capex aligned with their existing cloud infrastructure rather than because it was the smartest path."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a10",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "A tiny recursive model that solves logic problems without massive-scale training, winning a $50,000 prize and showing that genuinely efficient alternatives to brute-force scaling exist."
+      }
+    ]
+  },
+  {
+    "@id": "https://www.linkedin.com/in/reidhoffman/#this",
+    "@type": [
+      "http://schema.org/Person"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Reid Hoffman"
+      }
+    ],
+    "http://schema.org/url": [
+      {
+        "@id": "https://www.linkedin.com/in/reidhoffman/"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a11",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Hoffman describes blitzscaling as 'assembling a plane while falling.' Applied to AI, vague 'compute multiplier' efficiency claims mean the trillion-dollar bet cannot retrofit efficiency later if capital access tightens — the bubble-risk scenario."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q2",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a2"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Why does quadratic LLM scaling break the blitzscaling playbook?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#evidencedBy",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "Links a causal stage to the source analysis that documents it."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "evidenced by"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#SourceAnalysis"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://schema.org/citation"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage3CapexConsequence",
+    "@type": [
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CapexConsequence"
+    ],
+    "http://schema.org/about": [
+      {
+        "@id": "http://dbpedia.org/resource/Microsoft"
+      },
+      {
+        "@id": "http://dbpedia.org/resource/OpenAI"
+      }
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Microsoft alone reports true economic obligations of ~$226.5 billion (5x reported long-term debt), $37.5 billion in single-quarter capex, and a $625 billion commercial backlog ~45% concentrated in OpenAI, a customer projected to burn $12-15 billion in 2026 operating losses. The binding constraint is not capital but the electricity grid."
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Hyperscaler Capex Explosion and Circular Revenue Exposure"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#cascadesTo": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage4CommoditizationDisruption"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#evidencedBy": [
+      {
+        "@id": "https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage4CommoditizationDisruption",
+    "@type": [
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CommoditizationDisruption"
+    ],
+    "http://schema.org/about": [
+      {
+        "@id": "http://dbpedia.org/resource/DeepSeek"
+      },
+      {
+        "@id": "http://dbpedia.org/resource/Nvidia"
+      }
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "DeepSeek's commodity-hardware, open approach delivered comparable results at a fraction of the cost, triggering Nvidia's $593 billion single-day loss — the largest in US equity history — and confirming the historical pattern (mainframe to mobile, big iron to internet) that cheaper 'scale-out' alternatives eventually replace expensive 'scale-up' incumbents."
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "DeepSeek's Scale-Out Commoditization"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#evidencedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable"
+      },
+      {
+        "@id": "https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#BlitzscalingBet",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "A growth strategy prioritizing speed-to-capability over efficient engineering, assuming efficiency can be retrofitted after scale is captured."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling Bet"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Blitzscaling"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step6",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Watch for the disruption signal"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Identify the shock event confirming the disruption thesis — e.g., Nvidia's $593B single-day loss on the DeepSeek news."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a4",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Approximately $226.5 billion — more than five times its reported long-term debt of $43.2 billion — driven substantially by AI infrastructure commitments."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termScaleOut",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "A cheaper, distributed approach that historically displaces scale-up incumbents once it matures — e.g., minicomputers, the internet, DeepSeek's commodity-hardware training."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Scale-Out"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#invertsReturnsOf",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "Asserts that a scaling approach produces rising, not falling, marginal cost relative to a comparison approach."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "inverts returns of"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Diminishing_returns"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termBlitzscaling",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Reid Hoffman and Chris Yeh's growth framework: prioritizing speed over efficiency in winner-take-most markets, assuming efficiency can be retrofitted after scale is captured."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#externalizesCostOnto",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "Links a strategic bet to the shared market or resource pool absorbing its unit-cost consequence."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#BlitzscalingBet"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "externalizes cost onto"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Externality"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection",
+    "@type": [
+      "http://schema.org/HowTo"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "How to Trace the Blitzscaling-to-Commoditization Cascade"
+      }
+    ],
+    "http://schema.org/step": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step1"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step2"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step3"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step4"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step5"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step6"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step7"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a2",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling normally works because scale lowers unit cost through network effects. Large language models scale quadratically, not logarithmically — each added parameter costs more, not less — inverting the returns blitzscaling depends on."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step5",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Locate the actual binding constraint"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Distinguish the constraint that capital cannot solve — here, electricity/grid capacity — from the one everyone is watching, capital availability."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stevenSinofsky",
+    "@type": [
+      "http://schema.org/Person"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Steven Sinofsky"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a12",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Bundling (de-monetizing competitors by folding a capability into an existing platform) and open-sourcing (commoditizing a layer while preserving value in a service built atop it). DeepSeek's commodity-hardware, low-cost approach escapes both, forcing market-wide commoditization instead."
+      }
+    ]
+  },
+  {
+    "@id": "http://dbpedia.org/resource/Ilya_Sutskever",
+    "@type": [
+      "http://schema.org/Person"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Ilya Sutskever"
+      }
+    ]
+  },
+  {
+    "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this",
+    "@type": [
+      "http://schema.org/SoftwareApplication",
+      "http://www.w3.org/ns/prov#SoftwareAgent"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Generates interactive HTML infographics and Markdown companions from RDF knowledge graphs."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "rdf-infographic-skill"
+      }
+    ],
+    "http://schema.org/url": [
+      {
+        "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill"
+      }
+    ],
+    "http://www.w3.org/ns/prov#actedOnBehalfOf": [
+      {
+        "@id": "https://www.linkedin.com/in/kidehen#this"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q3",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a3"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Where does the externalized cost of the scaling bet land?"
+      }
+    ]
+  },
+  {
+    "@id": "https://www.linkedin.com/in/chrisyeh/#this",
+    "@type": [
+      "http://schema.org/Person"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Chris Yeh"
+      }
+    ],
+    "http://schema.org/url": [
+      {
+        "@id": "https://www.linkedin.com/in/chrisyeh/"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q6",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a6"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What is the real binding constraint on hyperscaler AI capex?"
+      }
+    ]
+  },
+  {
+    "@id": "http://dbpedia.org/resource/Microsoft",
+    "@type": [
+      "http://schema.org/Organization"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Microsoft"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#",
+    "@type": [
+      "http://schema.org/CreativeWork",
+      "http://www.w3.org/2002/07/owl#Ontology"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "A lightweight ontology modeling the causal chain from frontier AI labs' blitzscaling bet through quadratic-cost externalization, hyperscaler capex/circular-revenue exposure, to DeepSeek's scale-out commoditization disruption."
+      }
+    ],
+    "http://schema.org/identifier": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling Cascade Ontology"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "Synthesizes three source analyses into one causal-chain graph."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling Cascade Ontology"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step1",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Identify the strategic bet"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Locate the growth-over-efficiency choice at the root of the cascade: frontier labs treating brute-force compute scaling as low-risk, per Sutskever's framing and the Blitzscaling playbook."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CommoditizationDisruption",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "A stage where a cheaper 'scale-out' alternative undercuts an expensive 'scale-up' incumbent approach, per the historical mainframe-to-mobile / big-iron-to-internet pattern."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Commoditization Disruption"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Commoditization"
+      },
+      {
+        "@id": "http://dbpedia.org/resource/Disruptive_innovation"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#alexReisner",
+    "@type": [
+      "http://schema.org/Person"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Alex Reisner"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection",
+    "@type": [
+      "http://schema.org/FAQPage"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ],
+    "http://schema.org/mainEntity": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q1"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q10"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q11"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q12"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q2"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q3"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q4"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q5"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q6"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q7"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q8"
+      },
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q9"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termInnovatorsDilemma",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Clayton Christensen's framework describing how incumbents optimizing within an existing paradigm are structurally blind to cheaper disruptive alternatives emerging beneath them."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Innovator's Dilemma"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termCircularRevenue",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Revenue concentrated in a customer relationship where the infrastructure provider's growth and the customer's spending are mutually dependent, as with Microsoft's Azure backlog and OpenAI."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Circular Revenue"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step2",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Check whether returns are rising or falling"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Verify the scaling law in play. If unit cost falls with scale (true blitzscaling), the bet is sound. If it scales quadratically like LLM training, returns invert."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q4",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a4"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "How large are Microsoft's true economic obligations from this bet?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#shanakaAnslemPerera",
+    "@type": [
+      "http://schema.org/Person"
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Shanaka Anslem Perera"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q5",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a5"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What is the circular-revenue risk in Microsoft's OpenAI relationship?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termGridConstraint",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "The physical limit on available electricity supply that caps further AI data-center buildout regardless of available capital."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Grid Constraint"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow",
+    "@type": [
+      "http://schema.org/Article",
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#SourceAnalysis"
+    ],
+    "http://schema.org/about": [
+      {
+        "@language": "en",
+        "@value": "Forensic analysis of Microsoft's true economic obligations, OpenAI-backlog concentration, circular revenue, and the electricity-grid constraint on further capex."
+      }
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#shanakaAnslemPerera"
+      }
+    ],
+    "http://schema.org/datePublished": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#date",
+        "@value": "2026-02-25"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Microsoft's $226 Billion Shadow"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#cascadesTo",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "Links a causal stage to the next stage it produces or enables."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "cascades to"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Causality"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q12",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a12"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What are the two traditional hyperscaler strategies DeepSeek escapes?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage1BlitzscalingBet",
+    "@type": [
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#BlitzscalingBet"
+    ],
+    "http://schema.org/about": [
+      {
+        "@id": "http://dbpedia.org/resource/Blitzscaling"
+      },
+      {
+        "@id": "http://dbpedia.org/resource/Ilya_Sutskever"
+      }
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Ilya Sutskever's framing of brute-force scaling as 'a very low-risk way of investing your resources' mirrors blitzscaling's core logic: prioritize speed-to-capability over efficient engineering, with scaling laws serving as ideological cover for unresolved quadratic-cost inefficiency."
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#analysis"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Frontier Labs' Brute-Force Scaling Bet"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#cascadesTo": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#stage2CostExternalization"
+      }
+    ],
+    "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#evidencedBy": [
+      {
+        "@id": "https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q10",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a10"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What did Microsoft researcher Alexia Jolicoeur-Martineau demonstrate as an alternative?"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termCostExternalization",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Pushing the unit-cost consequence of a strategic bet onto a shared external market — here, the global memory and hardware supply chain — rather than absorbing it internally."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Cost Externalization"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/",
+    "@type": [
+      "http://schema.org/Article",
+      "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#SourceAnalysis"
+    ],
+    "http://schema.org/about": [
+      {
+        "@language": "en",
+        "@value": "LLMs scale quadratically rather than logarithmically, driving a global memory/hardware shortage; applies the Blitzscaling framework to frontier labs' brute-force bet."
+      }
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#alexReisner"
+      }
+    ],
+    "http://schema.org/datePublished": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#date",
+        "@value": "2026-07-14"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Generative AI Is an Engineering Disaster"
+      }
+    ],
+    "http://schema.org/publisher": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#theAtlantic"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a7",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Nvidia's single-day loss of $593 billion, the largest in US equity history, following the shock of DeepSeek's comparably capable model built on commodity hardware at a fraction of the cost."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termQuadraticScaling",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "A cost-growth pattern where the resource cost of processing input grows disproportionately faster than the input itself, as opposed to efficient logarithmic scaling."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Quadratic Scaling"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#termScaleUp",
+    "@type": [
+      "http://schema.org/DefinedTerm",
+      "http://www.w3.org/2004/02/skos/core#Concept"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "An expensive, centralized approach to a technology cycle — e.g., mainframes, big iron, today's massive-capex frontier model training."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Scale-Up"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#inScheme": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#glossarySection"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#q11",
+    "@type": [
+      "http://schema.org/Question"
+    ],
+    "http://schema.org/acceptedAnswer": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a11"
+      }
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#faqSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "What is blitzscaling's own stated failure mode, and why does it matter here?"
+      }
+    ]
+  },
+  {
+    "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this",
+    "@type": [
+      "http://schema.org/SoftwareApplication",
+      "http://www.w3.org/ns/prov#SoftwareAgent"
+    ],
+    "http://schema.org/description": [
+      {
+        "@language": "en",
+        "@value": "Generates comprehensive standards-compliant Knowledge Graphs from source documents."
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "kg-generator skill"
+      }
+    ],
+    "http://schema.org/url": [
+      {
+        "@id": "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator"
+      }
+    ],
+    "http://www.w3.org/ns/prov#actedOnBehalfOf": [
+      {
+        "@id": "https://www.linkedin.com/in/kidehen#this"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a6",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Not capital and not demand, but electricity — the grid constraint that no amount of capex can solve, per the Microsoft forensic analysis."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#CausalStage",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@language": "en",
+        "@value": "One stage in a multi-document causal chain linking a strategic bet to its downstream market consequences."
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "en",
+        "@value": "Causal Stage"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://dbpedia.org/resource/Causality"
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#step4",
+    "@type": [
+      "http://schema.org/HowToStep"
+    ],
+    "http://schema.org/isPartOf": [
+      {
+        "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#howtoSection"
+      }
+    ],
+    "http://schema.org/name": [
+      {
+        "@language": "en",
+        "@value": "Quantify the balance-sheet exposure"
+      }
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Examine the infrastructure provider's true economic obligations, capex run-rate, and backlog concentration — e.g., Microsoft's $226.5B obligations and ~45% OpenAI-backlog concentration."
+      }
+    ]
+  },
+  {
+    "@id": "https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#a1",
+    "@type": [
+      "http://schema.org/Answer"
+    ],
+    "http://schema.org/text": [
+      {
+        "@language": "en",
+        "@value": "Blitzscaling, from Reid Hoffman and Chris Yeh's book, prioritizes speed of growth over operational efficiency on the assumption efficiency can be retrofitted after scale is captured. Ilya Sutskever's framing of brute-force compute scaling as 'low-risk' mirrors this logic applied to model training."
+      }
+    ]
+  }
+]

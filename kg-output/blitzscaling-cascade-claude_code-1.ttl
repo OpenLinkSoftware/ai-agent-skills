@@ -1,0 +1,447 @@
+@prefix : <https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:BlitzscalingBet a rdfs:Class ;
+    rdfs:label "Blitzscaling Bet"@en ;
+    rdfs:comment "A growth strategy prioritizing speed-to-capability over efficient engineering, assuming efficiency can be retrofitted after scale is captured."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Blitzscaling> ;
+    rdfs:subClassOf :CausalStage .
+
+:CapexConsequence a rdfs:Class ;
+    rdfs:label "Capex Consequence"@en ;
+    rdfs:comment "A stage where a scaling bet materializes as concentrated capital expenditure and balance-sheet exposure for infrastructure providers."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Capital_expenditure> ;
+    rdfs:subClassOf :CausalStage .
+
+:CausalStage a rdfs:Class ;
+    rdfs:label "Causal Stage"@en ;
+    rdfs:comment "One stage in a multi-document causal chain linking a strategic bet to its downstream market consequences."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Causality> .
+
+:CommoditizationDisruption a rdfs:Class ;
+    rdfs:label "Commoditization Disruption"@en ;
+    rdfs:comment "A stage where a cheaper 'scale-out' alternative undercuts an expensive 'scale-up' incumbent approach, per the historical mainframe-to-mobile / big-iron-to-internet pattern."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Commoditization>,
+        <http://dbpedia.org/resource/Disruptive_innovation> ;
+    rdfs:subClassOf :CausalStage .
+
+:CostExternalization a rdfs:Class ;
+    rdfs:label "Cost Externalization"@en ;
+    rdfs:comment "A stage where the unit-cost consequence of a scaling bet is pushed onto a shared external market rather than absorbed internally."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Externality> ;
+    rdfs:subClassOf :CausalStage .
+
+:SourceAnalysis a rdfs:Class ;
+    rdfs:label "Source Analysis"@en ;
+    rdfs:comment "One of the three published analyses synthesized into this mashup."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:subClassOf schema:CreativeWork .
+
+:cascadesTo a rdf:Property ;
+    rdfs:label "cascades to"@en ;
+    rdfs:comment "Links a causal stage to the next stage it produces or enables."@en ;
+    rdfs:domain :CausalStage ;
+    rdfs:isDefinedBy : ;
+    rdfs:range :CausalStage ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Causality> .
+
+:evidencedBy a rdf:Property ;
+    rdfs:label "evidenced by"@en ;
+    rdfs:comment "Links a causal stage to the source analysis that documents it."@en ;
+    rdfs:domain :CausalStage ;
+    rdfs:isDefinedBy : ;
+    rdfs:range :SourceAnalysis ;
+    rdfs:seeAlso schema:citation .
+
+:externalizesCostOnto a rdf:Property ;
+    rdfs:label "externalizes cost onto"@en ;
+    rdfs:comment "Links a strategic bet to the shared market or resource pool absorbing its unit-cost consequence."@en ;
+    rdfs:domain :BlitzscalingBet ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Externality> .
+
+:invertsReturnsOf a rdf:Property ;
+    rdfs:label "inverts returns of"@en ;
+    rdfs:comment "Asserts that a scaling approach produces rising, not falling, marginal cost relative to a comparison approach."@en ;
+    rdfs:isDefinedBy : ;
+    rdfs:seeAlso <http://dbpedia.org/resource/Diminishing_returns> .
+
+<http://dbpedia.org/resource/DeepSeek> a schema:Organization ;
+    schema:name "DeepSeek"@en .
+
+<http://dbpedia.org/resource/Ilya_Sutskever> a schema:Person ;
+    schema:name "Ilya Sutskever"@en .
+
+<http://dbpedia.org/resource/Microsoft> a schema:Organization ;
+    schema:name "Microsoft"@en .
+
+<http://dbpedia.org/resource/Nvidia> a schema:Organization ;
+    schema:name "Nvidia"@en .
+
+<http://dbpedia.org/resource/OpenAI> a schema:Organization ;
+    schema:name "OpenAI"@en .
+
+<https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this> a schema:SoftwareApplication,
+        prov:SoftwareAgent ;
+    schema:description "Generates interactive HTML infographics and Markdown companions from RDF knowledge graphs."@en ;
+    schema:name "rdf-infographic-skill"@en ;
+    schema:url <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill> ;
+    prov:actedOnBehalfOf <https://www.linkedin.com/in/kidehen#this> .
+
+:a1 a schema:Answer ;
+    schema:text "Blitzscaling, from Reid Hoffman and Chris Yeh's book, prioritizes speed of growth over operational efficiency on the assumption efficiency can be retrofitted after scale is captured. Ilya Sutskever's framing of brute-force compute scaling as 'low-risk' mirrors this logic applied to model training."@en .
+
+:a10 a schema:Answer ;
+    schema:text "A tiny recursive model that solves logic problems without massive-scale training, winning a $50,000 prize and showing that genuinely efficient alternatives to brute-force scaling exist."@en .
+
+:a11 a schema:Answer ;
+    schema:text "Hoffman describes blitzscaling as 'assembling a plane while falling.' Applied to AI, vague 'compute multiplier' efficiency claims mean the trillion-dollar bet cannot retrofit efficiency later if capital access tightens — the bubble-risk scenario."@en .
+
+:a12 a schema:Answer ;
+    schema:text "Bundling (de-monetizing competitors by folding a capability into an existing platform) and open-sourcing (commoditizing a layer while preserving value in a service built atop it). DeepSeek's commodity-hardware, low-cost approach escapes both, forcing market-wide commoditization instead."@en .
+
+:a2 a schema:Answer ;
+    schema:text "Blitzscaling normally works because scale lowers unit cost through network effects. Large language models scale quadratically, not logarithmically — each added parameter costs more, not less — inverting the returns blitzscaling depends on."@en .
+
+:a3 a schema:Answer ;
+    schema:text "Onto the shared computing market: AI firms may be purchasing 70% of the world's high-end memory supply, hard-drive prices rose from $350 to $800 in two years, and US data-center capacity is being expanded roughly eightfold."@en .
+
+:a4 a schema:Answer ;
+    schema:text "Approximately $226.5 billion — more than five times its reported long-term debt of $43.2 billion — driven substantially by AI infrastructure commitments."@en .
+
+:a5 a schema:Answer ;
+    schema:text "Roughly 45% of Microsoft's $625 billion commercial backlog traces to a single customer, OpenAI, which has never generated a profit and is projected to burn $12-15 billion in 2026 operating losses."@en .
+
+:a6 a schema:Answer ;
+    schema:text "Not capital and not demand, but electricity — the grid constraint that no amount of capex can solve, per the Microsoft forensic analysis."@en .
+
+:a7 a schema:Answer ;
+    schema:text "Nvidia's single-day loss of $593 billion, the largest in US equity history, following the shock of DeepSeek's comparably capable model built on commodity hardware at a fraction of the cost."@en .
+
+:a8 a schema:Answer ;
+    schema:text "As the predictable 'scale-out' commoditization phase that follows every 'scale-up' technology cycle — mainframe to mini to micro to mobile, big iron to distributed computing to internet — with hyperscalers missing it because massive capex aligned with their existing cloud infrastructure rather than because it was the smartest path."@en .
+
+:a9 a schema:Answer ;
+    schema:text "Google, Meta, Microsoft-OpenAI, and xAI optimized within their existing constraints — cloud infrastructure they already owned — rather than questioning whether the scale-up model itself was the right bet."@en .
+
+:alexReisner a schema:Person ;
+    schema:name "Alex Reisner"@en .
+
+:q1 a schema:Question ;
+    schema:acceptedAnswer :a1 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What is blitzscaling, and how does it apply to frontier AI labs?"@en .
+
+:q10 a schema:Question ;
+    schema:acceptedAnswer :a10 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What did Microsoft researcher Alexia Jolicoeur-Martineau demonstrate as an alternative?"@en .
+
+:q11 a schema:Question ;
+    schema:acceptedAnswer :a11 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What is blitzscaling's own stated failure mode, and why does it matter here?"@en .
+
+:q12 a schema:Question ;
+    schema:acceptedAnswer :a12 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What are the two traditional hyperscaler strategies DeepSeek escapes?"@en .
+
+:q2 a schema:Question ;
+    schema:acceptedAnswer :a2 ;
+    schema:isPartOf :faqSection ;
+    schema:name "Why does quadratic LLM scaling break the blitzscaling playbook?"@en .
+
+:q3 a schema:Question ;
+    schema:acceptedAnswer :a3 ;
+    schema:isPartOf :faqSection ;
+    schema:name "Where does the externalized cost of the scaling bet land?"@en .
+
+:q4 a schema:Question ;
+    schema:acceptedAnswer :a4 ;
+    schema:isPartOf :faqSection ;
+    schema:name "How large are Microsoft's true economic obligations from this bet?"@en .
+
+:q5 a schema:Question ;
+    schema:acceptedAnswer :a5 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What is the circular-revenue risk in Microsoft's OpenAI relationship?"@en .
+
+:q6 a schema:Question ;
+    schema:acceptedAnswer :a6 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What is the real binding constraint on hyperscaler AI capex?"@en .
+
+:q7 a schema:Question ;
+    schema:acceptedAnswer :a7 ;
+    schema:isPartOf :faqSection ;
+    schema:name "What event exposed the fragility of the scale-up bet?"@en .
+
+:q8 a schema:Question ;
+    schema:acceptedAnswer :a8 ;
+    schema:isPartOf :faqSection ;
+    schema:name "How does Steven Sinofsky frame DeepSeek's emergence as inevitable?"@en .
+
+:q9 a schema:Question ;
+    schema:acceptedAnswer :a9 ;
+    schema:isPartOf :faqSection ;
+    schema:name "Why couldn't US hyperscalers see the disruption coming?"@en .
+
+:shanakaAnslemPerera a schema:Person ;
+    schema:name "Shanaka Anslem Perera"@en .
+
+:stage1BlitzscalingBet a :BlitzscalingBet ;
+    schema:about <http://dbpedia.org/resource/Blitzscaling>,
+        <http://dbpedia.org/resource/Ilya_Sutskever> ;
+    schema:description "Ilya Sutskever's framing of brute-force scaling as 'a very low-risk way of investing your resources' mirrors blitzscaling's core logic: prioritize speed-to-capability over efficient engineering, with scaling laws serving as ideological cover for unresolved quadratic-cost inefficiency."@en ;
+    schema:isPartOf :analysis ;
+    schema:name "Frontier Labs' Brute-Force Scaling Bet"@en ;
+    :cascadesTo :stage2CostExternalization ;
+    :evidencedBy <https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/> .
+
+:step1 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Identify the strategic bet"@en ;
+    schema:text "Locate the growth-over-efficiency choice at the root of the cascade: frontier labs treating brute-force compute scaling as low-risk, per Sutskever's framing and the Blitzscaling playbook."@en .
+
+:step2 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Check whether returns are rising or falling"@en ;
+    schema:text "Verify the scaling law in play. If unit cost falls with scale (true blitzscaling), the bet is sound. If it scales quadratically like LLM training, returns invert."@en .
+
+:step3 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Trace where the cost lands"@en ;
+    schema:text "Follow the externalized cost onto the shared market — memory supply, hardware prices, data-center buildout — rather than assuming it stays contained to the lab making the bet."@en .
+
+:step4 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Quantify the balance-sheet exposure"@en ;
+    schema:text "Examine the infrastructure provider's true economic obligations, capex run-rate, and backlog concentration — e.g., Microsoft's $226.5B obligations and ~45% OpenAI-backlog concentration."@en .
+
+:step5 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Locate the actual binding constraint"@en ;
+    schema:text "Distinguish the constraint that capital cannot solve — here, electricity/grid capacity — from the one everyone is watching, capital availability."@en .
+
+:step6 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Watch for the disruption signal"@en ;
+    schema:text "Identify the shock event confirming the disruption thesis — e.g., Nvidia's $593B single-day loss on the DeepSeek news."@en .
+
+:step7 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:name "Apply the historical pattern"@en ;
+    schema:text "Map the event onto the recurring scale-up-to-scale-out cycle (mainframe to mobile, big iron to internet) to judge whether the disruption is a one-off or, per Sinofsky, inevitable."@en .
+
+:stevenSinofsky a schema:Person ;
+    schema:name "Steven Sinofsky"@en .
+
+:termBlitzscaling a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "Reid Hoffman and Chris Yeh's growth framework: prioritizing speed over efficiency in winner-take-most markets, assuming efficiency can be retrofitted after scale is captured."@en ;
+    schema:name "Blitzscaling"@en ;
+    skos:inScheme :glossarySection .
+
+:termCircularRevenue a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "Revenue concentrated in a customer relationship where the infrastructure provider's growth and the customer's spending are mutually dependent, as with Microsoft's Azure backlog and OpenAI."@en ;
+    schema:name "Circular Revenue"@en ;
+    skos:inScheme :glossarySection .
+
+:termComputeMultiplier a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "Dario Amodei's vaguely defined term for techniques claimed to improve AI model efficiency, without public evidence that quadratic scaling has been solved."@en ;
+    schema:name "Compute Multiplier"@en ;
+    skos:inScheme :glossarySection .
+
+:termCostExternalization a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "Pushing the unit-cost consequence of a strategic bet onto a shared external market — here, the global memory and hardware supply chain — rather than absorbing it internally."@en ;
+    schema:name "Cost Externalization"@en ;
+    skos:inScheme :glossarySection .
+
+:termDeepSeekShock a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "The market reaction — including Nvidia's $593 billion single-day loss, the largest in US equity history — to DeepSeek demonstrating comparable model capability at dramatically lower training cost."@en ;
+    schema:name "DeepSeek Shock"@en ;
+    skos:inScheme :glossarySection .
+
+:termGridConstraint a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "The physical limit on available electricity supply that caps further AI data-center buildout regardless of available capital."@en ;
+    schema:name "Grid Constraint"@en ;
+    skos:inScheme :glossarySection .
+
+:termInnovatorsDilemma a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "Clayton Christensen's framework describing how incumbents optimizing within an existing paradigm are structurally blind to cheaper disruptive alternatives emerging beneath them."@en ;
+    schema:name "Innovator's Dilemma"@en ;
+    skos:inScheme :glossarySection .
+
+:termQuadraticScaling a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "A cost-growth pattern where the resource cost of processing input grows disproportionately faster than the input itself, as opposed to efficient logarithmic scaling."@en ;
+    schema:name "Quadratic Scaling"@en ;
+    skos:inScheme :glossarySection .
+
+:termScaleOut a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "A cheaper, distributed approach that historically displaces scale-up incumbents once it matures — e.g., minicomputers, the internet, DeepSeek's commodity-hardware training."@en ;
+    schema:name "Scale-Out"@en ;
+    skos:inScheme :glossarySection .
+
+:termScaleUp a schema:DefinedTerm,
+        skos:Concept ;
+    schema:description "An expensive, centralized approach to a technology cycle — e.g., mainframes, big iron, today's massive-capex frontier model training."@en ;
+    schema:name "Scale-Up"@en ;
+    skos:inScheme :glossarySection .
+
+:theAtlantic a schema:Organization ;
+    schema:name "The Atlantic"@en .
+
+<https://www.linkedin.com/in/chrisyeh/#this> a schema:Person ;
+    schema:name "Chris Yeh"@en ;
+    schema:url <https://www.linkedin.com/in/chrisyeh/> .
+
+<https://www.linkedin.com/in/reidhoffman/#this> a schema:Person ;
+    schema:name "Reid Hoffman"@en ;
+    schema:url <https://www.linkedin.com/in/reidhoffman/> .
+
+<https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> a schema:SoftwareApplication,
+        prov:SoftwareAgent ;
+    schema:description "Generates comprehensive standards-compliant Knowledge Graphs from source documents."@en ;
+    schema:name "kg-generator skill"@en ;
+    schema:url <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator> ;
+    prov:actedOnBehalfOf <https://www.linkedin.com/in/kidehen#this> .
+
+:stage2CostExternalization a :CostExternalization ;
+    schema:description "Classic blitzscaling externalizes cost onto competitors or investors; frontier labs externalize theirs onto the whole computing market — AI firms may be buying 70% of the world's high-end memory, hard-drive prices rose from $350 to $800 in two years, and US data-center capacity is being expanded roughly eightfold."@en ;
+    schema:isPartOf :analysis ;
+    schema:name "Externalized Cost Onto the Shared Compute Market"@en ;
+    :cascadesTo :stage3CapexConsequence ;
+    :evidencedBy <https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/> ;
+    :invertsReturnsOf <http://dbpedia.org/resource/Blitzscaling> .
+
+:stage3CapexConsequence a :CapexConsequence ;
+    schema:about <http://dbpedia.org/resource/Microsoft>,
+        <http://dbpedia.org/resource/OpenAI> ;
+    schema:description "Microsoft alone reports true economic obligations of ~$226.5 billion (5x reported long-term debt), $37.5 billion in single-quarter capex, and a $625 billion commercial backlog ~45% concentrated in OpenAI, a customer projected to burn $12-15 billion in 2026 operating losses. The binding constraint is not capital but the electricity grid."@en ;
+    schema:isPartOf :analysis ;
+    schema:name "Hyperscaler Capex Explosion and Circular Revenue Exposure"@en ;
+    :cascadesTo :stage4CommoditizationDisruption ;
+    :evidencedBy <https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow> .
+
+:stage4CommoditizationDisruption a :CommoditizationDisruption ;
+    schema:about <http://dbpedia.org/resource/DeepSeek>,
+        <http://dbpedia.org/resource/Nvidia> ;
+    schema:description "DeepSeek's commodity-hardware, open approach delivered comparable results at a fraction of the cost, triggering Nvidia's $593 billion single-day loss — the largest in US equity history — and confirming the historical pattern (mainframe to mobile, big iron to internet) that cheaper 'scale-out' alternatives eventually replace expensive 'scale-up' incumbents."@en ;
+    schema:isPartOf :analysis ;
+    schema:name "DeepSeek's Scale-Out Commoditization"@en ;
+    :evidencedBy <https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable>,
+        <https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow> .
+
+<http://dbpedia.org/resource/Blitzscaling> a schema:Book ;
+    schema:author <https://www.linkedin.com/in/chrisyeh/#this>,
+        <https://www.linkedin.com/in/reidhoffman/#this> ;
+    schema:name "Blitzscaling"@en .
+
+<https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable> a schema:Article,
+        :SourceAnalysis ;
+    schema:about "Scale-out commoditization inevitably disrupting hyperscalers' scale-up AI bet, following the historical mainframe-to-mobile pattern."@en ;
+    schema:author :stevenSinofsky ;
+    schema:name "DeepSeek Has Been Inevitable"@en .
+
+<https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow> a schema:Article,
+        :SourceAnalysis ;
+    schema:about "Forensic analysis of Microsoft's true economic obligations, OpenAI-backlog concentration, circular revenue, and the electricity-grid constraint on further capex."@en ;
+    schema:author :shanakaAnslemPerera ;
+    schema:datePublished "2026-02-25"^^xsd:date ;
+    schema:name "Microsoft's $226 Billion Shadow"@en .
+
+<https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/> a schema:Article,
+        :SourceAnalysis ;
+    schema:about "LLMs scale quadratically rather than logarithmically, driving a global memory/hardware shortage; applies the Blitzscaling framework to frontier labs' brute-force bet."@en ;
+    schema:author :alexReisner ;
+    schema:datePublished "2026-07-14"^^xsd:date ;
+    schema:name "Generative AI Is an Engineering Disaster"@en ;
+    schema:publisher :theAtlantic .
+
+:analysis a schema:Article ;
+    schema:accountablePerson <https://www.linkedin.com/in/kidehen#this> ;
+    schema:author <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> ;
+    schema:citation <https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable>,
+        <https://shanakaanslemperera.substack.com/p/microsofts-226-billion-shadow>,
+        <https://www.theatlantic.com/technology/2026/07/generative-ai-engineering-disaster/687901/> ;
+    schema:dateCreated "2026-07-18"^^xsd:date ;
+    schema:description "A synthesis tracing the causal chain from frontier AI labs' blitzscaling bet, through quadratic-cost externalization onto the shared compute/memory market and hyperscaler capex/circular-revenue exposure, to DeepSeek's inevitable scale-out commoditization disruption."@en ;
+    schema:hasPart :faqSection,
+        :glossarySection,
+        :howtoSection,
+        :stage1BlitzscalingBet,
+        :stage2CostExternalization,
+        :stage3CapexConsequence,
+        :stage4CommoditizationDisruption ;
+    schema:name "The Blitzscaling Cascade: From Frontier-Lab Bet to DeepSeek's Disruption"@en ;
+    prov:wasGeneratedBy <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this>,
+        <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this> .
+
+:howtoSection a schema:HowTo ;
+    schema:isPartOf :analysis ;
+    schema:name "How to Trace the Blitzscaling-to-Commoditization Cascade"@en ;
+    schema:step :step1,
+        :step2,
+        :step3,
+        :step4,
+        :step5,
+        :step6,
+        :step7 .
+
+: a schema:CreativeWork,
+        owl:Ontology ;
+    rdfs:label "Blitzscaling Cascade Ontology"@en ;
+    schema:description "A lightweight ontology modeling the causal chain from frontier AI labs' blitzscaling bet through quadratic-cost externalization, hyperscaler capex/circular-revenue exposure, to DeepSeek's scale-out commoditization disruption."@en ;
+    schema:identifier <https://hardcoresoftware.learningbyshipping.com/p/228-deepseek-has-been-inevitable> ;
+    schema:name "Blitzscaling Cascade Ontology"@en ;
+    rdfs:comment "Synthesizes three source analyses into one causal-chain graph."@en .
+
+:glossarySection a schema:DefinedTermSet,
+        skos:ConceptScheme ;
+    schema:hasDefinedTerm :termBlitzscaling,
+        :termCircularRevenue,
+        :termComputeMultiplier,
+        :termCostExternalization,
+        :termDeepSeekShock,
+        :termGridConstraint,
+        :termInnovatorsDilemma,
+        :termQuadraticScaling,
+        :termScaleOut,
+        :termScaleUp ;
+    schema:isPartOf :analysis .
+
+:faqSection a schema:FAQPage ;
+    schema:isPartOf :analysis ;
+    schema:mainEntity :q1,
+        :q10,
+        :q11,
+        :q12,
+        :q2,
+        :q3,
+        :q4,
+        :q5,
+        :q6,
+        :q7,
+        :q8,
+        :q9 .
+

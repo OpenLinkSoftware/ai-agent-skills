@@ -1,0 +1,458 @@
+@prefix : <https://www.thestateofbrand.com/news/great-flattening-ai-search-invisible-brands#> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+#################################################################
+# Lightweight Ontology
+#################################################################
+
+: a owl:Ontology ;
+    schema:name "AI Search Visibility Ontology"@en ;
+    schema:description "A lightweight ontology for modeling studies, findings, and organizations relevant to AI-generative-engine content citation and visibility analysis."@en ;
+    schema:identifier <https://www.thestateofbrand.com/news/great-flattening-ai-search-invisible-brands> ;
+    rdfs:label "AI Search Visibility Ontology"@en ;
+    rdfs:comment "Supports the analysis of 'The Great Flattening', the homogenization of AI-generated content and its effect on citation by generative search/answer engines."@en .
+
+:AIVisibilityStudy a rdfs:Class ;
+    rdfs:label "AI Visibility Study"@en ;
+    rdfs:comment "A research study measuring how content is cited, ranked, or converted by AI-driven search or answer engines."@en ;
+    rdfs:isDefinedBy : .
+
+:CitationStudy a rdfs:Class ;
+    rdfs:subClassOf :AIVisibilityStudy ;
+    rdfs:label "Citation Study"@en ;
+    rdfs:comment "A study measuring which sources are cited by generative AI engines and how citation overlaps with traditional search ranking."@en ;
+    rdfs:isDefinedBy : .
+
+:ConversionStudy a rdfs:Class ;
+    rdfs:subClassOf :AIVisibilityStudy ;
+    rdfs:label "Conversion Study"@en ;
+    rdfs:comment "A study measuring traffic or conversion outcomes attributable to AI-driven referrals."@en ;
+    rdfs:isDefinedBy : .
+
+:hasSampleSize a rdf:Property ;
+    rdfs:label "has sample size"@en ;
+    rdfs:comment "The size or scope of the dataset analyzed by an AI visibility study."@en ;
+    rdfs:domain :AIVisibilityStudy ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:hasKeyFinding a rdf:Property ;
+    rdfs:label "has key finding"@en ;
+    rdfs:comment "A principal finding or statistic reported by an AI visibility study."@en ;
+    rdfs:domain :AIVisibilityStudy ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+#################################################################
+# Main Article
+#################################################################
+
+:analysis a schema:Article ;
+    schema:headline "80% of What ChatGPT Cites Doesn't Rank on Google. The Great Flattening Just Got a Price Tag."@en ;
+    schema:name "The Great Flattening: AI Search and Invisible Brands"@en ;
+    schema:url <https://www.thestateofbrand.com/news/great-flattening-ai-search-invisible-brands> ;
+    schema:datePublished "2026-07-12"^^xsd:date ;
+    schema:publisher :stateOfBrand ;
+    schema:articleSection "Growth & Strategy"@en, "AI & Technology"@en ;
+    schema:abstract "AI-generated averaged content is becoming invisible to generative search engines: 80% of URLs ChatGPT cites most do not rank in Google's top 100, and undifferentiated content is never cited regardless of volume."@en ;
+    schema:about :sectionMachineCantCite, :sectionContentLoop, :sectionCompaniesEnginesChoose, :sectionRetrievalTest, :section955Rule ;
+    schema:hasPart :sectionMachineCantCite, :sectionContentLoop, :sectionCompaniesEnginesChoose, :sectionRetrievalTest, :section955Rule,
+                    :faqSection, :glossarySection, :howtoSection, : ;
+    prov:wasGeneratedBy <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> .
+
+:stateOfBrand a schema:Organization ;
+    schema:name "State of Brand"@en ;
+    schema:url <https://www.thestateofbrand.com/> ;
+    schema:identifier "https://www.thestateofbrand.com/"^^xsd:anyURI .
+
+<https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> a schema:SoftwareApplication ;
+    schema:name "kg-generator skill"@en ;
+    schema:url <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator> ;
+    schema:description "An AI agent skill that generates comprehensive RDF/JSON-LD Knowledge Graphs from web content using schema.org and lightweight custom ontologies."@en .
+
+#################################################################
+# Article Sections
+#################################################################
+
+:sectionMachineCantCite a schema:CreativeWork ;
+    schema:name "The machine can't cite what it can't tell apart"@en ;
+    schema:isPartOf :analysis ;
+    schema:about :ahrefsStudy, :profoundStudy, :whitehatStudy, :termBrandMention ;
+    schema:text "Companies relying on AI-generated averaged content become invisible to AI search engines because such content lacks the distinguishing characteristics generative models need in order to cite it."@en .
+
+:sectionContentLoop a schema:CreativeWork ;
+    schema:name "The loop tightening inside content teams right now"@en ;
+    schema:isPartOf :analysis ;
+    schema:about :termContentLoop ;
+    schema:text "Teams generating high-volume AI content produce fluent but undifferentiated material that engines never cite, prompting them to increase volume further and tighten an ineffective cycle."@en .
+
+:sectionCompaniesEnginesChoose a schema:CreativeWork ;
+    schema:name "The companies the engines keep choosing"@en ;
+    schema:isPartOf :analysis ;
+    schema:about :adobeStudy, :clarityStudy ;
+    schema:text "AI-driven referral traffic and conversion rates are concentrating around a small set of companies whose content is distinctive enough to be cited by generative engines."@en .
+
+:sectionRetrievalTest a schema:CreativeWork ;
+    schema:name "Run the retrieval test"@en ;
+    schema:isPartOf :analysis ;
+    schema:about :retrievalStudy, :termRetrievalTest ;
+    schema:text "Readers are urged to test their AI search visibility directly by asking ChatGPT, Perplexity, and Gemini the questions their target buyers ask, then counting appearances."@en .
+
+:section955Rule a schema:CreativeWork ;
+    schema:name "The 95-5 rule just acquired a machine"@en ;
+    schema:isPartOf :analysis ;
+    schema:about :term955Rule, :ehrenbergBassInstitute ;
+    schema:text "Ehrenberg-Bass's 95-5 rule, describing the small share of buyers actively in-market at any time, now interacts with generative engines that decide which brands those in-market buyers ever see."@en .
+
+:analysis schema:hasPart :sectionMachineCantCite .
+:sectionMachineCantCite schema:isPartOf :analysis .
+
+#################################################################
+# Studies (Ontology Instances)
+#################################################################
+
+:ahrefsStudy a :CitationStudy ;
+    schema:name "Ahrefs AI citation analysis"@en ;
+    schema:creator :ahrefs ;
+    schema:about :sectionMachineCantCite ;
+    :hasSampleSize "75,000 brands analyzed across ChatGPT, Google AI Mode, and AI Overviews"@en ;
+    :hasKeyFinding "80% of the URLs ChatGPT cites most do not rank in Google's top 100 results; brand mentions predicted AI visibility three times more strongly than backlinks."@en .
+
+:profoundStudy a :CitationStudy ;
+    schema:name "Profound citation study"@en ;
+    schema:creator :profound ;
+    schema:about :sectionMachineCantCite ;
+    :hasSampleSize "680 million citations analyzed"@en ;
+    :hasKeyFinding "28% of ChatGPT's most-cited pages have zero Google organic visibility."@en .
+
+:whitehatStudy a :CitationStudy ;
+    schema:name "Whitehat SEO cross-engine citation study"@en ;
+    schema:creator :whitehatSEO ;
+    schema:about :sectionMachineCantCite ;
+    :hasSampleSize "118,000 responses analyzed"@en ;
+    :hasKeyFinding "Only roughly 11% overlap exists between what ChatGPT and Perplexity cite."@en .
+
+:adobeStudy a :ConversionStudy ;
+    schema:name "Adobe holiday-season AI referral traffic study"@en ;
+    schema:creator :adobe ;
+    schema:about :sectionCompaniesEnginesChoose ;
+    :hasKeyFinding "AI-driven referral traffic to US retail sites rose nearly 700% year-over-year during the 2025 holiday season, exceeding one trillion visits."@en .
+
+:clarityStudy a :ConversionStudy ;
+    schema:name "Microsoft Clarity referral conversion study"@en ;
+    schema:creator :microsoft ;
+    schema:about :sectionCompaniesEnginesChoose ;
+    :hasSampleSize "1,277 sites studied over 8 months"@en ;
+    :hasKeyFinding "Copilot referrals convert to subscriptions at 17 times the rate of direct traffic."@en .
+
+:retrievalStudy a schema:ScholarlyArticle ;
+    schema:name "Retrieval-test study of generative engine citation behavior"@en ;
+    schema:url <https://arxiv.org/pdf/2311.09735> ;
+    schema:contributor :princeton, :georgiaTech, :iitDelhi ;
+    schema:about :sectionRetrievalTest ;
+    :hasSampleSize "10,000 queries run through generative engines"@en .
+
+#################################################################
+# Organizations
+#################################################################
+
+:ahrefs a schema:Organization ;
+    schema:name "Ahrefs"@en ;
+    schema:url <https://ahrefs.com/> ;
+    schema:identifier "https://ahrefs.com" .
+
+:profound a schema:Organization ;
+    schema:name "Profound"@en .
+
+:whitehatSEO a schema:Organization ;
+    schema:name "Whitehat SEO"@en .
+
+:adobe owl:sameAs <http://dbpedia.org/resource/Adobe_Inc.> .
+<http://dbpedia.org/resource/Adobe_Inc.> a schema:Organization ;
+    schema:name "Adobe"@en .
+
+:microsoft owl:sameAs <http://dbpedia.org/resource/Microsoft> .
+<http://dbpedia.org/resource/Microsoft> a schema:Organization ;
+    schema:name "Microsoft"@en .
+
+:copilot a schema:SoftwareApplication ;
+    schema:name "Copilot"@en ;
+    schema:url <https://copilot.microsoft.com/> ;
+    schema:identifier "https://copilot.microsoft.com" ;
+    schema:creator <http://dbpedia.org/resource/Microsoft> .
+
+:gemini a schema:SoftwareApplication ;
+    schema:name "Gemini"@en ;
+    schema:url <https://gemini.google.com/> ;
+    schema:identifier "https://gemini.google.com" ;
+    schema:creator <http://dbpedia.org/resource/Google> .
+
+<http://dbpedia.org/resource/Google> a schema:Organization ;
+    schema:name "Google"@en .
+
+:chatgpt a schema:SoftwareApplication ;
+    schema:name "ChatGPT"@en ;
+    schema:url <https://chatgpt.com/> ;
+    schema:identifier "https://chatgpt.com" ;
+    schema:creator <http://dbpedia.org/resource/OpenAI> .
+
+<http://dbpedia.org/resource/OpenAI> a schema:Organization ;
+    schema:name "OpenAI"@en .
+
+:perplexity owl:sameAs <http://dbpedia.org/resource/Perplexity_AI> .
+<http://dbpedia.org/resource/Perplexity_AI> a schema:Organization ;
+    schema:name "Perplexity AI"@en .
+
+:g2 a schema:Organization ;
+    schema:name "G2"@en ;
+    schema:url <https://www.g2.com/> ;
+    schema:identifier "https://www.g2.com" .
+
+:anthropic owl:sameAs <http://dbpedia.org/resource/Anthropic> .
+<http://dbpedia.org/resource/Anthropic> a schema:Organization ;
+    schema:name "Anthropic"@en .
+
+:ramp owl:sameAs <http://dbpedia.org/resource/Ramp_(company)> .
+<http://dbpedia.org/resource/Ramp_(company)> a schema:Organization ;
+    schema:name "Ramp"@en .
+
+:wallStreetJournal owl:sameAs <http://dbpedia.org/resource/The_Wall_Street_Journal> .
+<http://dbpedia.org/resource/The_Wall_Street_Journal> a schema:Organization ;
+    schema:name "Wall Street Journal"@en .
+
+:princeton owl:sameAs <http://dbpedia.org/resource/Princeton_University> .
+<http://dbpedia.org/resource/Princeton_University> a schema:CollegeOrUniversity ;
+    schema:name "Princeton"@en .
+
+:georgiaTech owl:sameAs <http://dbpedia.org/resource/Georgia_Institute_of_Technology> .
+<http://dbpedia.org/resource/Georgia_Institute_of_Technology> a schema:CollegeOrUniversity ;
+    schema:name "Georgia Tech"@en .
+
+:iitDelhi owl:sameAs <http://dbpedia.org/resource/Indian_Institute_of_Technology_Delhi> .
+<http://dbpedia.org/resource/Indian_Institute_of_Technology_Delhi> a schema:CollegeOrUniversity ;
+    schema:name "IIT Delhi"@en .
+
+:ehrenbergBassInstitute a schema:Organization ;
+    schema:name "Ehrenberg-Bass"@en .
+
+:outlever a schema:Organization ;
+    schema:name "Outlever"@en .
+
+#################################################################
+# FAQ Section — 12 Questions
+#################################################################
+
+:faqSection a schema:FAQPage ;
+    schema:isPartOf :analysis ;
+    schema:mainEntity :q1, :q2, :q3, :q4, :q5, :q6, :q7, :q8, :q9, :q10, :q11, :q12 .
+
+:q1 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What percentage of URLs cited by ChatGPT fail to rank in Google's top 100?"@en ;
+    schema:acceptedAnswer :a1 .
+:a1 a schema:Answer ;
+    schema:text "80% of the URLs ChatGPT cites most do not rank in Google's top 100 results, according to Ahrefs's analysis of 75,000 brands."@en .
+
+:q2 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What share of ChatGPT's most-cited pages have zero Google organic visibility?"@en ;
+    schema:acceptedAnswer :a2 .
+:a2 a schema:Answer ;
+    schema:text "28% of ChatGPT's most-cited pages have zero Google organic visibility, per Profound's study of 680 million citations."@en .
+
+:q3 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "How many brands did Ahrefs analyze in its AI citation study?"@en ;
+    schema:acceptedAnswer :a3 .
+:a3 a schema:Answer ;
+    schema:text "Ahrefs analyzed 75,000 brands across ChatGPT, Google AI Mode, and AI Overviews."@en .
+
+:q4 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What predicts AI visibility more strongly than backlinks?"@en ;
+    schema:acceptedAnswer :a4 .
+:a4 a schema:Answer ;
+    schema:text "Brand mentions predicted AI visibility three times more strongly than backlinks."@en .
+
+:q5 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "How much overlap exists between what ChatGPT and Perplexity cite?"@en ;
+    schema:acceptedAnswer :a5 .
+:a5 a schema:Answer ;
+    schema:text "Only roughly 11% overlap exists between what ChatGPT and Perplexity cite, per Whitehat SEO's study of 118,000 responses."@en .
+
+:q6 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "How much did AI-driven referral traffic to US retail sites grow during the 2025 holiday season?"@en ;
+    schema:acceptedAnswer :a6 .
+:a6 a schema:Answer ;
+    schema:text "AI-driven referral traffic to US retail sites rose nearly 700% year-over-year during the 2025 holiday season, exceeding one trillion visits, according to Adobe."@en .
+
+:q7 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "At what rate do Copilot referrals convert to subscriptions compared to direct traffic?"@en ;
+    schema:acceptedAnswer :a7 .
+:a7 a schema:Answer ;
+    schema:text "Copilot referrals convert to subscriptions at 17 times the rate of direct traffic, per a Microsoft Clarity study of 1,277 sites over 8 months."@en .
+
+:q8 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "How much did the answer engine optimization software category grow?"@en ;
+    schema:acceptedAnswer :a8 .
+:a8 a schema:Answer ;
+    schema:text "The answer engine optimization software category grew over 2,000%, according to G2."@en .
+
+:q9 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What share of B2B buyers use generative AI in their purchase journey?"@en ;
+    schema:acceptedAnswer :a9 .
+:a9 a schema:Answer ;
+    schema:text "Roughly nine in ten B2B buyers use generative AI somewhere in their purchase journey."@en .
+
+:q10 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What share of B2B buyers start research in chat windows rather than search bars?"@en ;
+    schema:acceptedAnswer :a10 .
+:a10 a schema:Answer ;
+    schema:text "About half of B2B buyers start their research in chat windows rather than search bars."@en .
+
+:q11 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What effect does adding concrete statistics have on AI answer visibility?"@en ;
+    schema:acceptedAnswer :a11 .
+:a11 a schema:Answer ;
+    schema:text "Adding concrete statistics lifted AI answer visibility by roughly 40%; quotations lifted visibility nearly 30%; attributing claims to sources produced gains exceeding 100% for non-ranked pages; keyword optimization made visibility worse."@en .
+
+:q12 a schema:Question ;
+    schema:isPartOf :faqSection ;
+    schema:name "What is the practical way to test a brand's AI search visibility?"@en ;
+    schema:acceptedAnswer :a12 .
+:a12 a schema:Answer ;
+    schema:text "Ask ChatGPT, Perplexity, and Gemini the five questions target buyers ask before building a shortlist, then count how often the brand appears."@en .
+
+#################################################################
+# Glossary — 10 Terms
+#################################################################
+
+:glossarySection a skos:ConceptScheme, schema:DefinedTermSet ;
+    schema:isPartOf :analysis ;
+    schema:hasDefinedTerm :termGreatFlattening, :termAIOverviews, :termAnswerEngineOptimization,
+        :termCitationRate, :term955Rule, :termGenerativeEngine, :termBrandMention,
+        :termContentLoop, :termRetrievalTest, :termAIReferralTraffic .
+
+:termGreatFlattening a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Great Flattening"@en ;
+    schema:description "The homogenization of AI-generated content into indistinguishable, fluent-but-uncitable material that generative engines decline to reference."@en .
+
+:termAIOverviews a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "AI Overviews"@en ;
+    schema:description "Google's AI-generated summary results shown above traditional organic search listings."@en .
+
+:termAnswerEngineOptimization a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Answer Engine Optimization"@en ;
+    schema:description "The practice of optimizing content for citation by generative AI answer engines rather than ranking in traditional search results."@en .
+
+:termCitationRate a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Citation Rate"@en ;
+    schema:description "The frequency with which a generative AI engine references a given source when constructing its answers."@en .
+
+:term955Rule a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "95-5 Rule"@en ;
+    schema:description "An Ehrenberg-Bass finding that roughly 95% of category buyers are not in-market at a given time, with only about 5% actively purchasing."@en .
+
+:termGenerativeEngine a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Generative Engine"@en ;
+    schema:description "An AI system, such as ChatGPT, Gemini, or Perplexity, that synthesizes answers from retrieved sources rather than returning a list of links."@en .
+
+:termBrandMention a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Brand Mention"@en ;
+    schema:description "An unlinked textual reference to a brand name that generative AI models use as a visibility signal, found to predict AI visibility three times more strongly than backlinks."@en .
+
+:termContentLoop a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Content Loop"@en ;
+    schema:description "A self-reinforcing cycle in which teams produce high-volume, undifferentiated AI content that engines never cite, prompting further volume increases."@en .
+
+:termRetrievalTest a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Retrieval Test"@en ;
+    schema:description "A methodology of running large batches of queries through generative engines to measure which sources get cited in the results."@en .
+
+:termAIReferralTraffic a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "AI Referral Traffic"@en ;
+    schema:description "Website visits arriving from links or citations surfaced within AI chat or generative search-engine answers."@en .
+
+#################################################################
+# HowTo — 7 Steps
+#################################################################
+
+:howtoSection a schema:HowTo ;
+    schema:isPartOf :analysis ;
+    schema:name "How to Test and Improve Your AI Search Visibility"@en ;
+    schema:step :step1, :step2, :step3, :step4, :step5, :step6, :step7 .
+
+:step1 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 1 ;
+    schema:name "Identify five buyer questions"@en ;
+    schema:text "Identify five questions your target buyers ask before building a shortlist of vendors or solutions."@en .
+
+:step2 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 2 ;
+    schema:name "Run the retrieval test"@en ;
+    schema:text "Ask ChatGPT, Perplexity, and Gemini each of the five questions and record whether your brand appears in the answers."@en .
+
+:step3 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 3 ;
+    schema:name "Audit recent content for distinctiveness"@en ;
+    schema:text "Review your recently published content and identify sentences that contain original data, unique claims, or distinctive positions."@en .
+
+:step4 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 4 ;
+    schema:name "Add concrete statistics"@en ;
+    schema:text "Add concrete statistics to underperforming content; this alone was found to lift AI answer visibility by roughly 40%."@en .
+
+:step5 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 5 ;
+    schema:name "Add sourced quotations and attribution"@en ;
+    schema:text "Add quotations and attribute claims to named sources; quotations lifted visibility nearly 30%, and attribution produced gains exceeding 100% for previously non-ranked pages."@en .
+
+:step6 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 6 ;
+    schema:name "Stop optimizing for keywords"@en ;
+    schema:text "Deprioritize keyword optimization, since it was found to make AI answer visibility worse, and prioritize distinguishability instead."@en .
+
+:step7 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 7 ;
+    schema:name "Track brand-mention frequency"@en ;
+    schema:text "Track brand-mention frequency, not just backlinks, as the primary key performance indicator for AI search visibility."@en .

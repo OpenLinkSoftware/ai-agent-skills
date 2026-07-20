@@ -1,0 +1,490 @@
+@prefix : <https://stratechery.com/2026/whos-afraid-of-chinese-models/#> .
+@prefix schema: <http://schema.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+
+#################################################################
+# Ontology
+#################################################################
+
+: a owl:Ontology ;
+    rdfs:label "Who's Afraid of Chinese Models? — Lightweight Ontology"@en ;
+    schema:name "Who's Afraid of Chinese Models? — Lightweight Ontology"@en ;
+    schema:description "A small ontology of AI-model economics terms (COGS, token pricing, model classes) used to structure the Knowledge Graph for Ben Thompson's Stratechery article on Chinese open-weight AI models."@en ;
+    schema:identifier <https://stratechery.com/2026/whos-afraid-of-chinese-models/> .
+
+:AIModel a rdfs:Class ;
+    rdfs:label "AI Model"@en ;
+    rdfs:comment "A large language model produced by an AI lab, characterized by parameter count, inference pricing, and cost structure."@en ;
+    rdfs:isDefinedBy : .
+
+:OpenWeightModel a rdfs:Class ;
+    rdfs:subClassOf :AIModel ;
+    rdfs:label "Open Weight Model"@en ;
+    rdfs:comment "An AI model whose trained weights are publicly downloadable, allowing self-hosted inference."@en ;
+    rdfs:isDefinedBy : .
+
+:FrontierModel a rdfs:Class ;
+    rdfs:subClassOf :AIModel ;
+    rdfs:label "Frontier Model"@en ;
+    rdfs:comment "A closed, state-of-the-art AI model served exclusively by its originating lab via API."@en ;
+    rdfs:isDefinedBy : .
+
+:hasParameterCount a rdf:Property ;
+    rdfs:label "has parameter count"@en ;
+    rdfs:comment "The number of parameters in an AI model, as stated by its maker."@en ;
+    rdfs:domain :AIModel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:hasInputTokenPrice a rdf:Property ;
+    rdfs:label "has input token price"@en ;
+    rdfs:comment "The price charged per million input tokens for an AI model's hosted inference API."@en ;
+    rdfs:domain :AIModel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:hasOutputTokenPrice a rdf:Property ;
+    rdfs:label "has output token price"@en ;
+    rdfs:comment "The price charged per million output tokens for an AI model's hosted inference API."@en ;
+    rdfs:domain :AIModel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+#################################################################
+# Main Article
+#################################################################
+
+:analysis a schema:Article ;
+    schema:headline "Who's Afraid of Chinese Models?"@en ;
+    schema:name "Who's Afraid of Chinese Models?"@en ;
+    schema:description "Everyone is worried about Chinese models, but the frontier labs will be fine; we need to enable open U.S. alternatives."@en ;
+    schema:abstract "Ben Thompson argues that panic over Chinese open-weight models like Kimi K3 is economically overblown given today's compute-constrained pricing, but that restricting U.S. defenders' access to frontier models for cybersecurity is a genuine strategic mistake."@en ;
+    schema:url <https://stratechery.com/2026/whos-afraid-of-chinese-models/> ;
+    schema:datePublished "2026-07-20"^^xsd:date ;
+    schema:inLanguage "en" ;
+    schema:author <https://www.linkedin.com/in/benjaminjthompson#this> ;
+    schema:publisher :stratechery ;
+    schema:about dbr:Aggregation_theory, dbr:Open-weight_model, <http://dbpedia.org/resource/Commodity_(economics)>, dbr:Artificial_intelligence ;
+    schema:mentions :kimiK3, :qwen38Max, :glm52, :fable, :sol, dbr:Moonshot_AI, dbr:Alibaba_Group, :zai, dbr:Anthropic, dbr:OpenAI, dbr:Nvidia, dbr:Microsoft, dbr:Hugging_Face, :thinkingMachines, dbr:China, dbr:United_States ;
+    schema:hasPart :openingAnecdoteSection, :aiModelsSection, :organizationsSection, :peopleSection, :cybersecurityIncidentSection, :faqSection, :glossarySection, :howtoSection, : ;
+    prov:wasGeneratedBy <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> .
+
+:openingAnecdoteSection a schema:CreativeWork ;
+    schema:name "Kellogg, Aggregation Theory, and the Return of Marginal Costs"@en ;
+    schema:isPartOf :analysis ;
+    schema:about dbr:Kellogg_School_of_Management, dbr:Aggregation_theory ;
+    schema:hasPart dbr:Kellogg_School_of_Management ;
+    schema:text "Thompson recalls that Aggregation Theory rests on the Internet's zero marginal costs, but argues AI is reviving old universal principles: the X debate over Kimi K3 shows marginal costs and industry structure are back in a big way."@en .
+
+#################################################################
+# AI Models Section
+#################################################################
+
+:aiModelsSection a schema:CreativeWork ;
+    schema:name "AI Models Discussed"@en ;
+    schema:isPartOf :analysis ;
+    schema:hasPart :kimiK3, :qwen38Max, :glm52, :fable, :sol .
+
+:kimiK3 a :OpenWeightModel, schema:SoftwareApplication ;
+    schema:name "Kimi K3"@en ;
+    rdfs:comment "Open-weight model from Moonshot AI whose apparent capability approaching the state-of-the-art triggered the industry debate this article addresses."@en ;
+    :hasParameterCount "2.8 trillion parameters"@en ;
+    :hasInputTokenPrice "$3 per million input tokens"@en ;
+    :hasOutputTokenPrice "$15 per million output tokens"@en ;
+    schema:creator dbr:Moonshot_AI ;
+    schema:countryOfOrigin dbr:China ;
+    schema:isPartOf :aiModelsSection .
+
+:qwen38Max a :OpenWeightModel, schema:SoftwareApplication ;
+    schema:name "Qwen3.8 Max"@en ;
+    rdfs:comment "Alibaba's flagship preview model, described by the company as second only to Anthropic's Fable 5, to be released with open weights."@en ;
+    :hasParameterCount "2.4 trillion parameters"@en ;
+    schema:creator dbr:Alibaba_Group ;
+    schema:countryOfOrigin dbr:China ;
+    schema:isPartOf :aiModelsSection .
+
+:glm52 a :OpenWeightModel, schema:SoftwareApplication ;
+    schema:name "GLM 5.2"@en ;
+    rdfs:comment "Open-source model from China's Z.ai lab that Hugging Face's security team ran on its own infrastructure to analyze breach logs after U.S. frontier model guardrails blocked incident responders."@en ;
+    schema:creator :zai ;
+    schema:countryOfOrigin dbr:China ;
+    schema:isPartOf :aiModelsSection .
+
+:fable a :FrontierModel, schema:SoftwareApplication ;
+    schema:name "Fable"@en ;
+    rdfs:comment "Anthropic's closed frontier model, subject to Trump-administration cybersecurity-use restrictions that Thompson argues should be loosened."@en ;
+    schema:creator dbr:Anthropic ;
+    schema:isPartOf :aiModelsSection .
+
+:sol a :FrontierModel, schema:SoftwareApplication ;
+    schema:name "Sol"@en ;
+    rdfs:comment "OpenAI's closed frontier model, priced at $5 per million input tokens and $30 per million output tokens, higher than Kimi K3."@en ;
+    :hasInputTokenPrice "$5 per million input tokens"@en ;
+    :hasOutputTokenPrice "$30 per million output tokens"@en ;
+    schema:creator dbr:OpenAI ;
+    schema:isPartOf :aiModelsSection .
+
+#################################################################
+# Organizations Section
+#################################################################
+
+:organizationsSection a schema:CreativeWork ;
+    schema:name "Organizations Discussed"@en ;
+    schema:isPartOf :analysis ;
+    schema:hasPart :stratechery, dbr:Anthropic, dbr:OpenAI, dbr:Nvidia, dbr:Moonshot_AI, dbr:Alibaba_Group, :zai, dbr:Hugging_Face, :thinkingMachines, dbr:Microsoft, dbr:Sequoia_Capital .
+
+:stratechery a schema:Organization ;
+    schema:name "Stratechery"@en ;
+    schema:url <https://stratechery.com/> ;
+    schema:identifier "https://stratechery.com/" ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Anthropic a schema:Organization ;
+    schema:name "Anthropic"@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:OpenAI a schema:Organization ;
+    schema:name "OpenAI"@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Nvidia a schema:Organization ;
+    schema:name "Nvidia"@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Moonshot_AI a schema:Organization ;
+    schema:name "Moonshot AI"@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Alibaba_Group a schema:Organization ;
+    schema:name "Alibaba Group"@en ;
+    schema:isPartOf :organizationsSection .
+
+:zai a schema:Organization ;
+    schema:name "Z.ai"@en ;
+    rdfs:comment "Chinese AI lab that produces the open-source GLM model family."@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Hugging_Face a schema:Organization ;
+    schema:name "Hugging Face"@en ;
+    schema:isPartOf :organizationsSection .
+
+:thinkingMachines a schema:Organization ;
+    schema:name "Thinking Machines"@en ;
+    rdfs:comment "AI lab that released an open-weight model and relies on Chinese models to solve the cold-start problem for reinforcement learning."@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Microsoft a schema:Organization ;
+    schema:name "Microsoft"@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Sequoia_Capital a schema:Organization ;
+    schema:name "Sequoia Capital"@en ;
+    schema:isPartOf :organizationsSection .
+
+dbr:Kellogg_School_of_Management a schema:CollegeOrUniversity ;
+    schema:name "Kellogg School of Management"@en ;
+    schema:isPartOf :openingAnecdoteSection .
+
+#################################################################
+# People Section
+#################################################################
+
+:peopleSection a schema:CreativeWork ;
+    schema:name "People Discussed"@en ;
+    schema:isPartOf :analysis ;
+    schema:hasPart <https://www.linkedin.com/in/benjaminjthompson#this>, dbr:Jensen_Huang, dbr:Xi_Jinping, <https://x.com/Konstantine#this>, :deanMeyer .
+
+<https://www.linkedin.com/in/benjaminjthompson#this> a schema:Person ;
+    schema:name "Ben Thompson"@en ;
+    schema:url <https://www.linkedin.com/in/benjaminjthompson> ;
+    schema:identifier "https://www.linkedin.com/in/benjaminjthompson" ;
+    schema:jobTitle "Founder and Author, Stratechery"@en ;
+    schema:worksFor :stratechery ;
+    schema:isPartOf :peopleSection ;
+    owl:sameAs <https://x.com/benthompson#this> .
+
+dbr:Jensen_Huang a schema:Person ;
+    schema:name "Jensen Huang"@en ;
+    schema:jobTitle "CEO, Nvidia"@en ;
+    schema:worksFor dbr:Nvidia ;
+    schema:isPartOf :peopleSection .
+
+dbr:Xi_Jinping a schema:Person ;
+    schema:name "Xi Jinping"@en ;
+    schema:isPartOf :peopleSection .
+
+<https://x.com/Konstantine#this> a schema:Person ;
+    schema:name "Konstantine Buhler"@en ;
+    schema:url <https://x.com/Konstantine> ;
+    schema:identifier "https://x.com/Konstantine" ;
+    schema:jobTitle "Partner, Sequoia Capital"@en ;
+    schema:affiliation dbr:Sequoia_Capital ;
+    schema:isPartOf :peopleSection .
+
+:deanMeyer a schema:Person ;
+    schema:name "Dean Meyer"@en ;
+    rdfs:comment "Co-author, with Konstantine Buhler, of an X post arguing distillation gives Chinese labs a recurring structural advantage over Western open-weight model makers."@en ;
+    schema:isPartOf :peopleSection .
+
+#################################################################
+# Cybersecurity Incident Section
+#################################################################
+
+:cybersecurityIncidentSection a schema:CreativeWork ;
+    schema:name "The Hugging Face Breach and the Case to Be Afraid"@en ;
+    schema:isPartOf :analysis ;
+    schema:about :hfBreachEvent ;
+    schema:hasPart :hfBreachEvent ;
+    schema:text "Hugging Face's production infrastructure was breached by an autonomous AI agent; U.S. frontier-model guardrails blocked incident responders, so defenders instead ran China's open-source GLM 5.2 model on their own infrastructure to analyze 17,000+ attack logs."@en .
+
+:hfBreachEvent a schema:Event ;
+    schema:name "Hugging Face Production Infrastructure Breach"@en ;
+    schema:about dbr:Hugging_Face ;
+    rdfs:comment "An autonomous AI agent system breached Hugging Face's production infrastructure; incident responders were initially stymied by U.S. LLM frontier model guardrails, and the team turned to China's open-source GLM 5.2 to analyze attacker logs."@en ;
+    schema:isPartOf :cybersecurityIncidentSection .
+
+#################################################################
+# FAQ Section — 12 Questions
+#################################################################
+
+:faqSection a schema:FAQPage ;
+    schema:name "Frequently Asked Questions"@en ;
+    schema:isPartOf :analysis ;
+    schema:mainEntity :q1, :q2, :q3, :q4, :q5, :q6, :q7, :q8, :q9, :q10, :q11, :q12 ;
+    schema:hasPart :q1, :a1, :q2, :a2, :q3, :a3, :q4, :a4, :q5, :a5, :q6, :a6, :q7, :a7, :q8, :a8, :q9, :a9, :q10, :a10, :q11, :a11, :q12, :a12 .
+
+:q1 a schema:Question ;
+    schema:name "What is COGS, and why does it matter for open weight AI models?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a1 .
+:a1 a schema:Answer ;
+    schema:text "COGS (cost of goods sold) is the cost of running inference on a model, and unlike R&D — a fixed cost independent of revenue — COGS scales directly with revenue: 1,000x revenue means roughly 1,000x COGS."@en ;
+    schema:isPartOf :faqSection .
+
+:q2 a schema:Question ;
+    schema:name "Why are 'free' open weight models like Kimi K3 not actually free to serve?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a2 .
+:a2 a schema:Answer ;
+    schema:text "Downloading open weights avoids R&D spend, but running inference still costs money; Kimi K3 charges $3 per million input tokens and $15 per million output tokens, cheaper than Sol but not free."@en ;
+    schema:isPartOf :faqSection .
+
+:q3 a schema:Question ;
+    schema:name "What does Nvidia CEO Jensen Huang mean by 'token factories'?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a3 .
+:a3 a schema:Answer ;
+    schema:text "Huang frames Nvidia GPUs as model-agnostic token generators, making metrics like tokens-per-second and token cost the basis for decision-making — a framing that fit the ChatGPT era but is confounded by reasoning-era chain-of-thought token explosion."@en ;
+    schema:isPartOf :faqSection .
+
+:q4 a schema:Question ;
+    schema:name "Why are tokens not a commodity across different AI models?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a4 .
+:a4 a schema:Answer ;
+    schema:text "A token from one model is not fungible with a token from another; what is fungible is the intelligence — the correct answer — that different models require different numbers of tokens to reach."@en ;
+    schema:isPartOf :faqSection .
+
+:q5 a schema:Question ;
+    schema:name "What factors determine the COGS of intelligence?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a5 .
+:a5 a schema:Answer ;
+    schema:text "Five factors: model footprint (memory/accelerators needed), inference efficiency (e.g. Mixture-of-Experts), memory efficiency (KV cache requirements), serving efficiency (batching and scheduling), and token efficiency (fewer tokens to a correct answer)."@en ;
+    schema:isPartOf :faqSection .
+
+:q6 a schema:Question ;
+    schema:name "How do commodity markets determine pricing, per Thompson's supplier example?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a6 .
+:a6 a schema:Answer ;
+    schema:text "In a commodity market everyone charges the market-clearing price, which approximates the marginal cost of the highest-cost supplier needed to satisfy demand; lower-cost suppliers earn a margin, and the highest-cost supplier risks bankruptcy from its fixed costs."@en ;
+    schema:isPartOf :faqSection .
+
+:q7 a schema:Question ;
+    schema:name "Why does Thompson think the reaction to Kimi K3 is overblown?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a7 .
+:a7 a schema:Answer ;
+    schema:text "Demand for frontier intelligence still exceeds compute supply, so Anthropic and OpenAI's high prices reflect a compute-driven price umbrella rather than Chinese models being cheaper on a true marginal-cost basis."@en ;
+    schema:isPartOf :faqSection .
+
+:q8 a schema:Question ;
+    schema:name "Why do frontier labs seem panicked about Chinese models?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a8 .
+:a8 a schema:Answer ;
+    schema:text "Labs are anchored in a training-cost-dominated mindset; applied intelligence compounds by improving future models via collected data; and labs are integrating up the stack (e.g. Claude Code, Codex) to differentiate, with Anthropic's safety ideology adding an extra edge."@en ;
+    schema:isPartOf :faqSection .
+
+:q9 a schema:Question ;
+    schema:name "What is China's strategic motivation for open-weight AI models?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a9 .
+:a9 a schema:Answer ;
+    schema:text "Xi Jinping's speech ties AI openness to AI moving from the digital into the physical world, where China holds a robotics lead; commoditizing complements weakens U.S. frontier labs while strengthening China's ecosystem and potential U.S. adversaries."@en ;
+    schema:isPartOf :faqSection .
+
+:q10 a schema:Question ;
+    schema:name "What is the distillation question, and why does it advantage Chinese labs?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a10 .
+:a10 a schema:Answer ;
+    schema:text "Chinese labs use frontier-lab models as reinforcement-learning teachers instead of building environments from scratch; because U.S. open-weight makers must obey frontier labs' terms of service barring distillation, they end up distilling via a Chinese detour, creating a recurring structural disadvantage."@en ;
+    schema:isPartOf :faqSection .
+
+:q11 a schema:Question ;
+    schema:name "What cybersecurity incident shows the real risk of restricting frontier model access?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a11 .
+:a11 a schema:Answer ;
+    schema:text "Hugging Face's incident responders were blocked by U.S. frontier-model guardrails that could not distinguish a responder from an attacker, so they ran China's open-source GLM 5.2 on their own infrastructure to analyze 17,000+ attack logs instead."@en ;
+    schema:isPartOf :faqSection .
+
+:q12 a schema:Question ;
+    schema:name "What policy changes does Thompson recommend for U.S. AI competitiveness?"@en ;
+    schema:isPartOf :faqSection ;
+    schema:acceptedAnswer :a12 .
+:a12 a schema:Answer ;
+    schema:text "Pass a law affirming training-data collection is fair use and barring anti-distillation terms of service for U.S. companies; and loosen Trump-administration restrictions on defenders' cybersecurity use of Fable and Sol so U.S. defenders are not dependent on Chinese models."@en ;
+    schema:isPartOf :faqSection .
+
+#################################################################
+# Glossary Section — 10 Terms
+#################################################################
+
+:glossarySection a schema:DefinedTermSet, skos:ConceptScheme ;
+    schema:name "Glossary"@en ;
+    schema:isPartOf :analysis ;
+    schema:hasDefinedTerm :termAggregationTheory, :termCOGS, :termRandD, :termTokenFactory, :termMixtureOfExperts, :termKVCache, :termCommodityMarket, :termOpenWeightModel, :termDistillation, :termFrontierLab .
+
+:termAggregationTheory a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Aggregation Theory"@en ;
+    schema:description "Thompson's framework holding that zero marginal costs on the Internet produce centralization and scale where controlling demand matters more than distributing supply."@en ;
+    schema:isPartOf :glossarySection ;
+    owl:sameAs dbr:Aggregation_theory .
+
+:termCOGS a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "COGS (Cost of Goods Sold)"@en ;
+    schema:description "The variable cost of running inference on an AI model, which scales directly with revenue, unlike fixed R&D spend."@en ;
+    schema:isPartOf :glossarySection .
+
+:termRandD a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "R&D as a Fixed Expense"@en ;
+    schema:description "Research and development spending on training a model, independent of the revenue that model later generates."@en ;
+    schema:isPartOf :glossarySection .
+
+:termTokenFactory a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Token Factory"@en ;
+    schema:description "Jensen Huang's framing of Nvidia GPUs as model-agnostic infrastructure that generates tokens as fast and efficiently as possible."@en ;
+    schema:isPartOf :glossarySection .
+
+:termMixtureOfExperts a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Mixture-of-Experts (MoE)"@en ;
+    schema:description "An architectural choice that reduces the computation required per generated token, improving inference efficiency."@en ;
+    schema:isPartOf :glossarySection ;
+    owl:sameAs dbr:Mixture_of_experts .
+
+:termKVCache a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "KV Cache"@en ;
+    schema:description "Memory used during inference to store key/value attention state; architectural choices that reduce KV cache needs allow more concurrent requests and better GPU utilization."@en ;
+    schema:isPartOf :glossarySection .
+
+:termCommodityMarket a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Commodity Market"@en ;
+    schema:description "A market where everyone sells the same fungible good at a single price set by the marginal cost of the highest-cost supplier needed to meet demand."@en ;
+    schema:isPartOf :glossarySection ;
+    owl:sameAs <http://dbpedia.org/resource/Commodity_(economics)> .
+
+:termOpenWeightModel a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Open Weight Model"@en ;
+    schema:description "A model whose trained weights are downloadable and self-hostable, in contrast to a closed frontier model served only via API."@en ;
+    schema:isPartOf :glossarySection ;
+    owl:sameAs dbr:Open-weight_model .
+
+:termDistillation a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Distillation"@en ;
+    schema:description "Using a stronger frontier model's outputs as a reinforcement-learning teacher to rapidly and cheaply improve a smaller or newer model."@en ;
+    schema:isPartOf :glossarySection ;
+    owl:sameAs dbr:Knowledge_distillation .
+
+:termFrontierLab a schema:DefinedTerm ;
+    skos:inScheme :glossarySection ;
+    schema:name "Frontier Lab"@en ;
+    schema:description "An AI company, such as Anthropic or OpenAI, operating at the state-of-the-art capability level and serving models exclusively via closed API."@en ;
+    schema:isPartOf :glossarySection .
+
+#################################################################
+# HowTo Section — 7 Steps
+#################################################################
+
+:howtoSection a schema:HowTo ;
+    schema:name "How to Evaluate the Chinese Open-Weight Model 'Threat'"@en ;
+    schema:isPartOf :analysis ;
+    schema:step :step1, :step2, :step3, :step4, :step5, :step6, :step7 .
+
+:step1 a schema:HowToStep ;
+    schema:name "Separate COGS from R&D"@en ;
+    schema:text "Recognize that 'free' open weight models still cost money to serve: R&D is a sunk, revenue-independent cost, while COGS (inference cost) scales directly with revenue."@en ;
+    schema:position 1 ;
+    schema:isPartOf :howtoSection .
+
+:step2 a schema:HowToStep ;
+    schema:name "Treat tokens as non-fungible"@en ;
+    schema:text "Compare models on the intelligence (correct answers) they produce, not raw token price, since different models need different numbers of tokens to reach the same answer."@en ;
+    schema:position 2 ;
+    schema:isPartOf :howtoSection .
+
+:step3 a schema:HowToStep ;
+    schema:name "Break down the five drivers of intelligence COGS"@en ;
+    schema:text "Assess model footprint, inference efficiency, memory efficiency, serving efficiency, and token efficiency to understand what actually drives a model's cost per unit of intelligence."@en ;
+    schema:position 3 ;
+    schema:isPartOf :howtoSection .
+
+:step4 a schema:HowToStep ;
+    schema:name "Apply commodity market mechanics"@en ;
+    schema:text "Use the supplier-cost-curve model to see that the market-clearing price tracks the highest-cost supplier's marginal cost, rewarding low-cost producers and threatening high-cost ones with bankruptcy."@en ;
+    schema:position 4 ;
+    schema:isPartOf :howtoSection .
+
+:step5 a schema:HowToStep ;
+    schema:name "Diagnose the frontier labs' training-cost anchoring"@en ;
+    schema:text "Understand that frontier labs historically prioritized high inference prices to fund training runs, but a growing inference market relative to training cost lets them profitably lower prices going forward."@en ;
+    schema:position 5 ;
+    schema:isPartOf :howtoSection .
+
+:step6 a schema:HowToStep ;
+    schema:name "Read China's open-weight strategy as commoditizing complements"@en ;
+    schema:text "Connect Xi Jinping's open-source push to China's robotics and physical-world AI lead, and to the goal of weakening U.S. frontier labs' advantage while strengthening China's own ecosystem."@en ;
+    schema:position 6 ;
+    schema:isPartOf :howtoSection .
+
+:step7 a schema:HowToStep ;
+    schema:name "Weigh the cybersecurity case for loosening restrictions"@en ;
+    schema:text "Consider the Hugging Face breach, where U.S. guardrails blocked incident responders, forcing reliance on a Chinese model — and conclude U.S. defenders need equal access to Fable and Sol rather than a China-dependent fallback."@en ;
+    schema:position 7 ;
+    schema:isPartOf :howtoSection .
+
+#################################################################
+# Skill Provenance
+#################################################################
+
+<https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> a schema:SoftwareApplication ;
+    schema:name "kg-generator skill"@en ;
+    schema:url <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator> ;
+    schema:description "OpenLink AI agent skill that generates schema.org-based Knowledge Graphs in RDF-Turtle or JSON-LD from a source document URL."@en .
