@@ -1,0 +1,3 @@
+display_name: OPAL A2A Client
+short_description: Discover OPAL Agent Cards and exercise A2A JSON-RPC tasks.
+default_prompt: Use this skill to connect to an OPAL A2A endpoint. Offer the recommended endpoint menu, then ask me for the selected or custom target and credential source before making requests.
