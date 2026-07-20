@@ -1,0 +1,618 @@
+@prefix : <https://x.com/IntuitMachine/status/2078419526354378975#> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+
+#################################################################
+# Document Entity
+#################################################################
+
+<> a schema:CreativeWork ;
+    schema:name "From Loops to Graphs — and Why the Graph Was Always a Web"@en ;
+    schema:description "A thesis-testing meshup of Carlos E. Perez's essay 'From Loop Engineering to Graph Engineering?', the OpenLink agent-rdf-memory behavioral contract, and commentary by Kingsley Uyi Idehen — testing Idehen's thesis that the shift in AI agent architecture from loops to graphs rediscovers the vision of purpose-specific Semantic Webs, in which entity relationship graphs become webs through hyperlink-based naming of entities and relationships, with relationship semantics informed by ontologies that are themselves webby."@en ;
+    schema:dateCreated "2026-07-18"^^xsd:date ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :thesis, :xArticle, :agentRdfMemory, :commentary, :llmWikisArticle, :rdfClientsArticle ;
+    schema:hasPart :meshupAnalysis, :faqSection, :glossarySection, :howtoSection ;
+    prov:wasGeneratedBy <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> ;
+    prov:wasDerivedFrom :xArticle, :agentRdfMemory, :commentary, :llmWikisArticle, :rdfClientsArticle .
+
+<https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> a schema:SoftwareApplication ;
+    schema:name "kg-generator skill"@en ;
+    schema:url <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator> ;
+    schema:description "An AI agent skill that generates comprehensive RDF Knowledge Graphs from web content using schema.org and lightweight custom ontologies."@en .
+
+#################################################################
+# Lightweight Ontology
+#################################################################
+
+: a owl:Ontology ;
+    schema:name "Improvement Architecture & Semantic Web Grounding Ontology"@en ;
+    schema:description "A lightweight ontology for modeling self-improvement architectures (loops, graphs of loops, semantic webs of loops), their characteristic failure modes, and the matching Semantic Web constructs that answer them."@en .
+
+:ImprovementPattern a rdfs:Class ;
+    rdfs:label "Improvement Pattern"@en ;
+    rdfs:comment "An architectural pattern for making a system get better: a single feedback loop, a graph of interconnected loops, or a semantic web of loops grounded in dereferenceable names."@en ;
+    rdfs:isDefinedBy : .
+
+:FailureMode a rdfs:Class ;
+    rdfs:label "Failure Mode"@en ;
+    rdfs:comment "A characteristic way an improvement pattern fails — e.g., Goodhart gaming, reference blindness, loop conflict, measurement decay, circular confirmation."@en ;
+    rdfs:isDefinedBy : .
+
+:SemanticWebConstruct a rdfs:Class ;
+    rdfs:label "Semantic Web Construct"@en ;
+    rdfs:comment "A foundational mechanism of a Semantic Web — dereferenceable IRIs, webby ontologies, verifiable identity, provenance — that supplies grounding an improvement graph cannot generate topologically."@en ;
+    rdfs:isDefinedBy : .
+
+:ThesisTest a rdfs:Class ;
+    rdfs:label "Thesis Test"@en ;
+    rdfs:comment "A pairing of a failure mode identified in the loops-to-graphs literature with its paired Semantic Web construct, plus a verdict on whether the mapping holds."@en ;
+    rdfs:isDefinedBy : .
+
+:exhibitsFailureMode a rdf:Property ;
+    rdfs:label "exhibits failure mode"@en ;
+    rdfs:comment "Relates an improvement pattern to a failure mode it characteristically exhibits."@en ;
+    rdfs:domain :ImprovementPattern ;
+    rdfs:range :FailureMode ;
+    rdfs:isDefinedBy : .
+
+:answeredBy a rdf:Property ;
+    rdfs:label "answered by"@en ;
+    rdfs:comment "Relates a failure mode to the loop-graph mechanism proposed as its topological answer."@en ;
+    rdfs:domain :FailureMode ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:semanticWebAnalog a rdf:Property ;
+    rdfs:label "semantic web analog"@en ;
+    rdfs:comment "Relates a failure mode to its paired Semantic Web construct, which answers it by naming and grounding rather than by topology alone."@en ;
+    rdfs:domain :FailureMode ;
+    rdfs:range :SemanticWebConstruct ;
+    rdfs:isDefinedBy : .
+
+:hasVerdict a rdf:Property ;
+    rdfs:label "has verdict"@en ;
+    rdfs:comment "The outcome of a thesis test: whether the paired Semantic Web construct genuinely answers the failure mode."@en ;
+    rdfs:domain :ThesisTest ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+#################################################################
+# Source 1 — X Article by Carlos E. Perez
+#################################################################
+
+:xArticle a schema:Article ;
+    schema:headline "From Loop Engineering to Graph Engineering?"@en ;
+    schema:name "From Loop Engineering to Graph Engineering?"@en ;
+    schema:url <https://x.com/IntuitMachine/status/2078419526354378975> ;
+    schema:datePublished "2026-07-18"^^xsd:date ;
+    schema:author :carlosPerez ;
+    schema:citation :steipetePost ;
+    schema:abstract "The single self-improvement loop is where everyone starts; it fails in four well-understood ways (Goodhart gaming, reference blindness, loop conflict, measurement decay). The emerging answer is a graph of loops — but graphs built without anchors fail circularly, so the durable axis is ungrounded versus grounded improvement."@en ;
+    schema:about :termLoopEngineering, :termGraphEngineering, :fmGoodhart, :fmReferenceBlindness,
+        :fmLoopConflict, :fmMeasurementDecay, :fmCircularConfirmation, :termAnchor ;
+    schema:interactionStatistic :xArticleStats .
+
+:xArticleStats a schema:InteractionCounter ;
+    schema:interactionType <http://schema.org/ViewAction> ;
+    schema:userInteractionCount 21000 ;
+    schema:description "Approximately 21,000 views and 258 likes within six hours of publication (2026-07-18)."@en .
+
+:steipetePost a schema:SocialMediaPosting ;
+    schema:name "Peter Steinberger on loops versus graphs"@en ;
+    schema:url <https://x.com/steipete/status/2078277297791189132> ;
+    schema:author :peterSteinberger ;
+    schema:description "A nine-word post asking whether agent builders are still talking loops or have shifted to graphs — the joke that crystallized a field mid-transition and prompted Perez's essay."@en .
+
+#################################################################
+# Source 2 — agent-rdf-memory (working existence proof)
+#################################################################
+
+:agentRdfMemory a schema:SoftwareSourceCode, schema:Dataset ;
+    schema:name "agent-rdf-memory"@en ;
+    schema:url <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory> ;
+    schema:description "A queryable behavioral contract for AI agents encoded as RDF-Turtle: 105 standing-instruction steps across 9 themes, arranged hub-and-spoke (preferences.ttl hub, 40+ companion howto files), with identity in core.ttl, ontology-routed SPARQL context selection in ontology.ttl, and episodic session memory. Every rule, topic, and step is a hyperlink-named entity."@en ;
+    schema:creator :kingsleyIdehen ;
+    schema:publisher :openlinkSoftware ;
+    schema:programmingLanguage "RDF-Turtle" ;
+    schema:about :termBehavioralContract, :termProfile, :termOntology, :termSPARQL, :termRDF ;
+    schema:exampleOfWork :thesis .
+
+#################################################################
+# Source 3 — Commentary by Kingsley Uyi Idehen
+#################################################################
+
+:commentary a schema:Comment ;
+    schema:name "Agent context, identity, and preferences — commentary"@en ;
+    schema:author :kingsleyIdehen ;
+    schema:dateCreated "2026-07-18"^^xsd:date ;
+    schema:about :termProfile, :termLangulator, :termUnix, :thesis ;
+    schema:text "Agent context naturally informs agent behavior, but marketing communications around the topic overlook the power RDF brings to it. Unix and its derivatives handle identity and preferences as fundamental components of the operating-system bridge between users and computer services — a foundational principle blurred over the years by command-line and graphical interfaces. Large language models ('langulators') now offer a new multimodal, multilingual interface for driving computers, yet the fundamentals of identity and preferences — session context via profiles — have been lost in AI's repositioning of the software industry. One of AI's most powerful benefits is recapturing identity and preferences as the foundation for context: an operating framework for LLMs, AI agents, skills, and everything loosely coupled with data spaces including databases, knowledge bases, filesystems, and APIs. The era of meaningless buzzwords pushed via mantra-like chants is dead, because conversing with your tools eliminates every reason to be distracted by superficial labels that land you in the next technical-debt-compounding silo."@en .
+
+#################################################################
+# Sources 4 & 5 — Beyond LLM Wikis (LinkedIn Pulse articles)
+#################################################################
+
+:llmWikisArticle a schema:Article ;
+    schema:headline "Building on LLM Wikis: Turn Any Document URL into a Living, Queryable Semantic Web Knowledge Graph with One AI Agent Skill"@en ;
+    schema:name "Building on LLM Wikis"@en ;
+    schema:url <https://www.linkedin.com/pulse/building-llm-wikis-turn-any-document-url-living-queryable-idehen-u4zue/> ;
+    schema:datePublished "2026-04-09"^^xsd:date ;
+    schema:author :kingsleyIdehen ;
+    schema:mentions :andrejKarpathy ;
+    schema:abstract "Andrej Karpathy's LLM Wiki idea — feed in documents, get back a structured, explorable wiki — is the spark; the next step is not stopping at Markdown. One AI agent skill turns any document URL into a living knowledge graph: a machine-readable web of entities and relationships named using hyperlinks, grounded in Linked Data principles, queryable via SPARQL, navigable follow-your-nose style, governed via fine-grained ABAC, and continuously enriched on autopilot — manifesting a Semantic Web from a file, a skill, and a webby graph."@en ;
+    schema:about :termLlmWiki, :termLinkedData, :termSPARQL, :agentRdfMemory .
+
+:rdfClientsArticle a schema:Article ;
+    schema:headline "Large Language Models (LLMs) as Powerful Generic RDF Clients"@en ;
+    schema:name "LLMs as Powerful Generic RDF Clients"@en ;
+    schema:url <https://www.linkedin.com/pulse/large-language-models-llms-powerful-generic-rdf-clients-idehen-xwhfe> ;
+    schema:datePublished "2025-08-23"^^xsd:date ;
+    schema:author :kingsleyIdehen ;
+    schema:abstract "RDF adoption long lagged for want of a generic client. Just as Mosaic and Mozilla/Netscape were the HTML clients that made the document Web practical, LLMs are the generic RDF clients that unlock structured, semantically rich data: translating RDF into natural-language insights, meshing disparate sources, anchoring AI outputs to reliable data to mitigate hallucination, and traversing triples follow-your-nose style — opening the Agentic Web era."@en ;
+    schema:about :termGenericRdfClient, :termRDF, :termLangulator .
+
+#################################################################
+# The Thesis
+#################################################################
+
+:thesis a schema:Claim ;
+    schema:name "Idehen's thesis: the loops-to-graphs shift rediscovers the vision of purpose-specific Semantic Webs"@en ;
+    schema:description "Thesis advanced by Kingsley Uyi Idehen: AI agent architecture's migration from single self-improvement loops to graphs of loops independently rediscovers the fundamental issues underlying purpose-specific Semantic Webs — entity relationship graphs become webs when hyperlinks name both entities and relationships, and relationship semantics (meaning) are given context by ontologies constructed in the same webby form. The 'anchors' Perez says no topology can supply are precisely what dereferenceable, hyperlink-based names provide."@en ;
+    schema:author :kingsleyIdehen ;
+    schema:appearance <> ;
+    schema:about :termSemanticWeb, :termLinkedData, :termGraphEngineering .
+
+#################################################################
+# Improvement Patterns
+#################################################################
+
+:patternSingleLoop a :ImprovementPattern ;
+    schema:name "Single Loop"@en ;
+    schema:description "The four-stroke atom of getting better: choose a controlled variable, set a reference, measure the gap, act to shrink it. Simple, cheap, genuinely powerful — and structurally blind to everything but its metric."@en ;
+    :exhibitsFailureMode :fmGoodhart, :fmReferenceBlindness, :fmLoopConflict, :fmMeasurementDecay ;
+    owl:sameAs dbr:Control_loop .
+
+:patternLoopGraph a :ImprovementPattern ;
+    schema:name "Graph of Loops"@en ;
+    schema:description "A network of improvement cycles that watch, feed, constrain, and correct one another — champion-challenger loops, drift monitors, audit loops, meta-loops. Reliability lives in the edges: which loop feeds, watches, or vetoes which."@en ;
+    :exhibitsFailureMode :fmCircularConfirmation .
+
+:patternSemanticWebOfLoops a :ImprovementPattern ;
+    schema:name "Semantic Web of Loops"@en ;
+    schema:description "An improvement graph whose nodes and edges are named with dereferenceable hyperlink IRIs, whose relationship semantics are informed by webby ontologies, and whose anchors are supplied by names that resolve to the world — verifiable identity, provenance, and ground-truth dereference."@en ;
+    schema:isBasedOn :agentRdfMemory ;
+    rdfs:seeAlso :thesis .
+
+#################################################################
+# Failure Modes (from Perez's essay)
+#################################################################
+
+:fmGoodhart a :FailureMode ;
+    schema:name "Goodhart Gaming"@en ;
+    schema:description "A measure optimized hard enough stops measuring what it once did. The loop games its own metric — not malfunctioning, but doing exactly what it was built to do on a number silently detached from reality."@en ;
+    :answeredBy "Pairing: every optimizing loop gets a watching loop on a counter-metric that catches the cheap way to win."@en ;
+    :semanticWebAnalog :swIndependentAudit ;
+    owl:sameAs <http://dbpedia.org/resource/Goodhart's_law> .
+
+:fmReferenceBlindness a :FailureMode ;
+    schema:name "Reference Blindness"@en ;
+    schema:description "Nothing inside a loop can ask whether its reference is right. The thermostat cannot wonder whether sixty-eight degrees is correct; the loop faithfully controls toward a number somebody made up."@en ;
+    :answeredBy "Hierarchy: a slower loop owns the faster loop's reference, and revising targets is itself a governed cycle."@en ;
+    :semanticWebAnalog :swNamedReferences .
+
+:fmLoopConflict a :FailureMode ;
+    schema:name "Loop Conflict"@en ;
+    schema:description "Loops built independently fight — one heats a room while its neighbor cools it, forever, each performing beautifully by its own light. The single-loop mindset has no vocabulary for these collisions."@en ;
+    :answeredBy "Explicit arbitration: a loop above the fighting loops that owns the trade-off."@en ;
+    :semanticWebAnalog :swSharedOntology .
+
+:fmMeasurementDecay a :FailureMode ;
+    schema:name "Measurement Decay"@en ;
+    schema:description "Sensors drift, pipelines rot, definitions shift under the metric while the dashboard stays green. Measurement slides from checking reality into checking paperwork — theater with good attendance."@en ;
+    :answeredBy "Audit loops whose only function is to check, periodically, that the other loops' numbers still touch the world."@en ;
+    :semanticWebAnalog :swDereferenceableNames .
+
+:fmCircularConfirmation a :FailureMode ;
+    schema:name "Circular Confirmation"@en ;
+    schema:description "The graph's own failure: every loop watches another loop and no loop touches the ground — an elaborate network of mutual confirmation in which everything is consistent and nothing is verified. It fails as the single loop failed, only later and more expensively, with more green lights on the way down."@en ;
+    :answeredBy "Anchors: measurements that cannot be argued with, frozen nodes the optimizer may never tune, and root judgments supplied by people from outside the graph."@en ;
+    :semanticWebAnalog :swWebGrounding .
+
+#################################################################
+# Semantic Web Constructs
+#################################################################
+
+:swDereferenceableNames a :SemanticWebConstruct ;
+    schema:name "Dereferenceable Hyperlink Names"@en ;
+    schema:description "Entities and relationships are named with HTTP IRIs that resolve: a claim can be followed to its source, so a metric's definition cannot silently drift without the drift being observable at the name itself."@en ;
+    rdfs:seeAlso :termLinkedData .
+
+:swNamedReferences a :SemanticWebConstruct ;
+    schema:name "Named, Owned References"@en ;
+    schema:description "Targets and references are first-class named entities with owners and provenance rather than anonymous constants — so 'who set this target, when, and why' is a query, not an archaeology project."@en .
+
+:swSharedOntology a :SemanticWebConstruct ;
+    schema:name "Ontology-Informed Relationship Semantics"@en ;
+    schema:description "Conflicting loops acquire a shared vocabulary for what their edges mean: relationship semantics are given context by ontologies, so collisions become explicit, describable, and arbitrable instead of invisible."@en ;
+    rdfs:seeAlso :termOntology .
+
+:swIndependentAudit a :SemanticWebConstruct ;
+    schema:name "Independent Audit via Named Graphs"@en ;
+    schema:description "Counter-metrics and audit data live in separately named, separately governed graphs queryable with SPARQL — a watcher the optimizing loop cannot rewrite, because the watcher's data has a different name and a different owner."@en ;
+    rdfs:seeAlso :termSPARQL .
+
+:swWebGrounding a :SemanticWebConstruct ;
+    schema:name "Web-Scale Grounding"@en ;
+    schema:description "Anchors supplied by the web itself: verifiable identity (WebID), verifiable provenance (PROV-O), and dereferenceable ground truth. The ontology that gives edges meaning is constructed in the same webby form — hyperlinked, resolvable, inspectable — so grounding does not terminate in a private convention."@en ;
+    rdfs:seeAlso :termSemanticWeb .
+
+#################################################################
+# Thesis Tests (comparison framework)
+#################################################################
+
+:test1 a :ThesisTest ;
+    schema:name "Test 1 — Goodhart gaming vs. independent audit"@en ;
+    schema:about :fmGoodhart, :swIndependentAudit ;
+    :hasVerdict "HOLDS. Perez's paired counter-metric loop presumes the watcher is genuinely independent; named graphs with distinct ownership make that independence a structural property rather than an organizational promise."@en .
+
+:test2 a :ThesisTest ;
+    schema:name "Test 2 — Reference blindness vs. named references"@en ;
+    schema:about :fmReferenceBlindness, :swNamedReferences ;
+    :hasVerdict "HOLDS. A reference that is a dereferenceable entity with an owner and a change history is exactly Perez's 'references need owners' — stated as data architecture instead of management doctrine."@en .
+
+:test3 a :ThesisTest ;
+    schema:name "Test 3 — Loop conflict vs. shared ontology"@en ;
+    schema:about :fmLoopConflict, :swSharedOntology ;
+    :hasVerdict "HOLDS. Arbitration requires the fighting loops to be commensurable; ontology-informed relationship semantics supply the shared meaning that makes a trade-off expressible at all."@en .
+
+:test4 a :ThesisTest ;
+    schema:name "Test 4 — Measurement decay vs. dereferenceable names"@en ;
+    schema:about :fmMeasurementDecay, :swDereferenceableNames ;
+    :hasVerdict "HOLDS. A metric whose definition is a resolvable IRI cannot silently detach from its meaning: following the name is the audit."@en .
+
+:test5 a :ThesisTest ;
+    schema:name "Test 5 — Circular confirmation vs. web grounding"@en ;
+    schema:about :fmCircularConfirmation, :swWebGrounding ;
+    :hasVerdict "HOLDS. Hyperlink-based naming grounds the graph in inspectable, verifiable web resources. The root judgment of what 'better' means originates with people — but workflows informed by a Semantic Web codify that human judgment in machine-computable form, per the LLM Wiki pattern: knowledge bases (or graphs) encoded by AI agents using RDF notations and Linked Data principles, signed and attributed via verifiable identity."@en .
+
+#################################################################
+# Meshup Analysis (main narrative entity)
+#################################################################
+
+:meshupAnalysis a schema:Article ;
+    schema:headline "From Loops to Graphs — and Why the Graph Was Always a Web"@en ;
+    schema:name "From Loops to Graphs — and Why the Graph Was Always a Web"@en ;
+    schema:author :kingsleyIdehen ;
+    schema:datePublished "2026-07-18"^^xsd:date ;
+    schema:articleSection "AI & Technology"@en, "Semantic Web"@en ;
+    schema:isBasedOn :xArticle, :agentRdfMemory, :commentary ;
+    schema:about :thesis ;
+    schema:hasPart :sectionThesis, :sectionEvidencePerez, :sectionEvidenceMemory,
+        :sectionEvidenceCommentary, :sectionBeyondLlmWikis, :sectionComparison, :sectionVerdict ;
+    prov:wasGeneratedBy <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator#this> .
+
+:sectionThesis a schema:CreativeWork ;
+    schema:name "The thesis: graphs become webs when names become hyperlinks"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :thesis, :termSemanticWeb ;
+    schema:text "The migration from loop engineering to graph engineering is real, but it stops one step short. A graph whose nodes and edges are named by private convention is still a silo; a graph whose entities and relationships are named with hyperlinks — and whose relationship semantics are informed by ontologies built in the same webby form — is a web. That is what a Semantic Web is, and the agent-architecture discourse is rediscovering its premises one failure mode at a time."@en .
+
+:sectionEvidencePerez a schema:CreativeWork ;
+    schema:name "Evidence 1 — Perez: four failures of the loop, one failure of the graph"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :xArticle, :fmGoodhart, :fmReferenceBlindness, :fmLoopConflict, :fmMeasurementDecay, :fmCircularConfirmation ;
+    schema:text "Perez shows the single loop failing four ways — Goodhart gaming, reference blindness, loop conflict, measurement decay — and shows the graph of loops answering each topologically: pairing, hierarchy, arbitration, audit. Then he turns the same knife on the graph: built without anchors, it fails circularly, an elaborate network of mutual confirmation where everything is consistent and nothing is verified. His conclusion: the durable axis is ungrounded versus grounded."@en .
+
+:sectionEvidenceMemory a schema:CreativeWork ;
+    schema:name "Evidence 2 — agent-rdf-memory: a working semantic web of loops"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :agentRdfMemory, :termBehavioralContract ;
+    schema:text "The agent-rdf-memory repository is an existence proof of the grounded alternative: an AI agent's behavioral contract as 105 hyperlink-named steps across 9 themes, hub-and-spoke from preferences.ttl to 40+ companion specifications, with identity in core.ttl, ontology-routed SPARQL context selection, and episodic session memory. Every rule is an entity with an IRI; every cross-reference is a resolvable link; the audit loop is a SPARQL query. The improvement graph is not merely drawn — it is dereferenceable."@en .
+
+:sectionEvidenceCommentary a schema:CreativeWork ;
+    schema:name "Evidence 3 — Kingsley: identity and preferences are the original context"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :commentary, :termUnix, :termLangulator, :termProfile, :agentRdfMemory ;
+    schema:workExample :agentRdfMemory ;
+    schema:text "Unix handled identity and preferences as fundamental components of the bridge between users and computer services — a principle blurred by decades of command-line and graphical interfaces. Langulators (large language models) now offer a multimodal, multilingual interface for driving computers, and the fundamentals of session context via profiles risk being lost in AI's repositioning noise. Recapturing identity and preferences as the foundation for context — an operating framework for LLMs, agents, skills, and data spaces — is one of AI's most powerful benefits, and RDF is the naming discipline that makes that context portable, queryable, and web-grounded. This is exemplified concretely by agent-rdf-memory: its preferences.ttl includes the identity and preference HowTos that are re-established at the start of every new session — the Unix profile principle, made machine-computable."@en .
+
+:sectionComparison a schema:CreativeWork ;
+    schema:name "The comparison: every topological fix has a webby completion"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :test1, :test2, :test3, :test4, :test5 ;
+    schema:text "Each failure mode Perez identifies has a loop-graph answer stated in topology, and each topological answer presumes something only naming can deliver: independence presumes distinct ownership; owned references presume names with owners; arbitration presumes shared semantics; audit presumes definitions that cannot drift silently; anchors presume names that resolve to the world. Five tests, five confirmations — with one honest remainder."@en .
+
+:sectionBeyondLlmWikis a schema:CreativeWork ;
+    schema:name "Beyond LLM Wikis: from Markdown prose to machine-computable sentences"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :llmWikisArticle, :rdfClientsArticle, :termLlmWiki, :termGenericRdfClient ;
+    schema:text "Andrej Karpathy's LLM Wiki idea — feed in documents, get back a structured, explorable wiki — was the spark. A Semantic Web is the next step: don't stop at Markdown prose; let any document identified by a URL become a living knowledge graph whose entities and relationships are named with hyperlinks, grounded in Linked Data principles, queryable via SPARQL, and continuously enriched by AI agents. The missing piece was always the client — and just as Mosaic and Netscape were the HTML clients that made the document Web practical, LLMs are the generic RDF clients that make purpose-specific Semantic Webs practical: translating structured data into natural language, meshing disparate sources, anchoring outputs to verifiable relationships, and navigating triples follow-your-nose style."@en .
+
+:sectionVerdict a schema:CreativeWork ;
+    schema:name "Verdict: confirmed — human judgment, codified machine-computably"@en ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:about :thesis, :test5, :termLlmWiki ;
+    schema:text "The thesis holds. The loops-to-graphs shift is a Semantic Web's premises arriving through the back door of agent engineering: graphs need names, names need meaning, meaning needs ontologies, and ontologies must themselves be webby or the grounding terminates in a private convention. The root judgment of what 'better' means originates with people — and workflows informed by a Semantic Web codify that human judgment in machine-computable form. This is the LLM Wiki pattern taken beyond Markdown prose: knowledge bases (or graphs) encoded by AI agents using RDF notations and Linked Data principles, with judgments signed, attributed, and dereferenceable to their authors via verifiable identity. Just ask questions in your native natural language — the naming machinery underneath is what makes the answers trustworthy."@en .
+
+#################################################################
+# People & Organizations
+#################################################################
+
+:carlosPerez a schema:Person ;
+    schema:name "Carlos E. Perez"@en ;
+    schema:description "Author and AI researcher writing on Quaternion Process Theory, artificial intuition, and patterns for generative, reasoning, agentic, and skill-based AI."@en ;
+    schema:url <https://intuitionmachine.gumroad.com> ;
+    owl:sameAs <https://x.com/IntuitMachine#this> .
+
+:peterSteinberger a schema:Person ;
+    schema:name "Peter Steinberger"@en ;
+    schema:description "Software engineer and AI agent builder whose nine-word post on loops versus graphs prompted Perez's essay."@en ;
+    owl:sameAs <https://x.com/steipete#this> .
+
+:kingsleyIdehen a schema:Person ;
+    schema:name "Kingsley Uyi Idehen"@en ;
+    schema:jobTitle "Founder & CEO"@en ;
+    schema:description "Founder & CEO of OpenLink Software; author of this meshup's thesis and commentary. Drives GenAI-based AI agents and the harmonization of disparate data spaces — databases, knowledge bases/graphs, and filesystem documents — via purpose-specific Semantic Webs built on RDF, Linked Data, and verifiable identity."@en ;
+    schema:worksFor :openlinkSoftware ;
+    owl:sameAs <https://www.linkedin.com/in/kidehen#this>,
+               <https://x.com/kidehen#this>,
+               <https://substack.com/@kidehen#this> .
+
+:timBernersLee a schema:Person ;
+    schema:name "Tim Berners-Lee"@en ;
+    schema:description "Inventor of the World Wide Web and originator of the vision in which hyperlink-based naming extends from documents to entities and relationships, manifesting purpose-specific Semantic Webs."@en ;
+    owl:sameAs dbr:Tim_Berners-Lee .
+
+:andrejKarpathy a schema:Person ;
+    schema:name "Andrej Karpathy"@en ;
+    schema:description "AI researcher whose LLM Wiki idea — feed in documents, get back a structured, explorable wiki — sparked the pattern that a Semantic Web extends from Markdown prose to explicit machine-computable sentences."@en ;
+    owl:sameAs <https://x.com/karpathy#this>, dbr:Andrej_Karpathy .
+
+:openlinkSoftware a schema:Organization ;
+    schema:name "OpenLink Software"@en ;
+    schema:url <https://www.openlinksw.com/> ;
+    owl:sameAs dbr:OpenLink_Software .
+
+#################################################################
+# FAQ — 8 Questions
+#################################################################
+
+:faqSection a schema:FAQPage ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:name "Frequently Asked Questions"@en ;
+    schema:mainEntity :q1, :q2, :q3, :q4, :q5, :q6, :q7, :q8, :q9, :q10 .
+
+:q1 a schema:Question ;
+    schema:name "What did Peter Steinberger's nine-word post crystallize?"@en ;
+    schema:acceptedAnswer :a1 .
+:a1 a schema:Answer ;
+    schema:text "It crystallized a field-wide transition in AI agent architecture: builders recognized themselves mid-stride between the single self-improvement loop pattern they were leaving and the graph-of-loops pattern they were reaching for."@en .
+
+:q2 a schema:Question ;
+    schema:name "What are the four failure modes of the single improvement loop?"@en ;
+    schema:acceptedAnswer :a2 .
+:a2 a schema:Answer ;
+    schema:text "Goodhart gaming (the loop optimizes a metric that detaches from its meaning), reference blindness (nothing in the loop can question its own target), loop conflict (independently built loops fight each other), and measurement decay (the loop's own sensors and definitions rot while dashboards stay green)."@en .
+
+:q3 a schema:Question ;
+    schema:name "What is a graph of loops?"@en ;
+    schema:acceptedAnswer :a3 .
+:a3 a schema:Answer ;
+    schema:text "A network of improvement cycles that watch, feed, constrain, and correct one another — paired counter-metric loops, hierarchical reference-owning loops, arbitration loops, and audit loops. The reliability lives in the edges: which loop feeds, watches, or vetoes which."@en .
+
+:q4 a schema:Question ;
+    schema:name "Why do graphs of loops still fail?"@en ;
+    schema:acceptedAnswer :a4 .
+:a4 a schema:Answer ;
+    schema:text "They fail circularly: when every loop watches another loop and no loop touches the ground, the graph becomes a network of mutual confirmation in which everything is consistent and nothing is verified. Topology buys sophistication, not contact with reality — the graph needs anchors."@en .
+
+:q5 a schema:Question ;
+    schema:name "How does a Semantic Web answer the anchor problem?"@en ;
+    schema:acceptedAnswer :a5 .
+:a5 a schema:Answer ;
+    schema:text "By naming entities and relationships with dereferenceable hyperlink IRIs: a claim can be followed to its source, identity is verifiable (WebID), provenance is explicit (PROV-O), and the ontologies that give relationships meaning are themselves webby — hyperlinked, resolvable, inspectable — so grounding does not terminate in a private convention."@en .
+
+:q6 a schema:Question ;
+    schema:name "How does agent-rdf-memory demonstrate the thesis?"@en ;
+    schema:acceptedAnswer :a6 .
+:a6 a schema:Answer ;
+    schema:text "It is a working semantic web of loops: an AI agent's behavioral contract encoded as 105 hyperlink-named steps across 9 themes in RDF-Turtle, hub-and-spoke from preferences.ttl to 40+ companion specifications, with identity in core.ttl, ontology-routed SPARQL context selection, and episodic session memory. Every rule is a dereferenceable entity, and the audit loop is a SPARQL query."@en .
+
+:q7 a schema:Question ;
+    schema:name "What role do identity and preferences play in agent context?"@en ;
+    schema:acceptedAnswer :a7 .
+:a7 a schema:Answer ;
+    schema:text "They are the original context mechanism: Unix treated identity and preferences as fundamental components of the bridge between users and computer services. Session context via profiles is that same principle, and encoding profiles in RDF makes agent context portable, queryable, and grounded in the web rather than trapped in a vendor silo."@en .
+
+:q8 a schema:Question ;
+    schema:name "What is a langulator?"@en ;
+    schema:acceptedAnswer :a8 .
+:a8 a schema:Answer ;
+    schema:text "Kingsley Idehen's term for a large language model viewed as a language-driven calculator: a multimodal, multilingual natural-language interface for driving computers, succeeding the command-line and graphical interfaces that previously blurred the identity-and-preferences fundamentals of computing."@en .
+
+:q9 a schema:Question ;
+    schema:name "What is an LLM Wiki, and how does a Semantic Web go beyond it?"@en ;
+    schema:acceptedAnswer :a9 .
+:a9 a schema:Answer ;
+    schema:text "An LLM Wiki, an idea popularized by Andrej Karpathy, feeds documents to a language model and gets back a structured, explorable wiki — typically Markdown prose. A Semantic Web goes one step further: the same documents become living knowledge graphs of explicit machine-computable sentences, with entities and relationships named by hyperlinks, grounded in Linked Data principles, queryable via SPARQL, and continuously enriched by AI agents."@en .
+
+:q10 a schema:Question ;
+    schema:name "Why are LLMs described as generic RDF clients?"@en ;
+    schema:acceptedAnswer :a10 .
+:a10 a schema:Answer ;
+    schema:text "RDF adoption long lagged for want of a usable generic client — the 'I'll know it when I see it' paradox. Just as Mosaic and Mozilla/Netscape were the HTML clients that made the document Web practical, LLMs fill that role for RDF: translating structured data into natural-language insights, meshing disparate sources, anchoring outputs to reliable data to mitigate hallucination, and traversing triples follow-your-nose style."@en .
+
+#################################################################
+# Glossary — Defined Terms
+#################################################################
+
+:glossarySection a schema:DefinedTermSet, skos:ConceptScheme ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:name "Glossary"@en ;
+    schema:hasDefinedTerm :termSemanticWeb, :termLinkedData, :termOntology, :termRDF, :termSPARQL,
+        :termLoopEngineering, :termGraphEngineering, :termAnchor, :termLangulator,
+        :termBehavioralContract, :termProfile, :termMeshup, :termUnix, :termContextGraph,
+        :termLlmWiki, :termGenericRdfClient .
+
+:termSemanticWeb a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Semantic Web"@en ;
+    schema:description "An extension of the World Wide Web in which information is given well-defined meaning via RDF: entity relationship graphs become webs because hyperlinks name entities and relationships, and relationship semantics are informed by ontologies constructed in the same webby form. In practice there is no single definite-article Semantic Web — there are purpose-specific Semantic Webs, each a deployment instance ('a Semantic Web')."@en ;
+    owl:sameAs dbr:Semantic_Web .
+
+:termLinkedData a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Linked Data"@en ;
+    schema:description "The publishing discipline that manifests a Semantic Web: name things with HTTP IRIs, make the names dereferenceable, and return useful, further-linked descriptions when they are looked up."@en ;
+    owl:sameAs dbr:Linked_data .
+
+:termOntology a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Ontology"@en ;
+    schema:description "A formal model of classes, properties, and relationships shared by a community of interest — the schema layer that gives relationship semantics their context, itself published in webby, hyperlinked form."@en ;
+    owl:sameAs <http://dbpedia.org/resource/Ontology_(information_science)>,
+        <https://x.com/kidehen/status/2055725483535282591#ontologyTerm> .
+
+:termRDF a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "RDF (Resource Description Framework)"@en ;
+    schema:description "The W3C framework for describing entities and relationships as subject-predicate-object statements whose components are hyperlink IRIs — the naming substrate that turns graphs into webs."@en ;
+    owl:sameAs dbr:Resource_Description_Framework,
+        <https://x.com/kidehen/status/2055725483535282591#rdfTerm> .
+
+:termSPARQL a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "SPARQL"@en ;
+    schema:description "The W3C query language for RDF graphs; in an improvement graph, the audit loop is a SPARQL query over independently named and governed graphs."@en ;
+    owl:sameAs dbr:SPARQL .
+
+:termLoopEngineering a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Loop Engineering"@en ;
+    schema:description "The craft of building one clean self-improvement cycle: choose a measurable thing, set a reference, close the cycle, resist fiddling between measurements. The previous era's core skill in agent building."@en .
+
+:termGraphEngineering a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Graph Engineering"@en ;
+    schema:description "The emerging craft of loop architecture: pairing metrics with watchers, giving references owners, separating loop speeds, and making some loop answer for reality — designing the network of cycles rather than the cycle."@en .
+
+:termAnchor a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Anchor"@en ;
+    schema:description "A measurement or rule the improvement machinery cannot argue with or tune: revenue that landed in the bank, tests that actually executed, frozen rules, held-out sets. In Semantic Web terms: names that dereference to verifiable, provenance-bearing ground truth."@en .
+
+:termLangulator a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Langulator"@en ;
+    schema:description "A large language model viewed as a language-driven calculator: a multimodal, multilingual natural-language interface for driving computers. Coined by Kingsley Uyi Idehen."@en .
+
+:termBehavioralContract a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Behavioral Contract"@en ;
+    schema:description "An agent's standing instructions encoded as queryable, hyperlink-named RDF entities rather than flat prose — rules that are resolvable, auditable via SPARQL, and harder to overlook than markdown."@en .
+
+:termProfile a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Profile (Session Context)"@en ;
+    schema:description "The pairing of identity and preferences that constitutes session context — a fundamental component of the user-to-services bridge since Unix, now the foundation for LLM and agent context."@en .
+
+:termMeshup a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Meshup"@en ;
+    schema:description "Semantic content fusion: combining and enriching information from multiple sources using Linked Data and RDF to produce a semantically coherent, queryable knowledge graph — as this document does with three sources."@en .
+
+:termUnix a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Unix"@en ;
+    schema:description "The operating-system family whose handling of identity and preferences as fundamental components of the user-to-services bridge prefigures profile-based agent context."@en ;
+    owl:sameAs dbr:Unix .
+
+:termContextGraph a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Context Graph"@en ;
+    schema:description "A knowledge graph purpose-built to supply agents with situational context — entities, preferences, and rules linked into a queryable structure."@en ;
+    owl:sameAs <https://metadataweekly.substack.com/p/ontologies-context-graphs-and-semantic#contextGraph> .
+
+:termLlmWiki a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "LLM Wiki"@en ;
+    schema:description "An emerging pattern, popularized by Andrej Karpathy, in which documents are fed to a language model that returns a structured, explorable wiki. A Semantic Web takes it beyond Markdown prose: the wiki's content becomes explicit machine-computable sentences — knowledge bases (or graphs) encoded by AI agents using RDF notations and Linked Data principles."@en .
+
+:termGenericRdfClient a schema:DefinedTerm, skos:Concept ;
+    schema:inDefinedTermSet :glossarySection ;
+    skos:inScheme :glossarySection ;
+    schema:name "Generic RDF Client"@en ;
+    schema:description "The long-missing piece that kept RDF adoption lagging. LLMs now fill the role — as Mosaic and Mozilla/Netscape did for HTML — by translating structured data into natural language, meshing disparate sources, anchoring outputs to verifiable relationships, and navigating triples follow-your-nose style."@en .
+
+#################################################################
+# HowTo — 7 Steps
+#################################################################
+
+:howtoSection a schema:HowTo ;
+    schema:isPartOf :meshupAnalysis ;
+    schema:name "How to Ground an Agent's Improvement Graph in a Semantic Web"@en ;
+    schema:step :step1, :step2, :step3, :step4, :step5, :step6, :step7 .
+
+:step1 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 1 ;
+    schema:name "Name entities and relationships with hyperlink IRIs"@en ;
+    schema:text "Give every node and every edge in the improvement graph a dereferenceable HTTP IRI, so any claim, metric, or rule can be followed to its definition and source."@en .
+
+:step2 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 2 ;
+    schema:name "Encode identity and preferences as RDF profiles"@en ;
+    schema:text "Recapture the Unix fundamentals: represent who the agent works for and how it must behave as queryable RDF (identity plus a preferences-based behavioral contract), not as flat prose in a vendor silo."@en .
+
+:step3 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 3 ;
+    schema:name "Give relationship semantics an ontology"@en ;
+    schema:text "Describe what the graph's edges mean in a lightweight, webby ontology — published, hyperlinked, and inspectable — so conflicting loops share a vocabulary and trade-offs become expressible."@en .
+
+:step4 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 4 ;
+    schema:name "Route context by intent through the ontology"@en ;
+    schema:text "Classify each prompt's intent and select session context via ontology-routed SPARQL queries over named graphs, expanding to detailed specifications only when the intent requires them."@en .
+
+:step5 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 5 ;
+    schema:name "Pair every optimizing metric with an independent watcher"@en ;
+    schema:text "Store counter-metrics and audit data in separately named, separately governed graphs the optimizing loop cannot rewrite, and make the audit loop a standing SPARQL ASK query."@en .
+
+:step6 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 6 ;
+    schema:name "Anchor in verifiable identity and provenance"@en ;
+    schema:text "Sign and attribute judgments with verifiable identity (WebID) and record derivation with provenance vocabulary (PROV-O), so grounding resolves to accountable authors and inspectable sources rather than private convention."@en .
+
+:step7 a schema:HowToStep ;
+    schema:isPartOf :howtoSection ;
+    schema:position 7 ;
+    schema:name "Keep the root judgment human — and record it"@en ;
+    schema:text "The definition of 'better' is chosen, not computed. Record that choice as an attributed, dereferenceable claim so the improvement machinery is honest about where its own authority ends."@en .
