@@ -9,7 +9,7 @@
     schema:name "Entity Registry: People"@en ;
     schema:description "Canonical schema:Person entity IRIs for individuals recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a person entity, and MUST register newly resolved person IRIs here rather than only in session files. Populated 2026-07-14 from a SPARQL census of schema:Person instances across all DAV named graphs (1,271 instances, 1,150 distinct IRIs, 499 owl:sameAs/name-merged clusters, 41 recurring in >= 3 documents)."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :kingsleyIdehen, :tonySeale, :satyaNadella, :jayaGupta, :alexKarp,
         :aaronLevie, :jessicaTalisman, :robertScoble, :adedejiOlowe, :veronikaHeimsbakk,
@@ -19,7 +19,7 @@
         :joostDeValk, :gauravMalhotra, :samAltman, :stuartMichaelEdelenbos, :saanyaOjha,
         :danielAtherton, :popeLeoXIV, :florianWirtz, :jonathanJaffe, :virgilVanDijk,
         :nickZervoudis, :vivianVoss, :dennisJuarez, :naomiXia, :tomaszTunguz,
-        :andrejKarpathy, :henryYin ;
+        :andrejKarpathy, :henryYin, :carlosPerez, :peterSteinberger ;
     rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl>,
         <../howto/entity-iri-denotation-mechanics.ttl>,
@@ -367,3 +367,16 @@
     owl:sameAs <https://moe-capital.com/blog-home/the-model-that-dreams-the-world#henryYin> ;
     rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:carlosPerez a schema:Person ;
+    schema:name "Carlos E. Perez"@en ;
+    schema:url <https://intuitionmachine.gumroad.com> ;
+    owl:sameAs <https://x.com/IntuitMachine#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in corpus). Author of X Article 'From Loop Engineering to Graph Engineering?' (2026-07-18). Verified against the read article page x.com/IntuitMachine/status/2078419526354378975; bio URL copied verbatim from profile. First registered from the loops-to-graphs meshup session 2026-07-18."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime .
+
+:peterSteinberger a schema:Person ;
+    schema:name "Peter Steinberger"@en ;
+    owl:sameAs <https://x.com/steipete#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in corpus). Author of the nine-word loops-vs-graphs post (x.com/steipete/status/2078277297791189132) cited by Carlos E. Perez's essay; handle verified verbatim from the read article. First registered from the loops-to-graphs meshup session 2026-07-18."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime .
