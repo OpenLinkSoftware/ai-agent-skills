@@ -5,41 +5,52 @@
 
 <> a schema:HowTo ;
     schema:name "Resolver-IRI Reuse of Document-Local Ontology Terms Across ANY Future Task Run"@en ;
-    schema:description "Protocol for treating every schema:DefinedTerm, custom rdfs:Class, and custom rdf:Property minted during ANY doc-collection production task as a standing, resolver-dereferenceable term available for reuse in ANY future task run — not only a topically-related companion/sequel — so that custom term bloat does not accumulate across the agent's output corpus."@en ;
+    schema:description "Protocol for treating every schema:DefinedTerm, custom rdfs:Class, and custom rdf:Property minted during ANY doc-collection production task as a standing, resolver-dereferenceable term available for reuse in ANY future task run — not only a topically-related companion/sequel — so that custom term bloat does not accumulate across the agent's output corpus. CORRECTION (2026-07-14, same-day): the initial version of this rule required the new document to be an explicit companion/sequel/rebuttal before reuse applied; the user clarified that resolver-IRI dereferenceability has no such precondition — any locally-minted term, once published, is reusable by any future task regardless of topic. Restricting reuse to 'companion documents' would still allow the same conceptual term to be re-minted under a fresh disjoint local IRI every time an unrelated topic touches it."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :mainStep, :censusStep, :tboxStep ;
-    schema:step :mainStep, :censusStep, :tboxStep ;
+    schema:step :step-reuseScope, :step-preMintCheck, :step-reuseExistingTerm,
+        :step-mintOnlyNew, :step-promoteRecurring,
+        :step-censusQuery, :step-censusNormalization, :step-censusDedupRank,
+        :step-censusCanonicalIri,
+        :step-tboxAlignmentVocabulary, :step-tboxCensusQuery,
+        :step-tboxRegistryMaintenance, :step-tboxSameLabelCaution ;
+    schema:workExample :workExample-avcReuseTrend, :workExample-censusBaselines ;
     rdfs:seeAlso <../preferences.ttl#step-crossDocumentLocalTermReuse>, <ontology-discovery.ttl>, <canonical-entity-iri-denotation.ttl>, <ontology-cross-reference-gate.ttl>, <../entities/concepts.ttl>, <../entities/ontology-terms.ttl> .
 
-:mainStep a schema:HowToStep ;
+# ══ Section A: The Reuse Gate (Steps 1–5) ════════════════════════════════════
+
+:step-reuseScope a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Any doc-collection production run's local ontology terms are permanently reusable in ANY future run via their resolver IRI — check before minting a new one, regardless of topical relation"@en ;
-    schema:text """This gate is distinct from the two adjacent ontology gates already in memory: ontology-discovery.ttl covers discovering EXTERNAL shared vocabularies (prefix.cc) before inventing new predicates; canonical-entity-iri-denotation.ttl covers real-world entity IRIs (people, organizations). Neither covers a third, more fundamental case: once a document-local schema:DefinedTerm, rdfs:Class, or rdf:Property is minted during a doc-collection production task and published to DAV (linkeddata.uriburner.com/DAV/demos/daas/{filename}), it becomes dereferenceable through the standard resolver IRI pattern (linkeddata.uriburner.com/describe/?url={encoded-IRI}) — the same mechanism used for every other entity hyperlink in this system. Dereferenceability is what makes the term reusable: any future task, on ANY topic, can reference that same term by its bound prefix instead of minting a new local equivalent, exactly as it would for a schema.org or DBpedia term.
+    schema:name "Understand the mechanism: publication to DAV makes every local term resolver-dereferenceable, hence reusable corpus-wide"@en ;
+    schema:text "This gate is distinct from the two adjacent ontology gates: ontology-discovery.ttl covers discovering EXTERNAL shared vocabularies (prefix.cc) before inventing new predicates; canonical-entity-iri-denotation.ttl covers real-world entity IRIs (people, organizations). This gate covers a third case: once a document-local schema:DefinedTerm, rdfs:Class, or rdf:Property is minted during a doc-collection production task and published to DAV (linkeddata.uriburner.com/DAV/demos/daas/{filename}), it becomes dereferenceable through the standard resolver IRI pattern (linkeddata.uriburner.com/describe/?url={encoded-IRI}) — the same mechanism used for every other entity hyperlink in this system. Dereferenceability is what makes the term reusable: any future task, on ANY topic, can reference that same term by its bound prefix instead of minting a new local equivalent, exactly as it would for a schema.org or DBpedia term."@en .
 
-CORRECTION to the original framing of this gate (2026-07-14): the rule is NOT conditioned on the new document being an explicit companion, sequel, or rebuttal to the term's origin document. That framing was too narrow — it only captured a 'trilogy' or 'series' relationship. The actual mechanism is broader and unconditional: because the term is resolver-dereferenceable the moment it is published, it is reusable in ANY subsequent doc-collection production task, whether or not the new task is topically or thematically related to the one that minted it. Restricting reuse to 'companion documents' would still allow the same conceptual term (e.g. 'ABAC', 'enterprise knowledge graph', 'reasoning/learning separation') to be re-minted under a fresh disjoint local IRI every time an unrelated topic happens to touch on it — which is exactly the 'custom term bloat' this rule exists to prevent.
-
-Observed trend (2026-07-14) across three related RDF Knowledge Graphs, used as illustrative evidence, not as the scope boundary of the rule:
-1. ai-value-capture-response-claude_sonnet_5-1.ttl (prefix avc:) mints local DefinedTerms :abac, :enterpriseKnowledgeGraph, :reasoningLearningSeparation, :linkedDataPrinciples, :semanticWeb, :agentHarness, :dereference, :knowledgeCaptureVsExfiltration, :enterpriseOwnedLearningCurve, :iriDenotation.
-2. reverse-information-paradox-claude_sonnet_5-1.ttl imports the avc: prefix bound to the FIRST document's own DAV URL and reuses avc:abac, avc:enterpriseKnowledgeGraph, avc:reasoningLearningSeparation AS-IS, instead of re-minting a differently-named local equivalent. It also reuses theCUBE Research's karp:CriticalPerspective class and karp:respondsTo property, minted in a third, earlier document.
-3. Real-world entity IRIs (e.g. <https://linkedin.com/in/kidehen#this>, dbr:OpenLink_Software) are likewise carried forward rather than redeclared per-document — the same discipline this rule extends from entities to document-local ONTOLOGY terms, and from 'related documents only' to the full accumulated corpus.
-
-Rule: before minting ANY new schema:DefinedTerm, rdfs:Class, or rdf:Property in ANY doc-collection production task, first check whether an equivalent term already exists among this agent's previously-published, resolver-dereferenceable local terms — via the entities/ registry (entities/concepts.ttl and any future ontology-term-specific registry), via a targeted SPARQL query against the DAV-hosted graphs, or by recalling prior session/output files known to define the concept. If an equivalent term already exists:
-(a) Add an @prefix binding for the origin document's namespace, using ITS OWN canonical DAV URL as the IRI base — never restate or copy the term's definition into the new document's own namespace.
-(b) Reference the existing term directly by its bound prefix (e.g. avc:abac) wherever the new document would otherwise define an equivalent concept.
-(c) Do NOT create a new local term with a different name for the same concept, regardless of whether the new document is topically related to the term's origin — that duplicates meaning under two disjoint IRIs and defeats the cross-document graph merge Linked Data is supposed to provide for free, and is precisely the custom-term-bloat failure mode this rule targets.
-(d) Only mint a genuinely new local term when the concept is new to the agent's accumulated corpus, or represents a meaningfully narrower/broader refinement of an existing term — in which case link it via rdfs:subClassOf / rdfs:seeAlso / skos:broader to the prior term rather than silently duplicating it.
-(e) When a term proves broadly reusable across two or more unrelated productions, consider promoting it into entities/concepts.ttl (or a parallel ontology-terms registry) as a standing, curated entry — mirroring how real-world entities already get promoted into the entities/ registry.
-
-Why this gate exists and was corrected: the initial version of this rule (created earlier in the same session) required the new document to be an explicit companion/sequel/rebuttal before reuse applied. The user clarified that the underlying mechanism — resolver-IRI dereferenceability — has no such precondition: any locally-minted term, once published, is reusable by any future task regardless of topic, and the whole point of checking first is to prevent custom term bloat from accumulating across the agent's full output corpus, not just within a single narrative series."""@en .
-
-:censusStep a schema:HowToStep ;
+:step-preMintCheck a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
-    schema:name "Corpus-wide concept census: query DefinedTerm instances across DAV named graphs via the URIBurner SPARQL endpoint (curl), rank by cross-document recurrence, promote recurring terms into entities/concepts.ttl"@en ;
-    schema:text """Executed 2026-07-14 with results promoted into entities/concepts.ttl (20 new entries). This is the standing discovery mechanism for finding which concepts are being re-minted across the published corpus — preferred over local-folder parsing because named graphs at the URIBurner quad store span ALL producing models and output folders (Claude, GPT-5, DeepSeek, Qwen, Big Pickle, Kimi, MiniMax), whereas any local rdf/ folder holds only one model's output.
+    schema:name "Before minting ANY new term, check for an existing equivalent among previously-published local terms"@en ;
+    schema:text "Before minting ANY new schema:DefinedTerm, rdfs:Class, or rdf:Property in ANY doc-collection production task, first check whether an equivalent term already exists among this agent's previously-published, resolver-dereferenceable local terms — via the entities/ registry (entities/concepts.ttl and entities/ontology-terms.ttl), via a targeted SPARQL query against the DAV-hosted graphs, or by recalling prior session/output files known to define the concept."@en .
 
-Method (query the public SPARQL endpoint DIRECTLY via curl — not via MCP tool wrappers):
+:step-reuseExistingTerm a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "When an equivalent exists: bind the origin document's prefix and reference the term as-is — never re-mint"@en ;
+    schema:text "(a) Add an @prefix binding for the origin document's namespace, using ITS OWN canonical DAV URL as the IRI base — never restate or copy the term's definition into the new document's own namespace. (b) Reference the existing term directly by its bound prefix (e.g. avc:abac) wherever the new document would otherwise define an equivalent concept. (c) Do NOT create a new local term with a different name for the same concept, regardless of whether the new document is topically related to the term's origin — that duplicates meaning under two disjoint IRIs and defeats the cross-document graph merge Linked Data provides for free."@en .
+
+:step-mintOnlyNew a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Mint a new local term only for genuinely new concepts, linking refinements to their prior term"@en ;
+    schema:text "Only mint a genuinely new local term when the concept is new to the agent's accumulated corpus, or represents a meaningfully narrower/broader refinement of an existing term — in which case link it via rdfs:subClassOf / rdfs:seeAlso / skos:broader to the prior term rather than silently duplicating it."@en .
+
+:step-promoteRecurring a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Promote broadly-reused terms into the entities/ registries as standing curated entries"@en ;
+    schema:text "When a term proves broadly reusable across two or more unrelated productions, promote it into entities/concepts.ttl (or entities/ontology-terms.ttl for TBox terms) as a standing, curated entry — mirroring how real-world entities already get promoted into the entities/ registry."@en .
+
+# ══ Section B: DefinedTerm Census (Steps 6–9) ════════════════════════════════
+
+:step-censusQuery a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Run the corpus-wide DefinedTerm census against the URIBurner SPARQL endpoint via curl"@en ;
+    schema:text """This is the standing discovery mechanism for finding which concepts are being re-minted across the published corpus — preferred over local-folder parsing because named graphs at the URIBurner quad store span ALL producing models and output folders (Claude, GPT-5, DeepSeek, Qwen, Big Pickle, Kimi, MiniMax), whereas any local rdf/ folder holds only one model's output. Query the public SPARQL endpoint DIRECTLY via curl — not via MCP tool wrappers:
 
   curl -s "https://linkeddata.uriburner.com/sparql" \\
     --data-urlencode 'query=SELECT ?g ?term ?name WHERE {
@@ -50,28 +61,54 @@ Method (query the public SPARQL endpoint DIRECTLY via curl — not via MCP tool 
       }
       FILTER(STRSTARTS(STR(?g), "https://linkeddata.uriburner.com/DAV/demos/daas/"))
     }' \\
-    --data-urlencode 'format=application/sparql-results+json'
+    --data-urlencode 'format=application/sparql-results+json'"""@en .
 
-Post-processing rules:
-(a) Normalize names: lowercase, strip parenthetical acronym expansions, collapse whitespace. Exact-name grouping alone is NOT sufficient — re-mints commonly hide behind plural/hyphen/long-form label variants ('Forward-Deployed Engineer' vs 'Forward Deployed Engineer', 'Systems of Record' vs 'System of Record', 'RDF — Resource Description Framework' vs 'RDF', '#AILiteracy' vs '##AILiteracySkill' even within one source document). Run a second, token-overlap similarity pass against the registry anchors; wire confirmed same-concept variant IRIs into the registry entry via owl:sameAs plus skos:altLabel for the label variant. Broader/adjacent concepts ('Governance' vs 'AI Governance', 'Access Control' vs 'ABAC') get skos:related, never owl:sameAs.
-(b) Deduplicate by document BASENAME (strip .ttl/.jsonld) — every published doc has both serializations loaded as separate named graphs, so raw graph counts double-count.
-(c) Rank by count of distinct documents; the promotion threshold is recurrence in >= 3 independent documents.
-(d) For each promoted concept: canonical IRI is the verified DBpedia resource where one exists (verify via https://dbpedia.org/data/{resource}.json returning HTTP 200 with own rdfs:label/description — a 2-key redirect stub does NOT count until inspected); otherwise the most-recurrent previously-published document IRI is canonical. Link the other via owl:sameAs either way, preserving cross-corpus graph merge.
-(e) Census baseline 2026-07-14: 149 graphs, 2,141 DefinedTerm instances, 1,163 distinct concepts, 35 recurring in >= 3 docs. Re-run periodically; any NEW concept crossing the 3-doc threshold since the last census is a promotion candidate and evidence the pre-mint check (step 1) was skipped."""@en .
+:step-censusNormalization a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Normalize names and run a similarity pass — exact-name grouping alone misses variant re-mints"@en ;
+    schema:text "Normalize names: lowercase, strip parenthetical acronym expansions, collapse whitespace. Exact-name grouping alone is NOT sufficient — re-mints commonly hide behind plural/hyphen/long-form label variants ('Forward-Deployed Engineer' vs 'Forward Deployed Engineer', 'Systems of Record' vs 'System of Record', 'RDF — Resource Description Framework' vs 'RDF', '#AILiteracy' vs '##AILiteracySkill' even within one source document). Run a second, token-overlap similarity pass against the registry anchors; wire confirmed same-concept variant IRIs into the registry entry via owl:sameAs plus skos:altLabel for the label variant. Broader/adjacent concepts ('Governance' vs 'AI Governance', 'Access Control' vs 'ABAC') get skos:related, never owl:sameAs."@en .
 
-:tboxStep a schema:HowToStep ;
-    schema:position "3"^^xsd:integer ;
-    schema:name "TBox harmonization: align re-minted classes/properties with owl:equivalentClass / owl:equivalentProperty (never owl:sameAs), maintained in entities/ontology-terms.ttl, to enable reasoning and inference"@en ;
-    schema:text """The DefinedTerm census (step 2) covers ABox-level concepts aligned via owl:sameAs. TBox terms — rdfs:Class, owl:Class, rdf:Property, owl:ObjectProperty, owl:DatatypeProperty minted relative to a graph IRI — require the RDFS/OWL alignment vocabulary instead, because that is what reasoners (Virtuoso inference rules and SPIN, FuXi) exploit to merge instance data across named graphs:
+:step-censusDedupRank a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Deduplicate by document basename and rank by distinct-document recurrence (promotion threshold: ≥ 3)"@en ;
+    schema:text "Deduplicate by document BASENAME (strip .ttl/.jsonld) — every published doc has both serializations loaded as separate named graphs, so raw graph counts double-count. Rank by count of distinct documents; the promotion threshold is recurrence in >= 3 independent documents. Any NEW concept crossing the 3-doc threshold since the last census is a promotion candidate and evidence the pre-mint check (Step 2) was skipped."@en .
 
-  - Same-meaning class re-minted under disjoint IRIs → owl:equivalentClass to the canonical IRI.
-  - Same-meaning property re-minted → owl:equivalentProperty.
-  - Hierarchical relation (one class genuinely narrower) → rdfs:subClassOf / rdfs:subPropertyOf, not equivalence.
-  - NEVER owl:sameAs between classes or properties — that treats TBox terms as individuals (OWL Full territory) and is invisible to class/property-level inference.
-  - For SKOS-modeled concepts in entities/concepts.ttl, hierarchical relations use skos:broader/skos:narrower (assert skos:broader on the narrower concept); skos:related is ONLY for non-hierarchical associative links.
+:step-censusCanonicalIri a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Canonical IRI: verified DBpedia resource where one exists, else the most-recurrent published document IRI"@en ;
+    schema:text "For each promoted concept: the canonical IRI is the verified DBpedia resource where one exists (verify via https://dbpedia.org/data/{resource}.json returning HTTP 200 with own rdfs:label/description — a 2-key redirect stub does NOT count until inspected); otherwise the most-recurrent previously-published document IRI is canonical. Link the other via owl:sameAs either way, preserving cross-corpus graph merge."@en .
 
-TBox census query: same GRAPH/FILTER shape as the DefinedTerm census but matching ?term a rdfs:Class|owl:Class|rdf:Property|owl:ObjectProperty|owl:DatatypeProperty, excluding external vocabularies (w3.org, schema.org, dbpedia.org, purl.org, xmlns.com hosts). Baseline 2026-07-14: 656 locally-minted TBox terms, 86 recurring in >= 2 documents.
+# ══ Section C: TBox Harmonization (Steps 10–13) ══════════════════════════════
 
-Alignment axioms live in entities/ontology-terms.ttl — loadable into Virtuoso as an alignment/inference graph. Canonical IRI selection: most-used IRI in the corpus wins (e.g. the FDE/IRE single-# family, 5 loads, beats the double-## family, 2 loads, caused by an @prefix ending in ## in one producing file). Generator-template analysis classes (KeyPrinciple, KeyConcept, ComparisonDimension, UseCase, ArchitectureConcept, hasLaborTAM, hasAutomationReadiness, ...) are minted by the skill workflow itself, not by source articles, so they re-mint EVERY run unless the canonical registry IRI is reused — check ontology-terms.ttl before minting any analysis-pattern class or property.
+:step-tboxAlignmentVocabulary a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Align TBox terms with owl:equivalentClass / owl:equivalentProperty — NEVER owl:sameAs"@en ;
+    schema:text "TBox terms (rdfs:Class, owl:Class, rdf:Property, owl:ObjectProperty, owl:DatatypeProperty minted relative to a graph IRI) require the RDFS/OWL alignment vocabulary, because that is what reasoners (Virtuoso inference rules and SPIN, FuXi) exploit to merge instance data across named graphs: same-meaning class re-minted under disjoint IRIs → owl:equivalentClass to the canonical IRI; same-meaning property → owl:equivalentProperty; hierarchical relation (one class genuinely narrower) → rdfs:subClassOf / rdfs:subPropertyOf, not equivalence. NEVER owl:sameAs between classes or properties — that treats TBox terms as individuals (OWL Full territory) and is invisible to class/property-level inference. For SKOS-modeled concepts in entities/concepts.ttl, hierarchical relations use skos:broader/skos:narrower (assert skos:broader on the narrower concept); skos:related is ONLY for non-hierarchical associative links."@en .
 
-Same-label caution (mirror of step 2's similarity caution, in reverse): a shared label does NOT prove identity for TBox terms. truck-ontology 'driverStatus'/'truckStatus' vs a generic 'status', or two 'Customer' classes with different ontological commitments, must never be equated — record such collisions in the ontology-terms.ttl watchlist section so future census passes don't misalign them."""@en .
+:step-tboxCensusQuery a schema:HowToStep ;
+    schema:position "11"^^xsd:integer ;
+    schema:name "Run the TBox census with the same GRAPH/FILTER shape, excluding external vocabulary hosts"@en ;
+    schema:text "TBox census query: same GRAPH/FILTER shape as the DefinedTerm census (Step 6) but matching ?term a rdfs:Class|owl:Class|rdf:Property|owl:ObjectProperty|owl:DatatypeProperty, excluding external vocabularies (w3.org, schema.org, dbpedia.org, purl.org, xmlns.com hosts)."@en .
+
+:step-tboxRegistryMaintenance a schema:HowToStep ;
+    schema:position "12"^^xsd:integer ;
+    schema:name "Maintain alignment axioms in entities/ontology-terms.ttl; check it before minting any analysis-pattern class"@en ;
+    schema:text "Alignment axioms live in entities/ontology-terms.ttl — loadable into Virtuoso as an alignment/inference graph. Canonical IRI selection: most-used IRI in the corpus wins (e.g. the FDE/IRE single-# family, 5 loads, beats the double-## family, 2 loads, caused by an @prefix ending in ## in one producing file). Generator-template analysis classes (KeyPrinciple, KeyConcept, ComparisonDimension, UseCase, ArchitectureConcept, hasLaborTAM, hasAutomationReadiness, ...) are minted by the skill workflow itself, not by source articles, so they re-mint EVERY run unless the canonical registry IRI is reused — check ontology-terms.ttl before minting any analysis-pattern class or property."@en .
+
+:step-tboxSameLabelCaution a schema:HowToStep ;
+    schema:position "13"^^xsd:integer ;
+    schema:name "A shared label does NOT prove identity — record collisions in the ontology-terms.ttl watchlist"@en ;
+    schema:text "Mirror of Step 7's similarity caution, in reverse: a shared label does NOT prove identity for TBox terms. truck-ontology 'driverStatus'/'truckStatus' vs a generic 'status', or two 'Customer' classes with different ontological commitments, must never be equated — record such collisions in the ontology-terms.ttl watchlist section so future census passes don't misalign them."@en .
+
+# ══ Worked Examples ══════════════════════════════════════════════════════════
+
+:workExample-avcReuseTrend a schema:CreativeWork ;
+    schema:name "Observed reuse trend (2026-07-14) across three related KGs — illustrative evidence, not the rule's scope boundary"@en ;
+    schema:text """1. ai-value-capture-response-claude_sonnet_5-1.ttl (prefix avc:) mints local DefinedTerms :abac, :enterpriseKnowledgeGraph, :reasoningLearningSeparation, :linkedDataPrinciples, :semanticWeb, :agentHarness, :dereference, :knowledgeCaptureVsExfiltration, :enterpriseOwnedLearningCurve, :iriDenotation.
+2. reverse-information-paradox-claude_sonnet_5-1.ttl imports the avc: prefix bound to the FIRST document's own DAV URL and reuses avc:abac, avc:enterpriseKnowledgeGraph, avc:reasoningLearningSeparation AS-IS, instead of re-minting a differently-named local equivalent. It also reuses theCUBE Research's karp:CriticalPerspective class and karp:respondsTo property, minted in a third, earlier document.
+3. Real-world entity IRIs (e.g. <https://linkedin.com/in/kidehen#this>, dbr:OpenLink_Software) are likewise carried forward rather than redeclared per-document — the same discipline this rule extends from entities to document-local ONTOLOGY terms, and from 'related documents only' to the full accumulated corpus."""@en .
+
+:workExample-censusBaselines a schema:CreativeWork ;
+    schema:name "Census baselines (2026-07-14)"@en ;
+    schema:text """DefinedTerm census: 149 graphs, 2,141 DefinedTerm instances, 1,163 distinct concepts, 35 recurring in >= 3 docs; 20 entries promoted into entities/concepts.ttl. Re-run periodically.
+TBox census: 656 locally-minted TBox terms, 86 recurring in >= 2 documents."""@en .

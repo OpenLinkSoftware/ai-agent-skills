@@ -9,27 +9,28 @@
     schema:name "Verified Identity Gate — Whoami Certificate Verification Protocol"@en ;
     schema:description "Protocol for cryptographically verifying both the user identity and the agent identity before responding to a whoami query. Uses local PKCS#12 / PEM certificates whose public key moduli are matched against the published cert:RSAPublicKey in each party's WebID profile document, plus remote verification of reciprocal delegation claims against live WebDAV-hosted profiles."@en ;
     schema:dateCreated "2026-06-19T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-resolveCredentialsRoot,
-                 :step-locateUserCert, :step-verifyUserIdentity,
-                 :step-locateAgentCert, :step-verifyAgentIdentity,
-                 :step-verifyDelegationClaims,
-                 :step-verifyDelegationRemote,
-                 :step-assembleVerifiedWhoami ;
+    schema:about :verifiedIdentityGate ;
     schema:step :step-resolveCredentialsRoot,
-                :step-locateUserCert, :step-verifyUserIdentity,
-                :step-locateAgentCert, :step-verifyAgentIdentity,
-                :step-verifyDelegationClaims,
-                :step-verifyDelegationRemote,
-                :step-assembleVerifiedWhoami ;
+        :step-locateUserCert, :step-verifyUserIdentity,
+        :step-locateAgentCert, :step-verifyAgentIdentity,
+        :step-delegatorSideCheck, :step-agentSideCheck, :step-verifyDelegationClaims,
+        :step-remoteProfileFetch, :step-crossSerializationCheck,
+        :step-verifyDelegationRemote, :step-assembleVerifiedWhoami ;
+    schema:workExample :workExample-userKnownValues, :workExample-agentKnownValues,
+        :workExample-expectedDelegationTriples, :workExample-remoteUrls ;
     rdfs:seeAlso <../preferences.ttl#step-verifiedWhoami>, <../preferences.ttl#step-verifyRecipDelegation>, <../preferences.ttl#step-verifyDelegationRemote>, <agent-identity.ttl>,
         <filesystem-path-verification.ttl> .
 
-# ── Step 0: Resolve Credentials Root (BLOCKING GATE) ─────────────────────────
+:verifiedIdentityGate a schema:Thing ;
+    schema:name "Verified Identity Gate"@en ;
+    schema:description "Blocking credential-root resolution, per-party cert-modulus verification, reciprocal delegation corroboration (local then remote), and verified whoami assembly."@en .
+
+# ── Step 1: Resolve Credentials Root (BLOCKING GATE) ─────────────────────────
 
 :step-resolveCredentialsRoot a schema:HowToStep ;
-    schema:position "0"^^xsd:integer ;
+    schema:position "1"^^xsd:integer ;
     schema:name "BLOCKING GATE — resolve the YouID credentials root before any cert verification; never guess"@en ;
     schema:text """This is a hard blocking gate. No certificate verification and no whoami response may proceed until the YouID credentials root has been resolved and verified on disk.
 
@@ -38,13 +39,11 @@ PROCEDURE:
 2. Search common parent trees for directories matching 'Templates/YouID/link-in-bio-credentials-*' and 'Templates/YouID/link-in-bio-agent-credentials*' using 'ls' or 'find' (timeboxed).
 3. A valid credential directory MUST contain cert.pem (or cert.p12). Verify with 'ls <dir>/cert.pem' before accepting.
 4. If found → set the resolved credential root as the session's active path and proceed.
-5. If NOT found → ELICIT from the user:
-     'I cannot locate your YouID credential bundles. Where are they stored? Provide the path to the parent directory containing Templates/YouID/.'
-   Wait for the user's response before proceeding.
+5. If NOT found → ELICIT from the user: 'I cannot locate your YouID credential bundles. Where are they stored? Provide the path to the parent directory containing Templates/YouID/.' Wait for the user's response before proceeding.
 
 PROHIBITED FALLBACKS: guessing a path, using a path from a prior session file, constructing a path by convention alone, searching without timeboxing (which can hang on large filesystems).
 
-This gate exists because {CREDENTIALS_ROOT} was a dangling template placeholder with no resolution procedure — agents guessed wrong paths (e.g., ~/Documents/Management/Credentials/ instead of ~/Documents/Management/Marketing/WebID/). The gate must be satisfied before Step 1."""@en ;
+This gate exists because {CREDENTIALS_ROOT} was a dangling template placeholder with no resolution procedure — agents guessed wrong paths (e.g., ~/Documents/Management/Credentials/ instead of ~/Documents/Management/Marketing/WebID/)."""@en ;
     rdfs:seeAlso <filesystem-path-verification.ttl> .
 
 # ── Canonical credentials ─────────────────────────────────────────────────────
@@ -63,229 +62,151 @@ This gate exists because {CREDENTIALS_ROOT} was a dangling template placeholder 
     oplcert:SAN <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity> ;
     schema:url <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl> .
 
-# ── Step 1: Locate user certificate ──────────────────────────────────────────
+# ── Step 2: Locate user certificate ──────────────────────────────────────────
 
 :step-locateUserCert a schema:HowToStep ;
-    schema:position "1"^^xsd:integer ;
+    schema:position "2"^^xsd:integer ;
     schema:name "Locate user credential file"@en ;
-    schema:text """User credentials directory (resolved by :step-resolveCredentialsRoot at session start):
+    schema:text """User credentials directory (resolved by :step-resolveCredentialsRoot):
   {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
-
-The credential root MUST have been resolved by the blocking gate (Step 0) before this step runs. If the user provided a different credential set path, use that instead.
-
-Look for (in order of preference):
-  1. cert.pem   — PEM-encoded certificate (no passphrase needed)
-  2. cert.p12   — PKCS#12 bundle (extract with empty passphrase)
-  3. cert.crt   — DER or PEM certificate
-
+The credential root MUST have been resolved by the blocking gate (Step 1) before this step runs. If the user provided a different credential set path, use that instead.
+Look for (in order of preference): 1. cert.pem — PEM-encoded certificate (no passphrase needed); 2. cert.p12 — PKCS#12 bundle (extract with empty passphrase); 3. cert.crt — DER or PEM certificate.
 If none found: skip verification, mark user identity as ⚠️ Unverified and continue."""@en .
 
-# ── Step 2: Verify user identity ─────────────────────────────────────────────
+# ── Step 3: Verify user identity ─────────────────────────────────────────────
 
 :step-verifyUserIdentity a schema:HowToStep ;
-    schema:position "2"^^xsd:integer ;
+    schema:position "3"^^xsd:integer ;
     schema:name "Verify user identity via cert modulus ↔ profile doc"@en ;
     schema:text """Verification procedure (run via Bash tool):
-
 1. Extract Subject Alternative Name URI from local cert:
      openssl x509 -noout -ext subjectAltName -in <dir>/cert.pem
-   Expected SAN URI:
-     https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl#identity
-
-2. Strip the fragment (#identity) → profile doc base URL:
-     https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl
-
+2. Strip the fragment (#identity) → profile doc base URL.
 3. Read published cert:modulus from the LOCAL profile.ttl in the credentials dir:
      grep 'cert:modulus' <dir>/profile.ttl | sed 's/.*"\\(.*\\)".*/\\1/' | tr '[:upper:]' '[:lower:]'
    (Optionally verify against the live URL with curl as a second check.)
-
 4. Extract local cert modulus:
      openssl x509 -noout -modulus -in <dir>/cert.pem | sed 's/Modulus=//' | tr '[:upper:]' '[:lower:]'
-
 5. Compare strings. Match → SAN URI + ✅. Mismatch or file absent → memory IRI + ⚠️ Unverified.
+Known-good values: see :workExample-userKnownValues."""@en .
 
-Known values (as of 2026-06-16):
-  SAN URI (from cert):   https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid
-  owl:sameAs (profile):  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl#identity
-  Modulus prefix: c719382fd4beaea6...
-  Fingerprint (SHA-1): DE:9B:0F:1E:83:DB:2F:0E:A1:70:E5:35:05:29:CB:95:D4:E6:81:07"""@en .
-
-# ── Step 3: Locate agent certificate ─────────────────────────────────────────
+# ── Step 4: Locate agent certificate ─────────────────────────────────────────
 
 :step-locateAgentCert a schema:HowToStep ;
-    schema:position "3"^^xsd:integer ;
+    schema:position "4"^^xsd:integer ;
     schema:name "Locate agent credential file"@en ;
-    schema:text """Agent credentials directory (resolved by :step-resolveCredentialsRoot at session start):
+    schema:text """Agent credentials directory (resolved by :step-resolveCredentialsRoot):
   {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
+The credential root MUST have been resolved by the blocking gate (Step 1) before this step runs.
+The agent certificate subject is: CN=Kingsley Idehen's Agent / emailAddress=kidehen@openlinksw.com / O=Personal Data Space.
+Same file-search order as Step 2: cert.pem → cert.p12 → cert.crt. If none found: mark agent identity as ⚠️ Unverified."""@en .
 
-The credential root MUST have been resolved by the blocking gate (Step 0) before this step runs.
-The agent certificate subject is:
-  CN=Kingsley Idehen's Agent / emailAddress=kidehen@openlinksw.com / O=Personal Data Space
-
-Same file-search order as Step 1: cert.pem → cert.p12 → cert.crt.
-If none found: mark agent identity as ⚠️ Unverified."""@en .
-
-# ── Step 4: Verify agent identity ────────────────────────────────────────────
+# ── Step 5: Verify agent identity ────────────────────────────────────────────
 
 :step-verifyAgentIdentity a schema:HowToStep ;
-    schema:position "4"^^xsd:integer ;
+    schema:position "5"^^xsd:integer ;
     schema:name "Verify agent identity via cert modulus ↔ profile doc"@en ;
-    schema:text """Identical procedure to Step 2, applied to the agent credentials dir.
+    schema:text "Identical procedure to Step 3, applied to the agent credentials dir. Expected SAN URI: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity ; profile doc base URL: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl . Known-good values: see :workExample-agentKnownValues."@en .
 
-Expected SAN URI:
-  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity
+# ── Step 6: Delegator-side delegation check ──────────────────────────────────
 
-Profile doc base URL:
-  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl
+:step-delegatorSideCheck a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Check the delegator's profile for oplcert:hasIdentityDelegate"@en ;
+    schema:text """An On-Behalf-Of header is a self-declaration by the agent; corroboration starts with the delegator's grant. Check the delegator's local profile for:
+  oplcert:hasIdentityDelegate <agent-SAN-URI>
+Commands:
+  grep 'hasIdentityDelegate' {user-credentials-dir}/profile.ttl
+  grep 'hasIdentityDelegate' {user-credentials-dir}/index.html
+Match → delegation corroborated on delegator side ✅. No match → ⚠️ Delegation unconfirmed — delegator profile has no grant. Expected triple: see :workExample-expectedDelegationTriples."""@en .
 
-Known values (as of 2026-06-18):
-  SAN URI (from cert):   https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid
-  owl:sameAs (profile):  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity
-  Modulus prefix: da2b893263967cfc...
-  Fingerprint (SHA-1): B9:58:40:EF:17:45:B7:5E:FE:B9:1F:8B:CD:11:47:DE:98:6A:19:CD
-  Valid: 2026-06-18 → 2027-06-18"""@en .
+# ── Step 7: Agent-side delegation check ──────────────────────────────────────
 
-# ── Step 6: Verify reciprocal delegation claims ───────────────────────────────
+:step-agentSideCheck a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Check the agent's profile for oplcert:onBehalfOf"@en ;
+    schema:text """Check the agent's local profile for:
+  oplcert:onBehalfOf <user-SAN-URI>
+Commands:
+  grep 'onBehalfOf' {agent-credentials-dir}/profile.ttl
+  grep 'onBehalfOf' {agent-credentials-dir}/index.html
+Match → delegation corroborated on agent side ✅. No match → ⚠️ Delegation unconfirmed — agent profile has no acknowledgement. Expected triple: see :workExample-expectedDelegationTriples."""@en .
+
+# ── Step 8: Corroboration verdict (local) ────────────────────────────────────
 
 :step-verifyDelegationClaims a schema:HowToStep ;
-    schema:position "6"^^xsd:integer ;
-    schema:name "Verify reciprocal delegation claims in both credential profiles"@en ;
-    schema:text """An On-Behalf-Of header is a self-declaration by the agent. It is only corroborated
-when the delegator's profile contains a matching oplcert:hasIdentityDelegate triple
-AND the agent's profile contains a matching oplcert:onBehalfOf triple.
+    schema:position "8"^^xsd:integer ;
+    schema:name "Full corroboration requires BOTH sides; fall back to live profiles when local files are absent"@en ;
+    schema:text "FULL CORROBORATION requires both the delegator-side match (Step 6) AND the agent-side match (Step 7). Either side missing → emit ⚠️ Delegation partially corroborated and state which side is missing. LOCAL-FIRST, REMOTE FALLBACK: if local credential files are absent for a party, fetch the live profile URL (from :userCredentials / :agentCredentials schema:url) and grep the raw Turtle for the triple. For EXPLICIT remote verification of live WebDAV profiles (not just fallback), proceed to Steps 9–11."@en .
 
-PROCEDURE (run via Bash tool after Steps 1–4):
+# ── Step 9: Fetch both remote profiles ───────────────────────────────────────
 
-1. DELEGATOR SIDE — check delegator's local profile.ttl for:
-     oplcert:hasIdentityDelegate <agent-SAN-URI>
-   Command:
-     grep 'hasIdentityDelegate' {user-credentials-dir}/profile.ttl
-     grep 'hasIdentityDelegate' {user-credentials-dir}/index.html
-   Match → delegation corroborated on delegator side ✅
-   No match → ⚠️ Delegation unconfirmed — delegator profile has no grant
+:step-remoteProfileFetch a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Fetch each party's live remote profile.ttl (public read first, mTLS + On-Behalf-Of on 401/403)"@en ;
+    schema:text """Verify the published delegation state is in sync with what the agent holds locally.
+1. DELEGATOR: curl -sS -L '{userCredentials schema:url}' ; on HTTP 200 grep for hasIdentityDelegate. On 401/403 retry with the agent's PKCS#12 cert + On-Behalf-Of header:
+     curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' -H 'On-Behalf-Of: {delegator-WebID}' '{userCredentials schema:url}'
+2. AGENT: curl -sS -L '{agentCredentials schema:url}' ; on HTTP 200 grep for onBehalfOf. On 401/403 retry with the agent's PKCS#12 cert.
+Expected triples: see :workExample-expectedDelegationTriples. Remote URLs: see :workExample-remoteUrls."""@en .
 
-2. AGENT SIDE — check agent's local profile.ttl for:
-     oplcert:onBehalfOf <user-SAN-URI>
-   Command:
-     grep 'onBehalfOf' {agent-credentials-dir}/profile.ttl
-     grep 'onBehalfOf' {agent-credentials-dir}/index.html
-   Match → delegation corroborated on agent side ✅
-   No match → ⚠️ Delegation unconfirmed — agent profile has no acknowledgement
+# ── Step 10: Cross-serialization check ───────────────────────────────────────
 
-3. FULL CORROBORATION requires BOTH sides to match.
-   Either side missing → emit ⚠️ Delegation partially corroborated and state which side is missing.
+:step-crossSerializationCheck a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Cross-check index.html so the delegation triple appears in every RDF serialization"@en ;
+    schema:text """Fetch each party's remote index.html and grep for delegation triples across all serializations (RDFa link, RDFa div rel, embedded JSON-LD, embedded Turtle):
+  curl -sS -L '{base-url}/index.html' | grep -n 'hasIdentityDelegate\\|onBehalfOf'
+The same triple should appear in every RDF representation on the page."""@en .
 
-4. LOCAL-FIRST, REMOTE FALLBACK:
-   If local credential files are absent for a party, fetch the live profile URL
-   (from :userCredentials schema:url or :agentCredentials schema:url in this file)
-   and grep the raw Turtle for the triple.
-
-5. For EXPLICIT remote verification of live WebDAV profiles (not just fallback),
-   proceed to Step 7.
-
-Known credential dirs (resolved by :step-resolveCredentialsRoot at session start):
-  Delegator (user):  {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
-  Delegate  (agent): {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
-
-Expected corroborating triples:
-  Delegator profile.ttl line ~145:
-    oplcert:hasIdentityDelegate <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid> .
-  Agent profile.ttl line ~117:
-    oplcert:onBehalfOf <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid> ."""@en .
-
-# ── Step 7: Verify reciprocal delegation claims remotely ───────────────────────
+# ── Step 11: Remote verdict + optional verification service ──────────────────
 
 :step-verifyDelegationRemote a schema:HowToStep ;
-    schema:position "7"^^xsd:integer ;
-    schema:name "Verify reciprocal delegation claims against live remote profiles"@en ;
-    schema:text """Extends Step 6 by verifying delegation claims against the LIVE WebDAV-hosted profile
-documents, not just local copies. This confirms the published delegation state is in
-sync with what the agent holds locally.
+    schema:position "11"^^xsd:integer ;
+    schema:name "Emit the remote-delegation verdict; optionally exercise a WebID verification service end-to-end"@en ;
+    schema:text """OPTIONAL end-to-end test: present the agent certificate to a remote WebID verification service with the On-Behalf-Of header:
+  curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' -H 'On-Behalf-Of: {delegator-WebID}' 'https://ods-qa.openlinksw.com:5443/webid/?go=Verify'
+Note: the verification service validates the certificate-subject identity (agent) and accepts the On-Behalf-Of header, but does NOT independently verify the delegation chain by fetching the delegator's profile — that confirmation is a known feature gap; Steps 9–10 provide the corroboration.
+OUTPUT: ✅ Delegation corroborated remotely (both profiles live + cross-serialization) | ⚠️ Delegation remote mismatch (profile content differs from local — flag for user review) | ⚠️ Delegation unverifiable remotely (profiles unreachable even with auth)."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-verifyDelegationRemote>, <webid-verification-services.ttl>,
+        <agent-identity.ttl> .
 
-PROCEDURE (run via Bash tool after Step 6 local verification passes):
-
-1. FETCH DELEGATOR'S REMOTE profile.ttl (public read first):
-     curl -sS -L '{userCredentials schema:url}'
-   If HTTP 200 → grep for hasIdentityDelegate:
-     grep 'hasIdentityDelegate'
-   Expected:
-     oplcert:hasIdentityDelegate <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid> .
-   If 401/403 → retry with agent's PKCS#12 cert + On-Behalf-Of header:
-     curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \\
-       -H 'On-Behalf-Of: {delegator-WebID}' \\
-       '{userCredentials schema:url}'
-
-2. FETCH AGENT'S REMOTE profile.ttl (public read first):
-     curl -sS -L '{agentCredentials schema:url}'
-   If HTTP 200 → grep for onBehalfOf:
-     grep 'onBehalfOf'
-   Expected:
-     oplcert:onBehalfOf <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid> .
-   If 401/403 → retry with agent's PKCS#12 cert:
-     curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \\
-       '{agentCredentials schema:url}'
-
-3. CROSS-CHECK index.html for all RDF representations:
-   Fetch each party's remote index.html and grep for delegation triples across all
-   serializations (RDFa link, RDFa div rel, embedded JSON-LD, embedded Turtle):
-     curl -sS -L '{base-url}/index.html' | grep -n 'hasIdentityDelegate|onBehalfOf'
-   The same triple should appear in every RDF representation on the page.
-
-4. DELEGATION-HEADER VERIFICATION SERVICE (optional):
-   For an end-to-end test, present the agent certificate to a remote WebID verification
-    service (e.g. ods-qa.openlinksw.com:5443/webid/) with the On-Behalf-Of header:
-      curl -sS -L --cert-type P12 --cert '{agent-p12}:{MTLS_PKCS12_PW}' \\
-        -H 'On-Behalf-Of: {delegator-WebID}' \\
-        'https://ods-qa.openlinksw.com:5443/webid/?go=Verify'
-   Note: The verification service validates the certificate-subject identity (agent) and
-   accepts the On-Behalf-Of header, but does NOT independently verify the delegation
-   chain by fetching the delegator's profile. Confirmation of reciprocal delegation
-   from the remote service is a feature gap — for now, Steps 1–3 provide the
-   corroboration.
-
-KNOWN REMOTE URLs (from :userCredentials and :agentCredentials in this file):
-  Delegator remote profile.ttl: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl
-  Delegator remote index.html:  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html
-  Agent remote profile.ttl:     https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl
-  Agent remote index.html:      https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html
-
-OUTPUT:
-  ✅ Delegation corroborated remotely (both profiles live + cross-serialization)
-  ⚠️ Delegation remote mismatch (profile content differs from local — flag for user review)
-  ⚠️ Delegation unverifiable remotely (profiles unreachable even with auth)"""@en ;
-    rdfs:seeAlso <../preferences.ttl#step-verifyDelegationRemote>, <../howto/webid-verification-services.ttl>,
-        <../howto/agent-identity.ttl> .
-
-# ── Step 5: Assemble verified whoami response ─────────────────────────────────
+# ── Step 12: Assemble verified whoami response ────────────────────────────────
 
 :step-assembleVerifiedWhoami a schema:HowToStep ;
-    schema:position "5"^^xsd:integer ;
-    schema:name "Assemble the verified whoami response"@en ;
-    schema:text """After completing Steps 1–7, emit this response format.
-Substitute ✅ or ⚠️ Unverified per verification outcome.
-Fill runtime values (model, env, path, project) from current session context.
+    schema:position "12"^^xsd:integer ;
+    schema:name "Assemble the verified whoami response using the agent-identity templates"@en ;
+    schema:text "After completing Steps 1–11, emit the two-section response per the canonical template in agent-identity.ttl (:workExample-triggerAResponse), substituting ✅ or ⚠️ Unverified per verification outcome and filling runtime values (model, env, path, project) from the current session context. The cert-verified SAN URI is canonical for both the agent and the delegator (On-Behalf-Of). Delegation is fully corroborated only when BOTH profiles declare the relationship (Steps 6–8). If verification is skipped (cert files absent, openssl unavailable), emit all lines with ⚠️ Unverified and fall back to memory-known SAN URIs rather than omitting them."@en ;
+    rdfs:seeAlso <agent-identity.ttl#workExample-triggerAResponse>,
+        <agent-identity.ttl#step-emitUserSection>, <agent-identity.ttl#step-emitAgentSection> .
 
-**User (principal)**
-• Name: Kingsley Uyi Idehen
-• Email: kidehen@openlinksw.com
-• Role: Founder & CEO, OpenLink Software
-• WebID: {user SAN URI} {✅ | ⚠️ Unverified}
-• owl:sameAs: grep <link rel="me"> from user's WebID index.html and emit each as [Title](URL) — never prose platform-category descriptions
+# ── Worked Examples (reference data) ─────────────────────────────────────────
 
-**Agent (me)**
-• Model: {model name} ({llm-id used in session filenames})
-• Environment: {agent environment name}
-• Artifact output root: {canonical LLM output path from step-outputDirs} (rdf/, md/, webpages/)
-• Active project: {current task/project or 'none yet this session'}
-• Memory store: {absolute path to agent-rdf-memory/}
-• Behavioral contract: preferences.ttl ({count} standing instructions, incl. {notable recent additions})
-• Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
-• On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
-• Delegation: {✅ Corroborated (both profiles) | ⚠️ Partially corroborated ({which side} missing) | ⚠️ Unconfirmed}
+:workExample-userKnownValues a schema:CreativeWork ;
+    schema:name "User identity known-good values (as of 2026-06-16)"@en ;
+    schema:text """SAN URI (from cert):   https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid
+owl:sameAs (profile):  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl#identity
+Modulus prefix: c719382fd4beaea6...
+Fingerprint (SHA-1): DE:9B:0F:1E:83:DB:2F:0E:A1:70:E5:35:05:29:CB:95:D4:E6:81:07"""@en .
 
-The cert-verified SAN URI is canonical for both the agent and the delegator (On-Behalf-Of).
-Delegation is fully corroborated only when BOTH profiles declare the relationship:
-  delegator profile.ttl: oplcert:hasIdentityDelegate <agent-webid>
-  agent profile.ttl:     oplcert:onBehalfOf <delegator-webid>
-If verification is skipped (cert files absent, openssl unavailable) emit all lines
-with ⚠️ Unverified and fall back to memory-known SAN URIs rather than omitting them."""@en .
+:workExample-agentKnownValues a schema:CreativeWork ;
+    schema:name "Agent identity known-good values (as of 2026-06-18)"@en ;
+    schema:text """SAN URI (from cert):   https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid
+owl:sameAs (profile):  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl#identity
+Modulus prefix: da2b893263967cfc...
+Fingerprint (SHA-1): B9:58:40:EF:17:45:B7:5E:FE:B9:1F:8B:CD:11:47:DE:98:6A:19:CD
+Valid: 2026-06-18 → 2027-06-18"""@en .
+
+:workExample-expectedDelegationTriples a schema:CreativeWork ;
+    schema:name "Expected reciprocal delegation triples"@en ;
+    schema:text """Delegator profile.ttl (line ~145):
+  oplcert:hasIdentityDelegate <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid> .
+Agent profile.ttl (line ~117):
+  oplcert:onBehalfOf <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid> ."""@en .
+
+:workExample-remoteUrls a schema:CreativeWork ;
+    schema:name "Known remote URLs (from :userCredentials and :agentCredentials)"@en ;
+    schema:text """Delegator remote profile.ttl: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/profile.ttl
+Delegator remote index.html:  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html
+Agent remote profile.ttl:     https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/profile.ttl
+Agent remote index.html:      https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html"""@en .

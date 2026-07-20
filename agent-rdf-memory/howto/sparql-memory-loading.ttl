@@ -20,9 +20,12 @@
     schema:description "At session start, elicit a SPARQL endpoint from the user and load preferences, howto steps, and session context via SPARQL query rather than sequential file reads. Fallback to file reads if endpoint is unreachable."@en ;
     schema:step :stepNoMemoryMd,
                 :stepEndpointElicitation,
-                :stepSparqlQueries,
+                :stepBootstrapQuery,
+                :stepHarvestQuery,
+                :stepCoreFactsQuery,
                 :stepNamedGraphConvention,
-                :stepFallback .
+                :stepFallback ;
+    schema:workExample :workExample-urlPlaceholders .
 
 # ── Steps ─────────────────────────────────────────────────────────────────────
 
@@ -66,14 +69,10 @@ For option 3, the user supplies the endpoint URL and the base URI for the TTL fi
 
 Record the selected path in the session TTL as onto:usedSparqlEndpoint (SPARQL) or onto:usedFileReads "true"^^xsd:boolean (file reads). Wait for selection before loading memory."""@en .
 
-:stepSparqlQueries a schema:HowToStep ;
+:stepBootstrapQuery a schema:HowToStep ;
     schema:position 3 ;
-    schema:name "SPARQL queries with Sponger pragmas for progressive memory loading"@en ;
-    schema:text """Use two queries. The first bootstraps preferences and simultaneously sponges all companion howto files. The second harvests the loaded howto content.
-
-── Query 1: Bootstrap ────────────────────────────────────────────────────────
-
-DEFINE get:soft "soft"
+    schema:name "Query 1 — bootstrap preferences and sponge all companion howto files in one round-trip"@en ;
+    schema:text """DEFINE get:soft "soft"
 DEFINE input:grab-iri "{preferences-ttl-url}"
 DEFINE input:grab-var "seeAlso"
 
@@ -88,15 +87,12 @@ WHERE {
 }
 ORDER BY ?pos
 
-What this does:
-  - input:grab-iri loads preferences.ttl into Virtuoso's quad store as a named graph before the query runs
-  - get:soft "soft" uses the cached version on subsequent calls (avoids re-fetching on every session)
-  - input:grab-var "seeAlso" tells the Sponger to dereference every ?seeAlso binding (i.e., every howto/*.ttl referenced from a step) and load them as named graphs during query execution
-  - One round-trip loads preferences.ttl AND all companion howto files progressively
+What this does: input:grab-iri loads preferences.ttl into Virtuoso's quad store as a named graph before the query runs; get:soft "soft" uses the cached version on subsequent calls (avoids re-fetching on every session); input:grab-var "seeAlso" tells the Sponger to dereference every ?seeAlso binding (i.e., every howto/*.ttl referenced from a step) and load them as named graphs during query execution. One round-trip loads preferences.ttl AND all companion howto files progressively. URL placeholders: see :workExample-urlPlaceholders."""@en .
 
-── Query 2: Harvest howto content ────────────────────────────────────────────
-
-DEFINE get:soft "soft"
+:stepHarvestQuery a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Query 2 — harvest the loaded howto content across all sponged named graphs"@en ;
+    schema:text """DEFINE get:soft "soft"
 
 SELECT ?howto ?stepPos ?stepName ?stepText
 FROM <{preferences-ttl-url}>
@@ -112,32 +108,18 @@ WHERE {
 }
 ORDER BY ?howtoGraph ?stepPos
 
-What this does:
-  - Queries across all named graphs loaded by Query 1
-  - Retrieves the full step-by-step content from each howto/*.ttl
-  - get:soft "soft" ensures cached graphs are reused without re-fetching
+What this does: queries across all named graphs loaded by Query 1, retrieving the full step-by-step content from each howto/*.ttl; get:soft "soft" ensures cached graphs are reused without re-fetching."""@en .
 
-── Query 3: core.ttl facts ───────────────────────────────────────────────────
-
-DEFINE get:soft "soft"
+:stepCoreFactsQuery a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Query 3 — DESCRIBE core.ttl facts"@en ;
+    schema:text """DEFINE get:soft "soft"
 DEFINE input:grab-iri "{core-ttl-url}"
 
-DESCRIBE <{core-ttl-url}>
-
-── URL placeholder resolution ────────────────────────────────────────────────
-
-{preferences-ttl-url} = "file://{REPO_ROOT}/agent-rdf-memory/preferences.ttl"
-{core-ttl-url}        = "file://{REPO_ROOT}/agent-rdf-memory/core.ttl"
-
-These are the standard values for local Virtuoso at localhost:8890/sparql.
-The user substitutes a different URI only if the default file:// path does not match their setup
-(e.g., different filesystem root, DAV upload, or remote public URL).
-
-The Sponger fetches file:// URIs from the local filesystem and loads them as named graphs.
-The named graph IRI is the file:// URI itself — use FROM <file:///…/preferences.ttl> in all queries."""@en .
+DESCRIBE <{core-ttl-url}>"""@en .
 
 :stepNamedGraphConvention a schema:HowToStep ;
-    schema:position 4 ;
+    schema:position 6 ;
     schema:name "Named graph IRIs for agent-rdf-memory TTL files"@en ;
     schema:text """The named graph IRI is always the URI the Sponger was given to fetch.
 
@@ -156,7 +138,7 @@ Always use an explicit FROM <named-graph-iri> to scope queries. Never query the 
 Virtuoso is a quad store and the default graph union may return stale or unrelated content."""@en .
 
 :stepFallback a schema:HowToStep ;
-    schema:position 5 ;
+    schema:position 7 ;
     schema:name "Fall back to sequential file reads if endpoint is unreachable"@en ;
     schema:text """If the selected SPARQL endpoint returns an error or empty results:
 1. Report the failure: "SPARQL endpoint {url} unreachable — falling back to file reads."
@@ -166,6 +148,15 @@ Virtuoso is a quad store and the default graph union may return stale or unrelat
    - Read agent-rdf-memory/index.ttl
    - Follow index.ttl references to relevant session/project/entity files
 3. Never fail silently — the user must know which loading path was taken."""@en .
+
+# ── Worked Example: URL Placeholder Resolution ───────────────────────────────
+
+:workExample-urlPlaceholders a schema:CreativeWork ;
+    schema:name "URL placeholder resolution for the memory-loading queries"@en ;
+    schema:text """{preferences-ttl-url} = "file://{REPO_ROOT}/agent-rdf-memory/preferences.ttl"
+{core-ttl-url}        = "file://{REPO_ROOT}/agent-rdf-memory/core.ttl"
+
+These are the standard values for local Virtuoso at localhost:8890/sparql. The user substitutes a different URI only if the default file:// path does not match their setup (e.g., different filesystem root, DAV upload, or remote public URL). The Sponger fetches file:// URIs from the local filesystem and loads them as named graphs. The named graph IRI is the file:// URI itself — use FROM <file:///…/preferences.ttl> in all queries."""@en .
 
 # ── Registered Endpoints ──────────────────────────────────────────────────────
 

@@ -5,13 +5,12 @@
 
 <> a schema:HowTo ;
     schema:name "Skill Invocation — Chain, KG Query Mode, Packaging, and Retrieval Order"@en ;
-    schema:description "Four rules governing skill selection and sequencing: the kg-generator → rdf-infographic-skill chain, KG query mode (kg-only vs kg-hybrid), ZIP repackaging discipline, and mandatory retrieval tool order."@en ;
+    schema:description "Rules governing skill selection and sequencing: the kg-generator → rdf-infographic-skill chain, KG-first question answering (KG-ONLY vs KG-HYBRID modes with the local RDF root and provenance format), ZIP repackaging discipline, and mandatory retrieval tool order."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-05T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-skillChain, :step-kgQueryMode,
-        :step-zipRepackage, :step-retrievalToolOrder ;
-    schema:step :step-skillChain, :step-kgQueryMode,
+    schema:step :step-skillChain, :step-kgQueryMode, :step-kgLocalRdfRoot,
+        :step-kgOnlyMode, :step-kgHybridMode, :step-kgProvenanceFormat,
         :step-zipRepackage, :step-retrievalToolOrder ;
     rdfs:seeAlso <../preferences.ttl#step-skillChain>, <../preferences.ttl#step-zipRepackage>, <../preferences.ttl#step-kgQueryMode>, <../preferences.ttl#step-retrievalToolOrder>, <../preferences.ttl#step-sparqlEndpointSearchOrder> .
 
@@ -20,25 +19,53 @@
 :step-skillChain a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
     schema:name "Use kg-generator → rdf-infographic-skill chain for RDF/MD/HTML collections"@en ;
-    schema:text """When generating a Knowledge Graph collection (RDF + MD + HTML), invoke kg-generator first to produce RDF-Turtle, then hand off to rdf-infographic-skill for HTML and MD companions. Never hand-build HTML infographics when the skill exists. Let each skill's contract gates drive quality — do not bypass them."""@en .
+    schema:text "When generating a Knowledge Graph collection (RDF + MD + HTML), invoke kg-generator first to produce RDF-Turtle, then hand off to rdf-infographic-skill for HTML and MD companions. Never hand-build HTML infographics when the skill exists. Let each skill's contract gates drive quality — do not bypass them."@en .
 
-# ── Step 2: KG Query Mode ────────────────────────────────────────────────────
+# ── Step 2: KG-First Question Answering ──────────────────────────────────────
 
 :step-kgQueryMode a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
     schema:name "Answer questions from skills/KG first — ask before falling back to model knowledge"@en ;
-    schema:text """When answering user questions in general, invoke data-twingler first (or uriburner-opal-agent-skills as fallback), unless the user explicitly asks for a plain LLM answer, asks not to use KG/local RDF/SPARQL, or the request is clearly trivial/self-contained (e.g., simple rewrite, translation, arithmetic, or command output). This default includes Why/How/What/Define/Explain/Compare questions, questions about prior generated artifacts, Semantic Web, Linked Data, RDF, SPARQL, KG, LLM memory, wiki architecture, OpenLink, Virtuoso, OPAL, URIBurner, WebID, or any known article/graph/context. If the skill/KG route returns a sufficient answer, answer from it with provenance links. If the skill/KG route is unavailable, returns no match, weak match, or incomplete coverage, do NOT silently answer from general model knowledge; ask the user whether to fall back to model knowledge, broaden to KG-HYBRID/endpoint corroboration, or stop. NEVER use kg-generator or rdf-infographic-skill for interrogation workflows. DEFAULT MODE: use KG-ONLY MODE unless the user explicitly asks for hybrid mode, asks to include endpoint/server-side corroboration, approves fallback broadening, or rejects the KG-ONLY candidate and requests broader retrieval. LOCAL RDF ROOT: {LLM_ROOT}/ — this is the canonical root for all local RDF searches. Scan all model-specific subdirectories beneath it recursively: Claude Generated/RDF/, GPT5-Chat-Generated/rdf/, DeepSeek/rdf/, MiniMax Generated/rdf/, kimi/, Grok/rdf/, and any others present. This root takes precedence over any default paths configured in data-twingler's own settings. Two named modes: (A) KG-ONLY MODE — Step 0: recursively scan {LLM_ROOT}/ for RDF files (.ttl, .jsonld, .rdf, .nt), parse them, extract schema:Question/schema:DefinedTerm/schema:HowTo/skos:Concept candidates, embed against user prompt, compute cosine similarity, report top match above 0.75 threshold as checkpoint and ask 'Proceed with this answer?' If user confirms: deliver answer from local KG with no endpoint call. If user declines or no local match: ask whether to fall back to model knowledge, broaden to KG-HYBRID/endpoint corroboration, or stop. (B) KG-HYBRID MODE — all three layers active always: Step 0 (local vector search of {LLM_ROOT}/) + Step 1a (URIBurner endpoint keyword search via bif:contains, primary) + Step 1b (URIBurner server-side vector similarity via vvec:cosine_similarity_openai, fallback when Step 1a returns zero). Results from all layers that exceed their respective thresholds are merged and cited with their source layer identified. RESPONSE FORMAT FOR BOTH MODES: ALL entity references in the answer MUST be hyperlinked to their KG IRIs via the URIBurner resolver pattern https://linkeddata.uriburner.com/describe/?url={url-encoded-IRI}. This applies to question entities, answer entities, article entities, organizations, concepts, people, pricing models, and any named RDF resource referenced in the answer. Provenance links are not optional — they are the basic response format for all KG interrogation workflows."""@en .
+    schema:text "When answering user questions in general, invoke data-twingler first (or uriburner-opal-agent-skills as fallback), unless the user explicitly asks for a plain LLM answer, asks not to use KG/local RDF/SPARQL, or the request is clearly trivial/self-contained (e.g., simple rewrite, translation, arithmetic, or command output). This default includes Why/How/What/Define/Explain/Compare questions, questions about prior generated artifacts, Semantic Web, Linked Data, RDF, SPARQL, KG, LLM memory, wiki architecture, OpenLink, Virtuoso, OPAL, URIBurner, WebID, or any known article/graph/context. If the skill/KG route returns a sufficient answer, answer from it with provenance links. If the skill/KG route is unavailable, returns no match, weak match, or incomplete coverage, do NOT silently answer from general model knowledge; ask the user whether to fall back to model knowledge, broaden to KG-HYBRID/endpoint corroboration, or stop. NEVER use kg-generator or rdf-infographic-skill for interrogation workflows. DEFAULT MODE: KG-ONLY (Step 4) unless the user explicitly asks for hybrid mode, asks to include endpoint/server-side corroboration, approves fallback broadening, or rejects the KG-ONLY candidate and requests broader retrieval."@en .
 
-# ── Step 3: ZIP Repackage ────────────────────────────────────────────────────
+# ── Step 3: Local RDF Root ───────────────────────────────────────────────────
+
+:step-kgLocalRdfRoot a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "The canonical local RDF root is {LLM_ROOT}/ — scan all model subdirectories recursively"@en ;
+    schema:text "LOCAL RDF ROOT: {LLM_ROOT}/ — the canonical root for all local RDF searches. Scan all model-specific subdirectories beneath it recursively: Claude Generated/RDF/, GPT5-Chat-Generated/rdf/, DeepSeek/rdf/, MiniMax Generated/rdf/, kimi/, Grok/rdf/, and any others present. This root takes precedence over any default paths configured in data-twingler's own settings."@en .
+
+# ── Step 4: KG-ONLY Mode ─────────────────────────────────────────────────────
+
+:step-kgOnlyMode a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "KG-ONLY MODE: local vector search over {LLM_ROOT}/ with a user checkpoint, no endpoint call"@en ;
+    schema:text "KG-ONLY MODE — Step 0: recursively scan {LLM_ROOT}/ for RDF files (.ttl, .jsonld, .rdf, .nt), parse them, extract schema:Question/schema:DefinedTerm/schema:HowTo/skos:Concept candidates, embed against the user prompt, compute cosine similarity, report the top match above the 0.75 threshold as a checkpoint and ask 'Proceed with this answer?' If the user confirms: deliver the answer from the local KG with no endpoint call. If the user declines or there is no local match: ask whether to fall back to model knowledge, broaden to KG-HYBRID/endpoint corroboration, or stop."@en .
+
+# ── Step 5: KG-HYBRID Mode ───────────────────────────────────────────────────
+
+:step-kgHybridMode a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "KG-HYBRID MODE: local vector search + URIBurner keyword search + server-side vector fallback, merged with source layers"@en ;
+    schema:text "KG-HYBRID MODE — all three layers active always: Step 0 (local vector search of {LLM_ROOT}/) + Step 1a (URIBurner endpoint keyword search via bif:contains, primary) + Step 1b (URIBurner server-side vector similarity via vvec:cosine_similarity_openai, fallback when Step 1a returns zero). Results from all layers that exceed their respective thresholds are merged and cited with their source layer identified."@en .
+
+# ── Step 6: Provenance Response Format ───────────────────────────────────────
+
+:step-kgProvenanceFormat a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Hyperlink ALL entity references via the URIBurner resolver — provenance links are the response format"@en ;
+    schema:text "RESPONSE FORMAT FOR BOTH MODES: ALL entity references in the answer MUST be hyperlinked to their KG IRIs via the URIBurner resolver pattern https://linkeddata.uriburner.com/describe/?url={url-encoded-IRI}. This applies to question entities, answer entities, article entities, organizations, concepts, people, pricing models, and any named RDF resource referenced in the answer. Provenance links are not optional — they are the basic response format for all KG interrogation workflows."@en .
+
+# ── Step 7: ZIP Repackage ────────────────────────────────────────────────────
 
 :step-zipRepackage a schema:HowToStep ;
-    schema:position "3"^^xsd:integer ;
+    schema:position "7"^^xsd:integer ;
     schema:name "Delete ZIP before recreating — zip -r on existing archive does not remove deleted files"@en ;
-    schema:text """After editing any skill, always: rm <skill-name>.zip && zip -r <skill-name>.zip <skill-name>/ -x '*.DS_Store'. Always exclude .DS_Store. The RSS feed generator bundle is named rss-feed-generator-skill.zip (not rss-feed-generator.zip)."""@en .
+    schema:text "After editing any skill, always: rm <skill-name>.zip && zip -r <skill-name>.zip <skill-name>/ -x '*.DS_Store'. Always exclude .DS_Store. The RSS feed generator bundle is named rss-feed-generator-skill.zip (not rss-feed-generator.zip)."@en .
 
-# ── Step 4: Retrieval Tool Order ─────────────────────────────────────────────
+# ── Step 8: Retrieval Tool Order ─────────────────────────────────────────────
 
 :step-retrievalToolOrder a schema:HowToStep ;
-    schema:position "4"^^xsd:integer ;
+    schema:position "8"^^xsd:integer ;
     schema:name "Content retrieval tool order: Chrome MCP → Playwright → PinchTab → Sponger last resort"@en ;
-    schema:text """When fetching content from any URL (article, profile, page), ALWAYS attempt retrieval in this fixed order — never skip or reorder without explicit user authorization: (1) Claude in Chrome MCP (mcp__Claude_in_Chrome__get_page_text, mcp__Claude_in_Chrome__navigate) — fastest, uses already-open browser session; (2) Playwright — via Bash 'npx playwright' or Python playwright script — for JS-heavy or login-protected pages if Chrome MCP is disconnected or unavailable; (3) PinchTab — via Bash 'pinchtab ...' or REST to http://localhost:9867 — browser automation fallback if both Chrome MCP and Playwright are unavailable; (4) Sponger (mcp__4ec1680e...SPONGE_URL) — LAST RESORT ONLY — invoke ONLY after all three above tools have been attempted and failed or are confirmed unavailable in the current session. If Bash is also unavailable (e.g. side-chat fork), document that tools 2 and 3 cannot be reached before considering the Sponger. This order exists to preserve user data privacy and control, avoid unnecessary third-party ingestion of URLs, and use the most direct retrieval path first. Never invoke the Sponger as a convenience shortcut when other tools are available."""@en .
+    schema:text "When fetching content from any URL (article, profile, page), ALWAYS attempt retrieval in this fixed order — never skip or reorder without explicit user authorization: (1) Claude in Chrome MCP (mcp__Claude_in_Chrome__get_page_text, mcp__Claude_in_Chrome__navigate) — fastest, uses already-open browser session; (2) Playwright — via Bash 'npx playwright' or Python playwright script — for JS-heavy or login-protected pages if Chrome MCP is disconnected or unavailable; (3) PinchTab — via Bash 'pinchtab ...' or REST to http://localhost:9867 — browser automation fallback if both Chrome MCP and Playwright are unavailable; (4) Sponger (mcp__4ec1680e...SPONGE_URL) — LAST RESORT ONLY — invoke ONLY after all three above tools have been attempted and failed or are confirmed unavailable in the current session. If Bash is also unavailable (e.g. side-chat fork), document that tools 2 and 3 cannot be reached before considering the Sponger. This order exists to preserve user data privacy and control, avoid unnecessary third-party ingestion of URLs, and use the most direct retrieval path first. Never invoke the Sponger as a convenience shortcut when other tools are available."@en .

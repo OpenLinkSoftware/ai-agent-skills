@@ -9,144 +9,108 @@
     schema:name "Canonical Entity IRI Denotation"@en ;
     schema:description "Rules for assigning canonical IRIs to people, organizations, software, and countries, and for correctly using owl:sameAs vs schema:sameAs. Establishes the principle that canonical platform IRIs replace document-local entity IRIs, never coexist with them."@en ;
     schema:dateCreated "2026-06-04T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-04T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-canonicalPriority, :step-owlSameAsVsSchemaSameAs,
-        :step-localIriProhibition ;
-    schema:step :step-canonicalPriority, :step-owlSameAsVsSchemaSameAs,
-        :step-localIriProhibition ;
+    schema:step :step-personLadder, :step-nonPersonLadders, :step-thisFragmentRule,
+        :step-owlSameAsSemantics, :step-schemaSameAsSemantics, :step-sameAsDecisionRule,
+        :step-localIriProhibition, :step-localIriException ;
+    schema:workExample :workExample-sameAsQuickReference, :workExample-localIriWrongRight ;
     rdfs:seeAlso <../preferences.ttl#step-entityDenotation>, <../preferences.ttl#step-crossDocumentLocalTermReuse> .
 
-# ── Step 1: Canonical IRI Priority ──────────────────────────────────────────
+# ── Step 1: Person IRI Priority Ladder ───────────────────────────────────────
 
-:step-canonicalPriority a schema:HowToStep ;
+:step-personLadder a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Assign canonical IRIs by entity type using the priority ladder"@en ;
+    schema:name "Assign Person IRIs from the platform priority ladder — first available wins"@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
-    schema:text """Assign IRIs to entities using the following type-specific priority ladders. The first available IRI in the ladder is canonical — it becomes the primary subject for all triples about that entity.
-
-Person IRI (highest to lowest):
+    schema:text """Person IRI (highest to lowest priority; the first available is canonical and becomes the primary subject for all triples about that entity):
   1. LinkedIn profile URL with #this fragment (e.g., https://linkedin.com/in/kidehen#this)
   2. X/Twitter profile URL with #this fragment (e.g., https://x.com/kidehen#this)
   3. Substack profile URL with #this fragment
   4. Other platform profile URL with #this fragment
-  5. NO DOCUMENT-LOCAL FALLBACK — see step-localIRIProhibition
+  5. NO DOCUMENT-LOCAL FALLBACK — see :step-localIriProhibition
+Link all discovered platform identities via owl:sameAs (see :step-owlSameAsSemantics)."""@en .
 
-The #this fragment distinguishes the person entity from the profile page document. Example: https://linkedin.com/in/kidehen#this is the person; https://linkedin.com/in/kidehen is the profile page.
+# ── Step 2: Organization / Software / Country Ladders ────────────────────────
 
-Exception — IRIs that inherently denote entities: Wikidata entity IRIs (https://www.wikidata.org/entity/Q312) and DBpedia resource IRIs (http://dbpedia.org/resource/Apple_Inc.) ARE entity IRIs by their platform convention — no #this fragment is needed or added. The #this rule applies only to platforms where the same URL path is ambiguous between a document and an entity (LinkedIn, X/Twitter, GitHub, Substack, Mastodon, Medium).
-
-Organization IRI (highest to lowest):
-  1. DBpedia resource IRI (e.g., http://dbpedia.org/resource/OpenLink_Software)
-  2. Wikidata entity IRI (e.g., https://www.wikidata.org/entity/Q312)
-  3. LinkedIn company page URL with #this fragment
-  4. X/Twitter org profile URL with #this fragment
-  5. Homepage URL with #this fragment (e.g., https://www.openlinksw.com/#this)
-
-SoftwareApplication IRI (highest to lowest):
-  1. DBpedia resource IRI
-  2. Wikidata entity IRI
-  3. Homepage URL with #this fragment
-
-Country IRI (highest to lowest):
-  1. DBpedia resource IRI (e.g., http://dbpedia.org/resource/United_States)
-  2. Wikidata entity IRI (e.g., https://www.wikidata.org/entity/Q30)
-
-Link all discovered platform identities via owl:sameAs (see step-owlSameAsVsSchemaSameAs for the correct property)."""@en .
-
-# ── Step 2: owl:sameAs vs schema:sameAs ─────────────────────────────────────
-
-:step-owlSameAsVsSchemaSameAs a schema:HowToStep ;
+:step-nonPersonLadders a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
-    schema:name "Distinguish owl:sameAs from schema:sameAs — entity IRIs vs document URLs"@en ;
+    schema:name "Assign Organization, SoftwareApplication, and Country IRIs from their ladders — semantic databases first"@en ;
+    schema:text """Organization IRI (highest to lowest): 1. DBpedia resource IRI (e.g., http://dbpedia.org/resource/OpenLink_Software); 2. Wikidata entity IRI (e.g., https://www.wikidata.org/entity/Q312); 3. LinkedIn company page URL with #this; 4. X/Twitter org profile URL with #this; 5. Homepage URL with #this (e.g., https://www.openlinksw.com/#this).
+SoftwareApplication IRI: 1. DBpedia resource IRI; 2. Wikidata entity IRI; 3. Homepage URL with #this.
+Country IRI: 1. DBpedia resource IRI (e.g., http://dbpedia.org/resource/United_States); 2. Wikidata entity IRI (e.g., https://www.wikidata.org/entity/Q30)."""@en .
+
+# ── Step 3: The #this Fragment Rule ──────────────────────────────────────────
+
+:step-thisFragmentRule a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Append #this on ambiguous platform URLs; never on inherently-entity IRIs (DBpedia, Wikidata)"@en ;
+    schema:text "The #this fragment distinguishes the entity from the profile page document: https://linkedin.com/in/kidehen#this is the person; https://linkedin.com/in/kidehen is the profile page. The rule applies only to platforms where the same URL path is ambiguous between a document and an entity (LinkedIn, X/Twitter, GitHub, Substack, Mastodon, Medium). Exception — IRIs that inherently denote entities: Wikidata entity IRIs (https://www.wikidata.org/entity/Q312) and DBpedia resource IRIs (http://dbpedia.org/resource/Apple_Inc.) ARE entity IRIs by their platform convention — no #this fragment is needed or added."@en .
+
+# ── Step 4: owl:sameAs Semantics ─────────────────────────────────────────────
+
+:step-owlSameAsSemantics a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "owl:sameAs connects entity IRI to entity IRI — symmetric, transitive identity"@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
-    schema:text """The properties owl:sameAs and schema:sameAs serve different roles and must not be conflated. Using the wrong property produces a knowledge graph that cannot be queried correctly by reasoners or applications.
+    schema:text """owl:sameAs connects two ENTITY IRIs — both sides identify the thing, not a document about it. It is fully symmetric (A owl:sameAs B ⇒ B owl:sameAs A) and transitive (A owl:sameAs B, B owl:sameAs C ⇒ A owl:sameAs C); both sides are the same kind of thing (both person entities, both organization entities). For ambiguous platform IRIs append #this per Step 3; DBpedia/Wikidata IRIs are valid targets as-is.
+Example (person):
+  <https://linkedin.com/in/kidehen#this> owl:sameAs <https://x.com/kidehen#this>, <https://github.com/kidehen#this> .
+Example (organization):
+  <http://dbpedia.org/resource/Apple_Inc.> owl:sameAs <https://www.wikidata.org/entity/Q312> ."""@en .
 
-OWL: owl:sameAs — Entity-to-Entity Identity
+# ── Step 5: schema:sameAs Semantics ──────────────────────────────────────────
 
-  - Connects two ENTITY IRIs — both sides identify the thing, not a document about it.
-  - Fully symmetric: if A owl:sameAs B, then B owl:sameAs A.
-  - Transitive: if A owl:sameAs B and B owl:sameAs C, then A owl:sameAs C.
-  - Both sides are the same kind of thing (both person entities, both organization entities).
-  - NO constraints on the object position — it is an entity IRI, not a document URL.
-  - For ambiguous platform IRIs (LinkedIn, X/Twitter, GitHub, Substack, etc.), append #this
-    to distinguish the entity from the document. Exception: Wikidata entity IRIs
-    (https://www.wikidata.org/entity/Q312) and DBpedia resource IRIs
-    (http://dbpedia.org/resource/Apple_Inc.) are inherently entity IRIs —
-    no #this fragment is needed.
-  - Example (person):
-      <https://linkedin.com/in/kidehen#this>
-          owl:sameAs  <https://x.com/kidehen#this> ,         # entity IRI with #this
-                      <https://github.com/kidehen#this> .    # entity IRI with #this
+:step-schemaSameAsSemantics a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "schema:sameAs connects an entity IRI to a document URL that uniquely identifies it"@en ;
+    schema:text """schema:sameAs connects an ENTITY IRI (subject, with #this fragment) to a DOCUMENT URL (object, NO fragment). It is not symmetric in practice: the subject is an entity, the object is a document describing that entity. The object behaves as an owl:inverseFunctional property value — if two different entity IRIs have the same schema:sameAs document URL, they are inferred to be the same entity; the object identifies the subject uniquely, the way a barcode identifies a product.
+Example:
+  <https://linkedin.com/in/kidehen#this> schema:sameAs <https://linkedin.com/in/kidehen>, <https://x.com/kidehen>, <https://github.com/kidehen> .
+All objects are document URLs (no fragment); the subject is the person entity (with #this)."""@en .
 
-  - Example (organization):
-      <http://dbpedia.org/resource/Apple_Inc.>
-          owl:sameAs  <https://www.wikidata.org/entity/Q312> .    # entity IRI (inherent)
+# ── Step 6: Decision Rule and Inference Hazard ───────────────────────────────
 
-  Platform profiles use #this; semantic databases (DBpedia, Wikidata) use
-  inherent entity IRIs. Both are valid owl:sameAs targets.
+:step-sameAsDecisionRule a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Fragment ⇒ owl:sameAs; fragmentless page URL ⇒ schema:sameAs — never mix, reasoners amplify the error"@en ;
+    schema:text "When in doubt: if the URL has a #this fragment, use owl:sameAs; if it has no fragment (it's a page URL), use schema:sameAs. Never use owl:sameAs with a fragmentless document URL — that conflates the person with their webpage. Because owl:sameAs is transitive, a reasoner infers that all entity IRIs in a sameAs chain share all properties — correct for true identity, but if a document URL is mistakenly included, properties of the person (name, job title) get inferred onto the document. schema:sameAs does not carry this entailment hazard — reasoners do not infer owl:sameAs-level merging from it. Bottom line: owl:sameAs for identity chains (entity ↔ entity), schema:sameAs for documentation links (entity → page about entity). See :workExample-sameAsQuickReference."@en .
 
-SCHEMA: schema:sameAs — Entity to Document/Page
-
-  - Connects an ENTITY IRI (subject, with #this fragment) to a DOCUMENT URL (object, NO fragment).
-  - NOT symmetric in practice: the subject is an entity, the object is a document describing that entity.
-  - The object (document URL) behaves as an owl:inverseFunctional property value — if two different entity IRIs have the same schema:sameAs document URL, they are inferred to be the same entity.
-  - The object identifies the subject uniquely, the way a barcode identifies a product.
-  - Example:
-      <https://linkedin.com/in/kidehen#this>    # entity (person)
-          schema:sameAs  <https://linkedin.com/in/kidehen> ,     # document (profile page)
-                         <https://x.com/kidehen> ,               # document (profile page)
-                         <https://github.com/kidehen> .          # document (profile page)
-
-  All objects are document URLs (no fragment). The subject is the person entity (with #this).
-
-QUICK REFERENCE:
-
-  Property        | Subject         | Object          | Object type
-  ----------------+-----------------+-----------------+-----------------------
-  owl:sameAs      | entity IRI      | entity IRI      | has #this fragment
-  schema:sameAs   | entity IRI      | document URL    | no #this fragment
-
-  When in doubt: if the URL has a #this fragment, use owl:sameAs. If it has no fragment (it's a page URL), use schema:sameAs. Never use owl:sameAs with a fragmentless document URL — that conflates the person with their webpage.
-
-  Note on OWL inference: Because owl:sameAs is transitive, a reasoner will infer that
-  all entity IRIs linked via owl:sameAs share all properties. This is correct —
-  they are the same entity. But if a document URL is mistakenly included in an
-  owl:sameAs chain, properties of the person (name, job title) would be inferred
-  on the document, which is incorrect. Using the correct property prevents this.
-  schema:sameAs does not carry the same entailment hazard — reasoners do not
-  infer owl:sameAs-level merging from schema:sameAs.
-
-  Bottom line: owl:sameAs for identity chains (entity ↔ entity), schema:sameAs
-  for documentation links (entity → page about entity)."""@en .
-
-# ── Step 3: No Document-Local Entity IRIs ───────────────────────────────────
+# ── Step 7: No Document-Local Entity IRIs ────────────────────────────────────
 
 :step-localIriProhibition a schema:HowToStep ;
-    schema:position "3"^^xsd:integer ;
+    schema:position "7"^^xsd:integer ;
     schema:name "Never create document-local IRIs when a canonical platform IRI is available"@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
-    schema:text """When a canonical IRI exists (from step-canonicalPriority), do NOT create a document-local IRI in the article's or document's own namespace. The canonical IRI is the sole subject — all triples about that entity and all references to that entity use the canonical IRI directly.
+    schema:text "When a canonical IRI exists (Steps 1–2), do NOT create a document-local IRI in the article's or document's own namespace. The canonical IRI is the sole subject — all triples about that entity and all references to that entity use the canonical IRI directly. Rationale: document-local IRIs create unnecessary indirection, bloat the triple count with owl:sameAs statements whose sole purpose is aliasing, and prevent direct dereferencing. A consumer of the Turtle file should be able to resolve any entity IRI and get meaningful information without chasing aliases. See :workExample-localIriWrongRight."@en .
 
-WRONG — document-local IRI coexisting with canonical:
+# ── Step 8: The Only Permitted Local-IRI Case ────────────────────────────────
+
+:step-localIriException a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Create a document-local IRI only when the entity has no platform presence at all"@en ;
+    schema:text "Only create a document-local IRI when no canonical platform IRI exists for an entity — i.e., when the entity has no LinkedIn, DBpedia, Wikidata, X/Twitter, Substack, or homepage presence. This applies only to minor or unreferenced entities that cannot be identified on any platform."@en .
+
+# ── Worked Examples ──────────────────────────────────────────────────────────
+
+:workExample-sameAsQuickReference a schema:CreativeWork ;
+    schema:name "owl:sameAs vs schema:sameAs quick reference"@en ;
+    schema:text """Property        | Subject         | Object          | Object type
+----------------+-----------------+-----------------+-----------------------
+owl:sameAs      | entity IRI      | entity IRI      | has #this fragment (or inherent entity IRI)
+schema:sameAs   | entity IRI      | document URL    | no #this fragment"""@en .
+
+:workExample-localIriWrongRight a schema:CreativeWork ;
+    schema:name "Document-local IRI: wrong vs right"@en ;
+    schema:text """WRONG — document-local IRI coexisting with canonical:
   @prefix : <https://example.com/article/#> .
   :kingsleyIdehen a schema:Person ;
       schema:name "Kingsley Uyi Idehen" ;
       owl:sameAs <https://linkedin.com/in/kidehen#this> .   # redundant local entity
-  :comment123 schema:author :kingsleyIdehen .                 # redundant reference
+  :comment123 schema:author :kingsleyIdehen .               # redundant reference
 
 RIGHT — canonical IRI as sole subject:
   <https://linkedin.com/in/kidehen#this> a schema:Person ;
       schema:name "Kingsley Uyi Idehen" ;
       owl:sameAs <https://x.com/kidehen#this> .
-  :comment123 schema:author <https://linkedin.com/in/kidehen#this> .
-
-Rationale: Document-local IRIs create unnecessary indirection, bloat the triple
-count with owl:sameAs statements whose sole purpose is aliasing, and prevent
-direct dereferencing. A consumer of the Turtle file should be able to resolve
-any entity IRI and get meaningful information without chasing aliases.
-
-Exception: Only create a document-local IRI when no canonical platform IRI
-exists for an entity — i.e., when the entity has no LinkedIn, DBpedia, Wikidata,
-X/Twitter, Substack, or homepage presence. This applies only to minor or
-unreferenced entities that cannot be identified on any platform."""@en .
+  :comment123 schema:author <https://linkedin.com/in/kidehen#this> ."""@en .
