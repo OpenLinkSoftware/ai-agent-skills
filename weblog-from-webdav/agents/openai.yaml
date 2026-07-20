@@ -1,0 +1,7 @@
+interface:
+  display_name: "Weblog From WebDAV"
+  short_description: "Deploy Virtuoso WebDAV folders as weblogs."
+  brand_color: "#0B5C73"
+  default_prompt: "Use $weblog-from-webdav to deploy or update a Virtuoso WebDAV folder as a searchable weblog with feeds and category facets."
+policy:
+  allow_implicit_invocation: true
