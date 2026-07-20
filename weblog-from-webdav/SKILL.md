@@ -7,6 +7,15 @@ description: Build, deploy, update, or troubleshoot a Virtuoso Server Pages webl
 
 Use this skill to turn a Virtuoso WebDAV folder into a live weblog whose posts remain ordinary files. The skill always starts by determining whether the Virtuoso-side weblog engine is already in place. If it is not, bootstrap it with `isql`; WebDAV is then used for the post-publication workflow.
 
+## Blocking Gate — WebDAV URL Means VSP/isql Weblog
+
+When the user asks to generate a weblog from a WebDAV URL, a static HTML index is **not** a valid completion unless the user explicitly asks for a static-only page or preview. The default deliverable is either:
+
+- a live verified VSP weblog deployed on the target Virtuoso/WebDAV server, or
+- a complete deployable VSP/isql bundle: `index.vsp`, `deploy-*.sql`, optional route SQL, optional facet/category SQL when requested, README/run notes outside the skill package, and verification queries.
+
+Before writing or claiming completion, read `references/webdav-weblog-engine-gate.md` and run `scripts/validate_generated_weblog_bundle.py` against the generated bundle. If deployment credentials are unavailable, stop at the deployable bundle and state that live deployment is blocked by missing authenticated `isql`/WebDAV access. Do not substitute a static HTML lens as the answer.
+
 The skill supports two interaction modalities, each with plain credential and TLS/WebID variants:
 
 - **isql engine mode**: inspect or create the server-side weblog engine: VSP resource deployment, DAV path mapping assumptions, route/friendly URL setup, SQL helpers, full-text/search support, feed handling, metadata access, ACL/cache maintenance, and category staging. If the SQL listener is TLS-enabled, use `isql` with `-X` for the client PKCS#12 bundle, `-T` for the CA bundle, and `-W` for delegated WebID identity.
@@ -27,14 +36,16 @@ Establish these before editing or deploying:
 ## Workflow
 
 1. Inspect the target collection or supplied SQL/VSP artifact before making assumptions. Exclude `._*`, `.DS_Store`, hidden macOS sidecar files, and non-post assets from post enumeration.
-2. Determine whether the weblog engine is already in place. Check that the target collection has an executable VSP entry point, working feed modes, collection-scoped search, date filtering, optional metadata facets, and the expected public route.
-3. If the engine is missing or incomplete, switch to `isql-engine` setup. Start from the templates in `templates/`, patch paths, public URLs, title, and theme labels explicitly, then deploy with `isql`.
-4. Use WebDAV only for post publication after the engine check passes: copy HTML files, Markdown files, and associated asset folders; optionally set `schema:category` properties with `PROPPATCH`.
-5. Use scoped search. In Virtuoso SQL, keep `contains` / `xcontains` as a top-level `AND` predicate and escape multi-word user input into a valid free-text expression.
-6. Use calendar controls for date ranges in the sidebar, with `from` and `to` parameters preserved in filtered links.
-7. Show category facets only when `schema:category` metadata exists. Facet counts must be computed from the filtered candidate set, not from all resources after a later display filter.
-8. Preserve the recency-ordered post list in the sidebar. Facets and search refine that list; they do not replace it with monthly buckets.
-9. Validate locally when possible, then verify the served route, feeds, search, date filters, facets, and a newly copied post.
+2. Before authoring VSP or SQL, search prior memory/work for `DAV_RES_UPLOAD_STRSES_INT`, `string_output`, `HTTP_PATH`, `index.vsp`, `raw <?vsp`, `vsp_user`, and `weblog-from-webdav`; reuse proven patterns and failure fixes.
+3. Determine whether the weblog engine is already in place. Check that the target collection has an executable VSP entry point, working feed modes, collection-scoped search, date filtering, optional metadata facets, and the expected public route.
+4. If the engine is missing or incomplete, switch to `isql-engine` setup. Start from the templates in `templates/`, patch paths, public URLs, title, and theme labels explicitly, then produce and, when credentials are available, deploy the complete VSP/isql bundle.
+5. Validate the generated bundle with `scripts/validate_generated_weblog_bundle.py`. This gate is blocking for WebDAV weblog generation.
+6. Use WebDAV only for post publication after the engine check passes: copy HTML files, Markdown files, and associated asset folders; optionally set `schema:category` properties with `PROPPATCH`.
+7. Use scoped search. In Virtuoso SQL, keep `contains` / `xcontains` as a top-level `AND` predicate and escape multi-word user input into a valid free-text expression.
+8. Use calendar controls for date ranges in the sidebar, with `from` and `to` parameters preserved in filtered links.
+9. Show category facets only when `schema:category` metadata exists. Facet counts must be computed from the filtered candidate set, not from all resources after a later display filter.
+10. Preserve the recency-ordered post list in the sidebar. Facets and search refine that list; they do not replace it with monthly buckets.
+11. Validate locally when possible, then verify the served route, feeds, search, date filters, facets, and a newly copied post.
 
 ## Mode references
 

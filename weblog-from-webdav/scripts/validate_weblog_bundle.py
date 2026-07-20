@@ -30,6 +30,16 @@ CHECKS = {
         "not the engine setup channel",
         "switch to `isql` engine bootstrap",
     ],
+    "references/webdav-weblog-engine-gate.md": [
+        "Static HTML is only an optional preview",
+        "DAV_RES_UPLOAD_STRSES_INT",
+        "validate_generated_weblog_bundle.py",
+    ],
+    "scripts/validate_generated_weblog_bundle.py": [
+        "DAV_RES_UPLOAD_STRSES_INT",
+        "string_output",
+        "VHOST_DEFINE",
+    ],
 }
 
 
