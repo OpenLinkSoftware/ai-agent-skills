@@ -1825,3 +1825,12 @@
     schema:text "Every howto/*.ttl must use one schema:HowToStep per requirement, anchor cross-references to preferences.ttl via #step-… fragments (never the bare document), and be parse-validated with a Turtle parser before the task ends."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/howto-authoring-structure.ttl> .
+
+# ── Step 139: Python Default; JavaScript Only When Explicitly Required ─────
+
+:step-pythonDefaultJsFallback a schema:HowToStep ;
+    schema:position 139 ;
+    schema:name "Write new scripts in Python by default; use JavaScript/Node only when explicitly required"@en ;
+    schema:text "For new standalone scripts, default to Python and use JavaScript/Node only when explicitly required."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/python-default-js-fallback.ttl> .
