@@ -7,39 +7,120 @@
     schema:name "Agent Identity — Whoami Format, Verified Identity Gate, and Stripe Sandbox Card"@en ;
     schema:description "Rules for agent identity presentation: the canonical two-section bullet response to whoami (with verified identity lines for both user and agent), the certificate verification gate that runs before composing the response, and the Stripe sandbox card credentials for ACP test payments."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
-    schema:step :step-whoamiFormat, :step-verifiedIdentityGate, :step-stripeSandboxCard ;
+    schema:step :step-classifyTrigger, :step-runGateForTriggerA, :step-emitUserSection,
+        :step-emitAgentSection, :step-sameAsHyperlinks, :step-currentSessionValues,
+        :step-resolveCredentialDirs, :step-modulusVerification, :step-assignBadges,
+        :step-stripeSandboxCard ;
+    schema:workExample :workExample-triggerAResponse, :workExample-triggerBResponse,
+        :workExample-knownSanUris ;
     rdfs:seeAlso <../preferences.ttl#step-whoamiFormat>, <../preferences.ttl#step-webidTlsVerification>, <../preferences.ttl#step-urlsAsHyperlinks>, <../preferences.ttl#step-whoamiSameAsHyperlinks>, <../preferences.ttl#step-stripeSandboxCard>, <verified-identity.ttl>,
         <filesystem-path-verification.ttl> .
 
-# ── Step 1: Whoami Format ─────────────────────────────────────────────────────
+# ══ Section A: Whoami Response Composition (Steps 1–6) ═══════════════════════
 
-:step-whoamiFormat a schema:HowToStep ;
+# ── Step 1: Classify the Identity Query Trigger ──────────────────────────────
+
+:step-classifyTrigger a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Respond to identity queries: full two-section for 'whoami', agent-only for 'who are you?'"@en ;
-    schema:text """Identity queries have two triggers:
+    schema:name "Classify the identity query: 'whoami?' → Trigger A (full two-section); 'who are you?' → Trigger B (agent-only)"@en ;
+    schema:text "Identity queries have two triggers. Trigger A — 'whoami?' — produces the full two-section response (User + Agent) with verification badges. Trigger B — 'who are you?' / 'who is this?' / 'identify yourself' — produces only the Agent section: no User lines, no cert verification, no ✅/⚠️ badges."@en .
 
-**Trigger A — "whoami?" → Full two-section (User + Agent):**
-Run the verified identity gate (Step 2), then respond with both sections.
+# ── Step 2: Run the Verification Gate (Trigger A Only) ───────────────────────
 
-**Trigger B — "who are you?" / "who is this?" / "identify yourself" → Agent-only:**
-Skip the verified identity gate. Respond with only the Agent section. No User lines, no cert verification.
+:step-runGateForTriggerA a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "For Trigger A, run the verified identity gate (Steps 7–9) before composing; for Trigger B, skip it"@en ;
+    schema:text "The verification gate (Steps 7–9) runs BEFORE composing a Trigger A response — it fills the ✅/⚠️ badges on the WebID, cert, On-Behalf-Of, and Delegation lines. Trigger B responses skip the gate entirely and omit badges."@en .
 
-After running the appropriate trigger, respond in this format:
+# ── Step 3: Emit the User Section (Trigger A Only) ───────────────────────────
 
-**For Trigger A ("whoami?") — Full two-section:**
+:step-emitUserSection a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Emit the User (principal) section: name, email, role, WebID + badge, cert line, owl:sameAs links"@en ;
+    schema:text "The User section carries: Name (Kingsley Uyi Idehen), Email (kidehen@openlinksw.com), Role (Founder & CEO, OpenLink Software), WebID ({user SAN URI} with ✅ or ⚠️ Unverified badge), User cert ({subject} · {SHA-256 fingerprint} · {validFrom → validTo} · modulus ✅ match / ⚠️ mismatch against profile.ttl — omitted if no local credential files found), and the owl:sameAs hyperlink line (Step 5). See :workExample-triggerAResponse for the full template."@en .
 
-**User (principal)**
+# ── Step 4: Emit the Agent Section (Both Triggers) ───────────────────────────
+
+:step-emitAgentSection a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Emit the Agent (me) section: model, environment, output root, project, memory store, contract, WebID, cert, On-Behalf-Of, delegation"@en ;
+    schema:text "The Agent section carries: Model ({model name} + {llm-id used in session filenames}), Environment, Artifact output root (from step-outputDirs rules for the active LLM model ID), Active project, Memory store (absolute path to agent-rdf-memory/), Behavioral contract (preferences.ttl with standing-instruction count and notable recent additions), Agent WebID, Agent cert line, On-Behalf-Of ({user SAN URI}), and — Trigger A only — the Delegation corroboration line (✅ Corroborated (both profiles) / ⚠️ Partially corroborated ({which side} missing) / ⚠️ Unconfirmed). Always emit the Agent WebID and On-Behalf-Of lines even when unverified. See both workExample templates."@en .
+
+# ── Step 5: owl:sameAs Hyperlink Line ────────────────────────────────────────
+
+:step-sameAsHyperlinks a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Build the owl:sameAs line from <link rel=\"me\"> tags as [Title](URL) hyperlinks — never prose category descriptions"@en ;
+    schema:text "Grep <link rel=\"me\"> from the user WebID index.html and emit each as a [Title](URL) Markdown hyperlink, separated by · dots. Never substitute prose platform-category descriptions for the actual hyperlinked URIs. See :workExample-triggerAResponse for the expected rendering."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-whoamiSameAsHyperlinks> .
+
+# ── Step 6: Current-Session Values Only ──────────────────────────────────────
+
+:step-currentSessionValues a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Fill model, environment, and output root from the CURRENT session — never copy from a prior session"@en ;
+    schema:text "Use the current session's model and environment when filling the Agent section — never copy identity values from a prior session's response. Fill the artifact output root from step-outputDirs rules based on the active LLM model ID."@en ;
+    rdfs:seeAlso <filesystem-path-verification.ttl> .
+
+# ══ Section B: Verified Identity Gate (Steps 7–9) ════════════════════════════
+
+# ── Step 7: Resolve Credential Directories ───────────────────────────────────
+
+:step-resolveCredentialDirs a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Resolve both credential directories via the blocking gate; elicit on failure — never guess a path"@en ;
+    schema:text """Both credential directories are resolved at session start by the verified-identity.ttl Step 0 blocking gate:
+  USER:  {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
+  AGENT: {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
+If resolution fails, the gate elicits from the user — never guess a path."""@en ;
+    rdfs:seeAlso <verified-identity.ttl> .
+
+# ── Step 8: Modulus Verification Procedure ───────────────────────────────────
+
+:step-modulusVerification a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "For each party, compare the cert modulus against profile.ttl cert:modulus"@en ;
+    schema:text """For each party (user, then agent):
+  1. Find cert.pem (or cert.p12 → empty passphrase) in the credentials dir.
+  2. Extract SAN URI:
+       openssl x509 -noout -ext subjectAltName -in cert.pem
+  3. Read cert:modulus from local profile.ttl (grep 'cert:modulus' → lowercase hex).
+  4. Extract local cert modulus:
+       openssl x509 -noout -modulus -in cert.pem | sed 's/Modulus=//' | tr '[:upper:]' '[:lower:]'
+  5. Compare the two values.
+Full procedure: see howto/verified-identity.ttl."""@en ;
+    rdfs:seeAlso <verified-identity.ttl> .
+
+# ── Step 9: Assign Badges From the Comparison ────────────────────────────────
+
+:step-assignBadges a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Match → SAN URI + ✅; mismatch or missing files → memory IRI + ⚠️ Unverified"@en ;
+    schema:text "If the moduli match, present the SAN URI with a ✅ badge. On mismatch or absent credential files, present the memory IRI with ⚠️ Unverified. Known-good SAN URIs are recorded in :workExample-knownSanUris for cross-checking."@en .
+
+# ══ Section C: Payments (Step 10) ════════════════════════════════════════════
+
+# ── Step 10: Stripe Sandbox Card ─────────────────────────────────────────────
+
+:step-stripeSandboxCard a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Use Stripe sandbox card credentials for ACP test payments"@en ;
+    schema:text "When filling Stripe invoice payment forms for ACP subscription payments in test/sandbox mode, use these credentials: Card number 4242 4242 4242 4242, Expiration 01/27, Security code 123, Country United States, ZIP 12345. These are Stripe's standard test mode card details for validating subscription payment flows."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-stripeSandboxCard> .
+
+# ══ Worked Examples ══════════════════════════════════════════════════════════
+
+:workExample-triggerAResponse a schema:CreativeWork ;
+    schema:name "Trigger A ('whoami?') — full two-section response template"@en ;
+    schema:text """**User (principal)**
 • Name: Kingsley Uyi Idehen
 • Email: kidehen@openlinksw.com
 • Role: Founder & CEO, OpenLink Software
 • WebID: {user SAN URI} {✅ | ⚠️ Unverified}
 • User cert: {subject} · {SHA-256 fingerprint} · {validFrom → validTo} · modulus {✅ match | ⚠️ mismatch} with profile.ttl (omitted if no local credential files found)
-• owl:sameAs: grep <link rel="me"> from {user WebID index.html path} and emit each as [Title](URL). Example output:
-  [LinkedIn](https://www.linkedin.com/in/kidehen#this) · [X](https://x.com/kidehen) · [Substack](https://substack.com/@kidehen) · [Mastodon](https://mastodon.social/@kidehen) · [Bluesky](https://bsky.app/profile/kidehen.bsky.social) · [Threads](https://www.threads.net/@kidehen) · [GitHub](https://github.com/kidehen) · [Linktree](https://linktr.ee/kidehen) · [ID.MyOpenLink.NET](https://id.myopenlink.net/~KingsleyUyiIdehen/Public/) · [Carrd](https://kidehen.carrd.co/) · [Glitch](https://glitch.com/~kidehen) · [Facebook](https://facebook.com/kidehen) · [Instagram](https://www.instagram.com/kidehen) · [TikTok](https://www.tiktok.com/@kidehen) · [RSS](https://www.openlinksw.com/data/podcasts/?a=rss) · [Atom](https://www.openlinksw.com/data/podcasts/?a=atom) · [Email](mailto:kidehen@openlinksw.com)
-  Never substitute prose platform-category descriptions for the actual hyperlinked URIs.
+• owl:sameAs: [LinkedIn](https://www.linkedin.com/in/kidehen#this) · [X](https://x.com/kidehen) · [Substack](https://substack.com/@kidehen) · [Mastodon](https://mastodon.social/@kidehen) · [Bluesky](https://bsky.app/profile/kidehen.bsky.social) · [Threads](https://www.threads.net/@kidehen) · [GitHub](https://github.com/kidehen) · [Linktree](https://linktr.ee/kidehen) · [ID.MyOpenLink.NET](https://id.myopenlink.net/~KingsleyUyiIdehen/Public/) · [Carrd](https://kidehen.carrd.co/) · [Glitch](https://glitch.com/~kidehen) · [Facebook](https://facebook.com/kidehen) · [Instagram](https://www.instagram.com/kidehen) · [TikTok](https://www.tiktok.com/@kidehen) · [RSS](https://www.openlinksw.com/data/podcasts/?a=rss) · [Atom](https://www.openlinksw.com/data/podcasts/?a=atom) · [Email](mailto:kidehen@openlinksw.com)
 
 **Agent (me)**
 • Model: {model name} ({llm-id used in session filenames})
@@ -51,11 +132,11 @@ After running the appropriate trigger, respond in this format:
 • Agent WebID: {agent SAN URI} {✅ | ⚠️ Unverified}
 • Agent cert: {subject} · {SHA-256 fingerprint} · {validFrom → validTo} · modulus {✅ match | ⚠️ mismatch} with profile.ttl
 • On-Behalf-Of: {user SAN URI} {✅ | ⚠️ Unverified}
-• Delegation: {✅ Corroborated (both profiles) | ⚠️ Partially corroborated ({which side} missing) | ⚠️ Unconfirmed}
+• Delegation: {✅ Corroborated (both profiles) | ⚠️ Partially corroborated ({which side} missing) | ⚠️ Unconfirmed}"""@en .
 
-**For Trigger B ("who are you?") — Agent-only, no badges:**
-
-**Agent (me)**
+:workExample-triggerBResponse a schema:CreativeWork ;
+    schema:name "Trigger B ('who are you?') — agent-only response template, no badges"@en ;
+    schema:text """**Agent (me)**
 • Model: {model name} ({llm-id})
 • Environment: {agent environment name}
 • Artifact output root: {path from step-outputDirs} (rdf/, md/, webpages/)
@@ -66,43 +147,9 @@ After running the appropriate trigger, respond in this format:
 • Agent cert: {subject} · {SHA-256 fingerprint} · {validFrom → validTo} (omitted if no local credential files found)
 • On-Behalf-Of: {user SAN URI}
 
-(Omit ✅/⚠ badges — no cert verification for Trigger B. Omit the User section entirely.)
-Use the current session's model and environment — never copy from a prior session. Fill the artifact output root from step-outputDirs rules based on the active LLM model ID. Always emit the Agent WebID and On-Behalf-Of lines even when unverified."""@en .
+(Omit ✅/⚠ badges — no cert verification for Trigger B. Omit the User section entirely.)"""@en .
 
-# ── Step 2: Verified Identity Gate ───────────────────────────────────────────
-
-:step-verifiedIdentityGate a schema:HowToStep ;
-    schema:position "2"^^xsd:integer ;
-    schema:name "Run the verified identity gate before composing the whoami response"@en ;
-    schema:text """This gate runs BEFORE responding to whoami. It fills the ✓ / ⚠ badges.
-
-USER verification — creds dir (resolved by verified-identity.ttl Step 0 blocking gate):
-  {resolved-credential-root}/Templates/YouID/link-in-bio-credentials-5/
-
-AGENT verification — creds dir (resolved by verified-identity.ttl Step 0 blocking gate):
-  {resolved-credential-root}/Templates/YouID/link-in-bio-agent-credentials/
-
-Both dirs are resolved at session start by the blocking gate. If resolution fails, the gate elicits from the user — never guess a path.
-
-For each party (user, then agent):
-  1. Find cert.pem (or cert.p12 → empty passphrase) in the credentials dir.
-  2. Extract SAN URI:
-       openssl x509 -noout -ext subjectAltName -in cert.pem
-  3. Read cert:modulus from local profile.ttl (grep 'cert:modulus' → lowercase hex).
-  4. Extract local cert modulus:
-       openssl x509 -noout -modulus -in cert.pem | sed 's/Modulus=//' | tr '[:upper:]' '[:lower:]'
-  5. Compare. Match → SAN URI + ✅. Mismatch or file absent → memory IRI + ⚠️ Unverified.
-
-Known SAN URIs from certs (as of 2026-06-19; owl:sameAs profile.ttl#identity in each bundle):
-  User:  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid
-  Agent: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid
-
-Full procedure: see howto/verified-identity.ttl."""@en ;
-    rdfs:seeAlso <verified-identity.ttl> .
-
-# ── Step 2: Stripe Sandbox Card ──────────────────────────────────────────────
-
-:step-stripeSandboxCard a schema:HowToStep ;
-    schema:position "2"^^xsd:integer ;
-    schema:name "Use Stripe sandbox card credentials for ACP test payments"@en ;
-    schema:text "When filling Stripe invoice payment forms for ACP subscription payments in test/sandbox mode, use these credentials: Card number 4242 4242 4242 4242, Expiration 01/27, Security code 123, Country United States, ZIP 12345. These are Stripe's standard test mode card details for validating subscription payment flows."@en .
+:workExample-knownSanUris a schema:CreativeWork ;
+    schema:name "Known SAN URIs from certs (as of 2026-06-19; owl:sameAs profile.ttl#identity in each bundle)"@en ;
+    schema:text """User:  https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid
+Agent: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid"""@en .

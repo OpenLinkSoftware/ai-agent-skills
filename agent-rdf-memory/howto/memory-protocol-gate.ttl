@@ -8,211 +8,171 @@
     schema:name "Agent RDF Memory Protocol Validation Gate"@en ;
     schema:description "Mandatory post-session audit gate that validates every Claude Code session transcript against the 5-step Agent RDF Memory Protocol. Programmatic backstop — the SessionStart hook injection is the primary prevention mechanism; this validator is the audit trail that proves compliance."@en ;
     schema:dateCreated "2026-06-10T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-10T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :protocolGate ;
-    schema:step :step-understandGate, :step-locateTranscript, :step-runValidator,
-                :step-interpretFailures, :step-fixAndReaudit ;
     rdfs:seeAlso <../preferences.ttl#step-memoryProtocolGate>, <../preferences.ttl#step-preferencesSparse>, <session-governance.ttl> .
 
 # ── Primary entity ────────────────────────────────────────────────────────────
 
 :protocolGate a schema:HowTo ;
     schema:name "Memory Protocol Validation Gate — Post-Session Audit"@en ;
-    schema:description "Five-step gate procedure for auditing every Claude Code session transcript against the mandatory 5-step Agent RDF Memory Protocol. The validator checks: (1) directory listing of agent-rdf-memory/, (2) Read core.ttl, (3) Read preferences.ttl, (4) Read index.ttl, (5) Followed references to at least one additional file beyond the core three. GATE: 0 failures required before considering a session protocol-compliant."@en ;
-    schema:step :step-understandGate, :step-locateTranscript, :step-runValidator,
-                :step-interpretFailures, :step-fixAndReaudit ;
+    schema:description "Gate procedure for auditing every Claude Code session transcript against the mandatory 5-step Agent RDF Memory Protocol. GATE: 0 failures required before considering a session protocol-compliant. Why this gate exists: in a prior session, a simple 'whoami' query was answered from CLAUDE.md prose instead of the canonical format in howto/agent-identity.ttl — the SessionStart hook had injected compact step names but not the whoami format spec, and the agent treated the compact injection as 'memory already loaded' and skipped the full-read protocol. The audit trail proves the full protocol was executed."@en ;
+    schema:step :step-understandGate, :step-strictMode, :step-locateTranscript,
+        :step-runValidator, :step-interpretFailures, :step-classifyRootCause,
+        :step-fixHookInjection, :step-fixIgnoredGate, :step-fixPartialExecution,
+        :step-fixAndReaudit, :step-preferencesSparseContract, :step-sparseVerification ;
+    schema:workExample :workExample-validatorOutput, :workExample-failInterpretation,
+        :workExample-sparseCheck ;
     schema:tool <../scripts/validate-memory-protocol.py> .
 
-# ── Step 1: Understand the gate ───────────────────────────────────────────────
+# ── Step 1: The Five Protocol Checks ─────────────────────────────────────────
 
 :step-understandGate a schema:HowToStep ;
     schema:position 1 ;
-    schema:name "Understand what the gate validates and why it exists"@en ;
-    schema:text """The memory protocol validation gate audits a Claude Code JSONL session transcript to verify that the agent executed all 5 mandatory steps of the Agent RDF Memory Protocol:
-
-**Protocol steps checked:**
+    schema:name "Know the 5 protocol steps the validator checks"@en ;
+    schema:text """The validator audits a Claude Code JSONL session transcript for all 5 mandatory steps of the Agent RDF Memory Protocol:
 1. `ls agent-rdf-memory/` — directory listing (Bash tool call)
 2. `Read core.ttl` — user identity and output routing
 3. `Read preferences.ttl` — the queryable behavioral contract
 4. `Read index.ttl` — session index with cross-references
-5. Follow at least one index reference — read additional files under howto/, sessions/, projects/, or entities/
+5. Follow at least one index reference — read additional files under howto/, sessions/, projects/, or entities/"""@en .
 
-**Optional --strict mode** also verifies that all protocol reads occurred before the agent's first substantive text response. A "read-after-respond" pattern indicates the protocol was skipped and executed retroactively only after a behavioral lapse was detected.
+# ── Step 2: Strict Mode (Read-Before-Respond Timing) ─────────────────────────
 
-**Why this gate exists:**
-In a prior session, a simple "whoami" query was answered from CLAUDE.md prose instead of the canonical format in howto/agent-identity.ttl. The SessionStart hook injection had provided compact step names but NOT the whoami format spec (it lived in a howto/ file the hook didn't load). The agent treated the compact injection as "memory already loaded" and skipped the full-read protocol. This gate prevents that class of failure by providing a post-session audit trail that proves the full protocol was executed.
+:step-strictMode a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Use --strict to catch read-after-respond violations; skip it when the transcript lacks user text prompts"@en ;
+    schema:text "Optional --strict mode additionally verifies that all protocol reads occurred BEFORE the agent's first substantive text response. A read-after-respond pattern is the canonical failure the gate was designed to catch: the response was generated from CLAUDE.md prose or prior context, and the protocol was executed retroactively only after a behavioral lapse was detected. Do not run --strict if the transcript lacks user text prompts — Claude Code JSONL transcripts don't always contain the literal user prompt text, in which case the strict timing check gracefully skips."@en .
 
-The SessionStart hook injection and this validator are complementary:
-- **Hook injection** = primary prevention (compact context + GATE instruction at session start)
-- **Validator** = audit trail (proves compliance after the fact)
-
-If the hook injection changes, the gate catches the gap before the next session starts."""@en .
-
-# ── Step 2: Locate the transcript ─────────────────────────────────────────────
+# ── Step 3: Locate the Transcript ────────────────────────────────────────────
 
 :step-locateTranscript a schema:HowToStep ;
-    schema:position 2 ;
-    schema:name "Locate the most recent Claude Code session transcript for audit"@en ;
-    schema:text """Claude Code JSONL transcripts follow the path pattern:
+    schema:position 3 ;
+    schema:name "Locate the most recent complete Claude Code session transcript for audit"@en ;
+    schema:text """Claude Code JSONL transcripts follow the path pattern ~/.claude/projects/-{project-path-slugified}/{session-uuid}.jsonl. For this repository:
+  ls -lt ~/.claude/projects/-Users-kidehen-Documents-Management-Development-ai-agent-skills/*.jsonl | head -1
+Or run the validator against a specific known transcript UUID. The transcript must be a COMPLETE session — running the validator against a partial or in-progress transcript produces false negatives, since steps that appear missing may simply not have been written to the file yet."""@en .
 
-```
-~/.claude/projects/-{project-path-slugified}/{session-uuid}.jsonl
-```
-
-For this repository, the project transcripts directory is:
-```
-~/.claude/projects/-Users-kidehen-Documents-Management-Development-ai-agent-skills/
-```
-
-**To find the most recent transcript:**
-```bash
-ls -lt ~/.claude/projects/-Users-kidehen-Documents-Management-Development-ai-agent-skills/*.jsonl | head -1
-```
-
-Or run the validator against a specific known transcript UUID.
-
-**The transcript must be a complete session.** Running the validator against a partial or in-progress transcript will produce false negatives — steps that appear missing may simply not have been written to the file yet."""@en .
-
-# ── Step 3: Run the validator ─────────────────────────────────────────────────
+# ── Step 4: Run the Validator ────────────────────────────────────────────────
 
 :step-runValidator a schema:HowToStep ;
-    schema:position 3 ;
+    schema:position 4 ;
     schema:name "Run validate-memory-protocol.py against the transcript"@en ;
-    schema:text """Run the validator from the repository root:
+    schema:text """Run from the repository root:
+  python3 agent-rdf-memory/scripts/validate-memory-protocol.py ~/.claude/projects/-Users-kidehen-Documents-Management-Development-ai-agent-skills/{uuid}.jsonl --verbose
+Modes: default checks all 5 protocol steps (pass/fail output); --verbose (-v) prints every detected protocol-relevant tool call with line numbers; --strict adds the read-before-respond timing check (Step 2). Exit codes: 0 = PASS (all 5 steps verified), 1 = FAIL (at least one step not executed). See :workExample-validatorOutput for sample output."""@en .
 
-```bash
-python3 agent-rdf-memory/scripts/validate-memory-protocol.py ~/.claude/projects/-Users-kidehen-Documents-Management-Development-ai-agent-skills/{uuid}.jsonl --verbose
-```
-
-**Modes:**
-- **Default:** Checks all 5 protocol steps. Pass/fail output only unless --verbose is used.
-- **--verbose (-v):** Prints every detected protocol-relevant tool call with line numbers.
-- **--strict:** Additionally verifies that all protocol reads occurred before the first substantive assistant text response — catches "read-after-respond" violations.
-
-**Exit codes:**
-- 0 = PASS — all 5 steps verified
-- 1 = FAIL — at least one step not executed
-
-**PASS output:**
-```
-PASS: Agent RDF Memory Protocol executed — all 5 steps verified (43 tool calls audited)
-```
-
-**FAIL output:**
-```
-FAIL: 3 protocol step(s) not executed
-  - Protocol step 1: Did not list agent-rdf-memory/ directory...
-  - Protocol step 3: Read preferences.ttl
-  - Protocol step 5: Did not follow index.ttl references...
-```
-
-**Do not run --strict if the transcript lacks user text prompts** — Claude Code JSONL transcripts don't always contain the literal user prompt text, in which case the strict timing check gracefully skips."""@en .
-
-# ── Step 4: Interpret failures ────────────────────────────────────────────────
+# ── Step 5: Interpret FAIL Lines ─────────────────────────────────────────────
 
 :step-interpretFailures a schema:HowToStep ;
-    schema:position 4 ;
-    schema:name "Map each FAIL line to the protocol step it violates and determine root cause"@en ;
-    schema:text """Each FAIL line names a specific protocol step. The root cause is typically one of:
+    schema:position 5 ;
+    schema:name "Map each FAIL line to the protocol step it violates"@en ;
+    schema:text "Each FAIL line names a specific protocol step; :workExample-failInterpretation carries the full FAIL-message → root-cause mapping table. The most common partial-compliance failure is step 5 (core files read, but no howto/session/project/entity files consulted)."@en .
 
-| FAIL message | Likely root cause |
+# ── Step 6: Classify the Root Cause ──────────────────────────────────────────
+
+:step-classifyRootCause a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Classify the failure: hook didn't fire, GATE ignored, or partial execution"@en ;
+    schema:text """Root cause classification:
+1. HOOK INJECTION DIDN'T FIRE — the SessionStart hook was not configured, or the GATE instruction was not injected. Check that .claude/settings.json has the hook enabled.
+2. GATE INSTRUCTION WAS IGNORED — the injection fired but the agent treated it as 'memory already loaded'. This is the exact failure the GATE instruction's ASCII art box was designed to prevent.
+3. PROTOCOL PARTIALLY EXECUTED — some steps ran but the agent stopped short (typically step 5). The compact injection provided step names without content, making the agent think it had 'enough'."""@en .
+
+# ── Step 7: Fix — Hook Injection ─────────────────────────────────────────────
+
+:step-fixHookInjection a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "If the hook injection is the issue, repair load_memory.py and the hook configuration"@en ;
+    schema:text """1. Review agent-rdf-memory/load_memory.py to ensure the GATE instruction section is intact and prominent.
+2. Verify the additionalContext output includes all 5 protocol steps.
+3. Check .claude/settings.json that the SessionStart hook is configured and points to the correct script path.
+4. If new failure patterns have emerged, add additional inline text excerpts to the hook injection (as was done for the whoami format spec)."""@en .
+
+# ── Step 8: Fix — Ignored GATE Instruction ───────────────────────────────────
+
+:step-fixIgnoredGate a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "If the GATE instruction was present but ignored, make it more prominent"@en ;
+    schema:text """1. Make the instruction more prominent — add CRITICAL markers, larger ASCII art, or restructure to appear earlier in the injected context.
+2. Consider adding a second injection point (e.g., an additional context block at the end of the injection that repeats the GATE requirement).
+3. The load_memory.py script has a documented rationale section — verify it's still accurate and update if new failure patterns have emerged."""@en .
+
+# ── Step 9: Fix — Partial Execution ──────────────────────────────────────────
+
+:step-fixPartialExecution a schema:HowToStep ;
+    schema:position 9 ;
+    schema:name "If steps 1–4 pass but step 5 fails, reduce injected excerpts and call out step 5 explicitly"@en ;
+    schema:text """1. The compact injection may be providing too much content, making the agent think it has enough. Reduce the injected step text excerpts to names + howto references only.
+2. Add an explicit instruction to the GATE box: 'Step 5 is the most commonly skipped step. You MUST open at least one howto/*.ttl file.'"""@en .
+
+# ── Step 10: Re-Audit ────────────────────────────────────────────────────────
+
+:step-fixAndReaudit a schema:HowToStep ;
+    schema:position 10 ;
+    schema:name "Fixes are preventive only — audit the NEXT session's transcript to confirm"@en ;
+    schema:text "A FAIL result means the current session's protocol compliance is already compromised; the transcript cannot be retroactively fixed. After applying a fix, audit the NEXT session's transcript. A passing audit confirms the fix is effective; if the next session also fails, iterate — the validator is the feedback loop that drives hook injection improvements."@en .
+
+# ── Step 11: preferences.ttl Sparse-Index Contract ───────────────────────────
+
+:step-preferencesSparseContract a schema:HowToStep ;
+    schema:position 11 ;
+    schema:name "preferences.ttl sparse-index contract — schema:text is ONE sentence; prose belongs in howto/"@en ;
+    schema:text """PRE-WRITE GATE — applies every time a new schema:HowToStep is added to preferences.ttl, which is read in full at every session start (verbose inline schema:text directly inflates context cost before any task begins). Two-tier split:
+- Tier 1, preferences.ttl (always loaded, must stay compact): schema:name (rule as noun phrase), schema:text (ONE sentence — the core rule, nothing else), onto:hasTrigger, rdfs:seeAlso pointer to the howto file.
+- Tier 2, howto/*.ttl (loaded on-demand, can be verbose): full rationale, incident notes, code examples, verification gates, edge cases.
+Before writing a new step to preferences.ttl, ask: does schema:text exceed one sentence? If yes, it belongs in the howto file — the one-sentence summary stays, everything else moves. Incident (2026-06-25): over ~10 sessions, 55 of 79 steps accumulated multi-paragraph schema:text totalling ~2300 lines; a subagent refactor was required to trim them because no gate existed to prevent re-inflation."""@en ;
+    schema:dateCreated "2026-06-25T00:00:00Z"^^xsd:dateTime .
+
+# ── Step 12: Sparse-Contract Verification ────────────────────────────────────
+
+:step-sparseVerification a schema:HowToStep ;
+    schema:position 12 ;
+    schema:name "After adding any preferences.ttl step, run the >300-char schema:text check"@en ;
+    schema:text "Run the rdflib check in :workExample-sparseCheck after adding any new step to preferences.ttl; it lists every schema:text literal over 300 characters. The result must be 'Violations: None'."@en .
+
+# ── Root cause note ───────────────────────────────────────────────────────────
+
+:rootCauseNote a schema:Thing ;
+    schema:name "Root cause of memory protocol failures — two-layer defense"@en ;
+    schema:description """Primary defense — SessionStart hook injection (load_memory.py): injects compact memory context with the GATE instruction (ASCII art box listing all 5 protocol steps, warning that the compact injection is a safety net, not a replacement) plus inline excerpts for critical specs. Preferred prevention path.
+
+Secondary defense — transcript audit validator (validate-memory-protocol.py): post-session audit that proves the protocol was or wasn't executed, catches failures the hook couldn't prevent, and provides actionable data for improving the hook injection.
+
+Why both: the hook injects text into the context window — it cannot force tool calls. The validator is the objective audit that proves whether prevention worked. Closed loop: hook prevents → validator confirms → if validation fails, hook improves → next session passes. See step-memoryProtocol (the protocol itself) and step-memoryProtocolGate (enforcement) in preferences.ttl."""@en ;
+    schema:dateCreated "2026-06-10T00:00:00Z"^^xsd:dateTime .
+
+# ── Worked Examples ──────────────────────────────────────────────────────────
+
+:workExample-validatorOutput a schema:CreativeWork ;
+    schema:name "Validator PASS and FAIL output samples"@en ;
+    schema:text """PASS:
+  PASS: Agent RDF Memory Protocol executed — all 5 steps verified (43 tool calls audited)
+
+FAIL:
+  FAIL: 3 protocol step(s) not executed
+    - Protocol step 1: Did not list agent-rdf-memory/ directory...
+    - Protocol step 3: Read preferences.ttl
+    - Protocol step 5: Did not follow index.ttl references..."""@en .
+
+:workExample-failInterpretation a schema:CreativeWork ;
+    schema:name "FAIL message → likely root cause mapping"@en ;
+    schema:text """| FAIL message | Likely root cause |
 |---|---|
 | Step 1: Did not list agent-rdf-memory/ | Agent skipped the protocol entirely — no directory listing was run |
 | Step 2: Read core.ttl | Protocol was started but core files were not read |
 | Step 3: Read preferences.ttl | As above — behavioral contract was not loaded |
 | Step 4: Read index.ttl | Session index was not consulted |
-| Step 5: Did not follow index.ttl references | Core files were read but no howto/session/project/entity files were consulted — the most common partial-compliance failure |
+| Step 5: Did not follow index.ttl references | Core files were read but no howto/session/project/entity files were consulted — the most common partial-compliance failure |"""@en .
 
-**If --strict mode fails (read-after-respond):**
-The agent responded to the user BEFORE executing the protocol. This is the canonical failure pattern the gate was designed to catch. The response was generated from CLAUDE.md prose or prior context rather than from the authoritative memory files.
-
-**Root cause classification:**
-1. **Hook injection didn't fire** — SessionStart hook was not configured, or the GATE instruction was not injected. Check that `.claude/settings.json` has the hook enabled.
-2. **GATE instruction was ignored** — The injection fired but the agent treated it as "memory already loaded." This is the exact failure the GATE instruction's ASCII art box was designed to prevent.
-3. **Protocol was partially executed** — Some steps ran but the agent stopped short (typically step 5 — following references). The compact injection provided step names without content, making the agent think it had "enough."
-
-**If the hook injection needs updating:**
-Edit `agent-rdf-memory/load_memory.py` to inject additional context for the missing step(s). The hook is the primary prevention mechanism — the validator is the backstop that tells you when the hook needs improvement."""@en .
-
-# ── Step 5: Fix and re-audit ──────────────────────────────────────────────────
-
-:step-fixAndReaudit a schema:HowToStep ;
-    schema:position 5 ;
-    schema:name "Fix the root cause, then re-audit on the next session transcript"@en ;
-    schema:text """A FAIL result means the current session's protocol compliance is already compromised. You cannot retroactively fix the transcript — the fix must be preventive for future sessions.
-
-**If the hook injection is the issue:**
-1. Review `agent-rdf-memory/load_memory.py` to ensure the GATE instruction section is intact and prominent.
-2. Verify the `additionalContext` output includes all 5 protocol steps.
-3. Check `.claude/settings.json` that the SessionStart hook is configured and points to the correct script path.
-4. If new failure patterns have emerged, add additional inline text excerpts to the hook injection (as was done for the whoami format spec).
-
-**If the GATE instruction was present but ignored:**
-1. Make the instruction more prominent — add `CRITICAL` markers, larger ASCII art, or restructure to appear earlier in the injected context.
-2. Consider adding a second injection point (e.g., an additional context block at the end of the injection that repeats the GATE requirement).
-3. The `load_memory.py` script has a documented rationale section — verify it's still accurate and update if new failure patterns have emerged.
-
-**If partial execution is the pattern (steps 1-4 pass, step 5 fails):**
-1. The compact injection may be providing too much content, making the agent think it has enough. Reduce the injected step text excerpts to names + howto references only.
-2. Add an explicit instruction to the GATE box: "Step 5 is the most commonly skipped step. You MUST open at least one howto/*.ttl file."
-
-**After fixing:**
-Audit the NEXT session's transcript. A passing audit confirms the fix is effective. If the next session also fails, iterate — the validator is the feedback loop that drives hook injection improvements."""@en .
-
-# ── Root cause note ───────────────────────────────────────────────────────────
-
-:rootCauseNote a schema:Thing ;
-    schema:name "Root cause of memory protocol failures"@en ;
-    schema:description """Two-layer defense against the recurring failure pattern:
-
-**Primary defense — SessionStart hook injection (load_memory.py):**
-- Injects compact memory context with GATE instruction at session start
-- The GATE instruction (ASCII art box) lists all 5 protocol steps and warns that the compact injection is a safety net, not a replacement
-- Inline text excerpts for critical specs (whoami format, step names + howto refs) reduce the chance that the agent answers from stale context
-- This is the PREFERRED prevention path — if the hook works, the validator is just a confirming audit
-
-**Secondary defense — Transcript audit validator (validate-memory-protocol.py):**
-- Post-session audit that proves the protocol was or wasn't executed
-- Catches failures the hook couldn't prevent (e.g., agent ignoring the GATE instruction)
-- Provides actionable data for improving the hook injection
-
-**Why both layers are needed:**
-The hook injection is a best-effort prevention mechanism. It injects text into the context window — it cannot force the agent to execute tool calls. The validator is the objective audit that proves whether prevention worked. Together they form a closed loop: hook prevents → validator confirms → if validation fails, hook improves → next session passes.
-
-See also: step 5 (step-memoryProtocol) in preferences.ttl for the protocol itself, and step-memoryProtocolGate for the enforcement step."""@en ;
-    schema:dateCreated "2026-06-10T00:00:00Z"^^xsd:dateTime .
-
-# ── Gate: preferences.ttl sparse-index contract ──────────────────────────────────
-
-:step-preferencesSparseContract a schema:HowToStep ;
-    schema:position 6 ;
-    schema:name "preferences.ttl sparse-index contract — prose belongs in howto/, never inline"@en ;
-    schema:text """**PRE-WRITE GATE — applies every time a new schema:HowToStep is added to preferences.ttl.**
-
-preferences.ttl is read in full at every session start. Verbose inline schema:text values directly inflate context cost before any task begins. The architecture is a two-tier split:
-
-**Tier 1 — preferences.ttl (always loaded, must stay compact):**
-- schema:name — the rule as a noun phrase (already concise)
-- schema:text — ONE sentence only; the core rule, nothing else
-- onto:hasTrigger — when the rule fires
-- rdfs:seeAlso — pointer to the howto file with full detail
-
-**Tier 2 — howto/*.ttl (loaded on-demand, can be verbose):**
-- Full rationale, incident notes, code examples, verification gates, edge cases
-
-**The gate:**
-Before writing a new step to preferences.ttl, ask: does schema:text exceed one sentence? If yes, it belongs in the howto file. The one-sentence summary stays; everything else moves.
-
-**Verification (run after adding any new step):**
-python3 -c "
+:workExample-sparseCheck a schema:CreativeWork ;
+    schema:name "Sparse-contract verification one-liner"@en ;
+    schema:text """python3 -c "
 import rdflib
 g = rdflib.Graph()
 g.parse('agent-rdf-memory/preferences.ttl', format='turtle')
 from rdflib import URIRef
 long = [(str(s).split('#')[-1], len(str(o))) for s,p,o in g.triples((None, URIRef('http://schema.org/text'), None)) if len(str(o)) > 300]
 print('Violations (>300 chars):', long or 'None')
-"
-
-**Incident (2026-06-25):** Over ~10 sessions, 55 of 79 steps accumulated multi-paragraph schema:text values totalling ~2300 lines. A subagent refactor was required to trim them, moving all prose to howto files. The problem was no gate existed to prevent re-inflation."""@en ;
-    schema:dateCreated "2026-06-25T00:00:00Z"^^xsd:dateTime .
+\""""@en .

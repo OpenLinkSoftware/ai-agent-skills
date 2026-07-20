@@ -5,14 +5,14 @@
 
 <> a schema:HowTo ;
     schema:name "Infographic Authoring — Attribution, Dark Mode, KG Explorer Reuse, Template Selection"@en ;
-    schema:description "Four rules governing the authoring of HTML infographics: footer attribution format, dark mode CSS requirements, KG Explorer template reuse mandate, and template selection by content type."@en ;
+    schema:description "Rules governing the authoring of HTML infographics: footer attribution format, dark mode CSS requirements (two-block selectors, general anchor rule, bright accent), KG Explorer template reuse mandate, template selection by content type, and the long-token overflow gate. The overflow gate exists because the same defect recurred three times (fixed 2026-06-29, recurred 2026-07-01 and 2026-07-02) in different element types — including a plain-text <h4> with no <code> wrapper, and a shared .sparql-code class that had never carried the fix and would have propagated the bug silently through reuse."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-02T03:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-attribution, :step-darkModeCSS,
-        :step-kgExplorerReuse, :step-templateSelection, :step-footerCardOverflow ;
-    schema:step :step-attribution, :step-darkModeCSS,
-        :step-kgExplorerReuse, :step-templateSelection, :step-footerCardOverflow ;
+    schema:step :step-attribution, :step-darkModeCSS, :step-generalAnchorRule,
+        :step-brightDarkAccent, :step-kgExplorerReuse, :step-templateSelection,
+        :step-footerCardOverflow, :step-overflowVerification ;
+    schema:workExample :workExample-kgExplorerProvenPatterns ;
     rdfs:seeAlso <../preferences.ttl#step-templateSelection>, <../preferences.ttl#step-darkModeCSS>, <../preferences.ttl#step-attribution>, <../preferences.ttl#step-iifeGlobalScope>, <../preferences.ttl#step-kgExplorerReuse>, <../preferences.ttl#step-themeToggleInNavHeader>, <../preferences.ttl#step-footerCardOverflow>, <../preferences.ttl#step-openlinkBrandColorScheme>, <../preferences.ttl#step-readerFacingCopyGate>, <../preferences.ttl#step-screencastDistributionArtifacts> .
 
 # ── Step 1: Footer Attribution ───────────────────────────────────────────────
@@ -20,47 +20,73 @@
 :step-attribution a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
     schema:name "Use <p> prose format for footer attribution, never chip <div>"@en ;
-    schema:text """Every HTML infographic footer MUST use a <p> element with inline prose for skills attribution — never <div class='skills-attribution'> with chip/button styling. All tool/product names MUST hyperlink to their canonical homepages (not resolver URLs): kg-generator and rdf-infographic-skill → GitHub repo, URIBurner → https://linkeddata.uriburner.com/, Virtuoso → https://virtuoso.openlinksw.com/. The resolver is for semantic KG entities only, not product credits."""@en .
+    schema:text "Every HTML infographic footer MUST use a <p> element with inline prose for skills attribution — never <div class='skills-attribution'> with chip/button styling. All tool/product names MUST hyperlink to their canonical homepages (not resolver URLs): kg-generator and rdf-infographic-skill → GitHub repo, URIBurner → https://linkeddata.uriburner.com/, Virtuoso → https://virtuoso.openlinksw.com/. The resolver is for semantic KG entities only, not product credits."@en .
 
-# ── Step 2: Dark Mode CSS ────────────────────────────────────────────────────
+# ── Step 2: Dark Mode Two-Block CSS ──────────────────────────────────────────
 
 :step-darkModeCSS a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
-    schema:name "Dark mode: two-block CSS, link contrast, general a rule, bright accent"@en ;
-    schema:text """Three rules:
-(1) SEPARATE BLOCKS — Dark mode CSS MUST use two separate blocks: html[data-theme='dark'] { ... } for the explicit toggle, and @media (prefers-color-scheme: dark) { :root { ... } } for system preference. Never comma-combine these selectors. All colors must use CSS variables; never hardcode hex values.
+    schema:name "Dark mode CSS uses two separate selector blocks; all colors via CSS variables"@en ;
+    schema:text "Dark mode CSS MUST use two separate blocks: html[data-theme='dark'] { ... } for the explicit toggle, and @media (prefers-color-scheme: dark) { :root { ... } } for system preference. Never comma-combine these selectors. All colors must use CSS variables; never hardcode hex values."@en .
 
-(2) GENERAL a RULE — HTML MUST include a general a { color: var(--accent); text-decoration: underline; } rule (or a { color: var(--primary); ... }). Without this, inline <a> tags in body text (paragraphs, notes, cards, lists) fall through to browser-default blue (#0000ee on dark navy #0f172a) which is nearly invisible in dark mode. Container-specific overrides (nav, header, blockquote attributions, resource lists, footer cards) already set text-decoration: none and their own colors via higher-specificity selectors, so the general a rule only affects body-content links — exactly where it's needed.
+# ── Step 3: General Anchor Rule ──────────────────────────────────────────────
 
-(3) BRIGHT DARK-MODE ACCENT — The dark mode accent/link color must be bright and high-contrast on the dark background. A muted color like #60a5fa (light blue) or #4F46E5 (indigo) produces 4-5:1 contrast on #0f172a, which passes WCAG AA but feels washed out. Use a saturated bright blue: #7dd3fc (sky-300) on #0f172a achieves 7.2:1 contrast — vivid and unmistakably clickable. Test any candidate dark-mode accent at https://webaim.org/resources/contrastchecker/ against both --bg and --card-bg before finalizing."""@en .
+:step-generalAnchorRule a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Include a general a { color: var(--accent) } rule so body-text links survive dark mode"@en ;
+    schema:text "HTML MUST include a general a { color: var(--accent); text-decoration: underline; } rule (or a { color: var(--primary); ... }). Without this, inline <a> tags in body text (paragraphs, notes, cards, lists) fall through to browser-default blue (#0000ee on dark navy #0f172a) which is nearly invisible in dark mode. Container-specific overrides (nav, header, blockquote attributions, resource lists, footer cards) already set text-decoration: none and their own colors via higher-specificity selectors, so the general a rule only affects body-content links — exactly where it's needed."@en .
 
-# ── Step 3: KG Explorer Template Reuse ──────────────────────────────────────
+# ── Step 4: Bright Dark-Mode Accent ──────────────────────────────────────────
+
+:step-brightDarkAccent a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "The dark-mode accent must be bright and high-contrast — verify with a contrast checker"@en ;
+    schema:text "The dark mode accent/link color must be bright and high-contrast on the dark background. A muted color like #60a5fa (light blue) or #4F46E5 (indigo) produces 4-5:1 contrast on #0f172a, which passes WCAG AA but feels washed out. Use a saturated bright blue: #7dd3fc (sky-300) on #0f172a achieves 7.2:1 contrast — vivid and unmistakably clickable. Test any candidate dark-mode accent at https://webaim.org/resources/contrastchecker/ against both --bg and --card-bg before finalizing."@en .
+
+# ── Step 5: KG Explorer Template Reuse ──────────────────────────────────────
 
 :step-kgExplorerReuse a schema:HowToStep ;
-    schema:position "3"^^xsd:integer ;
+    schema:position "5"^^xsd:integer ;
     schema:name "Reuse the validated template for KG Explorer — never regenerate from scratch"@en ;
-    schema:text """When generating a new HTML infographic, open the appropriate template from rdf-infographic-skill/assets/templates/ (see step-templateSelection) and adapt its content. Never write KG Explorer JS/CSS/HTML from scratch — regenerating reintroduces fixed bugs. Canonical template as of 2026-06-03: assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html. Proven patterns that MUST carry forward from this template: (a) D3 mutation-safe getFiltered() — always rebuild links as fresh objects: {source: typeof l.source==='object'?l.source.id:l.source, target: typeof l.target==='object'?l.target.id:l.target, label:l.label} — D3 forceLink mutates source/target in place, breaking subsequent renders if not normalised; (b) zoom isolation — svg.on('click.zoomActivate') adds kg-active class and arms zoom; document click outside #kg-explorer removes kg-active and calls svg.on('.zoom',null) to disarm — never attach zoom on init; (c) setPredAll(val) bulk-checks/unchecks all #pred-filters checkboxes, reads allPredicates array; (d) setNodeTypeAll(val) bulk-toggles all node type chips; (e) toggleNodeType(type) updates both toolbar button and #node-type-chips with aria-pressed; (f) populatePredFilters(links) inserts dynamic checkboxes into #pred-filters from link labels; (g) populateNodeTypeChips() inserts dynamic chips into #node-type-chips from node group data; (h) updatePhysics() wired to sliders — calls simulation.force('charge').strength(val), simulation.force('link').distance(val), simulation.alpha(0.3).restart(); (i) setSparqlFormat(fmt) uses pre-encoded SPARQL_PRE/SPARQL_POST string constants to avoid \\\\n double-escape bug; (j) #kg-explorer.kg-active CSS rule provides border-glow zoom indicator; (k) theme toggle lives in #fnav-header, never inside the collapsible #fnav-links."""@en ;
+    schema:text "When generating a new HTML infographic, open the appropriate template from rdf-infographic-skill/assets/templates/ (see :step-templateSelection) and adapt its content. Never write KG Explorer JS/CSS/HTML from scratch — regenerating reintroduces fixed bugs. Canonical template as of 2026-06-03: assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html. The proven patterns that MUST carry forward are catalogued in :workExample-kgExplorerProvenPatterns."@en ;
     rdfs:seeAlso <kg-explorer-reuse-first.ttl> .
 
-# ── Step 4: Template Selection ───────────────────────────────────────────────
+# ── Step 6: Template Selection ───────────────────────────────────────────────
 
 :step-templateSelection a schema:HowToStep ;
-    schema:position "4"^^xsd:integer ;
+    schema:position "6"^^xsd:integer ;
     schema:name "Select the correct template from assets/templates/ based on content type"@en ;
     schema:text """Select template from rdf-infographic-skill/assets/templates/ by content type. Four options and their decision trigger: (1) COMPETITIVE/HEAD-TO-HEAD → assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html — trigger: source compares two or more named platforms, products, or systems. Dark premium aesthetic, hero dual-badges, horizontal timeline, split comparison matrix, two-column capability panels. (2) GARTNER DASHBOARD → assets/templates/gartner-da-london-2026-claude-sonnet4-dashboard.html — trigger: conference report, strategy briefing, field notes, or dense operational dashboard with many metrics/chips. Top horizontal nav bar. (3) SEMANTIC MEDALLION EDITORIAL/TECHNICAL → assets/templates/semantic-medallion-editorial-technical.html — trigger: architecture explainer, SPARQL tutorial, layered/staged system (Bronze/Silver/Gold/Platinum). Narrow reading column, query accordions. (4) HARNESS REFERENCE → scripts/rdf_infographic_harness.py — fallback when none of the above clearly fits. Decision shortcut: comparing platforms → COMPETITIVE; conference/strategy → GARTNER; architecture/SPARQL → SEMANTIC MEDALLION; otherwise → HARNESS."""@en .
 
-# ── Step 5: Footer/Attribution Card Text Overflow ────────────────────────────
+# ── Step 7: Long-Token Overflow Baseline CSS ─────────────────────────────────
 
 :step-footerCardOverflow a schema:HowToStep ;
-    schema:position "5"^^xsd:integer ;
-    schema:name "ANY card/heading/pre with a long unbroken token can overflow — not just <code> URLs in footer cards"@en ;
-    schema:text """Recurring defect (fixed 2026-06-29, recurred 2026-07-01, recurred again 2026-07-02 in a DIFFERENT element type): a container rendering a long unbroken token overflows its boundary. Root cause: white-space:normal alone only breaks at spaces; a single unbroken token (URL, IRI, camelCase identifier, base64) has no spaces to break at, and CSS grid/flex items default to min-width:auto (sized to their largest unbreakable content), so the container refuses to shrink and the token spills out.
-
-The 2026-07-02 recurrence proved the defect is NOT limited to <code> tags or footer cards: it hit an offer card's plain-text <h4> title (a camelCase identifier extracted from an offer's IRI local name, no <code> wrapper at all), and nearly hit a NEW panel because it reused the existing .sparql-code <pre> class — which itself had never carried the fix, so the bug would have propagated silently through reuse.
-
-GENERALIZED MANDATORY CSS — apply as a baseline default on shared classes, not as an opt-in per instance:
+    schema:position "7"^^xsd:integer ;
+    schema:name "Apply min-width:0 + overflow-wrap:anywhere as baseline CSS on ANY element that may carry a long unbroken token"@en ;
+    schema:text """Any container rendering a long unbroken token (URL, IRI, camelCase identifier, base64) can overflow its boundary: white-space:normal only breaks at spaces, and CSS grid/flex items default to min-width:auto (sized to their largest unbreakable content), so the container refuses to shrink and the token spills out. GENERALIZED MANDATORY CSS — apply as a baseline default on shared classes, not as an opt-in per instance:
   {any-card-class} { min-width: 0 }
   {any-text-element-that-may-carry-a-long-token} { overflow-wrap: anywhere; word-break: break-word }
-This includes: attribution/footer cards, offer/source/id cards' <h4> titles, and any <pre>/<code> block (including shared ones like .sparql-code) — audit the SHARED CLASS ITSELF before reusing it for new content, don't assume a class used elsewhere in the same document already has the protection.
+This includes: attribution/footer cards, offer/source/id cards' <h4> titles, and any <pre>/<code> block (including shared ones like .sparql-code) — audit the SHARED CLASS ITSELF before reusing it for new content; don't assume a class used elsewhere in the same document already has the protection."""@en .
 
-VERIFICATION: after generating or editing any card, heading, or pre/code block that may contain a long token, check el.scrollWidth <= el.clientWidth via preview_eval — do not rely on a screenshot alone, overflow can be subtle at normal viewport widths. This is a BLOCKING check before delivery, not an optional nicety — it has now recurred twice already after being fixed, in two different element types."""@en .
+# ── Step 8: Overflow Verification (BLOCKING) ─────────────────────────────────
+
+:step-overflowVerification a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "BLOCKING pre-delivery check: el.scrollWidth <= el.clientWidth on every long-token element"@en ;
+    schema:text "After generating or editing any card, heading, or pre/code block that may contain a long token, check el.scrollWidth <= el.clientWidth via preview_eval — do not rely on a screenshot alone, overflow can be subtle at normal viewport widths. This is a BLOCKING check before delivery, not an optional nicety — the defect recurred twice after being fixed, in two different element types."@en .
+
+# ── Worked Example: KG Explorer Proven Patterns ──────────────────────────────
+
+:workExample-kgExplorerProvenPatterns a schema:CreativeWork ;
+    schema:name "Proven KG Explorer patterns that must carry forward from the canonical template"@en ;
+    schema:text """(a) D3 mutation-safe getFiltered() — always rebuild links as fresh objects: {source: typeof l.source==='object'?l.source.id:l.source, target: typeof l.target==='object'?l.target.id:l.target, label:l.label} — D3 forceLink mutates source/target in place, breaking subsequent renders if not normalised;
+(b) zoom isolation — svg.on('click.zoomActivate') adds kg-active class and arms zoom; document click outside #kg-explorer removes kg-active and calls svg.on('.zoom',null) to disarm — never attach zoom on init;
+(c) setPredAll(val) bulk-checks/unchecks all #pred-filters checkboxes, reads allPredicates array;
+(d) setNodeTypeAll(val) bulk-toggles all node type chips;
+(e) toggleNodeType(type) updates both toolbar button and #node-type-chips with aria-pressed;
+(f) populatePredFilters(links) inserts dynamic checkboxes into #pred-filters from link labels;
+(g) populateNodeTypeChips() inserts dynamic chips into #node-type-chips from node group data;
+(h) updatePhysics() wired to sliders — calls simulation.force('charge').strength(val), simulation.force('link').distance(val), simulation.alpha(0.3).restart();
+(i) setSparqlFormat(fmt) uses pre-encoded SPARQL_PRE/SPARQL_POST string constants to avoid \\\\n double-escape bug;
+(j) #kg-explorer.kg-active CSS rule provides border-glow zoom indicator;
+(k) theme toggle lives in #fnav-header, never inside the collapsible #fnav-links."""@en .

@@ -6,16 +6,16 @@
 
 <> a schema:HowTo ;
     schema:name "Session Governance — Approval, Memory, Git, and Safety Rules"@en ;
-    schema:description "Nine standing rules governing how the agent conducts every session: approval before acting, memory protocol, git discipline, URL fabrication prohibition, curl authentication elicitation, secret redaction, verbatim prompt recording, session log reconciliation, and semantic session bootstrap."@en ;
+    schema:description "Standing rules governing how the agent conducts every session: approval before acting, memory read protocol and write-on-trigger rule, git discipline, URL fabrication prohibition, curl authentication elicitation, secret redaction, verbatim prompt recording, session log reconciliation, and semantic session bootstrap."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-approval, :step-memoryProtocol, :step-gitWorkflow,
-        :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
-        :step-promptRecording, :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
-    schema:step :step-approval, :step-memoryProtocol, :step-gitWorkflow,
-        :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
-        :step-promptRecording, :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
+    schema:step :step-approval, :step-memoryProtocol, :step-memoryWriteRule,
+        :step-sessionFileContents, :step-gitWorkflow, :step-noFabricatedUrls,
+        :step-urlVerification, :step-curlAuth, :step-secretRedaction,
+        :step-retroactiveRedaction, :step-promptRecording,
+        :step-assistantResponseRecording, :step-opalVocabularyPreference,
+        :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
     rdfs:seeAlso <../preferences.ttl#step-memoryProtocol>, <../preferences.ttl#step-approval>, <../preferences.ttl#step-gitWorkflow>, <../preferences.ttl#step-noFabricatedUrls>, <../preferences.ttl#step-curlAuth>, <../preferences.ttl#step-secretRedaction>, <../preferences.ttl#step-secretEchoRedaction>, <../preferences.ttl#step-promptRecording>, <../preferences.ttl#step-sessionLogReconciliation>, <../preferences.ttl#step-semanticSessionBootstrap> .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
@@ -23,13 +23,21 @@
 :step-approval a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
     schema:name "Seek approval before acting unless told otherwise"@en ;
-    schema:text """Present plans for user approval before implementing. Never proactively fix or modify documents without explicit request and approval. If unsure, ask. Once approval is granted for a scope, operate autonomously within that scope."""@en .
+    schema:text "Present plans for user approval before implementing. Never proactively fix or modify documents without explicit request and approval. If unsure, ask. Once approval is granted for a scope, operate autonomously within that scope."@en .
 
-# ── Step 2: Memory Protocol ──────────────────────────────────────────────────
+# ── Step 2: Memory Read Protocol ─────────────────────────────────────────────
 
 :step-memoryProtocol a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
-    schema:name "Read agent-rdf-memory/ before tasks, write immediately on trigger events"@en ;
+    schema:name "Read agent-rdf-memory/ before any task needing context"@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    schema:text "BEFORE any task needing context: list agent-rdf-memory/, read core.ttl, preferences.ttl, and index.ttl, then follow index.ttl to relevant session/project files. Reason over the loaded Turtle before proceeding. Never skip this — the RDF memory is the source of truth, not the Claude auto-memory."@en .
+
+# ── Step 3: Memory Write-on-Trigger Rule ─────────────────────────────────────
+
+:step-memoryWriteRule a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Write to the session file immediately when any onto:MemoryWriteTrigger fires — never defer"@en ;
     onto:hasTrigger
         onto:triggerPreferencesUpdate ,
         onto:triggerSkillInvocation ,
@@ -37,58 +45,93 @@
         onto:triggerBehaviorGapIdentified ,
         onto:triggerTopicChange ,
         onto:triggerSessionEnd ;
-    schema:text """BEFORE any task needing context: list agent-rdf-memory/, read core.ttl, preferences.ttl, and index.ttl, then follow index.ttl to relevant session/project files. Reason over loaded Turtle before proceeding. WRITE RULE: write to sessions/YYYY-MM-DD-{llm-id}-{agent-env}.ttl immediately when any onto:MemoryWriteTrigger instance fires (see onto:hasTrigger). Do not defer — write at the trigger point. If multiple triggers fire close together, one write covering all is acceptable. Session file covers: tasks completed, skills invoked, artifacts generated, preferences updated, gaps identified, prompt text recorded verbatim (see step-promptRecording), and inferred user preferences. The trigger instances are defined in ontology.ttl as prov:Activity subclasses (owl:equivalentClass event:Event). Never skip this — the RDF memory is the source of truth, not the Claude auto-memory."""@en .
+    schema:text "WRITE RULE: write to sessions/YYYY-MM-DD-{llm-id}-{agent-env}.ttl immediately when any onto:MemoryWriteTrigger instance fires (see onto:hasTrigger). Do not defer — write at the trigger point. If multiple triggers fire close together, one write covering all is acceptable. The trigger instances are defined in ontology.ttl as prov:Activity subclasses (owl:equivalentClass event:Event)."@en .
 
-# ── Step 3: Git Workflow ─────────────────────────────────────────────────────
+# ── Step 4: Session File Contents ────────────────────────────────────────────
+
+:step-sessionFileContents a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Cover the full session record in every session file write"@en ;
+    schema:text "The session file covers: tasks completed, skills invoked, artifacts generated, preferences updated, gaps identified, prompt text recorded verbatim (see :step-promptRecording), and inferred user preferences."@en .
+
+# ── Step 5: Git Workflow ─────────────────────────────────────────────────────
 
 :step-gitWorkflow a schema:HowToStep ;
-    schema:position "3"^^xsd:integer ;
+    schema:position "5"^^xsd:integer ;
     schema:name "Commit and push only when explicitly asked"@en ;
-    schema:text """Never commit or push as a side effect of other tasks. Edit skill files → repackage ZIP → commit only when asked → sync registries after commit, not before. Never amend published commits or skip hooks (--no-verify)."""@en .
+    schema:text "Never commit or push as a side effect of other tasks. Edit skill files → repackage ZIP → commit only when asked → sync registries after commit, not before. Never amend published commits or skip hooks (--no-verify)."@en .
 
-# ── Step 4: No Fabricated URLs ───────────────────────────────────────────────
+# ── Step 6: No Fabricated URLs ───────────────────────────────────────────────
 
 :step-noFabricatedUrls a schema:HowToStep ;
-    schema:position "4"^^xsd:integer ;
-    schema:name "Never fabricate, guess, or hallucinate URLs"@en ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Never fabricate, guess, or hallucinate URLs — three provenance paths only"@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified ;
-    schema:text """NEVER fabricate, guess, construct, or hallucinate any URL. This prohibition is absolute and covers every URL type: encoded live-editor links (pako, base64), API endpoints, documentation pages, download links, image URLs, resolver links, and any other URI. If a URL cannot be produced by (a) copying it verbatim from a source the user provided, (b) computing it deterministically with a tool (e.g., Python script for pako encoding, curl for discovery), or (c) constructing it from a known, documented pattern where every path component is validated — then the agent MUST ask the user for the correct URL. A fabricated URL that renders a blank page, a 404, or wrong content is worse than no URL at all. After computing an encoded URL with a tool, verify it actually works before including it in any document. When in doubt, omit the URL and ask. This rule has no exceptions."""@en .
+    schema:text "NEVER fabricate, guess, construct, or hallucinate any URL. This prohibition is absolute and covers every URL type: encoded live-editor links (pako, base64), API endpoints, documentation pages, download links, image URLs, resolver links, and any other URI. A URL may only be produced by (a) copying it verbatim from a source the user provided, (b) computing it deterministically with a tool (e.g., Python script for pako encoding, curl for discovery), or (c) constructing it from a known, documented pattern where every path component is validated. Otherwise ask the user for the correct URL. This rule has no exceptions."@en .
 
-# ── Step 5: Authenticated curl ───────────────────────────────────────────────
+# ── Step 7: URL Verification Before Use ──────────────────────────────────────
+
+:step-urlVerification a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Verify computed URLs actually work before including them; when in doubt, omit and ask"@en ;
+    schema:text "After computing an encoded URL with a tool, verify it actually works before including it in any document. A fabricated URL that renders a blank page, a 404, or wrong content is worse than no URL at all. When in doubt, omit the URL and ask."@en .
+
+# ── Step 8: Authenticated curl ───────────────────────────────────────────────
 
 :step-curlAuth a schema:HowToStep ;
-    schema:position "5"^^xsd:integer ;
+    schema:position "8"^^xsd:integer ;
     schema:name "Elicit user confirmation before optionally using authenticated curl with PKCS#12/PEM certificate and/or On-Behalf-Of"@en ;
     schema:text """When a skill workflow requires constructing a curl command against a protected or identity-aware endpoint (e.g. data-twingler, acp-client, linked-data-skills, uriburner-opal-agent-skills, or any other skill), first explicitly elicit from the user whether to apply curl with On-Behalf-Of and/or a client certificate (PKCS#12 or secure PEM file). Their use is optional; elicitation must be used to confirm if they apply for the specific request. Only if the user confirms, then supply the certificate via --cert /path/to/agent.p12:password (or --cert /path/to/agent.pem for PEM) and/or include -H 'On-Behalf-Of: <user-webid>'. Canonical example: curl --cert agent.p12:password -H 'On-Behalf-Of: http://example.com/alice#me' https://example.com/protected/resource. Do not default to, prefer, or assume authenticated curls without prior user elicitation and confirmation."""@en .
 
-# ── Step 6: Secret Redaction ─────────────────────────────────────────────────
+# ── Step 9: Secret Redaction ─────────────────────────────────────────────────
 
 :step-secretRedaction a schema:HowToStep ;
-    schema:position "6"^^xsd:integer ;
+    schema:position "9"^^xsd:integer ;
     schema:name "Redact passwords, API secrets, and credentials in all session memory, lessons, trace, and log documents"@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
-    schema:text """Passwords, API secret keys (e.g. STRIPE_API_KEY, ACP_AUTH_TOKEN, private cert passphrases, OAuth tokens, etc.), and other sensitive credentials MUST NEVER appear in cleartext in any session memory .ttl files (including schema:description, task literals, etc.), generated MD reports, trace/log docs, lessons learned, or related documents written to the agent-rdf-memory/ store or to LLM-specific output directories (rdf/, md/, webpages/). When a workflow involves such secrets, document using redacted placeholders only, e.g. 'ACP_AUTH_TOKEN=[REDACTED]' or 'user-provided fresh token (value redacted for security)'. This applies to all writes, including those triggered by :triggerPreferencesUpdate, :triggerSkillInvocation, :triggerNamedWorkflow, :triggerBehaviorGapIdentified, etc. Retroactively redact any existing cleartext secrets discovered in memory docs. The whoamiFormat step's reporting of the principal's On-Behalf-Of WebID is an identity declaration, not a secret value, and is exempt. This rule protects against accidental leakage in self-describing RDF memory and generated artifacts."""@en .
+    schema:text "Passwords, API secret keys (e.g. STRIPE_API_KEY, ACP_AUTH_TOKEN, private cert passphrases, OAuth tokens, etc.), and other sensitive credentials MUST NEVER appear in cleartext in any session memory .ttl files (including schema:description, task literals, etc.), generated MD reports, trace/log docs, lessons learned, or related documents written to the agent-rdf-memory/ store or to LLM-specific output directories (rdf/, md/, webpages/). Document with redacted placeholders only, e.g. 'ACP_AUTH_TOKEN=[REDACTED]' or 'user-provided fresh token (value redacted for security)'. This applies to all writes regardless of which trigger fired. Exemption: the whoamiFormat step's reporting of the principal's On-Behalf-Of WebID is an identity declaration, not a secret value."@en .
 
-# ── Step 7: Prompt Recording ─────────────────────────────────────────────────
+# ── Step 10: Retroactive Redaction ───────────────────────────────────────────
+
+:step-retroactiveRedaction a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Retroactively redact any cleartext secrets discovered in existing memory documents"@en ;
+    schema:text "When a cleartext secret is discovered in any existing memory or output document, redact it at the point of discovery — do not merely avoid the pattern going forward. This protects against accidental leakage already baked into self-describing RDF memory and generated artifacts."@en .
+
+# ── Step 11: Prompt Recording ────────────────────────────────────────────────
 
 :step-promptRecording a schema:HowToStep ;
-    schema:position "7"^^xsd:integer ;
-    schema:name "Record verbatim user prompts in session memory files for intent-to-outcome traceability"@en ;
+    schema:position "11"^^xsd:integer ;
+    schema:name "Record verbatim user prompts as opal:ChatMessage entities in session memory files"@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerNamedWorkflow, onto:triggerBehaviorGapIdentified, onto:triggerSessionEnd ;
-    schema:text """Every session memory write MUST model the user prompt(s) using opal:ChatMessage with opal:messageRole 'user', opal:messageContent pointing to an opal:PromptText entity carrying the verbatim prompt string in rdf:value. Link the ChatMessage to the session via opal:hasMessage / opal:messageOf. Also record key assistant responses as opal:ChatMessage with opal:messageRole 'assistant', opal:usesTools (boolean), opal:timestamp, and opal:messageContent → opal:PromptText with a concise summary of the response or action taken. When a single session handles multiple distinct prompts, create one opal:ChatMessage per meaningful prompt boundary. This creates a causal chain from intent (prompt) to outcome (artifact/skill invocation/correction) that is queryable alongside preferences and session traces. The opal vocabulary is defined in the opal-analytics-ontology-2 at https://www.openlinksw.com/ontology/opal/ . Prefer opal terms over ad-hoc vocabulary — the ontology was purpose-built for modeling LLM chat interactions as RDF knowledge graphs."""@en .
+    schema:text "Every session memory write MUST model the user prompt(s) using opal:ChatMessage with opal:messageRole 'user', opal:messageContent pointing to an opal:PromptText entity carrying the verbatim prompt string in rdf:value. Link the ChatMessage to the session via opal:hasMessage / opal:messageOf. When a single session handles multiple distinct prompts, create one opal:ChatMessage per meaningful prompt boundary. This creates a causal chain from intent (prompt) to outcome (artifact/skill invocation/correction) that is queryable alongside preferences and session traces."@en .
 
-# ── Step 8: Session Log Reconciliation ───────────────────────────────────────
+# ── Step 12: Assistant Response Recording ────────────────────────────────────
+
+:step-assistantResponseRecording a schema:HowToStep ;
+    schema:position "12"^^xsd:integer ;
+    schema:name "Record key assistant responses alongside the prompts they answer"@en ;
+    schema:text "Also record key assistant responses as opal:ChatMessage with opal:messageRole 'assistant', opal:usesTools (boolean), opal:timestamp, and opal:messageContent → opal:PromptText with a concise summary of the response or action taken."@en .
+
+# ── Step 13: opal Vocabulary Preference ──────────────────────────────────────
+
+:step-opalVocabularyPreference a schema:HowToStep ;
+    schema:position "13"^^xsd:integer ;
+    schema:name "Prefer opal terms over ad-hoc vocabulary for chat-interaction modeling"@en ;
+    schema:text "The opal vocabulary is defined in the opal-analytics-ontology-2 at https://www.openlinksw.com/ontology/opal/ . Prefer opal terms over ad-hoc vocabulary — the ontology was purpose-built for modeling LLM chat interactions as RDF knowledge graphs."@en .
+
+# ── Step 14: Session Log Reconciliation ──────────────────────────────────────
 
 :step-sessionLogReconciliation a schema:HowToStep ;
-    schema:position "8"^^xsd:integer ;
+    schema:position "14"^^xsd:integer ;
     schema:name "Trace every structural violation to its source session log before applying the fix"@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
-    schema:text """When a structural violation is found in preferences.ttl or any howto/*.ttl file: (1) git log/blame to find the commit that introduced it, (2) grep the session log for that date/agent to surface the originating decision context, (3) cite both the commit and the session in the fix report. Never fix silently — the session log is the diagnostic record that distinguishes a judgment error from a mechanical omission."""@en .
+    schema:text "When a structural violation is found in preferences.ttl or any howto/*.ttl file: (1) git log/blame to find the commit that introduced it, (2) grep the session log for that date/agent to surface the originating decision context, (3) cite both the commit and the session in the fix report. Never fix silently — the session log is the diagnostic record that distinguishes a judgment error from a mechanical omission."@en .
 
-# ── Step 9: Semantic Session Bootstrap ───────────────────────────────────────
+# ── Step 15: Semantic Session Bootstrap ──────────────────────────────────────
 
 :step-semanticSessionBootstrap a schema:HowToStep ;
-    schema:position "9"^^xsd:integer ;
+    schema:position "15"^^xsd:integer ;
     schema:name "On session start, analyze the prompt for key concepts and load related session logs as bootstrap context"@en ;
     onto:hasTrigger onto:triggerSessionStart ;
-    schema:text """After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."""@en .
+    schema:text "After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."@en .

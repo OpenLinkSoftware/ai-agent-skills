@@ -18,15 +18,15 @@
 :step-oneRequirementPerStep a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
     schema:name "Model each distinct requirement as its own positioned schema:HowToStep"@en ;
-    schema:text "A howto's schema:HowTo entity must decompose its procedure into multiple schema:HowToStep entities with sequential integer schema:position values — one requirement, gate, or action per step. Never collapse several requirements, enforcement rules, examples, and rationale into a single step's schema:text prose literal: a SPARQL query over the memory graph must be able to address each requirement individually. A file is only legitimately single-step when it genuinely prescribes exactly one atomic action."@en ;
+    schema:text "A howto's schema:HowTo entity must decompose its procedure into multiple schema:HowToStep entities with sequential integer schema:position values — one requirement, gate, or action per step. Never collapse several requirements, enforcement rules, examples, and rationale into a single step's schema:text prose literal: a SPARQL query over the memory graph must be able to address each requirement individually. This applies WITHIN multi-step files too — a step whose text bundles several independent rules (e.g. one beginning 'Three rules:', or mixing a default, a procedure, and a response format) must be split into one step per rule; a single coherent procedure with paragraphs is fine. A file is only legitimately single-step when it genuinely prescribes exactly one atomic action. Every schema:step list must include every positioned step defined in the file (no orphans), with no duplicate positions."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate .
 
 # ── Step 2: Content Slotting ─────────────────────────────────────────────────
 
 :step-contentSlotting a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
-    schema:name "Route examples to schema:workExample and rationale/provenance to schema:description"@en ;
-    schema:text "Worked examples (sample Turtle, CSS blocks, command transcripts) belong in a schema:workExample entity (a schema:CreativeWork linked from the HowTo), not inside a step's schema:text. The 'why this rule exists' narrative — the triggering session, date, and failure mode — belongs in the HowTo's schema:description (or a provenance note), not in step text. Step text states only what to do and how."@en .
+    schema:name "Route examples and reference data to schema:workExample, rationale/provenance to schema:description"@en ;
+    schema:text "Worked examples (sample Turtle, CSS blocks, command transcripts) AND reference data (known-good values, response templates, mapping tables, category catalogs, URL lists) belong in schema:workExample entities (schema:CreativeWork linked from the HowTo), not inside a step's schema:text — steps cite them by fragment (see :workExample-…). A template needed by several howtos lives in ONE file's workExample and is referenced cross-file by anchor (e.g. <agent-identity.ttl#workExample-triggerAResponse>), never duplicated. The 'why this rule exists' narrative — the triggering session, date, and failure mode — belongs in the HowTo's schema:description (or a provenance note), not in step text. Step text states only what to do and how."@en .
 
 # ── Step 3: Anchored Cross-References ────────────────────────────────────────
 
