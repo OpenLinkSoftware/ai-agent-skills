@@ -1,0 +1,61 @@
+output: /Users/kidehen/Documents/LLMs/GPT5-Chat-Generated/screencasts/2026-07-17-a2a-client-skill-demo.webm
+url: http://localhost:8765/a2a-client-skill-demo-guide.html#identity
+server: python3 -m http.server 8765 --directory showcases-and-explainers
+viewport:
+  width: 1440
+  height: 900
+cursor:
+  visible: true
+  clicks: true
+  color: "#1a73e8"
+wait_for: body
+
+scenes:
+  - name: "Principal-agent context: whoami establishes operating identity"
+    do:
+      - pause: 9
+
+  - name: "Preferences add behavioral session context"
+    do:
+      - scroll: 760
+      - pause: 11
+
+  - name: "Invoke the A2A client skill after context is established"
+    do:
+      - scroll: 520
+      - pause: 10
+
+  - name: "Endpoint choices remain user-controlled"
+    do:
+      - scroll: 500
+      - pause: 11
+
+  - name: "Agent Card discovery summarizes endpoint capabilities"
+    do:
+      - scroll: 520
+      - pause: 13
+
+  - name: "Skills by endpoint expose callable capabilities"
+    do:
+      - scroll: 560
+      - pause: 15
+
+  - name: "Select skill of interest: Data Twingler on URIBurner"
+    do:
+      - scroll: 420
+      - pause: 13
+
+  - name: "Optional continuation: authorization and task execution evidence"
+    do:
+      - scroll: 560
+      - pause: 15
+
+  - name: "Supporting output: hyperlink-first result presentation"
+    do:
+      - scroll: 620
+      - pause: 14
+
+  - name: "Close: reusable identity-preferences-discovery-selection pattern"
+    do:
+      - scroll: 580
+      - pause: 15

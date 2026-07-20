@@ -1,0 +1,34 @@
+WEBVTT
+
+00:00.000 --> 00:07.000
+The story starts with the principal. I ask, whoami, so the session can establish operating identity.
+
+00:07.000 --> 00:15.000
+That makes the relationship explicit: I am the principal, and Codex is the agent acting on my behalf.
+
+00:15.000 --> 00:24.000
+Next I ask for my preferences. They add behavioral context for memory, Linked Data, and presentation.
+
+00:24.000 --> 00:31.000
+With that context established, I invoke the A2A client skill.
+
+00:31.000 --> 00:40.000
+The skill discovers what capabilities an endpoint offers, then supports selection of the skill that matches the task.
+
+00:40.000 --> 00:50.000
+The endpoint is chosen by the user. The client reads the endpoint's Agent Card instead of relying on hardcoded assumptions.
+
+00:50.000 --> 01:01.000
+The discovery table shows the task URL, authentication mode, streaming support, and published skill count.
+
+01:01.000 --> 01:12.000
+The skills-by-endpoint table is the crux: it turns an endpoint into a catalog of callable capabilities.
+
+01:12.000 --> 01:22.000
+On URIBurner, the selected skill of interest is OpenLink Data Twingler version 2.0.4.
+
+01:22.000 --> 01:34.000
+From there, the workflow can continue into authorization and task execution. OAuth and token capture worked in live QA.
+
+01:34.000 --> 02:06.000
+The reusable product pattern is simple: establish identity, establish preferences, invoke A2A, discover skills, and select the skill that matters.
