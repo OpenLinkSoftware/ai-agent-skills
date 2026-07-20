@@ -28,6 +28,7 @@
     sh:property [ sh:path schema:businessFunction ; sh:minCount 1 ; sh:hasValue <http://purl.org/goodrelations/v1#Sell> ] ;
     sh:property [ sh:path oplofr:offerNumber ; sh:minCount 1 ; sh:datatype xsd:string ] ;
     sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:comment ; sh:minCount 1 ] ;
     sh:property [ sh:path schema:validFrom ; sh:minCount 1 ; sh:datatype xsd:dateTime ] ;
     sh:property [ sh:path schema:validThrough ; sh:minCount 1 ; sh:datatype xsd:dateTime ] .
 <#BaseLicenseShape> a sh:NodeShape ;
