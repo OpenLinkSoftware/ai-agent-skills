@@ -2,6 +2,8 @@
 -- Patch the optional VHOST host/port for the target Virtuoso instance before running.
 -- Registered functions are exposed through OPAL chat functions and documented at:
 --   https://{server-cname}/chat/functions/openapi.yaml
+-- OPAL registration is best-effort: if OPAL is not installed, the SQL pinning
+-- procedure is still created and can be invoked directly through isql.
 
 -- Optional HTTP endpoint for SQL/SOAP execution, when not already configured.
 -- DB.DBA.VHOST_DEFINE (
@@ -13,14 +15,15 @@
 --      opts => vector('cors', '*', 'cors_allow_headers', '*', 'cors_restricted', 0)
 -- );
 
+CREATE PROCEDURE DB.DBA.TMP_WEBLOG_PIN_DROP ()
 {
-  DECLARE EXIT HANDLER FOR SQLSTATE '*'
-  {
-    -- Procedure may not exist yet.
-  };
-  DROP PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN;
+  DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+  exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN');
 }
 ;
+
+DB.DBA.TMP_WEBLOG_PIN_DROP ();
+DROP PROCEDURE DB.DBA.TMP_WEBLOG_PIN_DROP;
 
 CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
   (
@@ -104,20 +107,25 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
 }
 ;
 
+CREATE PROCEDURE DB.DBA.TMP_WEBLOG_PIN_UNREGISTER ()
 {
-  DECLARE EXIT HANDLER FOR SQLSTATE '*' { };
-  OAI.DBA.UNREGISTER_CHAT_FUNCTION('DB.DBA.WEBLOG_DAV_SET_PIN');
+  DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+  exec ('OAI.DBA.UNREGISTER_CHAT_FUNCTION (''DB.DBA.WEBLOG_DAV_SET_PIN'')');
 }
 ;
 
+DB.DBA.TMP_WEBLOG_PIN_UNREGISTER ();
+DROP PROCEDURE DB.DBA.TMP_WEBLOG_PIN_UNREGISTER;
+
+CREATE PROCEDURE DB.DBA.TMP_WEBLOG_PIN_REGISTER ()
 {
-  DECLARE EXIT HANDLER FOR SQLSTATE '*'
-  {
-    -- Keep deployment usable on Virtuoso instances without OPAL installed.
-  };
-  OAI.DBA.REGISTER_CHAT_FUNCTION('DB.DBA.WEBLOG_DAV_SET_PIN', 'Pin or unpin a WebDAV weblog post');
+  DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+  exec ('OAI.DBA.REGISTER_CHAT_FUNCTION (''DB.DBA.WEBLOG_DAV_SET_PIN'', ''Pin or unpin a WebDAV weblog post'')');
 }
 ;
 
--- Verification
-OAI.DBA.LIST_CHAT_FUNCTIONS();
+DB.DBA.TMP_WEBLOG_PIN_REGISTER ();
+DROP PROCEDURE DB.DBA.TMP_WEBLOG_PIN_REGISTER;
+
+-- Optional verification when OPAL is installed:
+-- OAI.DBA.LIST_CHAT_FUNCTIONS();

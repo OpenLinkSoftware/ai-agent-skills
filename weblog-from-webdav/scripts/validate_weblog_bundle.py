@@ -45,11 +45,14 @@ CHECKS = {
         "schema:position",
         "REGISTER_CHAT_FUNCTION",
         "openapi.yaml",
+        "OPAL registration is best-effort",
+        "exec ('OAI.DBA.REGISTER_CHAT_FUNCTION",
     ],
     "references/opal-tool-mode.md": [
         "WEBLOG_DAV_SET_PIN",
         "REGISTER_CHAT_FUNCTION",
         "openapi.yaml",
+        "OPAL registration is best-effort",
     ],
 }
 

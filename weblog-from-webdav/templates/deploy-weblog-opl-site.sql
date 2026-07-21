@@ -1,6 +1,13 @@
 -- Deploy OpenLink-site themed weblog index.vsp for /DAV/www2.openlinksw.com/data/html/
 -- Variant: opl-site color/texture treatment inspired by https://www.openlinksw.com/
 -- Run as: isql 1111 dba <password> deploy-weblog-opl-site.sql
+CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_VHOST_REMOVE (IN _lh varchar, IN _vh varchar, IN _lp varchar)
+{
+  declare exit handler for sqlstate '*' { ; };
+  DB.DBA.VHOST_REMOVE (lhost=>_lh, vhost=>_vh, lpath=>_lp);
+}
+;
+
 CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
 {
   declare rc any;
@@ -776,11 +783,8 @@ next_row: ;
   for (select distinct HP_LISTEN_HOST as _lh, HP_HOST as _vh
          from DB.DBA.HTTP_PATH where HP_LPATH in ('/DAV', '/public_home')) do
   {
-    {
-      declare exit handler for sqlstate '*' { ; };
-      DB.DBA.VHOST_REMOVE (lhost=>_lh, vhost=>_vh, lpath=>'/weblog');
-      DB.DBA.VHOST_REMOVE (lhost=>_lh, vhost=>_vh, lpath=>'/weblog/');
-    }
+    DB.DBA.TMP_DEPLOY_WEBLOG_VHOST_REMOVE (_lh, _vh, '/weblog');
+    DB.DBA.TMP_DEPLOY_WEBLOG_VHOST_REMOVE (_lh, _vh, '/weblog/');
     DB.DBA.VHOST_DEFINE (lhost=>_lh, vhost=>_vh, lpath=>'/weblog/',
                          ppath=>'/DAV/www2.openlinksw.com/data/html/',
                          is_dav=>1,
@@ -796,6 +800,7 @@ next_row: ;
 
 DB.DBA.TMP_DEPLOY_WEBLOG ();
 DROP PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG;
+DROP PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_VHOST_REMOVE;
 
 -- Verification
 SELECT HP_LISTEN_HOST, HP_HOST, HP_LPATH, HP_PPATH, HP_RUN_VSP_AS, HP_OPTIONS FROM DB.DBA.HTTP_PATH WHERE HP_LPATH like '/weblog%';
