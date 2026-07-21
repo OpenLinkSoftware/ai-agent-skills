@@ -629,7 +629,8 @@
     schema:description "Applied the approved harness update: ontology.ttl now defines prompt-intent and retrieval-policy routing terms, including endpoint-neutral {CNAME} templates and private-overlay support plus urn:dav graph-template guidance for local Virtuoso RDF Import DET loads so user-specific endpoint selection can live in gitignored preferences.private.ttl; AGENTS.md and SESSION-START-HOOK.md now describe mandatory bootstrap followed by prompt-intent analysis, ontology-routed SPARQL context selection, SPARQL-preferred recent-session lookup, targeted howto/session expansion, and direct file-read fallback."@en ;
     rdfs:seeAlso <ontology.ttl>, <AGENTS.md>, <SESSION-START-HOOK.md> .
 
-:sessionIndex schema:itemListElement :session20260715Gpt5ChatCodexSparqlContextRouting .
+:sessionIndex schema:itemListElement :session20260715Gpt5ChatCodexSparqlContextRouting,
+    :session20260721BigPickleAcpScreencast .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Entity Registry Index ────────────────────────────────────────────────
@@ -683,3 +684,9 @@
     schema:item <sessions/2026-07-18-claude_fable_5-claude_code-2.ttl> ;
     schema:name "Session 2026-07-18 (Claude Fable 5 + Claude Code — a16z Tokens & Loops KG Collection)"@en ;
     schema:description "Generated Claude Generated/{rdf,webpages}/the-next-ai-goldrush-tokens-loops-claude_fable_5-1.{ttl,jsonld,html} from George Sivulka's a16z.news essay 'You Just Hired a Million Bad Employees' via the kg-generator → rdf-infographic-skill chain. Reused canonical corpus TBox terms (indo:Industry, indo:hasLaborTAM/hasAutomationReadiness, avc:agentHarness) per the cross-document-local-term-reuse gate; minted new terms (KnowledgeServicesIndustry, RailroadIndustry, WorkforceParallel, hasHumanAnalog) with full ontology gates and verified DBpedia cross-references. HTML ported from the reverse-information-paradox-claude_sonnet_5-1.html shell (reuse-first). All gates passed: validate-harness-contract.py, validate-kg-compliance.sh (18/18), unclosed-anchor grep, double-encoding grep, node --check, browser DOM check (54 nodes / 68 links, no overflow). Found and fixed one template defect while porting: the sparqlLinkPreview anchor shipped with href='#' plus target=_blank in the source shell, which the current validator flags as an incorrectly-new-tab fragment link — initialized to the live SPARQL endpoint URL instead."@en .
+
+:session20260721BigPickleAcpScreencast a schema:ListItem ;
+    schema:position 1016 ;
+    schema:item <sessions/2026-07-21-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-07-21 (big-pickle + OpenCode — ACP SPARQL Graph Access purchase + screencast generation)"@en ;
+    schema:description "End-to-end ACP purchase of ODS-QA SPARQL Endpoint Access - Graph Access ($99.98) on ods-qa.openlinksw.com. Full checkout flow: catalog query, checkout creation (cs_eef2c5a4-851d-11f1-b27f-f0569f38fb9f), Stripe SPT generation (spt_1TvgAYS0XC0wwnMmu5n7UXmG), checkout completion (order ord_0961f63a-851e-11f1-b27f-f0569f38fb9f), Playwright-based Stripe invoice payment (Invoice #QKXIYTA8-0009, sandbox card 4242...4242), post-purchase SPARQL verification (36,807 triples). Generated narrated screencast: presentation HTML (6-step walkthrough with embedded API responses and Stripe iframe), storyboard YAML (8 scenes with JS scroll actions), voiceover MP3 (GPT-4o Mini TTS, coral voice, 96s), shot-scraper video recording (WebM + MP4), ffmpeg mux (43s final MP4, 2.2MB), and story HTML document with embedded video, timeline, transcript, and stats. Output: /Users/kidehen/Documents/LLMs/Big Pickle/screencasts/2026-07-21-acp-purchase-sparql-graph-access/."@en .

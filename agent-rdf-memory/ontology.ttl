@@ -11,7 +11,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Memory Ontology"@en ;
     schema:description "Custom vocabulary for the agent RDF memory system, defining classes for generated artifacts, source articles, memory write triggers, and their relationships."@en ;
-    schema:dateModified "2026-06-25T16:45:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T19:30:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :memoryOntology .
 
@@ -199,6 +199,21 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
 :triggerLogOffloadThreshold a :MemoryWriteTrigger ;
     schema:name "Log Offload Threshold Reached"@en ;
     schema:description "Fired when a single tool result exceeds the size threshold defined in howto/symbolic-log-offloading.ttl, mandating creation of an :OffloadedLog and a :SessionSymbolNode instead of retaining the raw output in context."@en .
+
+# ── Session Memory Loading Path Vocabulary ──────────────────────────────────
+
+:usedFileReads a owl:DatatypeProperty ;
+    rdfs:label "used file reads"@en ;
+    rdfs:comment "Recorded on a session entity to indicate that memory was loaded via direct filesystem reads. Range is xsd:boolean; value true means file reads were the chosen or actual load path for this session."@en ;
+    rdfs:domain schema:Event ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:usedSparqlEndpoint a owl:ObjectProperty ;
+    rdfs:label "used SPARQL endpoint"@en ;
+    rdfs:comment "Recorded on a session entity to indicate that memory was loaded via a SPARQL endpoint. The value is the endpoint URL (schema:URL or xsd:anyURI)."@en ;
+    rdfs:domain schema:Event ;
+    rdfs:isDefinedBy : .
 
 # ── Symbolic Short-Term Log Offloading Vocabulary ────────────────────────────
 #

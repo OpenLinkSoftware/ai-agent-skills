@@ -149,6 +149,20 @@ Virtuoso is a quad store and the default graph union may return stale or unrelat
    - Follow index.ttl references to relevant session/project/entity files
 3. Never fail silently — the user must know which loading path was taken."""@en .
 
+# ── Step 8: Record Load Path in Session TTL ──────────────────────────────────
+
+:stepRecordLoadPath a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "Record onto:usedFileReads or onto:usedSparqlEndpoint in every session TTL"@en ;
+    schema:text "After completing any memory load (file reads or SPARQL), write the load-path declaration to the current session TTL. For file reads: ':session onto:usedFileReads true .' For SPARQL: ':session onto:usedSparqlEndpoint <{endpoint-url}> .' This property is required in every session file — it bootstraps the pre-prefs gate in AGENTS.md (Step 0), enables the reuse-last-choice rule to fire on subsequent sessions, and provides the validator with an auditable marker. Without this property, every session is treated as 'first session' and re-elicitation is forced."@en .
+
+# ── Runtime Split: Claude Code Hook vs All Other Runtimes ───────────────────
+
+:runtimeSplit a schema:Thing ;
+    schema:name "Runtime Split: Claude Code Hook vs All Other Runtimes"@en ;
+    schema:description "Claude Code uses a load_memory.py SessionStart hook that is SPARQL-first with automatic filesystem fallback — non-eliciting automation that runs before the model's first turn. All other runtimes (Grok CLI, pi, Codex, OpenCode, etc.) have no SessionStart hook and must follow the AGENTS.md pre-prefs gate: check the latest session TTL for onto:usedFileReads or onto:usedSparqlEndpoint → elicit if absent → load via chosen method → record the choice. The Claude Code hook IS the preference for that runtime; it does not need to elicit because load_memory.py is the user's declared automation. This split is documented, not a gap — different runtimes have different SessionStart capabilities."@en ;
+    rdfs:seeAlso <../../SESSION-START-HOOK.md> .
+
 # ── Worked Example: URL Placeholder Resolution ───────────────────────────────
 
 :workExample-urlPlaceholders a schema:CreativeWork ;
