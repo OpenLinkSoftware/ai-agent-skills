@@ -32,6 +32,7 @@ Establish these before editing or deploying:
 - Variant: base weblog, OpenLink-site themed, or facet-enabled.
 - Whether search, calendar date filtering, RSS/Atom/AtomPub links, and `schema:category` facets are required.
 - Metadata source for categories: existing WebDAV custom properties, an analysis TSV, SQL staging rows, or generated suggestions requiring user approval.
+- Pinning policy: no pinned posts, one pinned post, or multiple pinned posts. Use `schema:position` custom DAV metadata where a non-zero value means pinned.
 
 ## Workflow
 
@@ -44,8 +45,9 @@ Establish these before editing or deploying:
 7. Use scoped search. In Virtuoso SQL, keep `contains` / `xcontains` as a top-level `AND` predicate and escape multi-word user input into a valid free-text expression.
 8. Use calendar controls for date ranges in the sidebar, with `from` and `to` parameters preserved in filtered links.
 9. Show category facets only when `schema:category` metadata exists. Facet counts must be computed from the filtered candidate set, not from all resources after a later display filter.
-10. Preserve the recency-ordered post list in the sidebar. Facets and search refine that list; they do not replace it with monthly buckets.
-11. Validate locally when possible, then verify the served route, feeds, search, date filters, facets, and a newly copied post.
+10. Support prompt-driven post pinning for a designated weblog. Resolve the weblog target, verify the post resource exists, set `schema:position` to `1` for pinning or remove/reset it for unpinning, then verify the weblog order.
+11. Preserve the recency-ordered post list in the sidebar, with pinned posts promoted ahead of ordinary recency. Facets and search refine that list; they do not replace it with monthly buckets.
+12. Validate locally when possible, then verify the served route, feeds, search, date filters, facets, pinned ordering, and a newly copied post.
 
 ## Mode references
 
