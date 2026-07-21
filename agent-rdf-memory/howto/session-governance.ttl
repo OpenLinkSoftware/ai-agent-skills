@@ -8,14 +8,15 @@
     schema:name "Session Governance — Approval, Memory, Git, and Safety Rules"@en ;
     schema:description "Standing rules governing how the agent conducts every session: approval before acting, memory read protocol and write-on-trigger rule, git discipline, URL fabrication prohibition, curl authentication elicitation, secret redaction, verbatim prompt recording, session log reconciliation, and semantic session bootstrap."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-14T19:30:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:step :step-approval, :step-memoryProtocol, :step-memoryWriteRule,
         :step-sessionFileContents, :step-gitWorkflow, :step-noFabricatedUrls,
         :step-urlVerification, :step-curlAuth, :step-secretRedaction,
         :step-retroactiveRedaction, :step-promptRecording,
         :step-assistantResponseRecording, :step-opalVocabularyPreference,
-        :step-sessionLogReconciliation, :step-semanticSessionBootstrap ;
+        :step-sessionLogReconciliation, :step-semanticSessionBootstrap,
+        :step-recordLoadPath ;
     rdfs:seeAlso <../preferences.ttl#step-memoryProtocol>, <../preferences.ttl#step-approval>, <../preferences.ttl#step-gitWorkflow>, <../preferences.ttl#step-noFabricatedUrls>, <../preferences.ttl#step-curlAuth>, <../preferences.ttl#step-secretRedaction>, <../preferences.ttl#step-secretEchoRedaction>, <../preferences.ttl#step-promptRecording>, <../preferences.ttl#step-sessionLogReconciliation>, <../preferences.ttl#step-semanticSessionBootstrap> .
 
 # ── Step 1: Seek Approval ────────────────────────────────────────────────────
@@ -135,3 +136,11 @@
     schema:name "On session start, analyze the prompt for key concepts and load related session logs as bootstrap context"@en ;
     onto:hasTrigger onto:triggerSessionStart ;
     schema:text "After reading core.ttl, preferences.ttl, and index.ttl per the memory protocol: (1) extract key concepts, entities, and task types from the user's prompt, (2) grep index.ttl and session file schema:description / schema:hasPart / schema:name fields for those terms, (3) load the 3–5 most semantically relevant session files, (4) inject relevant findings (contract fixes, pattern discoveries, behavioral corrections) into the current session's working context. This ensures every session benefits from accumulated experience rather than starting cold."@en .
+
+# ── Step 16: Record Memory Load Path ─────────────────────────────────────────
+
+:step-recordLoadPath a schema:HowToStep ;
+    schema:position "16"^^xsd:integer ;
+    schema:name "Record onto:usedFileReads or onto:usedSparqlEndpoint in every session TTL"@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    schema:text "Every session TTL MUST include exactly one load-path declaration. If memory was loaded via filesystem reads: ':session onto:usedFileReads true .' If loaded via SPARQL: ':session onto:usedSparqlEndpoint <{endpoint-url}> .' This is not optional — it is a required field in every session file, alongside the self-describing document entity. The load path enables: (1) the pre-prefs gate in AGENTS.md to skip elicitation on subsequent sessions, (2) the howto/sparql-memory-loading.ttl reuse-last-choice rule to fire, (3) the validate-memory-protocol.py --check-load-path audit to verify compliance. A session file without a load-path declaration is incomplete."@en .

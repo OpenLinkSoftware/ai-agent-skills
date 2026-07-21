@@ -14,6 +14,7 @@ Usage:
   python3 validate-memory-protocol.py transcript.jsonl
   python3 validate-memory-protocol.py transcript.jsonl --verbose
   python3 validate-memory-protocol.py transcript.jsonl --strict
+  python3 validate-memory-protocol.py transcript.jsonl --check-load-path --session-ttl sessions/2026-07-14-deepseek_v4pro-pi.ttl
 """
 
 from __future__ import annotations
@@ -152,6 +153,16 @@ def main() -> int:
         action='store_true',
         help='Also verify protocol reads occurred before first substantive assistant response'
     )
+    parser.add_argument(
+        '--check-load-path',
+        action='store_true',
+        help='Also verify that the session TTL records onto:usedFileReads or onto:usedSparqlEndpoint'
+    )
+    parser.add_argument(
+        '--session-ttl',
+        default=None,
+        help='Path to the session TTL file (required when --check-load-path is used)'
+    )
     args = parser.parse_args()
 
     transcript_path = Path(args.transcript)
@@ -249,8 +260,46 @@ def main() -> int:
         )
 
     # ── Strict mode: timing check ─────────────────────────────────────────────
+    if args.check_load_path:
+        if not args.session_ttl:
+            print('FAIL: --session-ttl is required when --check-load-path is used')
+            return 1
+        session_ttl_path = Path(args.session_ttl)
+        if not session_ttl_path.exists():
+            print(f'FAIL: session TTL file not found: {args.session_ttl}')
+            return 1
+        try:
+            from rdflib import Graph
+            g = Graph()
+            g.parse(str(session_ttl_path), format='turtle')
+            # Look for onto:usedFileReads or onto:usedSparqlEndpoint
+            ONTO = 'file://{}/ontology.ttl#'.format(
+                str(Path(args.session_ttl).resolve().parent.parent)
+            )
+            has_file_reads = any(
+                str(p).endswith('usedFileReads') for p in g.predicates()
+            )
+            has_sparql_endpoint = any(
+                str(p).endswith('usedSparqlEndpoint') for p in g.predicates()
+            )
+            if has_file_reads or has_sparql_endpoint:
+                if args.verbose:
+                    method = 'file reads' if has_file_reads else 'SPARQL endpoint'
+                    print(f'  [PASS] Load path recorded: {method}')
+            else:
+                fail(
+                    'Load-path check: Session TTL does not record onto:usedFileReads '
+                    'or onto:usedSparqlEndpoint. Every session file must declare its '
+                    'memory load path per howto/session-governance.ttl Step 16.',
+                    failures
+                )
+        except ImportError:
+            print('WARNING: rdflib not installed — skipping load-path check')
+        except Exception as e:
+            fail(f'Load-path check: Failed to parse session TTL: {e}', failures)
+
+    # ── Strict mode: timing check ─────────────────────────────────────────────
     if args.strict:
-        # Find the line of the first assistant_text event that follows a user prompt
         # (not just a tool_result). This is the "first substantive response."
         # If no such text exists, skip strict check.
         #

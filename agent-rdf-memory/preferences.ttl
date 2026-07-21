@@ -1005,8 +1005,9 @@
 
 :step-sparqlMemoryLoading a schema:HowToStep ;
     schema:position 60 ;
-    schema:name "Support SPARQL-based session memory loading via elicited endpoint selection"@en ;
-    schema:text "At session initialization, elicit SPARQL endpoint preference or default to file reads; if SPARQL is chosen, use Virtuoso Sponger pragmas to load preferences and howto files in one round-trip."@en ;
+    schema:name "BLOCKING GATE — elicit or reuse load path; never silently default to file reads on first session"@en ;
+    schema:text "On every session start: check the most recent session TTL for onto:usedFileReads or onto:usedSparqlEndpoint. If found, reuse the recorded method. If absent (first session), BLOCK and elicit the 3-way load-path choice from the user — file reads (default), local Virtuoso SPARQL, or other endpoint. Do not silently default to file reads without presenting the choice. Record onto:usedFileReads or onto:usedSparqlEndpoint in every session TTL."@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
     rdfs:seeAlso <howto/sparql-memory-loading.ttl> .
 
 :topicSparqlMemoryLoading a schema:Thing ;

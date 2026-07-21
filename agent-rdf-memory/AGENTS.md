@@ -1,5 +1,29 @@
 # RDF Memory Protocol
 
+## Step 0 — Load-Path Gate (before the file-read sequence)
+
+Before executing the mandatory file-read sequence below, check the most recent
+session TTL (newest file in `sessions/`) for `onto:usedFileReads` or
+`onto:usedSparqlEndpoint`:
+
+- **Found** → skip elicitation; load memory via the recorded method.
+- **Absent** → STOP and elicit from the user:
+
+  > "Memory loading preference for this session:\n>
+  > (1) File reads  [default]\n>
+  > (2) SPARQL — localhost:8890/sparql  [local Virtuoso]\n>
+  > (3) SPARQL — other endpoint / other URI"
+
+  Record the choice in the current session TTL as:
+  - `:session onto:usedFileReads true .` (option 1)
+  - `:session onto:usedSparqlEndpoint <{endpoint-url}> .` (option 2 or 3)
+
+  Wait for the user's selection, then proceed to the load sequence below using
+the chosen method. On all subsequent sessions where a recorded choice exists,
+skip this elicitation silently and reuse the recorded method.
+
+## Mandatory Retrieval Sequence
+
 Before responding to the first user request in every session, load the RDF memory
 from `/Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/`:
 
