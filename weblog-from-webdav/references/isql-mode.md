@@ -11,6 +11,7 @@ Use `isql` mode for weblog engine checks and engine bootstrap. WebDAV publicatio
 - Public weblog URL.
 - Template SQL file from `templates/`.
 - Optional category staging SQL or TSV-derived SQL.
+- Optional OPAL tool registration SQL, such as `templates/register-weblog-pinning-tool.sql`.
 
 ## Engine check pattern
 
@@ -23,6 +24,7 @@ Before relying on WebDAV publication, confirm the engine exists:
 5. Confirm scoped search is available if the selected variant requires it.
 6. Confirm date filtering and optional `schema:category` facet metadata access are implemented.
 7. Confirm the public route maps to the target collection or companion weblog resource.
+8. If prompt-driven pinning is required, confirm `DB.DBA.WEBLOG_DAV_SET_PIN` exists and is registered with OPAL.
 
 ## Bootstrap pattern
 
@@ -38,6 +40,7 @@ If any engine check fails:
    - Date range filtering uses the sidebar calendar controls.
    - Category facets appear only when `schema:category` metadata exists.
    - Recent posts remain in recency order.
+6. If pinning tools are requested, load `templates/register-weblog-pinning-tool.sql`, verify `OAI.DBA.LIST_CHAT_FUNCTIONS()`, and check `/chat/functions/openapi.yaml`.
 
 Only after this succeeds should WebDAV be treated as the primary day-to-day publication channel.
 

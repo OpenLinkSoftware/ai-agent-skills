@@ -40,6 +40,17 @@ CHECKS = {
         "string_output",
         "VHOST_DEFINE",
     ],
+    "templates/register-weblog-pinning-tool.sql": [
+        "WEBLOG_DAV_SET_PIN",
+        "schema:position",
+        "REGISTER_CHAT_FUNCTION",
+        "openapi.yaml",
+    ],
+    "references/opal-tool-mode.md": [
+        "WEBLOG_DAV_SET_PIN",
+        "REGISTER_CHAT_FUNCTION",
+        "openapi.yaml",
+    ],
 }
 
 
