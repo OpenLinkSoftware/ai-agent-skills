@@ -20,6 +20,7 @@ The skill supports two interaction modalities, each with plain credential and TL
 
 - **isql engine mode**: inspect or create the server-side weblog engine: VSP resource deployment, DAV path mapping assumptions, route/friendly URL setup, SQL helpers, full-text/search support, feed handling, metadata access, ACL/cache maintenance, and category staging. If the SQL listener is TLS-enabled, use `isql` with `-X` for the client PKCS#12 bundle, `-T` for the CA bundle, and `-W` for delegated WebID identity.
 - **WebDAV post mode**: publish posts and assets only, by copying HTML files, Markdown files, and associated asset folders into the configured DAV collection. WebDAV can also read or set custom resource properties when the engine already supports them. If acting as a software agent for a principal, pass the principal WebID via the `On-Behalf-Of` HTTP header.
+- **OPAL tool mode**: expose server-side weblog operations, such as post pinning, as Virtuoso stored procedures registered with `OAI.DBA.REGISTER_CHAT_FUNCTION`. Registered functions are available to OPAL/MCP-capable agents and are described through `/chat/functions/openapi.yaml`.
 
 ## First decisions
 
@@ -32,6 +33,7 @@ Establish these before editing or deploying:
 - Variant: base weblog, OpenLink-site themed, or facet-enabled.
 - Whether search, calendar date filtering, RSS/Atom/AtomPub links, and `schema:category` facets are required.
 - Metadata source for categories: existing WebDAV custom properties, an analysis TSV, SQL staging rows, or generated suggestions requiring user approval.
+- Pinning policy: no pinned posts, one pinned post, or multiple pinned posts. Use `schema:position` custom DAV metadata where a non-zero value means pinned.
 
 ## Workflow
 
@@ -44,8 +46,10 @@ Establish these before editing or deploying:
 7. Use scoped search. In Virtuoso SQL, keep `contains` / `xcontains` as a top-level `AND` predicate and escape multi-word user input into a valid free-text expression.
 8. Use calendar controls for date ranges in the sidebar, with `from` and `to` parameters preserved in filtered links.
 9. Show category facets only when `schema:category` metadata exists. Facet counts must be computed from the filtered candidate set, not from all resources after a later display filter.
-10. Preserve the recency-ordered post list in the sidebar. Facets and search refine that list; they do not replace it with monthly buckets.
-11. Validate locally when possible, then verify the served route, feeds, search, date filters, facets, and a newly copied post.
+10. Support prompt-driven post pinning for a designated weblog. Resolve the weblog target, verify the post resource exists, set `schema:position` to `1` for pinning or reset it to `0` for unpinning, then verify the weblog order.
+11. For agent-facing pinning, deploy `templates/register-weblog-pinning-tool.sql` through `isql`, register `DB.DBA.WEBLOG_DAV_SET_PIN`, and verify it appears in `OAI.DBA.LIST_CHAT_FUNCTIONS()` and the generated OpenAPI description at `/chat/functions/openapi.yaml`.
+12. Preserve the recency-ordered post list in the sidebar, with pinned posts promoted ahead of ordinary recency. Facets and search refine that list; they do not replace it with monthly buckets.
+13. Validate locally when possible, then verify the served route, feeds, search, date filters, facets, pinned ordering, registered OPAL tools, and a newly copied post.
 
 ## Mode references
 
@@ -53,6 +57,7 @@ Establish these before editing or deploying:
 - For post publication by WebDAV copy, read `references/webdav-mode.md`.
 - For template behavior and known VSP pitfalls, read `references/vsp-template-contract.md`.
 - For custom metadata and category facets, read `references/facet-metadata-contract.md`.
+- For OPAL/OpenAPI/MCP tool exposure, read `references/opal-tool-mode.md`.
 
 ## Practical guardrails
 

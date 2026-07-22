@@ -2,6 +2,8 @@
 
 Category facets are based on custom WebDAV properties using `schema:category`.
 
+Pinned ordering is based on the custom WebDAV property `schema:position`.
+
 ## Property
 
 - Prefix: `schema`
@@ -23,3 +25,11 @@ Use SQL server-side updates in `isql` mode or WebDAV `PROPPATCH` in WebDAV mode.
 - Do not guess categories for publication without user approval.
 - Keep the raw analysis TSV or SQL staging data available for review.
 - Verify by reading back properties before assuming the weblog can facet on them.
+
+## Pinning metadata
+
+- Property: `schema:position`
+- Expected pinned value: `1`
+- Expected unpinned value: missing or `0`
+- The weblog engine treats any non-empty, non-zero string value as pinned.
+- Pinning should be handled as a designated-weblog action: identify the public weblog route, map it to the DAV collection, resolve the post filename or URL, update the resource property, then verify the recency list.

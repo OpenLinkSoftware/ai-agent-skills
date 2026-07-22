@@ -11,7 +11,7 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
   -- Weblog-style index of /DAV/www2.openlinksw.com/data/html/
   -- Most recent resource is presented as the current post; the rest form the archive.
 
-  declare all_rows, posts, html_stems any;
+  declare all_rows, pinned_posts, posts, html_stems any;
   declare n, idx, i int;
   declare sel varchar;
   declare months any;
@@ -43,11 +43,14 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
   }
 
   -- Pass 2: keep every .html; keep a .md only when no .html counterpart shares its stem
+  pinned_posts := vector ();
   posts := vector ();
   for (i := 0; i < length (all_rows); i := i + 1)
   {
     declare r any;
-    declare s, t, ext, stem varchar;
+    declare s, t, ext, stem, dav_path varchar;
+    declare raw_pin any;
+    declare pin_val int;
     r    := aref (all_rows, i);
     s    := aref (r, 2);
     ext  := aref (r, 3);
@@ -91,9 +94,27 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
     }
     if (t is null or t = '''')
       t := aref (r, 0);
-    posts := vector_concat (posts, vector (vector (aref (r, 0), aref (r, 1), t, ext)));
+    dav_path := sprintf (''/DAV/www2.openlinksw.com/data/html/%s'', aref (r, 0));
+    raw_pin := null;
+    for (select P.PROP_VALUE as _pin
+           from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+          where R.RES_FULL_PATH = dav_path
+            and P.PROP_PARENT_ID = R.RES_ID
+            and P.PROP_TYPE = ''R''
+            and P.PROP_NAME = ''schema:position'') do
+    {
+      raw_pin := _pin;
+    }
+    pin_val := 0;
+    if (raw_pin is not null and isstring (raw_pin) and trim (cast (raw_pin as varchar)) <> '''' and trim (cast (raw_pin as varchar)) <> ''0'')
+      pin_val := 1;
+    if (pin_val)
+      pinned_posts := vector_concat (pinned_posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, pin_val)));
+    else
+      posts := vector_concat (posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, pin_val)));
 next_row: ;
   }
+  posts := vector_concat (pinned_posts, posts);
 
   n := length (posts);
   idx := 0;

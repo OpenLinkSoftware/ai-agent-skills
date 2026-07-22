@@ -11,7 +11,7 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
   -- Weblog-style index of /DAV/www2.openlinksw.com/data/html/
   -- Most recent resource is presented as the current post; the rest form the archive.
 
-  declare all_rows, posts, html_stems, category_seen, category_keys, facet_key, facet_value any;
+  declare all_rows, pinned_posts, posts, html_stems, category_seen, category_keys, facet_key, facet_value any;
   declare n, idx, i, has_categories, filter_active, post_selected, all_count, ck, facet_count int;
   declare sel, q, ft_q, from_date, to_date, selected_category, category_cloud, facet_category, facet_active varchar;
   declare q_param, from_param, to_param, category_param any;
@@ -92,13 +92,14 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
   }
 
   -- Pass 2: keep every .html; keep a .md only when no .html counterpart shares its stem
+  pinned_posts := vector ();
   posts := vector ();
   for (i := 0; i < length (all_rows); i := i + 1)
   {
     declare r any;
     declare s, t, ext, stem, dav_path, category_val, item_date varchar;
-    declare raw_category any;
-    declare category_match, scan_pos, semi_pos, cat_count int;
+    declare raw_category, raw_pin any;
+    declare category_match, scan_pos, semi_pos, cat_count, pin_val int;
     declare one_category, active_tag, rest_category, display_category varchar;
     r    := aref (all_rows, i);
     s    := aref (r, 2);
@@ -149,6 +150,19 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
     if (to_date <> '''' and item_date > to_date)
       goto next_row;
     dav_path := sprintf (''/DAV/www2.openlinksw.com/data/html/%s'', aref (r, 0));
+    raw_pin := null;
+    for (select P.PROP_VALUE as _pin
+           from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+          where R.RES_FULL_PATH = dav_path
+            and P.PROP_PARENT_ID = R.RES_ID
+            and P.PROP_TYPE = ''R''
+            and P.PROP_NAME = ''schema:position'') do
+    {
+      raw_pin := _pin;
+    }
+    pin_val := 0;
+    if (raw_pin is not null and isstring (raw_pin) and trim (cast (raw_pin as varchar)) <> '''' and trim (cast (raw_pin as varchar)) <> ''0'')
+      pin_val := 1;
     raw_category := null;
     for (select P.PROP_VALUE as _cat
            from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
@@ -203,9 +217,13 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
     all_count := all_count + 1;
     if (selected_category <> '''' and category_match = 0)
       goto next_row;
-    posts := vector_concat (posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, category_val, item_date)));
+    if (pin_val)
+      pinned_posts := vector_concat (pinned_posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, category_val, item_date, pin_val)));
+    else
+      posts := vector_concat (posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, category_val, item_date, pin_val)));
 next_row: ;
   }
+  posts := vector_concat (pinned_posts, posts);
 
   if (has_categories)
   {
