@@ -8,6 +8,55 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_VHOST_REMOVE (IN _lh varchar, IN _vh v
 }
 ;
 
+CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_DEFAULT_PIN (IN _coll varchar, IN _dav_user varchar)
+{
+  declare _pwd, _target varchar;
+  declare _existing, _rc int;
+  declare exit handler for sqlstate '*' { ; };
+
+  if (_coll is null or _coll = '') return 0;
+  if (subseq (_coll, length (_coll) - 1) <> '/') _coll := _coll || '/';
+  _existing := 0;
+  _target := null;
+
+  select count(*) into _existing
+    from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+   where (R.RES_FULL_PATH like _coll || '%.html'
+       or R.RES_FULL_PATH like _coll || '%.md')
+     and R.RES_NAME not like '._%'
+     and R.RES_NAME <> 'index.vsp'
+     and P.PROP_PARENT_ID = R.RES_ID
+     and P.PROP_TYPE = 'R'
+     and P.PROP_NAME = 'schema:position'
+     and trim (cast (P.PROP_VALUE as varchar)) <> ''
+     and trim (cast (P.PROP_VALUE as varchar)) <> '0';
+
+  if (_existing > 0) return 0;
+
+  for (select top 1 RES_FULL_PATH as _path
+         from WS.WS.SYS_DAV_RES
+        where (RES_FULL_PATH like _coll || '%.html'
+            or RES_FULL_PATH like _coll || '%.md')
+          and RES_NAME not like '._%'
+          and RES_NAME <> 'index.vsp'
+        order by RES_MOD_TIME desc, RES_NAME desc) do
+  {
+    _target := _path;
+  }
+
+  if (_target is null) return 0;
+
+  select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into _pwd
+    from DB.DBA.SYS_USERS
+   where U_NAME = _dav_user;
+
+  if (_pwd is null) return 0;
+
+  _rc := DB.DBA.DAV_PROP_SET (_target, 'schema:position', '1', _dav_user, _pwd, 1);
+  return _rc;
+}
+;
+
 CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG ()
 {
   declare rc any;
@@ -147,7 +196,7 @@ next_row: ;
 '');
     http (''<link>https://www.openlinksw.com/weblog/</link>
 '');
-    http (''<description>Linked Data, AI agents, knowledge graphs, and data spaces from the OpenLink site HTML collection.</description>
+    http (''<description>Linked Data, AI agents, knowledge graphs, and data spaces from a WebDAV folder.</description>
 '');
     http (''<generator>Virtuoso Server Pages over WebDAV</generator>
 '');
@@ -233,7 +282,7 @@ next_row: ;
 '');
     http (''<?xml version="1.0" encoding="UTF-8"?>
 '');
-    http (''<service xmlns="http://www.w3.org/2007/app" xmlns:atom="http://www.w3.org/2005/Atom"><workspace><atom:title>OpenLink Software Weblog</atom:title><collection href="https://www.openlinksw.com/data/html/"><atom:title>OpenLink site HTML</atom:title></collection></workspace></service>
+    http (''<service xmlns="http://www.w3.org/2007/app" xmlns:atom="http://www.w3.org/2005/Atom"><workspace><atom:title>OpenLink Software Weblog</atom:title><collection href="https://www.openlinksw.com/data/html/"><atom:title>WebDAV Folder</atom:title></collection></workspace></service>
 '');
     return;
   }
@@ -422,6 +471,57 @@ next_row: ;
       margin-bottom: 0.6rem;
     }
     .post-head h2 { margin: 0 0 0.45rem; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.7rem); line-height: 1.25; }
+
+    .pin-badge {
+      position: relative;
+      display: inline-block;
+      width: 0.66rem;
+      height: 0.66rem;
+      margin-right: 0.34rem;
+      transform: rotate(-22deg);
+      vertical-align: -0.06rem;
+      flex: 0 0 auto;
+    }
+    .pin-badge::before {
+      content: "";
+      position: absolute;
+      width: 0.42rem;
+      height: 0.42rem;
+      left: 0.12rem;
+      top: 0.02rem;
+      border-radius: 50%;
+      background: #ef4444;
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 1px 4px rgba(239, 68, 68, 0.38);
+    }
+    .pin-badge::after {
+      content: "";
+      position: absolute;
+      width: 0.1rem;
+      height: 0.48rem;
+      left: 0.31rem;
+      top: 0.35rem;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f7d7c4, #805139);
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.26);
+    }
+    article.post { position: relative; }
+    .post-status {
+      display: flex;
+      align-items: center;
+      gap: 0.08rem;
+      min-height: 2.15rem;
+      padding: 0.46rem 0.72rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.11), rgba(92, 201, 232, 0.06) 62%, transparent);
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    article.post.embedded.pinned { background: var(--panel); }
+    .post-kicker .pin-badge, .post-status .pin-badge { margin-right: 0.28rem; }
     .post-meta { color: var(--muted); font-size: 0.86rem; }
     .post-meta a { font-weight: 650; }
     .md-body {
@@ -501,6 +601,8 @@ next_row: ;
     ul.archive a { line-height: 1.35; }
     ul.archive li.current { border-left: 3px solid var(--accent); padding-left: 0.65rem; margin-left: -0.65rem; background: linear-gradient(90deg, var(--accent-soft), transparent 70%); }
     ul.archive li.current a { font-weight: 700; }
+    ul.archive li.pinned { background: linear-gradient(90deg, rgba(239, 68, 68, 0.08), transparent 72%); }
+    ul.archive li.pinned:not(.current) { border-left: 3px solid rgba(239, 68, 68, 0.46); padding-left: 0.65rem; margin-left: -0.65rem; }
     footer.colophon {
       max-width: 1380px;
       margin: 0 auto 1.75rem;
@@ -537,7 +639,7 @@ next_row: ;
 <body>
   <header class="masthead">
     <h1><a href="/weblog/">OpenLink Software Weblog</a></h1>
-    <span class="tagline">Linked Data, AI agents, knowledge graphs &amp; data spaces &mdash; a weblog view of <a href="/data/html/">OpenLink site HTML</a></span>
+    <span class="tagline">Showcasing the power of loosely coupling Linked Data, AI Agents, Skills, and <span class="term-help" title="databases, knowledge bases, filesystems, and APIs">Data Spaces</span> &mdash; a Weblog view of <a href="/data/html/" target="_top" rel="noopener noreferrer">WebDAV Folder</a></span>
     <nav class="feed-buttons">
       <a class="feed-btn rss" href="/weblog/?feed=rss" type="application/rss+xml" title="Subscribe via RSS 2.0">
         <svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>
@@ -565,31 +667,41 @@ next_row: ;
     declare cname, ctitle, cext varchar;
     declare cmod datetime;
     declare cdate varchar;
+    declare cpin int;
 
     cname  := aref (aref (posts, idx), 0);
     cmod   := aref (aref (posts, idx), 1);
     ctitle := aref (aref (posts, idx), 2);
     cext   := aref (aref (posts, idx), 3);
     cdate  := sprintf (''%s %d, %d'', aref (months, month (cmod) - 1), dayofmonth (cmod), year (cmod));
+    cpin := cast (aref (aref (posts, idx), 4) as int);
 
     if (cext = ''html'')
     {
-      http (''<article class="post embedded">'');
-      http (sprintf (''<div class="post-body"><iframe class="post-frame" src="/data/html/%U" title="%V" loading="lazy"></iframe></div>'', cname, ctitle));
+      if (cpin)
+        http (''<article class="post embedded pinned"><div class="post-status" aria-label="Pinned post"><span class="pin-badge" aria-hidden="true"></span><span>Pinned post</span></div>'');
+      else
+        http (''<article class="post embedded">'');
+      http (sprintf (''<div class="post-body"><iframe class="post-frame" src="/data/html/%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe></div>'', cname, ctitle));
       http (''</article>'');
     }
     else
     {
-      http (''<article class="post">'');
+      if (cpin)
+        http (''<article class="post pinned">'');
+      else
+        http (''<article class="post">'');
       http (''<div class="post-head">'');
-      if (idx = 0)
+      if (cpin)
+        http (sprintf (''<span class="post-kicker"><span class="pin-badge" aria-hidden="true"></span>Pinned &mdash; %V</span>'', cdate));
+      else if (idx = 0)
         http (sprintf (''<span class="post-kicker">Latest Post &mdash; %V</span>'', cdate));
       else
         http (sprintf (''<span class="post-kicker">From the Archive &mdash; %V</span>'', cdate));
       http (sprintf (''<h2>%V</h2>'', ctitle));
       http (sprintf (''<div class="post-meta">Published %V &middot; <a href="/data/html/%U" target="_blank">Open standalone page &rarr;</a></div>'', cdate, cname));
       http (''</div>'');
-      http (sprintf (''<div class="post-body"><iframe class="post-frame" src="/data/html/%U" title="%V" loading="lazy"></iframe></div>'', cname, ctitle));
+      http (sprintf (''<div class="post-body"><iframe class="post-frame" src="/data/html/%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe></div>'', cname, ctitle));
       http (''</article>'');
     }
   }
@@ -603,16 +715,25 @@ next_row: ;
   {
     declare aname, atitle, adate varchar;
     declare amod datetime;
+    declare apin int;
     aname  := aref (aref (posts, i), 0);
     amod   := aref (aref (posts, i), 1);
     atitle := aref (aref (posts, i), 2);
+    apin := cast (aref (aref (posts, i), 4) as int);
     adate  := sprintf (''%s %d, %d'', aref (months, month (amod) - 1), dayofmonth (amod), year (amod));
     declare cls varchar;
     cls := '''';
-    if (i = idx)
+    if (i = idx and apin)
+      cls := '' class="current pinned"'';
+    else if (i = idx)
       cls := '' class="current"'';
+    else if (apin)
+      cls := '' class="pinned"'';
     http (sprintf (''<li%s>'', cls));
-    http (sprintf (''<span class="a-date">%V</span>'', adate));
+    if (apin)
+      http (sprintf (''<span class="a-date"><span class="pin-badge" aria-hidden="true"></span>%V</span>'', adate));
+    else
+      http (sprintf (''<span class="a-date">%V</span>'', adate));
     http (sprintf (''<a href="/weblog/?post=%U">%V</a>'', aname, atitle));
     http (''</li>'');
   }
@@ -624,7 +745,7 @@ next_row: ;
 
   <footer class="colophon" aria-label="Weblog metadata">
     <div class="footer-inner">
-      <span>Published from <a href="/data/html/">OpenLink site HTML collection</a>.</span>
+      <span>Published from <a href="/data/html/" target="_top" rel="noopener noreferrer">WebDAV Folder</a>.</span>
       <nav class="footer-links" aria-label="Subscription links">
         <a href="/weblog/?feed=rss">RSS</a>
         <a href="/weblog/?feed=atom">Atom</a>
@@ -642,9 +763,47 @@ next_row: ;
       if (explicitTheme === ''dark'' || explicitTheme === ''light'') return explicitTheme;
       return window.matchMedia && window.matchMedia(''(prefers-color-scheme: dark)'').matches ? ''dark'' : ''light'';
     }
+    function readableFrameDocument (frame) {
+      try {
+        if (frame && frame.getAttribute && frame.getAttribute(''data-weblog-opaque-frame'') === ''1'') return null;
+        var win = frame.contentWindow;
+        if (!win) return null;
+        var doc = frame.contentDocument || win.document;
+        if (!doc || !doc.documentElement) return null;
+        return doc;
+      } catch (e) {
+        try { frame.setAttribute(''data-weblog-opaque-frame'', ''1''); } catch (ignore) {}
+        return null;
+      }
+    }
+    function routeFrameCollectionLinks (frame, doc) {
+      if (!doc || !doc.documentElement || doc.documentElement.getAttribute(''data-weblog-link-routing'') === ''1'') return;
+      doc.documentElement.setAttribute(''data-weblog-link-routing'', ''1'');
+      doc.addEventListener(''click'', function (event) {
+        var node = event.target;
+        var link = null;
+        while (node && node !== doc) {
+          if (node.tagName && node.tagName.toLowerCase() === ''a'' && node.getAttribute(''href'')) { link = node; break; }
+          node = node.parentNode;
+        }
+        if (!link) return;
+        var raw = link.getAttribute(''href'');
+        if (!raw || raw.charAt(0) === ''#'') return;
+        var url = null;
+        try { url = new URL(raw, frame.src || window.location.href); } catch (e) { return; }
+        if (url.origin !== window.location.origin) return;
+        var path = url.pathname;
+        var isCollection = path.charAt(path.length - 1) === ''/'' && (path.indexOf(''/DAV/'') === 0 || path.indexOf(''/data/'') === 0);
+        if (!isCollection) return;
+        event.preventDefault();
+        window.top.location.href = url.href;
+      }, true);
+    }
+    window.weblogReadableFrameDocument = readableFrameDocument;
+    window.weblogRouteFrameCollectionLinks = routeFrameCollectionLinks;
     function applyThemeToFrame (frame, theme) {
       try {
-        var doc = frame.contentDocument || frame.contentWindow.document;
+        var doc = readableFrameDocument(frame);
         if (!doc || !doc.documentElement) return;
         doc.documentElement.setAttribute(''data-theme'', theme);
         doc.documentElement.setAttribute(''data-weblog-frame-theme'', theme);
@@ -706,7 +865,7 @@ next_row: ;
     }
     function fitFrameWithoutBlankTail (frame) {
       try {
-        var doc = frame.contentDocument || frame.contentWindow.document;
+        var doc = window.weblogReadableFrameDocument ? window.weblogReadableFrameDocument(frame) : null;
         if (!doc || !doc.body) return;
         var html = doc.documentElement;
         var body = doc.body;
@@ -722,8 +881,9 @@ next_row: ;
     function installFrameControlBehavior (frame) {
       try {
         var win = frame.contentWindow;
-        var doc = frame.contentDocument || win.document;
+        var doc = window.weblogReadableFrameDocument ? window.weblogReadableFrameDocument(frame) : null;
         if (!win || !doc || !doc.head) return;
+        if (window.weblogRouteFrameCollectionLinks) window.weblogRouteFrameCollectionLinks(frame, doc);
         fitFrameWithoutBlankTail(frame);
         if (!doc.getElementById(''weblog-nav-idle-style'')) {
           var style = doc.createElement(''style'');
@@ -779,6 +939,9 @@ next_row: ;
   if (rc < 0)
     signal ('42000', sprintf ('DAV upload failed, rc=%d', rc));
 
+  -- Seed the default pin when no explicit schema:position pin exists yet.
+  DB.DBA.TMP_DEPLOY_WEBLOG_DEFAULT_PIN ('/DAV/www2.openlinksw.com/data/html/', 'dav');
+
   -- 2. Map /weblog/ as a VSP-enabled DAV directory for the exact entry point
   for (select distinct HP_LISTEN_HOST as _lh, HP_HOST as _vh
          from DB.DBA.HTTP_PATH where HP_LPATH in ('/DAV', '/public_home')) do
@@ -800,6 +963,7 @@ next_row: ;
 
 DB.DBA.TMP_DEPLOY_WEBLOG ();
 DROP PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG;
+DROP PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_DEFAULT_PIN;
 DROP PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_VHOST_REMOVE;
 
 -- Verification

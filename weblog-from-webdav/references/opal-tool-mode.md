@@ -21,7 +21,7 @@ The procedure sets the resource-level WebDAV property:
 schema:position
 ```
 
-The weblog VSP treats any non-empty, non-zero `schema:position` value as pinned. A value of `0` means unpinned.
+The weblog VSP treats any non-empty, non-zero `schema:position` value as pinned. A value of `0` means unpinned. The pinning procedure enforces a single pinned post per collection by clearing sibling pins before setting the requested post.
 
 ## Registration
 

@@ -11,17 +11,36 @@ This mode covers password-based WebDAV, mTLS-authenticated WebDAV, and mTLS plus
 - Authentication mechanism: `.netrc`, environment variables, mTLS, OAuth bearer token, or an existing curl config.
 - Optional delegated principal WebID for `On-Behalf-Of`.
 - Local HTML files, Markdown files, and associated asset folders to publish as posts.
-- Optional TSV with resource filename and category values.
+- Optional explicit `schema:category` values or a source profile for category inference.
 
 ## Post publication pattern
 
 1. Use `PROPFIND` to inspect the collection and confirm writable target paths.
 2. Verify the weblog engine exists before publishing posts. If the engine is missing, stop WebDAV publication and switch to `isql` engine bootstrap.
-3. Copy post documents with `PUT`: `.html`, `.htm`, `.md`, and related media/assets.
+3. For ordinary managed uploads, use `scripts/publish_with_metadata.py`; it performs `PUT`, `PROPPATCH schema:category`, and `PROPFIND` verification.
 4. Copy associated asset folders recursively where the HTML documents expect relative links.
-5. Apply `schema:category` metadata with `PROPPATCH` if requested and if the engine supports category facets.
-6. Read back metadata with `PROPFIND` before claiming facets are available.
-7. Verify the public weblog route, feed URLs, and the newly copied post.
+5. Read back metadata before claiming facets are available.
+6. Verify the public weblog route, feed URLs, and the newly copied post.
+
+## Publish helper
+
+Example:
+
+```bash
+python3 scripts/publish_with_metadata.py \
+  --base-url "https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/" \
+  --file ./2026-07-22-example-post.html \
+  --profile auto \
+  --category "Semantic Web, RDF & Ontologies; AI Engineering & LLMs" \
+  --cert-type P12 \
+  --cert "$P12_FILE:$P12_PASSWORD" \
+  --cacert "$CA_BUNDLE" \
+  --on-behalf-of "http://kingsley.idehen.net/public_home/kidehen/profile.ttl#i"
+```
+
+Use `--dry-run` to inspect the upload and metadata plan without sending WebDAV requests. Use `--profile fifa-player-reports` for the FIFA player report collection; use `--profile generic` or `--profile auto` for general HTML/Markdown collections.
+
+The helper is the preferred WebDAV publication path because the upload and categorization happen together. Mounted-folder copies and third-party WebDAV clients can still be used, but they should be paired with the scheduled metadata safety net.
 
 ## Out of scope for WebDAV
 
@@ -31,6 +50,8 @@ Do not use WebDAV mode to claim these tasks are complete:
 - Enabling VSP execution for a DAV collection.
 - Installing or replacing SQL procedures.
 - Configuring route mapping or friendly URLs.
+- Installing scheduled category refresh jobs.
+- Registering OPAL/OpenAPI tools.
 - Enabling full-text index behavior.
 - Changing VAL ACL graph scopes or clearing ACL caches.
 - Fixing server-side DAV ownership, UID/GID, or metadata-table problems.
@@ -61,7 +82,7 @@ curl -iL --anyauth \
   "https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/"
 ```
 
-Upload a post document:
+Upload a post document without metadata, when deliberately bypassing the helper:
 
 ```bash
 curl -iL --anyauth \
@@ -73,14 +94,18 @@ curl -iL --anyauth \
   "https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/2026-07-19-example-post.html"
 ```
 
-Apply category metadata through the bundled helper:
+## Scheduled metadata safety net
 
-```bash
-python3 scripts/proppatch_categories.py \
-  --base-url "https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/" \
-  --tsv categories.tsv \
-  --cert-type P12 \
-  --cert "$P12_FILE:$P12_PASSWORD" \
-  --cacert "$CA_BUNDLE" \
-  --on-behalf-of "http://kingsley.idehen.net/public_home/kidehen/profile.ttl#i"
+For files copied through mounted WebDAV folders or other clients that do not run the publish helper, install `templates/register-category-refresh-scheduler.sql` through `isql`. It creates `DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES`, `DB.DBA.WEBLOG_DAV_SCHEDULE_CATEGORY_REFRESH`, and `DB.DBA.WEBLOG_DAV_UNSCHEDULE_CATEGORY_REFRESH`.
+
+Default five-minute schedule:
+
+```sql
+SELECT DB.DBA.WEBLOG_DAV_SCHEDULE_CATEGORY_REFRESH (
+  'FIFA player reports category refresh',
+  '/DAV/home/demo/Public/fifa-kg-player-reports/',
+  'fifa-player-reports'
+);
 ```
+
+The fourth argument overrides the interval in minutes. The refresh procedure updates missing categories by default; pass `update_all => 1` when a full recompute is intended. Generated site-specific scheduler SQLs should perform clean recategorization first, then schedule missing-only refresh for future uploads.

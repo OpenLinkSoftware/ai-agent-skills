@@ -33,9 +33,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
     IN dav_user VARCHAR := 'dav'
   )
 {
-  --## Pin or unpin a post in a Virtuoso WebDAV-backed weblog by setting schema:position metadata. Provide the DAV collection path or URL, post filename or DAV path, and pinned=1 to pin or pinned=0 to unpin.
+  --## Pin or unpin a post in a Virtuoso WebDAV-backed weblog by setting schema:position metadata. Provide the DAV collection path or URL, post filename or DAV path, and pinned=1 to make it the single pinned post for the collection or pinned=0 to unpin it.
   DECLARE coll, post, dav_path, pin_value, pwd VARCHAR;
-  DECLARE rc, exists_count INTEGER;
+  DECLARE rc, clear_rc, exists_count INTEGER;
 
   coll := trim(dav_collection);
   post := trim(post_name);
@@ -93,6 +93,20 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
 
   IF (pwd IS NULL)
     SIGNAL ('22023', sprintf('DAV user not found: %s', dav_user));
+
+  IF (pinned <> 0)
+  {
+    for (select RES_FULL_PATH as _other_path
+           from WS.WS.SYS_DAV_RES
+          where (RES_FULL_PATH like coll || '%.html'
+              or RES_FULL_PATH like coll || '%.md')
+            and RES_NAME not like '._%'
+            and RES_NAME <> 'index.vsp') do
+    {
+      IF (_other_path <> dav_path)
+        clear_rc := DB.DBA.DAV_PROP_SET(_other_path, 'schema:position', '0', dav_user, pwd, 1);
+    }
+  }
 
   rc := DB.DBA.DAV_PROP_SET(dav_path, 'schema:position', pin_value, dav_user, pwd, 1);
   IF (rc < 0)
