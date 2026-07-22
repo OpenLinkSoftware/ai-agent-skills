@@ -21,11 +21,13 @@ The procedure sets the resource-level WebDAV property:
 schema:position
 ```
 
-The weblog VSP treats any non-empty, non-zero `schema:position` value as pinned. A value of `0` means unpinned.
+The weblog VSP treats any non-empty, non-zero `schema:position` value as pinned. A value of `0` means unpinned. The pinning procedure enforces a single pinned post per collection by clearing sibling pins before setting the requested post.
 
 ## Registration
 
-Deploy `templates/register-weblog-pinning-tool.sql` through `isql`, then register the function:
+Deploy `templates/register-weblog-pinning-tool.sql` through `isql`. The script always creates the SQL procedure first. OPAL registration is best-effort and is skipped silently when the target Virtuoso instance does not have OPAL installed.
+
+When OPAL is installed, the script registers the function with:
 
 ```sql
 OAI.DBA.REGISTER_CHAT_FUNCTION(
