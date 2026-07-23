@@ -1,0 +1,64 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Full Skills Contract Always Applies — Regardless of Request Phrasing"@en ;
+    schema:description "Softer request phrasing ('RDF and HTML collection', 'thesis and value prop analysis') does not license a lighter cut of the kg-generator/rdf-infographic-skill contract. FAQ, Glossary, HowTo, and resolver-wrapped entity hyperlinks are mandatory regardless of whether the user says 'infographic'."@en ;
+    schema:dateCreated "2026-07-22T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :fullSkillsContractGate ;
+    rdfs:seeAlso <../preferences.ttl#step-fullSkillsContractAlwaysApplies>,
+        <../preferences.ttl#step-structuralContractDetails>,
+        <faq-entity-iri-gate.ttl>, <entity-href-companion-ttl.ttl>,
+        <rdf-infographic-compliance-gate.ttl> .
+
+:fullSkillsContractGate a schema:HowTo ;
+    schema:name "Full Skills Contract Gate"@en ;
+    schema:description "Blocking checklist run before delivering any RDF+HTML(+MD) collection, regardless of how the user phrased the request."@en ;
+    schema:step :step-faqMinimum, :step-glossaryMinimum, :step-howtoWhenProcedural,
+        :step-bodyProseResolverLinks, :step-verifyBeforeDelivery,
+        :step-faqIsAccordion, :step-glossaryIsIndexNotAccordion, :step-navInactivityFadeRequired .
+
+:step-faqMinimum a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "FAQ section: at least 10 schema:Question entities"@en ;
+    schema:text "Each schema:Question carries schema:name, schema:acceptedAnswer, and schema:parentItem back to the schema:FAQPage. Fewer than 10 is a contract violation, caught 2026-07-22 when only 5 were delivered for a 'collection' request that wasn't labeled 'infographic'."@en .
+
+:step-glossaryMinimum a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Glossary: at least 10 schema:DefinedTerm entities"@en ;
+    schema:text "Each schema:DefinedTerm carries schema:name, schema:description, and schema:inDefinedTermSet back to the schema:DefinedTermSet. Fewer than 10 is a contract violation, caught 2026-07-22 when only 6 were delivered."@en .
+
+:step-howtoWhenProcedural a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Add a schema:HowTo section whenever the source material contains procedural content"@en ;
+    schema:text "If the analyzed source(s) contain any setup, quick-start, configuration, or step-by-step procedure (e.g. a README 'Quick start' section), model it as a schema:HowTo with ordered schema:HowToStep entities — do not omit it just because the user's request didn't use the word 'howto'. Caught 2026-07-22: a repository quick-start section existed in the source material but no HowTo section was produced."@en .
+
+:step-bodyProseResolverLinks a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Resolver-wrap entity mentions in body prose, not just the footer"@en ;
+    schema:text "Every entity heading or mention in the article body — thesis-quote attributions, principle/value-proposition/open-question card headings, inline source citations — must be a resolver-wrapped hyperlink (https://linkeddata.uriburner.com/describe/?url={encoded-entity-IRI}) built from the companion TTL's own entity IRIs (DAV-base + fragment for document-local entities; the direct verified external IRI — DBpedia, homepage, source post — for external entities). Footer/hero-meta tool-attribution credits (kg-generator, rdf-infographic-skill, URIBurner, Virtuoso, the LLM's own homepage) remain the one documented exception and keep plain canonical-homepage links per entity-href-companion-ttl.ttl step 4. Caught 2026-07-22: resolver-wrapping was applied correctly to footer/hero-meta credits but the body prose (thesis blockquote, principle list, value-prop cards, open-question cards, source citations) used plain external hrefs."@en .
+
+:step-verifyBeforeDelivery a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Run the blocking grep checks before calling the deliverable done"@en ;
+    schema:text """grep -c 'describe/?url=%23' file.html   # MUST be 0 — bare-fragment hrefs resolve to nothing
+grep -oc 'linkeddata.uriburner.com/describe/?url=' file.html   # should be a large count spanning every section, not just the footer
+python3 -c "import rdflib; g=rdflib.Graph(); g.parse('file.ttl'); from rdflib.namespace import Namespace; s=Namespace('http://schema.org/'); import rdflib as r; print(len(list(g.subjects(r.RDF.type, s.Question))), len(list(g.subjects(r.RDF.type, s.DefinedTerm))))"   # both must be >= 10"""@en .
+
+:step-faqIsAccordion a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "FAQ MUST be a real accordion — div[role=button] + max-height panel, never <details>/<summary>"@en ;
+    schema:text "rdf-infographic-skill/SKILL.md Core Architecture item 7: 'FAQ Accordion — Common questions with smooth expand/collapse'. The required markup (from faq-entity-iri-gate.ttl step-writeHtmlHref) is a `.faq-item` wrapping a `.faq-q` div with `role=\"button\" tabindex=\"0\"` containing the resolver-linked question `<a>` (with `onclick=\"event.stopPropagation()\"` so the link doesn't fire the toggle) plus a chevron `.faq-indicator` span, and a sibling `.faq-a > .faq-a-inner` answer panel toggled via a `toggleFaq(el)` JS function adding/removing `.open` on `.faq-item` (CSS: `max-height:0` collapsed, `max-height:400px` when `.open`, with a transition). Do NOT use native `<details>/<summary>` — caught 2026-07-23 after first delivering exactly that anti-pattern. Also do NOT nest `<a>` inside `<button>` — invalid HTML, seen even in an older reference file this corpus otherwise reuses."@en .
+
+:step-glossaryIsIndexNotAccordion a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Glossary is an 'interactive entity index,' NOT an accordion — do not add expand/collapse by false analogy with the FAQ fix"@en ;
+    schema:text "rdf-infographic-skill/SKILL.md Core Architecture item 8: 'Glossary/Definitions — Interactive entity index with external links' (contrast with item 7's explicit 'Accordion... expand/collapse' wording for FAQ). 'Interactive' means resolver-linked term names, not a toggle widget. Render as a card grid (`.gloss-grid` > `.gloss-card` with the term name as a resolver-wrapped `<h4><a>` and the definition as plain visible text below) — never collapsed by default. Flagged 2026-07-23 when a user asked 'ditto Glossary' immediately after the FAQ-accordion fix; the correct response was to distinguish the two contract items, not add matching accordion behavior to glossary."@en .
+
+:step-navInactivityFadeRequired a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "Floating nav MUST implement a 2-minute inactivity fade with a dynamically created reactivation marker — a second IIFE, separate from drag+collapse"@en ;
+    schema:text "rdf-infographic-skill/SKILL.md 'Navigation Control' section: after 2 minutes with no mousemove/keydown/scroll/click/touchstart, the nav fades via opacity:0 + pointer-events:none; a small ☰ reactivation marker (created dynamically in JS, same top/right position as the nav, one z-index above) becomes visible; any activity or clicking the marker resets the 2-minute timer and restores the nav. This is a SEPARATE IIFE from the drag+collapse-toggle IIFE with its own timer/reset logic — building only the drag+collapse IIFE silently omits this required behavior with no visible symptom until a user actually waits two minutes and notices the nav never fades. Caught 2026-07-23: the first-delivered nav JS had drag+collapse+theme-toggle but no fade timer at all."@en .

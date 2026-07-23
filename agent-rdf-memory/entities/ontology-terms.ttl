@@ -65,7 +65,7 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 # ── KeyPrinciple — 5 documents, 5 disjoint IRIs (worst TBox re-mint in census) ──
 :KeyPrinciple a owl:Class ;
     rdfs:label "Key Principle"@en ;
-    rdfs:comment "A named principle or tenet extracted from an analyzed source document. Canonical corpus IRI for the generator-template analysis class re-minted in 5 documents (2026-07-14 census)."@en ;
+    rdfs:comment "A named principle or tenet extracted from an analyzed source document. Canonical corpus IRI for the generator-template analysis class re-minted in 5 documents (2026-07-14 census). Correctly REUSED (not re-minted) via bound prefix in buzz-block-thesis-value-prop, 2026-07-23 — see cross-document-local-term-reuse.ttl step 3 exemplar."@en ;
     rdfs:isDefinedBy <> ;
     owl:equivalentClass <https://x.com/trq212/status/2052809885763747935#KeyPrinciple>,
         <https://thinkingmachines.ai/blog/interaction-models/#KeyPrinciple>,
@@ -83,7 +83,7 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 
 :ComparisonDimension a owl:Class ;
     rdfs:label "Comparison Dimension"@en ;
-    rdfs:comment "One axis of a structured comparison between two or more technologies, products, or approaches. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
+    rdfs:comment "One axis of a structured comparison between two or more technologies, products, or approaches. Canonical corpus IRI; 2 disjoint re-mints aligned. Correctly REUSED (not re-minted) via bound prefix in buzz-block-thesis-value-prop, 2026-07-23 — see cross-document-local-term-reuse.ttl step 3 exemplar."@en ;
     rdfs:isDefinedBy <> ;
     owl:equivalentClass <https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#ComparisonDimension>,
         <https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing/#ComparisonDimension> .
@@ -155,6 +155,16 @@ karp:CriticalPerspective a rdfs:Class ;
     rdfs:label "Critical Perspective"@en ;
     rdfs:comment "A critical-response entry contesting or reframing an analyzed source's thesis. Minted once in the theCUBE Research Karp analysis KG and correctly REUSED by IRI (not re-minted) in reverse-information-paradox — the exemplar pattern this registry exists to enforce. Companion property: karp:respondsTo."@en ;
     rdfs:isDefinedBy <https://linkeddata.uriburner.com/DAV/demos/daas/karp-frontier-models-enterprise-ai-claude_sonnet_5-1.ttl> .
+
+:ValueProposition a owl:Class ;
+    rdfs:label "Value Proposition"@en ;
+    rdfs:comment "A concrete claimed benefit a product/protocol/approach delivers over an incumbent status quo. Distinct from :KeyPrinciple (a stated design constraint the source itself asserts it designed against) — a ValueProposition is the analysis layer's inference of what that principle cashes out to in practice. Minted 2026-07-23 in buzz-block-thesis-value-prop; no prior corpus equivalent found at mint time (checked against KeyPrinciple, KeyConcept, ComparisonDimension, ArchitectureConcept, UseCase) — future documents needing this concept should REUSE this IRI, not re-mint."@en ;
+    rdfs:isDefinedBy <https://linkeddata.uriburner.com/DAV/demos/daas/buzz-block-thesis-value-prop-claude_sonnet_5-1.ttl> .
+
+:OpenQuestion a owl:Class ;
+    rdfs:label "Open Question"@en ;
+    rdfs:comment "A risk, gap, or unresolved design tension surfaced by comparing a source's stated thesis/principles against its own documented current state (e.g. a README's 'being wired up' / 'pending' columns). Minted 2026-07-23 in buzz-block-thesis-value-prop; no prior corpus equivalent found at mint time — future documents needing this concept should REUSE this IRI, not re-mint."@en ;
+    rdfs:isDefinedBy <https://linkeddata.uriburner.com/DAV/demos/daas/buzz-block-thesis-value-prop-claude_sonnet_5-1.ttl> .
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ── 3. Generator-Template Analysis Properties (cross-document re-mints) ────────

@@ -257,9 +257,9 @@ The generated HTML follows this narrative flow:
 
 ### Navigation Control Best Practices
 
-⛔ **PRE-BUILD CHECK**: Before writing the nav panel HTML/CSS/JS, re-read the full "Navigation Control Best Practices" section and the "Navigation Control" and "localStorage Correctness" items in the Validation Checklist. Confirm: collapse-to-header-bar pattern, always-visible header, toggle button (+/−) with aria-label, links hidden when collapsed (`max-height:0`), draggable by header bar, resizable, starts collapsed by default, no pin marker, no separate close/restore elements, inactivity fade after 2 minutes with reactivation marker. JS: IIFE for drag + toggle + inactivity fade; separate IIFE for fade timer; localStorage write only when expanded, stale-state recovery, page-specific key.
+⛔ **PRE-BUILD CHECK**: Before writing the nav panel HTML/CSS/JS, re-read the full "Navigation Control Best Practices" section and the "Navigation Control" and "localStorage Correctness" items in the Validation Checklist. Confirm: collapse-to-header-bar pattern, always-visible header, toggle button (+/−) with aria-label, links hidden when collapsed (`max-height:0`), draggable by header bar, resizable when expanded (native CSS `resize:both` + `overflow:auto`, `resize:none` while collapsed), a manual-hide icon that triggers the SAME `fadeOut()`/reactivation-marker path as inactivity fade (not a second independent close/restore mechanism), starts collapsed by default, no pin marker, no *second* restore control besides the one reactivation marker, inactivity fade after 2 minutes with reactivation marker. JS: IIFE for drag + toggle + inactivity fade; separate IIFE for fade timer (with the fade function reachable from the manual-hide button's click handler); localStorage write only when expanded, stale-state recovery, page-specific key.
 
-**Pattern**: Collapse-to-header-bar — the panel is always visible as a compact header. A toggle button collapses/expands the link list. No pin marker, no separate close/restore buttons.
+**Pattern**: Collapse-to-header-bar — the panel is always visible as a compact header. A toggle button collapses/expands the link list. A manual-hide icon triggers the same inactivity-fade path on demand. No pin marker, no independent second restore control besides the one reactivation marker.
 
 **Inactivity fade**: After 2 minutes of user inactivity (no `mousemove`, `keydown`, `scroll`, `click`, or `touchstart`), the nav panel fades out via `opacity: 0` + `pointer-events: none`. A small reactivation marker (☰ button, same `top`/`right` position as the nav, `z-index` one above) becomes visible. Clicking the marker or any user activity resets the 2-minute timer and restores the nav. The marker is created dynamically in JS, styled via an injected `<style>` block, and requires `transition: opacity 0.8s ease` on `#fnav`.
 
@@ -308,12 +308,13 @@ See `references/design-patterns.md` for detailed design system guidelines.
 
 #### Floating Navigation Panel
 - Draggable by the header bar
-- Always-visible header with title and collapse toggle (− / +)
+- Resizable (native CSS `resize:both`) when expanded only; `resize:none` while collapsed
+- Always-visible header with title, collapse toggle (− / +), and a manual-hide icon
 - Collapsed: header bar only. Expanded: header + link list
 - Contains navigation to all entity types and main sections
-- No pin marker, no separate close/restore buttons
-- Inactivity fade: nav fades after 2 minutes; reactivation marker (☰) appears at same position
-- JavaScript: single IIFE with drag + toggle behavior
+- No pin marker, no independent second restore control — manual-hide reuses the one inactivity-fade reactivation marker
+- Inactivity fade: nav fades after 2 minutes, or immediately via the manual-hide icon; reactivation marker (☰) appears at same position either way
+- JavaScript: drag+toggle IIFE, plus a separate fade-timer IIFE whose fade function the manual-hide button also calls
 
 #### Scroll-Triggered Animations
 - Sections fade in and slide up as they enter viewport
@@ -1134,8 +1135,10 @@ The resolver is for entities defined **within the document's knowledge graph**, 
 Every infographic **MUST** include a floating section navigation control that:
 
 - **Is movable** — draggable by pointer on desktop.
-- **Is resizable** — resizable by pointer drag on desktop.
+- **Is resizable** — resizable by pointer drag on desktop, in the **expanded** state only. Implementation: native CSS `resize: both; overflow: auto;` on the panel element, active only when NOT `.collapsed` (the collapsed header-bar state has `resize: none` — a compact header bar is not meaningfully resizable). Pair with `min-width`/`min-height` and a generous `max-width`/`max-height` (e.g. `max-height: 80vh`) so the native browser resize handle has room to work — do not leave the collapsed `max-height` cap (e.g. `44px`) in place for the expanded state, since it silently overrides any drag-resize attempt.
 - **Is collapsible** — a toggle button collapses/expands the link list (collapse-to-header-bar pattern). The header bar remains always visible. Collapsed state shows a `+` / "Expand" control; expanded state shows `−` / "Collapse".
+- **Is manually hideable** — a small icon in the header bar (next to the collapse toggle) lets the user hide the nav immediately, without waiting for the 2-minute inactivity timer. This MUST reuse the exact same `fadeOut()` function and reactivation-marker element already built for inactivity fade (see "Inactivity fade" below) — it is a manual *trigger* for the existing fade/restore path, not a second, independent close/restore mechanism. Restoring still happens through the one reactivation marker, whether the fade was triggered by inactivity or by this button. Expose the fade function (e.g. as a return value or a scoped reference shared between the two nav IIFEs) so the hide button's click handler can call it directly.
+  - **Manual hide MUST stick until the marker is clicked — it must NOT be undone by ambient mousemove/scroll/keydown/click activity.** The inactivity-fade IIFE's `reset()` function runs on every `mousemove`/`scroll`/`click`/etc. to restore the nav after the user becomes active again — correct for the auto-fade case, but if the SAME `reset()` also fires after a *manual* hide, the very next mouse movement silently undoes the hide, making the button appear broken ("doesn't stick"). Track a `manuallyHidden` boolean: the manual-hide trigger sets it `true`; `reset()` becomes a no-op while it's `true`; only the reactivation-marker's own click handler (not the generic activity listeners) clears the flag and actually restores the nav. Two independent bugs to check for, both found in the same fix (2026-07-23): (1) the hide button's own click must call `event.stopPropagation()` or it bubbles to the document-level activity listener and undoes itself in the same tick; (2) even with that fixed, any *later* activity re-triggers the same undo unless `manuallyHidden` gates `reset()`.
 - **Starts closed by default** — page load shows the compact collapsed header bar unless the user explicitly requested an expanded default for that artifact.
 - **Is visually minimal when closed** — the collapsed panel is a compact header bar only. Do NOT leave an empty link list area or separator lines visible in the collapsed state.
 - **Does not waste space** — avoid separate `#` column markers or redundant icon columns. The compact header bar already serves as the anchor affordance.
@@ -1181,7 +1184,7 @@ Navigation state persistence **MUST** handle these edge cases:
 - [ ] If a Markdown companion was requested and RDF media entities exist, it embeds or references them: images with Markdown image syntax, videos with HTML `<video controls>`, audio with HTML `<audio controls>`, and captions/labels linked to the RDF media entity IRIs through the resolver.
 - [ ] If RDF contains SPARQL `schema:SoftwareSourceCode` examples, HTML renders them as accordions with resolver-backed query headings, escaped preformatted query text, endpoint/service links, and correctly URL-encoded live query links defaulting to URIBurner; Markdown mirrors them with fenced `sparql` code blocks. No `http://example.org/` live links.
 - [ ] The local RDF link (`rel="related"`) uses a relative path and the target file exists.
-- [ ] Navigation panel: drag works, resize works, collapse/expand toggles correctly, localStorage read/write does not throw, stale values are recovered from gracefully.
+- [ ] Navigation panel: drag works, resize works when expanded (and is disabled while collapsed), collapse/expand toggles correctly, manual-hide icon triggers the same fade/marker path as inactivity fade (not a separate close mechanism), localStorage read/write does not throw, stale values are recovered from gracefully.
 - [ ] Skills attribution line present in footer with correct GitHub URL(s).
 - [ ] Provenance/attribution links use the attributed labels themselves as anchors (for example `URIBurner`, `OpenLink Virtuoso`, `D3.js`, `rdf-infographic-skill`); no generic `Visit`/`Learn more` labels.
 - [ ] Footer SPARQL button present with Turtle/JSON-LD format toggle; `<a id="sparqlBtn">` uses the canonical entity-type summary query (`SAMPLE(?s) AS ?sampleEntity`, `SAMPLE(?label) AS ?sampleLabel`, `COUNT(?s) AS ?entityCount`, `OPTIONAL { rdfs:label }`, `rdf:type` not `a`, `GRAPH <DAV/demos/daas/{filename}>` clause) — not a simplified substitute; format parameter is `text%2Fx-html%2Btr`; `sparqlBtn.href` initialised on load and updated on format-tab switch.
