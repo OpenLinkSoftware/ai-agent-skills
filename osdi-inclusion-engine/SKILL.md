@@ -1,11 +1,11 @@
 ---
-name: odsi-inclusion-engine
-description: Operate the OpenLink ODSI Inclusion Engine — the Virtuoso index.vsp + XSLT-skin system that renders openlinksw.com sub-sites (www, virtuoso, uda, ps, ode, shop) from WebDAV content. Use for site registration, config-graph inspection and edits, skin selection or per-URL skin overrides, homepage or page replacement deployment from DAV-hosted mockups, double-chrome conflict detection, cache flushing, and post-deploy verification. Trigger on phrases like "integrate this homepage replacement", "swap the skin for", "register a new ODSI site", "Inclusion Engine config", "flush the incleng cache", or any request to deploy content into an ODSI-based website.
+name: osdi-inclusion-engine
+description: Operate the OpenLink OSDI Inclusion Engine — the Virtuoso index.vsp + XSLT-skin system that renders openlinksw.com sub-sites (www, virtuoso, uda, ps, ode, shop) from WebDAV content. Use for site registration, config-graph inspection and edits, skin selection or per-URL skin overrides, homepage or page replacement deployment from DAV-hosted mockups, double-chrome conflict detection, cache flushing, and post-deploy verification. Trigger on phrases like "integrate this homepage replacement", "swap the skin for", "register a new OSDI site", "Inclusion Engine config", "flush the incleng cache", or any request to deploy content into an OSDI-based website.
 ---
 
-# ODSI Inclusion Engine
+# OSDI Inclusion Engine
 
-Use this skill to inspect, configure, and deploy content into websites run by the OpenLink Inclusion Engine (ODSI): a Virtuoso-hosted system where a single `index.vsp` per site resolves `/{page}` requests to `content/{page}.html` in WebDAV, passes the document through HTML Tidy (unless its DOCTYPE is XHTML+RDFa), wraps it with a skin's XSLT (`PostProcess.xslt`), merges RDF data-islands, caches the rendered result in `incleng..cache`, and serves it.
+Use this skill to inspect, configure, and deploy content into websites run by the OpenLink Inclusion Engine (OSDI): a Virtuoso-hosted system where a single `index.vsp` per site resolves `/{page}` requests to `content/{page}.html` in WebDAV, passes the document through HTML Tidy (unless its DOCTYPE is XHTML+RDFa), wraps it with a skin's XSLT (`PostProcess.xslt`), merges RDF data-islands, caches the rendered result in `incleng..cache`, and serves it.
 
 All configuration lives in the RDF quadstore graph `<urn:com.openlinksw.virtuoso.incleng>`, accessed via the `incleng..config_*` SQL API — **never** the legacy `incleng..sites` table. Read `references/config-api.md` before issuing any config SQL.
 
@@ -13,7 +13,7 @@ All configuration lives in the RDF quadstore graph `<urn:com.openlinksw.virtuoso
 
 Every chrome-bearing skin — legacy `openlink`/`responsive` in the inclusion-engine VAD, and modern `matrix`/`bootstrap-2022` in the **opl-skins VAD** — **unconditionally injects** the corporate masthead and footer around whatever is in the source document's `<body>`. If a replacement page carries its own `<nav>`, `<header>`, or `<footer>` markup, deploying it under those skins stacks two sets of chrome — and when the replacement's CSS deliberately mirrors the live site's design, the duplication is visually subtle and easy to miss in review.
 
-Therefore, before deploying ANY page into an ODSI site:
+Therefore, before deploying ANY page into an OSDI site:
 
 1. Read the **live** `xslt_sheet` for the target URL (`config_get`) to learn which skin/VAD is actually active — never assume.
 2. Fetch the replacement document and run `scripts/check_chrome_conflict.py <file-or-url>`.

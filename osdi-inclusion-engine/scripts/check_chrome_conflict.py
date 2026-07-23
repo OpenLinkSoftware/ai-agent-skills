@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classify an HTML replacement document for ODSI deployment.
+"""Classify an HTML replacement document for OSDI deployment.
 
 Reports:
   - structure: full document vs fragment (tidy will normalize fragments)

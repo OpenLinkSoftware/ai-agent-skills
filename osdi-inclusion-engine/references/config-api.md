@@ -1,4 +1,4 @@
-# ODSI Config API Reference
+# OSDI Config API Reference
 
 All configuration lives in the quadstore graph `<urn:com.openlinksw.virtuoso.incleng>`. The legacy `incleng..sites` table is obsolete (migration helper: `incleng..config_migrate(dangerous)`); never write to it.
 

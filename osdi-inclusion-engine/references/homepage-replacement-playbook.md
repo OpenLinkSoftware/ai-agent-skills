@@ -1,4 +1,4 @@
-# Playbook — Homepage Replacement into ODSI Sites
+# Playbook — Homepage Replacement into OSDI Sites
 
 Worked scenario (2026-07): replacing the homepages of virtuoso.openlinksw.com, uda.openlinksw.com, and ps.openlinksw.com with three self-styled mockups hosted on an intranet DAV server. Generalizes to any "drop this finished HTML design in as page X" request.
 

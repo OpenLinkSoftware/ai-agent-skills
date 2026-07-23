@@ -1,4 +1,4 @@
--- ODSI skin override templates.
+-- OSDI skin override templates.
 -- Replace {URL}, {SITE}, {SKIN} before running via isql.
 -- {SKIN} is a directory under /DAV/VAD/inclusion-engine/skin/ , e.g. passthrough, openlink, responsive.
 -- Elicit {URL} and {SITE} from the live config graph first (see references/config-api.md);
