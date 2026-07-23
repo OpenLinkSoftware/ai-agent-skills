@@ -8,16 +8,21 @@
 @prefix irefde2: <https://x.com/kidehen/status/2055725483535282591##> .
 @prefix karp: <https://thecuberesearch.com/319-breaking-analysis-alex-karp-frontier-models-and-the-real-fight-for-enterprise-ai/#> .
 
-<> a schema:CreativeWork, owl:Ontology ;
+<> a schema:CreativeWork ;
     schema:name "Entity Registry: TBox Alignment (Classes & Properties)"@en ;
     schema:description "OWL/RDFS alignment axioms harmonizing locally-minted TBox terms (rdfs:Class / owl:Class / rdf:Property) that were re-minted under disjoint IRIs across the published DAV corpus. Unlike entities/concepts.ttl (ABox-level schema:DefinedTerm instances aligned via owl:sameAs), this registry uses owl:equivalentClass / owl:equivalentProperty — the correct alignment vocabulary for TBox terms, and the form reasoners (Virtuoso inference rules, FuXi) can exploit to merge instance data across named graphs. Discovered via the TBox census of 2026-07-14: 656 locally-minted terms across DAV named graphs, 86 recurring in >= 2 documents. Loadable into Virtuoso as an alignment/inference graph."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-23T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:hasPart :ontology ;
     rdfs:seeAlso <../preferences.ttl>,
         <../howto/cross-document-local-term-reuse.ttl>,
         <../howto/ontology-cross-reference-gate.ttl>,
         <concepts.ttl> .
+
+:ontology a owl:Ontology ;
+    rdfs:label "TBox Alignment Registry — Ontology Resource"@en ;
+    rdfs:comment "The owl:Ontology resource proper, distinct from the schema:CreativeWork document entity (<>) that describes/contains it. An owl:Ontology must be its own entity — never a second rdf:type conflated onto a resource already typed as something else (e.g. schema:CreativeWork, schema:AnalysisNewsArticle) — because rdfs:isDefinedBy's range is owl:Ontology, and typing the document root as both makes every isDefinedBy target ambiguous between 'this document' and 'this ontology'. Corrected 2026-07-23; see preferences.ttl step-ontologyIsDistinctEntity."@en .
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ── 1. FDE/IRE Ontology: single-# vs double-## IRI repair ──────────────────────
@@ -65,8 +70,8 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 # ── KeyPrinciple — 5 documents, 5 disjoint IRIs (worst TBox re-mint in census) ──
 :KeyPrinciple a owl:Class ;
     rdfs:label "Key Principle"@en ;
-    rdfs:comment "A named principle or tenet extracted from an analyzed source document. Canonical corpus IRI for the generator-template analysis class re-minted in 5 documents (2026-07-14 census)."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:comment "A named principle or tenet extracted from an analyzed source document. Canonical corpus IRI for the generator-template analysis class re-minted in 5 documents (2026-07-14 census). Correctly REUSED (not re-minted) via bound prefix in buzz-block-thesis-value-prop, 2026-07-23 — see cross-document-local-term-reuse.ttl step 3 exemplar."@en ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentClass <https://x.com/trq212/status/2052809885763747935#KeyPrinciple>,
         <https://thinkingmachines.ai/blog/interaction-models/#KeyPrinciple>,
         <https://joost.blog/agent-ready/#KeyPrinciple>,
@@ -76,29 +81,29 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 :KeyConcept a owl:Class ;
     rdfs:label "Key Concept"@en ;
     rdfs:comment "A named concept central to an analyzed source document. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:seeAlso :KeyPrinciple ;
     owl:equivalentClass <https://www.linkedin.com/pulse/libraries-ai-infrastructure-african-edition-stuart-michael-edelenbos-bsage#KeyConcept>,
         <https://content.martechday.com/state-of-martech-2026.pdf#KeyConcept> .
 
 :ComparisonDimension a owl:Class ;
     rdfs:label "Comparison Dimension"@en ;
-    rdfs:comment "One axis of a structured comparison between two or more technologies, products, or approaches. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:comment "One axis of a structured comparison between two or more technologies, products, or approaches. Canonical corpus IRI; 2 disjoint re-mints aligned. Correctly REUSED (not re-minted) via bound prefix in buzz-block-thesis-value-prop, 2026-07-23 — see cross-document-local-term-reuse.ttl step 3 exemplar."@en ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentClass <https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#ComparisonDimension>,
         <https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing/#ComparisonDimension> .
 
 :ArchitectureConcept a owl:Class ;
     rdfs:label "Architecture Concept"@en ;
     rdfs:comment "A named architectural concept or pattern discussed in an analyzed source. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentClass <https://thinkingmachines.ai/blog/interaction-models/#ArchitectureConcept>,
         <https://www.linkedin.com/posts/tonyseale_every-c-suite-is-arriving-at-the-same-uncomfortable-share-7465730567645315073-O_VW#ArchitectureConcept> .
 
 :ArchitecturalLayer a owl:Class ;
     rdfs:label "Architectural Layer"@en ;
     rdfs:comment "One layer in a layered architecture decomposition. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:seeAlso :ArchitectureConcept ;
     owl:equivalentClass <https://diginomica.com/who-pays-agentic-ai-enterprise-budget-problem-no-vendor-will-address#ArchitecturalLayer>,
         <https://www.lassila.org/publications/2001/SciAm.pdf#ArchitecturalLayer> .
@@ -106,14 +111,14 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 :UseCase a owl:Class ;
     rdfs:label "Use Case"@en ;
     rdfs:comment "A concrete usage scenario described in an analyzed source. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentClass <https://x.com/trq212/status/2052809885763747935#UseCase>,
         <https://www.lassila.org/publications/2001/SciAm.pdf#UseCase> .
 
 :Industry a owl:Class ;
     rdfs:label "Industry"@en ;
     rdfs:comment "An industry sector referenced in labor-TAM / automation-readiness analyses. Canonical corpus IRI; 3 disjoint re-mints aligned. Domain class for :hasLaborTAM and :hasAutomationReadiness."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentClass <https://www.linkedin.com/posts/tonyseale_did-you-start-building-your-ontology-as-a-share-7463353332565356545-jY54#Industry>,
         <https://www.linkedin.com/pulse/sap-reinvents-its-ai-strategy-portfolio-autonomous-enterprise-smith-riqxc/#Industry>,
         <https://moderndata101.substack.com/p/the-semantic-medallion#Industry> .
@@ -121,7 +126,7 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 :AgentSkill a owl:Class ;
     rdfs:label "Agent Skill"@en ;
     rdfs:comment "A packaged, reusable AI-agent capability (SKILL.md-style unit). Canonical corpus IRI; 2 disjoint re-mints aligned. Related to but distinct from irefde:Skill (the FDE/IRE lifecycle-governed enterprise skill artifact) — linked via rdfs:seeAlso pending an explicit subclass decision."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:seeAlso irefde:Skill ;
     owl:equivalentClass <https://www.linkedin.com/pulse/china-built-super-app-us-may-build-super-agent-jaya-gupta-3ncoc/#AgentSkill>,
         <https://linkeddata.uriburner.com/DAV/demos/daas/youid-self-sovereign-identity-claude_sonnet_4_6-1.ttl#AgentSkill> .
@@ -129,14 +134,14 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 :MultiModelDatabase a owl:Class ;
     rdfs:label "Multi-Model Database"@en ;
     rdfs:comment "A database engine supporting multiple data models (relational, graph, document, etc.) in one core. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentClass <https://www.linkedin.com/pulse/china-built-super-app-us-may-build-super-agent-jaya-gupta-3ncoc/#MultiModelDatabase>,
         <https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#MultiModelDatabase> .
 
 :Event a owl:Class ;
     rdfs:label "Event"@en ;
     rdfs:comment "A scheduled event (conference, meetup, session). Canonical corpus IRI; 2 disjoint re-mints aligned. Consider schema:Event directly in future documents instead of any local class."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:subClassOf <http://schema.org/Event> ;
     owl:equivalentClass <https://x.com/yumi_willems/status/2053256485124137228#Event>,
         <https://x.com/michelleefang/status/2053944163817898317#Event> .
@@ -144,7 +149,7 @@ irefde2:createdFromTacitKnowledge owl:equivalentProperty irefde:createdFromTacit
 :EventDay a owl:Class ;
     rdfs:label "Event Day"@en ;
     rdfs:comment "One day within a multi-day event program. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:subClassOf :Event ;
     owl:equivalentClass <https://x.com/yumi_willems/status/2053256485124137228#EventDay>,
         <https://x.com/michelleefang/status/2053944163817898317#EventDay> .
@@ -156,6 +161,16 @@ karp:CriticalPerspective a rdfs:Class ;
     rdfs:comment "A critical-response entry contesting or reframing an analyzed source's thesis. Minted once in the theCUBE Research Karp analysis KG and correctly REUSED by IRI (not re-minted) in reverse-information-paradox — the exemplar pattern this registry exists to enforce. Companion property: karp:respondsTo."@en ;
     rdfs:isDefinedBy <https://linkeddata.uriburner.com/DAV/demos/daas/karp-frontier-models-enterprise-ai-claude_sonnet_5-1.ttl> .
 
+:ValueProposition a owl:Class ;
+    rdfs:label "Value Proposition"@en ;
+    rdfs:comment "A concrete claimed benefit a product/protocol/approach delivers over an incumbent status quo. Distinct from :KeyPrinciple (a stated design constraint the source itself asserts it designed against) — a ValueProposition is the analysis layer's inference of what that principle cashes out to in practice. Minted 2026-07-23 in buzz-block-thesis-value-prop; no prior corpus equivalent found at mint time (checked against KeyPrinciple, KeyConcept, ComparisonDimension, ArchitectureConcept, UseCase) — future documents needing this concept should REUSE this IRI, not re-mint."@en ;
+    rdfs:isDefinedBy <https://linkeddata.uriburner.com/DAV/demos/daas/buzz-block-thesis-value-prop-claude_sonnet_5-1.ttl> .
+
+:OpenQuestion a owl:Class ;
+    rdfs:label "Open Question"@en ;
+    rdfs:comment "A risk, gap, or unresolved design tension surfaced by comparing a source's stated thesis/principles against its own documented current state (e.g. a README's 'being wired up' / 'pending' columns). Minted 2026-07-23 in buzz-block-thesis-value-prop; no prior corpus equivalent found at mint time — future documents needing this concept should REUSE this IRI, not re-mint."@en ;
+    rdfs:isDefinedBy <https://linkeddata.uriburner.com/DAV/demos/daas/buzz-block-thesis-value-prop-claude_sonnet_5-1.ttl> .
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # ── 3. Generator-Template Analysis Properties (cross-document re-mints) ────────
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -163,7 +178,7 @@ karp:CriticalPerspective a rdfs:Class ;
 :hasLaborTAM a rdf:Property ;
     rdfs:label "has labor TAM"@en ;
     rdfs:comment "Links an Industry to the total addressable market of labor exposed to AI automation within it. Canonical corpus IRI; 4 disjoint re-mints aligned (including the hasLaborTam casing variant)."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:domain :Industry ;
     rdfs:range xsd:string ;
     owl:equivalentProperty <https://www.linkedin.com/posts/tonyseale_did-you-start-building-your-ontology-as-a-share-7463353332565356545-jY54#hasLaborTAM>,
@@ -174,7 +189,7 @@ karp:CriticalPerspective a rdfs:Class ;
 :hasAutomationReadiness a rdf:Property ;
     rdfs:label "has automation readiness"@en ;
     rdfs:comment "Links an Industry to an assessment of how ready its workflows are for AI automation. Canonical corpus IRI; 4 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     rdfs:domain :Industry ;
     rdfs:range xsd:string ;
     owl:equivalentProperty <https://www.linkedin.com/posts/tonyseale_did-you-start-building-your-ontology-as-a-share-7463353332565356545-jY54#hasAutomationReadiness>,
@@ -185,21 +200,21 @@ karp:CriticalPerspective a rdfs:Class ;
 :dependsOn a rdf:Property ;
     rdfs:label "depends on"@en ;
     rdfs:comment "Links a component or layer to another it depends on. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentProperty <https://moderndata101.substack.com/p/the-semantic-medallion#dependsOn>,
         <https://www.lassila.org/publications/2001/SciAm.pdf#dependsOn> .
 
 :enablesCapability a rdf:Property ;
     rdfs:label "enables capability"@en ;
     rdfs:comment "Links a technology or layer to a capability it enables. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentProperty <https://moderndata101.substack.com/p/the-semantic-medallion#enablesCapability>,
         <https://www.lassila.org/publications/2001/SciAm.pdf#enablesCapability> .
 
 :demonstrates a rdf:Property ;
     rdfs:label "demonstrates"@en ;
     rdfs:comment "Links an example or case to the principle it demonstrates. Canonical corpus IRI; 2 disjoint re-mints aligned."@en ;
-    rdfs:isDefinedBy <> ;
+    rdfs:isDefinedBy :ontology ;
     owl:equivalentProperty <https://leestack.dev/writing/nasa-rules-for-code-that-cant-fail#demonstrates>,
         <https://lilyraynyc.substack.com/p/the-ai-slop-loop#demonstrates> .
 
