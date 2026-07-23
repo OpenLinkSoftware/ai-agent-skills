@@ -2089,3 +2089,19 @@ CORRECTED PROCEDURE (supersedes Step 150 for the 'existing canonical term found'
 Applied retroactively to buzz-block-thesis-value-prop 2026-07-23: :KeyPrinciple instances retyped to `kpx:KeyPrinciple` (prefix bound to thinkingmachines.ai/blog/interaction-models/#), :ComparisonDimension instances retyped to `cdx:ComparisonDimension` (prefix bound to the neo4j.com blog post), both local class declarations removed, and the registry equivalentClass/re-mint-count additions from Step 150 reverted since they no longer describe a real re-mint. :ValueProposition and :OpenQuestion (genuinely new, per Step 150's other branch) were left as-is — locally minted and registered for future reuse, which was already correct."""@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <../preferences.ttl#step-ontologyRegistryWriteBack>, <howto/cross-document-local-term-reuse.ttl>, <entities/ontology-terms.ttl> .
+
+# ── Step 154: owl:Ontology Must Be Its Own Distinct Entity — Never a Second rdf:type Conflated Onto an Existing Resource ──
+
+:step-ontologyIsDistinctEntity a schema:HowToStep ;
+    schema:position 154 ;
+    schema:name "rdfs:isDefinedBy's range is owl:Ontology — but the fix is a SEPARATE owl:Ontology resource, not typing the document root as owl:Ontology in addition to its existing type"@en ;
+    schema:text """User caught this in two steps while reviewing buzz-block-thesis-value-prop, 2026-07-23. Step 1: locally-minted classes (:ValueProposition, :OpenQuestion, :hasStatusQuo, :hasBuzzApproach) had NO rdfs:isDefinedBy at all — added, but pointed at the document's own `<>` entity (typed schema:AnalysisNewsArticle). User: 'an owl:Ontology is the range of rdfs:isDefinedBy. That's an important rule that wasn't applied.' First fix attempt (WRONG): changed `<> a schema:AnalysisNewsArticle` to `<> a schema:AnalysisNewsArticle, owl:Ontology` — satisfies the range constraint technically but conflates two distinct entity kinds onto one IRI. User, interrupting immediately: 'An Ontology is its own entity type i.e., instance of owl:Ontology' — rejecting the conflation outright.
+
+RULE: an owl:Ontology is never a second rdf:type bolted onto a resource that is already something else (a schema:CreativeWork document, a schema:AnalysisNewsArticle article, etc.). It must be modeled as its OWN distinct resource:
+  1. Mint a separate IRI (e.g. `:ontology`, a fragment on the same document) typed SOLELY `a owl:Ontology` (plus rdfs:label/rdfs:comment describing what TBox fragment it covers).
+  2. Link it from the containing document via `schema:hasPart :ontology` (or equivalent) — the document is the human-readable container; the ontology is the machine-consumable TBox fragment. These are different things even when co-located in the same file.
+  3. Point every locally-minted class/property's `rdfs:isDefinedBy` at the DISTINCT ontology resource, never at the document root.
+
+Applied to two documents same day: buzz-block-thesis-value-prop-claude_sonnet_5-1.ttl (4 local terms retargeted from `<>` to `:ontology`) and the corpus registry itself, entities/ontology-terms.ttl (which had the IDENTICAL conflation — `<> a schema:CreativeWork, owl:Ontology` — caught retroactively during this same correction pass; un-conflated the same way, 16 rdfs:isDefinedBy triples retargeted to a new `:ontology` resource). Validated via rdflib both times: exactly one owl:Ontology instance per file, zero remaining isDefinedBy triples pointing at a non-owl:Ontology-typed document root."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <entities/ontology-terms.ttl>, <../howto/cross-document-local-term-reuse.ttl>, <../preferences.ttl#step-ontologyReuseNotWriteBack> .
