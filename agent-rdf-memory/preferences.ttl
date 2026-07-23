@@ -1882,13 +1882,14 @@ Certificate paths:
 
 1. Resolve credentials root (step-resolveCredentialsRoot)
 2. Verify WebID-TLS credentials (step-verifyCredentials)
-3. Emit identity report with verified badges
+3. RE-READ the output template in agent-identity.ttl (:workExample-triggerAResponse) before composing the report
+4. Emit identity report with verified badges per the template format
 
 This step establishes WHO the agent is. It does NOT set identity mode — that happens in step-identityMode after preferences establishment.
 
 OUTPUT: Identity verified (or unverified with reason), delegation status noted (informational only)."""@en ;
     onto:hasTrigger onto:triggerSessionStart ;
-    rdfs:seeAlso <howto/identity-establishment.ttl> .
+    rdfs:seeAlso <howto/identity-establishment.ttl>, <howto/agent-identity.ttl> .
 
 # ── Step 142: Preferences Establishment ────────────────────────────────────────
 
