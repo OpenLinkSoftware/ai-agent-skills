@@ -782,6 +782,14 @@ next_row: ;
       justify-content: space-between;
       align-items: center;
     }
+    .footer-copy {
+      display: grid;
+      gap: 0.28rem;
+      max-width: 880px;
+      line-height: 1.45;
+    }
+    .footer-primary { color: var(--fg); font-weight: 650; }
+    .footer-provenance { color: var(--muted); }
     .footer-links {
       display: flex;
       flex-wrap: wrap;
@@ -789,6 +797,39 @@ next_row: ;
       align-items: center;
     }
     .footer-links a { font-weight: 650; }
+    .virtuoso-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.06rem;
+      padding: 0.55rem 1.35rem;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      background: var(--panel);
+      box-shadow: 0 4px 14px rgba(21, 153, 211, 0.22);
+      text-decoration: none !important;
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+    .virtuoso-badge:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(21, 153, 211, 0.30); text-decoration: none; }
+    .virtuoso-badge .vb-powered { font-size: 0.56rem; font-weight: 650; letter-spacing: 0.14em; text-transform: lowercase; color: var(--muted); }
+    .virtuoso-badge .vb-name { font-size: 0.95rem; font-weight: 850; letter-spacing: 0.02em; color: var(--accent); }
+    /* Sidebar panel is always dark; pin its text to light ink so both themes stay readable. */
+    .panel { color: #d9e6f0; }
+    .panel h3, .facet-title, .filter-label, .filter-note, ul.archive .a-date { color: #9fb4c4; }
+    .panel h3 { border-bottom-color: rgba(92, 201, 232, 0.22); }
+    ul.archive li { border-bottom-color: rgba(92, 201, 232, 0.14); }
+    ul.archive a, .facet-clear { color: var(--openlink-cyan); }
+    .facet-box { border-top-color: rgba(92, 201, 232, 0.22); }
+    .facet-option { color: #e8f2fa; border-color: rgba(92, 201, 232, 0.26); background: rgba(92, 201, 232, 0.07); }
+    .facet-name { color: #e8f2fa; }
+    .facet-option:hover { border-color: rgba(92, 201, 232, 0.5); background: rgba(92, 201, 232, 0.16); }
+    .facet-count { color: var(--openlink-cyan); background: rgba(92, 201, 232, 0.16); }
+    .facet-option.is-active { border-color: var(--openlink-cyan); background: linear-gradient(90deg, rgba(92, 201, 232, 0.20), rgba(92, 201, 232, 0.05)); box-shadow: inset 3px 0 0 var(--openlink-cyan); }
+    .facet-option.is-active .facet-count { background: var(--openlink-cyan); color: #07131d; }
+    .filter-submit { background: var(--openlink-blue); border-color: rgba(92, 201, 232, 0.5); }
+    .filter-reset { background: rgba(92, 201, 232, 0.14); color: var(--openlink-cyan); border-color: rgba(92, 201, 232, 0.35); }
   </style>
   <script>
   (function () {
@@ -959,7 +1000,14 @@ next_row: ;
 
   <footer class="colophon" aria-label="Weblog metadata">
     <div class="footer-inner">
-      <span>Published from <a href="/data/html/" target="_top" rel="noopener noreferrer">WebDAV Folder</a>.</span>
+      <div class="footer-copy">
+        <span class="footer-primary">Published from <a href="/data/html/" target="_top" rel="noopener noreferrer">WebDAV Folder</a> using <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Virtuoso</a> Server Pages over Virtuoso WebDAV.</span>
+        <span class="footer-provenance">Weblog engine by <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/weblog-from-webdav" target="_blank" rel="noopener noreferrer">weblog-from-webdav</a> and GPT-5 Chat Codex on behalf of <a href="https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this" target="_blank" rel="noopener noreferrer">Kingsley Idehen</a>, operated by <a href="https://www.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Software</a>.</span>
+      </div>
+      <a class="virtuoso-badge" href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer" title="Powered by OpenLink Virtuoso" aria-label="Powered by OpenLink Virtuoso">
+        <span class="vb-powered">powered by</span>
+        <span class="vb-name">Virtuoso</span>
+      </a>
       <nav class="footer-links" aria-label="Subscription links">
         <a href="/weblog/?feed=rss">RSS</a>
         <a href="/weblog/?feed=atom">Atom</a>

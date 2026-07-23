@@ -1,0 +1,32 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Fixed-Background UI Regions: Pin Colors, Never Theme Variables"@en ;
+    schema:description "How to style UI regions whose background does not switch with the light/dark theme, so text remains readable in both modes."@en ;
+    schema:dateCreated "2026-07-23T00:00:00Z"^^xsd:dateTime ;
+    schema:step :step1-identify, :step2-pin, :step3-audit-both-themes, :step4-scope-overrides ;
+    rdfs:seeAlso <../preferences.ttl#step-fixedBackgroundColorPinning>, <ui-ux-expert-persona.ttl>, <openlink-brand-color-scheme.ttl> .
+
+:step1-identify a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Identify fixed-background regions before styling their contents"@en ;
+    schema:text "A region is fixed-background when its background is a literal color/gradient that appears in :root and is not overridden by html[data-theme] or prefers-color-scheme rules. Example: the weblog sidebar .panel uses linear-gradient(180deg, rgba(12,29,43,.94), rgba(8,20,31,.94)) in every theme."@en .
+
+:step2-pin a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Pin all text, border, and accent colors inside such regions to literal values"@en ;
+    schema:text "Never use var(--text), var(--muted), var(--border), or any variable that flips per theme, inside a fixed-background region — it will break contrast in exactly one theme. Use literal colors chosen for that background, or fixed brand variables that never flip (e.g. --openlink-cyan, --openlink-blue)."@en ;
+    schema:workExample "Weblog panel fix 2026-07-23: .panel text #d9e6f0; muted labels/dates #9fb4c4; facet chip names #e8f2fa on rgba(92,201,232,0.07) fills; counts/links var(--openlink-cyan); active facet count inverts to cyan background with #07131d ink."@en .
+
+:step3-audit-both-themes a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Audit BOTH themes whenever a fixed-background region is styled or edited"@en ;
+    schema:text "Testing only the currently active theme masks the failure: dark ink on a dark fixed panel is invisible only in light theme (and vice versa). The URIBurner DaaS weblog facet defect was latent from initial delivery because it was only ever previewed in dark theme."@en .
+
+:step4-scope-overrides a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Scope the pinned overrides to the fixed region; leave theme-following areas on variables"@en ;
+    schema:text "Add a clearly commented override block scoped to the fixed region's selectors (e.g. '.panel', '.facet-*', 'ul.archive') placed after the theme-variable rules so it wins in the cascade. Content areas whose backgrounds DO switch with the theme must keep using theme variables."@en .
