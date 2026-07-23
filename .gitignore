@@ -56,3 +56,14 @@ zii6taXt
 # Stray working files in repo root (scripts and RDF docs belong elsewhere)
 /*.py
 /*.ttl
+
+# Root of the repo should only contain zip files and folders — ignore every
+# root-level dotfile by default except .gitignore itself and sample/template
+# files (e.g. .env.sample). New tool config dirs no longer need an explicit
+# entry above; this is the durable catch-all.
+/.*
+!/.gitignore
+!/*sample*
+
+# Test run artifacts (Playwright etc.)
+/test-results/
