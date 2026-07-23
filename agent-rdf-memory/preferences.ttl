@@ -125,9 +125,11 @@
         :step-noMemoryMdWrite, :step-preferencesSparse, :step-secretEchoRedaction,
         :step-preferencesPresentationFormat,
         :step-sessionLogReconciliation,
-        :step-semanticSessionBootstrap, :step-symbolicLogOffloading,
+        :step-symbolicLogOffloading,
         :step-resolvableIriPayloadPresentation,
-        :step-howtoAuthoringStructure .
+        :step-howtoAuthoringStructure,
+        :step-identityEstablishment, :step-preferencesEstablishment,
+        :step-identityMode, :step-progressiveContextLoading .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -549,8 +551,20 @@
 
 :step-curlAuth a schema:HowToStep ;
     schema:position 32 ;
-    schema:name "Elicit user confirmation before optionally using authenticated curl with PKCS#12/PEM certificate and/or On-Behalf-Of"@en ;
-    rdfs:seeAlso <howto/session-governance.ttl> .
+    schema:name "Read identity mode from session state to determine curl authentication — agent-only or delegation"@en ;
+    schema:text """When constructing a curl command against a protected or identity-aware endpoint:
+
+1. READ :session onto:identityMode from session TTL.
+2. If :identityModeAgentOnly → use agent cert alone (no On-Behalf-Of header).
+3. If :identityModeDelegation → use agent cert + On-Behalf-Of header with user's WebID.
+4. If identity mode is unset → elicit from user which mode to use.
+
+CRITICAL: Identity mode is established at session start via step-identityMode (position 143). Delegation corroboration does NOT automatically set delegation mode — it must be explicitly asserted by the user.
+
+Certificate paths:
+- Agent: {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/cert.p12
+- User (for delegation): {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12"""@en ;
+    rdfs:seeAlso <howto/session-governance.ttl>, <howto/identity-mode.ttl> .
 
 # ── Step 22: Stripe Sandbox Card ─────────────────────────────────────────────
 
@@ -1611,10 +1625,9 @@
 
 :step-semanticSessionBootstrap a schema:HowToStep ;
     schema:position 110 ;
-    schema:name "On session start, analyze the prompt for key concepts and load related session logs as bootstrap context"@en ;
-    schema:text "At session start, extract key concepts from the user's prompt and load the 3–5 most semantically relevant prior session logs as bootstrap context."@en ;
-    onto:hasTrigger onto:triggerSessionStart ;
-    rdfs:seeAlso <howto/session-governance.ttl> .
+    schema:name "DEPRECATED — replaced by step-progressiveContextLoading (position 144)"@en ;
+    schema:text "This step is deprecated. Prior session context is now loaded per task via step-progressiveContextLoading (position 144), not at session start. See howto/progressive-context-loading.ttl for the new procedure."@en ;
+    rdfs:seeAlso <howto/progressive-context-loading.ttl> .
 
 :topicFilesystemPathVerification a schema:Thing ;
     schema:name "Filesystem Path Verification Gate"@en ;
@@ -1846,3 +1859,202 @@
     schema:text "For new standalone scripts, default to Python and use JavaScript/Node only when explicitly required."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/python-default-js-fallback.ttl> .
+
+# ── Step 140: Diagram Artifacts Route to a visualizations/ Subfolder of the Model Output Root ──
+
+:step-visualizationsFolder a schema:HowToStep ;
+    schema:position 140 ;
+    schema:name "Generated diagram artifacts (draw.io, Mermaid exports, etc.) go in a visualizations/ subfolder under the model-specific output root"@en ;
+    schema:text "Standalone diagram files (.drawio/mxGraph XML, exported Mermaid, etc.) are routed to {model-root}/visualizations/, a sibling of rdf/, md/, webpages/, saved-prompts/, and vsps/ under the output root resolved by artifact-routing step-outputDirs."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/artifact-routing.ttl> .
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Session Bootstrap Protocol (positions 141-144) ────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ── Step 141: Identity Establishment ───────────────────────────────────────────
+
+:step-identityEstablishment a schema:HowToStep ;
+    schema:position 141 ;
+    schema:name "BLOCKING GATE — establish identity at session start: resolve credentials, verify WebID-TLS, emit identity report"@en ;
+    schema:text """At session start, after memory loading and model identity resolution, establish identity:
+
+1. Resolve credentials root (step-resolveCredentialsRoot)
+2. Verify WebID-TLS credentials (step-verifyCredentials)
+3. RE-READ the output template in agent-identity.ttl (:workExample-triggerAResponse) before composing the report
+4. Emit identity report with verified badges per the template format
+
+This step establishes WHO the agent is. It does NOT set identity mode — that happens in step-identityMode after preferences establishment.
+
+OUTPUT: Identity verified (or unverified with reason), delegation status noted (informational only)."""@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    rdfs:seeAlso <howto/identity-establishment.ttl>, <howto/agent-identity.ttl> .
+
+# ── Step 142: Preferences Establishment ────────────────────────────────────────
+
+:step-preferencesEstablishment a schema:HowToStep ;
+    schema:position 142 ;
+    schema:name "Confirm behavioral contract loaded — one-time report at session start"@en ;
+    schema:text """At session start, after identity establishment, confirm the behavioral contract:
+
+1. Count standing instructions in preferences.ttl
+2. Note recent additions (last 3-5 steps)
+3. Confirm memory load path (file reads or SPARQL)
+4. Emit brief confirmation
+
+This is a one-time report. Updated editions only on explicit user request.
+
+OUTPUT: Preferences confirmed (instruction count, recent additions, load path)."""@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    rdfs:seeAlso <howto/preferences-establishment.ttl> .
+
+# ── Step 143: Identity Mode ───────────────────────────────────────────────────
+
+:step-identityMode a schema:HowToStep ;
+    schema:position 143 ;
+    schema:name "Set identity mode — default agent-only; delegation only if explicitly asserted"@en ;
+    schema:text """At session start, after preferences establishment, set identity mode:
+
+DEFAULT: agent-only (no delegation)
+:session onto:identityMode :identityModeAgentOnly .
+
+OVERRIDE: Only if user explicitly asserts delegation:
+- "use delegation"
+- "my credentials"
+- "on behalf of"
+- Any explicit delegation request
+
+CRITICAL: Delegation corroboration is INFORMATIONAL ONLY — it does NOT automatically set delegation mode. Identity mode can be overridden per task.
+
+DOWNSTREAM: step-curlAuth and step-remoteWebdavUpload read :session onto:identityMode to determine certificate and header usage."""@en ;
+    onto:hasTrigger onto:triggerSessionStart ;
+    rdfs:seeAlso <howto/identity-mode.ttl> .
+
+# ── Step 144: Progressive Context Loading ──────────────────────────────────────
+
+:step-progressiveContextLoading a schema:HowToStep ;
+    schema:position 144 ;
+    schema:name "Load prior session context per task — progressive disclosure, not session-start bootstrap"@en ;
+    schema:text """Load prior session context PER TASK, not at session start:
+
+TRIGGERS for context loading:
+- Task references a specific prior session or artifact
+- Task involves correcting or updating prior work
+- Task requires accumulated patterns or corrections
+- User explicitly asks to check prior sessions
+
+PROCEDURE:
+1. Assess if task needs prior context (step-assessContextNeed)
+2. If yes, load 3-5 most relevant sessions (step-loadRelevantSessions)
+3. Record what was loaded (step-recordContextLoad)
+
+This replaces the old step-semanticSessionBootstrap which loaded context at session start. Progressive disclosure saves tokens and improves relevance."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerNamedWorkflow ;
+    rdfs:seeAlso <howto/progressive-context-loading.ttl> .
+
+# ── Step 145: Full Skills Contract Applies Regardless of Request Phrasing ──────
+
+:step-fullSkillsContractAlwaysApplies a schema:HowToStep ;
+    schema:position 145 ;
+    schema:name "BLOCKING GATE — RDF+HTML collection requests always get the full kg-generator/rdf-infographic-skill contract, not a lighter cut"@en ;
+    schema:text """Corrected 2026-07-22: a Buzz/Block/Jack-Dorsey thesis-and-value-prop meshup was delivered with only 5 FAQ items, 6 glossary terms, no HowTo section, and plain (non-resolver) hrefs for entity mentions in body prose — because the request said 'RDF-Turtle and HTML collection... styled as thesis and value prop analysis' rather than 'infographic', which was wrongly read as license to scope down.
+
+RULE: softer request phrasing (no literal 'infographic' or 'KG explorer') does NOT reduce the contract. Any RDF+HTML(+MD) collection requires:
+  1. FAQ section: >= 10 schema:Question entities, each with schema:parentItem back to the schema:FAQPage.
+  2. Glossary: >= 10 schema:DefinedTerm entities in the schema:DefinedTermSet.
+  3. A schema:HowTo section with schema:HowToStep entities whenever the source material contains ANY procedural content (setup/quick-start commands, configuration steps, etc.) — do not omit it just because the user didn't ask for a 'howto' by name.
+  4. Every entity heading or mention in BODY PROSE (not just the footer) must be a resolver-wrapped hyperlink built from the companion TTL's own entity IRIs — thesis quotes, principle/value-prop/open-question headings, and inline source citations all qualify. Footer/hero-meta tool-attribution links (kg-generator, rdf-infographic-skill, URIBurner, Virtuoso, LLM homepage) remain the documented exception and use canonical homepages, not the resolver.
+
+BLOCKING VERIFICATION before calling any such deliverable done:
+  grep -c 'describe/?url=%23' file.html   # MUST be 0 (bare-fragment hrefs)
+  grep -oc 'linkeddata.uriburner.com/describe/?url=' file.html   # should be a large, non-trivial count spanning body sections, not just the footer"""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/full-skills-contract-always-applies.ttl>, <howto/faq-entity-iri-gate.ttl>, <howto/entity-href-companion-ttl.ttl> .
+
+# ── Step 146: Structural Contract Details — FAQ Accordion vs. Glossary Index vs. Nav Fade ──
+
+:step-structuralContractDetails a schema:HowToStep ;
+    schema:position 146 ;
+    schema:name "BLOCKING GATE — three specific rdf-infographic-skill/SKILL.md structural requirements missed on first pass, caught by user review (2026-07-23)"@en ;
+    schema:text """A single Buzz meshup document needed three separate corrections after delivery because the exact structural contract (Core Architecture § Document Structure, and the Navigation Control section) in rdf-infographic-skill/SKILL.md was not re-read before building those sections:
+
+1. FAQ MUST be an accordion with smooth expand/collapse (SKILL.md item 7: 'FAQ Accordion — Common questions with smooth expand/collapse'). The exact markup is in howto/faq-entity-iri-gate.ttl step-writeHtmlHref: `<div class="faq-q" role="button" tabindex="0">` wrapping the resolver-linked question `<a>` (with `onclick="event.stopPropagation()"`) plus a chevron indicator — NOT a native `<details>/<summary>` disclosure (first delivered), and NOT `<a>` nested inside `<button>` (the anti-pattern the same file warns against, found even in an older reference file). Toggle via a `toggleFaq(el)` JS function that adds/removes an `.open` class on the parent `.faq-item`; CSS uses `max-height` transition on a sibling `.faq-a` panel, not the `hidden` attribute.
+
+2. Glossary is SKILL.md item 8: 'Glossary/Definitions — Interactive entity index with external links' — NOT an accordion. It does not need expand/collapse. 'Interactive' here means resolver-linked term names, best rendered as a card grid (`.gloss-card` — term name as a resolver-wrapped `<h4><a>`, definition as plain text below), not a toggle widget. Do not add accordion behavior to the glossary by false analogy with the FAQ fix.
+
+3. The floating nav MUST implement a 2-minute inactivity fade with a dynamically created reactivation marker (SKILL.md 'Navigation Control' section: opacity 0 + pointer-events none after 2 minutes of no mousemove/keydown/scroll/click/touchstart; a small ☰ marker at the same top/right position, one z-index above, becomes visible; any activity or clicking the marker resets the timer and restores the nav). This requires a SECOND IIFE separate from the drag+collapse-toggle IIFE — building only the drag+collapse IIFE (as first delivered) silently omits this required behavior with no visible symptom until a user waits two minutes.
+
+Root cause common to all three: sections were built from memory of a similar prior document rather than re-reading the exact Core Architecture / Navigation Control text in rdf-infographic-skill/SKILL.md before writing that section's HTML/CSS/JS."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/full-skills-contract-always-applies.ttl>, <howto/faq-entity-iri-gate.ttl> .
+
+# ── Step 147: Redundant-Lede Check Re-Applies on Every Edit Touching That Paragraph ──
+
+:step-redundantLedeRecheckOnEveryEdit a schema:HowToStep ;
+    schema:position 147 ;
+    schema:name "BLOCKING GATE — re-run the heading-redundancy test every time a lede paragraph is touched, not just once at delivery"@en ;
+    schema:text """Corrected 2026-07-23 (third time on the same document): the FAQ lede 'Eighteen questions this meshup answers, each backed by a schema:Question entity in the companion RDF — click a question to look up its entity.' was flagged as redundant with its self-explanatory 'FAQ' heading, fixed, then SILENTLY REINTRODUCED across several follow-up edits — each time new FAQ/glossary items were added, the count number ('Ten' -> 'Eleven' -> ... -> 'Eighteen') was mechanically updated in place without re-asking whether the sentence should exist at all. The same 'Each X links to its RDF :Y entity' / 'click a term to look up its entity' boilerplate had also crept back into the Principles, Value-props, and Open-questions ledes.
+
+ROOT CAUSE: treating a lede paragraph as a template to patch (update the count, update the label) rather than re-evaluating it from scratch against preferences.ttl step-fullSkillsContractAlwaysApplies's redundancy principle every time it is touched — including edits that only change a number or a count, not just edits that rewrite the sentence.
+
+RULE: any time a lede/subtitle paragraph is edited for ANY reason (including a mechanical count update after adding new FAQ/glossary/list items), re-run the test: does this sentence say something the heading itself doesn't already convey? If not — including generic UI-affordance boilerplate like 'click X to look up its entity' repeated near-verbatim across multiple sections — cut it, don't just update the number inside it. Sections already correctly emptied (HowTo, Comparison) are the reference: heading alone, no lede line, when the heading is self-explanatory."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/full-skills-contract-always-applies.ttl> .
+
+# ── Step 148: Nav Panel Resize + Manual-Hide Added to rdf-infographic-skill/SKILL.md Contract ──
+
+:step-navResizeAndManualHide a schema:HowToStep ;
+    schema:position 148 ;
+    schema:name "Nav panel MUST be resizable when expanded AND manually hideable via the same fade/marker path — added to rdf-infographic-skill/SKILL.md 2026-07-23 at user's explicit request"@en ;
+    schema:text """User-requested contract update, applied directly to rdf-infographic-skill/SKILL.md (Core Architecture item 5 already said 'resizable' but gave no implementation; Navigation Control Best Practices and the Interactive Components summary both said 'no separate close/restore elements' with no resize implementation guidance and no manual-hide concept at all):
+
+1. RESIZE: native CSS `resize:both; overflow:auto;` on the nav panel, active only when expanded (`resize:none` while `.collapsed`). Must raise the expanded max-height/max-width caps (e.g. from a fixed 460px to something like `max-height:80vh`) — a tight max-height silently blocks the native resize handle from doing anything even though `resize:both` is set.
+
+2. MANUAL HIDE: a small icon in the header bar next to the existing collapse toggle (+/−) that calls the SAME `fadeOut()` function already built for the 2-minute inactivity timer — exposed via e.g. `window.__navFadeOut = fadeOut` inside the fade IIFE, called from the hide button's click handler in the drag/toggle IIFE. This is a manual TRIGGER for the existing fade/restore path, not a second independent close/restore control — restoring still happens through the single ☰ reactivation marker either way. This reconciles the new manual-hide requirement with the pre-existing 'no separate close/restore elements' rule: that rule prohibits a second, different restore mechanism, not a second way to trigger the one that already exists.
+
+BLOCKING GOTCHA: the hide button's click handler MUST call `event.stopPropagation()` before invoking fadeOut() — the existing inactivity-fade IIFE attaches a `document.addEventListener('click', reset)` global listener (any click anywhere resets the fade timer and restores the nav), so without stopPropagation the hide button's own click bubbles to that document listener and immediately undoes the fade it just triggered.
+
+Verified live 2026-07-23 on the Buzz/Block document: resize handle appears at the panel's bottom-right corner when expanded and is absent when collapsed; clicking the hide icon fades the nav immediately without being undone by the global click-reset listener; clicking the resulting ☰ marker restores it."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <../rdf-infographic-skill/SKILL.md> .
+
+# ── Step 149: Manual Nav-Hide Must Ignore Ambient Activity Until Marker Is Clicked ──
+
+:step-manualHideMustStick a schema:HowToStep ;
+    schema:position 149 ;
+    schema:name "BLOCKING GATE — manual nav-hide silently undone by the next mousemove/scroll unless gated by a manuallyHidden flag; caught by user report 'click on [x] doesn't stick' 2026-07-23"@en ;
+    schema:text """The Step 148 manual-hide fix (stopPropagation on the hide button's own click, so it doesn't immediately re-trigger the document-level activity listener in the SAME tick) was necessary but not sufficient. The inactivity-fade IIFE's reset() function is also attached to document-level mousemove/scroll/keydown/touchstart listeners so the nav restores after the user becomes active again post-inactivity-fade — correct for THAT case. But reset() has no way to distinguish 'nav faded because the user was idle for 2 minutes' from 'nav faded because the user just clicked hide' — so the very next ambient mouse movement (not even a click) silently restored the nav, making the manual-hide button look non-functional ('doesn't stick') even though the click itself worked perfectly.
+
+FIX: add a `manuallyHidden` boolean in the closure shared by fadeOut/reset. The manual-hide trigger (`window.__navFadeOut`) sets `manuallyHidden = true` before calling fadeOut(). reset() checks `if (manuallyHidden) return;` as its first line — so ambient activity becomes a no-op while manually hidden. Only the reactivation marker's OWN click handler (a separate `restoreFromMarker()` function, not the generic activity-triggered `reset`) clears `manuallyHidden = false` and then calls reset() for real. The auto-fade timer path (`setTimeout(fadeOut, TIMEOUT)`) never sets the flag, so its normal any-activity-restores behavior is untouched.
+
+Verified live 2026-07-23: clicked hide in collapsed nav state, then exercised real hover + scroll + mousemove (not just a JS .click() dispatch, which never reproduces this bug since it skips real mousemove) — nav stayed hidden through all of it; clicking the ☰ marker still restored it correctly. Recorded in rdf-infographic-skill/SKILL.md as a sub-bullet under 'Is manually hideable' alongside the Step 148 stopPropagation gotcha — the two are easy to fix one at a time and mistake the first for a complete fix."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <../rdf-infographic-skill/SKILL.md> .
+
+# ── Step 150: Ontology Cross-Reference Gate Requires the Registry Write-Back, Not Just a Local Check ──
+
+:step-ontologyRegistryWriteBack a schema:HowToStep ;
+    schema:position 150 ;
+    schema:name "BLOCKING GATE — checking entities/ontology-terms.ttl before minting a local class is only half the gate; the OTHER half is registering the new re-mint back into the registry"@en ;
+    schema:text """Caught by user question 2026-07-23: while building buzz-block-thesis-value-prop, :KeyPrinciple and :ComparisonDimension were minted as document-local classes with an inline TTL comment noting 'mirrors the corpus-wide generator-template pattern in agent-rdf-memory/entities/ontology-terms.ttl' — but entities/ontology-terms.ttl was never actually re-opened and edited to add the new document's IRIs to those two classes' existing owl:equivalentClass lists. Both terms were ALREADY canonical corpus terms (KeyPrinciple: 5 prior re-mints; ComparisonDimension: 2 prior re-mints) before this document existed — this was the exact 'check the registry' scenario the cross-document-local-term-reuse rule (Step 127) is about, and the check happened (the comment proves it), but the write-back half was skipped.
+
+RULE: the ontology cross-reference gate has TWO halves, both required, neither optional:
+  1. CHECK — before minting any generator-template-style analysis class (a class describing 'a named X extracted from/about a source document,' not a domain-specific one), grep entities/ontology-terms.ttl for an existing canonical class with the same or overlapping meaning.
+  2a. If found — either reuse the canonical IRI directly in the new document (preferred when practical), OR mint document-locally per established corpus convention AND immediately add the new document's IRI to that canonical class's owl:equivalentClass list in entities/ontology-terms.ttl, updating the re-mint count in its rdfs:comment. Do not defer this to 'a future census pass' — the census-based cleanup model only works if every session that mints a re-mint also performs its own write-back; treating the registry as read-only defeats its purpose.
+  2b. If NOT found (genuinely new concept, as with :ValueProposition and :OpenQuestion in this same document) — register the new class in entities/ontology-terms.ttl's 'Reusable classes already correctly shared' section (the karp:CriticalPerspective exemplar pattern: rdfs:label, rdfs:comment stating what was checked against and that future documents should reuse the IRI, rdfs:isDefinedBy pointing at the defining document's DAV URL) so the NEXT document that needs the same concept can discover and reuse it by IRI instead of re-minting a 3rd/4th/5th disjoint copy.
+
+Both halves were completed retroactively for this document 2026-07-23 (KeyPrinciple and ComparisonDimension added as new equivalentClass entries; ValueProposition and OpenQuestion registered as new discoverable corpus terms) — but the gate should close in the SAME session the class is minted, not after a user has to ask why it didn't."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/cross-document-local-term-reuse.ttl>, <howto/ontology-cross-reference-gate.ttl>, <entities/ontology-terms.ttl> .
+
+# ── Step 151: Fixed-Background UI Regions Must Pin Text Colors, Never Use Theme Variables ──
+
+:step-fixedBackgroundColorPinning a schema:HowToStep ;
+    schema:position 151 ;
+    schema:name "Any UI region with a hard-coded (non-theme-switching) background must pin its text/border colors to literal values — never theme variables like var(--text) or var(--muted)"@en ;
+    schema:text """Caught 2026-07-23 on the URIBurner DaaS weblog (weblog-from-webdav facet template): the sidebar .panel background is hard-coded to a dark navy gradient in BOTH themes, but .facet-name used color: var(--text) and the panel's labels/dates used var(--muted). In dark theme these resolve to light ink and the bug is invisible; in light theme --text becomes #172838 (dark ink) — dark text on a dark panel, rendering the categories facet unreadable. The defect was latent from the start and only surfaced when the page was viewed in light theme.
+
+RULE: when an element's background is fixed (does not change with the light/dark theme toggle or prefers-color-scheme), every piece of text, border, and accent inside it must use literal colors (or dedicated fixed-region variables) chosen for that one background — NOT the global theme variables, which flip per theme and will break contrast in exactly one of the two modes. Audit BOTH themes whenever a fixed-background region is styled; testing only the theme that happens to be active masks the failure. Fix applied 2026-07-23 to all weblog-from-webdav templates (repo + ~/.codex copies) and the four Claude-variant deploy scripts: panel text pinned to #d9e6f0/#9fb4c4, facet chips to #e8f2fa on cyan-tinted fills, accents to the fixed --openlink-cyan/--openlink-blue brand values."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/fixed-background-color-pinning.ttl>, <howto/ui-ux-expert-persona.ttl>, <howto/openlink-brand-color-scheme.ttl> .
