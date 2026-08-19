@@ -277,6 +277,51 @@ You keep the knobs — routing intelligence is advisory, governance is yours:
 
 ## 7. Feedback Loop (keeps the graph alive)
 
+Two feedback paths — **manual** (explicit `FeedbackRecord`s) and **automatic**
+(session routing traces harvested into seed refinements). Both are PRIVATE:
+recorded locally, never uploaded to public surfaces.
+
+### 7a. Session traces (automatic — preferred)
+
+Routing sessions record an **outcome-level `llmr:RoutingTrace`** per routed
+execution, in line with the session-trace guidelines in
+`agent-rdf-memory/preferences.ttl` (secret redaction, `opal:ChatSession`
+linkage via `prov:wasInformedBy`, intent-to-outcome traceability):
+
+```bash
+python3 scripts/record_trace.py code-generation deepseek-v4-flash \
+    --tier medium --policy balanced --score 4 --latency low --cost 0.028 \
+    --session {opal-chat-session-iri} \
+    --escalation deepseek-v4-flash --escalation codestral-latest
+```
+
+- **Outcome-level only** — task, tier, policy, model, score, latency, cost,
+  escalation events. Prompts, message content, and secrets are NEVER recorded
+  (preferences.ttl Step 36). Traces are **private by design**: written to
+  `references/traces/trace-log.ttl`, excluded from the published graph, never
+  part of any public upload.
+- Each trace is `llmr:RoutingTrace` (a subclass of `llmr:FeedbackRecord`) with
+  `llmr:tracedTask`, `llmr:tracedModel`, `llmr:costTierUsed`, `llmr:policyUsed`,
+  `llmr:qualityScore`, `llmr:observedLatency`, `llmr:costIncurred`,
+  `llmr:escalationEvent`, and `prov:wasInformedBy` the source session.
+
+Then harvest traces into seed-profile refinements and rebuild:
+
+```bash
+python3 scripts/harvest_traces.py            # report proposed refinements
+python3 scripts/harvest_traces.py --apply    # apply + rebuild + GATE
+```
+
+Harvest aggregates observed quality per (model, task), compares against the
+seed-implied capability score, and — when the deviation exceeds `--delta`
+(default 1.0) with at least `--min-samples` (default 2) — proposes an
+`explicit_overrides` adjustment. `--apply` writes the overrides, rebuilds the
+graph, and runs the GATE. This is the mechanical half of "feedback prevents
+stale profiles": traces are the evidence, the seed is the hypothesis, the
+rebuild produces the corrected frontier.
+
+### 7b. Manual feedback records (explicit)
+
 1. After each routed execution, append to `references/feedback-log.ttl`:
    `llmr:FeedbackRecord` with model, task, cost tier, quality score, latency,
    and pass/fail.
@@ -339,12 +384,15 @@ llm-routing-skill/
 │   ├── llm-routing-ontology.ttl  # authoritative llmr: TBox (term definitions)
 │   ├── routing-graph.ttl         # generated RDF graph (TBox embedded, query target)
 │   ├── routing-graph.json        # generated JSON mirror
-│   └── feedback-log.ttl          # append feedback records here
+│   ├── feedback-log.ttl          # manual feedback records (append here)
+│   └── traces/trace-log.ttl      # PRIVATE session traces (created by record_trace.py)
 ├── scripts/
 │   ├── fetch_prices.py           # pull live llm-prices.com feeds
 │   ├── build_routing_graph.py    # merge prices+profiles+tasks -> graph
 │   ├── validate_graph.py         # GATE (blank-node + ontology-term checks)
-│   └── route.py                  # routing decision CLI
+│   ├── route.py                  # routing decision CLI
+│   ├── record_trace.py           # record a private session routing trace
+│   └── harvest_traces.py         # traces -> seed refinement -> rebuild
 └── examples/
     └── routing-example.md
 ```
