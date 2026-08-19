@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-08-14T15:59:50Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T23:59:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -383,6 +383,12 @@
     schema:item <sessions/2026-06-16-claude_sonnet_4_6-claude_code-2.ttl> ;
     schema:name "Session 2026-06-16-2 (Claude Sonnet 4.6 + Claude Code — The Public Trust Problem in AI KG + Infographic)"@en ;
     schema:description "Generated 477-triple RDF-Turtle KG + interactive HTML infographic for https://www.unaligned.io/p/the-public-trust-problem-in-ai. Business & Market Analysis template, 12 FAQ pairs, 10 glossary terms, 7 HowTo steps, 5 stakeholder groups, lightweight ontology. HTML: D3.js KG Explorer (Core 54 nodes / Full 78 nodes, 0 orphans), SPARQL workbench, resolver-backed entity links. Validator PASS after 8 targeted harness fixes (D3 CDN string, alternate link, nav label, toggleNav/toggleTheme wrappers, SPARQL workbench IDs + format strings, 8 attribution labels, predAnchor rename, compact node click handler)."@en .
+
+:session20260815ClaudeSonnet5Rdf12Virtuoso a schema:ListItem ;
+    schema:position 69 ;
+    schema:item <sessions/2026-08-15-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-15 (Claude Sonnet 5 + Claude Code — RDF 1.2 Support in Virtuoso KG + Infographic + MD)"@en ;
+    schema:description "3-artifact collection (RDF 527 triples, HTML, MD) for the OpenLink Community RDF 1.2 post. 21 code examples (14 verbatim + 7 spec-supplement for completeness). 12 of 14 post Turtle examples rewrapped as SPARQL INSERT DATA/SELECT so 19/21 examples render as live-linked SPARQL Workbench accordions per explicit user request. rdflib 7.6.0 has no RDF-star parser, so RDF 1.2 syntax lives only as schema:text string literals, never as live parsed triples. Validator PASS after fixing programmingLanguage to exactly 'SPARQL'. Verified in-browser (KG Explorer + 19 accordions + zero console errors)."@en .
 
 :session20260617BigPickleOpenCode a schema:ListItem ;
     schema:position 58 ;
@@ -843,3 +849,571 @@
     schema:description "Diagnosed incomplete whoami responses against preferences.ttl PROV model; added :step-full-whoami-identity-response-principal-agent-delegation. Merged 2026-08-14 from the Claude Generated parallel store."@en .
 
 :sessionIndex schema:itemListElement :session20260721Grok45GrokBuild .
+
+# ── Indexed 2026-08-14: previously-unindexed sessions (gate check) ──────
+
+:session20260601ClaudeSonnet46ClaudeCode a schema:ListItem ;
+    schema:position 1037 ;
+    schema:item <sessions/2026-06-01-claude_sonnet_4_6-claude_code.ttl> ;
+    schema:name "Session: 2026-06-01 Claude Sonnet 4.6 — Claude Code"@en ;
+    schema:description "Session memory for Claude Sonnet 4.6 running in Claude Code on 2026-06-01. Focus: KG interrogation workflow gaps, preferences.ttl and ontology.ttl updates, kg-only and kg-hybrid mo"@en .
+
+:sessionIndex schema:itemListElement :session20260601ClaudeSonnet46ClaudeCode .
+
+:session20260601Grok43GrokCli2 a schema:ListItem ;
+    schema:position 1038 ;
+    schema:item <sessions/2026-06-01-grok_4_3-grok-cli-2.ttl> ;
+    schema:name "Agent Session Memory — 2026-06-01 (Grok 4.3 + Grok CLI) — DGX Spark vs M5 Max Meshup Generation"@en ;
+    schema:description "Generation of fine-grained RDF + MD + HTML meshup from Grok share c331c2952716453ab75c3a121d50013d (NVIDIA DGX Spark vs Apple MacBook Pro M5 Max local AI inference comparison). Ful"@en .
+
+:sessionIndex schema:itemListElement :session20260601Grok43GrokCli2 .
+
+:session20260601Grok43GrokCli3 a schema:ListItem ;
+    schema:position 1039 ;
+    schema:item <sessions/2026-06-01-grok_4_3-grok-cli-3.ttl> ;
+    schema:name "Agent Session Memory — 2026-06-01 (Grok 4.3) — DGX Spark vs M5 Max Full Content Meshup"@en ;
+    schema:description "Generation of fine-grained RDF + MD + HTML meshup using the complete text provided by the user from Grok share c331c2952716453ab75c3a121d50013d (Redone Tabulation table + Quick Ver"@en .
+
+:sessionIndex schema:itemListElement :session20260601Grok43GrokCli3 .
+
+:session20260601Grok43GrokCli4 a schema:ListItem ;
+    schema:position 1040 ;
+    schema:item <sessions/2026-06-01-grok_4_3-grok-cli-4.ttl> ;
+    schema:name "Agent Session Memory — 2026-06-01 (Grok 4.3 + Grok CLI) — DGX Spark vs M5 Max Explorer Enhancement"@en ;
+    schema:description "Update to the DGX Spark vs MacBook Pro M5 Max meshup: expanded RDF graph with individual winner claims as first-class nodes, richer kgData for D3 explorer, added legend + improved "@en .
+
+:sessionIndex schema:itemListElement :session20260601Grok43GrokCli4 .
+
+:session20260602ClaudeSonnet46ClaudeCode a schema:ListItem ;
+    schema:position 1041 ;
+    schema:item <sessions/2026-06-02-claude_sonnet_4_6-claude_code.ttl> ;
+    schema:name "Session: Rosetta Statements × RDF 1.2 Meshup — 2026-06-02 Claude Sonnet 4.6"@en ;
+    schema:description "Session memory for the Rosetta Statements × RDF 1.2 meshup task, plus KG Explorer UX debugging and lessons learned."@en .
+
+:sessionIndex schema:itemListElement :session20260602ClaudeSonnet46ClaudeCode .
+
+:session20260602DeepseekV4proClaudeCode2 a schema:ListItem ;
+    schema:position 1042 ;
+    schema:item <sessions/2026-06-02-deepseek_v4pro-claude_code-2.ttl> ;
+    schema:name "Session 2026-06-02 (DeepSeek V4 Pro + Claude Code — NOIPA KG doc collection)"@en ;
+    schema:description "Generated RDF-Turtle and HTML infographic collection about the NOIPA SPARQL endpoint (sparql-noipa.mef.gov.it), Italy's public administration employee knowledge graph."@en .
+
+:sessionIndex schema:itemListElement :session20260602DeepseekV4proClaudeCode2 .
+
+:session20260603ClaudeSonnet46ClaudeCode a schema:ListItem ;
+    schema:position 1043 ;
+    schema:item <sessions/2026-06-03-claude_sonnet_4_6-claude_code.ttl> ;
+    schema:name "Session Memory — 2026-06-03 Claude Sonnet 4.6 Claude Code"@en ;
+    schema:description "Session generating an RDF + HTML knowledge graph collection about the Atlan Enterprise Context Layer article, including LinkedIn discussion comments with Kingsley Uyi Idehen's comm"@en .
+
+:sessionIndex schema:itemListElement :session20260603ClaudeSonnet46ClaudeCode .
+
+:session20260603DeepseekV4proClaudeCode a schema:ListItem ;
+    schema:position 1044 ;
+    schema:item <sessions/2026-06-03-deepseek_v4pro-claude_code.ttl> ;
+    schema:name "Session 2026-06-03 (DeepSeek V4 Pro + Claude Code — Prompt Recording via opal ontology)"@en ;
+    schema:description "Identified that session files lack verbatim prompt text, adopted opal:ChatSession/opal:ChatMessage/opal:PromptText from opal-analytics-ontology-2, updated ontology.ttl and preferen"@en .
+
+:sessionIndex schema:itemListElement :session20260603DeepseekV4proClaudeCode .
+
+:session20260607BigPickleOpencode2 a schema:ListItem ;
+    schema:position 1045 ;
+    schema:item <sessions/2026-06-07-big-pickle-opencode-2.ttl> ;
+    schema:name "2026-06-07 big-pickle opencode"@en ;
+    schema:description "Session record for generating Snowflake/Databricks/Agentic Client HTML infographic with Semantic Web comparison for Kingsley Idehen."@en .
+
+:sessionIndex schema:itemListElement :session20260607BigPickleOpencode2 .
+
+:session20260607BigPickleOpencode a schema:ListItem ;
+    schema:position 1046 ;
+    schema:item <sessions/2026-06-07-big-pickle-opencode.ttl> ;
+    schema:name "Session - HTML Infographic Generation"@en ;
+    schema:description "Generation of comprehensive HTML infographic for theCUBE Research article on Snowflake, Databricks, and the battle for the agentic client and AI backend, with Semantic Web hyperlin"@en .
+
+:sessionIndex schema:itemListElement :session20260607BigPickleOpencode .
+
+:session20260609DeepseekV4proClaudeCode a schema:ListItem ;
+    schema:position 1047 ;
+    schema:item <sessions/2026-06-09-deepseek_v4pro-claude_code.ttl> ;
+    schema:name "Session 2026-06-08 — deepseek-v4pro + Claude Code — World Cup 2026 Meshup Collection"@en ;
+    schema:description "Generated a comprehensive RDF-Turtle (1,528 triples) and interactive HTML infographic (162KB) meshing Visual Capitalist's 48-team qualification map with The Guardian's complete tea"@en .
+
+:sessionIndex schema:itemListElement :session20260609DeepseekV4proClaudeCode .
+
+:session20260615BigPickleOpencode a schema:ListItem ;
+    schema:position 1048 ;
+    schema:item <sessions/2026-06-15-big-pickle-opencode.ttl> ;
+    schema:name "Session Memory — Ontology Mandates + Social Media Skill + YouID Credentials Bundle (2026-06-15)"@en ;
+    schema:description "Episodic memory for the Big Pickle (opencode/big-pickle) session in OpenCode on 2026-06-14/15. Tasks completed: (1) answered ontology mandate question — domain/range and label/comm"@en .
+
+:sessionIndex schema:itemListElement :session20260615BigPickleOpencode .
+
+:session20260618OpencodeAgentSkills a schema:ListItem ;
+    schema:position 1049 ;
+    schema:item <sessions/2026-06-18-opencode-agent-skills.ttl> ;
+    schema:name "Session — 2026-06-18 — youid skill validation gate and credential bugfix"@en ;
+    schema:description "Critical validation gate for youid skill: verify that the RSA public key (modulus + exponent) from the PKCS#12 certificate bundle is consistently reflected in all three local WebID"@en .
+
+:sessionIndex schema:itemListElement :session20260618OpencodeAgentSkills .
+
+:session20260619Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1050 ;
+    schema:item <sessions/2026-06-19-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-06-19 GPT-5 Chat Codex - The Package That Reads Your Keys Collection"@en ;
+    schema:description "Session memory for RDF-Turtle and HTML collection generation from Vivian Voss source article."@en .
+
+:sessionIndex schema:itemListElement :session20260619Gpt5ChatCodex .
+
+:session20260624Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1051 ;
+    schema:item <sessions/2026-06-24-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-06-24 (GPT-5 Chat Codex — Nigerian listed companies decision-maker contact feasibility)"@en ;
+    schema:description "Session memory for a Sales contact-enrichment feasibility check regarding decision-maker level contacts for companies mentioned in a LinkedIn post about Nigeria's ten largest liste"@en .
+
+:sessionIndex schema:itemListElement :session20260624Gpt5ChatCodex .
+
+:session20260628ClaudeSonnet46ClaudeCode a schema:ListItem ;
+    schema:position 1052 ;
+    schema:item <sessions/2026-06-28-claude_sonnet_4_6-claude_code.ttl> ;
+    schema:name "Session — 2026-06-28 — Claude Sonnet 4.6 — Claude Code"@en ;
+    schema:description "Created AIAM vs NetID/WebID Web of Trust comparison collection (TTL, MD, HTML) in Claude Generated directories. Extended with Web of Trust governance argument, FAQ hyperlinks, glos"@en .
+
+:sessionIndex schema:itemListElement :session20260628ClaudeSonnet46ClaudeCode .
+
+:session20260629Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1053 ;
+    schema:item <sessions/2026-06-29-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-06-29 (GPT-5 Chat Codex — Trillionaires footer resolver-pattern overflow fix)"@en ;
+    schema:description "Session memory for correcting a footer text overflow defect in the generated Project Syndicate trillionaires thesis HTML collection."@en .
+
+:sessionIndex schema:itemListElement :session20260629Gpt5ChatCodex .
+
+:session20260630DeepseekV4proClaudeCode a schema:ListItem ;
+    schema:position 1054 ;
+    schema:item <sessions/2026-06-30-deepseek_v4pro-claude_code.ttl> ;
+    schema:name "Session 2026-06-30 (DeepSeek V4 Pro + Claude Code — Great Blogging Collapse KG)"@en ;
+    schema:description "Generated a 6,303-triple RDF-Turtle KG from Daniel Stancil's Great Blogging Collapse study spreadsheet (98 blogs, 23 columns each). Data source: Google Sheets. Used schema.org term"@en .
+
+:sessionIndex schema:itemListElement :session20260630DeepseekV4proClaudeCode .
+
+:session20260630Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1055 ;
+    schema:item <sessions/2026-06-30-gpt5_chat-codex.ttl> ;
+    schema:name "GPT-5 Chat Codex session memory for 2026-06-30"@en ;
+    schema:description "Session memory for Codex work on generated RDF, Markdown, and HTML collections."@en .
+
+:sessionIndex schema:itemListElement :session20260630Gpt5ChatCodex .
+
+:session20260701ClaudeSonnet5ClaudeCode a schema:ListItem ;
+    schema:position 1056 ;
+    schema:item <sessions/2026-07-01-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-01 (Claude Sonnet 5, Claude Code — LOAC identity/ABAC verification + memory gates)"@en ;
+    schema:description "Live mTLS verification of Linked Open Agentic Commerce (LOAC) mechanics across four WebID identities, authored as an RDF+HTML QA report, plus two new standing preferences."@en .
+
+:sessionIndex schema:itemListElement :session20260701ClaudeSonnet5ClaudeCode .
+
+:session20260702ClaudeSonnet5ClaudeCode a schema:ListItem ;
+    schema:position 1057 ;
+    schema:item <sessions/2026-07-02-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-02 (Claude Sonnet 5, Claude Code — LOAC report editorial pass, continued)"@en ;
+    schema:description "Direct continuation of 2026-07-01's LOAC QA report session (calendar date rolled over mid-conversation). Covers the post-self-audit editorial revisions to identity-auth-storage-loa"@en .
+
+:sessionIndex schema:itemListElement :session20260702ClaudeSonnet5ClaudeCode .
+
+:session20260702Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1058 ;
+    schema:item <sessions/2026-07-02-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-02 (GPT-5 Chat Codex — World Cup meshup Solid login/logout enhancement)"@en ;
+    schema:description "Session memory for adding Solid WebID/OIDC login and logout controls to the World Cup 2026 Country and Player Guide Meshup HTML artifact."@en .
+
+:sessionIndex schema:itemListElement :session20260702Gpt5ChatCodex .
+
+:session20260703ClaudeSonnet5ClaudeCode a schema:ListItem ;
+    schema:position 1059 ;
+    schema:item <sessions/2026-07-03-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-03 (Claude Sonnet 5, Claude Code — LOAC report session, continued)"@en ;
+    schema:description "Direct continuation of the 2026-07-01/07-02 LOAC QA report session (calendar date rolled over again mid-conversation, discovered via explicit date check rather than assumed). Cover"@en .
+
+:sessionIndex schema:itemListElement :session20260703ClaudeSonnet5ClaudeCode .
+
+:session20260703Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1060 ;
+    schema:item <sessions/2026-07-03-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-03 (GPT-5 Chat Codex — RSS feed structural repair)"@en ;
+    schema:description "Session memory for diagnosing and creating a fixed RSS 2.0 rendition from a pasted LinkedIn newsletter feed."@en .
+
+:sessionIndex schema:itemListElement :session20260703Gpt5ChatCodex .
+
+:session20260709ClaudeSonnet5ClaudeCode a schema:ListItem ;
+    schema:position 1061 ;
+    schema:item <sessions/2026-07-09-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-09 (Claude Sonnet 5 + Claude Code — AI Value Capture Response, Memory Protocol Violation and Correction)"@en ;
+    schema:description "Session memory for generation of the AI Value Capture Problem response collection, including a caught-and-corrected memory-protocol violation."@en .
+
+:sessionIndex schema:itemListElement :session20260709ClaudeSonnet5ClaudeCode .
+
+:session20260710ClaudeSonnet5ClaudeCode a schema:ListItem ;
+    schema:position 1062 ;
+    schema:item <sessions/2026-07-10-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-07-10 (Claude Sonnet 5 + Claude Code — YAML-LD/Vault-LD Tony Seale LinkedIn Post Collection)"@en ;
+    schema:description "Generated RDF-Turtle (452 triples) and HTML infographic collection for Tony Seale's LinkedIn post on YAML-LD advancing the W3C standards track and Vault-LD for agent memory. Captur"@en .
+
+:sessionIndex schema:itemListElement :session20260710ClaudeSonnet5ClaudeCode .
+
+:session20260717Gpt5ChatCodex a schema:ListItem ;
+    schema:position 1063 ;
+    schema:item <sessions/2026-07-17-gpt5_chat-codex.ttl> ;
+    schema:name "Session 2026-07-17 — GPT-5 Chat Codex A2A Client Skill Testing"@en ;
+    schema:description "Tested the new a2a-client skill in the ai-agent-skills repository. Offline validation passed: skill quick_validate, CLI help, Python syntax compile with PYTHONPYCACHEPREFIX, helper"@en .
+
+:sessionIndex schema:itemListElement :session20260717Gpt5ChatCodex .
+
+:session20260721Grok45GrokCli a schema:ListItem ;
+    schema:position 1064 ;
+    schema:item <sessions/2026-07-21-grok_4_5-grok-cli.ttl> ;
+    schema:name "Session 2026-07-21 — Grok 4.5 + Grok CLI (whoami verified identity)"@en ;
+    schema:description "Session memory for Grok 4.5 in Grok CLI on the ai-agent-skills repo. First action: Trigger A whoami with full verified-identity gate."@en .
+
+:sessionIndex schema:itemListElement :session20260721Grok45GrokCli .
+
+:session20260722BigPickleOpencode a schema:ListItem ;
+    schema:position 1065 ;
+    schema:item <sessions/2026-07-22-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-07-22 (big-pickle + OpenCode — WebID-TLS Port 5443 Lesson)"@en ;
+    schema:description "Session where user corrected session initialization protocol and demonstrated WebID-TLS authentication on URIBurner port 5443. Key lesson: WebDAV resources on URIBurner require por"@en .
+
+:sessionIndex schema:itemListElement :session20260722BigPickleOpencode .
+
+:session20260722Gpt5ChatCodexWeblogFromWebdav a schema:ListItem ;
+    schema:position 1066 ;
+    schema:item <sessions/2026-07-22-gpt5_chat-codex-weblog-from-webdav.ttl> ;
+    schema:name "Session 2026-07-22 - GPT-5 Chat Codex Weblog-from-WebDAV Engine Automation"@en ;
+    schema:description "Session covering the Weblog-from-WebDAV skill and engine updates: managed WebDAV post publishing with verified schema:category metadata, scheduled category refresh and clean recate"@en .
+
+:sessionIndex schema:itemListElement :session20260722Gpt5ChatCodexWeblogFromWebdav .
+
+:session20260723BigPickleOpencode a schema:ListItem ;
+    schema:position 1067 ;
+    schema:item <sessions/2026-07-23-big_pickle-opencode.ttl> ;
+    schema:name "Session 2026-07-23 (big-pickle + OpenCode — Session Bootstrap Protocol Execution)"@en ;
+    schema:description "Session where user corrected the agent for skipping the Session Bootstrap Protocol (positions 141-144) at startup. Agent had jumped directly into file reads and whoami without runn"@en .
+
+:sessionIndex schema:itemListElement :session20260723BigPickleOpencode .
+
+:session20260723Grok45GrokCli a schema:ListItem ;
+    schema:position 1068 ;
+    schema:item <sessions/2026-07-23-grok_4_5-grok-cli.ttl> ;
+    schema:name "Session 2026-07-23 — Grok 4.5 + Grok CLI (session context + verified whoami)"@en ;
+    schema:description "Session memory for Grok 4.5 in Grok CLI. User asked for session context, then Trigger A whoami with full verified-identity gate (local modulus match + remote reciprocal delegation)"@en .
+
+:sessionIndex schema:itemListElement :session20260723Grok45GrokCli .
+
+:session20260724Grok45GrokCli a schema:ListItem ;
+    schema:position 1069 ;
+    schema:item <sessions/2026-07-24-grok_4_5-grok-cli.ttl> ;
+    schema:name "Session 2026-07-24 (Grok 4.5 + Grok CLI — screencast + pricing notes)"@en ;
+    schema:description "Generated a screencast presentation of The_11_Layer_AI_Agent_Engineering_Stack.pdf; later added Internal Pricing Note to Unlimited SKU tables in product-portfolio-pricing.md."@en .
+
+:sessionIndex schema:itemListElement :session20260724Grok45GrokCli .
+
+:session20260730Grok45GrokCli a schema:ListItem ;
+    schema:position 1070 ;
+    schema:item <sessions/2026-07-30-grok_4_5-grok-cli.ttl> ;
+    schema:name "2026-07-30-grok_4_5-grok-cli.ttl"@en ;
+    schema:description "Session memory for ACP purchase of DemoFileAccessOffer1URIBurner (World Cup HTML file access) via ods-qa shop, Stripe test invoice paid, DAV access still 401 pending ACL/WebID path"@en .
+
+:sessionIndex schema:itemListElement :session20260730Grok45GrokCli .
+
+:session20260812DeepseekV4proPi a schema:ListItem ;
+    schema:position 1071 ;
+    schema:item <sessions/2026-08-12-deepseek_v4pro-pi.ttl> ;
+    schema:name "Session 2026-08-12 (DeepSeek V4 Pro + pi — Citation Cleanup of Decagon/Sierra vs Linked Data KG Doc)"@en ;
+    schema:description "Removed 11 citation markers (cite turn…search… / cite turn…view…) from a comparative analysis markdown document; applied OpenLink first-person ownership (OpenLink Software's agent-"@en .
+
+:sessionIndex schema:itemListElement :session20260812DeepseekV4proPi .
+
+:session20260813ClaudeSonnet5ClaudeCode a schema:ListItem ;
+    schema:position 1072 ;
+    schema:item <sessions/2026-08-13-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-13 (Claude Sonnet 5 + Claude Code — CGIF/CLIF-versus-RDF Rebuttal, Second in Series)"@en ;
+    schema:description "Session memory for generation of the CGIF/CLIF-versus-RDF rebuttal RDF+HTML+MD collection answering Simon Polovina's ontolog-forum paper."@en .
+
+:sessionIndex schema:itemListElement :session20260813ClaudeSonnet5ClaudeCode .
+
+
+# ── 2026-08-14: this session (dsh) ────────────────────────────────────────────────
+
+:session20260814DeepSeekV4FlashDsh a schema:ListItem ;
+    schema:position 1073 ;
+    schema:item <sessions/2026-08-14-deepseek_v4_flash-dsh.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — RDF memory graph setup: symlink wiring, consolidation, Virtuoso loader, SPARQL gate)"@en ;
+    schema:description "Wired the harness to the RDF graph via symlinks; consolidated all parallel agent-rdf-memory stores into the master; loaded 267 named graphs into local Virtuoso; indexed all 147 sessions (positions 1037-1072); deployed session-graph-gate.py. Result: 147/147 IN_SYNC, 0 stale, 0 missing, 0 unindexed."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDsh .
+
+# ── 2026-08-14: this session (dsh) — The Intent Debt meshup collection ─────
+
+:session20260814DeepSeekV4FlashDshIntentDebt a schema:ListItem ;
+    schema:position 1105 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — The Intent Debt meshup collection)"@en ;
+    schema:description "Generated the intent-debt-meshup-deepseek_v4flash-1.{ttl,jsonld,html,md} collection: O'Reilly Radar's The Intent Debt (Addy Osmani, 2026-08-14) meshed with the agent-rdf-memory skill, Idehen's Agent Skills, Filesystems, and Context Graphs, and The File Create, Save, and Share Paradigm — Revisited. 943-triple Turtle, round-trip JSON-LD, 322.8 KB HTML infographic (228 nodes/528 links), MD companion; validate-harness-contract.py PASS."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshIntentDebt .
+
+# ── 2026-08-14: this session (dsh) — 'Why' and the Semantic Web: corpus search ──
+
+:session20260814DeepSeekV4FlashDshWhySemanticWeb a schema:ListItem ;
+    schema:position 1106 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-3.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — 'Why' and the Semantic Web: corpus search)"@en ;
+    schema:description "Answered whether Idehen ever wrote a post covering the 'Why' of the Semantic Web. Verified via the Data Space weblog full-text search XML: 'Do We Need the Semantic Web?' (2004), 'Is the Semantic Web necessary (and feasible)?' (2009), 'Why We Need Linked Data' thread (Reminder 1267 + Contd 1316, 2007), 'Semantic Web Killer Application?' (1293), 'Semantic Web Value Proposition' (1254), 'Simplicity, Incentives, Semantic Web and Web 2.0' (979). Workspace LLM artifact folders hold Semantic Web KGs but no dedicated 'Why' post."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshWhySemanticWeb .
+
+# ── 2026-08-14: this session (dsh) — Claude Text Watermark Anthropic x URIBurner meshup ──
+
+:session20260814DeepSeekV4FlashDshWatermarkMeshup a schema:ListItem ;
+    schema:position 1107 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-4.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — Claude Text Watermark Anthropic x URIBurner meshup)"@en ;
+    schema:description "Generated the claude-text-watermark-meshup-deepseek_v4flash-1.{ttl,jsonld,html} collection: Anthropic's 'How Claude's text watermark works' (2026-08-14) meshed with the URIBurner DaaS Weblog post (2026-08-11) on the Kirchenbauer et al. ICML 2023 watermark (arXiv:2301.10226) plus the SynthID-Text/Aaronson lineage. 729-triple Turtle (18 FAQ, 15 glossary, 8 HowTo steps, 9 cdx:ComparisonDimension rows), triple-identical compact JSON-LD, 249 KB HTML (D3 KG Explorer 166 nodes/171 links, SPARQL workbench, format-toggle footer). kg-compliance 20/20 PASS; validate-harness-contract.py PASS; user chose 'RDF + HTML only, skip MD' at plan approval."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshWatermarkMeshup .
+
+# ── 2026-08-14: this session (dsh) — Claude Text Watermark infographic UI/UX redesign ──
+
+:session20260814DeepSeekV4FlashDshWatermarkRedesign a schema:ListItem ;
+    schema:position 1108 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-5.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — Claude Text Watermark infographic UI/UX aesthetics redesign)"@en ;
+    schema:description "Replaced the ported stylesheet with a 24 KB 'Watermark Provenance' design system (warm paper base, deep-cyan brand, token-disciplined accent trio, Space Grotesk/Inter/JetBrains Mono, aurora hero with watermark-ring seal + source chips + 5-stat strip, glass nav, premium cards/FAQ/comparison/KG/workbench, animated scroll reveal). Preserved every contract element: harness IDs, byte-identical 109,457-byte JS engine, resolver links, RDF parity, footer prose. Harness validator PASS; kg-compliance Turtle 20/20; HTML parse clean; JS syntax OK; both dark blocks verified functionally equivalent (39/39 vars); light + dark renders verified via headless-Chrome screenshots + Pillow pixel analysis."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshWatermarkRedesign .
+
+# ── 2026-08-14: this session (dsh) — Claude Text Watermark section order (HowTo, FAQ, Glossary) ──
+
+:session20260814DeepSeekV4FlashDshSectionOrder a schema:ListItem ;
+    schema:position 1109 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-6.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — section order: HowTo, FAQ, Glossary)"@en ;
+    schema:description "User-specified section order for infographics: HowTo first, then FAQ, then Glossary. Reordered the Claude Text Watermark infographic body (now ... sparql-explorer, howto, faq, glossary, footer) and the floating-nav links to match; flipped HowTo to the plain section background to keep the alt/plain band rhythm alternating. Content, counts (18/15/8), and the 109,457-byte engine script unchanged; harness validator PASS."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshSectionOrder .
+
+# ── 2026-08-14: this session (dsh) — OpenLink ODBC-to-ODBC Bridge evaluation query ──
+
+:session20260814DeepSeekV4FlashDshOdbcBridgeEval a schema:ListItem ;
+    schema:position 1110 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-7.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — OpenLink ODBC-to-ODBC Bridge evaluation query)"@en ;
+    schema:description "Answered a prospective customer's eight questions about using the Multi-Tier ODBC-to-ODBC Bridge (Enterprise Edition) to reach 32-bit Visual FoxPro/DBF from 64-bit SQL Server 2022 via MSDASQL/OPENROWSET on Windows Server 2022. Verified: broker+agent must match driver bitness (32-bit VFP -> 32-bit broker/agent), 64-bit client is independent and TCP-based, single-machine architecture documented; OPENROWSET('MSDASQL',...) still supported in SQL Server 2022; pricing (Enterprise Personal $449.99/yr workstation-grade; server-grade = Enterprise tier, Contact Sales; published offers are annual subscriptions); Free Evaluation License Generator for trials. All nine reference URLs hyperlinked via the URIBurner resolver pattern and verified HTTP 200 per Step 200."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshOdbcBridgeEval .
+
+# ── 2026-08-14: this session (dsh) — ODBC-to-ODBC Bridge: dynamic DBF directory / DSN-less follow-up ──
+
+:session20260814DeepSeekV4FlashDshOdbcBridgeDsnless a schema:ListItem ;
+    schema:position 1112 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-9.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — ODBC-to-ODBC Bridge: dynamic DBF directory / DSN-less follow-up)"@en ;
+    schema:description "Answered the bridge evaluation follow-up: whether the 32-bit VFP connection can be completely DSN-less with per-call SourceDB. Documented model: client is DSN-less-capable (DRIVER/Host/ServerType=ODBC/Database attributes) but selects the target by the name of a DSN registered with the Bridge Agent on the broker host (docs 8.2.13 mt_odbcconf); full target connection-string pass-through is not documented. Recommended patterns: junction/symlink indirection with one fixed VFP DSN (mklink /J), dynamically generated 32-bit File DSNs, or confirming connection-string pass-through with support during the evaluation. References resolver-linked and verified HTTP 200."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshOdbcBridgeDsnless .
+
+# ── 2026-08-14: this session (dsh) — X 'For You' algorithm cheat-sheet KG collection ──
+
+:session20260814DeepSeekV4FlashDshXAlgorithmCheatsheet a schema:ListItem ;
+    schema:position 1111 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-8.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — X 'For You' algorithm cheat-sheet Knowledge Graph collection)"@en ;
+    schema:description "Generated a tweet-grounded RDF + HTML + Markdown collection for Carlos E. Perez's (@IntuitMachine) 'Inside X's New For You Algorithm' cheat sheet: OCR-extracted the infographic, built a 1000+-triple graph (16 FAQ, 15 glossary terms, 6 HowTos / 34 steps, lightweight ontology) grounded on https://x.com/IntuitMachine/status/2088198582880854475, with verified authority IRIs (Wikidata Q918, Q117617480, Q120599684; github.com/xai-org/x-algorithm). Harness gate PASS, kg compliance 19/19 PASS, RDF<->HTML parity, editorial algorithm-teardown UI with D3 KG Explorer. Follow-up added 4 user-pattern HowTos (casual scroller, brand/marketer, community, news/info)."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshXAlgorithmCheatsheet .
+
+# ── 2026-08-14: this session (dsh) — Mermaid diagrams for ODBC-to-ODBC Bridge dynamic DBF options ──
+
+:session20260814DeepSeekV4FlashDshOdbcBridgeMermaid a schema:ListItem ;
+    schema:position 1113 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-10.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — Mermaid diagrams for ODBC-to-ODBC Bridge dynamic DBF options)"@en ;
+    schema:description "Built webpages/odbc-bridge-dynamic-dbf-options-deepseek_v4flash-1.html with six Mermaid v11 flowcharts for the bridge evaluation: baseline 64->32 chain, client-side DSN-less target switching, junction indirection (recommended), generated File DSNs, unconfirmed full connection-string pass-through, and a decision tree — each with copy/paste notation blocks and OPENROWSET examples. Mermaid CDN (jsdelivr) verified HTTP 200; all six mermaid blocks passed static syntax checks."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshOdbcBridgeMermaid .
+
+# ── 2026-08-17: this session (dsh) — 'OpenLink Software in the Age of AI' article draft ──
+
+:session20260817DeepSeekV4FlashDshOpenlinkAgeOfAi a schema:ListItem ;
+    schema:position 1114 ;
+    schema:item <sessions/2026-08-17-deepseek_v4flash-dsh-1.ttl> ;
+    schema:name "Session 2026-08-17 (DeepSeek V4 Flash + dsh — 'OpenLink Software in the Age of AI' article draft)"@en ;
+    schema:description "Drafted the long-form article md/openlink-software-age-of-ai-deepseek_v4flash-1.md framing OpenLink's vertically integrated portfolio (UDA ODBC/JDBC drivers, Virtuoso, ODS, URIBurner, OPAL, ai-agent-skills) across the four AI-era layers — AI Agents, Agent Harnesses, Semantic Layers, Context Layers — with era-to-layer and harness-component mapping tables, portfolio appendix, glossary, and OBO attribution footer. Grounded in the fetched OpenLink AI-era strategy infographic, the OpenLink company wiki (founded 1992), and corpus memory; all product URLs and URIBurner resolver links for external references (Tunguz, Atlan/Gartner) verified HTTP 200. Delivered to DeepSeek md/ output root per artifact routing."@en .
+
+:sessionIndex schema:itemListElement :session20260817DeepSeekV4FlashDshOpenlinkAgeOfAi .
+
+# ── 2026-08-17: this session (Gemini 3.7 Flash + Antigravity) — Context Windows and KV Caching Collection ──
+
+:session20260817Gemini37FlashContextWindowsKVCaching a schema:ListItem ;
+    schema:position 1115 ;
+    schema:item <sessions/2026-08-17-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-17 (Gemini 3.7 Flash + Antigravity — Context Windows & KV Caching Explained Collection)"@en ;
+    schema:description "Generated a complete RDF Knowledge Graph, interactive HTML Infographic with D3 v7 KG Explorer & SPARQL Workbench, and Markdown companion collection for Andrew Baker's article 'Context Windows and KV Caching Explained: Why They Drive AI Inference Costs' (https://andrewbaker.ninja/2026/08/13/context-windows-and-kv-caching-explained-why-they-drive-ai-inference-costs/). Modeled quadratic self-attention O(n^2) prefill complexity, autoregressive decode memory bandwidth bottlenecks, KV cache formulas, prompt caching pricing across Anthropic/OpenAI/Gemini, and FinOps context hygiene strategies. Delivered to /Users/kidehen/Documents/LLMs/Google Gemini Generated/{rdf,webpages,md}/."@en .
+
+:sessionIndex schema:itemListElement :session20260817Gemini37FlashContextWindowsKVCaching .
+
+# ── 2026-08-14: this session (dsh) — Three Debts question, intent-debt KG retrieval ──
+
+:session20260814DeepSeekV4FlashDshThreeDebts a schema:ListItem ;
+    schema:position 1116 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-11.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — Three Debts question, intent-debt KG retrieval)"@en ;
+    schema:description "Answered 'What are the three debts AI-assisted development can create?' purely from the intent-debt meshup KG (rdf/intent-debt-meshup-deepseek_v4flash-1.ttl, 953 triples): technical debt (in code), cognitive debt (in people, aka comprehension debt), and intent debt (in artifacts, 'the debt agents can't pay'). Supporting FAQ entities q1/q2/q3 on independence and why agents can only fabricate intent. All six entity resolver URLs verified HTTP 200 before hyperlinking."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshThreeDebts .
+
+# ── 2026-08-14: this session (dsh) — scarce judgment & McLuhan tetrad, NLP-judgment KG retrieval ──
+
+:session20260814DeepSeekV4FlashDshScarceJudgment a schema:ListItem ;
+    schema:position 1117 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-12.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — scarce judgment & McLuhan tetrad questions, NLP-judgment KG retrieval)"@en ;
+    schema:description "Answered two questions from the 'Natural Language as a UI/UX Layer' KG (Claude Generated/rdf/nlp-judgment-layer-claude_sonnet_5-1.ttl, 319 triples): scarce judgment = the bottleneck moving from implementation to judgment (specify, verify, take responsibility); McLuhan's tetrad applied to NLP because it captures four simultaneous effects (enhances prototyping, obsolesces syntax recall, retrieves specification-first thinking, reverses code abundance into trust scarcity) rather than one-directional speed. Eight entity resolver URLs verified HTTP 200."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshScarceJudgment .
+
+# ── 2026-08-17: this session (dsh) — Context Windows and KV Caching KG collection ──
+
+:session20260817DeepSeekV4FlashDshContextWindowsKVCaching a schema:ListItem ;
+    schema:position 1118 ;
+    schema:item <sessions/2026-08-17-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-17 (DeepSeek V4 Flash + dsh — Context Windows & KV Caching Explained KG collection)"@en ;
+    schema:description "kg-generator + rdf-infographic-skill chain (Script-Assisted, plan approved: HTML + RDF only): 470-triple schema.org knowledge graph (Turtle + JSON-LD) and 158,836-char HTML infographic for Andrew Baker's 'Context Windows and KV Caching Explained: Why They Drive AI Inference Costs' (andrewbaker.ninja 2026-08-13). Models quadratic prefill attention O(n^2), KV-cache memory/bandwidth decode economics, prompt-caching pricing (Anthropic/OpenAI/Gemini), model-routing and context-hygiene guidance. BlogPosting + 9 sections, FAQPage (12 Q/A), DefinedTermSet (12 terms), HowTo (5 absolute-IRI steps), author Andrew Baker (LinkedIn-primary), publisher CloudScale Consulting, Capitec Bank, 8 software entities. validate-harness-contract.py PASS 0 failures; JS syntax, HTML balance, resolver type-matching all verified. Delivered to {LLM_ROOT}/DeepSeek/{rdf,webpages}/. Cross-LLM sibling: Gemini 3.7 Flash produced the same article's collection at Google Gemini Generated/ (index 1115)."@en .
+
+:sessionIndex schema:itemListElement :session20260817DeepSeekV4FlashDshContextWindowsKVCaching .
+
+# ── 2026-08-14: this session (dsh) — URIBurner-first lesson from KG-only preference correction ──
+
+:session20260814DeepSeekV4FlashDshUbFirstLesson a schema:ListItem ;
+    schema:position 1119 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-13.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — URIBurner-first lesson from KG-only preference correction)"@en ;
+    schema:description "User flagged 'Why didn't you use UB, as per prefs?' — KG-only answers had been read from local TTL files instead of querying the URIBurner SPARQL endpoint first per preferences.ttl. Verified live: intent-debt meshup graph and NLP-judgment-layer graph are both queryable at linkeddata.uriburner.com/DAV/demos/daas/ (the latter 321 triples incl. #faqGenerateStepFourAnswer), and re-answered from the endpoint. Lesson: endpoint-first with Graph IRI Discovery in KG-only mode; pivot to sponge/upload or report the gap before local reads."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshUbFirstLesson .
+
+# ── 2026-08-14: this session (dsh) — Grokipedia vs Wikipedia bias-count question ──
+
+:session20260814DeepSeekV4FlashDshGrokipediaBias a schema:ListItem ;
+    schema:position 1120 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-14.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — Grokipedia vs Wikipedia bias-count question)"@en ;
+    schema:description "Answered from the Ghent University arXiv audit (2607.15146, 1,394 article pairs, four LLM judges): 39% of Grokipedia articles rated biased vs 29.7% for Wikipedia; biased ratings more often favourable and stronger in Grokipedia; even Grok rates its own content less neutral. Distinguished from the separate TCD study on right-leaning news-source citations. Resolver links verified HTTP 200."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshGrokipediaBias .
+
+# ── 2026-08-14: this session (dsh) — data-twingler skills-contract compliance correction ──
+
+:session20260814DeepSeekV4FlashDshSkillContract a schema:ListItem ;
+    schema:position 1121 ;
+    schema:item <sessions/2026-08-14-deepseek_v4flash-dsh-15.ttl> ;
+    schema:name "Session 2026-08-14 (DeepSeek V4 Flash + dsh — data-twingler skills-contract compliance correction)"@en ;
+    schema:description "User flagged that responses were not handled per the skills contract. Loaded data-twingler + references and re-ran the Grokipedia question contract-compliant: honest template gate, UB-first keyword Graph IRI Discovery (bif:contains '(Grokipedia AND bias)') discovered the live URIBurner KG of arXiv 2607.15146 (DAV/demos.../UB-PDFs/2607.15146v1.pdf, 20 Q/A pairs); T6 index tabulated; final query returned #a11 '39% of Grokipedia articles considered biased versus 29.7% for Wikipedia (Fig. 2)' with corroborating #a12/#a15. Lesson: KG-mediated questions must run the full UB-first sequence with reporting; endpoint already hosted the answer graph."@en .
+
+:sessionIndex schema:itemListElement :session20260814DeepSeekV4FlashDshSkillContract .
+
+# ── 2026-08-18: this session (Claude Sonnet 5 + Claude Code) — Grok Bot & The Fourth Moment of AI harness meshup ──
+
+:session20260818ClaudeSonnet5ClaudeCodeGrokBotHarnessMeshup a schema:ListItem ;
+    schema:position 1122 ;
+    schema:item <sessions/2026-08-18-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-18 (Claude Sonnet 5 + Claude Code — Grok Bot & The Fourth Moment of AI harness meshup)"@en ;
+    schema:description "Generated an HTML/MD/RDF collection from a Substack newsletter .eml (Gennaro Cuofano, 'Grok Bot & The Fourth Moment of AI'), grounded in the user-supplied substack.com app-link URL, using kg-generator's Thesis & Framework Article template. Initial delivery mapped the article's eight-term harness definition onto six re-derived agent-rdf-memory files; user review caught three issues, all corrected same session: (1) the arm:agentRdfMemoryRepo IRI reused was itself non-canonical (entities/tools.ttl had no #this registry entry for agent-rdf-memory, unlike its sibling skills, letting 3 documents mint disjoint forms) — fixed by registering arm:this as canonical with owl:sameAs to all three; (2) the six-file mapping had been re-derived instead of reusing agent-rdf-memory-stack-alignment-inline-links, which already scores agent-rdf-memory against 8 of the article's 8 harness terms — rewrote to reuse those stack: layer entities (505→522 triples); (3) generate_infographic.py rendered a redundant People section and the wrong FAQ/Glossary/HowTo order despite both being previously-stated preferences that had only ever been hand-patched per document — fixed at the rdf-infographic-skill code level (html_assembler.py, validate-harness-contract.py) with new enforcement gates, not just this document. Project memory: agent-rdf-memory/projects/grok-bot-fourth-moment-of-ai-harness-meshup.ttl."@en .
+
+:sessionIndex schema:itemListElement :session20260818ClaudeSonnet5ClaudeCodeGrokBotHarnessMeshup .
+
+# ── 2026-08-18: this session (Grok 4.6 + Grok CLI) — Grok Bot harness meshup ──
+
+:session20260818Grok46GrokCliGrokBotHarnessMeshup a schema:ListItem ;
+    schema:position 1123 ;
+    schema:item <sessions/2026-08-18-grok_4_6-grok-cli.ttl> ;
+    schema:name "Session 2026-08-18 (Grok 4.6 + Grok CLI — Grok Bot & The Fourth Moment of AI harness meshup)"@en ;
+    schema:description "Grok-routed HTML/MD/RDF collection from the same Gennaro Cuofano newsletter eml, grounded in the Substack app-link. Upgraded author to LinkedIn #this, reused arm:agentRdfMemoryRepo, mapped six harness layers onto agent-rdf-memory files. validate-kg-compliance 19/19; harness-contract PASS; 140 nodes / 368 links, 0 orphans."@en .
+
+:sessionIndex schema:itemListElement :session20260818Grok46GrokCliGrokBotHarnessMeshup .
+
+# ── 2026-08-18: this session (DeepSeek V4 Flash + dsh) — Grok Bot harness-meshup KG collection ──
+
+:session20260818DeepSeekV4FlashDshGrokBotHarnessMeshup a schema:ListItem ;
+    schema:position 1124 ;
+    schema:item <sessions/2026-08-18-deepseek_v4flash-dsh.ttl> ;
+    schema:name "Session 2026-08-18 (DeepSeek V4 Flash + dsh — Grok Bot & The Fourth Moment of AI harness-meshup collection)"@en ;
+    schema:description "kg-generator + rdf-infographic-skill chain (Script-Assisted, plan approved, full harness contract): 986-triple schema.org KG (Turtle + JSON-LD, 0-diff set equality) + 212 KB HTML infographic + 310-line Markdown companion for Gennaro Cuofano's 'Grok Bot & The Fourth Moment of AI' (The Business Engineer newsletter, source email gerrano-on-harnesses-from-newsletter.eml), document IRIs grounded at the user-specified Substack app-link. Models the agentic harness concept + 8 harness aspects (typed HarnessAspect), 9 mental models, 4 watch signals, 5 strategic moves, AI-stack layers (cdx:ArchitecturalLayer), 4-harness head-to-head comparison (6 cdx:ComparisonDimension dims x 24 PropertyValue cells, responsive table+cards), and agent-rdf-memory as a platform-agnostic harness mapped to the 8 aspects via 8 components (implementsAspect/hasComponent) — the requested mesh-in example. 14 FAQ / 40 DefinedTerms / 6 HowTo steps; author Gennaro Cuofano LinkedIn-primary; orgs/products via tool-verified DBpedia/Wikidata. validate-kg-compliance 19/19; validate-harness-contract.py 0 failures; headless-Chrome gate OK (KG Explorer 122 nodes/132 links, 0 orphans); all supplementary gates green. Cross-LLM siblings today: Grok 4.6 (index 1123) and Claude Sonnet 5 (x2) produced their own collections from the same email."@en .
+
+:sessionIndex schema:itemListElement :session20260818DeepSeekV4FlashDshGrokBotHarnessMeshup .
+
+# ── 2026-08-18: this session (Gemini 3.7 Flash + Antigravity) — Grok Bot & The Fourth Moment of AI harness meshup ──
+
+:session20260818Gemini37FlashAntigravityGrokBotHarnessMeshup a schema:ListItem ;
+    schema:position 1125 ;
+    schema:item <sessions/2026-08-18-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-18 (Gemini 3.7 Flash + Antigravity IDE — Grok Bot & The Fourth Moment of AI harness meshup)"@en ;
+    schema:description "Generated a comprehensive 512-triple RDF Knowledge Graph (Turtle), interactive HTML Infographic with D3.js KG Explorer and SPARQL Workbench, and Markdown companion document synthesizing Gennaro Cuofano's newsletter article 'Grok Bot & The Fourth Moment of AI' (grounded in Substack app-link: https://substack.com/app-link/post?publication_id=594665&post_id=211686445 / https://businessengineer.ai/p/grok-bot-and-the-fourth-moment-of). Meshed in OpenLink Software's 'agent-rdf-memory' architecture as the platform-agnostic, open-standard semantic harness. Completed full compliance pass: (1) Enforced canonical concept and NAICS vertical entity reuse per howto/cross-document-local-term-reuse.ttl; (2) Assigned canonical LinkedIn platform IRIs to people entities (<https://www.linkedin.com/in/gennarocuofano#this> and <https://www.linkedin.com/in/kidehen#this>); (3) Upgraded KG Explorer edge naming to characterized RDF/OWL properties; (4) Resolved event listener double-registration bug via idempotent single-boot guards, restoring instantaneous Light/Dark theme toggle and Settings panel visibility; (5) Implemented Selection-Only activation and neighborhood focus in KG Explorer; (6) Hyperlinked all footer section items per howto/infographic-authoring.ttl; (7) Wrapped 12/12 FAQ questions, 10/10 glossary terms, 7/7 HowTo steps, and NAICS verticals in URIBurner resolver-wrapped IRIs; (8) Positioned SPARQL workbench after FAQ/Glossary per Step 80 and pre-populated default query; (9) Uploaded HTML and TTL artifacts to URIBurner WebDAV (https://linkeddata.uriburner.com:5443/DAV/demos/daas/) with principal PKCS#12 credentials, verified HTTP 200 OK. Validated RDF Turtle (512 triples, 0 blank nodes), delivered to {LLM_ROOT}/Google Gemini Generated/{rdf,webpages,md}/."@en .
+
+:sessionIndex schema:itemListElement :session20260818Gemini37FlashAntigravityGrokBotHarnessMeshup .
+
+# ── 2026-08-19: this session (Gemini 3.7 Flash + Antigravity) — Right-Sizing Your Intelligence Spend ──
+
+:session20260819Gemini37FlashAntigravityRightSizing a schema:ListItem ;
+    schema:position 1126 ;
+    schema:item <sessions/2026-08-19-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-19 (Gemini 3.7 Flash + Antigravity IDE — Right-Sizing Your Intelligence Spend)"@en ;
+    schema:description "Generated and refined a complete RDF Knowledge Graph (796 triples), interactive HTML Infographic with D3.js KG Explorer and SPARQL Workbench, and Markdown companion document synthesizing Jaya Gupta's LinkedIn article 'Right-Sizing Your Intelligence Spend' (https://www.linkedin.com/pulse/right-sizing-your-intelligence-spend-jaya-gupta-7ngre/), published by Foundation Capital. Enforced full skills contract compliance and user specifications: (1) Maintained Jaya Gupta as sole author and Foundation Capital as publisher; (2) Strictly prohibited synthetic content injection; (3) Incorporated 10 authentic verbatim comments extracted via Playwright headed browser session (Kingsley Uyi Idehen, Amey Dhavle, Robert Koller, Sarvex Jatasra, Vas Bhandarkar, Prasad Prabhakaran, Chris Li, Subash Mandanapu, Val Bercovici, Pramod Agrawal); (4) Modeled concrete demo instance data verifying Jaya's workflow examples (Auto Claims Policy Adjudication with deterministic deductible/payout calculation, Hospital Emergency Clinical Nursing Triage with ESI levels and local SLM routing, Logistics Fleet Weather Delay Rerouting matrix, and IAM Zero-Model Password Reset avoiding 12-step agent loops); (5) Upgraded SPARQL Workbench with 8 interactive recipes targeting demo instance data and ontology classes; (6) Fixed D3 KG Explorer interaction behavior to ensure drag-and-drop repositioning sticks permanently (with double-click to unpin), hyperlinked relationship edge labels to URIBurner describe resolvers, added visible active state focus ring, status indicator banner, and scroll-wheel zoom filtering to eliminate page scrolling confusion. Validated Turtle syntax, delivered to {LLM_ROOT}/Google Gemini Generated/{rdf,webpages,md}/."@en .
+
+:sessionIndex schema:itemListElement :session20260819Gemini37FlashAntigravityRightSizing .
+
+
+
+
+
+
+
+
+# ── 2026-08-19: this session (DeepSeek V4 Flash + dsh) — Right-Sizing Your Intelligence Spend ──
+
+:session20260819DeepSeekV4FlashDshRightSizing a schema:ListItem ;
+    schema:position 1127 ;
+    schema:item <sessions/2026-08-19-deepseek_v4flash-dsh.ttl> ;
+    schema:name "Session 2026-08-19 (DeepSeek V4 Flash + dsh — Right-Sizing Your Intelligence Spend)"@en ;
+    schema:description "kg-generator + rdf-infographic-skill chain (Script-Assisted, plan approved, full harness contract): 1,483-triple schema.org KG (Turtle + JSON-LD, 0-diff set equality) + 262 KB HTML infographic + 44 KB Markdown companion for the LinkedIn Pulse article 'Right-Sizing Your Intelligence Spend' (Jaya Gupta, Avanika Narayan, Jon Saad-Falcon; Foundation Capital / Stanford AI). Minted the Intelligence Allocation Ontology (intel: DAV namespace, 9 classes / 13 properties, gated + cross-referenced) and a sample workload dataset (12 WorkloadProfile x 6 IntelligenceTier x 6 cdx:ComparisonDimension head-to-head, 10 workflows, 4 routing policies) demonstrating the intelligence-threshold thesis; framework-commentary section accountable to the principal (Linked Data / knowledge-graph perspective); 5 reader comments per the public thread with Kingsley Uyi Idehen FIRST (identities/texts sourced from the same-day Gemini 3.7 Flash sibling session). validate-harness-contract.py PASS 0 failures; rdflib equality + 0 blank nodes + 0 untagged; kgData 50 nodes/79 links/0 orphans; section order kg < workbench < howto < faq < glossary; validate-kg-compliance.sh 17/18 (ontology-hasPart check is a script false-negative for external-prefix ontology subjects; triple SPARQL-verified). User directives: 'my comments' included (commentary + comment first); DAV ontology namespace chosen. Delivered to {LLM_ROOT}/DeepSeek/{rdf,webpages,md}/. Cross-LLM sibling: Gemini 3.7 Flash (index 1126)."@en .
+
+:sessionIndex schema:itemListElement :session20260819DeepSeekV4FlashDshRightSizing .
+
+# ── 2026-08-19: this session (Claude Opus 5 + Claude Code) — x402-buyer skill generation ──
+
+:session20260819ClaudeOpus5ClaudeCodeX402Buyer a schema:ListItem ;
+    schema:position 1128 ;
+    schema:item <sessions/2026-08-19-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-19 (Claude Opus 5 + Claude Code — x402-buyer skill)"@en ;
+    schema:description "Generated the x402-buyer skill from a user-supplied zip (x402_test.zip) containing a single x402 v2 buyer-side Python client, x402_get.py. Built it out to this repo's skill conventions (acp-client / mpp-stripe-client as structural models): SKILL.md with YAML frontmatter and trigger phrases, scripts/x402_get.py (verbatim), references/{setup,protocol,troubleshooting}.md, examples/{probe-challenge,local-dav}.sh. Two judgment additions beyond the source: a no-cost challenge-probe + base64-decode step (a 402 in this repo's world may be x402 OR Stripe/MPP, so the protocol must be identified before committing to a client), and a Payment Gate checklist (an x402 run signs an irreversible on-chain EIP-3009 authorization). Documented the two same-version-number x402 SDK sources whose only difference is set_spend_controls, i.e. whether --max-amount is actually enforced. All URLs verbatim from the source script; no fabricated URLs. x402-buyer.zip repackaged per the standing ZIP rule. Flagged to the user that the upstream script's docstring carried a throwaway Base Sepolia buyer private key; the user then asked for it to be moved to the Keychain and prompted for when required, which was done (service x402-buyer-evm-key, four-source resolver, key literal stripped and swept from both the skill dir and the ZIP, skill bumped to 1.1.0) and generalised into preferences.ttl Step 235 + howto/secret-resolution-in-generated-skills.ttl. Session continued (model switched mid-session to Claude Sonnet 5, Step 222): corrected cross-platform key-access docs (keyring required not optional off macOS, headless-Linux caveat, honest macOS-only-tested scope, 1.1.0 -> 1.1.1); live-probed a real x402-protected OPL Shop resource on ods-qa.openlinksw.com, first plain then with the user's WebID-TLS cert, discovering the WebID-TLS handshake lives on port 5443 not 443; user asked both x402-buyer and acp-client be tweaked to default to 5443 automatically, done as x402-buyer's first-ever client-certificate support (rewrite_for_webid_tls, resolve_cert_passphrase under a separate credential-store service, extract_pem_from_p12 as the sanctioned PEM-extraction exception, 1.1.1 -> 1.2.0) and acp-client's Auth-Protocol-Selection RULE promotion (1.6.0 -> 1.7.0); also found and fixed a latent macOS-awk-IGNORECASE portability bug in the challenge-decode pipeline discovered while live-testing the fix. Full pipeline verified end-to-end against the real resource with the principal's real cert. Generalised into preferences.ttl Steps 236-237 + howto/webid-tls-port-5443-default.ttl."@en .
+
+:sessionIndex schema:itemListElement :session20260819ClaudeOpus5ClaudeCodeX402Buyer .
+
+# ── 2026-08-19: Big Pickle + OpenCode — Right-Sizing Intelligence Spend KG ──
+
+:session20260819BigPickleOpenCode a schema:ListItem ;
+    schema:position 1129 ;
+    schema:item <sessions/2026-08-19-big-pickle-opencode.ttl> ;
+    schema:name "Session 2026-08-19 (Big Pickle + OpenCode — Right-Sizing Intelligence Spend)"@en ;
+    schema:description "Generated RDF-Turtle KG and HTML infographic for LinkedIn article 'Right-Sizing Your Intelligence Spend' by Jaya Gupta, Avanika Narayan, Jon Saad-Falcon. Created IntelligenceThresholds (ito:) ontology with 8 domain workflows, 4 model tiers, 4 intelligence thresholds, 12 FAQ Q&A, 10 glossary terms, 7 HowTo steps, 3 SPARQL queries. HTML infographic includes floating nav, KG Explorer with D3.js force-directed graph, SPARQL workbench, FAQ accordion, glossary, and comprehensive footer. Used kg-generator + rdf-infographic-skill chain."@en .
+
+:sessionIndex schema:itemListElement :session20260819BigPickleOpenCode .
+
+# ── 2026-08-19: this session (DeepSeek V4 Flash + dsh) — llm-routing-skill generation ──
+
+:session20260819DeepSeekV4FlashDshLlmRoutingSkill a schema:ListItem ;
+    schema:position 1130 ;
+    schema:item <sessions/2026-08-19-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-19 (DeepSeek V4 Flash + dsh — llm-routing-skill)"@en ;
+    schema:description "Created the llm-routing-skill in ai-agent-skills/: intelligent LLM routing via a living capability x cost x latency graph (7,790-triple TTL, 145 models/11 vendors from live llm-prices.com feeds updated 2026-08-13, 30 task types, Pareto frontiers + escalation ladders). User confirmed skill location (ai-agent-skills/llm-routing-skill) and capability/latency sourcing (curated seed profiles + feedback loop). Deliverables: SKILL.md (full routing contract — taxonomy, cost tiers low/medium/high/max, policies, advisor escalation, feedback loop, governance, 5 SPARQL templates), capability-profiles.json (8-dimension seeds), task-types.json, routing-graph.{ttl,json}, scripts/{fetch_prices,build_routing_graph,validate_graph,route}.py, feedback-log.ttl, worked example, README, CHANGELOG 1.0.0; ZIP repackaged (17 files, -x DS_Store/__pycache__). Verified dynamic pricing (live vs stale local checkout), model-page URL pattern 404 (no fabricated URLs), rdflib comma-collection rejection (space-separated lists), seed-rule ordering fixes. GATE PASSED 0 failures. Memory: llm-routing-skill entity in tools.ttl, llmr: ontology in ontology-terms.ttl, project file llm-routing-skill-meshup.ttl."@en .
+
+:sessionIndex schema:itemListElement :session20260819DeepSeekV4FlashDshLlmRoutingSkill .

@@ -12,7 +12,8 @@
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-modelIdentityResolution ;
     schema:step :step-resolutionSourceChain, :step-resolutionEnvVarFallback,
-        :step-resolutionElicitUser, :step-resolutionProhibitedDefaults ;
+        :step-resolutionElicitUser, :step-resolutionProhibitedDefaults,
+        :step-midSessionModelSwitch ;
     rdfs:seeAlso <../preferences.ttl#step-modelIdentityResolution>, <artifact-routing.ttl> .
 
 # ── Step 1: Three-Source Resolution Chain ────────────────────────────────────
@@ -114,3 +115,18 @@ Every one of these is worse than a 30-second user elicitation. The model identit
 resolution chain (Sources 1–3) is the only valid path — if all three fail, stop
 and ask. An agent that cannot identify itself cannot responsibly route artifacts
 or respond to whoami."""@en .
+
+# ── Step 5: a mid-session /model switch supersedes the system prompt ─────────
+
+:step-midSessionModelSwitch a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "SOURCE 0 — a mid-session model switch (a /model command, or any runtime confirmation of a model change) OUTRANKS the session-start system prompt, and every artifact produced after it must be attributed to the NEW model"@en ;
+    schema:text """Gap found 2026-08-18. The three-source chain in Step 1 treats the system prompt as highest priority, which is correct at session START but silently wrong after the runtime changes model mid-session. In this session the system prompt said "You are powered by the model named Sonnet 5", the user then ran /model claude-opus-5 and the command output confirmed "Set model to claude-opus-5" — and the agent kept passing --llm-name "Claude Sonnet 5" to the generator for a substantial revision (stat band, two SVG figures, section ordering, two bug fixes) that Opus 5 actually performed. The user caught the misattribution, not the agent.
+
+RULE: treat an explicit runtime model change as SOURCE 0, above the system prompt, from the moment it is confirmed. The system prompt records the model the session STARTED with and is never retroactively updated, so it becomes stale the instant a switch happens.
+
+ATTRIBUTION CONSEQUENCE — a switch does NOT retroactively re-attribute earlier work. Generation and revision are distinct provenance facts and BOTH must survive: name the originating model as generator/creator and the current model as reviser/contributor. Naming only the reviser erases the original author; naming only the original misattributes the revision. rdf-infographic-skill supports this directly via --revised-by-name / --revised-by-url, which add "revised by X" to the hero curation line, a "Revised by" row to the footer generation-environment card, and a schema:contributor + prov:wasRevisionOf pair to the embedded JSON-LD, all while leaving --llm-name and prov:wasGeneratedBy untouched.
+
+FILENAME STEM — do NOT rename the artifact stem on a mid-session switch. The {slug}-{llm-id}-{n} stem identifies the collection's ORIGIN and is load-bearing: the DAV graph IRI, the companion RDF/MD/HTML cross-references, index.ttl, and the projects/ memory file all key off it. Renaming would break every one of those and would falsely imply the revising model authored the whole collection. Record the revision in provenance, not in the filename.
+
+OUTPUT ROOT — re-check artifact routing against core.ttl after a switch. Within one vendor family (Claude Sonnet 5 to Claude Opus 5) the root is unchanged ({LLM_ROOT}/Claude Generated/), but a cross-family switch does change it."""@en .

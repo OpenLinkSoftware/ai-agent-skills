@@ -103,6 +103,155 @@ def build_sample_query_cards(source_code: list[dict], resolver_pattern: str) -> 
     return heading + "".join(cards) + data_script
 
 
+def _entity_link(label: str, iri: str, resolver_pattern: str, cls: str = "") -> str:
+    """Resolver-backed hyperlink for a visible entity (open-tab contract)."""
+    c = f' class="{cls}"' if cls else ""
+    if not iri:
+        return escape(label)
+    return (
+        f'<a{c} href="{make_resolver_link(iri, resolver_pattern)}" '
+        f'target="_blank" rel="noopener noreferrer">{escape(label)}</a>'
+    )
+
+
+def render_synopsis_deck(syn: dict, deck: dict, resolver_pattern: str) -> str:
+    """Render the synopsis as a reusable executive-summary deck.
+
+    Data slots come from rdf_parser._extract_deck and are all optional; a
+    collection whose RDF lacks spotlight classes, citations, or a quotation
+    simply gets the kicker + lede + body + KG-entity CTA. This is the
+    reusable design system (see preferences.ttl
+    step-synopsisDeckDesignSystem / howto/synopsis-deck-design-system.ttl).
+    """
+    meta = deck.get("meta", {}) or {}
+    meta_html = ""
+    if meta.get("author_name") or meta.get("publisher_name") or meta.get("date"):
+        bits = []
+        if meta.get("author_name"):
+            bits.append("By " + _entity_link(meta["author_name"], meta["author_iri"], resolver_pattern))
+        if meta.get("publisher_name"):
+            bits.append(_entity_link(meta["publisher_name"], meta["publisher_iri"], resolver_pattern))
+        if meta.get("date"):
+            bits.append(escape(meta["date"]))
+        meta_html = f'<span class="syn-kicker-meta">{" &middot; ".join(bits)}</span>'
+    kicker = (
+        '<div class="syn-kicker">'
+        '<span class="syn-pill"><span class="syn-dot" aria-hidden="true"></span>Executive Summary</span>'
+        '<span class="syn-kicker-rule" aria-hidden="true"></span>'
+        f"{meta_html}"
+        "</div>"
+    )
+    heading = (
+        '<h2 class="syn-heading" id="synopsis-heading">Synopsis'
+        '<a class="headline-anchor" href="#synopsis" aria-label="Link to this section">&#182;</a></h2>'
+    )
+
+    abstract = syn.get("abstract") or ""
+    lede = ""
+    body_paras = []
+    if abstract.strip().startswith("<p"):
+        paras = re.findall(r"<p[^>]*>.*?</p>", abstract, re.S)
+        # The first paragraph of a multi-paragraph HTML abstract IS the lede
+        # and must get the same .lede treatment (larger, bolder, accent
+        # left-border — see styles.css #synopsis .syn-deck .lede) as the
+        # single-paragraph fallback below. Missing this produced a visually
+        # flat synopsis where the opening sentence looked identical to body
+        # prose (caught 2026-08-15 on the RDF 1.2/Virtuoso collection).
+        if paras:
+            first = paras[0]
+            if 'class="' in first[:20]:
+                first = re.sub(r'class="', 'class="lede ', first, count=1)
+            else:
+                first = first.replace("<p", '<p class="lede"', 1)
+            lede = first
+        else:
+            lede = ""
+        body_paras = paras[1:] if len(paras) > 1 else []
+    else:
+        lede = f'<p class="lede">{escape(abstract)}</p>' if abstract else ""
+
+    panel = ""
+    groups = deck.get("spotlight_groups", []) or []
+    if groups:
+        # Prefer the group that contains the article's schema:about entity (the
+        # featured concept); otherwise the first group by title (deterministic).
+        chosen = next(
+            (grp for grp in groups if any(it.get("featured") for it in grp.get("items", []) or [])),
+            None,
+        )
+        if chosen is None:
+            chosen = sorted(groups, key=lambda grp: grp.get("title", ""))[0]
+        rows = []
+        for it in chosen.get("items", []) or []:
+            featured_cls = " featured" if it.get("featured") else ""
+            tag = ""
+            if it.get("featured") and chosen.get("tag"):
+                tag = f' <span class="debt-tag">{escape(chosen["tag"])}</span>'
+            # Compact single-line row: the description moves into a title=
+            # tooltip instead of visible text, so a long spotlight list stays
+            # proportionate to the lede/body column instead of each row
+            # costing 3 wrapped lines of desc text (see preferences.ttl
+            # step-synopsisPanelCompactRows).
+            name_link = _entity_link(it["name"], it["iri"], resolver_pattern, "debt-name")
+            name_link = name_link.replace("<a ", f'<a title="{escape(it["desc"])}" ', 1)
+            rows.append(
+                f'<div class="debt-row{featured_cls}">'
+                f'<span class="debt-dot" aria-hidden="true"></span>'
+                f"{name_link}{tag}"
+                f"</div>"
+            )
+        overflow_html = ""
+        if chosen.get("overflow_count"):
+            overflow_html = (
+                f'<span class="syn-panel-more">+{chosen["overflow_count"]} more in the full section below</span>'
+            )
+        panel = (
+            '<aside class="syn-panel" aria-label="Key concepts">'
+            f'<h3 class="syn-panel-title">{escape(chosen["title"])}</h3>'
+            f'{"".join(rows)}{overflow_html}</aside>'
+        )
+
+    grid = ""
+    if body_paras or panel:
+        grid = f'<div class="syn-grid"><div class="syn-body">{"".join(body_paras)}</div>{panel}</div>'
+
+    chips_html = ""
+    chips = deck.get("citation_chips", []) or []
+    if chips:
+        chip_links = "".join(
+            _entity_link(c["name"], c["iri"], resolver_pattern, "mesh-chip") for c in chips
+        )
+        chips_html = (
+            '<div class="syn-mesh">'
+            '<span class="syn-mesh-label">Sources</span>'
+            f"{chip_links}</div>"
+        )
+
+    quote_html = ""
+    q = deck.get("quotation")
+    if q:
+        author_part = ""
+        if q.get("author_name"):
+            author_part = f" &mdash; {_entity_link(q['author_name'], q['author_iri'], resolver_pattern)}"
+        quote_html = (
+            f'<blockquote class="syn-quote"><p>&#8220;{escape(q["text"])}&#8221;{author_part}</p></blockquote>'
+        )
+
+    cta_html = ""
+    if syn.get("iri"):
+        cta_html = (
+            f'<a class="syn-cta" href="{make_resolver_link(syn["iri"], resolver_pattern)}" '
+            f'target="_blank" rel="noopener noreferrer">View this analysis as a KG entity '
+            f'<span class="syn-arrow" aria-hidden="true">&#8594;</span></a>'
+        )
+
+    return (
+        '<section class="section section-alt" id="synopsis">'
+        f'<div class="syn-deck anim-fade">{kicker}{heading}{lede}{grid}{chips_html}{quote_html}{cta_html}</div>'
+        "</section>"
+    )
+
+
 def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str) -> tuple[str, list[dict]]:
     """Extract and render narrative sections from RDF annotations.
 
@@ -126,37 +275,19 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     has_faq = len(narrative["faq"]) > 0
     has_glossary = len(narrative["glossary"]) > 0
     has_howto = len(narrative["howto"]) > 0
-    has_people = len(narrative["people"]) > 0
-    has_orgs = len(narrative["organizations"]) > 0
     has_synopsis = narrative.get("synopsis") is not None
     has_sections = len(narrative.get("sections", [])) > 0
 
     if has_synopsis:
-        syn = narrative["synopsis"]
-        # schema:abstract is trusted author-controlled prose, not untrusted input — rendered
-        # raw (not escaped) so RDF-authored resolver-link <a> tags and <br> paragraph breaks
-        # (the documented entity-link-in-body-prose pattern) render as real markup, not text.
-        abstract = syn["abstract"] if syn["abstract"] else ""
-        iri = syn["iri"]
-        heading = escape(syn["headline"]) if syn["headline"] else "Synopsis"
-        link_open = f'<a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if iri else ""
-        link_close = "</a>" if iri else ""
-        # If the author already supplied full paragraph markup (starts with
-        # <p), render it as-is instead of wrapping it in a second <p> --
-        # wrapping would either nest invalid markup or leave a dangling
-        # unmatched closing </p> at the end. A single dense schema:abstract
-        # paragraph reads as an unbroken wall of text with zero visual
-        # hierarchy; multi-paragraph raw HTML (optionally starting with a
-        # <p class="lede"> for the thesis-in-one-sentence) is how a synopsis
-        # gets real readability/aesthetic structure -- see
-        # howto/synopsis-readability-cleanup.ttl.
-        if abstract.strip().startswith("<p"):
-            items_html = abstract
-        else:
-            items_html = f'<p style="font-size:1.05rem;line-height:1.7">{abstract}</p>' if abstract else ""
-        if iri:
-            items_html += f'<p style="margin-top:1rem;font-size:0.85rem">{link_open}View this analysis as a KG entity{link_close}</p>'
-        html_parts.append(render_narrative_section("synopsis", "Synopsis", items_html))
+        # The synopsis renders as the reusable executive-summary deck (kicker
+        # meta, lede, narrative body, optional spotlight panel from document-
+        # ontology classes, optional citation chips, optional quotation, KG
+        # entity CTA) -- see render_synopsis_deck. The abstract's multi-
+        # paragraph raw HTML is trusted author-controlled prose rendered raw,
+        # so RDF-authored resolver-link <a> tags and <p> breaks stay real
+        # markup (entity-link-in-body-prose pattern); the deck splits the
+        # first <p> out as the lede.
+        html_parts.append(render_synopsis_deck(narrative["synopsis"], narrative.get("deck", {}), resolver_pattern))
         nav_links.append({"href": "#synopsis", "label": "Synopsis"})
         sections.append("synopsis")
 
@@ -167,59 +298,177 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
             sec_iri = sec["iri"]
             sec_abstract = escape(sec["abstract"]) if sec["abstract"] else ""
             inner = f'<p style="font-size:0.98rem;line-height:1.7;color:var(--text-secondary)">{sec_abstract}</p>' if sec_abstract else ""
-            if sec["items"]:
-                inner += '<div class="cards-grid mt-2">'
+            # Inline SVG figure (trusted author-controlled markup from a
+            # schema:image literal) sits between the section's framing prose
+            # and its items — the explanatory diagram belongs with the claim
+            # it illustrates, not appended after the supporting detail.
+            if sec.get("figure"):
+                inner += f'<figure class="fig-wrap">{sec["figure"]}</figure>'
+            # A section whose children are schema:PropertyValue entities with
+            # a schema:value is a set of headline figures, not prose — render
+            # a stat band so the numbers carry the visual weight they carry in
+            # the argument, instead of being buried in card body text.
+            if sec["items"] and all(i.get("is_metric") for i in sec["items"]):
+                inner += '<div class="stat-band">'
                 for item in sec["items"]:
                     i_iri = item["iri"]
+                    i_val = escape(item["value"])
+                    i_unit = escape(item["unit"]) if item.get("unit") else ""
                     i_name = escape(item["name"])
                     i_desc = escape(item["description"]) if item["description"] else ""
+                    unit_html = f'<span class="stat-unit">{i_unit}</span>' if i_unit else ""
                     inner += (
-                        f'<div class="card">'
+                        f'<div class="stat-tile">'
+                        f'<div class="stat-value">{i_val}{unit_html}</div>'
+                        f'<div class="stat-label">'
+                        f'<a href="{make_resolver_link(i_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{i_name}</a>'
+                        f'</div>'
+                        f'<p class="stat-note">{i_desc}</p>'
+                        f'</div>'
+                    )
+                inner += '</div>'
+            elif sec["items"]:
+                # An RDF-asserted schema:position on every item in a section
+                # is a real signal from the source data, not decoration: it
+                # means the source models these as a sequence (a strategic
+                # narrative, an ordered checklist, ranked signals), not an
+                # unordered set (a glossary, an org list). A flat card grid
+                # renders both identically, discarding that structure. When
+                # every item carries a real (non-sentinel) position and there
+                # is more than one, render a numbered timeline instead — the
+                # RDF still drives the choice, only the visual treatment
+                # changes. See howto/ordered-section-timeline.ttl.
+                positions = [item.get("position") for item in sec["items"]]
+                is_ordered = len(sec["items"]) > 1 and all(
+                    isinstance(p, int) and p != 9999 for p in positions
+                )
+                if is_ordered:
+                    inner += '<div class="timeline numbered mt-2">'
+                    for item in sec["items"]:
+                        i_iri = item["iri"]
+                        i_name = escape(item["name"])
+                        i_desc = escape(item["description"]) if item["description"] else ""
+                        i_pos = item.get("position")
+                        inner += (
+                            f'<div class="timeline-item numbered">'
+                            f'<div class="timeline-marker">{i_pos}</div>'
+                            f'<div class="timeline-content">'
+                            f'<h4><a href="{make_resolver_link(i_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{i_name}</a></h4>'
+                            f'<p>{i_desc}</p></div></div>'
+                        )
+                    inner += '</div>'
+                elif len(sec["items"]) == 1:
+                    # A lone item in a .cards-grid is a layout defect: auto-fill
+                    # sizes it to one ~280-560px track and leaves the rest of the
+                    # row empty, so the section's ONLY content floats in a
+                    # half-width box beside dead space. It is also the one case
+                    # where the grid's uniform-height rationale for capping
+                    # descriptions at 600 chars does not apply — nothing else is
+                    # in the row to stay uniform with — so the full untruncated
+                    # text is used. Rendered as a full-width feature block.
+                    item = sec["items"][0]
+                    i_iri = item["iri"]
+                    i_name = escape(item["name"])
+                    i_desc = escape(item.get("description_full") or item["description"] or "")
+                    inner += (
+                        f'<div class="feature-block mt-2">'
                         f'<h3><a href="{make_resolver_link(i_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{i_name}</a></h3>'
                         f'<p>{i_desc}</p></div>'
                     )
-                inner += '</div>'
+                else:
+                    inner += '<div class="cards-grid mt-2">'
+                    for item in sec["items"]:
+                        i_iri = item["iri"]
+                        i_name = escape(item["name"])
+                        i_desc = escape(item["description"]) if item["description"] else ""
+                        inner += (
+                            f'<div class="card">'
+                            f'<h3><a href="{make_resolver_link(i_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{i_name}</a></h3>'
+                            f'<p>{i_desc}</p></div>'
+                        )
+                    inner += '</div>'
             link_open = f'<a href="{make_resolver_link(sec_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if sec_iri else ""
             link_close = "</a>" if sec_iri else ""
             title_html = f'{link_open}{sec_name}{link_close}' if sec_iri else sec_name
             html_parts.append(
                 f'<section class="section section-alt" id="{sec_id}">'
-                f'<h2>{title_html}<a class="headline-anchor" href="#{sec_id}" aria-label="Link to this section">¶</a></h2>'
+                f'<div class="sec-head"><span class="sec-eyebrow">Section {idx}</span>'
+                f'<h2 id="{sec_id}-heading">{title_html}<a class="headline-anchor" href="#{sec_id}" aria-label="Link to this section">¶</a></h2>'
+                f'<span class="sec-rule" aria-hidden="true"></span></div>'
                 f'{inner}'
                 f'</section>'
             )
             nav_links.append({"href": f"#{sec_id}", "label": sec["name"][:28]})
             sections.append(sec_id)
 
-    if has_people:
-        items_html = ""
-        for p in narrative["people"]:
-            iri = p["iri"]
-            name = escape(p["name"])
-            desc = escape(p["description"]) if p["description"] else ""
-            items_html += (
-                f'<div class="card">'
-                f'<h3><a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{name}</a></h3>'
-                f'<p>{desc}</p></div>'
-            )
-        html_parts.append(render_narrative_section("people", "People", f'<div class="cards-grid">{items_html}</div>'))
-        nav_links.append({"href": "#people", "label": "People"})
-        sections.append("people")
+    # People and Organizations are NOT rendered as their own showcase
+    # sections (removed by explicit user request 2026-08-18): a standalone
+    # name+description card grid duplicates what resolver-linked mentions
+    # already surface inline throughout the narrative/analysis sections and
+    # KG Explorer. Person/Organization entities remain in the RDF
+    # (narrative["people"]/["organizations"] are still populated by
+    # rdf_parser.py) and still participate in KG Explorer nodes and resolver
+    # links — only the dedicated nav sections + card grids are suppressed.
+    # Their schema:description text must still satisfy the canonical-identity
+    # / cross-reference (owl:sameAs platform-priority ladder, DBpedia/
+    # Wikidata denotation) rules regardless of whether a section renders —
+    # see howto/canonical-entity-iri-denotation.ttl.
 
-    if has_orgs:
-        items_html = ""
-        for o in narrative["organizations"]:
-            iri = o["iri"]
-            name = escape(o["name"])
-            desc = escape(o["description"]) if o["description"] else ""
-            items_html += (
-                f'<div class="card">'
-                f'<h3><a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{name}</a></h3>'
-                f'<p>{desc}</p></div>'
-            )
-        html_parts.append(render_narrative_section("organizations", "Organizations", f'<div class="cards-grid">{items_html}</div>'))
-        nav_links.append({"href": "#organizations", "label": "Organizations"})
-        sections.append("organizations")
+    # Reference-section order is HowTo, then FAQ, then Glossary (user-specified
+    # standing preference, preferences.ttl step-howtoFaqGlossaryOrder) — HowTo
+    # first because it is the actionable takeaway, FAQ second as targeted
+    # lookup, Glossary last as pure reference. This order was previously only
+    # applied by hand-patching individual HTML outputs after generation; it is
+    # now enforced here in the generator itself, plus checked by
+    # validate-harness-contract.py, so it cannot silently regress again.
+
+    if has_howto:
+        def _render_howto_steps(steps: list[dict]) -> str:
+            list_html = '<div class="howto-list">'
+            for i, step in enumerate(steps, 1):
+                iri = step["iri"]
+                s = escape(step["step"])
+                desc = escape(step["description"]) if step["description"] else ""
+                link_open = f'<a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if iri else ""
+                link_close = "</a>" if iri else ""
+                list_html += (
+                    f'<div class="howto-step anim-fade">'
+                    f'<div class="howto-num">{i}</div>'
+                    f'<div class="howto-content">'
+                    f'<h4>{link_open}{s}{link_close}</h4>'
+                    f'<p>{desc}</p></div></div>'
+                )
+            return list_html + "</div>"
+
+        howto_groups = narrative.get("howto_groups") or []
+        # Single (or unnamed) group: preserve the original flat rendering
+        # exactly, so a document with one schema:HowTo looks unchanged.
+        if len(howto_groups) <= 1:
+            items_html = _render_howto_steps(narrative["howto"])
+        else:
+            # Multiple distinct schema:HowTo entities (e.g. a build pipeline
+            # plus several scenario-specific guides) — render each as its
+            # own titled, independently-numbered sub-guide rather than one
+            # flattened, misleadingly continuous step sequence. See
+            # howto/full-skills-contract-always-applies.ttl on not letting
+            # generator output silently drop source structure.
+            items_html = '<div class="howto-groups">'
+            for group in howto_groups:
+                gname = escape(group["name"]) if group["name"] else ""
+                gdesc = escape(group["description"]) if group["description"] else ""
+                giri = group["iri"]
+                glink_open = f'<a href="{make_resolver_link(giri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if giri else ""
+                glink_close = "</a>" if giri else ""
+                items_html += '<div class="howto-group anim-fade">'
+                if gname:
+                    items_html += f'<h3 class="howto-group-title">{glink_open}{gname}{glink_close}</h3>'
+                if gdesc:
+                    items_html += f'<p class="howto-group-desc">{gdesc}</p>'
+                items_html += _render_howto_steps(group["steps"])
+                items_html += '</div>'
+            items_html += '</div>'
+        html_parts_ref.append(render_narrative_section("howto", "How-To Guide", items_html, eyebrow="How-To"))
+        sections.append("howto")
 
     if has_faq:
         items_html = '<div class="faq-list">'
@@ -236,7 +485,7 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
                 f'</div>'
             )
         items_html += "</div>"
-        html_parts_ref.append(render_narrative_section("faq", "Frequently Asked Questions", items_html))
+        html_parts_ref.append(render_narrative_section("faq", "Frequently Asked Questions", items_html, eyebrow="FAQ"))
         sections.append("faq")
 
     if has_glossary:
@@ -253,27 +502,8 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
                 f'<p>{defn}</p></div>'
             )
         items_html += "</div>"
-        html_parts_ref.append(render_narrative_section("glossary", "Glossary of Terms", items_html))
+        html_parts_ref.append(render_narrative_section("glossary", "Glossary of Terms", items_html, eyebrow="Glossary"))
         sections.append("glossary")
-
-    if has_howto:
-        items_html = '<div class="howto-list">'
-        for i, step in enumerate(narrative["howto"], 1):
-            iri = step["iri"]
-            s = escape(step["step"])
-            desc = escape(step["description"]) if step["description"] else ""
-            link_open = f'<a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if iri else ""
-            link_close = "</a>" if iri else ""
-            items_html += (
-                f'<div class="howto-step anim-fade">'
-                f'<div class="howto-num">{i}</div>'
-                f'<div class="howto-content">'
-                f'<h4>{link_open}{s}{link_close}</h4>'
-                f'<p>{desc}</p></div></div>'
-            )
-        items_html += "</div>"
-        html_parts_ref.append(render_narrative_section("howto", "How-To Guide", items_html))
-        sections.append("howto")
 
     # Embedded schema:SoftwareSourceCode queries are NOT rendered as their own
     # narrative section — that would stack a second, non-interactive SPARQL
@@ -293,19 +523,37 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
         {"href": "#kg-explorer", "label": "KG Explorer"},
         {"href": "#sparql-explorer", "label": "SPARQL"},
     ])
+    if has_howto:
+        nav_links.append({"href": "#howto", "label": "HowTo"})
     if has_faq:
         nav_links.append({"href": "#faq", "label": "FAQ"})
     if has_glossary:
         nav_links.append({"href": "#glossary", "label": "Glossary"})
-    if has_howto:
-        nav_links.append({"href": "#howto", "label": "HowTo"})
     nav_links.append({"href": "#footer", "label": "Footer"})
 
     return "\n".join(html_parts), "\n".join(html_parts_ref), nav_links, sections
 
 
-def render_narrative_section(section_id: str, title: str, inner_html: str) -> str:
-    return make_section_html(section_id, title, inner_html)
+def render_narrative_section(section_id: str, title: str, inner_html: str, eyebrow: str = "") -> str:
+    """Render a narrative section with the editorial header system.
+
+    When an eyebrow is supplied the section gets the kicker + heading + rule
+    layout (.sec-head); every heading carries a stable kebab-case id derived
+    from the section id, and the fragment anchor (¶) stays for same-page nav.
+    """
+    if eyebrow:
+        head = (
+            f'<div class="sec-head"><span class="sec-eyebrow">{escape(eyebrow)}</span>'
+            f'<h2 id="{section_id}-heading">{escape(title)}'
+            f'<a class="headline-anchor" href="#{section_id}" aria-label="Link to this section">¶</a></h2>'
+            f'<span class="sec-rule" aria-hidden="true"></span></div>'
+        )
+    else:
+        head = (
+            f'<h2 id="{section_id}-heading">{escape(title)}'
+            f'<a class="headline-anchor" href="#{section_id}" aria-label="Link to this section">¶</a></h2>'
+        )
+    return f'<section class="section section-alt" id="{section_id}">{head}{inner_html}</section>'
 
 
 KIDEHEN_WEBID = "https://www.linkedin.com/in/kidehen#this"
@@ -321,6 +569,8 @@ def render_jsonld(
     llm_name: str = "Claude Sonnet 5",
     llm_url: str = "https://www.anthropic.com/claude",
     principal_webid: str = KIDEHEN_WEBID,
+    revised_by_name: str = "",
+    revised_by_url: str = "",
 ) -> str:
     """Build the embedded JSON-LD block.
 
@@ -373,12 +623,28 @@ def render_jsonld(
             },
         ],
     }
+    # A later model revising an artifact an earlier model generated is a
+    # distinct provenance fact from generation, and must not overwrite it —
+    # naming only the reviser would erase the original author, naming only
+    # the original would misattribute the revision. Both are recorded.
+    if revised_by_name:
+        r_url = revised_by_url or "https://www.anthropic.com/claude"
+        ld["prov:wasRevisionOf"] = {"@id": base_iri}
+        ld["contributor"] = {
+            "@id": f"{r_url}#this",
+            "@type": ["SoftwareApplication", "prov:SoftwareAgent"],
+            "name": revised_by_name,
+            "url": r_url,
+            "prov:actedOnBehalfOf": {"@id": principal_webid},
+        }
     return json.dumps(ld, indent=2)
 
 
 def render_hero_meta(
     llm_name: str = "Claude Sonnet 5",
     llm_url: str = "https://www.anthropic.com/claude",
+    revised_by_name: str = "",
+    revised_by_url: str = "",
     principal_name: str = "Kingsley Idehen",
     principal_resolver: str = "https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this",
 ) -> str:
@@ -390,11 +656,17 @@ def render_hero_meta(
     the hero-attribution line going missing across five separate documented
     occurrences (agent-rdf-memory/howto/kg-curation-attribution.ttl).
     """
+    revised = ""
+    if revised_by_name:
+        r_url = revised_by_url or "https://www.anthropic.com/claude"
+        revised = (
+            f', revised by <a href="{r_url}" target="_blank" rel="noopener noreferrer">{revised_by_name}</a>'
+        )
     return (
         "KG curated by "
         f'<a href="{KG_GENERATOR_URL}" target="_blank" rel="noopener noreferrer">kg-generator</a>, '
         f'<a href="{RDF_INFOGRAPHIC_SKILL_URL}" target="_blank" rel="noopener noreferrer">rdf-infographic-skill</a>, '
-        f'and <a href="{llm_url}" target="_blank" rel="noopener noreferrer">{llm_name}</a> '
+        f'and <a href="{llm_url}" target="_blank" rel="noopener noreferrer">{llm_name}</a>{revised} '
         f'on behalf of <a href="{principal_resolver}" target="_blank" rel="noopener noreferrer">{principal_name}</a>'
     )
 
@@ -476,6 +748,8 @@ def assemble_html(
     meta_html: str = "",
     llm_name: str = "Claude Sonnet 5",
     llm_url: str = "https://www.anthropic.com/claude",
+    revised_by_name: str = "",
+    revised_by_url: str = "",
     agent_env: str = "",
 ) -> bool:
     """Assemble a complete HTML infographic from an RDF file.
@@ -489,7 +763,8 @@ def assemble_html(
     # KG-curation attribution defaults on unless the caller explicitly overrides
     # meta_html — see render_hero_meta docstring for why this is not opt-in.
     if not meta_html:
-        meta_html = render_hero_meta(llm_name=llm_name, llm_url=llm_url)
+        meta_html = render_hero_meta(llm_name=llm_name, llm_url=llm_url,
+                                     revised_by_name=revised_by_name, revised_by_url=revised_by_url)
 
     # Resolve base IRI
     base_iri = get_base_iri(rdf_path)
@@ -521,7 +796,8 @@ def assemble_html(
     print(f"  Sections: {', '.join(sections)}")
 
     # Build JSON-LD
-    jsonld_content = render_jsonld(title, description, base_iri, rdf_rel, llm_name=llm_name, llm_url=llm_url)
+    jsonld_content = render_jsonld(title, description, base_iri, rdf_rel, llm_name=llm_name, llm_url=llm_url,
+                                  revised_by_name=revised_by_name, revised_by_url=revised_by_url)
 
     # Build SPARQL recipes — scoped to the DAV-uploaded graph IRI, never the
     # document/base IRI (see compute_dav_graph_iri docstring).
@@ -541,7 +817,15 @@ def assemble_html(
     # scale before the reader opens them, instead of a bare "Show ▼" label.
     kg_node_count = len(kgdata["nodes"])
     kg_link_count = len(kgdata["links"])
-    sparql_query_count = len([i for i in embedded_sparql if i.get("language", "").upper() == "SPARQL"])
+    # The badge previews what the reader actually finds inside the workbench,
+    # which is the recipe dropdown PLUS any RDF-embedded query cards. Counting
+    # only the embedded ones rendered a misleading "0 sample queries" on every
+    # document whose source RDF carries no schema:SoftwareSourceCode query
+    # entities — while the workbench in fact shipped three runnable recipes.
+    sparql_query_count = (
+        len(sparql_recipes)
+        + len([i for i in embedded_sparql if i.get("language", "").upper() == "SPARQL"])
+    )
     sparql_query_label = f"{sparql_query_count} sample quer{'y' if sparql_query_count == 1 else 'ies'}"
 
     # Load assets
@@ -584,6 +868,8 @@ def assemble_html(
         "source_url": source_url,
         "source_label": source_label,
         "llm_name": llm_name,
+        "revised_by_name": revised_by_name,
+        "revised_by_url": revised_by_url or "https://www.anthropic.com/claude",
         "llm_url": llm_url,
         "agent_env": agent_env,
         "generation_date": date.today().isoformat(),

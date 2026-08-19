@@ -71,3 +71,4 @@ Establish these before editing or deploying:
 - Treat the certificate-bearing identity and the delegated principal as separate facts: `-X` or `--cert` identifies the calling agent, while `-W` or `On-Behalf-Of` identifies the WebID principal whose ACL rights should be evaluated.
 - Weblog post iframes must tolerate opaque or sandboxed embedded content: frame helpers should catch access denial, skip unreadable frames, and route same-origin WebDAV collection links to top-level navigation when readable.
 - Never write credentials into the skill, generated SQL, VSP, logs, or committed files.
+- **Remote uploads and removals** use HTTP first, then WebDAV, then iSQL, with the principal PKCS#12 path plus `/tmp/uyi` (`howto/remote-webdav-upload.ttl`, `howto/remote-resource-removal.ttl`, prefs Steps 215–216). URIBurner operations use port 5443. Verify PUT and DELETE against the public URL and `:5443` before claiming success.

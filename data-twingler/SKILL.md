@@ -29,8 +29,8 @@ GraphQL — all driven by natural language, no imperative programming required.
 | Tabulate All Results | Yes (all query types) |
 | Semantic Variant Retries | 3 |
 | Fallback Endpoints | `https://kingsley.idehen.net/sparql`, `https://demo.openlinksw.com/sparql` |
-| Local RDF Directories | `~/Documents/LLMs/Claude Generated/rdf/`, `./rdf/` |
-| Auto-Discover Local RDF | Enabled — scans `~/.claude/skills/*/rdf/`, `./rdf/` at startup |
+| Local RDF Directories | Fallback only: `~/Documents/LLMs/*/rdf/`, `~/Documents/LLMs/GPT5-Chat-Generated/rdf/`, `./rdf/` |
+| Auto-Discover Local RDF | Enabled for fallback only — scans model-root RDF directories and `./rdf/` after endpoint exhaustion |
 | Vector Similarity Threshold (Local) | 0.75 |
 | Vector Candidate Types | `schema:Question`, `schema:DefinedTerm`, `schema:HowTo`, `schema:HowToStep`, `skos:Concept` |
 | Server-Side Vector Similarity Threshold | 0.5 |
@@ -149,9 +149,9 @@ otherwise asking for steps, workflow, playbook, procedure, or checklist, run
 direct `schema:HowTo` discovery before broad keyword/entity discovery or T8
 entity-description inference.
 
-This preflight applies after Step 0 local vector search and before Graph IRI
-Discovery. Enumerate `schema:HowTo` candidates directly from local RDF files
-and then from endpoint graphs, matching against:
+This preflight is part of UB-first Graph IRI Discovery. Enumerate
+`schema:HowTo` candidates from URIBurner first; use local RDF files only as the
+fallback layer after the endpoint search order is exhausted, matching against:
 
 - `schema:HowTo` IRI
 - `schema:name`
@@ -165,13 +165,12 @@ When a candidate `schema:HowTo` is found, retrieve its ordered
 as the source. Do not conclude that no HowTo exists until this structured
 enumeration has been attempted.
 
-### Step 0 — Local Vector Search (Local-First, Pre-Graph Discovery)
+### Local RDF Search — Fallback After UB Exhaustion
 
-**Every** T5, T6, T7, and T8 query MUST execute a local vector search
-**before** any endpoint call — unless the user signals KG-only mode or
-names an endpoint (see Rule 1 override). This inverts the workflow: local
-RDF files are the primary data space; URIBurner and fallback endpoints are
-the secondary layer.
+For T5, T6, T7, and T8 queries, run Graph IRI Discovery against URIBurner
+first. Local RDF search is a fallback layer only. Execute it after the UB
+keyword modality, UB vector modality, semantic variants, and fallback endpoints
+either return no usable result or are unavailable.
 
 #### Folder Resolution
 
@@ -180,10 +179,11 @@ the secondary layer.
    and `./rdf/`; add any that exist.
 3. **Prompt override** — if the user specifies a path in the prompt
    (e.g., "check `~/reports/rdf/`"), append it for this query only.
-4. **Ask the user** — if none of the above yield RDF files matching the
-   query, say "No local RDF found in the default paths. Do you have an
-   RDF directory I should check? (e.g., ~/Documents/LLMs/GPT5-Chat-Generated/rdf/)"
-   and accept any user-provided path for this query only.
+4. **Ask the user** — if endpoint discovery was exhausted and none of the
+   local paths yield RDF files matching the query, say "No local RDF found in
+   the fallback paths. Do you have an RDF directory I should check? (e.g.,
+   ~/Documents/LLMs/GPT5-Chat-Generated/rdf/)" and accept any user-provided
+   path for this query only.
 
 Merge all paths, deduplicate files by `filename + sha256(first 4KB)`.
 Files with extensions `.jsonld`, `.ttl`, `.rdf`, `.nt`, `.json` are
@@ -215,37 +215,38 @@ Each candidate carries:
 3. Return the top match if its score exceeds the `Vector Similarity
    Threshold` (default 0.75).
 
-#### Match → Workflow Shortcut
+#### Fallback Match → Checkpoint
 
-When a local match is found:
+When a local fallback match is found:
 
 1. **Report the match** to the user as a checkpoint:
    - Candidate text and score
    - Source file and entity IRI
    - For Questions: the answer text directly
-   - Ask: "Proceed with this answer?"
+   - The endpoint attempts already made
+   - Ask: "Use this fallback local RDF answer?"
 
-2. **If user confirms** → present the answer. Skip Graph IRI
-   Discovery, index query, and the full endpoint pipeline.
+2. **If user confirms** → present the fallback answer with local provenance and
+   the endpoint-exhaustion note. Do not describe this as UB-backed evidence.
 
-3. **If user declines** → proceed to Step 1 (Graph IRI Discovery)
-   as normal.
+3. **If user declines** → ask whether to broaden search terms, continue probing
+   endpoints, synthesize without KG backing, or stop.
 
-When no local match exceeds the threshold, proceed to Step 1
-unchanged — the endpoint pipeline remains intact as the fallback.
+When no local match exceeds the threshold, report the endpoint attempts and
+local directories scanned, then ask before falling back to model knowledge.
 
 #### Prompt Override Examples
 
 - `"Check ~/reports/rdf/ — why did Microsoft's stock fall?"`
 - `"Using local KGs in ./rdf/ and ~/Downloads/dumps/, define the term retention cohort"`
 
-### Graph IRI Discovery — KG-Hybrid Modality (T5, T6, T7, T8)
+### Graph IRI Discovery — UB-First Modality (T5, T6, T7, T8)
 
-Graph IRI Discovery operates in a **KG-hybrid modality**: two parallel
-search strategies against the same endpoint, same graphs. Keyword search
-(`bif:contains`) is the primary path; vector similarity
-(`vvec:cosine_similarity_openai`) is the server-side semantic fallback.
-Both run on the endpoint; neither requires local computation.
+Graph IRI Discovery operates in a **UB-first modality**: two search strategies
+against the endpoint and its named graphs. Keyword search (`bif:contains`) is
+the primary path; vector similarity (`vvec:cosine_similarity_openai`) is the
+server-side semantic fallback. Both run on the endpoint; neither requires local
+computation.
 
 These templates require a mandatory four-step sequence. **Steps may not be
 combined, pre-empted, or skipped under any circumstances:**
@@ -519,24 +520,15 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 
 ## Fallback Strategies
 
-The local-first workflow inverts the traditional order:
-
-The local-first + KG-hybrid workflow:
+The UB-first + local-fallback workflow:
 
 ```
-[User signals KG-only?] → YES → Step 1a (bif:contains Keyword) directly
-                     ↓ NO
-Step 0 (Local Vector Search) → [zero match?] → YES → Step 1a (bif:contains)
-                              ↓ match found → checkpoint → user confirms → answer
-                                                      ↓ declines → Step 1a
-Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Variants → Fallback Endpoints → Final Report
+Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semantic Variants → Fallback Endpoints → Local RDF Fallback → Final Report
 ```
 
-1. **Local Vector Search** (Step 0) — Executes first, before any endpoint call.
-   Scans configured and auto-discovered RDF directories, extracts candidate
-   entities, embeds the user's prompt, and returns the top cosine-similarity
-   match above the configured threshold. On match → checkpoint with user; on
-   decline or no-match → proceed to Step 1.
+1. **UB Graph IRI Discovery** — Executes first on
+   `https://linkeddata.uriburner.com/sparql` for all KG-mediated T5, T6, T7,
+   and T8 retrieval, whether or not the user explicitly says "KG-only".
 
 2. **Semantic Variant Retry** — When Graph IRI Discovery returns zero results,
    decompose the prompt into subject/predicate/object components, generate up to
@@ -546,17 +538,21 @@ Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Var
 3. **Fallback Endpoints** — Retry against `https://kingsley.idehen.net/sparql`,
    then `https://demo.openlinksw.com/sparql`, in order.
 
-4. Retry without `@en` language tags on `?name`.
+4. **Local RDF Fallback** — After UB and fallback endpoints are exhausted or
+   unavailable, scan configured and auto-discovered RDF directories. Report this
+   as fallback evidence, not as endpoint-confirmed KG evidence.
 
-5. Prompt for missing values: `{G}`, `{Article Title}`, `?authorName`, etc.
+5. Retry without `@en` language tags on `?name`.
 
-6. Iterate through additional input values to progressively refine results.
+6. Prompt for missing values: `{G}`, `{Article Title}`, `?authorName`, etc.
 
-7. If no protocol preference was stated, fall through in this order: direct
+7. Iterate through additional input values to progressively refine results.
+
+8. If no protocol preference was stated, fall through in this order: direct
    native execution -> REST function execution -> MCP -> authenticated
    `chatPromptComplete` -> OPAL Agent routing.
 
-8. **Final Report** — If all attempts fail, report executed queries, endpoints
+9. **Final Report** — If all attempts fail, report executed queries, endpoints
    attempted, local directories scanned, and ask the user whether to synthesize
    without KG backing or continue probing.
 
@@ -574,21 +570,13 @@ Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Var
 
 ## Rules (Non-Negotiable)
 
-1. **Local-first rule** — Step 0 (Local Vector Search) MUST execute before any
-   endpoint call for T5, T6, T7, and T8 templates. Scan the configured and
-   auto-discovered RDF directories, embed the user's prompt against extracted
-   candidates, and present any match above the similarity threshold as a
-   checkpoint before proceeding to endpoint queries. Do not skip local search
-   because an endpoint "should" have the answer or because a KG was recently
-   generated — the local file is the source of truth.
-   - **Endpoint-first override:** When the user signals KG-only mode, names
-     URIBurner, or says "query the endpoint", skip Step 0 entirely and proceed
-     directly to Graph IRI Discovery on the default endpoint. Per
-     `preferences.ttl` step `:step-sparqlEndpointSearchOrder`.
-   - **Early-exit on zero match:** If the first local search pass returns zero
-     matches, pivot to the endpoint immediately. Do not repeat local search
-     with variant terms — the endpoint's `bif:contains` full-text index is
-     faster and more comprehensive than additional local file scanning.
+1. **UB-first retrieval rule** — For T5, T6, T7, and T8 templates, and for
+   KG-mediated "Why", "How", "What", "Define", "Explain", and "Compare"
+   prompts, Graph IRI Discovery on URIBurner MUST execute before any local RDF
+   scan. Local RDF search is fallback only after UB keyword search, UB vector
+   search, semantic variants, and fallback endpoints are exhausted or
+   unavailable. This applies even when the user does not explicitly say
+   "KG-only".
 2. Use predefined templates **before any query execution** — direct queries,
    ad-hoc SPARQL/SPASQL/SQL, and general LLM knowledge all come after template
    matching is attempted and either succeeds or is honestly exhausted.
@@ -622,13 +610,21 @@ Step 1a (bif:contains Keyword) → Step 1b (vvec:cosine Vector) → Semantic Var
    `https://kingsley.idehen.net/sparql`, then `https://demo.openlinksw.com/sparql`,
    in that order. Finding a result on a fallback endpoint does not change the
    default endpoint for subsequent prompts.
-11. Optimize every query for performance and accuracy.
-12. Validate setting changes with test queries where possible.
-13. Handle errors gracefully with detailed, actionable feedback.
-14. Leverage caching (TTL 3600s) and parallel execution.
-15. Tabulate all query results by default.
-16. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
-17. For OPAL/A2A-routed execution, run the OPAL/A2A Parameter Preflight before
+11. **No silent synthesis rule** — If UB, fallback endpoints, and local RDF
+   fallback do not yield a usable result, ask before answering from model
+   knowledge. Offer to broaden KG probing, synthesize without KG backing, or
+   stop.
+12. **KG-only presentation rule** — Report the discovered graph, entity, and
+   provenance references. Hyperlink entity, graph, and source identifiers via
+   the URIBurner resolver. Use literal KG values for the answer body and mark
+   local fallback evidence explicitly when used.
+13. Optimize every query for performance and accuracy.
+14. Validate setting changes with test queries where possible.
+15. Handle errors gracefully with detailed, actionable feedback.
+16. Leverage caching (TTL 3600s) and parallel execution.
+17. Tabulate all query results by default.
+18. Read and follow `references/sparql-syntax-rules.md` before constructing any SPARQL query — structural validation (UNION placement, SERVICE limits, bif:contains usage, FILTER scoping) applies to both template-based and ad-hoc queries.
+19. For OPAL/A2A-routed execution, run the OPAL/A2A Parameter Preflight before
     backend invocation. Remote KG prompts such as "Using DBpedia..." must bind
     the remote endpoint URL and concrete SPARQL query; SPASQL prompts must bind
     the `sql` string. Never rely on the backend to infer these required

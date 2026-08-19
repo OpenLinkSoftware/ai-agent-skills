@@ -1,0 +1,178 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/p12-passphrase-retrieval.ttl"@en ;
+    schema:description "Resolution chain for the principal YouID PKCS#12 unlock passphrase: macOS Keychain item uriburner-p12 (LIVE as of 2026-08-18, migrated from /tmp/uyi with the user's permission), /tmp/uyi as documented fallback while it still exists, user elicitation last. RENAMED 2026-08-18 from p12-passphrase-uyi-file.ttl to p12-passphrase-retrieval.ttl — the old name was filesystem-fallback-specific and stopped fitting once Keychain became primary and a cross-platform (keyring-package) path was added; all referencing files (core.ttl, preferences.ttl, sibling howto files) were updated to the new name, git mv preserved history. IMPORTANT SCOPE NOTE (2026-08-18): the client in this environment (curl 8.7.1 / LibreSSL 3.3.6) can only consume a client certificate as a FILE — a SecureTransport version banner is not evidence that --cert accepts a Keychain identity name/SHA-1 directly, and testing proved it does not (curl error 58, could not load PEM client certificate). So Keychain here holds the PASSPHRASE that unlocks the standing .p12 FILE, not the certificate/identity itself; the .p12 file remains required."@en ;
+    schema:dateCreated "2026-07-30T16:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Resolve the principal PKCS#12 passphrase — Keychain first, /tmp/uyi fallback, cross-platform via Python keyring"@en ;
+    schema:description "Procedure for unlocking the principal link-in-bio-credentials-5 cert.p12. Source order changed 2026-08-18 after the agent observed that /tmp/uyi is mode -rw-r--r-- (world-readable plaintext) in a shared, cleanup-prone directory; macOS Keychain is encrypted at rest and ACL-scoped, so it is now the primary source on macOS. The `security` CLI is macOS-only; :step-crossPlatformKeyring covers Linux/Windows equivalents."@en ;
+    schema:step :step-sourceChain, :step-keychainPrimary, :step-uyiFallback,
+        :step-canonicalSnippet, :step-unlock, :step-redact, :step-curlUsesP12Path,
+        :step-neverProbeProductionCredentialNames, :step-crossPlatformKeyring ;
+    rdfs:seeAlso <../preferences.ttl#step-p12PassphraseUyiFile>,
+        <../preferences.ttl#step-p12PassphraseKeychainFirst>,
+        <../core.ttl>,
+        <credential-location-session-start.ttl>,
+        <remote-webdav-upload.ttl>,
+        <remote-resource-removal.ttl>,
+        <verified-identity.ttl> .
+
+# ── Step 1: the three-source chain ───────────────────────────────────────────
+
+:step-sourceChain a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Resolve the passphrase from three sources in strict priority order — never guess, never hardcode"@en ;
+    schema:text """SOURCE 1 — macOS Keychain (primary, 2026-08-18 onward):
+  service = uriburner-p12, account = $USER, read with `security ... -w`.
+
+SOURCE 2 — /tmp/uyi KEY=VALUE file (fallback, legacy):
+  First non-empty line, VALUE only (see :step-uyiFallback for the exact parse).
+
+SOURCE 3 — Elicit from the user (last resort):
+  "I cannot resolve the PKCS#12 passphrase from Keychain or /tmp/uyi. Where should I read it from?"
+  Do not proceed with any mTLS operation until answered.
+
+Fall through silently from 1 to 2 (a missing keychain item is a normal, expected
+condition until the user creates it — not an error to report). Fall through from
+2 to 3 only when the file is absent or unparseable. This mirrors the same
+local-first / fallback / elicit shape as model-identity-resolution.ttl and the
+credentials-root gate."""@en .
+
+# ── Step 2: Keychain as primary ──────────────────────────────────────────────
+
+:step-keychainPrimary a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "SOURCE 1 — macOS Keychain item uriburner-p12, created with -T /usr/bin/security so reads are non-interactive"@en ;
+    schema:text """WHY THIS IS PRIMARY (observed 2026-08-18): /tmp/uyi is mode -rw-r--r-- — world-readable plaintext holding a live credential, in a directory exposed to every local account, cleanup tooling, and backup agents. Keychain is encrypted at rest and ACL-scoped. Strict improvement.
+
+CREATION — the USER runs this; the passphrase must never pass through the agent or appear in an agent-issued command line. The bare -w (no value) prompts interactively:
+  security add-generic-password -U -s uriburner-p12 -a "$USER" -T /usr/bin/security -w
+
+The -T /usr/bin/security flag is REQUIRED. It adds the security binary to the item's ACL so later reads return the value directly. Without it, macOS raises a GUI "security wants to access..." dialog on the user's screen and a non-interactive Bash call HANGS until answered.
+
+READ:
+  security find-generic-password -s uriburner-p12 -a "$USER" -w
+
+GUI-PROMPT GUARD — when reading any keychain item the agent did not create (browser, Mail, VPN items whose ACL excludes security), wrap the call so a blocking dialog cannot hang the tool call:
+  perl -e 'alarm 8; exec @ARGV' security find-generic-password -s SERVICE -a "$USER" -w
+Note that `timeout` is NOT available on stock macOS — perl's alarm is the portable guard.
+
+VERIFIED 2026-08-18 END-TO-END with the REAL item and the REAL cert: value migrated from /tmp/uyi into the uriburner-p12 keychain item (agent-written, since the value was already known from the documented fallback — no interactive add was needed this time); read back non-interactively; used to unlock cert.p12 via openssl (subject confirmed); used to complete an authenticated HTTP 200 call against linkeddata.uriburner.com:5443. The item persists alongside /tmp/uyi (belt-and-braces) until the user explicitly removes the file.
+
+SCOPE, RE-CONFIRMED: this migration is passphrase-only. --cert continues to take the .p12 FILE PATH, not a keychain identity reference — see the CreativeWork-level description note above for why a keychain identity route was investigated and rejected for this curl build."""@en .
+
+# ── Step 3: the /tmp/uyi fallback parse (unchanged, still authoritative) ─────
+
+:step-uyiFallback a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "SOURCE 2 — /tmp/uyi is KEY=VALUE per line; use the VALUE of the FIRST pair, never the whole line"@en ;
+    schema:text """FILE FORMAT (learned 2026-07-30 after an unlock failure; still exactly correct as the fallback):
+
+- Each non-empty line is a KEY=VALUE pair (exactly one '=' separating key from value).
+- The principal cert.p12 passphrase is the VALUE of the FIRST key pair:
+    first_line.split('=', 1)[1].strip()
+- Do NOT use the whole first line as the passphrase (includes key and '=' -> Mac verify error: invalid password).
+- Do NOT use the key (left of '=') as the passphrase.
+- A second line may hold another KEY=VALUE pair for a different secret; only use it when the user explicitly points at that pair.
+- Observed key name as of 2026-08-18: P12_PWD. Parse positionally (first pair) rather than matching that literal, so a renamed key does not break the read.
+
+PROHIBITED: treating each line as a bare password string; concatenating lines; logging values."""@en .
+
+# ── Step 4: the canonical fallback-safe snippet ──────────────────────────────
+
+:step-canonicalSnippet a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Canonical one-liner: try Keychain, fall back to /tmp/uyi, in a single expression"@en ;
+    schema:text """Use this verbatim wherever MTLS_PKCS12_PW is needed. It is fallback-safe: it works today (keychain item absent -> /tmp/uyi) and keeps working after the user creates the item, with no edit:
+
+  export MTLS_PKCS12_PW="$(security find-generic-password -s uriburner-p12 -a "$USER" -w 2>/dev/null \\
+    || python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+
+Always `unset MTLS_PKCS12_PW` when the operation completes. Never echo it, never pass it as a literal on a command line that gets logged or shown to the user, never write it into a file, RDF memory, or the transcript."""@en .
+
+# ── Step 5: unlock ───────────────────────────────────────────────────────────
+
+:step-unlock a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Unlock the principal cert.p12 via openssl passin env — never passphrase-on-argv"@en ;
+    schema:text """Canonical principal p12 (credentials root resolved per verified-identity.ttl / core.ttl :userPrincipalCredentials):
+  {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12
+
+Verify/unlock:
+  openssl pkcs12 -in cert.p12 -nokeys -passin env:MTLS_PKCS12_PW        # inspect cert
+  openssl pkcs12 -in cert.p12 -nodes  -passin env:MTLS_PKCS12_PW -out /tmp/client.pem   # only if PEM genuinely needed
+
+Success signal: MAC verified / exit 0. On newer OpenSSL a legacy-format p12 may need -legacy; try without first, then with.
+Delete any temporary PEM after use."""@en .
+
+# ── Step 6: redaction ────────────────────────────────────────────────────────
+
+:step-redact a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Never store the passphrase in RDF memory, reports, or chat"@en ;
+    schema:text "Record only WHICH source resolved it (keychain / uyi / elicited) and whether unlock succeeded. Never copy the value into preferences.ttl, session TTL, howto files, commit messages, or chat. When demonstrating a credential file to the user, print permissions and byte count, never contents."@en .
+
+# ── Step 7: curl/iSQL consume the p12 directly ───────────────────────────────
+
+:step-curlUsesP12Path a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "curl and iSQL use the PKCS#12 file path — do not extract a PEM to TMPDIR"@en ;
+    schema:text "For HTTP, WebDAV, and iSQL against URIBurner, pass the principal cert.p12 from core.ttl :userPrincipalCredentials with curl --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Do not openssl-extract a client.pem into TMPDIR for those operations, and never use the --cert file.p12:password inline form. PEM extract remains available only when a tool cannot consume PKCS#12."@en ;
+    rdfs:seeAlso <remote-resource-removal.ttl>,
+        <remote-webdav-upload.ttl>,
+        <../preferences.ttl#step-remoteRemovalOrder>,
+        <../preferences.ttl#step-remoteUploadOrder> .
+
+# ── Step 8: never use a production credential identifier as a test fixture ───
+
+:step-neverProbeProductionCredentialNames a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "NEVER use a real credential's service/account name as a test or probe fixture — a keychain add with -U overwrites and a delete destroys the user's live secret"@en ;
+    schema:text """Agent error, 2026-08-18. While demonstrating that keychain reads take precedence over the /tmp/uyi fallback, the agent ran, against the REAL service name:
+  security add-generic-password -U -s uriburner-p12 ... -w "SENTINEL-not-real"
+  security delete-generic-password -s uriburner-p12 ...
+
+Both flags are destructive against a live item: -U silently OVERWRITES an existing entry rather than failing, and the delete then removes it entirely. Had the user's real item existed at that moment, the agent would have replaced their credential with a sentinel string and then deleted it — with the cheerful message "sentinel removed" giving no hint that a real secret had been destroyed. Shortly afterwards the user reported having created the item and it was absent from every keychain, which is exactly the symptom this pattern produces.
+
+RULE: any probe, syntax test, or precedence demonstration MUST use a clearly namespaced throwaway identifier that cannot collide with a production one — e.g. service CLAUDE-SYNTAX-PROBE — created and deleted within the same command. The agent did this correctly later in the same session; the earlier reuse of the production name was the defect.
+
+COROLLARY: -U on any credential store is a write-with-overwrite, not an idempotent create. Treat it with the same care as rm. Prefer verifying precedence by reading two DIFFERENT namespaced items rather than by mutating the real one.
+
+RECOVERY when this happens: the p12 file and the /tmp/uyi fallback are untouched, so no access is lost — the fallback chain keeps working. The user simply re-creates the keychain item. Say so plainly rather than leaving them to wonder whether the credential itself was compromised."""@en .
+
+# ── Step 9: cross-platform fallback when not on macOS ────────────────────────
+
+:step-crossPlatformKeyring a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Off macOS: /usr/bin/security does not exist — use Python's keyring package as the one API that routes to the right native store per OS"@en ;
+    schema:text """Every :step-keychainPrimary command is macOS-only (Security.framework via the security CLI). On Linux or Windows it fails outright — there is no `security` binary.
+
+CROSS-PLATFORM REPLACEMENT — Python `keyring` package (pip install keyring). One API, native backend per OS:
+  import keyring
+  keyring.set_password("uriburner-p12", user, passphrase)   # write (interactive/one-time, run by the user)
+  pw = keyring.get_password("uriburner-p12", user)            # read
+
+Backend routing is automatic:
+  - macOS   -> Keychain (same store `security` reads — a keyring-created item and a security-created item are interchangeable)
+  - Linux   -> Secret Service (GNOME Keyring / KWallet via D-Bus, `keyring.backends.SecretService`); on a headless box with no keyring daemon running, keyring falls through to a plaintext/failing backend — check `keyring.get_keyring()` and prefer the /tmp/uyi-style KEY=VALUE file pattern deliberately on such hosts rather than assuming a secret store exists
+  - Windows -> Credential Manager / DPAPI (`keyring.backends.Windows`)
+
+CANONICAL CROSS-PLATFORM SNIPPET (replaces the macOS-only one-liner in :step-canonicalSnippet when the host is not confirmed macOS):
+  export MTLS_PKCS12_PW="$(python3 -c "import keyring; print(keyring.get_password('uriburner-p12', '$USER') or '')" )"
+  if [ -z "$MTLS_PKCS12_PW" ]; then
+    export MTLS_PKCS12_PW="$(python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+  fi
+
+CURL BACKEND CAVEAT ON WINDOWS — do not assume a file-less route exists there either. curl.exe CAN be built against SChannel (Windows' native TLS stack), and an SChannel build genuinely does support referencing a certificate from the Windows store by thumbprint via --cert, with no file and no PKCS#12 at all — a real difference from this session's LibreSSL-backed macOS curl. But do not assume the curl binary actually present is that build: curl shipped via git-bash/MSYS2 and via the official curl.se Windows releases is commonly OpenSSL-backed, file-path-only, same limitation as here. Check with `curl -V` AND THEN TEST the exact operation before asserting either way — the SecureTransport-banner-was-misleading lesson from :step-testResult in keychain-identity-vs-p12-file-curl.ttl applies identically to an SChannel banner claim.
+
+NODE/TS EQUIVALENT (asked by the user 2026-08-18): the `keytar` package was the direct Node analogue (same native-store routing: macOS Keychain / Secret Service / Credential Manager) but is deprecated/archived upstream (unmaintained since 2022, native-module build pain on modern Node). Current recommendation is `@napi-rs/keyring` (actively maintained, prebuilt binaries, same three-OS routing, API: `new Entry(service, account).getPassword()/setPassword()`). Do not reach for keytar in new code."""@en ;
+    rdfs:seeAlso <keychain-identity-vs-p12-file-curl.ttl> .

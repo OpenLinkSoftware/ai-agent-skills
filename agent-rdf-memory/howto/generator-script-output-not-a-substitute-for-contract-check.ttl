@@ -4,7 +4,8 @@
 
 :ontology a schema:DefinedTermSet ;
     schema:name "Generator-script output is not a substitute for the full skills-contract check"@en ;
-    schema:description "Caught 2026-08-01 on the Onya/local-LLMs KG generation task: relying on rdf-infographic-skill's bundled generate_infographic.py plus its own validate-harness-contract.py / validate-infographic.py as proof of compliance, instead of cross-checking the delivered HTML against full-skills-contract-always-applies.ttl directly. Result: FAQ accordion existed (that specific prior-corrected defect was NOT repeated) but the nav inactivity-fade timer (already documented at full-skills-contract-always-applies.ttl#step-navInactivityFadeRequired since 2026-07-23) was missing, plus an About-section and Markdown companion were skipped entirely, plus a new defect (alias-IRI duplication) was introduced that no existing rule covered."@en .
+    schema:description "Caught 2026-08-01 on the Onya/local-LLMs KG generation task: relying on rdf-infographic-skill's bundled generate_infographic.py plus its own validate-harness-contract.py / validate-infographic.py as proof of compliance, instead of cross-checking the delivered HTML against full-skills-contract-always-applies.ttl directly. Result: FAQ accordion existed (that specific prior-corrected defect was NOT repeated) but the nav inactivity-fade timer (already documented at full-skills-contract-always-applies.ttl#step-navInactivityFadeRequired since 2026-07-23) was missing, plus an About-section and Markdown companion were skipped entirely, plus a new defect (alias-IRI duplication) was introduced that no existing rule covered."@en ;
+    rdfs:seeAlso <checker-context-isolation.ttl#step_selfGradingCheckers> .
 
 :step-scriptOutputStillNeedsManualChecklist a schema:HowToStep ;
     schema:position 1 ;

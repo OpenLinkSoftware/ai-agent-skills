@@ -5,14 +5,17 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix dbr: <http://dbpedia.org/resource/> .
 @prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix arm: <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory#> .
+@prefix ace: <https://linkeddata.uriburner.com/DAV/demos/daas/ai-agent-memory-context-engineering-claude_sonnet_4_6-1.ttl#> .
+@prefix stack: <https://linkeddata.uriburner.com/DAV/demos/daas/agent-rdf-memory-stack-alignment-inline-links.html#> .
 
 <> a schema:CreativeWork ;
     schema:name "Entity Registry: Tools & Software"@en ;
     schema:description "Canonical schema:SoftwareApplication and schema:SoftwareSourceCode entity IRIs for skills, LLM models, agent environments, and recurring software products across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a tool or software entity."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :kgGeneratorSkill, :rdfInfographicSkill,
+    schema:about :kgGeneratorSkill, :rdfInfographicSkill, :agentRdfMemoryRepo,
         :claudeSonnet, :gpt5ChatCodex, :deepseekV4Pro, :grok43,
         :bigPickle, :glm, :kimi, :minimax, :qwen,
         :claudeCodeEnv, :openCodeEnv, :chatCodexEnv, :grokCliEnv,
@@ -51,6 +54,32 @@
     owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this> ;
     rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication IRI convention. First referenced in sessions/2026-05-27.ttl and appears as prov:wasGeneratedBy target in 40+ session files."@en ;
     schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ── agent-rdf-memory (this repository's own memory harness) ────────────────────
+#
+# Canonical IRI: https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory#this
+# Registered 2026-08-18 to close a gap: this registry had entries for
+# kg-generator and rdf-infographic-skill but none for agent-rdf-memory itself,
+# so three prior documents each independently minted a DIFFERENT non-canonical
+# local IRI for the same real-world repository instead of finding and reusing
+# one another: arm:agentRdfMemoryRepo (aibyaakash-graphs-agent-rdf-memory),
+# ace:AgentRdfMemoryRepo (ai-agent-memory-context-engineering), and
+# stack:agentRdfMemoryRepo (agent-rdf-memory-stack-alignment-inline-links).
+# None of the three followed the repo-URL + #this convention used for
+# kg-generator/rdf-infographic-skill above. This entry is now the canonical
+# subject; the three prior forms remain valid as owl:sameAs aliases rather
+# than being retracted from documents that already shipped using them.
+
+:agentRdfMemoryRepo a schema:SoftwareSourceCode ;
+    schema:name "agent-rdf-memory"@en ;
+    schema:description "Queryable RDF-Turtle behavioral-contract and memory harness for AI coding agents: core.ttl (identity, output routing), preferences.ttl (hub-and-spoke behavioral rules), ontology.ttl (prompt-intent/context-routing), howto/ (procedural memory), entities/ (canonical entity registry), sessions/ (episodic memory), index.ttl (session index). Runs unmodified underneath Claude Code, Codex, OpenCode, and Grok CLI. Part of the OpenLinkSoftware ai-agent-skills repository."@en ;
+    schema:url "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory" ;
+    schema:codeRepository <https://github.com/OpenLinkSoftware/ai-agent-skills> ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/agent-rdf-memory#this>,
+        arm:agentRdfMemoryRepo, ace:AgentRdfMemoryRepo, stack:agentRdfMemoryRepo ;
+    rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication/SoftwareSourceCode IRI convention, matching kg-generator/rdf-infographic-skill above. Three prior documents (arm:, ace:, stack: prefixes) had already independently minted disjoint local forms before this registry entry was added — see the block comment above."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime .
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ── LLM Models ────────────────────────────────────────────────────────────────
@@ -221,3 +250,16 @@
     owl:sameAs <https://www.openlinksw.com/ontology/opal/#this> ;
     rdfs:comment "Canonical entity IRI. OPAL ontology namespace + #this convention. Referenced in agent-rdf-memory/ontology.ttl and session files as the analytics vocabulary provider (opal:ChatSession, opal:ChatModel, etc.)."@en ;
     schema:dateCreated "2026-06-24T00:00:00Z"^^xsd:dateTime .
+
+# ── llm-routing-skill ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill#this
+# Registered: 2026-08-19 (DeepSeek V4 Flash + dsh session)
+
+:llmRoutingSkill a schema:SoftwareApplication ;
+    schema:name "llm-routing-skill"@en ;
+    schema:description "AI agent skill that routes tasks and agent sub-steps to Pareto-optimal LLMs using a living capability x cost x latency graph. The graph is rebuilt from live llm-prices.com feeds plus curated seed capability profiles (references/capability-profiles.json); scripts/{fetch_prices,build_routing_graph,validate_graph,route}.py implement fetch, build, GATE, and query. Part of the OpenLinkSoftware ai-agent-skills repository."@en ;
+    schema:url "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill" ;
+    owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill#this> ;
+    rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication IRI convention. Registered 2026-08-19; graph ontology namespace llmr: = https://www.openlinksw.com/ontology/llm-routing# (see entities/ontology-terms.ttl)."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime .

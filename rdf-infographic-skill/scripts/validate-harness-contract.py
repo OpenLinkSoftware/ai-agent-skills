@@ -237,6 +237,16 @@ def main() -> int:
             require(html, '<details class="sparql-card"', "SPARQL query examples must render as closed-by-default <details class=\"sparql-card\"> accordions, not always-open <div> blocks", failures)
             forbid_regex(html, r'<details class="sparql-card"[^>]*\bopen\b', "Sample-query <details> accordion must NOT carry an `open` attribute (closed by default)", failures)
 
+    # Synopsis lede/body gate: a synopsis section with a spotlight panel and
+    # CTA but no narrative prose reads as broken/sparse (a big mostly-empty
+    # card). This happens when the main entity has no schema:abstract,
+    # schema:articleBody, or schema:description for rdf_parser._extract_deck
+    # to source the lede from. Caught 2026-08-15 on the RDF 1.2/Virtuoso
+    # collection: schema:description was set but schema:abstract was not, and
+    # rdf_parser.py at the time only looked at abstract/articleBody.
+    if 'id="synopsis"' in html:
+        require_any(html, ['class="lede"', 'class="syn-body"><p'], "Synopsis section has no lede/body prose — schema:abstract (or schema:articleBody/schema:description) is missing or empty on the main article entity, producing a sparse synopsis deck (spotlight panel + CTA only, no narrative text)", failures)
+
     for label in [
         "Source material",
         "Companion files",
@@ -395,6 +405,42 @@ def main() -> int:
     )
     if not has_plain_click and not has_click_guard:
         fail("Node click handler missing resolver call — nodes must open resolver on click (via .on('click', ...) or the click-distance-guard pattern in drag.on('end'))", failures)
+
+    # Section-order gates. Character-position comparison of the first id="..."
+    # occurrence for each section id is the actual document order — codified
+    # here (2026-08-18) after the same misordering recurred across multiple
+    # collections despite being hand-fixed and recorded in session memory each
+    # time: memory recorded the rule, but nothing enforced it at generation
+    # time, so every fresh generate_infographic.py run regressed it again.
+    def _pos(section_id: str) -> int | None:
+        m = re.search(rf'id="{re.escape(section_id)}"', html)
+        return m.start() if m else None
+
+    pos_kg = _pos("kg-explorer")
+    pos_sparql = _pos("sparql-explorer")
+    pos_howto = _pos("howto")
+    pos_faq = _pos("faq")
+    pos_glossary = _pos("glossary")
+
+    if pos_kg is not None and pos_faq is not None and pos_kg > pos_faq:
+        fail("KG Explorer must precede FAQ in document order (explorer-precedes-reference)", failures)
+    if pos_sparql is not None and pos_faq is not None and pos_sparql > pos_faq:
+        fail("SPARQL Workbench must precede FAQ in document order (explorer-precedes-reference)", failures)
+    if pos_howto is not None and pos_faq is not None and pos_howto > pos_faq:
+        fail("Section order violation: HowTo must come before FAQ (standing order is HowTo, FAQ, Glossary)", failures)
+    if pos_faq is not None and pos_glossary is not None and pos_faq > pos_glossary:
+        fail("Section order violation: FAQ must come before Glossary (standing order is HowTo, FAQ, Glossary)", failures)
+    if pos_howto is not None and pos_glossary is not None and pos_howto > pos_glossary:
+        fail("Section order violation: HowTo must come before Glossary (standing order is HowTo, FAQ, Glossary)", failures)
+
+    # People and Organizations sections were removed by explicit user request
+    # (2026-08-18) — a standalone name+description card grid duplicating what
+    # resolver-linked mentions already surface inline. Catch a regenerated/
+    # copied template that reintroduces either.
+    if 'id="people"' in html:
+        fail("People section present — removed by standing preference; do not render a dedicated People section", failures)
+    if 'id="organizations"' in html:
+        fail("Organizations section present — removed by standing preference; do not render a dedicated Organizations section", failures)
 
     validate_rdf(args.ttl, "turtle", failures)
     validate_rdf(args.jsonld, "json-ld", failures)

@@ -7,12 +7,12 @@
     schema:name "Skill Invocation — Chain, KG Query Mode, Packaging, and Retrieval Order"@en ;
     schema:description "Rules governing skill selection and sequencing: the kg-generator → rdf-infographic-skill chain, KG-first question answering (KG-ONLY vs KG-HYBRID modes with the local RDF root and provenance format), ZIP repackaging discipline, and mandatory retrieval tool order."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-17T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:step :step-skillChain, :step-kgQueryMode, :step-kgLocalRdfRoot,
         :step-kgOnlyMode, :step-kgHybridMode, :step-kgProvenanceFormat,
         :step-zipRepackage, :step-retrievalToolOrder ;
-    rdfs:seeAlso <../preferences.ttl#step-skillChain>, <../preferences.ttl#step-zipRepackage>, <../preferences.ttl#step-kgQueryMode>, <../preferences.ttl#step-retrievalToolOrder>, <../preferences.ttl#step-sparqlEndpointSearchOrder> .
+    rdfs:seeAlso <../preferences.ttl#step-skillChain>, <../preferences.ttl#step-zipRepackage>, <../preferences.ttl#step-kgQueryMode>, <../preferences.ttl#step-retrievalToolOrder>, <../preferences.ttl#step-sparqlEndpointSearchOrder>, <../preferences.ttl#step-kgOrderResolved>, <kg-order-conflict-resolution.ttl> .
 
 # ── Step 1: Skill Chain ───────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@
 :step-kgQueryMode a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
     schema:name "Answer questions from skills/KG first — ask before falling back to model knowledge"@en ;
-    schema:text "When answering user questions in general, invoke data-twingler first (or uriburner-opal-agent-skills as fallback), unless the user explicitly asks for a plain LLM answer, asks not to use KG/local RDF/SPARQL, or the request is clearly trivial/self-contained (e.g., simple rewrite, translation, arithmetic, or command output). This default includes Why/How/What/Define/Explain/Compare questions, questions about prior generated artifacts, Semantic Web, Linked Data, RDF, SPARQL, KG, LLM memory, wiki architecture, OpenLink, Virtuoso, OPAL, URIBurner, WebID, or any known article/graph/context. If the skill/KG route returns a sufficient answer, answer from it with provenance links. If the skill/KG route is unavailable, returns no match, weak match, or incomplete coverage, do NOT silently answer from general model knowledge; ask the user whether to fall back to model knowledge, broaden to KG-HYBRID/endpoint corroboration, or stop. NEVER use kg-generator or rdf-infographic-skill for interrogation workflows. DEFAULT MODE: KG-ONLY (Step 4) unless the user explicitly asks for hybrid mode, asks to include endpoint/server-side corroboration, approves fallback broadening, or rejects the KG-ONLY candidate and requests broader retrieval."@en .
+    schema:text "When answering user questions in general, invoke data-twingler first (or uriburner-opal-agent-skills as fallback), unless the user explicitly asks for a plain LLM answer, asks not to use KG/local RDF/SPARQL, or the request is clearly trivial/self-contained (e.g., simple rewrite, translation, arithmetic, or command output). This default includes Why/How/What/Define/Explain/Compare questions, questions about prior generated artifacts, Semantic Web, Linked Data, RDF, SPARQL, KG, LLM memory, wiki architecture, OpenLink, Virtuoso, OPAL, URIBurner, WebID, or any known article/graph/context. If the skill/KG route returns a sufficient answer, answer from it with provenance links. If the skill/KG route is unavailable, returns no match, weak match, or incomplete coverage, do NOT silently answer from general model knowledge; ask the user whether to fall back to model knowledge, broaden further, or stop. NEVER use kg-generator or rdf-infographic-skill for interrogation workflows. DEFAULT MODE: KG-ONLY (Step 4) — query the URIBurner endpoint (UB) first, local RDF scan second as fallback. This is the standing order for ALL retrieval, not merely a behavior triggered by the user saying the words 'KG-only mode.' See :step-kgOnlyMode (corrected 2026-08-17) and preferences.ttl Step 211."@en .
 
 # ── Step 3: Local RDF Root ───────────────────────────────────────────────────
 
@@ -39,15 +39,15 @@
 
 :step-kgOnlyMode a schema:HowToStep ;
     schema:position "4"^^xsd:integer ;
-    schema:name "KG-ONLY MODE: local vector search over {LLM_ROOT}/ with a user checkpoint, no endpoint call"@en ;
-    schema:text "KG-ONLY MODE — Step 0: recursively scan {LLM_ROOT}/ for RDF files (.ttl, .jsonld, .rdf, .nt), parse them, extract schema:Question/schema:DefinedTerm/schema:HowTo/skos:Concept candidates, embed against the user prompt, compute cosine similarity, report the top match above the 0.75 threshold as a checkpoint and ask 'Proceed with this answer?' If the user confirms: deliver the answer from the local KG with no endpoint call. If the user declines or there is no local match: ask whether to fall back to model knowledge, broaden to KG-HYBRID/endpoint corroboration, or stop."@en .
+    schema:name "KG-ONLY MODE (corrected 2026-08-17): UB (URIBurner endpoint) first, local {LLM_ROOT}/ scan second as fallback — was previously local-only, which conflicted with preferences.ttl Step 131"@en ;
+    schema:text "KG-ONLY MODE — CORRECTED ORDER: (1) UB — query the URIBurner default endpoint directly via Graph IRI Discovery (bif:contains keyword modality, then vvec:cosine_similarity_openai vector modality on zero results, then semantic-variant retries, then fallback endpoints) and report the discovered graph/entity. (2) LOCAL — only if the endpoint pass (all sub-strategies) returns zero results, fall back to a local vector search over {LLM_ROOT}/ (scan RDF files, extract schema:Question/schema:DefinedTerm/schema:HowTo/skos:Concept candidates, embed against the prompt, report the top match above the 0.75 threshold as a checkpoint: 'Proceed with this answer?'). If neither layer yields a match, ask whether to fall back to model knowledge or stop. This step previously read 'local vector search... no endpoint call,' which directly contradicted preferences.ttl Step 131 ('skip local search entirely and proceed directly to Graph IRI Discovery on the default endpoint'). The user resolved the conflict 2026-08-17: the standing order is UB then Local, always — not conditional on the user uttering the phrase 'KG-only mode.' See howto/kg-order-conflict-resolution.ttl."@en .
 
 # ── Step 5: KG-HYBRID Mode ───────────────────────────────────────────────────
 
 :step-kgHybridMode a schema:HowToStep ;
     schema:position "5"^^xsd:integer ;
     schema:name "KG-HYBRID MODE: local vector search + URIBurner keyword search + server-side vector fallback, merged with source layers"@en ;
-    schema:text "KG-HYBRID MODE — all three layers active always: Step 0 (local vector search of {LLM_ROOT}/) + Step 1a (URIBurner endpoint keyword search via bif:contains, primary) + Step 1b (URIBurner server-side vector similarity via vvec:cosine_similarity_openai, fallback when Step 1a returns zero). Results from all layers that exceed their respective thresholds are merged and cited with their source layer identified."@en .
+    schema:text "KG-HYBRID MODE — all three layers active always, UB-first ordering per Step 4's correction: Step 1a (URIBurner endpoint keyword search via bif:contains, primary) + Step 1b (URIBurner server-side vector similarity via vvec:cosine_similarity_openai, fallback when Step 1a returns zero) + Step 2 (local vector search of {LLM_ROOT}/, merged in regardless of endpoint outcome). Results from all layers that exceed their respective thresholds are merged and cited with their source layer identified."@en .
 
 # ── Step 6: Provenance Response Format ───────────────────────────────────────
 

@@ -16,7 +16,7 @@
         :step-screencastDistributionArtifacts,
         :step-screencastPresentationNaming,
         :step-scopeFilesystemSearchesToLlmRoot ;
-    rdfs:seeAlso <../preferences.ttl#step-outputDirs>, <../preferences.ttl#step-defaultOutputRoot>, <../preferences.ttl#step-gpt5ChatCodexOutputDirs>, <../preferences.ttl#step-modelOverEnvironment>, <../preferences.ttl#step-modelIdentityPreflight>, <../preferences.ttl#step-noPromptModelOverride>, <../preferences.ttl#step-mashupVsMeshup>, <../preferences.ttl#step-savedPromptsFolder>, <../preferences.ttl#step-vspArtifactsFolder>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-screencastPresentationNaming>, <../preferences.ttl#step-chatResponsePortableLinks> .
+    rdfs:seeAlso <../preferences.ttl#step-outputDirs>, <../preferences.ttl#step-defaultOutputRoot>, <../preferences.ttl#step-gpt5ChatCodexOutputDirs>, <../preferences.ttl#step-modelOverEnvironment>, <../preferences.ttl#step-modelIdentityPreflight>, <../preferences.ttl#step-noPromptModelOverride>, <../preferences.ttl#step-mashupVsMeshup>, <../preferences.ttl#step-savedPromptsFolder>, <../preferences.ttl#step-vspArtifactsFolder>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-screencastPresentationNaming>, <../preferences.ttl#step-chatResponsePortableLinks>, <../preferences.ttl#step-remoteRemovalOrder>, <remote-resource-removal.ttl> .
 
 # ── Step 1: Output Directory Routing ─────────────────────────────────────────
 
