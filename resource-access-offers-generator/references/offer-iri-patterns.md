@@ -10,10 +10,11 @@
 - Product (File): http://data.openlinksw.com/oplweb/{host_short}FA#this
 - Product (Graph): http://data.openlinksw.com/oplweb/{host_short}DA#this
 - Product (API): http://data.openlinksw.com/oplweb/{host_short}OPAL-API#this
-- Product (OPAL ACL server, referenced from a File Access Product via `skos:related`): http://data.openlinksw.com/oplweb/{host_short}OPAL#this
+- Product (OPAL server / Chat Service): http://data.openlinksw.com/oplweb/{host_short}OPAL#this — dual role: the **primary** licensed Product for Chat Service offers, and the OPAL ACL server referenced via `skos:related` from File/Graph/API Access Products.
 - OfferGroup (File): http://data.openlinksw.com/oplweb/OfferGroupFileAccess#this
 - OfferGroup (Graph): http://data.openlinksw.com/oplweb/OfferGroupGraphAccess#this
 - OfferGroup (API): http://data.openlinksw.com/oplweb/OfferGroupApiAccess#this
+- OfferGroup (Chat Service): http://data.openlinksw.com/oplweb/OfferGroupChatService#this
 - PriceSpecification: http://data.openlinksw.com/oplweb/offer-unitprice/{OfferIdentifier}PriceSpecification#this — no `host_suffix`; a price spec may be shared across multiple offers/hosts. Example: `http://data.openlinksw.com/oplweb/offer-unitprice/DataTwinglerSpecificModuleEntryLevelPriceSpecification#this`
 - License (opllic:ProductLicense): http://data.openlinksw.com/oplweb/license/{OfferIdentifier}License{host_suffix}#this. Example: `http://data.openlinksw.com/oplweb/license/DataTwinglerSpecificModuleEntryLevelLicenseOds-qa#this`
 - Offer (schema:Offer): http://data.openlinksw.com/oplweb/offer/{OfferIdentifier}Offer{host_suffix}#this. Example: `http://data.openlinksw.com/oplweb/offer/DataTwinglerSpecificModuleEntryLevelOfferOds-qa#this`

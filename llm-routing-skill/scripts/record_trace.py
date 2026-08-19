@@ -111,7 +111,7 @@ def main():
     ap.add_argument("--score", type=int, required=True, help="quality score 1-5")
     ap.add_argument("--latency", default="low", choices=VALID_LATENCY)
     ap.add_argument("--cost", type=float, help="USD cost of the execution")
-    ap.add_argument("--session", help="opal:ChatSession IRI this trace was informed by")
+    ap.add_argument("--session", help="opal:ChatSession IRI this trace was informed by (must be a real, grounded IRI — e.g. http://localhost:8890/DAV/home/kidehen/agent-rdf-memory/sessions/... — never a placeholder domain like example.com or example.local)")
     ap.add_argument("--escalation", action="append", help="escalation event (repeatable, in order)")
     ap.add_argument("--date", default=date.today().isoformat(), help="ISO date (default today)")
     ap.add_argument("--dry-run", action="store_true", help="print the trace block, don't append")
@@ -127,6 +127,21 @@ def main():
 
     if not args.task or not args.model:
         ap.error("task and model required (or use --list)")
+
+    # placeholder-domain guard — session IRIs must be grounded (localhost for
+    # local traces), never RFC-2606/reserved placeholder domains
+    PLACEHOLDER = re.compile(
+        r"example\.(com|net|org|local)|\.invalid$|\.test$|\.localhost$",
+        re.IGNORECASE)
+    if args.session and PLACEHOLDER.search(args.session):
+        ap.error(
+            f"--session uses a placeholder domain ({args.session}). Ground it "
+            "in a real host, e.g. http://localhost:8890/DAV/home/kidehen/"
+            "agent-rdf-memory/sessions/2026-08-19-demo#this")
+    if args.escalation:
+        for e in args.escalation:
+            if PLACEHOLDER.search(e):
+                ap.error(f"--escalation value contains a placeholder domain: {e}")
 
     seq = _next_seq()
     block = build_trace(args.task, args.model, args.tier, args.policy,

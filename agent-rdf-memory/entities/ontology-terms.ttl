@@ -266,13 +266,17 @@ Property alignments use owl:inverseOf rather than owl:equivalentProperty because
 # cross-document-local-term-reuse.ttl so future collections bind the namespace
 # below instead of re-minting disjoint terms.
 #   llmr: = <https://www.openlinksw.com/ontology/llm-routing#>
-# Classes: Model, TaskType, CapabilityLevel, GovernancePolicy, FeedbackRecord
+# Classes: Model, TaskType, CapabilityLevel, GovernancePolicy, FeedbackRecord,
+#   RoutingTrace (rdfs:subClassOf FeedbackRecord; private session routing traces)
 # Properties: modelId, vendor, inputPricePerMTok, outputPricePerMTok,
 #   cachedInputPricePerMTok, costTier, latencyClass, contextWindowTokens,
 #   priceUpdated, graphPriceUpdated, paretoFrontierModel, dominantDimension,
 #   profileNote, tokenSensitivity, overqualificationRisk, requiredCapabilityLevel,
 #   approvesModel, blocksModel, residencyConstraint, feedbackModel, feedbackTask,
-#   qualityScore, passedVerification, observedLatency, feedbackDate
+#   qualityScore, passedVerification, observedLatency, feedbackDate,
+#   tracedTask, tracedModel, costTierUsed, policyUsed, costIncurred, escalationEvent
+# Trace privacy: llmr:RoutingTrace instances live in references/traces/
+#   (private, local-only) — excluded from the published graph and public uploads.
 # schema.org terms used by the graph: schema:additionalProperty +
 #   schema:PropertyValue (capability attributes), schema:ItemList +
 #   schema:ListItem + schema:position (escalation ladders).

@@ -4,16 +4,86 @@
 @prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
 @prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
 @prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 <#ApiAccessProductShape> a sh:NodeShape ;
     sh:targetClass schema:WebAPI ;
-    sh:property [ sh:path schema:provider ; sh:minCount 0 ] ;
-    sh:property [ sh:path schema:url ; sh:minCount 1 ] .
+    sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:serviceType ; sh:minCount 1 ; sh:hasValue "MCP-compliant AI Chat Agent API"@en ] ;
+    sh:property [ sh:path schema:url ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path skos:related ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path schema:provider ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:documentation ; sh:minCount 1 ; sh:hasValue <https://opal.openlinksw.com/install/> ] ;
+    sh:property [ sh:path schema:exampleOfWork ; sh:minCount 1 ; sh:hasValue <https://www.openlinksw.com/data//html/opal-system-functions-or-agents-apis-developer-journey-gemini-17.html> ] ;
+    sh:property [ sh:path schema:hasPart ; sh:minCount 1 ;
+        sh:node [ a sh:NodeShape ;
+            sh:class schema:EntryPoint ;
+            sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:urlTemplate ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:httpMethod ; sh:minCount 1 ; sh:hasValue "POST" ] ;
+            sh:property [ sh:path schema:contentType ; sh:minCount 1 ; sh:hasValue "application/json" ] ;
+            sh:property [ sh:path schema:actionPlatform ; sh:minCount 1 ; sh:hasValue <http://schema.org/OnlinePlatform> ]
+        ] ] ;
+    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ;
+        sh:node [ a sh:NodeShape ;
+            sh:class schema:CommunicateAction ;
+            sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:target ; sh:minCount 1 ;
+                sh:node [ a sh:NodeShape ;
+                    sh:class schema:EntryPoint ;
+                    sh:property [ sh:path schema:urlTemplate ; sh:minCount 1 ] ;
+                    sh:property [ sh:path schema:httpMethod ; sh:minCount 1 ; sh:hasValue "POST" ]
+                ] ] ;
+            sh:property [ sh:path schema:expects ; sh:minCount 1 ;
+                sh:node [ a sh:NodeShape ;
+                    sh:class schema:Text ;
+                    sh:property [ sh:path schema:description ; sh:minCount 1 ]
+                ] ] ;
+            sh:property [ sh:path schema:result ; sh:minCount 1 ;
+                sh:node [ a sh:NodeShape ;
+                    sh:class schema:Text ;
+                    sh:property [ sh:path schema:description ; sh:minCount 1 ]
+                ] ]
+        ] ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "API Access Product must have all 4 tiers (Entry, Medium, Advanced, Max) represented — a License (opllic:productLicenseOf this Product) whose Offer (opllic:partOf) is typed with each of oplofr:ApiAccessEntryLevelOffer, oplofr:ApiAccessMediumLevelOffer, oplofr:ApiAccessAdvancedLevelOffer, oplofr:ApiAccessMaxOffer." ;
+        sh:select """
+            PREFIX opllic: <http://www.openlinksw.com/ontology/licenses#>
+            PREFIX oplofr: <http://www.openlinksw.com/ontology/offers#>
+            SELECT $this
+            WHERE {
+                {
+                    FILTER NOT EXISTS {
+                        ?lic1 opllic:productLicenseOf $this ; opllic:partOf ?offer1 .
+                        ?offer1 a oplofr:ApiAccessEntryLevelOffer .
+                    }
+                } UNION {
+                    FILTER NOT EXISTS {
+                        ?lic2 opllic:productLicenseOf $this ; opllic:partOf ?offer2 .
+                        ?offer2 a oplofr:ApiAccessMediumLevelOffer .
+                    }
+                } UNION {
+                    FILTER NOT EXISTS {
+                        ?lic3 opllic:productLicenseOf $this ; opllic:partOf ?offer3 .
+                        ?offer3 a oplofr:ApiAccessAdvancedLevelOffer .
+                    }
+                } UNION {
+                    FILTER NOT EXISTS {
+                        ?lic4 opllic:productLicenseOf $this ; opllic:partOf ?offer4 .
+                        ?offer4 a oplofr:ApiAccessMaxOffer .
+                    }
+                }
+            }
+        """ ;
+    ] .
 <#ApiAccessLicenseShape> a sh:NodeShape ;
     sh:targetClass opllic:ProductLicense ;
     sh:property [ sh:path opllic:uriParameter ; sh:maxCount 0 ] ;
     sh:property [ sh:path opllic:graphParameter ; sh:maxCount 0 ] ;
     sh:property [ sh:path oplsof:hasOperatingSystemFamily ; sh:hasValue oplsof:OSFamilyAny ] ;
-    sh:property [ sh:path oplsof:hasDatabaseFamily ; sh:hasValue oplsof:WorldWideWeb ] .
+    sh:property [ sh:path oplsof:hasDatabaseFamily ; sh:hasValue oplsof:WorldWideWeb ] ;
+    sh:property [ sh:path skos:related ; sh:minCount 1 ; sh:nodeKind sh:IRI ] .
 <#ApiAccessPaidLicenseShape> a sh:NodeShape ;
     sh:targetClass opllic:ProductLicense ;
     sh:property [ sh:path opllic:hasDuration ; sh:minCount 1 ] .
@@ -21,10 +91,14 @@
     sh:targetClass schema:Offer ;
     sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupApiAccess#this> ] ;
     sh:property [ sh:path schema:url ; sh:minCount 1 ] ;
+    sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ] ;
     sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
         sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] .
 <#ApiAccessPaidPriceShape> a sh:NodeShape ;
     sh:targetClass schema:UnitPriceSpecification ;
     sh:property [ sh:path schema:price ; sh:minCount 1 ; sh:datatype xsd:decimal ] ;
-    sh:property [ sh:path oplofr:interval ; sh:minCount 1 ; sh:hasValue "month" ] ;
-    sh:property [ sh:path oplofr:intervalCount ; sh:minCount 1 ; sh:hasValue 1 ] .
+    sh:or (
+      [ sh:property [ sh:path schema:price ; sh:hasValue "0.00"^^xsd:decimal ] ]
+      [ sh:property [ sh:path oplofr:interval ; sh:minCount 1 ; sh:hasValue "month"^^xsd:string ] ;
+        sh:property [ sh:path oplofr:intervalCount ; sh:minCount 1 ; sh:hasValue 1 ] ]
+    ) .

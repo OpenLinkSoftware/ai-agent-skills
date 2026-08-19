@@ -7,8 +7,9 @@ description: >
   product resolution from OpenLink offer catalog, checkout updates, cancellation,
   and subscription payment link detection. Also handles Machine Payment Protocol
   (MPP) 402 purchase flows for protected resources across multiple authentication
-  protocols (WebID-TLS, OAuth Bearer, Digest) selected via elicitation.
-version: 1.6.0
+  protocols (WebID-TLS/NetID-TLS, OAuth Bearer, Digest) selected via
+  elicitation; WebID-TLS/NetID-TLS automatically targets port 5443.
+version: 1.7.0
 type: skill
 ---
 
@@ -32,8 +33,9 @@ natural-language purchase intents.
 - Any request referencing the ACP API, checkout sessions, carts, or OpenLink
   software license purchases.
 - Accessing a paid/protected resource behind a 402 (MPP) paywall, when the
-  authentication protocol (WebID-TLS, OAuth, Digest) or settlement route must
-  be elicited.
+  authentication protocol (WebID-TLS/NetID-TLS, OAuth, Digest) or settlement
+  route must be elicited. WebID-TLS/NetID-TLS always targets port 5443, never
+  443 — see the Auth Protocol Selection rule.
 
 ## Prerequisites
 
@@ -225,7 +227,7 @@ from the prompt:
 
 | Signal | Protocol |
 |---|---|
-| Client certificate / principal WebID / `:5443` / "my cert" / "WebID-TLS" | **WebID-TLS (mTLS)** |
+| Client certificate / principal WebID / NetID / `:5443` / "my cert" / "WebID-TLS" / "NetID-TLS" | **WebID-TLS (mTLS)** |
 | `ACP_AUTH_TOKEN` / Bearer token / OAuth application / On-Behalf-Of delegation | **OAuth (Bearer)** |
 | Username/password / WebDAV ACL / "Digest" | **Digest** |
 | Any other protocol the user names | Use the user's protocol |
@@ -236,6 +238,25 @@ Elicitation prompt when ambiguous:
 > (3) Digest?"
 
 If the user specifies a protocol explicitly, honor it.
+
+> **RULE — WebID-TLS/NetID-TLS port defaults to 5443 automatically, not by
+> discovery.** The instant WebID-TLS (or NetID-TLS — same mechanism) is
+> selected, construct or rewrite the target URL onto port **5443** before the
+> first request. Do not probe port 443 first and fall back to 5443 only after
+> a `401`. Port 443 on these resource servers never issues a
+> `CertificateRequest` during the TLS handshake — it falls straight through to
+> a Digest challenge regardless of what certificate is available, which reads
+> exactly like "this resource has no WebID-TLS option" even when it does.
+> Verified live 2026-08-19 against `ods-qa.openlinksw.com`: `:443` → `401
+> Digest`, no `CertificateRequest` in the handshake at all; `:5443` →
+> `CertificateRequest` issued, cert accepted, `302` to a `?k=...` capability
+> URL, which only then returns the real `402`. Full detail in
+> **Protocol-Specific Notes** below and in the sibling `x402-buyer` skill's
+> `references/protocol.md`.
+>
+> Rewrite only when the URL is on port 443 or has no explicit port. A URL
+> already naming some other explicit port (a local/staging server on a custom
+> port) is left untouched — treat that as a deliberate override, not a miss.
 
 ### Settlement Route Selection (Elicitation)
 
@@ -342,12 +363,17 @@ Route B notes:
 
 ### Protocol-Specific Notes
 
-- **WebID-TLS (mTLS)**: the WebID-TLS hop is on `:5443`, not `:443` — port 443
-  returns `401` (WebDAV ACL) even with a valid client cert. Request the resource
-  on `https://linkeddata.uriburner.com:5443/...` with the WebID-TLS cert to
-  trigger the `302 ?k=...` redirect that precedes the `402` challenge. Present
-  the principal's client certificate on every hop; the authenticated principal
-  WebID is the `service_id`.
+- **WebID-TLS (mTLS)**: default to `:5443`, not `:443`, the moment this
+  protocol is selected — see the RULE in Auth Protocol Selection above. Port
+  443 returns `401` (WebDAV ACL) even with a valid client cert, because the
+  server never requests one on that port; it isn't a fallback path, it's a
+  dead end for this protocol. Request the resource on
+  `https://{host}:5443/...` (e.g. `https://linkeddata.uriburner.com:5443/...`)
+  with the WebID-TLS cert to trigger the `302 ?k=...` redirect that precedes
+  the `402` challenge. Present the principal's client certificate on every
+  hop — the initial request, the `?k=...` follow-up, AND the eventual
+  payment-retry request; the authenticated principal WebID is the
+  `service_id`.
 - **OAuth (Bearer)**: authenticate with `Authorization: Bearer {token}`
   (e.g., `ACP_AUTH_TOKEN`); for delegated resource access use the `On-Behalf-Of`
   header with a **bare WebID URI — no angle brackets** (angle brackets cause

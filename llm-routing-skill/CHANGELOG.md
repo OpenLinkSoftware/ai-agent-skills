@@ -6,6 +6,13 @@ Changelog](https://keepachangelog.com/en/1.1.0/); versioning:
 
 ## [1.4.0] - 2026-08-19
 
+### Changed
+- README Verification & Test Suite regenerated for the extended TBox: Test 1
+  row 5 updated to **31 `llmr:` properties** (was 25; the trace feature added
+  6 properties). All 14 hyperlinks (7 queries x local Virtuoso + public
+  URIBurner) re-verified HTTP 200 with expected row counts after re-syncing
+  both graph surfaces.
+
 ### Added
 - **Session routing traces (private, local-only)** — the automatic half of the
   feedback loop, in line with agent-rdf-memory/preferences.ttl session-trace
