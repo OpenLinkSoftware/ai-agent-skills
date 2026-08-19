@@ -1,0 +1,133 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/webid-tls-port-5443-default.ttl"@en ;
+    schema:description "OpenLink resource servers (Virtuoso VDB) put the WebID-TLS/NetID-TLS handshake on a dedicated port -- 5443, not 443/no-port. Any skill or ad hoc probe that selects WebID-TLS as the auth protocol MUST target 5443 from the first request, not discover the need for it after a misleading 401 Digest on 443. Established live 2026-08-19 against ods-qa.openlinksw.com; applied as an automatic rule in x402-buyer (URL port auto-rewrite) and acp-client (upfront selection-table rule, was previously buried prose)."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "WebID-TLS/NetID-TLS always targets port 5443 on OpenLink resource servers -- default it, never discover it"@en ;
+    schema:description "Port 443 accepting a TLS connection is NOT evidence a resource lacks a WebID-TLS option -- it only proves the plain HTTPS port doesn't request a client certificate."@en ;
+    schema:step :step-observedBehavior, :step-whyItMatters, :step-ruleNotDiscovery,
+        :step-appliedInX402Buyer, :step-appliedInAcpClient, :step-awkIgnorecaseBugFoundEnRoute,
+        :step-redirectHopNotUniversal, :step-bash32EmptyArrayBug ;
+    rdfs:seeAlso <../../x402-buyer/SKILL.md>,
+        <../../x402-buyer/references/protocol.md>,
+        <../../acp-client/SKILL.md>,
+        <../preferences.ttl#step-webidTlsPort5443Default> .
+
+# ── Step 1: what was observed ────────────────────────────────────────────────
+
+:step-observedBehavior a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Live-verified behavior against ods-qa.openlinksw.com, 2026-08-19"@en ;
+    schema:text """Probed https://ods-qa.openlinksw.com/DAV/home/JacquelineHand/Items/Proper%20Lancashire%20Hotpot.pdf (a real x402-protected offer, $2.99 USDC, Base Sepolia) with the principal's WebID-TLS client cert (link-in-bio-credentials-5).
+
+PORT 443 (implicit, no explicit port in the URL): TLS handshake completes normally (Client hello -> Server hello -> Certificate -> Finished), but the server NEVER sends a Request CERT (13) message -- no CertificateRequest at all. The connection falls straight through to plain HTTP auth: 401 Unauthorized, WWW-Authenticate: Digest. This is indistinguishable from "this resource requires Digest, full stop" unless you already know to try another port.
+
+PORT 5443 (explicit): TLS handshake includes Request CERT (13); the client cert is sent (Certificate + CertVerify) and accepted. Response is 302 Found with Location pointing at the SAME path plus a ?k=<uuid> query parameter -- a capability token. Following that redirect, STILL presenting the same client cert, returns the real 402 Payment Required with WWW-Authenticate: Payment and a PAYMENT-REQUIRED header carrying the base64 x402 challenge (accepts[], amount, network eip155:84532, payTo, scheme exact)."""@en .
+
+# ── Step 2: why this matters operationally ──────────────────────────────────
+
+:step-whyItMatters a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "A 401 on port 443 is not proof the resource has no x402/WebID-TLS layer"@en ;
+    schema:text "Before this was established, the natural read of '401 Digest' was 'switch to Digest auth' -- exactly what happened in this session on the first pass. The correct read, when the user has a WebID/NetID or names WebID-TLS/NetID-TLS, is 'try port 5443 before concluding anything about what this resource requires.' Treating a 443 result as authoritative about a resource's auth options will silently misroute every WebID-TLS-gated x402 resource to a Digest-credential elicitation that either fails or reaches the wrong (non-paywalled) content." ;
+    rdfs:seeAlso <../preferences.ttl#step-webidTlsPort5443Default> .
+
+# ── Step 3: the rule, stated as an upfront default, not a fallback ──────────
+
+:step-ruleNotDiscovery a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "RULE: the instant WebID-TLS/NetID-TLS is selected as the protocol, target :5443 before the first request"@en ;
+    schema:text """Rewrite condition: apply ONLY when the URL is on port 443 or has no explicit port. A URL that already names some OTHER explicit port (a local test server on :8443, a staging box on a custom port) is left untouched -- that is a deliberate choice by whoever supplied the URL, not an oversight to correct.
+
+This generalizes beyond ods-qa.openlinksw.com to any OpenLink/Virtuoso VDB resource server using the same WebID-TLS configuration pattern -- the port is a deployment convention, not a one-off fact about a single host. Apply the same default the first time a client certificate is available for a NEW host, rather than re-discovering it host by host."""@en .
+
+# ── Step 4: applied in x402-buyer ────────────────────────────────────────────
+
+:step-appliedInX402Buyer a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "x402-buyer: --cert flag triggers automatic port rewrite plus real mTLS support (previously absent entirely)"@en ;
+    schema:text """Before this session, x402_get.py had ZERO client-certificate support -- session.get() never sent a cert, so a WebID-TLS-gated resource was simply unreachable by the packaged tool regardless of port guidance in the docs. Added: rewrite_for_webid_tls(url) (pure function, 6 edge cases unit-tested: bare host, explicit :443, already-:5443 idempotent, explicit non-443 port left alone, non-https left alone, userinfo preserved); resolve_cert_passphrase() mirroring the existing 4-source EVM-key chain under a SEPARATE credential-store service (x402-buyer-p12-passphrase, never shares a namespace with x402-buyer-evm-key); extract_pem_from_p12() (the sanctioned PEM-extraction exception from p12-passphrase-retrieval.ttl, since Python requests cannot consume PKCS#12 directly) with tested error paths (wrong passphrase, missing file) and guaranteed cleanup via a finally block. session.cert is set once on the x402_requests(client) session object so it carries through the WebID-TLS redirect hop AND the eventual payment-retry hop -- flagged explicitly in both the script docstring and SKILL.md as an assumption about the x402 SDK's session behavior that could not be independently verified (the SDK is not installed in the authoring environment), not a claim of confirmed behavior. Also fixed examples/probe-challenge.sh to accept an optional cert argument with the same auto-rewrite, using curl's -L (which resends --cert on every redirect hop, satisfying the every-hop requirement natively)."""@en ;
+    rdfs:seeAlso <../../x402-buyer/scripts/x402_get.py>,
+        <../../x402-buyer/examples/probe-challenge.sh> .
+
+# ── Step 5: applied in acp-client ────────────────────────────────────────────
+
+:step-appliedInAcpClient a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "acp-client: promoted the :5443 fact from buried Protocol-Specific-Notes prose to an upfront RULE in Auth Protocol Selection"@en ;
+    schema:text "acp-client already documented the :5443 requirement accurately (Protocol-Specific Notes), but only as descriptive prose the agent had to remember to apply mid-flow, discovered AFTER selecting WebID-TLS rather than baked into the selection step itself. Added an explicit blockquote RULE immediately after the Auth Protocol Selection signal table, cross-referenced from the strengthened Protocol-Specific Notes bullet, plus a NetID-TLS alias throughout (same mechanism, different name the user also uses). acp-client has no packaged script (curl-recipe-driven), so this is a documentation-only change -- there is no code path to add cert support to." ;
+    rdfs:seeAlso <../../acp-client/SKILL.md>,
+        <../../acp-client/CHANGELOG.md> .
+
+# ── Step 6: an unrelated portability bug found en route ─────────────────────
+
+:step-awkIgnorecaseBugFoundEnRoute a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "BEGIN{IGNORECASE=1} is a gawk-only extension -- macOS ships BSD/nawk awk, which silently ignores it rather than erroring"@en ;
+    schema:text """Found while live-testing the WebID-TLS probe flow: the challenge-decode pipeline (awk 'BEGIN{IGNORECASE=1}/^payment-required:/{print $2}') had been silently non-functional on macOS since it was first written -- BSD awk treats IGNORECASE as an ordinary uninitialized variable with no special meaning, so the pattern stays case-SENSITIVE and never matches curl's uppercase PAYMENT-REQUIRED: header. No error, no warning -- just zero matched lines and empty decode output every time, which reads exactly like 'no PAYMENT-REQUIRED header present' (a false negative for a real, present header).
+
+FIX: replaced with a portable grep -i '^payment-required:' | cut -d: -f2- | tr -d ' \\r' | base64 -d pipeline (no awk dependency, no GNU extension). Fixed in x402-buyer/SKILL.md's Step 1 probe snippet AND examples/probe-challenge.sh. Verified against the live ods-qa.openlinksw.com 402 response end-to-end (curl -> grep -> cut -> tr -> base64 -> python3 -m json.tool -> correct decoded JSON).
+
+GENERAL LESSON: BEGIN{IGNORECASE=1} in any awk one-liner intended to be portable (including inside a skill meant to run on a user's actual machine, not just wherever it was authored) is a latent bug, not a style choice -- gawk supports it, macOS/BSD awk (and mawk) do not, and the failure mode is silent (empty match) rather than a syntax error, which is what let this ship undetected until an actual live test exercised the exact header case. Prefer grep -i for case-insensitive line selection in any shell pipeline meant to run cross-platform; reserve awk for field-splitting only, after the case-insensitive selection is already done."""@en ;
+    rdfs:seeAlso <../../x402-buyer/SKILL.md>,
+        <../../x402-buyer/examples/probe-challenge.sh> .
+
+# ── Step 7: the ?k=... redirect hop is NOT universal across resource types ──
+
+:step-redirectHopNotUniversal a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Some WebID-TLS-gated x402 resources 302-redirect through a ?k=... capability URL before the 402; others return the 402 directly at :5443 with no redirect at all"@en ;
+    schema:text """Confirmed 2026-08-19 with two more live probes, both against ods-qa.openlinksw.com with the same principal cert:
+
+- A DAV file resource (.../Items/Proper Lancashire Hotpot.pdf) on :5443: cert accepted -> 302 Found -> Location adds ?k=<uuid> -> follow it (same cert) -> 402.
+- A /sparql/ query-endpoint resource (SELECT over urn:jch:test) on :5443: cert accepted -> 402 DIRECTLY, no redirect, no ?k= parameter at all.
+
+Do not assume every WebID-TLS-gated x402 resource needs a redirect-follow step -- curl's -L (or an HTTP client with redirects enabled) handles both cases correctly without extra logic, since it's a no-op when there's nothing to follow. But do not build detection logic that treats an ABSENT redirect as evidence of failure; a direct 402 on :5443 is a normal, successful outcome, just for a different resource type (query endpoint vs. static file)."""@en ;
+    rdfs:seeAlso <../../x402-buyer/references/protocol.md> .
+
+# ── Step 8: bash 3.2's set -u rejects expanding an empty array -- affects every macOS default shell ──
+
+:step-bash32EmptyArrayBug a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "\"${ARR[@]}\" under set -u errors with \"unbound variable\" on bash 3.2 (macOS's shipped default) when ARR is empty -- use \"${ARR[@]+\"${ARR[@]}\"}\""@en ;
+    schema:text """Introduced and caught in the SAME session that added --cert to examples/probe-challenge.sh: CURL_CERT_ARGS=() declared empty when no cert argument is given, then expanded as "${CURL_CERT_ARGS[@]}" inside a curl invocation under set -euo pipefail. Ran fine when a cert WAS supplied (non-empty array) but the plain, no-cert probe -- the more common case -- failed outright with "CURL_CERT_ARGS[@]: unbound variable" before a single curl request was even sent.
+
+CAUSE: bash <4.4's `set -u` (nounset) treats expanding an EMPTY array's [@] as referencing an unset variable, even though the array itself was declared. This is a documented, long-standing bash quirk, not a typo -- and macOS ships bash 3.2 as /bin/bash by default (Apple has not updated it past the GPLv2/GPLv3 license switch), so any skill authored and tested with a newer bash (Homebrew's /opt/homebrew/bin/bash, bash 5.x) can pass locally and still break for a user on stock macOS.
+
+FIX, portable back to bash 3.2: "${ARR[@]+"${ARR[@]}"}" -- the ${ARR[@]+...} parameter-expansion form only substitutes its alternate value when the array element exists, sidestepping the nounset check entirely for the empty case.
+
+GENERAL LESSON: any skill shipping a bash script with set -u and an OPTIONAL array argument (built up conditionally, possibly staying empty) must use this idiom for every expansion of that array, not just guard the declaration. Test the SCRIPT's own default/no-flag path explicitly -- this bug hid because only the WebID-TLS (non-empty array) path had been exercised before the plain probe was run against a different URL."""@en ;
+    rdfs:seeAlso <../../x402-buyer/examples/probe-challenge.sh> .
+
+# ── Step 9: jsonschema is a required dependency the docs originally omitted ──
+
+:step-jsonschemaRequiredDependency a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "The x402 Python SDK requires jsonschema even for a plain fetch with no extensions of the buyer's own -- it validates SERVER-offered extensions in the challenge before creating any payment payload"@en ;
+    schema:text """Found running the FIRST real end-to-end settlement this skill ever completed (2026-08-19, against https://ods-qa.openlinksw.com/DAV/data/TestFile.txt). The original documented install line (pip install eth_account requests + x402[requests,evm]) omitted jsonschema and the SDK's extensions extra. The failure mode is unusually deceptive: everything up through challenge decode and buyer-address printing succeeds normally, then create_payment_payload() raises ImportError deep in x402/extensions/bazaar/facilitator.py, because the server's challenge advertised the eip2612GasSponsoring extension and the SDK validates it via jsonschema before signing -- regardless of whether the CALLER asked for any extension support.
+
+FIX: added jsonschema + x402[extensions] to every install line (script docstring, SKILL.md Prerequisites, references/setup.md), and a troubleshooting.md entry keyed on the exact ImportError text so a future run finds the fix immediately rather than re-diagnosing.""" ;
+    rdfs:seeAlso <../../x402-buyer/references/setup.md>,
+        <../../x402-buyer/references/troubleshooting.md> .
+
+# ── Step 10: the first real settlement, verified independently on-chain ─────
+
+:step-firstRealSettlementVerified a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "First real x402 settlement completed by this skill, 2026-08-19 -- verified independently via direct RPC call, not by trusting the client's own success report"@en ;
+    schema:text """Against https://ods-qa.openlinksw.com/DAV/data/TestFile.txt ('Test File Access on ods-qa', $9.99). The throwaway buyer wallet was assumed unfunded going in -- the user explicitly chose to run the full client expecting the documented insufficient_balance failure -- but the wallet turned out to already hold testnet USDC, so the pipeline completed a genuine settlement instead.
+
+The client's own reported success (status:true, a transaction hash) was NOT taken at face value. Independently verified via a direct eth_getTransactionReceipt RPC call to the same public Base Sepolia endpoint the script itself defaults to (https://base-sepolia-rpc.publicnode.com, so not a new unverified URL): status 0x1 (success), a standard ERC-20 Transfer event log on the USDC contract, from = the buyer wallet, to = the documented OPL Shop seller address 0xb410b5E894Ce8CF5C68c21f26887C17Cf1200C79, amount = 9990000 (== $9.99, exactly matching the challenge). A block-explorer URL (sepolia.basescan.org) was tried first and returned 403 (anti-bot); did not fabricate or route around that -- fell back to the already-known, already-verified RPC endpoint instead, per the no-fabricated-URLs rule.
+
+Remaining wallet balance also checked directly via balanceOf() rather than assumed: $31.09 USDC as of 2026-08-19, enough for roughly three more $9.99-scale tests.
+
+LESSON: when a payment client reports success, verify independently against the chain/ledger itself before repeating the claim to the user, using only URLs/endpoints already established as legitimate in this session -- never a fresh unverified explorer URL, and never silently substitute the client's self-report for independent proof when real value (even testnet) moved."""@en ;
+    rdfs:seeAlso <../../x402-buyer/scripts/x402_get.py> .

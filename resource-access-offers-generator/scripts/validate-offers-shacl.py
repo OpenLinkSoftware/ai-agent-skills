@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description="Validate RDF offer files with SHACL shapes.")
     parser.add_argument("offer_file")
     parser.add_argument("--shacl-dir", default=SHACL_DIR)
-    parser.add_argument("--type", choices=["file","graph","api"])
+    parser.add_argument("--type", choices=["file","graph","api","chatservice"])
     args = parser.parse_args()
     print(f"Parsing: {args.offer_file}")
     data_g = load_graph(args.offer_file)
@@ -29,8 +29,9 @@ def main():
         "file":  [common, os.path.join(args.shacl_dir, "file-access-offer-shape.ttl")],
         "graph": [common, os.path.join(args.shacl_dir, "graph-access-offer-shape.ttl")],
         "api":   [common, os.path.join(args.shacl_dir, "api-access-offer-shape.ttl")],
+        "chatservice": [common, os.path.join(args.shacl_dir, "chat-service-offer-shape.ttl")],
     }
-    types = [args.type] if args.type else ["file","graph","api"]
+    types = [args.type] if args.type else ["file","graph","api","chatservice"]
     best_type, best_violations, best_result = None, None, None
     for ot in types:
         sf = shapes[ot]
@@ -39,7 +40,7 @@ def main():
         sg = rdflib.Graph()
         for s in sf: sg.parse(s, format="turtle")
         conforms, rg, rt = validate(data_g, shacl_graph=sg, inference='rdfs', abort_on_first=False, meta_shacl=False)
-        vc = sum(1 for _ in rg.query("SELECT (COUNT(?v) as ?c) WHERE { ?v a sh:ValidationResult }"))
+        vc = int(next(iter(rg.query("SELECT (COUNT(?v) as ?c) WHERE { ?v a sh:ValidationResult }")))[0])
         if best_violations is None or vc < best_violations:
             best_type, best_violations, best_result = ot, vc, (conforms, rt)
     if best_type is None:

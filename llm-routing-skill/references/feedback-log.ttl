@@ -1,0 +1,34 @@
+@prefix : <#> .
+@prefix llmr: <https://www.openlinksw.com/ontology/llm-routing#> .
+@prefix llmrm: <https://www.openlinksw.com/ontology/llm-routing/models/> .
+@prefix llmrt: <https://www.openlinksw.com/ontology/llm-routing/tasks/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "LLM Routing Feedback Log"@en ;
+    schema:description "Append-only log of routed-execution outcomes. Each record scores output quality and observed latency for a (model, task) pair so the seed capability profiles in capability-profiles.json can be refined and the routing graph rebuilt — the feedback loop that keeps the routing graph a living artifact."@en ;
+    schema:about :feedbackLog ;
+    schema:dateCreated "2026-08-19"^^xsd:date .
+
+:feedbackLog a schema:ItemList ;
+    schema:name "Routing feedback records"@en ;
+    schema:itemListElement :feedback-0001 .
+
+# ── Feedback record template ─────────────────────────────────────────────────
+# Append one record per routed execution. Copy the block below, bump the
+# sequence number, fill the values, and add the new record to :feedbackLog's
+# schema:itemListElement list.
+#
+# After appending: review records that contradict the seed profile, adjust
+# references/capability-profiles.json (family_rules or explicit_overrides),
+# then rebuild + re-validate (scripts/build_routing_graph.py + validate_graph.py).
+
+:feedback-0001 a llmr:FeedbackRecord ;
+    llmr:feedbackModel llmrm:deepseek-v4-flash ;
+    llmr:feedbackTask llmrt:code-generation ;
+    llmr:qualityScore "4"^^xsd:integer ;
+    llmr:costTier "medium"@en ;
+    llmr:passedVerification true ;
+    llmr:observedLatency "low"@en ;
+    llmr:feedbackDate "2026-08-19"^^xsd:date .

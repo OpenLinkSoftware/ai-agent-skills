@@ -1,0 +1,57 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
+@prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
+@prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+<#ChatServiceProductShape> a sh:NodeShape ;
+    sh:targetClass schema:Service ;
+    sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:applicationCategory ; sh:minCount 1 ; sh:hasValue "AI Agent Platform"@en ] ;
+    sh:property [ sh:path schema:applicationSubCategory ; sh:minCount 1 ; sh:hasValue "LLM-Integrated AI Agent Middleware"@en ] ;
+    sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:softwareVersion ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:provider ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:url ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [
+        sh:path schema:hasPart ;
+        sh:node [ a sh:NodeShape ;
+            sh:class schema:WebAPI ;
+            sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:url ; sh:minCount 1 ; sh:nodeKind sh:IRI ]
+        ]
+    ] ;
+    sh:property [
+        sh:path schema:hasPart ;
+        sh:qualifiedValueShape [ sh:property [ sh:path schema:serviceType ; sh:hasValue "MCP-compliant AI Chat Agent"@en ] ] ;
+        sh:qualifiedMinCount 1
+    ] ;
+    sh:property [
+        sh:path schema:hasPart ;
+        sh:qualifiedValueShape [ sh:property [ sh:path schema:serviceType ; sh:hasValue "MCP-compliant AI Assist Agent"@en ] ] ;
+        sh:qualifiedMinCount 1
+    ] ;
+    sh:property [
+        sh:path schema:hasPart ;
+        sh:qualifiedValueShape [ sh:property [ sh:path schema:serviceType ; sh:hasValue "MCP Server (Streamable HTTP)"@en ] ] ;
+        sh:qualifiedMinCount 1
+    ] ;
+    sh:property [
+        sh:path schema:hasPart ;
+        sh:qualifiedValueShape [ sh:property [ sh:path schema:serviceType ; sh:hasValue "MCP Server (SSE)"@en ] ] ;
+        sh:qualifiedMinCount 1
+    ] .
+<#ChatServiceLicenseShape> a sh:NodeShape ;
+    sh:targetClass opllic:ProductLicense ;
+    sh:property [ sh:path opllic:uriParameter ; sh:maxCount 0 ] ;
+    sh:property [ sh:path opllic:graphParameter ; sh:maxCount 0 ] ;
+    sh:property [ sh:path oplsof:hasOperatingSystemFamily ; sh:hasValue oplsof:OSFamilyAny ] ;
+    sh:property [ sh:path oplsof:hasDatabaseFamily ; sh:hasValue oplsof:WorldWideWeb ] .
+<#ChatServiceOfferShape> a sh:NodeShape ;
+    sh:targetClass schema:Offer ;
+    sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupChatService#this> ] ;
+    sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
+        sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] .

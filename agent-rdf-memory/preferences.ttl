@@ -2996,49 +2996,6 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     rdfs:seeAlso <howto/editorial-data-viz-aesthetic.ttl>,
         <../../../../LLMs/DeepSeek/webpages/right-sizing-intelligence-spend-deepseek_v4flash-1.html> .
 
-# ── Step 235: no generated skill ships a secret literal — resolve via credential store, prompt last ──
-
-:step-secretResolutionInGeneratedSkills a schema:HowToStep ;
-    schema:position 235 ;
-    schema:name "A skill/script/example this agent authors or packages MUST NOT contain a secret literal; secrets resolve through the four-source chain (explicit arg → env var → OS credential store → hidden prompt), and 'it's only a throwaway testnet credential' is not an exemption"@en ;
-    schema:text "2026-08-19: while generating the x402-buyer skill from a user-supplied zip, the source x402_get.py carried a Base Sepolia buyer private key in its docstring, deliberately committed so the smoke test could be rerun. Flagged at delivery; the user asked for it to be moved to the Keychain and prompted for when required. Generalises p12-passphrase-retrieval.ttl's chain from the one standing PKCS#12 passphrase to any secret in any generated artifact, and adds the migration ordering (verify free → add → verify readback → THEN strip from source) plus the pre-package grep sweep over both the skill directory and the built ZIP." ;
-    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerSkillInvocation, onto:triggerUserCorrection ;
-    rdfs:seeAlso <howto/secret-resolution-in-generated-skills.ttl>,
-        <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
-        <howto/p12-passphrase-retrieval.ttl#step-neverProbeProductionCredentialNames>,
-        <howto/p12-passphrase-retrieval.ttl#step-redact>,
-        <preferences.ttl#step-p12PassphraseKeychainFirst> .
-
-
-# ── Step 237: Never fabricate or reconstruct comment text (2026-08-19) ──
-
-:step-neverFabricateCommentText a schema:HowToStep ;
-    schema:position 237 ;
-    schema:name "Never fabricate, reconstruct, or attribute invented comment text to a real person"@en ;
-    schema:text """Comments attributed to people are factual evidence and MUST be verbatim from the source. Do NOT: (1) compose plausible comment text from a thematic summary, a sibling session's notes, or the person's known positions; (2) attribute reconstructed text to a real person — the principal called this out as forbidden when a Kingsley Uyi Idehen comment was reconstructed from a sibling-session thematic summary ('Comments attributed to me are fabricated, which is forbidden'); (3) reuse comment text from another model's unverified extraction — the sibling-sourced set was partially wrong (included a commenter absent from the real thread and missed eight real commenters). The correct procedure: obtain the comment thread VERBATIM from the live source via an authenticated browser session (Playwright driving installed Chrome with channel='chrome' and an isolated persistent profile; pinchtab as fallback). LinkedIn hides the thread behind a sign-in wall — ask the user to log in when needed. Model each comment as schema:Comment with schema:author = the commenter's own LinkedIn IRI (#this), schema:text = the verbatim text, and a provenance description naming the extraction method and date. If the source is inaccessible, omit the comments entirely rather than approximate them. Worked incident: Right-Sizing Your Intelligence Spend (2026-08-19) — 16 comments extracted verbatim via Playwright after the reconstructed comment was removed."""@en ;
-    onto:hasTrigger onto:triggerUserCorrection, onto:triggerBehaviorGapIdentified ;
-    rdfs:seeAlso <howto/comment-verbatim-extraction.ttl> .
-
-# ── Step 236: WebID-TLS/NetID-TLS always defaults to port 5443 on OpenLink resource servers ──
-
-:step-webidTlsPort5443Default a schema:HowToStep ;
-    schema:position 236 ;
-    schema:name "WebID-TLS/NetID-TLS targets port 5443 automatically, as an upfront default, never discovered after a misleading 401 on port 443"@en ;
-    schema:text "2026-08-19: live-verified against ods-qa.openlinksw.com — port 443 never issues a CertificateRequest during the TLS handshake (falls straight to 401 Digest regardless of cert availability); port 5443 does, and the resulting 302 ?k=... redirect precedes the real 402/challenge. Applied to x402-buyer (URL port auto-rewrite via rewrite_for_webid_tls(), plus new --cert client-cert support that was entirely absent before — the script could not do WebID-TLS at all) and acp-client (promoted from buried Protocol-Specific-Notes prose to an upfront blockquote RULE in Auth Protocol Selection). Rewrite fires only when the URL is on port 443 or has no explicit port; an explicit non-443 port is left alone as a deliberate override." ;
-    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
-    rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl>,
-        <../x402-buyer/SKILL.md>,
-        <../acp-client/SKILL.md> .
-
-# ── Step 237: BEGIN{IGNORECASE=1} is a gawk-only extension — silently non-functional on macOS's BSD awk ──
-
-:step-awkIgnorecaseNotPortable a schema:HowToStep ;
-    schema:position 237 ;
-    schema:name "Never rely on awk's IGNORECASE variable for case-insensitive matching in a shell pipeline meant to run cross-platform — use grep -i instead"@en ;
-    schema:text "2026-08-19: found live-testing the x402-buyer WebID-TLS probe flow — awk 'BEGIN{IGNORECASE=1}/^payment-required:/{...}' had been silently non-functional on macOS since first written. BSD/nawk awk (macOS's default) treats IGNORECASE as an ordinary uninitialized variable with no special meaning; the match stays case-sensitive and never fires against curl's uppercase PAYMENT-REQUIRED: header. No error — just an empty result that reads exactly like 'no such header present,' a false negative for a real, present header. Fixed by replacing with grep -i '^header:' | cut -d: -f2- | tr -d ' \\r' — no GNU-awk dependency. This is a general authoring rule, not a one-off fix: audit any awk BEGIN{IGNORECASE=1} usage authored for a skill meant to run on a user's actual machine." ;
-    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
-    rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-awkIgnorecaseBugFoundEnRoute> .
-
 # ── Step 238: Hyperlink generated SPARQL URLs ──
 
 :step-hyperlinkSparqlUrls a schema:HowToStep ;
@@ -3048,37 +3005,70 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/hyperlink-sparql-urls.ttl> .
 
-# ── Step 238: bash 3.2's set -u errors expanding an empty array — use the ${ARR[@]+"${ARR[@]}"} idiom ──
+# ── Step 239: no generated skill ships a secret literal — resolve via credential store, prompt last ──
+
+:step-secretResolutionInGeneratedSkills a schema:HowToStep ;
+    schema:position 239 ;
+    schema:name "A skill/script/example this agent authors or packages MUST NOT contain a secret literal; secrets resolve through the four-source chain (explicit arg → env var → OS credential store → hidden prompt), and 'it's only a throwaway testnet credential' is not an exemption"@en ;
+    schema:text "2026-08-19: while generating the x402-buyer skill from a user-supplied zip, the source x402_get.py carried a Base Sepolia buyer private key in its docstring, deliberately committed so the smoke test could be rerun. Flagged at delivery; the user asked for it to be moved to the Keychain and prompted for when required. Generalises p12-passphrase-retrieval.ttl's chain from the one standing PKCS#12 passphrase to any secret in any generated artifact, and adds the migration ordering (verify free → add → verify readback → THEN strip from source) plus the pre-package grep sweep over both the skill directory and the built ZIP." ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerSkillInvocation, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/secret-resolution-in-generated-skills.ttl>,
+        <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
+        <howto/p12-passphrase-retrieval.ttl#step-neverProbeProductionCredentialNames>,
+        <howto/p12-passphrase-retrieval.ttl#step-redact>,
+        <preferences.ttl#step-p12PassphraseKeychainFirst> .
+
+# ── Step 240: WebID-TLS/NetID-TLS always defaults to port 5443 on OpenLink resource servers ──
+
+:step-webidTlsPort5443Default a schema:HowToStep ;
+    schema:position 240 ;
+    schema:name "WebID-TLS/NetID-TLS targets port 5443 automatically, as an upfront default, never discovered after a misleading 401 on port 443"@en ;
+    schema:text "2026-08-19: live-verified against ods-qa.openlinksw.com — port 443 never issues a CertificateRequest during the TLS handshake (falls straight to 401 Digest regardless of cert availability); port 5443 does, and the resulting 302 ?k=... redirect precedes the real 402/challenge. Applied to x402-buyer (URL port auto-rewrite via rewrite_for_webid_tls(), plus new --cert client-cert support that was entirely absent before — the script could not do WebID-TLS at all) and acp-client (promoted from buried Protocol-Specific-Notes prose to an upfront blockquote RULE in Auth Protocol Selection). Rewrite fires only when the URL is on port 443 or has no explicit port; an explicit non-443 port is left alone as a deliberate override." ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl>,
+        <../x402-buyer/SKILL.md>,
+        <../acp-client/SKILL.md> .
+
+# ── Step 241: BEGIN{IGNORECASE=1} is a gawk-only extension — silently non-functional on macOS's BSD awk ──
+
+:step-awkIgnorecaseNotPortable a schema:HowToStep ;
+    schema:position 241 ;
+    schema:name "Never rely on awk's IGNORECASE variable for case-insensitive matching in a shell pipeline meant to run cross-platform — use grep -i instead"@en ;
+    schema:text "2026-08-19: found live-testing the x402-buyer WebID-TLS probe flow — awk 'BEGIN{IGNORECASE=1}/^payment-required:/{...}' had been silently non-functional on macOS since first written. BSD/nawk awk (macOS's default) treats IGNORECASE as an ordinary uninitialized variable with no special meaning; the match stays case-sensitive and never fires against curl's uppercase PAYMENT-REQUIRED: header. No error — just an empty result that reads exactly like 'no such header present,' a false negative for a real, present header. Fixed by replacing with grep -i '^header:' | cut -d: -f2- | tr -d ' \\r' — no GNU-awk dependency. This is a general authoring rule, not a one-off fix: audit any awk BEGIN{IGNORECASE=1} usage authored for a skill meant to run on a user's actual machine." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-awkIgnorecaseBugFoundEnRoute> .
+
+# ── Step 242: bash 3.2's set -u errors expanding an empty array — use the ${ARR[@]+"${ARR[@]}"} idiom ──
 
 :step-bash32EmptyArrayIdiom a schema:HowToStep ;
-    schema:position 238 ;
+    schema:position 242 ;
     schema:name "Any shell script with set -u and an optional/conditionally-empty array must expand it as ${ARR[@]+\"${ARR[@]}\"}, never bare \"${ARR[@]}\" — bash 3.2 (macOS's shipped default) errors \"unbound variable\" on the bare form when the array is empty"@en ;
     schema:text "2026-08-19: introduced in x402-buyer/examples/probe-challenge.sh's --cert support and caught within the same session — the array-populated (cert-supplied) path worked, but the more common empty-array (no-cert, plain probe) path failed outright before any curl request ran. Confirmed as a genuine bash <4.4 nounset quirk, not a typo; macOS ships bash 3.2 as /bin/bash regardless of Homebrew bash being available. Always test a script's own default/no-flag path explicitly, not just the path that was being actively developed." ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-bash32EmptyArrayBug> .
 
-# ── Step 239: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
+# ── Step 243: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
 
 :step-webidTlsRedirectNotUniversal a schema:HowToStep ;
-    schema:position 239 ;
+    schema:position 243 ;
     schema:name "Do not assume every WebID-TLS-gated x402 resource 302-redirects through a ?k=... URL before its 402 — a /sparql/ query endpoint answered 402 directly at :5443 with no redirect at all"@en ;
     schema:text "2026-08-19: confirmed with a live probe of an ods-qa.openlinksw.com SPARQL query endpoint (urn:jch:test named graph) — cert accepted on :5443 went straight to 402, no 302/?k= hop, unlike the DAV file resource probed earlier in the same session. A redirect-follow (curl -L) handles both shapes correctly as a no-op when nothing needs following; don't build detection logic that treats an absent redirect as a failure signal." ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-redirectHopNotUniversal> .
 
-# ── Step 240: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
+# ── Step 244: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
 
 :step-x402JsonschemaRequired a schema:HowToStep ;
-    schema:position 240 ;
+    schema:position 244 ;
     schema:name "The x402 Python SDK needs jsonschema + the extensions extra even when the caller uses no extensions — it validates whatever extension the SERVER'S challenge advertises before creating a payment payload"@en ;
     schema:text "2026-08-19: discovered running x402-buyer's first real end-to-end settlement. A challenge advertising eip2612GasSponsoring failed deep inside signing with ImportError: Extensions validation requires jsonschema — after the challenge had already decoded and the buyer address already printed, reading like a mid-run crash rather than a missing dependency. Fixed in every install line across the skill (docstring, SKILL.md, setup.md) plus a troubleshooting.md entry keyed on the exact error text." ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-jsonschemaRequiredDependency> .
 
-# ── Step 241: verify a payment client's own success report independently against the chain before repeating it ──
+# ── Step 245: verify a payment client's own success report independently against the chain before repeating it ──
 
 :step-verifySettlementIndependently a schema:HowToStep ;
-    schema:position 241 ;
+    schema:position 245 ;
     schema:name "When a payment/settlement client reports success, verify independently against the underlying ledger before repeating the claim — never take the client's self-report as sufficient when real value (even testnet) moved"@en ;
     schema:text "2026-08-19: x402-buyer's first real settlement (ods-qa.openlinksw.com TestFile.txt, $9.99) reported success with a transaction hash. Verified independently via a direct eth_getTransactionReceipt RPC call to the SAME already-established Base Sepolia endpoint the script itself defaults to (never a fresh unverified URL) — confirmed status 0x1, correct ERC-20 Transfer event, correct from/to/amount matching the challenge exactly. A block-explorer URL (sepolia.basescan.org) was tried first, returned 403, and was NOT worked around with a substitute or fabricated URL — fell back to the already-verified RPC endpoint instead, per the no-fabricated-URLs rule. Also checked remaining wallet balance directly via balanceOf() rather than assuming from the settlement amount." ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
