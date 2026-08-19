@@ -2607,3 +2607,12 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     schema:text "Direct user instruction 2026-08-13: 'Examples with Virtuoso pragmas should always be accompanied with variants where the pragma is commented out re A/B testing and demonstration of reasoning & inference' — implemented as :demoQ10/:demoQ11 companions to :demoQ5/:demoQ9, both verified live before being written in."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/pragma-ab-toggle-variant.ttl> .
+
+# ── Step 238: Hyperlink generated SPARQL URLs ──
+
+:step-hyperlinkSparqlUrls a schema:HowToStep ;
+    schema:position 238 ;
+    schema:name "Whenever a SPARQL query URL is generated, present it as a clickable hyperlink — never as bare unlinked text"@en ;
+    schema:text "2026-08-19: user directive after the llm-routing-skill SPARQL endpoint URL was shown as a long raw string. Rule: every generated SPARQL query URL MUST be emitted as a Markdown/HTML hyperlink with a short human label (e.g. 'Run: code-generation frontier (cheapest first)'), and the URL must be verified to return results before it is presented. FORMAT: SELECT SPARQL URLs use the data-twingler convention — format=text/x-html+tr (percent-encoded as text%2Fx-html%2Btr, since '+' in a raw URL decodes to space), e.g. http://localhost:8890/sparql?default-graph-uri=&query=...&format=text%2Fx-html%2Btr — NOT format=json. Applies to chat responses, generated documents, and skill output alike. See llm-routing-skill SKILL.md SPARQL Query Templates for the query corpus this rule governs."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/hyperlink-sparql-urls.ttl> .

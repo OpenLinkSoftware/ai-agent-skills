@@ -258,3 +258,46 @@ karp:CriticalPerspective a rdfs:Class ;
 
 Property alignments use owl:inverseOf rather than owl:equivalentProperty because P-Plan's argument order is reversed relative to this ontology's — equivalentProperty would assert a false direction-preserving equivalence. Tradeoff noted to the user before implementing: P-Plan is a niche vocabulary (mostly scientific-workflow/provenance contexts) — real interop value only if a consumer actually has a P-Plan-aware tool/reasoner; otherwise it's a fourth external prefix with no practical payoff. User approved proceeding."""@en ;
     schema:dateCreated "2026-08-04T00:00:00Z"^^xsd:dateTime .
+# ── 7. LLM Routing Ontology (llmr:) — 2026-08-19 ──────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Minted by the llm-routing-skill (DeepSeek V4 Flash, 2026-08-19) to type the
+# capability x cost x latency routing graph. Registered here per
+# cross-document-local-term-reuse.ttl so future collections bind the namespace
+# below instead of re-minting disjoint terms.
+#   llmr: = <https://www.openlinksw.com/ontology/llm-routing#>
+# Classes: Model, TaskType, CapabilityLevel, GovernancePolicy, FeedbackRecord
+# Properties: modelId, vendor, inputPricePerMTok, outputPricePerMTok,
+#   cachedInputPricePerMTok, costTier, latencyClass, contextWindowTokens,
+#   priceUpdated, graphPriceUpdated, paretoFrontierModel, dominantDimension,
+#   profileNote, tokenSensitivity, overqualificationRisk, requiredCapabilityLevel,
+#   approvesModel, blocksModel, residencyConstraint, feedbackModel, feedbackTask,
+#   qualityScore, passedVerification, observedLatency, feedbackDate
+# schema.org terms used by the graph: schema:additionalProperty +
+#   schema:PropertyValue (capability attributes), schema:ItemList +
+#   schema:ListItem + schema:position (escalation ladders).
+# Sets are repeated triples, not RDF lists (migrated 2026-08-19 from
+#   RDF-collection encoding of paretoFrontier/escalationLadder/capabilityProfile
+#   after the list form forced rdf:rest*/rdf:first traversal in every SPARQL
+#   query and silently truncated frontiers at 12 members).
+# NO BLANK NODES (preferences.ttl Step 37): reification nodes (schema:ListItem,
+#   schema:PropertyValue) carry named hash IRIs (full <IRI> syntax in Turtle —
+#   '#' is not legal in a prefixed-name local part); priceUpdated/graphPriceUpdated
+#   split into single-domain properties rather than a blank-node owl:unionOf.
+# TERM DEFINITIONS: authoritative TBox is
+#   llm-routing-skill/references/llm-routing-ontology.ttl, embedded verbatim into
+#   routing-graph.ttl by build_routing_graph.py; every term carries
+#   rdfs:label/comment/domain/range/isDefinedBy + verified external
+#   cross-references per the ontology-cross-reference gate (2026-08-19).
+# Model entities: llmrm: <https://www.openlinksw.com/ontology/llm-routing/models/>
+# Task entities:  llmrt: <https://www.openlinksw.com/ontology/llm-routing/tasks/>
+# Vendor entities: llmrv: <https://www.openlinksw.com/ontology/llm-routing/vendors/>
+# Level entities: llmrl: <https://www.openlinksw.com/ontology/llm-routing/levels/>
+
+:llmrLlmRouting a owl:Ontology ;
+    rdfs:label "LLM Routing Ontology (llmr:)"@en ;
+    rdfs:comment "Canonical namespace for the LLM Routing Ontology minted 2026-08-19 in llm-routing-skill/references/routing-graph.ttl (7,547-triple graph, 145 models, 30 task types). Model registry + capability x cost x latency profiles + per-task Pareto frontiers and escalation ladders, informing intelligent LLM routing. Term definitions live in the authoritative TBox llm-routing-skill/references/llm-routing-ontology.ttl (embedded into the graph; all 31 used terms carry label/comment/domain/range/isDefinedBy + verified cross-refs per the ontology-cross-reference gate). Zero blank nodes (Step 37): reification nodes are named hash IRIs. rdfs:seeAlso the intel: Intelligence Allocation Ontology for tier/execution-surface semantics."@en ;
+    rdfs:isDefinedBy :ontology ;
+    schema:dateCreated "2026-08-19T15:10:00Z"^^xsd:dateTime ;
+    rdfs:seeAlso <https://www.openlinksw.com/ontology/llm-routing#> ,
+        <https://linkeddata.uriburner.com/DAV/demos/daas/ontology/intelligence-allocation#> .
