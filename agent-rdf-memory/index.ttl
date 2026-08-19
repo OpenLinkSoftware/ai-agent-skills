@@ -843,3 +843,13 @@
     schema:description "Diagnosed incomplete whoami responses against preferences.ttl PROV model; added :step-full-whoami-identity-response-principal-agent-delegation. Merged 2026-08-14 from the Claude Generated parallel store."@en .
 
 :sessionIndex schema:itemListElement :session20260721Grok45GrokBuild .
+
+# ── 2026-08-19: this session (DeepSeek V4 Flash + dsh) — llm-routing-skill generation ──
+
+:session20260819DeepSeekV4FlashDshLlmRoutingSkill a schema:ListItem ;
+    schema:position 1130 ;
+    schema:item <sessions/2026-08-19-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-19 (DeepSeek V4 Flash + dsh — llm-routing-skill)"@en ;
+    schema:description "Created the llm-routing-skill in ai-agent-skills/: intelligent LLM routing via a living capability x cost x latency graph (7,790-triple TTL, 145 models/11 vendors from live llm-prices.com feeds updated 2026-08-13, 30 task types, Pareto frontiers + escalation ladders). User confirmed skill location (ai-agent-skills/llm-routing-skill) and capability/latency sourcing (curated seed profiles + feedback loop). Deliverables: SKILL.md (full routing contract — taxonomy, cost tiers low/medium/high/max, policies, advisor escalation, feedback loop, governance, 5 SPARQL templates), capability-profiles.json (8-dimension seeds), task-types.json, routing-graph.{ttl,json}, scripts/{fetch_prices,build_routing_graph,validate_graph,route}.py, feedback-log.ttl, worked example, README, CHANGELOG 1.0.0; ZIP repackaged (17 files, -x DS_Store/__pycache__). Verified dynamic pricing (live vs stale local checkout), model-page URL pattern 404 (no fabricated URLs), rdflib comma-collection rejection (space-separated lists), seed-rule ordering fixes. GATE PASSED 0 failures. Memory: llm-routing-skill entity in tools.ttl, llmr: ontology in ontology-terms.ttl, project file llm-routing-skill-meshup.ttl."@en .
+
+:sessionIndex schema:itemListElement :session20260819DeepSeekV4FlashDshLlmRoutingSkill .

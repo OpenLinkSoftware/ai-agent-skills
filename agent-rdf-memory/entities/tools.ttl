@@ -212,6 +212,19 @@
     rdfs:comment "Canonical entity IRI. Service homepage + #this convention. Recurring entity across session files as the default WebDAV upload target, SPARQL endpoint, and resolver service."@en ;
     schema:dateCreated "2026-06-02T00:00:00Z"^^xsd:dateTime .
 
+# ── llm-routing-skill ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill#this
+# Registered: 2026-08-19 (DeepSeek V4 Flash + dsh session)
+
+:llmRoutingSkill a schema:SoftwareApplication ;
+    schema:name "llm-routing-skill"@en ;
+    schema:description "AI agent skill that routes tasks and agent sub-steps to Pareto-optimal LLMs using a living capability x cost x latency graph. The graph is rebuilt from live llm-prices.com feeds plus curated seed capability profiles (references/capability-profiles.json); scripts/{fetch_prices,build_routing_graph,validate_graph,route}.py implement fetch, build, GATE, and query. Part of the OpenLinkSoftware ai-agent-skills repository."@en ;
+    schema:url "https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill" ;
+    owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill#this> ;
+    rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication IRI convention. Registered 2026-08-19; graph ontology namespace llmr: = https://www.openlinksw.com/ontology/llm-routing# (see entities/ontology-terms.ttl)."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime .
+
 # ── OPAL (OpenLink AI Layer) ───────────────────────────────────────────────────
 
 :opal a schema:SoftwareApplication ;

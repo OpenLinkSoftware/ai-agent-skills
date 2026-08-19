@@ -1,0 +1,476 @@
+{
+  "schema": "llm-routing-capability-profiles-v1",
+  "description": "Curated seed profiles for LLM routing. Capability scores are 1-5 estimates per dimension, derived from model-family positioning and public knowledge. They are SEEDS — refine via the feedback loop (see SKILL.md 'Feedback Loop') as live quality data accrues. Cost data is never curated here: it comes from llm-prices.com live feeds at graph-build time.",
+  "updated_at": "2026-08-19",
+  "scale": {
+    "1": "Routine — mechanical extraction, classification, formatting",
+    "2": "Standard — summarization, simple QA, boilerplate code",
+    "3": "Proficient — multi-step reasoning, structured output, real code",
+    "4": "Expert — hard reasoning, nuanced writing, long-context synthesis",
+    "5": "Frontier — novel research, hardest math/logic, high-stakes accuracy"
+  },
+  "dimensions": [
+    "reasoning", "code", "creative", "long_context", "vision", "tools", "knowledge", "math"
+  ],
+  "cost_tier_thresholds": {
+    "basis": "output price per million tokens (USD)",
+    "low": { "max_output_price": 2.0, "label": "cheapest acceptable quality" },
+    "medium": { "max_output_price": 15.0, "label": "balanced cost/quality" },
+    "high": { "max_output_price": 75.0, "label": "quality-first" },
+    "max": { "max_output_price": null, "label": "no cost constraint" }
+  },
+  "latency_classes": {
+    "very-low": { "p50_seconds": 1.0, "label": "interactive, <2s typical" },
+    "low": { "p50_seconds": 3.0, "label": "fast, 2-5s typical" },
+    "medium": { "p50_seconds": 8.0, "label": "standard, 5-15s typical" },
+    "high": { "p50_seconds": 25.0, "label": "slow, 15-60s typical (reasoning models)" },
+    "very-high": { "p50_seconds": 90.0, "label": "research-grade, minutes (deep research)" }
+  },
+  "family_rules": [
+    {
+      "match": "regex",
+      "pattern": "gpt-5\\.6-.*pro",
+      "vendor": "openai",
+      "capability": { "reasoning": 5, "code": 5, "creative": 4, "long_context": 5, "vision": 4, "tools": 5, "knowledge": 5, "math": 5 },
+      "latency_class": "high",
+      "context_window": 128000,
+      "note": "GPT-5.6 pro-tier (luna/sol/terra). Seed — refine via feedback."
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5\\.5.*pro|gpt-5\\.4.*pro|gpt-5\\.2.*pro|gpt-5-pro",
+      "vendor": "openai",
+      "capability": { "reasoning": 5, "code": 5, "creative": 4, "long_context": 4, "vision": 4, "tools": 5, "knowledge": 5, "math": 5 },
+      "latency_class": "high",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5\\.1-codex",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 5, "creative": 3, "long_context": 4, "vision": 3, "tools": 5, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5\\.1",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5\\.4-272k|gpt-5\\.5-272k|gpt-5\\.6-.*272k",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 5, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 272000,
+      "note": "272k context variants get long_context 5."
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5\\.4-mini|gpt-5\\.5$|gpt-5\\.6|gpt-5\\.2$|gpt-5\\.4$",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5-mini|gpt-5\\.4-nano|gpt-5\\.5-nano|gpt-5\\.6-nano",
+      "vendor": "openai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-5-nano",
+      "vendor": "openai",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 2, "vision": 2, "tools": 2, "knowledge": 2, "math": 2 },
+      "latency_class": "very-low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "^gpt-5$|gpt-5\\.4$|gpt-5\\.5$",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-4\\.5|gpt-4\\.1$",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-4\\.1-mini",
+      "vendor": "openai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-4\\.1-nano",
+      "vendor": "openai",
+      "capability": { "reasoning": 1, "code": 1, "creative": 2, "long_context": 2, "vision": 2, "tools": 1, "knowledge": 2, "math": 1 },
+      "latency_class": "very-low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-4o$|gpt-4o-mini|chatgpt-4o",
+      "vendor": "openai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 128000,
+      "note": "GPT-4o family: strong vision for its tier."
+    },
+    {
+      "match": "regex",
+      "pattern": "o3-pro|o1-pro",
+      "vendor": "openai",
+      "capability": { "reasoning": 5, "code": 4, "creative": 3, "long_context": 4, "vision": 3, "tools": 3, "knowledge": 5, "math": 5 },
+      "latency_class": "very-high",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "^o3$|^o1-preview",
+      "vendor": "openai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 3, "long_context": 4, "vision": 3, "tools": 3, "knowledge": 4, "math": 4 },
+      "latency_class": "high",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "o3-mini|o4-mini|o1-mini",
+      "vendor": "openai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 2, "long_context": 3, "vision": 2, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "o3-deep-research|o4-mini-deep-research",
+      "vendor": "openai",
+      "capability": { "reasoning": 5, "code": 3, "creative": 3, "long_context": 5, "vision": 3, "tools": 4, "knowledge": 5, "math": 5 },
+      "latency_class": "very-high",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gpt-image",
+      "vendor": "openai",
+      "capability": { "reasoning": 1, "code": 1, "creative": 5, "long_context": 1, "vision": 5, "tools": 1, "knowledge": 1, "math": 1 },
+      "latency_class": "medium",
+      "context_window": 128000,
+      "note": "Image-generation models: only image_gen task applies."
+    },
+    {
+      "match": "regex",
+      "pattern": "text-davinci-003",
+      "vendor": "openai",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 2, "vision": 1, "tools": 1, "knowledge": 2, "math": 2 },
+      "latency_class": "low",
+      "context_window": 4096,
+      "note": "Legacy model — retained for compatibility comparisons."
+    },
+    {
+      "match": "regex",
+      "pattern": "claude-opus-4[-.][5-9]|claude-opus-4-8|claude-mythos-5|claude-3-opus",
+      "vendor": "anthropic",
+      "capability": { "reasoning": 5, "code": 5, "creative": 5, "long_context": 5, "vision": 4, "tools": 5, "knowledge": 5, "math": 5 },
+      "latency_class": "high",
+      "context_window": 200000
+    },
+    {
+      "match": "regex",
+      "pattern": "claude-opus-4$|claude-opus-4-1|claude-sonnet-5",
+      "vendor": "anthropic",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 200000
+    },
+    {
+      "match": "regex",
+      "pattern": "claude-sonnet-4\\.5|claude-3\\.7-sonnet|claude-3\\.5-sonnet",
+      "vendor": "anthropic",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 3, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 200000
+    },
+    {
+      "match": "regex",
+      "pattern": "claude-fable-5",
+      "vendor": "anthropic",
+      "capability": { "reasoning": 3, "code": 3, "creative": 5, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 200000,
+      "note": "Creative-specialist seed — refine via feedback."
+    },
+    {
+      "match": "regex",
+      "pattern": "claude-4\\.5-haiku|claude-3\\.5-haiku|claude-3-haiku",
+      "vendor": "anthropic",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 3, "vision": 2, "tools": 2, "knowledge": 2, "math": 2 },
+      "latency_class": "low",
+      "context_window": 200000
+    },
+    {
+      "match": "regex",
+      "pattern": "deepseek-v4-pro",
+      "vendor": "deepseek",
+      "capability": { "reasoning": 4, "code": 4, "creative": 3, "long_context": 4, "vision": 3, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "deepseek-v4-flash|deepseek-reasoner",
+      "vendor": "deepseek",
+      "capability": { "reasoning": 3, "code": 3, "creative": 2, "long_context": 3, "vision": 2, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "deepseek-chat",
+      "vendor": "deepseek",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 2, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gemini-3[-.]1-pro|gemini-3-pro|gemini-2\\.5-pro",
+      "vendor": "google",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 5, "vision": 5, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 1000000,
+      "note": "Gemini pro-tier: very long context (1M) and strong multimodal."
+    },
+    {
+      "match": "regex",
+      "pattern": "gemini-3\\.1-flash-lite|gemini-3-flash-lite|gemini-2\\.5-flash-lite|gemini-2\\.0-flash-lite",
+      "vendor": "google",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 3, "vision": 3, "tools": 2, "knowledge": 2, "math": 2 },
+      "latency_class": "very-low",
+      "context_window": 1000000
+    },
+    {
+      "match": "regex",
+      "pattern": "gemini-2\\.5-flash-thinking|gemini-2\\.5-flash-preview-thinking",
+      "vendor": "google",
+      "capability": { "reasoning": 4, "code": 3, "creative": 3, "long_context": 4, "vision": 4, "tools": 3, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 1000000
+    },
+    {
+      "match": "regex",
+      "pattern": "gemini-1\\.5-flash-8b",
+      "vendor": "google",
+      "capability": { "reasoning": 1, "code": 1, "creative": 1, "long_context": 2, "vision": 2, "tools": 1, "knowledge": 1, "math": 1 },
+      "latency_class": "very-low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "gemini-3\\.7-flash|gemini-3\\.6-flash|gemini-3\\.5-flash|gemini-3-flash|gemini-2\\.5-flash",
+      "vendor": "google",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 4, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 1000000
+    },
+    {
+      "match": "regex",
+      "pattern": "gemini-2\\.0-flash|gemini-1\\.5-pro|gemini-1\\.5-flash",
+      "vendor": "google",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "muse-spark",
+      "vendor": "meta-ai",
+      "capability": { "reasoning": 2, "code": 2, "creative": 5, "long_context": 2, "vision": 4, "tools": 1, "knowledge": 2, "math": 2 },
+      "latency_class": "medium",
+      "context_window": 128000,
+      "note": "Meta creative/multimodal seed — refine via feedback."
+    },
+    {
+      "match": "regex",
+      "pattern": "minimax-m2",
+      "vendor": "minimax",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "mistral-large|pixtral-large|magistral-medium",
+      "vendor": "mistral",
+      "capability": { "reasoning": 4, "code": 3, "creative": 3, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "mistral-medium",
+      "vendor": "mistral",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "codestral",
+      "vendor": "mistral",
+      "capability": { "reasoning": 3, "code": 4, "creative": 2, "long_context": 3, "vision": 1, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 256000,
+      "note": "Code-specialist."
+    },
+    {
+      "match": "regex",
+      "pattern": "mistral-small|mistral-saba|mistral-nemo|pixtral-12b|ministral-8b|open-mixtral-8x22b",
+      "vendor": "mistral",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 3, "vision": 2, "tools": 2, "knowledge": 2, "math": 2 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "ministral-3b|open-mistral-7b|open-mixtral-8x7b",
+      "vendor": "mistral",
+      "capability": { "reasoning": 1, "code": 1, "creative": 1, "long_context": 2, "vision": 1, "tools": 1, "knowledge": 1, "math": 1 },
+      "latency_class": "very-low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "kimi-k2-thinking",
+      "vendor": "moonshot-ai",
+      "capability": { "reasoning": 4, "code": 3, "creative": 3, "long_context": 4, "vision": 2, "tools": 3, "knowledge": 4, "math": 4 },
+      "latency_class": "high",
+      "context_window": 256000
+    },
+    {
+      "match": "regex",
+      "pattern": "kimi-k2",
+      "vendor": "moonshot-ai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 4, "vision": 2, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 256000
+    },
+    {
+      "match": "regex",
+      "pattern": "grok-4\\.6|grok-4\\.5|grok-4\\.3|grok-4\\.20-.*reasoning|grok-4\\.20-multi-agent",
+      "vendor": "xai",
+      "capability": { "reasoning": 4, "code": 4, "creative": 4, "long_context": 4, "vision": 4, "tools": 4, "knowledge": 4, "math": 4 },
+      "latency_class": "medium",
+      "context_window": 256000
+    },
+    {
+      "match": "regex",
+      "pattern": "grok-4\\.20-.*non-reasoning",
+      "vendor": "xai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 4, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 256000
+    },
+    {
+      "match": "regex",
+      "pattern": "^grok-4$|grok-4-128k|grok-4-fast-reasoning",
+      "vendor": "xai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 4, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 256000
+    },
+    {
+      "match": "regex",
+      "pattern": "grok-4-fast",
+      "vendor": "xai",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 3, "vision": 3, "tools": 2, "knowledge": 2, "math": 2 },
+      "latency_class": "very-low",
+      "context_window": 256000
+    },
+    {
+      "match": "regex",
+      "pattern": "grok-build|grok-code-fast",
+      "vendor": "xai",
+      "capability": { "reasoning": 3, "code": 4, "creative": 2, "long_context": 3, "vision": 2, "tools": 4, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 256000,
+      "note": "Code-specialist."
+    },
+    {
+      "match": "regex",
+      "pattern": "^grok-3$|grok-3-mini",
+      "vendor": "xai",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 131072
+    },
+    {
+      "match": "regex",
+      "pattern": "amazon-nova-premier",
+      "vendor": "amazon",
+      "capability": { "reasoning": 4, "code": 3, "creative": 3, "long_context": 3, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "amazon-nova-pro",
+      "vendor": "amazon",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 3, "vision": 4, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "medium",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "amazon-nova-lite",
+      "vendor": "amazon",
+      "capability": { "reasoning": 2, "code": 2, "creative": 2, "long_context": 2, "vision": 3, "tools": 2, "knowledge": 2, "math": 2 },
+      "latency_class": "low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "amazon-nova-micro",
+      "vendor": "amazon",
+      "capability": { "reasoning": 1, "code": 1, "creative": 1, "long_context": 2, "vision": 2, "tools": 1, "knowledge": 1, "math": 1 },
+      "latency_class": "very-low",
+      "context_window": 128000
+    },
+    {
+      "match": "regex",
+      "pattern": "qwen3\\.6-plus",
+      "vendor": "qwen",
+      "capability": { "reasoning": 3, "code": 3, "creative": 3, "long_context": 4, "vision": 3, "tools": 3, "knowledge": 3, "math": 3 },
+      "latency_class": "low",
+      "context_window": 256000
+    }
+  ],
+  "explicit_overrides": {},
+  "governance": {
+    "approved_models": [],
+    "blocked_models": [],
+    "residency_constraints": {}
+  },
+  "notes": [
+    "Family rules are matched as regex against model id; first match wins. Add explicit_overrides entries for fine-grained corrections.",
+    "Capability values are seeds only. Record routing outcomes in feedback-log.ttl and adjust family_rules/explicit_overrides, then rebuild the graph.",
+    "Cost comes from llm-prices live feeds — never edit prices here."
+  ]
+}
