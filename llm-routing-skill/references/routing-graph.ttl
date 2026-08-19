@@ -12,7 +12,7 @@
 @prefix intel: <https://linkeddata.uriburner.com/DAV/demos/daas/ontology/intelligence-allocation#> .
 @prefix dbr: <http://dbpedia.org/resource/> .
 
-# LLM Routing Graph — generated 2026-08-19T20:46:41Z from llm-prices (updated 2026-08-13)
+# LLM Routing Graph — generated 2026-08-19T22:49:49Z from llm-prices (updated 2026-08-13)
 # Capability/latency values are curated SEEDS (capability-profiles.json);
 # cost values are live from llm-prices.com. Rebuild to refresh.
 # Ontology TBox (llmr:) embedded verbatim from references/llm-routing-ontology.ttl.
@@ -65,6 +65,13 @@ llmr:GovernancePolicy a rdfs:Class ;
 llmr:FeedbackRecord a rdfs:Class ;
     rdfs:label "Feedback Record"@en ;
     rdfs:comment "An append-only record of a routed execution's outcome — model, task, quality score, cost tier, latency, pass/fail — that drives the seed-profile refinement loop."@en ;
+    rdfs:isDefinedBy llmr: ;
+    rdfs:seeAlso schema:Review .
+
+llmr:RoutingTrace a rdfs:Class ;
+    rdfs:label "Routing Trace"@en ;
+    rdfs:comment "A session-scoped, outcome-level trace of a routed execution: task type, required level, cost tier, policy, chosen model, quality score, observed latency, cost, and escalation events. Produced per routed call by scripts/record_trace.py in line with preferences.ttl session-trace guidelines (secret redaction, opal:ChatSession linkage, intent-to-outcome traceability). Traces are PRIVATE — recorded locally, never uploaded to public surfaces. Harvested by scripts/harvest_traces.py to refine seed capability profiles and rebuild the graph."@en ;
+    rdfs:subClassOf llmr:FeedbackRecord ;
     rdfs:isDefinedBy llmr: ;
     rdfs:seeAlso schema:Review .
 
@@ -244,6 +251,51 @@ llmr:feedbackDate a rdf:Property ;
     rdfs:range xsd:date ;
     rdfs:isDefinedBy llmr: .
 
+# ── Trace properties (llmr:RoutingTrace) ────────────────────────────────────
+
+llmr:tracedTask a rdf:Property ;
+    rdfs:label "traced task"@en ;
+    rdfs:comment "The task type a routing trace routed. Domain llmr:RoutingTrace (inherits FeedbackRecord domain via subclass); kept as a distinct property so a trace can be authored without a manual feedback score."@en ;
+    rdfs:domain llmr:RoutingTrace ;
+    rdfs:range llmr:TaskType ;
+    rdfs:isDefinedBy llmr: .
+
+llmr:tracedModel a rdf:Property ;
+    rdfs:label "traced model"@en ;
+    rdfs:comment "The model a routing trace selected. Domain llmr:RoutingTrace."@en ;
+    rdfs:domain llmr:RoutingTrace ;
+    rdfs:range llmr:Model ;
+    rdfs:isDefinedBy llmr: .
+
+llmr:costTierUsed a rdf:Property ;
+    rdfs:label "cost tier used"@en ;
+    rdfs:comment "The operator's chosen cost tier (low|medium|high|max) for this routed execution. Distinct from llmr:costTier (a Model's derived band) — this records the policy choice, not the model's classification."@en ;
+    rdfs:domain llmr:RoutingTrace ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy llmr: .
+
+llmr:policyUsed a rdf:Property ;
+    rdfs:label "policy used"@en ;
+    rdfs:comment "The routing policy applied (cost-first|balanced|quality-first|latency-first) for this routed execution."@en ;
+    rdfs:domain llmr:RoutingTrace ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy llmr: .
+
+llmr:costIncurred a rdf:Property ;
+    rdfs:label "cost incurred"@en ;
+    rdfs:comment "Actual USD cost of the routed execution (output tokens x output price). No direct schema.org equivalent (checked 2026-08-19); schema:price is per-unit-of-offer."@en ;
+    rdfs:domain llmr:RoutingTrace ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy llmr: ;
+    rdfs:seeAlso schema:price .
+
+llmr:escalationEvent a rdf:Property ;
+    rdfs:label "escalation event"@en ;
+    rdfs:comment "One escalation event on the advisor ladder (model id or rung label) that occurred during this execution. Repeated triples form an ordered sequence when combined with schema:position on the event node; simple trace records repeat this property in escalation order."@en ;
+    rdfs:domain llmr:RoutingTrace ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy llmr: .
+
 # ── Graph-dataset property ──────────────────────────────────────────────────
 
 llmr:priceUpdated a rdf:Property ;
@@ -260,7 +312,7 @@ llmr:graphPriceUpdated a rdf:Property ;
     rdfs:range xsd:date ;
     rdfs:isDefinedBy llmr: .
 
-llmr: schema:dateModified "2026-08-19T20:46:41Z"^^xsd:dateTime .
+llmr: schema:dateModified "2026-08-19T22:49:49Z"^^xsd:dateTime .
 
 llmrl:L1 a llmr:CapabilityLevel ;
     rdfs:label "Capability Level 1"@en ;
@@ -7761,7 +7813,7 @@ llmrt:data-analysis schema:itemListElement <https://www.openlinksw.com/ontology/
 
 llmr:routingGraph a schema:Dataset ;
     schema:name "LLM Routing Graph"@en ;
-    schema:dateModified "2026-08-19T20:46:41Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T22:49:49Z"^^xsd:dateTime ;
     llmr:graphPriceUpdated "2026-08-13"^^xsd:date ;
     schema:isBasedOn <https://www.llm-prices.com/current-v1.json> ;
     prov:wasGeneratedBy <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill#this> .

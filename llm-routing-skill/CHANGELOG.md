@@ -4,6 +4,36 @@ All notable changes to this skill are documented here. Format: [Keep a
 Changelog](https://keepachangelog.com/en/1.1.0/); versioning:
 [SemVer](https://semver.org/).
 
+## [1.4.0] - 2026-08-19
+
+### Added
+- **Session routing traces (private, local-only)** — the automatic half of the
+  feedback loop, in line with agent-rdf-memory/preferences.ttl session-trace
+  guidelines (Step 36 secret redaction, Step 25 intent-to-outcome via
+  prov:wasInformedBy, Step 38 OPAL session linkage).
+  - `llmr:RoutingTrace` class (rdfs:subClassOf llmr:FeedbackRecord) + 6 trace
+    properties (`tracedTask`, `tracedModel`, `costTierUsed`, `policyUsed`,
+    `costIncurred`, `escalationEvent`) added to the TBox (ontology-gate
+    compliant: label/comment/domain/range/isDefinedBy; 6 classes, 31
+    properties total).
+  - `scripts/record_trace.py` — outcome-level trace emitter: task, tier,
+    policy, model, score, latency, cost, escalation, session link. NEVER
+    records prompts/messages/secrets. Writes to `references/traces/trace-log.ttl`
+    (private; excluded from the published graph and any public upload).
+  - `scripts/harvest_traces.py` — aggregates observed quality per (model, task),
+    compares against the seed-implied capability score, proposes
+    `explicit_overrides` deltas; `--apply` writes them, rebuilds the graph
+    (live-prices cache), and runs the GATE. Fixed partial-override merge bug
+    (override is merged over family-rule base so implied scores don't
+    under-count).
+- SKILL.md §7 split into 7a (session traces — automatic, preferred) and 7b
+  (manual feedback records).
+
+### Notes
+- Traces are PRIVATE: demoed against the local Virtuoso instance only
+  (`urn:llmr:traces`), never uploaded to URIBurner, never in the README test
+  suite.
+
 ## [1.3.0] - 2026-08-19
 
 ### Added
