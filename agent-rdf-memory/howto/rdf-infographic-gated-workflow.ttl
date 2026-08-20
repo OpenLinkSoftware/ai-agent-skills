@@ -2,6 +2,7 @@
 @prefix schema: <http://schema.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <> a schema:CreativeWork ;
     schema:name "RDF-to-HTML Infographic: Gated Workflow HowTo"@en ;
@@ -50,4 +51,5 @@ Command:
 
 :rationale a schema:CreativeWork ;
     schema:name "Why this rule exists"@en ;
-    schema:description "Session 2026-06-17 audit of public-trust-problem-ai-claude_sonnet_4_6-1 artifacts found: HTML authored in parallel with TTL (not derived from it); validator run post-delivery; KG Explorer written from scratch causing SVG drag conflict and broken resolver links. Resulted in 13 unlinked entities, 2 missing glossary terms, rdfs:seeAlso instead of owl:sameAs on 5 DefinedTerms, missing JSON-LD companion, and broken KG node/edge hyperlinks."@en .
+    schema:description "Session 2026-06-17 audit of public-trust-problem-ai-claude_sonnet_4_6-1 artifacts found: HTML authored in parallel with TTL (not derived from it); validator run post-delivery; KG Explorer written from scratch causing SVG drag conflict and broken resolver links. Resulted in 13 unlinked entities, 2 missing glossary terms, rdfs:seeAlso instead of owl:sameAs on 5 DefinedTerms, missing JSON-LD companion, and broken KG node/edge hyperlinks."@en ;
+    rdfs:seeAlso <checker-context-isolation.ttl#step_falseIndependence> .

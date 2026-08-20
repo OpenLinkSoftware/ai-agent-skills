@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-08-11T22:10:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T16:00:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -97,7 +97,7 @@
         <howto/webid-verification-table.ttl>,
         <howto/delegation-insert-gate.ttl>,
         <howto/youid-validation-gates.ttl>,
-        <howto/p12-passphrase-uyi-file.ttl> ;
+        <howto/p12-passphrase-retrieval.ttl> ;
     schema:step :step-whoamiFormat, :step-webidTlsVerification, :step-verifiedWhoami,
         :step-whoamiSameAsHyperlinks, :step-urlsAsHyperlinks, :step-stripeSandboxCard,
         :step-verifyRecipDelegation, :step-verifyDelegationRemote,
@@ -137,10 +137,11 @@
 
 :howto-artifact-routing a schema:HowTo ;
     schema:name "Artifact Output Routing"@en ;
-    schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, prompt-specified model-name override prevention, artifact placement elicitation, and remote WebDAV upload."@en ;
+    schema:description "Model-specific output directory routing, model identity pre-flight gate, model-over-environment tiebreaker, prompt-specified model-name override prevention, artifact placement elicitation, remote WebDAV upload, and remote resource removal."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
         <howto/screencast-distribution-artifacts.ttl>,
         <howto/remote-webdav-upload.ttl>,
+        <howto/remote-resource-removal.ttl>,
         <howto/filesystem-path-verification.ttl>,
         <howto/model-identity-resolution.ttl> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
@@ -148,7 +149,7 @@
         :step-modelOverEnvironment, :step-noPromptModelOverride, :step-modelIdentityResolution,
         :step-artifactPlacement, :step-screencastDistributionArtifacts,
         :step-screencastPresentationNaming, :step-screencastEmbedMp4,
-        :step-remoteWebdavUpload, :step-savedPromptsFolder, :step-filesystemPathVerification .
+        :step-remoteWebdavUpload, :step-remoteUploadOrder, :step-remoteRemovalOrder, :step-savedPromptsFolder, :step-filesystemPathVerification .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
 
@@ -171,7 +172,8 @@
         <howto/no-blank-nodes-resolver-entities.ttl>,
         <howto/rdf-document-authoring.ttl>,
         <howto/position-integer-type.ttl>,
-        <howto/example-iri-anti-pattern.ttl> ;
+        <howto/example-iri-anti-pattern.ttl>,
+        <howto/hyperlink-post-references-resolver.ttl> ;
     schema:step :step-entityDenotation, :step-documentEntity, :step-documentAbout,
         :step-entityTypeGate, :step-externalIriVerification,
         :step-entityLinkPlacement, :step-canonicalIriCompliance,
@@ -181,7 +183,8 @@
         :step-owlSameAsVsSkosRelated, :step-entityLookupDisambiguation,
         :step-residenceVsBirthplace, :step-noBlankNodesForResolverEntities,
         :step-dbpediaCanonicalSubject, :step-terminologySemanticWeb,
-        :step-positionIntegerType, :step-exampleIriAntiPattern .
+        :step-positionIntegerType, :step-exampleIriAntiPattern,
+        :step-hyperlinkPostReferencesResolver .
 
 # ── 5. HTML Infographic & KG Explorer ───────────────────────────────────────
 
@@ -229,7 +232,10 @@
         :step-openlinkBrandColorScheme, :step-davPublicUrlDefault,
         :step-readerFacingCopyGate, :step-workbenchBrevityGate,
         :step-responsiveComparisonPresentation,
-        :step-priorArtifactFooterPolishGate .
+        :step-priorArtifactFooterPolishGate,
+        :step-synopsisDeckDesignSystem ,
+        :step-editorialDataVizAesthetic .
+
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
 
@@ -909,9 +915,11 @@ Certificate paths:
 :step-remoteWebdavUpload a schema:HowToStep ;
     schema:position 52 ;
     schema:name "After generating artifacts, offer to upload to remote WebDAV (URIBurner default)"@en ;
-    schema:text "After completing any artifact, offer to upload it to a remote WebDAV server (URIBurner DAV is the default) using curl PUT with mTLS credentials."@en ;
+    schema:text "After completing any artifact, offer to upload it to a remote WebDAV server (URIBurner DAV is the default). Uploads follow the same HTTP then WebDAV then iSQL order and principal PKCS#12 pattern as remote removals (Step 216)."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
-    rdfs:seeAlso <howto/remote-webdav-upload.ttl> .
+    rdfs:seeAlso <howto/remote-webdav-upload.ttl>,
+        <howto/remote-resource-removal.ttl>,
+        :step-remoteUploadOrder .
 
 :topicRemoteWebdavUpload a schema:Thing ;
     schema:name "Remote WebDAV Upload"@en ;
@@ -1203,14 +1211,14 @@ Certificate paths:
 
 :step-verifiedWhoami a schema:HowToStep ;
     schema:position 75 ;
-    schema:name "Run verified identity gate before responding to whoami (not for 'who are you?' queries)"@en ;
-    schema:text "Before responding to 'whoami?', run openssl modulus checks against local cert bundles for both user and agent, then emit the two-section response with verified or unverified badges."@en ;
+    schema:name "Run verified identity gate before responding to whoami OR any natural-language equivalent ('who am I', 'what are my preferences') — not for 'who are you?' queries"@en ;
+    schema:text "Before responding to 'whoami?' or a natural-language equivalent whose subject is the user's own identity, run openssl modulus checks against local cert bundles for both user and agent, then emit the two-section response with verified or unverified badges."@en ;
     onto:hasTrigger onto:triggerWhoamiQuery ;
-    rdfs:seeAlso <howto/verified-identity.ttl> .
+    rdfs:seeAlso <howto/verified-identity.ttl>, <howto/agent-identity.ttl#step-classifyTrigger> .
 
 :topicVerifiedWhoami a schema:Thing ;
     schema:name "Verified identity gate for whoami"@en ;
-    schema:description "Before responding to 'whoami?' (Trigger A), run openssl cert modulus checks against local credential bundles for both user and agent. Emit verified IRI lines with ✅ or ⚠️ Unverified badge. For 'who are you?' (Trigger B), skip gate and emit Agent-only section without badges."@en .
+    schema:description "Before responding to 'whoami?' or a natural-language equivalent (Trigger A — subject is the user's own identity), run openssl cert modulus checks against local credential bundles for both user and agent. Emit verified IRI lines with ✅ or ⚠️ Unverified badge. For 'who are you?' (Trigger B — subject is the agent), skip gate and emit Agent-only section without badges."@en .
 
 # ── Step 61: URIBurner OAuth Authorization Code Flow ──────────────────────────
 
@@ -2196,9 +2204,9 @@ Applies alongside step-screencastDistributionArtifacts (routing) and step-screen
 :step-p12PassphraseUyiFile a schema:HowToStep ;
     schema:position 160 ;
     schema:name "When PKCS#12 password is in /tmp/uyi (or user-named path): each line is KEY=VALUE — unlock with the VALUE of the first pair only"@en ;
-    schema:text """Stated by the user 2026-07-30 after the agent failed to unlock link-in-bio-credentials-5/cert.p12 by treating whole lines of /tmp/uyi as bare passwords. Correct parse: lines are KEY=VALUE pairs; the principal p12 passphrase is the substring after the first '=' on the first non-empty line (first key-pair value). Never use the whole line, the key, or concatenated lines unless the user explicitly says otherwise. Never print, log, or store the value in memory files. Companion: howto/p12-passphrase-uyi-file.ttl."""@en ;
+    schema:text """Stated by the user 2026-07-30 after the agent failed to unlock link-in-bio-credentials-5/cert.p12 by treating whole lines of /tmp/uyi as bare passwords. SUPERSEDED AS PRIMARY 2026-08-18 by :step-p12PassphraseKeychainFirst — /tmp/uyi is now the FALLBACK, not the first source. Its parse remains exactly as recorded: lines are KEY=VALUE pairs; the principal p12 passphrase is the substring after the first '=' on the first non-empty line (first key-pair value). Never use the whole line, the key, or concatenated lines unless the user explicitly says otherwise. Never print, log, or store the value in memory files. Companion: howto/p12-passphrase-retrieval.ttl."""@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
-    rdfs:seeAlso <howto/p12-passphrase-uyi-file.ttl>, <howto/session-governance.ttl>, <howto/verified-identity.ttl> .
+    rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl>, <howto/session-governance.ttl>, <howto/verified-identity.ttl> .
 
 # ── Step 161: Entity resolver-linking gates — first occurrence + RDF/HTML parity ──
 
@@ -2447,6 +2455,13 @@ Do not ship a multi-column matrix that only horizontal-scrolls on phones. See ho
         <howto/kg-curation-attribution.ttl>,
         <howto/footer-sparql-explorer-gate.ttl> .
 
+:step-synopsisDeckDesignSystem a schema:HowToStep ;
+    schema:position 200 ;
+    schema:name "DEFAULT — render every infographic's synopsis as the executive-summary deck and every section with the editorial header system (kicker eyebrow + heading + rule); reusable template, not a one-off patch"@en ;
+    schema:text "Since 2026-08-14 the rdf-infographic-skill pipeline (scripts/templates/styles.css + scripts/html_assembler.py + scripts/rdf_parser.py) ships the reusable editorial design system: the synopsis renders as an executive-summary deck (kicker pill + author/publisher/date meta, lede, two-column grid with optional spotlight panel, source chips, pull-quote, KG-entity CTA) and every narrative section gets a sec-head eyebrow + kebab-case heading id + rule. Deck data is RDF-driven and optional — spotlight panel from document-ontology class instances (title = class schema:name, fallback rdfs:label; featured row = the instance the article schema:about's, tag = its schema:alternateName, fallback 'Featured'), source chips from schema:citation objects, pull-quote from the first schema:Quotation. Graceful degradation: any missing slot is simply omitted. Do not hand-patch published HTML for this design; regenerate through the pipeline."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/synopsis-deck-design-system.ttl> .
+
 :topicPriorArtifactFooterPolish a schema:Thing ;
     schema:name "Prior-artifact footer polish is a blocking delivery gate"@en ;
     schema:description "Harness and generator validators do not prove footer aesthetics or skill/environment attribution correctness. Same-model webpages/ baseline open + port is mandatory before delivery. Incident: 2026-08-11 SynthID-Text stock footer vs same-day polished coding-agent-harness comparison."@en ;
@@ -2607,6 +2622,379 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     schema:text "Direct user instruction 2026-08-13: 'Examples with Virtuoso pragmas should always be accompanied with variants where the pragma is commented out re A/B testing and demonstration of reasoning & inference' — implemented as :demoQ10/:demoQ11 companions to :demoQ5/:demoQ9, both verified live before being written in."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/pragma-ab-toggle-variant.ttl> .
+
+# ── Step 200: referenced posts in any response get resolver-pattern hyperlinks, verified before use ──
+
+:step-hyperlinkPostReferencesResolver a schema:HowToStep ;
+    schema:position 200 ;
+    schema:name "Whenever a response references other posts (weblog posts, articles, papers), hyperlink them via the URIBurner resolver pattern and verify each resolver URL resolves before including it"@en ;
+    schema:text "Direct user instruction 2026-08-14: 'As a practice going forward, hyperlink other posts when you make reference to them. Verify the URL using the resolver pattern.' Every referenced post becomes a Markdown hyperlink of the form https://linkeddata.uriburner.com/describe/?url={url-encoded-post-IRI} — single-encoded only (one url-decode pass must yield the clean post IRI; never pre-encoded %27/%20 inputs that produce %2527/%2520 double-encoding). Compute the encoding with a tool, then verify each resolver URL returns HTTP 200 before including it in the response. Never emit a bare post URL or a direct (non-resolver) link."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/hyperlink-post-references-resolver.ttl> .
+
+:topicHyperlinkPostReferencesResolver a schema:Thing ;
+    schema:name "Resolver-pattern hyperlinks for referenced posts"@en ;
+    schema:description "Standing rule: references to other posts in agent responses are hyperlinked through the URIBurner resolver (linkeddata.uriburner.com/describe/?url={url-encoded-iri}), single-encoded, with each resolver URL verified (HTTP 200) before use."@en .
+
+# ── Step 201: don't ship a simplified SPARQL button+toggle when the harness contract requires the full Workbench ──
+
+:step-sparqlWorkbenchNotSimplifiedButton a schema:HowToStep ;
+    schema:position 201 ;
+    schema:name "The footer SPARQL feature is the full Workbench (sample-query <details> cards + editable recipe/textarea editor + single #sparqlBtn live CTA) — never a standalone button plus a Turtle/JSON-LD format-toggle substitute"@en ;
+    schema:text "Caught 2026-08-14 on claude-watermark-2026.html: shipped only a bare #sparqlBtn + kg-format-tabs toggle, skipping the rdf-infographic-skill harness's 'Footer SPARQL Workbench Non-Negotiables' (named graph selector, query recipe selector, editable textarea, live query link, refresh/copy) and the already-recorded howto/footer-sparql-explorer-gate.ttl gates (closed-by-default sample-query <details> cards, one consolidated surface, no duplicate #sparqlRun). Fixed by porting the exact established pattern from the newest compliant prior file (enterprise-ai-coordinate-system-grok_4_6-1.html, 2026-08-13): #sparql-explorer section directly after #kg-explorer-section (never stranded in the footer), N sample-query <details class=\"sparql-card\"> cards each resolver-linked and closed by default, a shared query-editor card (#sparqlGraph, #sparqlRecipe, #sparqlText textarea), #sparqlBtn as the one live CTA plus a hidden #sparqlLiveLink proxy for per-card Execute buttons, and a footer that points back to the Workbench instead of duplicating it. Note the section-level outer <details> accordion wrap described in gate-sparqlSectionsClosedAccordion was itself superseded 2026-08-12 per explicit user request — #kg-explorer and #sparql-explorer are NOT double-wrapped in an outer accordion; only nested sample-query cards are. Always verify which howto rule is current by file mtime, not just presence."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/footer-sparql-explorer-gate.ttl> .
+
+# ── Step 202: after an endpoint upgrade, re-verify the exact previously-failing capability — the re-test can surface new, narrower findings, not just confirm/deny the original claim ──
+
+:step-rdfStarUpgradeReverify a schema:HowToStep ;
+    schema:position 202 ;
+    schema:name "When a user reports an endpoint was upgraded to support a previously-unverified feature, re-run the exact original failing test before updating any prose — and check the raw stored data directly (not just pattern-matching queries) if a re-test returns empty with no error"@en ;
+    schema:text "2026-08-14: an RDF-star upgrade re-test confirmed the original syntax error was fixed but surfaced a new limitation — a language-tagged literal inside a quoted-triple pattern silently failed to match despite correctly stored data."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/rdf-star-upgrade-verification-and-literal-tag-caveat.ttl> .
+
+# ── Step 203: when a document claims two independent reasoning engines (e.g. "Virtuoso/FuXi"), each needs its own labeled code block and its own RDF property — never one field, never one generic label ──
+
+:step-dualEngineBlockSeparation a schema:HowToStep ;
+    schema:position 203 ;
+    schema:name "A slash-joined claim like 'Virtuoso/FuXi reasoning' is a promise both are independently demonstrated — burying the second engine as a comment inside a block labeled after the first engine breaks that promise even if the data is technically present"@en ;
+    schema:text "2026-08-15: 3 of 12 correction cards had a FuXi N3 rule buried as a code comment inside a block labeled generically SPARQL, matching the user's complaint that only Virtuoso examples were visible."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/dual-reasoning-engine-block-separation.ttl> .
+
+# ── Step 204: "needs to be more AND take less space" means denser rows, not more rows in the same style — raising a count while keeping per-row size makes a space complaint worse, not better ──
+
+:step-synopsisPanelCompactRows a schema:HowToStep ;
+    schema:position 204 ;
+    schema:name "A count instruction paired with a space complaint describes ONE fix (compress row density), not two independent requests to satisfy separately by raising the count alone"@en ;
+    schema:text "2026-08-15: raising a spotlight-panel cap from 4 to 14 while keeping the same bordered-card-with-description row style tripled panel height instead of reducing whitespace, requiring a user correction to switch to single-line ellipsis rows with hover tooltips."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/synopsis-panel-compact-rows.ttl> .
+
+# ── Step 205: a preview/jump-list row for content that also has a full on-page section must link to that section locally, not to the external resolver IRI used for ordinary first-mention entity links ──
+
+:step-spotlightPanelLocalAnchor a schema:HowToStep ;
+    schema:position 205 ;
+    schema:name "Resolver-IRI-for-every-entity-href governs first-mention prose references, not a jump-list row previewing a full section already rendered further down the same page"@en ;
+    schema:text "2026-08-15: changed the synopsis spotlight panel's 14 debt-name hrefs from external resolver describe/?url=...#cN links to same-page #rebuttal-N/#sowa-N anchors, keeping the resolver link only on each full card's own <h4> title."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/spotlight-panel-local-anchor-vs-resolver-link.ttl> .
+
+# ── Step 206: a synopsis deck with a spotlight panel and CTA but no schema:abstract on the main entity renders as a sparse, unbalanced card — the lede/body prose only ever sources from schema:abstract/articleBody ──
+
+:step-synopsisRequiresAbstract a schema:HowToStep ;
+    schema:position 206 ;
+    schema:name "The rdf-infographic-skill synopsis deck needs a real schema:abstract on the main article entity, not just schema:description"@en ;
+    schema:text "2026-08-15: RDF 1.2/Virtuoso collection set schema:description but not schema:abstract, so the synopsis card rendered as kicker+heading+spotlight-panel+CTA only, no narrative text. Fixed by (1) adding a 2-paragraph schema:abstract to the TTL, (2) adding a schema:description fallback to rdf_parser.py's _extract_deck so this degrades gracefully in future, (3) adding a validate-harness-contract.py gate that fails when id=\"synopsis\" is present without a lede/body paragraph, and (4) fixing a related bug where multi-paragraph HTML abstracts never got the .lede CSS class (first paragraph rendered with the same styling as body prose instead of the deck's larger/bolder/accent-bordered treatment)."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/synopsis-abstract-required.ttl> .
+
+# ── Step 207: converting a verbatim post's illustrative "PREFIX : <#>" Turtle example into a live-executable SPARQL Workbench query re-triggers the exact relative-IRI bug Step 50 already warned about — verify against the real loaded endpoint, don't assume ──
+
+:step-liveVerifyWorkbenchQueries a schema:HowToStep ;
+    schema:position 207 ;
+    schema:name "'I've loaded the data to UB, verify the sample queries' means run them against the real endpoint, not re-read the TTL"@en ;
+    schema:text "2026-08-15: re-violated Step 50's absolute-PREFIX rule when wrapping post-verbatim Turtle into live SPARQL queries, caught by testing against the real loaded endpoint."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/live-sparql-verification-against-loaded-graph.ttl> .
+
+# ── Step 208: a new artifact "type" (visual treatment + structural pattern) worth reusing gets registered in rdf-infographic-skill's template collection, not just delivered once and forgotten ──
+
+:step-registerNewInfographicTemplate a schema:HowToStep ;
+    schema:position 208 ;
+    schema:name "When a generated HTML/MD/RDF collection introduces a genuinely new, reusable visual/structural pattern, add it to rdf-infographic-skill's template collection: the asset file, a references/template-options.md entry, and a SKILL.md pointer-sentence update"@en ;
+    schema:text "2026-08-16: registered the long-form narrative/thesis pattern from the 'The Judgment Layer' essay as a new rdf-infographic-skill template (spec-sheet-editorial-essay-claude_sonnet_5.html) after the user asked for it to be added to the templates collection rather than treated as a one-off."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/spec-sheet-editorial-essay-template.ttl>, <../rdf-infographic-skill/references/template-options.md> .
+
+# ── Step 209: user identity and credential-file location are session-start facts resolved from core.ttl, never rediscovered mid-task via ad hoc filesystem search ──
+
+:step-credentialLocationAtSessionStart a schema:HowToStep ;
+    schema:position 209 ;
+    schema:name "Resolve and record CREDENTIALS_ROOT plus the user's principal/agent PKCS#12 bundle paths in core.ttl at session start, as part of identity establishment — not as a mid-task discovery step when a signing/mTLS/whoami need arises"@en ;
+    schema:text "2026-08-16: had to discover CREDENTIALS_ROOT via ad hoc find commands mid-task when asked to sign artifacts; user stated credential-file location resolution belongs at session start, now recorded in core.ttl."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/credential-location-session-start.ttl>, <../core.ttl>, <howto/verified-identity.ttl> .
+
+# ── Step 210: a KG/SPARQL citation with suspect provenance (non-crawlable IRI, corrupted GRAPH binding) still owes the caller the standard resolver-hyperlink citation format — the fix is an added ⚠️ Unverified badge, not substituted prose that drops the format ──
+
+:step-kgCitationUnverifiedBadge a schema:HowToStep ;
+    schema:position 210 ;
+    schema:name "When a data-twingler result's provenance is suspect, keep the resolver-hyperlink citation format and attach the existing ✅/⚠️ Unverified badge convention — do not replace the citation with freeform caveat prose"@en ;
+    schema:text "2026-08-17: a KG-only-mode SPARQL answer sourced from a non-crawlable claude.ai/code/artifact/... entity IRI with a corrupted GRAPH binding was presented as caveat prose with the citation format dropped, making the system-level flag-suspicious-content rule look like it had overridden the data-twingler citation-format gate. Corrected by reusing the harness's own verified-identity.ttl ✅/⚠️ Unverified badge convention on the normally-formatted citation instead — the safety flag and the format gate are additive, not a tradeoff."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/kg-citation-unverified-badge.ttl>, <howto/verified-identity.ttl>, <howto/agent-identity.ttl> .
+
+# ── Step 211: resolves a direct contradiction between preferences.ttl Step 131 and howto/skill-invocation.ttl Step 4 over KG/data-twingler retrieval order ──
+
+:step-kgOrderResolved a schema:HowToStep ;
+    schema:position 211 ;
+    schema:name "Standing KG/data-twingler retrieval order: UB (URIBurner endpoint) first, Local ({LLM_ROOT}/ RDF scan) second as fallback — always, not only when the user says 'KG-only mode'"@en ;
+    schema:text "2026-08-17: preferences.ttl Step 131 said KG-only mode = skip local, query the endpoint directly; howto/skill-invocation.ttl Step 4 said KG-ONLY MODE = local scan only, no endpoint call — a direct contradiction under the same name. User resolved it: the order is (1) UB, (2) Local, as the standing default for all retrieval, not a conditional behavior. skill-invocation.ttl Steps 2, 4, and 5 rewritten accordingly; Step 4's prior text explicitly flagged as superseded rather than silently overwritten."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/kg-order-conflict-resolution.ttl>, <howto/skill-invocation.ttl#step-kgOnlyMode>, <howto/skill-invocation.ttl#step-kgQueryMode>, <preferences.ttl#step-sparqlEndpointSearchOrder>, <howto/kg-citation-unverified-badge.ttl> .
+
+# ── Step 212: kg-generator's validate-kg-compliance.sh has two known false-positive checks — verify against a known-good precedent file before treating a FAIL as a real defect ──
+
+:step-dbrCurieFalsePositive a schema:HowToStep ;
+    schema:position 212 ;
+    schema:name "validate-kg-compliance.sh's 'Ontology not linked via schema:hasPart' and 'Prefixed DBpedia/Wikidata CURIEs found' checks are known false positives, not compliance rules to satisfy by expanding every dbr:/wd: reference"@en ;
+    schema:text "2026-08-18: confirmed by re-running the script against the known-good reverse-information-paradox-claude_sonnet_5-1.ttl, which reproduces the identical two FAILs — cross-check a compliance-script failure against a known-good precedent file before treating it as a real defect."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/harness-contract-compliance.ttl#step-dbrCurieFalsePositive>, <howto/harness-contract-compliance.ttl#step-complianceBug> .
+
+# ── Step 213: HowTo/FAQ/Glossary order is now code + validator enforced, not just recorded in session memory ──
+
+:step-howtoFaqGlossaryOrder a schema:HowToStep ;
+    schema:position 213 ;
+    schema:name "Reference-section order is HowTo, then FAQ, then Glossary — enforced in rdf-infographic-skill's html_assembler.py and checked by validate-harness-contract.py"@en ;
+    schema:text "2026-08-18: this order was specified 2026-08-14 but only hand-patched into one HTML output; the generator itself still emitted FAQ/Glossary/HowTo by default and regressed on every later fresh generation, including grok-bot-fourth-moment-of-ai-claude_sonnet_5-1.html — a rule recorded only in session memory is not enforced." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/section-order-and-people-section-gate.ttl#step-howtoFaqGlossaryOrder>, <howto/explorer-precedes-reference.ttl> .
+
+# ── Step 214: People section removed from generate_infographic.py; person canonical-identity gates still apply ──
+
+:step-peopleSectionRemoved a schema:HowToStep ;
+    schema:position 214 ;
+    schema:name "generate_infographic.py no longer renders a standalone People section — person entities and canonical-identity/cross-reference requirements still apply in the RDF"@en ;
+    schema:text "2026-08-18: removed by explicit user request since a standalone name+description card grid duplicated what resolver-linked mentions already surface inline; person schema:description/owl:sameAs must still follow the platform-priority IRI ladder regardless." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/section-order-and-people-section-gate.ttl#step-peopleSectionRemoved>, <howto/canonical-entity-iri-denotation.ttl> .
+
+# ── Step 215: remote removals try HTTP, then WebDAV, then iSQL, with the P12 credentials pattern ──
+
+:step-remoteRemovalOrder a schema:HowToStep ;
+    schema:position 215 ;
+    schema:name "BLOCKING GATE — remote removals try HTTP DELETE first, then WebDAV, then iSQL; all three use the principal PKCS#12 file path and /tmp/uyi passphrase, never a TMPDIR PEM extract"@en ;
+    schema:text "2026-08-18: after URIBurner daas uploads of grok-bot-fourth-moment-of-ai-grok_4_6-1.md and .jsonld, HTTP DELETE on :5443 with --cert-type P12 --cert {principal-p12} --pass $MTLS_PKCS12_PW returned 204; sql:DAV_DELETE and PEM-in-TMPDIR curl were the wrong first moves. Verify the user-named public URL, slash variants, :5443 GET, and the folder listing before claiming the remote object is gone. Full procedure in howto/remote-resource-removal.ttl."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/remote-resource-removal.ttl>,
+        <howto/remote-webdav-upload.ttl>,
+        <howto/no-unauthorized-deletion.ttl>,
+        <howto/p12-passphrase-retrieval.ttl>,
+        <howto/credential-location-session-start.ttl> .
+
+:step-remoteUploadOrder a schema:HowToStep ;
+    schema:position 216 ;
+    schema:name "BLOCKING GATE — remote uploads try HTTP PUT first, then WebDAV, then iSQL; same principal PKCS#12 file path and /tmp/uyi passphrase as removals, never a TMPDIR PEM extract"@en ;
+    schema:text "2026-08-18: user presumed the HTTP/WebDAV/iSQL order and credentials pattern also cover uploads. They do now. First attempt is HTTP PUT to https://linkeddata.uriburner.com:5443{dav-path} with --cert-type P12 --cert {principal-p12} --pass $MTLS_PKCS12_PW. Port 443 PUT returns 401 because that listener does not consume the client cert. Verify :5443 GET and the public 443 GET separately — a :5443 200 plus a 443 401 means the file is stored but not anonymously readable. Procedure: howto/remote-webdav-upload.ttl."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/remote-webdav-upload.ttl>,
+        <howto/remote-resource-removal.ttl>,
+        :step-remoteRemovalOrder,
+        <howto/p12-passphrase-retrieval.ttl>,
+        <howto/credential-location-session-start.ttl> .
+
+:topicRemoteResourceRemoval a schema:Thing ;
+    schema:name "Remote Resource Removal Order"@en ;
+    schema:description "When the user names a remote DAV/HTTP object to remove, attempt HTTP DELETE, then WebDAV, then iSQL, using the principal PKCS#12 at the credentials-file location. Do not claim success from a single :5443 404."@en ;
+    rdfs:seeAlso <howto/remote-resource-removal.ttl> .
+
+# ── Step 217: Organizations section removed from generate_infographic.py; organization canonical-identity gates still apply ──
+
+:step-organizationsSectionRemoved a schema:HowToStep ;
+    schema:position 217 ;
+    schema:name "generate_infographic.py no longer renders a standalone Organizations section — organization entities and canonical-identity/cross-reference requirements still apply in the RDF"@en ;
+    schema:text "2026-08-18: removed alongside the People section (Step 214), same session, same reason — a standalone name+description card grid duplicated what resolver-linked mentions already surface inline; organization schema:description/DBpedia-Wikidata denotation must still follow the standard priority ladder regardless." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/section-order-and-people-section-gate.ttl#step-organizationsSectionRemoved>, <howto/canonical-entity-iri-denotation.ttl> .
+
+# ── Step 218: every generated section rendered with the identical tinted background — fixed with a DOM-order alternation pass ──
+
+:step-sectionBackgroundAlternation a schema:HowToStep ;
+    schema:position 218 ;
+    schema:name "rdf-infographic-skill sections now alternate section/section-alt in real DOM order via a client-side pass, since html_assembler.py and base_template.html each hardcoded section-alt with no shared counter between them"@en ;
+    schema:text "2026-08-18: found via direct UI/UX self-critique prompted by the user asking whether the current HTML was the best offer — every section on every generated page had identical tinted backgrounds with zero alternating rhythm; fixed once in base_template.html's inline script rather than threading a counter through two separate generator files." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/section-order-and-people-section-gate.ttl#step-sectionBackgroundAlternation> .
+
+# ── Step 219: KG Explorer edge labels hidden by default (hover-reveal), node labels moved below the circle per SKILL.md's own rule ──
+
+:step-kgExplorerLabelDensity a schema:HowToStep ;
+    schema:position 219 ;
+    schema:name "KG Explorer predicate labels are hover-reveal, not always-on; node labels sit below the circle with a paint-order:stroke halo, matching SKILL.md's own previously-unimplemented node-label-geometry rule"@en ;
+    schema:text "2026-08-18: user delegated the redesign call after I flagged the default KG Explorer view as visually noisy; fixed kg_explorer.js so predicate labels default to opacity 0 (revealed via a wide invisible hit-line on hover, resolver-anchor structure unchanged) and node labels moved from beside the circle to y=r+11 below it with a background-color stroke halo." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/kg-explorer-label-density.ttl> .
+
+# ── Step 220: RDF-positioned sections render as a numbered timeline, not a flat card grid; nested sections need direct hasPart promotion to render at all ──
+
+:step-orderedSectionTimeline a schema:HowToStep ;
+    schema:position 220 ;
+    schema:name "html_assembler.py's generic section renderer switches to a numbered .timeline.numbered component when every item carries a real schema:position; a section nested two hasPart levels deep must be promoted to a direct child of the main entity or it never renders at all"@en ;
+    schema:text "2026-08-18: user pushed past bug-fix review ('is this the very best you can offer... this is part of a competition') and delegated the redesign call; found every RDF-driven section rendered identically as a flat card grid regardless of ordering, and separately found an 8-item section nested two levels below :analysis had never rendered in the HTML at all — both fixed, verified live in both themes." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/ordered-section-timeline.ttl> .
+
+# ── Step 221: audit the visual component inventory; RDF-driven figures, stat bands, and asserted section order ──
+
+:step-rdfDrivenFigures a schema:HowToStep ;
+    schema:position 221 ;
+    schema:name "Count a generated page's DISTINCT visual component types before calling it finished — then use schema:image SVG literals for flows/stacks, schema:PropertyValue children for stat bands, and schema:position on sections for reading order"@en ;
+    schema:text "2026-08-18: an inventory of a validator-PASSing page returned 82 paragraphs and zero tables, stat tiles or diagrams for an article entirely about capital flow and stack ownership — validators check contract conformance and cannot see that the wrong visual form was chosen for the content." ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/rdf-driven-figures-and-stat-band.ttl>, <howto/ordered-section-timeline.ttl> .
+
+# ── Step 222: a mid-session /model switch outranks the system prompt, and later artifacts must name the new model as reviser ──
+
+:step-midSessionModelSwitch a schema:HowToStep ;
+    schema:position 222 ;
+    schema:name "Treat an explicit mid-session model switch as SOURCE 0 above the system prompt; attribute post-switch work to the new model as reviser WITHOUT erasing the originating model or renaming the artifact stem"@en ;
+    schema:text "2026-08-18: the system prompt said Sonnet 5, the user ran /model claude-opus-5, and a substantial Opus 5 revision still shipped attributed to Sonnet 5 until the user caught it — rdf-infographic-skill now takes --revised-by-name/--revised-by-url to record both facts." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/model-identity-resolution.ttl#step-midSessionModelSwitch>,
+        <howto/kg-curation-attribution.ttl>, <howto/agent-identity.ttl>, <howto/artifact-routing.ttl> .
+
+# ── Step 223: single-child sections render full-width and untruncated ──
+
+:step-singleItemFeatureBlock a schema:HowToStep ;
+    schema:position 223 ;
+    schema:name "A section with exactly one child renders as a full-width .feature-block with the UNTRUNCATED description; the 600-char cap is a uniform-card-grid rule that must not silently eat a single entity's whole argument"@en ;
+    schema:text "2026-08-18: the critical-perspective section rendered one 562px card beside ~538px of dead space, with its 1286-char argument silently cut to 629 chars mid-sentence — fixed in rdf_parser.py (extract_description_full), html_assembler.py (len==1 branch) and styles.css (.feature-block)." ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/card-description-truncation-gate.ttl#step-singleItemFeatureBlock>,
+        <howto/kg-curation-attribution.ttl> .
+
+# ── Step 224: PKCS#12 passphrase resolves from macOS Keychain first, /tmp/uyi as fallback ──
+
+:step-p12PassphraseKeychainFirst a schema:HowToStep ;
+    schema:position 224 ;
+    schema:name "Resolve the principal PKCS#12 passphrase from the macOS Keychain item uriburner-p12 FIRST, falling back to the /tmp/uyi first KEY=VALUE, then eliciting — and guard any keychain read the agent did not create with perl alarm, since `timeout` does not exist on stock macOS"@en ;
+    schema:text "2026-08-18: agent observed /tmp/uyi is mode -rw-r--r-- — a live credential in world-readable plaintext in a shared directory — and verified via a throwaway probe item that a keychain entry created with -T /usr/bin/security reads back non-interactively; the user approved making keychain primary." ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
+        <howto/p12-passphrase-retrieval.ttl#step-canonicalSnippet>,
+        <preferences.ttl#step-p12PassphraseUyiFile>,
+        <howto/credential-location-session-start.ttl>,
+        <core.ttl> .
+
+# ── Step 225: never probe/test against a production credential identifier ──
+
+:step-neverProbeProductionCredentialNames a schema:HowToStep ;
+    schema:position 225 ;
+    schema:name "Any credential-store probe or precedence test MUST use a namespaced throwaway identifier — never the real service/account name, because -U overwrites a live secret and delete destroys it"@en ;
+    schema:text "2026-08-18: agent ran add -U then delete against the real uriburner-p12 keychain service to demonstrate read precedence, which silently overwrites-then-destroys a live item; the user's newly created entry was subsequently missing." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl#step-neverProbeProductionCredentialNames>,
+        <howto/no-unauthorized-deletion.ttl>,
+        <preferences.ttl#step-p12PassphraseKeychainFirst> .
+
+# ── Step 226: keychain migration completed and verified; curl in this environment needs a cert FILE, not a keychain identity ──
+
+:step-p12PassphraseKeychainLive a schema:HowToStep ;
+    schema:position 226 ;
+    schema:name "The uriburner-p12 keychain item is LIVE (migrated from /tmp/uyi with user permission) and verified end-to-end against the real cert.p12 and a real authenticated URIBurner call; separately, this environment's curl cannot consume a Keychain identity for --cert despite the (SecureTransport) version banner — cert loading here is LibreSSL-backed and requires a file path (curl error 58 on both identity-name and SHA-1-hash forms), so the .p12 FILE remains required and Keychain supplies only its passphrase"@en ;
+    schema:text "2026-08-18: told the user a SecureTransport banner meant --cert could take a keychain identity name/hash directly, without testing it; the user pushed back, testing then produced curl error 58 for both forms — the claim was wrong and is corrected here rather than repeated." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/keychain-identity-vs-p12-file-curl.ttl>,
+        <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
+        <preferences.ttl#step-p12PassphraseKeychainFirst> .
+
+# ── Step 238: same Keychain-first pattern applied to a second, independent secret — the local Virtuoso dba password ──
+
+:step-virtuosoLocalDbaKeychain a schema:HowToStep ;
+    schema:position 238 ;
+    schema:name "Local Virtuoso dba password resolves from macOS Keychain item virtuoso-local-dba FIRST, /tmp/uyi DBA_PWD as fallback — a DISTINCT keychain item from uriburner-p12, never shared"@en ;
+    schema:text "2026-08-19: user asked for the p12-passphrase Keychain treatment (Step 224) to be applied to the local Virtuoso dba password too, which was sitting in /tmp/uyi as DBA_PWD=.... Migrated into a new, separately-namespaced item (virtuoso-local-dba) using the identical -T /usr/bin/security / -U pattern, and verified the Keychain value matched the file byte-for-byte before testing. The subsequent isql login test failed (VD CL034 Bad login) — root-caused to the /tmp/uyi value already being stale, not to the migration, since the equality check passed. Only one login attempt was made; no retry loop against a live DBA account, since repeated failures risk lockout. RESOLVED same day: user corrected /tmp/uyi, agent re-synced the Keychain item to the new value and confirmed isql login succeeds using the Keychain-sourced password." ;
+    onto:hasTrigger onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/virtuoso-local-dba-passphrase-retrieval.ttl>,
+        <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
+        <preferences.ttl#step-p12PassphraseKeychainFirst>,
+        <preferences.ttl#step-neverProbeProductionCredentialNames>,
+        <core.ttl> .
+
+# ── Step 227: name and cross-link the recurring self-grading-checker, false-independence, and fake-edge-test failure classes ──
+
+:step-checkerContextIsolation a schema:HowToStep ;
+    schema:position 227 ;
+    schema:name "A bundled validator's PASS is a floor not an anchor; two artifacts that look independent may have a real derive-from edge between them; a sequential ordering is only real if the second step needs the first's output or shares a contended external resource"@en ;
+    schema:text "2026-08-18: an X/Twitter thread on 'Graph Engineering' (fan-out/reduce/synthesize, checker-context isolation, the fake-edge dependency test, 'anchors' as ground truth a self-grading system cannot fake) prompted a review against this corpus. Two of its three core lessons had already been independently re-learned here across five separate incidents (Steps 169, 173, 174, 186, 187) plus the founding rdf-infographic-gated-workflow.ttl incident, but only as one-off fixes, never named as reusable principles — so named and cross-linked them here." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/checker-context-isolation.ttl>,
+        <howto/generator-script-output-not-a-substitute-for-contract-check.ttl>,
+        <howto/rdf-infographic-gated-workflow.ttl>,
+        <howto/entity-lookup-disambiguation.ttl> .
+
+# ── Step 228: Step 219's hover-reveal-only edge labels was itself a contract violation — corrected to visible-by-default ──
+
+:step-kgExplorerEdgeLabelsVisibleByDefault a schema:HowToStep ;
+    schema:position 228 ;
+    schema:name "KG Explorer predicate/edge labels MUST be visible by default (non-zero opacity), not hidden until hover; SKILL.md's Basic Mode bullet lists 'edge/connector labels that are clickable hyperlinks' with no hover qualifier — only the tooltip and line-highlight are explicitly hover behaviors"@en ;
+    schema:text "2026-08-19: user flagged a live generated page's opacity:0-by-default predicate labels as a skills-contract and prefs violation, which direct browser/DOM inspection confirmed — see the howto for the full incident and the corrected base-opacity-dimming replacement." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/kg-explorer-label-density.ttl>,
+        <preferences.ttl#step-kgExplorerLabelDensity> .
+
+# ── Step 229: theme toggle's @media(prefers-color-scheme:dark) block was unguarded against an explicit data-theme="light" choice — a recurring, previously-flagged contract violation ──
+
+:step-themeToggleOsPreferenceGuard a schema:HowToStep ;
+    schema:position 229 ;
+    schema:name "Any @media(prefers-color-scheme:dark) :root block MUST be guarded with :not([data-theme=\"light\"]) (or the dark-first equivalent, :not([data-theme=\"dark\"]) on a light media query) — an unguarded block repaints over an explicit opposite choice, so the toggle silently does nothing for any visitor whose OS preference disagrees with the click"@en ;
+    schema:text "2026-08-19: user said this exact class of bug 'has been covered multiple times now as a contract violation' — found via live browser testing (OS color-scheme emulation + real click) that generate_infographic.py's own scripts/templates/styles.css and base_template.html shipped the unguarded form despite a correctly-guarded version already existing in a different template in the same skill; also hardcoded <html data-theme=\"light\"> plus a toggle ternary that silently no-ops on a first click when the attribute is absent — full incident and the three-part fix in the howto." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/theme-toggle-os-preference-guard.ttl> .
+
+# ── Step 230: never write a literal star-slash inside a CSS comment — it closes the comment early and silently kills the whole following rule ──
+
+:step-cssCommentStarSlashTrap a schema:HowToStep ;
+    schema:position 230 ;
+    schema:name "A CSS comment documenting custom-property names must never contain a literal star-slash (as in an --opal-*/--ols-* glob) — CSS has no comment nesting or escaping, so the first star-slash terminates the comment and the remaining prose is parsed as CSS, silently discarding the :root block that follows"@en ;
+    schema:text "2026-08-19: writing a palette-provenance comment above :root, the glob '--opal-*/--ols-*' closed the comment at '--opal-*/', which dropped every custom property and rendered the page black-on-white with no hero gradient and an invisible gradient-clipped heading; caught only because a live screenshot looked wrong, since grep on the file showed the intended text present — see the howto for the detection method and the balance-checker to run after editing any generated CSS." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/css-comment-star-slash-trap.ttl> .
+
+# ── Step 231: the OpenLink brand palette was a recorded standing default but the generator template never implemented it ──
+
+:step-openlinkPaletteInGeneratorTemplate a schema:HowToStep ;
+    schema:position 231 ;
+    schema:name "rdf-infographic-skill/scripts/templates/styles.css now ships the OpenLink brand palette Step 125 declared the standing default back on 2026-07-13, plus --border-strong / --accent-soft / --on-accent tokens; a standing default recorded only in memory but absent from the generator is not actually in force"@en ;
+    schema:text "2026-08-19: a generated page was still emitting the generic indigo/cyan placeholder palette 5 weeks after Step 125 made the OpenLink scheme the default, because the rule lived in preferences.ttl while the template kept the old literals — the third generator-vs-recorded-rule contradiction found in one session, alongside Steps 228 and 229." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/openlink-brand-color-scheme.ttl>,
+        <preferences.ttl#step-openlinkBrandColorScheme>,
+        <howto/generator-script-output-not-a-substitute-for-contract-check.ttl> .
+
+# ── Step 232: hand-authored HTML derived from RDF drifts out of sync the moment the RDF changes — generate it, don't hand-patch it ──
+
+:step-tierMapDriftFromHandAuthoring a schema:HowToStep ;
+    schema:position 232 ;
+    schema:name "A tier/category map (or any HTML section presenting an RDF-derived count or list) MUST be regenerated from the graph whenever the graph changes underneath it, not hand-patched — a hand-written panel silently disagreed with its own source TTL until the user asked a direct question about tier counts"@en ;
+    schema:text "2026-08-19: after adding a new sample workload instance to the TTL, the already-rendered tier-map HTML kept its old per-tier counts (3/3/5 instead of 4/3/5) because it had been hand-authored as static markup rather than generated from a query; caught only when the user asked whether the Threshold-Crossing and Context-and-Execution tiers had real instance data, prompting a walk of the graph that surfaced the mismatch — fixed by rewriting the section as a small Python/rdflib pass over the companion TTL." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/thesis-framework-openlink-brand-template.ttl> .
+
+# ── Step 233: the OpenLink-brand thesis/framework template is the standing preferred default for kg-generator Thesis & Framework Article content ──
+
+:step-thesisFrameworkTemplatePreference a schema:HowToStep ;
+    schema:position 233 ;
+    schema:name "assets/templates/thesis-framework-openlink-brand-claude_opus_5.html is the PREFERRED DEFAULT template for Thesis & Framework Article content going forward — select it before other templates unless the user names a different one"@en ;
+    schema:text "2026-08-19: after iterating a Thesis & Framework Article page (OpenLink brand palette, RDF-generated tier map, typed evidence claims, demo SPARQL queries proving the sample data, comment-thread cards) through several rounds of user-caught gaps, the user asked for this look and the underlying data-completeness discipline to become the standing default rather than a one-off — recorded as a template in rdf-infographic-skill plus the required-adaptations checklist in template-options.md." ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/thesis-framework-openlink-brand-template.ttl>,
+        <../references/template-options.md> .
+
+
+# ── Step 234: the post's author is whoever the publishing platform asserts — additional names in body byline text are mentions, never credited contributor roles ──
+
+:step-authorVsBodyBylineNames a schema:HowToStep ;
+    schema:position 234 ;
+    schema:name "schema:author = the single author of record the publishing platform asserts; extra names in the article's own \"By: X, Y, Z\" line are schema:contributor and MUST stay visible by rendering that byline verbatim — but never as a second, separate \"Contributors:\" credit line"@en ;
+    schema:text "2026-08-19: settled after three rounds on one byline — schema:author is the single platform-asserted author of record, the article's own byline is rendered verbatim (so co-writers stay visible), those co-writers plus the commenters are schema:contributor, and no separate 'Contributors:' credit line is added; see the howto for the correction history and the half-fix / over-correction failure modes." ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/author-vs-body-byline-names.ttl>,
+        <howto/thesis-framework-openlink-brand-template.ttl> .
+
+
+# ── Step 236: Editorial data-viz infographic aesthetic (preferred default, 2026-08-19) ──
+
+:step-editorialDataVizAesthetic a schema:HowToStep ;
+    schema:position 236 ;
+    schema:name "Editorial data-viz infographic aesthetic (preferred HTML doc aesthetic going forward)"@en ;
+    schema:text """The HTML aesthetic of the Right-Sizing Your Intelligence Spend collection (DeepSeek V4 Flash, 2026-08-19, user-approved after review) is the preferred default HTML document aesthetic going forward for thesis/framework and data-rich collections, unless the user names a different template or an existing artifact's visual language must be preserved. Signature components: (1) CSS-variable theming — light/dark with html[data-theme="dark"] and @media (prefers-color-scheme: dark) as two separate blocks, no hardcoded colors; (2) editorial typography with uppercase letter-spaced eyebrows, strong display headings, muted section-sub lines; (3) inline-SVG data visualizations as the signature — a hero threshold/capability curve (rising line with a shaded 'frontier band' and workload dots positioned by threshold), a threshold spectrum bar with a rising capability line, a workload intelligence map (scatter of sample instances by intelligence-threshold x token-sensitivity, colored by value class, with a shaded frontier-reserve region), and a descending 'intelligence per successful outcome' trend line; (4) stat cards with mini bars; (5) animated line draws via stroke-dashoffset (disabled under prefers-reduced-motion); (6) responsive dual-presentation comparison matrices (table >=901px, cards <=900px, resolver-linked aspect columns); (7) every visual dot/entity resolver-linked to its KG IRI (describe/?url=). The full harness contract remains mandatory: floating collapsed nav, theme toggle in the header, KG Explorer (Basic/Advanced, settings panel, sticky drag, click-guard resolver), SPARQL workbench with demo instance data visible, 8-item attribution footer, GATE: validate-harness-contract.py 0 failures before delivery. Canonical implementation: {LLM_ROOT}/DeepSeek/_build/right-sizing/html_{css,visuals,body,js}.py and webpages/right-sizing-intelligence-spend-deepseek_v4flash-1.html; full spec: howto/editorial-data-viz-aesthetic.ttl."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/editorial-data-viz-aesthetic.ttl>,
+        <../../../../LLMs/DeepSeek/webpages/right-sizing-intelligence-spend-deepseek_v4flash-1.html> .
 
 # ── Step 238: Hyperlink generated SPARQL URLs ──
 

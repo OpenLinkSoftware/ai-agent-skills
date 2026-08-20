@@ -47,6 +47,12 @@ def main() -> int:
                         help="Executing LLM/model name for the KG-curation attribution line (default: Claude Sonnet 5)")
     parser.add_argument("--llm-url", default="https://www.anthropic.com/claude",
                         help="Executing LLM's canonical product page (default: https://www.anthropic.com/claude)")
+    parser.add_argument("--revised-by-name", default="",
+                        help="Model that REVISED an artifact an earlier model generated "
+                             "(e.g. after a mid-session /model switch). Recorded alongside "
+                             "--llm-name, never replacing it.")
+    parser.add_argument("--revised-by-url", default="",
+                        help="Canonical product page for --revised-by-name")
     parser.add_argument("--agent-env", default="",
                         help="Optional agent/runtime environment label for footer generation-environment card (e.g. 'Grok CLI (Grok Build TUI)')")
 
@@ -69,6 +75,8 @@ def main() -> int:
         source_label=args.source_label,
         resolver_pattern=args.resolver_pattern,
         llm_name=args.llm_name,
+        revised_by_name=args.revised_by_name,
+        revised_by_url=args.revised_by_url,
         llm_url=args.llm_url,
         agent_env=args.agent_env,
     )

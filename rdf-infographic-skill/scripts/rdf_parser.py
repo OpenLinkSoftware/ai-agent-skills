@@ -80,6 +80,24 @@ def _truncate_at_word_boundary(text: str, limit: int = 600) -> str:
     return cut.rstrip(",.;:—- ") + "…"
 
 
+def extract_description_full(uri: URIRef, g: Graph) -> str:
+    """Untruncated counterpart to extract_description().
+
+    The 600-char cap in extract_description() exists so a GRID of many cards
+    keeps roughly uniform heights (howto/card-description-truncation-gate.ttl).
+    That rationale does not apply when a single entity IS a section's whole
+    content and is rendered full-width — there capping silently discards the
+    argument. Callers pick the variant that matches the layout they render.
+    """
+    for desc in g.objects(uri, RDFS.comment):
+        return str(desc)
+    for desc in g.objects(uri, SCHEMA.description):
+        return str(desc)
+    for desc in g.objects(uri, SCHEMA.text):
+        return str(desc)
+    return ""
+
+
 def extract_description(uri: URIRef, g: Graph) -> str:
     """Extract description/comment/body text for a URI.
 
@@ -94,6 +112,18 @@ def extract_description(uri: URIRef, g: Graph) -> str:
     for desc in g.objects(uri, SCHEMA.text):
         return _truncate_at_word_boundary(desc)
     return ""
+
+
+def _step_position(step, g: Graph) -> int:
+    """schema:position for ordering HowToStep entities; unpositioned/blank
+    steps sort last rather than raising or silently reordering randomly."""
+    if isinstance(step, URIRef):
+        for pos in g.objects(step, SCHEMA.position):
+            try:
+                return int(pos)
+            except (TypeError, ValueError):
+                pass
+    return 10**9
 
 
 def build_kgdata(rdf_path: str | Path) -> dict:
@@ -166,6 +196,138 @@ def build_kgdata(rdf_path: str | Path) -> dict:
     }
 
 
+def _extract_deck(g: Graph, main_entity) -> dict:
+    """Extract the data slots of the synopsis executive-summary deck.
+
+    Generic, RDF-driven, and fully optional (graceful degradation):
+      - meta:          article author / publisher / publication date
+      - spotlight:     instances of document-ontology classes (classes declared
+                       rdfs:isDefinedBy an owl:Ontology in the graph) that carry
+                       a name and description, grouped by class; the instance
+                       the article schema:about's is featured (tag = its
+                       schema:alternateName, fallback "Featured")
+      - citations:     URIRef objects of the article's schema:citation
+      - quotation:     the first schema:Quotation in the graph (text + author)
+
+    Any slot that cannot be populated is simply omitted by the renderer.
+    """
+    deck = {
+        "meta": {"author_name": "", "author_iri": "", "publisher_name": "",
+                 "publisher_iri": "", "date": ""},
+        "spotlight_groups": [],
+        "citation_chips": [],
+        "quotation": None,
+    }
+    if main_entity is None or not isinstance(main_entity, URIRef):
+        return deck
+
+    for a in g.objects(main_entity, SCHEMA.author):
+        if isinstance(a, URIRef):
+            deck["meta"]["author_iri"] = str(a)
+            deck["meta"]["author_name"] = extract_label(a, g)
+            break
+    for p in g.objects(main_entity, SCHEMA.publisher):
+        if isinstance(p, URIRef):
+            deck["meta"]["publisher_iri"] = str(p)
+            deck["meta"]["publisher_name"] = extract_label(p, g)
+            break
+    for d in g.objects(main_entity, SCHEMA.datePublished):
+        deck["meta"]["date"] = str(d)[:10]
+        break
+
+    onto_iris = set(g.subjects(RDF.type, OWL.Ontology))
+    doc_classes = set()
+    for cls in set(g.subjects(RDF.type, RDFS.Class)) | set(g.subjects(RDF.type, OWL.Class)):
+        if isinstance(cls, URIRef) and onto_iris & set(g.objects(cls, RDFS.isDefinedBy)):
+            doc_classes.add(cls)
+
+    about_iri = g.value(main_entity, SCHEMA.about)
+    about_iri = str(about_iri) if isinstance(about_iri, URIRef) else None
+
+    for cls in doc_classes:
+        items = []
+        for inst in g.subjects(RDF.type, cls):
+            if not isinstance(inst, URIRef):
+                continue
+            name = extract_label(inst, g)
+            desc = extract_description(inst, g)
+            if not name or not desc:
+                continue
+            pos = g.value(inst, SCHEMA.position)
+            try:
+                pos = int(pos)
+            except (TypeError, ValueError):
+                pos = 9999
+            items.append({
+                "name": name,
+                "desc": _truncate_at_word_boundary(desc, 150),
+                "iri": str(inst),
+                "pos": pos,
+                "featured": about_iri is not None and str(inst) == about_iri,
+            })
+        if not items:
+            continue
+        items.sort(key=lambda i: i["pos"])
+        title = next((str(n) for n in g.objects(cls, SCHEMA.name)), "")
+        if not title:
+            title = next((str(l) for l in g.objects(cls, RDFS.label)), "")
+        if not title:
+            title = "Key Concepts"
+        tag = ""
+        if any(i["featured"] for i in items):
+            feat = next(i for i in items if i["featured"])
+            tag = next((str(t) for t in g.objects(URIRef(feat["iri"]), SCHEMA.alternateName)), "")
+            if not tag:
+                tag = "Featured"
+        # Cap displayed rows so the spotlight sidebar stays proportionate to
+        # the lede/body column instead of stretching the whole deck to the
+        # panel's height (a class with a large instance count -- e.g. one row
+        # per correction pattern -- otherwise dwarfs a short abstract).
+        total = len(items)
+        cap = 14
+        overflow = max(0, total - cap)
+        if overflow and not any(i["featured"] for i in items[cap:]):
+            items = items[:cap]
+        elif overflow:
+            featured_idx = next(i for i, it in enumerate(items) if it["featured"])
+            if featured_idx >= cap:
+                items = items[: cap - 1] + [items[featured_idx]]
+            else:
+                items = items[:cap]
+        deck["spotlight_groups"].append({
+            "title": title,
+            "class_iri": str(cls),
+            "items": items,
+            "tag": tag,
+            "overflow_count": overflow,
+        })
+
+    for c in g.objects(main_entity, SCHEMA.citation):
+        if isinstance(c, URIRef):
+            label = extract_label(c, g)
+            if label:
+                deck["citation_chips"].append({"name": label, "iri": str(c)})
+                if len(deck["citation_chips"]) >= 8:
+                    break
+
+    for q in g.subjects(RDF.type, SCHEMA.Quotation):
+        if not isinstance(q, URIRef):
+            continue
+        text = str(g.value(q, SCHEMA.text) or "").strip()
+        if not text:
+            continue
+        qd = {"text": text, "author_name": "", "author_iri": ""}
+        for a in g.objects(q, SCHEMA.author):
+            if isinstance(a, URIRef):
+                qd["author_iri"] = str(a)
+                qd["author_name"] = extract_label(a, g)
+            break
+        deck["quotation"] = qd
+        break
+
+    return deck
+
+
 def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
     """Extract narrative sections (FAQ, glossary, HowTo, People, Orgs) from RDF."""
     g = Graph()
@@ -176,6 +338,7 @@ def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
         "faq": [],
         "glossary": [],
         "howto": [],
+        "howto_groups": [],
         "people": [],
         "organizations": [],
         "sections": [],
@@ -209,6 +372,17 @@ def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
         if not abstract:
             for a in g.objects(main_entity, SCHEMA.articleBody):
                 abstract = str(a)[:600]
+                break
+        if not abstract:
+            # Last-resort fallback: schema:description is commonly set on the
+            # main entity even when schema:abstract/articleBody are not. Using
+            # it here prevents a silent, sparse-looking synopsis deck (kicker +
+            # heading + spotlight panel + CTA, but no lede/body prose at all)
+            # when an author supplies only schema:description. See
+            # preferences.ttl step-synopsisRequiresAbstract /
+            # howto/synopsis-deck-design-system.ttl.
+            for a in g.objects(main_entity, SCHEMA.description):
+                abstract = str(a)
                 break
         if headline or abstract:
             result["synopsis"] = {
@@ -280,17 +454,42 @@ def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
                     "iri": str(term) if isinstance(term, URIRef) else "",
                 })
 
-    # HowTo
-    for howto in g.subjects(RDF.type, SCHEMA.HowTo):
-        for step in g.objects(howto, SCHEMA.step):
+    # HowTo — grouped by parent schema:HowTo entity so a document with
+    # several distinct procedures (e.g. a build pipeline plus multiple
+    # scenario-specific guides) renders as separate titled, separately
+    # numbered guides rather than one flattened, misleadingly continuous
+    # step sequence. Each group carries its own name/description/iri plus
+    # a "steps" list; "howto" itself stays a flat list of all steps across
+    # every group for any caller that only needs the ungrouped step count.
+    howto_subjects = sorted(
+        g.subjects(RDF.type, SCHEMA.HowTo),
+        key=lambda h: (-len(list(g.objects(h, SCHEMA.step))), extract_label(h, g) or str(h)),
+    )
+    for howto in howto_subjects:
+        group_name = extract_label(howto, g) or ""
+        group_desc = extract_description(howto, g) or ""
+        steps = []
+        for step in sorted(
+            g.objects(howto, SCHEMA.step),
+            key=lambda s: _step_position(s, g),
+        ):
             step_text = extract_label(step, g) if isinstance(step, URIRef) else str(step)
             step_desc = extract_description(step, g) if isinstance(step, URIRef) else ""
             if step_text:
-                result["howto"].append({
+                entry = {
                     "step": step_text,
                     "description": step_desc,
                     "iri": str(step) if isinstance(step, URIRef) else "",
-                })
+                }
+                steps.append(entry)
+                result["howto"].append(entry)
+        if steps:
+            result.setdefault("howto_groups", []).append({
+                "name": group_name,
+                "description": group_desc,
+                "iri": str(howto) if isinstance(howto, URIRef) else "",
+                "steps": steps,
+            })
 
     # People
     for person in g.subjects(RDF.type, SCHEMA.Person):
@@ -388,21 +587,62 @@ def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
                     except (TypeError, ValueError):
                         pass
                     break
+                # schema:PropertyValue children carry a headline figure in
+                # schema:value (optionally qualified by schema:unitText) —
+                # captured here so the assembler can render them as a stat
+                # band rather than as prose cards. See
+                # howto/rdf-driven-figures-and-stat-band.ttl.
+                c_value = next((str(v) for v in g.objects(child, SCHEMA.value)), "")
+                c_unit = next((str(u) for u in g.objects(child, SCHEMA.unitText)), "")
                 children.append({
                     "name": c_name,
                     "description": c_desc,
+                    "description_full": extract_description_full(child, g),
                     "iri": str(child),
                     "position": c_pos if c_pos is not None else 9999,
+                    "value": c_value,
+                    "unit": c_unit,
+                    "is_metric": SCHEMA.PropertyValue in child_types and bool(c_value),
                 })
             children.sort(key=lambda c: c["position"])
 
-            if sec_abstract or children:
+            # An inline SVG figure carried as a schema:image LITERAL (rather
+            # than a URL or ImageObject) is trusted author-controlled markup,
+            # rendered raw — the same trust model schema:abstract already uses
+            # for the synopsis deck. A literal beginning with "<svg" is an
+            # unambiguous signal: no real image URL can start that way, so
+            # this cannot collide with conventional schema:image usage.
+            sec_figure = ""
+            for img in g.objects(part, SCHEMA.image):
+                if isinstance(img, Literal) and str(img).strip().startswith("<svg"):
+                    sec_figure = str(img).strip()
+                    break
+
+            sec_pos = None
+            for sp in g.objects(part, SCHEMA.position):
+                try:
+                    sec_pos = int(sp)
+                except (TypeError, ValueError):
+                    pass
+                break
+
+            if sec_abstract or children or sec_figure:
                 result["sections"].append({
                     "name": sec_name,
                     "abstract": sec_abstract,
                     "iri": str(part),
                     "items": children,
+                    "figure": sec_figure,
+                    "position": sec_pos if sec_pos is not None else 9999,
                 })
+
+        # Narrative order is an editorial decision, so honour an explicit
+        # schema:position on the sections themselves. Without it the order
+        # falls out of rdflib's hasPart iteration, which is not a guaranteed
+        # contract — stable in practice for a freshly parsed file, but not
+        # something a document's reading order should depend on. Sections
+        # without a position keep their original relative order (stable sort).
+        result["sections"].sort(key=lambda s: s.get("position", 9999))
 
     # Source-code / query entities (e.g. SPARQL, Cypher) — rendered as their
     # own accordion showcase, not just left invisible inside a nested
@@ -435,6 +675,10 @@ def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
             "target": target,
             "iri": str(code),
         })
+
+    # Synopsis executive-summary deck slots (meta, spotlight groups, citation
+    # chips, quotation) -- generic and optional; see _extract_deck docstring.
+    result["deck"] = _extract_deck(g, main_entity)
 
     return result
 

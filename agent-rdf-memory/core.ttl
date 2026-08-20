@@ -8,7 +8,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent RDF Memory Core"@en ;
     schema:description "Core ontology and user identity for the agent RDF memory system."@en ;
-    schema:dateModified "2026-07-02T17:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T23:59:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentMemory .
 
@@ -69,6 +69,38 @@
     owl:sameAs <https://www.linkedin.com/in/kidehen#this> ,
                <https://x.com/kidehen#this> ,
                <https://substack.com/@kidehen#this> .
+
+# ── User Credentials (resolved at session start — see preferences.ttl Step 209) ──
+
+:credentialsRoot a schema:PropertyValue ;
+    schema:name "CREDENTIALS_ROOT"@en ;
+    schema:description "Root directory for all YouID/WebID PKCS#12 credential bundles referenced elsewhere in preferences.ttl as {CREDENTIALS_ROOT}."@en ;
+    schema:value "/Users/kidehen/Documents/Management/Marketing/WebID" ;
+    schema:dateCreated "2026-08-16"^^xsd:date .
+
+:userPrincipalCredentials a schema:PropertyValue ;
+    schema:name "User principal PKCS#12 bundle (link-in-bio-credentials-5)"@en ;
+    schema:description "Kingsley's principal WebID-TLS credential bundle — cert.p12 (plus cert.pem, cert.crt, profile.ttl, certificate.ttl siblings). WebID SAN: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid, owl:sameAs the canonical identity https://www.linkedin.com/in/kidehen#this. Passphrase is never stored here — resolved at unlock time via the chain in howto/p12-passphrase-retrieval.ttl (macOS Keychain item uriburner-p12 first, /tmp/uyi KEY=VALUE file as fallback, user elicitation last), and never printed, logged, or persisted."@en ;
+    schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12" ;
+    schema:dateCreated "2026-08-16"^^xsd:date .
+
+:p12PassphraseKeychainItem a schema:PropertyValue ;
+    schema:name "Principal PKCS#12 passphrase — macOS Keychain item"@en ;
+    schema:description "PRIMARY source for the link-in-bio-credentials-5 cert.p12 unlock passphrase, LIVE as of 2026-08-18. Generic-password item; read with: security find-generic-password -s uriburner-p12 -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Verified end-to-end: unlocks cert.p12 via openssl and completed an authenticated call against linkeddata.uriburner.com. Replaces /tmp/uyi as primary because that file was mode -rw-r--r-- (world-readable plaintext) in a shared directory; /tmp/uyi remains present as fallback until the user removes it. Passphrase only — the CLIENT CERTIFICATE remains the .p12 FILE at :userPrincipalCredentials, since this environment's curl (LibreSSL-backed) cannot consume a Keychain identity directly for --cert (tested and rejected 2026-08-18, curl error 58). The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s uriburner-p12 -a \"$USER\" -w" ;
+    schema:dateCreated "2026-08-18"^^xsd:date .
+
+:agentDelegateCredentials a schema:PropertyValue ;
+    schema:name "Agent delegate PKCS#12 bundle (link-in-bio-agent-credentials)"@en ;
+    schema:description "The agent's own delegated WebID-TLS credential bundle, used for on-behalf-of operations per oplcert:hasIdentityDelegate."@en ;
+    schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/cert.p12" ;
+    schema:dateCreated "2026-08-16"^^xsd:date .
+
+:virtuosoLocalDbaPasswordKeychainItem a schema:PropertyValue ;
+    schema:name "Local Virtuoso dba account password — macOS Keychain item"@en ;
+    schema:description "PRIMARY source for the local Virtuoso instance's dba account password (port 1111), LIVE as of 2026-08-19. Generic-password item; read with: security find-generic-password -s virtuoso-local-dba -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Migrated from /tmp/uyi (DBA_PWD=...) with the user's permission, same pattern as :p12PassphraseKeychainItem but a DISTINCT keychain item — the two secrets are never shared or overloaded onto one entry. VERIFIED end-to-end 2026-08-19: an initial migration surfaced a stale /tmp/uyi value (Bad login, VD CL034); the user corrected /tmp/uyi, the Keychain item was re-synced, and isql login now succeeds using the Keychain-sourced value. See howto/virtuoso-local-dba-passphrase-retrieval.ttl. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s virtuoso-local-dba -a \"$USER\" -w" ;
+    schema:dateCreated "2026-08-19"^^xsd:date .
 
 # ── Output Paths ─────────────────────────────────────────────────────────────
 

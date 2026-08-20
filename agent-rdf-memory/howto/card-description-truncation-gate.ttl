@@ -17,7 +17,7 @@
 :cardTruncationFixes a schema:HowTo ;
     schema:name "Word-boundary-safe, ellipsis-marked description truncation; min-width:0 + overflow-wrap on every generic card"@en ;
     schema:description "Two independent generator bugs surfaced by one user report ('needs an aesthetic clean... note the text overflow'): a silent content-loss bug (truncation) and a silent layout bug (overflow) that happened to compound on the same card, because a hand-authored schema:description crossed the 400-char cliff at the same time the card's title happened to be a long raw filename."@en ;
-    schema:step :step-truncationBug, :step-truncationFix, :step-overflowBug, :step-overflowFix, :step-contentFix .
+    schema:step :step-truncationBug, :step-truncationFix, :step-overflowBug, :step-overflowFix, :step-contentFix, :step-singleItemFeatureBlock .
 
 :step-truncationBug a schema:HowToStep ;
     schema:position 1 ;
@@ -43,4 +43,23 @@
     schema:position 5 ;
     schema:name "Content fix for this specific card: stop using a raw filename as a card h3 title — give it a short human-readable schema:name, move the filename to schema:alternateName (not rendered), and keep the description under ~500 chars so it never approaches even the new 600-char limit"@en ;
     schema:text "Renamed the card from the bare 'why-the-triple-is-the-wrong-grain-rebuttal-demo-data-claude_code-1.ttl' to 'Companion Demo Dataset (Turtle)' as the display schema:name; the actual filename moved to schema:alternateName (a property the generic card renderer does not read, so it no longer appears in the compact card — full traceability is still available via the entity's own describe/ page). This is the same principle as the footer's .path-chip pattern (small monospace filename display, not a giant unbroken heading) applied to a different card type. Caught a stale count in the same pass: the section's own description still said 'eight SPARQL queries' after a ninth query (:demoQ9) had been added in an earlier turn — fixed to 'nine'."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified .
+
+# ── Step 6 (2026-08-18): the 600-char cap is a GRID rule, and a lone grid card is a layout defect ──
+
+:step-singleItemFeatureBlock a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "A section with exactly ONE child must render as a full-width .feature-block using the UNTRUNCATED description — not as a lone .cards-grid card capped at 600 chars"@en ;
+    schema:text """Two compounding defects found 2026-08-18 when the user asked whether the critical-perspective section 'needs a layout cleanup'. Measured on the live page: the section rendered a SINGLE .card at 562px inside a 1100px .cards-grid, leaving ~538px of dead space beside the document's most load-bearing argument — auto-fill sizes one item to one track and cannot fill the row. Separately, extract_description()'s blanket 600-char cap had silently cut that argument from 1286 chars to 629, ending mid-sentence on an ellipsis: half the reasoning was simply absent from the page while the RDF held it in full.
+
+The cap itself is NOT wrong — Steps 1-2 above added it so a GRID of many cards keeps roughly uniform heights, and that rationale is sound. It just does not apply when a single entity IS the section's whole content: there is nothing else in the row to stay uniform with. The defect was applying a grid heuristic to a non-grid layout.
+
+FIX (both at the shared generator, not per-document):
+1. rdf_parser.py gained extract_description_full() (same rdfs:comment -> schema:description -> schema:text precedence, no truncation) and now carries description_full on every section child alongside the capped description. Callers pick the variant matching the layout they render.
+2. html_assembler.py's section renderer gained a len(items) == 1 branch BEFORE the cards-grid branch, emitting <div class="feature-block"> with description_full.
+3. styles.css .feature-block: full width, border-left:4px solid var(--accent) marking it as a distinct editorial voice, 1rem/1.75 prose sized for reading an argument rather than scanning a card.
+
+The accent rule is deliberate beyond aesthetics: these single-child sections are typically agent-authored critical perspectives, and reading visibly different from the source article's reported narrative supports the same author/accountablePerson separation kg-curation-attribution.ttl enforces in the metadata.
+
+VERIFY: grep the rendered HTML for a .cards-grid containing exactly one .card (should be zero), and compare the rendered body length against the source literal's length for any single-child section."""@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified .

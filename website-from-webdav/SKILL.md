@@ -55,3 +55,4 @@ Establish these before publishing anything:
 - Delete any prior conflicting `VHOST_DEFINE` for the same host/path before redefining it, same as `weblog-from-webdav`'s route-remove-then-redefine pattern.
 - Treat the certificate-bearing identity and the delegated principal as separate facts: `-X`/`--cert` identifies the calling agent, `-W`/`On-Behalf-Of` identifies the WebID principal whose ACL rights should be evaluated.
 - Never write credentials into the skill, generated SQL, logs, or committed files.
+- **Remote uploads and removals** follow the same HTTP → WebDAV → iSQL order and principal PKCS#12 pattern (`howto/remote-webdav-upload.ttl`, `howto/remote-resource-removal.ttl`, prefs Steps 215–216). URIBurner writes/deletes go to port 5443. Report `:5443` GET and public 443 GET separately after PUT; after DELETE, verify the user-named URL, slash variants, `:5443` GET, and the folder listing before claiming removal.

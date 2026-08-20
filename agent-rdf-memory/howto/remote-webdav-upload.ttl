@@ -5,15 +5,20 @@
 
 <> a schema:HowTo ;
     schema:name "Remote WebDAV Upload — URIBurner Default, User-Designated Alternative"@en ;
-    schema:description "Workflow for uploading locally generated artifacts (HTML, RDF, MD) to a remote WebDAV server. URIBurner is the default endpoint; the user may designate an alternative. Uses curl with PKCS#12 client certificate for WebID-TLS authentication and optional On-Behalf-Of header for delegated identity."@en ;
+    schema:description "Workflow for uploading locally generated artifacts (HTML, RDF, MD) to a remote WebDAV server. URIBurner is the default endpoint; the user may designate an alternative. Uploads use the same attempt order and PKCS#12 credentials pattern as remote removals (HTTP first, then WebDAV, then iSQL). Updated 2026-08-18 after successful :5443 HTTP PUTs of grok-bot-fourth-moment-of-ai-grok_4_6-1.* with --cert-type P12 --cert {principal-p12} --pass $MTLS_PKCS12_PW."@en ;
     schema:dateCreated "2026-06-10T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-10T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T16:20:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
-        :step-constructCurl, :step-executeConfirm ;
+        :step-constructCurl, :step-executeConfirm, :step-tryHttpPutFirst,
+        :step-tryWebdavPutSecond, :step-tryIsqlPutThird, :step-uploadVerification ;
     schema:step :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
-        :step-constructCurl, :step-executeConfirm ;
-    rdfs:seeAlso <../preferences.ttl#step-remoteWebdavUpload> .
+        :step-constructCurl, :step-executeConfirm, :step-tryHttpPutFirst,
+        :step-tryWebdavPutSecond, :step-tryIsqlPutThird, :step-uploadVerification ;
+    rdfs:seeAlso <../preferences.ttl#step-remoteWebdavUpload>,
+        <../preferences.ttl#step-remoteUploadOrder>,
+        <remote-resource-removal.ttl>,
+        <../preferences.ttl#step-remoteRemovalOrder> .
 
 # ── Step 1: Offer Upload ──────────────────────────────────────────────────────
 
@@ -55,59 +60,22 @@ Ask: "Use On-Behalf-Of identity delegation? If so, provide the WebID URI." """@e
 
 :step-elicitCredentials a schema:HowToStep ;
     schema:position 3 ;
-    schema:name "Elicit PKCS#12 client certificate credentials"@en ;
-    schema:text """The curl upload uses mTLS (Mutual TLS) with a PKCS#12 client certificate bundle for WebID-TLS authentication.
-
-**Procedure:**
-1. Ask the user for the path to their PKCS#12 file (`.p12` or `.pfx`).
-2. Ask for the PKCS#12 access password (input will be hidden/sensitive).
-3. Ask for the CA certificate bundle path (optional; defaults to system CA store if omitted).
-4. If the user has an `mtls-curl` skill configured, reuse those stored credentials.
-
-**Security:** Never log or store the password in session memory. Mask it as `[REDACTED]` if it appears in any trace output."""@en .
+    schema:name "Resolve PKCS#12 client certificate credentials (Keychain first, /tmp/uyi fallback)"@en ;
+    schema:text """Do not re-elicit the PKCS#12 path. Use core.ttl :userPrincipalCredentials, and resolve the passphrase via the chain in howto/p12-passphrase-retrieval.ttl — macOS Keychain item uriburner-p12 FIRST, /tmp/uyi first KEY=VALUE as fallback. Same credential pattern as remote removals: --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Never extract a PEM to TMPDIR. Never put the passphrase on the --cert path as file.p12:password. Never log or store the password."""@en .
 
 # ── Step 4: Construct Curl Command ────────────────────────────────────────────
 
 :step-constructCurl a schema:HowToStep ;
     schema:position 4 ;
     schema:name "Construct the curl PUT command"@en ;
-    schema:text """Build the curl command using the elicited values.
+    schema:text """Standing HTTP PUT (URIBurner WebID-TLS). Passphrase is $MTLS_PKCS12_PW, resolved keychain-first per p12-passphrase-retrieval.ttl and never interpolated into --cert:
 
-**Base template:**
-```bash
-curl -k \\
-  --cert-type P12 \\
-  --cert {pkcs12-path}:{password} \\
-  {--cacert {ca-path} /* optional */} \\
-  {-H "On-Behalf-Of: {webid-uri}" /* optional */} \\
-  -X PUT \\
-  --upload-file {local-file-path} \\
-  {remote-url}
-```
+curl -sk --cert-type P12 --cert \"$P12\" --pass \"$MTLS_PKCS12_PW\" \\
+  -X PUT -H \"Content-Type: {mime}\" \\
+  --upload-file {local-file} \\
+  \"https://linkeddata.uriburner.com:5443/DAV/demos/daas/{filename}\"
 
-**Example (URIBurner daas_paid, with OBO):**
-```bash
-curl -k \\
-  --cert-type P12 \\
-  --cert /path/to/cert.p12:secret \\
-  --cacert /path/to/ca-bundle.crt \\
-  -H "On-Behalf-Of: https://my.webid.org/#this" \\
-  -X PUT \\
-  --upload-file ./world-cup-2026-meshup-kg-1.html \\
-  https://linkeddata.uriburner.com/DAV/demos/daas_paid/world-cup-2026-meshup-kg-1.html
-```
-
-**Example (alternative endpoint, no OBO):**
-```bash
-curl -k \\
-  --cert-type P12 \\
-  --cert /path/to/cert.p12:secret \\
-  -X PUT \\
-  --upload-file ./my-file.ttl \\
-  https://custom-webdav.example.com/dav/my-file.ttl
-```
-
-**Show the user the full command before executing** so they can review it. Ask for confirmation."""@en .
+Port 443 on linkeddata.uriburner.com does not consume the client cert (PUT returns 401). Use :5443. Show the user the command with the passphrase as ****. Ask for confirmation unless they already authorized the upload."""@en .
 
 # ── Step 5: Execute with Confirmation ─────────────────────────────────────────
 
@@ -131,3 +99,25 @@ curl -k \\
 - If the connection fails due to TLS/certificate issues, suggest checking the PKCS#12 password and CA bundle.
 - If the server returns 401/403, the certificate may not be authorized for the target DAV path.
 - If the server returns 404, the DAV path may not exist — suggest verifying the endpoint URL."""@en .
+
+:step-tryHttpPutFirst a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Attempt 1 — HTTP PUT"@en ;
+    schema:text "First upload attempt is HTTP PUT on the WebID-TLS listener using :step-constructCurl. Success is HTTP 200, 201, or 204. Do not skip to WebDAV or iSQL while HTTP has not been tried. Same order as removals (preferences Step 215 / 216)."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-remoteUploadOrder>,
+        <remote-resource-removal.ttl#step-tryHttpFirst> .
+
+:step-tryWebdavPutSecond a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Attempt 2 — WebDAV, only if HTTP PUT failed"@en ;
+    schema:text "If HTTP PUT is 4xx/5xx or times out, retry with WebDAV on the same :5443 URL and same p12: PROPFIND the parent, then PUT again, or COPY/MOVE from a staging href. Do not invent a second credential path."@en .
+
+:step-tryIsqlPutThird a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "Attempt 3 — iSQL DAV upload, only if HTTP and WebDAV failed"@en ;
+    schema:text "Last resort: isql with empty username, -X {p12-path}, -T {ca-bundle}, -W {principal WebID}, then DB.DBA.DAV_RES_UPLOAD / DAV_RES_UPLOAD_STRSES_INT for the named path. Preview with the passphrase as ****."@en .
+
+:step-uploadVerification a schema:HowToStep ;
+    schema:position 9 ;
+    schema:name "Report :5443 GET and public 443 GET separately — do not treat 443 401 as upload failure or as public success"@en ;
+    schema:text "After a 2xx PUT, GET the :5443 URL with the same p12 (expect 200) and PROPFIND the parent for the filename. Also GET the public https://linkeddata.uriburner.com{dav-path} URL. New resources on URIBurner daas often return 401 anonymously (owner-only ACL) even when the PUT succeeded — say that plainly. Never claim a public browseable URL from a :5443-only 200."@en .

@@ -1,6 +1,7 @@
 @prefix : <#> .
 @prefix schema: <http://schema.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 : a schema:CreativeWork ;
     schema:about :noUnauthorizedDeletion .
@@ -10,7 +11,9 @@
     schema:description "Files must never be deleted without the user's explicit, unambiguous approval. This rule was established after an agent deleted okf-infographic-claude_sonnet_4_6-1.html from Claude Generated/webpages/ without explicit approval during the OKF model attribution correction task on 2026-06-15."@en ;
     schema:dateCreated "2026-06-15T13:00:00Z"^^xsd:dateTime ;
     schema:dateModified "2026-06-15T13:00:00Z"^^xsd:dateTime ;
-    schema:step :step1, :step2, :step3 .
+    schema:step :step1, :step2, :step3 ;
+    rdfs:seeAlso <remote-resource-removal.ttl>,
+        <../preferences.ttl#step-remoteRemovalOrder> .
 
 :step1 a schema:HowToStep ;
     schema:position 1 ;

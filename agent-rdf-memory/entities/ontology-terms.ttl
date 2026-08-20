@@ -258,6 +258,31 @@ karp:CriticalPerspective a rdfs:Class ;
 
 Property alignments use owl:inverseOf rather than owl:equivalentProperty because P-Plan's argument order is reversed relative to this ontology's — equivalentProperty would assert a false direction-preserving equivalence. Tradeoff noted to the user before implementing: P-Plan is a niche vocabulary (mostly scientific-workflow/provenance contexts) — real interop value only if a consumer actually has a P-Plan-aware tool/reasoner; otherwise it's a fourth external prefix with no practical payoff. User approved proceeding."""@en ;
     schema:dateCreated "2026-08-04T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── 6. Intelligence Allocation Ontology (intel:) — 2026-08-19 ─────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Minted by the Right-Sizing Your Intelligence Spend collection (DeepSeek V4 Flash,
+# 2026-08-19) because no shared ontology covers workload intelligence thresholds /
+# tier routing. Registered here per cross-document-local-term-reuse.ttl so future
+# collections bind the DAV namespace below instead of re-minting disjoint terms.
+#   intel: = <https://linkeddata.uriburner.com/DAV/demos/daas/ontology/intelligence-allocation#>
+# Classes: Workload, Workflow, WorkloadProfile, IntelligenceThreshold, IntelligenceTier,
+#   ValueClass, BottleneckType, ExecutionSurface, RoutingPolicy
+# Properties: hasIntelligenceThreshold, requiresTier, hasValueClass, hasBottleneck,
+#   belongsToWorkflow (rdfs:subPropertyOf schema:isPartOf), routesTo, appliesTo,
+#   verifiesVia, hasTokenSensitivity, hasOverqualificationRisk,
+#   hasMarginalValueOfIntelligence, intelligenceConsumedPerOutcome, hasWorkflowDomain
+
+:intelIntelligenceAllocation a owl:Ontology ;
+    rdfs:label "Intelligence Allocation Ontology (intel:)"@en ;
+    rdfs:comment "Canonical DAV namespace for the Intelligence Allocation Ontology minted 2026-08-19 in right-sizing-intelligence-spend-deepseek_v4flash-1.ttl (1,483-triple collection). Nine classes and thirteen properties, every term carrying rdfs:label/comment/domain/range and verified external cross-references (dbpedia:Business_process, dbpedia:Artificial_intelligence, dbpedia:Basic_research, dbpedia:Applied_science, dbpedia:Automation, dbpedia:Software_agent, dbpedia:Decision-making, dbpedia:Enterprise_software, wd:Q11538, wd:Q1418791, wd:Q3510521)."@en ;
+    rdfs:isDefinedBy :ontology ;
+    schema:dateCreated "2026-08-19T14:43:35Z"^^xsd:dateTime ;
+    rdfs:seeAlso <https://linkeddata.uriburner.com/DAV/demos/daas/ontology/intelligence-allocation#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # ── 7. LLM Routing Ontology (llmr:) — 2026-08-19 ──────────────────────────────
 # ═══════════════════════════════════════════════════════════════════════════════
 #

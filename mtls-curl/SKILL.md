@@ -180,6 +180,27 @@ If not found or not confirmed, prompt:
 
 ## Mode A — HTTP/HTTPS via `curl`
 
+### Standing credential pattern (this operator)
+
+For URIBurner / WebID-TLS work, use the **PKCS#12 file path** from `core.ttl` (`:userPrincipalCredentials`), not a PEM extracted into `TMPDIR`:
+
+```bash
+export MTLS_PKCS12_PW="$(python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+P12="{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12"
+curl -sk --cert-type P12 --cert "$P12" --pass "$MTLS_PKCS12_PW" ...
+unset MTLS_PKCS12_PW
+```
+
+Prefer `--cert "$P12" --pass "$MTLS_PKCS12_PW"` over `--cert file.p12:$PASSWORD`. Against `linkeddata.uriburner.com` DAV, use port **5443**.
+
+### Remote upload and removal (HTTP → WebDAV → iSQL)
+
+Same credentials and the same attempt order for both writes and deletes. Prefs Steps 215–216; `howto/remote-webdav-upload.ttl` and `howto/remote-resource-removal.ttl`.
+
+**Upload:** HTTP `PUT --upload-file` first on `https://linkeddata.uriburner.com:5443{dav-path}`. WebDAV only if PUT failed. iSQL `DAV_RES_UPLOAD` / `DAV_RES_UPLOAD_STRSES_INT` last. Report `:5443` GET and public 443 GET separately (443 is often 401 on a successful new PUT).
+
+**Removal:** HTTP `DELETE` first on the same `:5443` URL. WebDAV only if DELETE failed. iSQL `DAV_DELETE` last. Do not claim the object is gone until the user-named URL, public 443 URL, `:5443` GET, and the folder listing all agree it is absent.
+
 ---
 
 ## Step 1 — Validate the Certificate Bundle

@@ -5,15 +5,15 @@
 
 <> a schema:HowTo ;
     schema:name "Harness Contract Compliance — IDs, Footer Labels, SPARQL Format, and ERE Workaround"@en ;
-    schema:description "Four rules for passing the rdf-infographic-skill harness validator: exact HTML element IDs and attributes, exact footer label casing, required SPARQL format guidance prose, and the macOS ERE regex workaround."@en ;
+    schema:description "Five rules for passing the rdf-infographic-skill harness validator and kg-generator's compliance script: exact HTML element IDs and attributes, exact footer label casing, required SPARQL format guidance prose, the macOS ERE regex workaround, and the DBpedia-CURIE false-positive check to ignore."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-05T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-harnessIds, :step-footerLabels,
-        :step-sparqlFormat, :step-complianceBug ;
+        :step-sparqlFormat, :step-complianceBug, :step-dbrCurieFalsePositive ;
     schema:step :step-harnessIds, :step-footerLabels,
-        :step-sparqlFormat, :step-complianceBug ;
-    rdfs:seeAlso <../preferences.ttl#step-harnessIds>, <../preferences.ttl#step-sparqlFormat>, <../preferences.ttl#step-footerLabels>, <../preferences.ttl#step-headingFragmentIds>, <../preferences.ttl#step-sparqlBtnFooterAnchor>, <../preferences.ttl#step-sparqlWorkbenchPlacement>, <../preferences.ttl#step-complianceBug> .
+        :step-sparqlFormat, :step-complianceBug, :step-dbrCurieFalsePositive ;
+    rdfs:seeAlso <../preferences.ttl#step-harnessIds>, <../preferences.ttl#step-sparqlFormat>, <../preferences.ttl#step-footerLabels>, <../preferences.ttl#step-headingFragmentIds>, <../preferences.ttl#step-sparqlBtnFooterAnchor>, <../preferences.ttl#step-sparqlWorkbenchPlacement>, <../preferences.ttl#step-complianceBug>, <../preferences.ttl#step-dbrCurieFalsePositive> .
 
 # ── Step 1: Harness Validator ID Conventions ─────────────────────────────────
 
@@ -42,3 +42,10 @@
     schema:position "4"^^xsd:integer ;
     schema:name "Work around macOS ERE regex bug in validate-kg-compliance.sh"@en ;
     schema:text """validate-kg-compliance.sh line 86 uses a grep -qE pattern intended to match colon followed by whitespace, comma, semicolon, or close parenthesis. In ERE on macOS, the whitespace escape in that pattern is not portable, causing a false 'Ontology not linked via schema:hasPart' failure even when :ontology is correctly listed in schema:hasPart. Workaround: add a standalone comment line '# schema:hasPart : ' in the Turtle file so the -A2 grep context picks up a match. Do not alter the script."""@en .
+
+# ── Step 5: KG Compliance Script DBpedia CURIE False Positive ───────────────
+
+:step-dbrCurieFalsePositive a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Treat validate-kg-compliance.sh's 'Prefixed DBpedia/Wikidata CURIEs found' check as a known false positive, not a rule to satisfy"@en ;
+    schema:text """validate-kg-compliance.sh check 13 (line ~222) flags ANY use of dbr:/dbo:/dbp:/wd:/wdt: CURIEs at all via a blunt grep, even normal ones like dbr:Kenneth_Arrow or dbr:Anthropic that have no parentheses or trailing dots. This contradicts actual corpus practice (kg-generator's own Thesis & Framework template item 12 only requires FULLY EXPANDING the specific IRIs that break as CURIEs — those containing parens like dbr:Cursor_(code_editor) or a trailing dot like dbr:Alphabet_Inc. — not every DBpedia reference). Confirmed 2026-08-18: running the script against the known-good, already-delivered reverse-information-paradox-claude_sonnet_5-1.ttl (which freely uses dbr:Kenneth_Arrow, dbr:Alex_Karp, dbr:Microsoft as CURIEs) reproduces the identical FAIL. Do not fully expand every DBpedia/Wikidata reference to satisfy this check — only expand the parenthesized/dotted ones that actually break Turtle CURIE parsing, and cross-check a compliance-script failure against a known-good precedent file before treating it as a real defect."""@en .

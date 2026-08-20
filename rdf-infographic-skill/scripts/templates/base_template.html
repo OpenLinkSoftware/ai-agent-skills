@@ -1,6 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
+<script>
+// Apply a saved theme choice before first paint (avoids a flash of the
+// wrong theme). If unset, data-theme stays absent and the OS-preference
+// @media(prefers-color-scheme:dark) :not([data-theme="light"]) rule in
+// styles.css governs — never hardcode data-theme="light" on <html>, or an
+// explicit light choice made via the toggle can never win against a
+// user's dark OS preference (that unguarded-media-query bug shipped on
+// generated pages until 2026-08-19 — see howto/theme-toggle-os-preference-guard.ttl).
+(function() {
+  try {
+    var saved = localStorage.getItem('kg-theme-pref');
+    if (saved === 'dark' || saved === 'light') {
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+  } catch (e) {}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }} — Interactive Infographic</title>
@@ -234,6 +251,7 @@
         <h4>Generation environment</h4>
         <div class="soft-list">
           <p><a href="{{ llm_url }}" target="_blank" rel="noopener noreferrer">{{ llm_name }}</a>{% if agent_env %} · {{ agent_env }}{% endif %}</p>
+          {% if revised_by_name %}<p>Revised by <a href="{{ revised_by_url }}" target="_blank" rel="noopener noreferrer">{{ revised_by_name }}</a></p>{% endif %}
           <p>rdflib parse + harness validation</p>
         </div>
       </div>
@@ -286,11 +304,32 @@ const kgData = {{ kgdata_json }};
   var navToggle = document.getElementById('nav-toggle');
   var navLinks = document.getElementById('nav-links');
 
+  // Sync the button icon/label to whatever theme is actually resolved on
+  // load (an explicit data-theme from the pre-paint restore script, or the
+  // OS preference if neither an explicit choice nor a saved one exists) —
+  // otherwise the icon can show the wrong state until the first click.
+  (function() {
+    var resolved = document.documentElement.getAttribute('data-theme');
+    if (!resolved) {
+      resolved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    themeToggle.textContent = resolved === 'dark' ? '🌜' : '🌓';
+    themeToggle.setAttribute('aria-label', 'Toggle ' + (resolved === 'dark' ? 'light' : 'dark') + ' mode');
+  })();
+
   themeToggle.addEventListener('click', function() {
     var html = document.documentElement;
     var current = html.getAttribute('data-theme');
-    var next = current === 'light' ? 'dark' : 'light';
+    if (!current) {
+      // No explicit choice yet: the visible theme is whatever the OS
+      // preference media query is currently rendering, not a hardcoded
+      // default — resolve it the same way before deciding which way to
+      // flip, or a first click can be a silent no-op for OS-light users.
+      current = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    var next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
+    try { localStorage.setItem('kg-theme-pref', next); } catch (e) {}
     themeToggle.textContent = next === 'dark' ? '🌜' : '🌓';
     themeToggle.setAttribute('aria-label', 'Toggle ' + (next === 'dark' ? 'light' : 'dark') + ' mode');
   });
@@ -398,6 +437,25 @@ const kgData = {{ kgdata_json }};
   resetTimer();
 })();
 
+// Alternate section backgrounds in real document order. html_assembler.py and
+// this template each hardcode class="section section-alt" on every section
+// they emit (synopsis, every RDF-driven analysis-N section, KG Explorer,
+// SPARQL Workbench, HowTo, FAQ, Glossary) because neither knows how many
+// sections the other will produce or in what order — there is no shared
+// counter across the two files. The result was every section rendering with
+// the identical tinted background: no alternating rhythm anywhere on the
+// page. Fixed here, once, client-side, using actual DOM order — reliable
+// regardless of section count or which generator emitted which section.
+(function(){
+  var topLevel = Array.prototype.filter.call(
+    document.querySelectorAll('.section'),
+    function(el){ return !el.parentElement.closest('.section'); }
+  );
+  topLevel.forEach(function(el, i){
+    el.classList.toggle('section-alt', i % 2 === 0);
+  });
+})();
+
 // Scroll animations
 (function(){
   var observer = new IntersectionObserver(function(entries) {
@@ -461,8 +519,29 @@ const kgData = {{ kgdata_json }};
     var encoded = encodeURIComponent(q);
     var graphEl = document.getElementById('sparqlGraph');
     var graph = graphEl ? graphEl.value : '';
+    // Format selection per the harness contract: SELECT -> text/x-html+tr,
+    // DESCRIBE/CONSTRUCT -> text/x-html-nice-turtle. EXCEPTION (live-verified
+    // against Virtuoso 08.03.3335, 2026-08-15): a SELECT that projects a
+    // triple-term value produced via the TRIPLE() function -- e.g.
+    // BIND(TRIPLE(?s, ?p, ?o) AS ?x) -- makes the text/x-html+tr HTML-table
+    // writer fail with "Error SR066: Unsupported case in CONVERT
+    // (ARRAY_OF_POINTER -> VARCHAR)". A triple term produced via the <<>>
+    // literal syntax (not the TRIPLE() function) is unaffected and renders
+    // fine in text/x-html+tr. Route TRIPLE()-bearing SELECTs to JSON instead,
+    // which handles both forms correctly. See preferences.ttl and
+    // howto/live-sparql-verification-against-loaded-graph.ttl.
+    var isConstructOrDescribe = /^\s*(CONSTRUCT|DESCRIBE)\b/i.test(q);
+    var usesTripleFunction = /\bTRIPLE\s*\(/i.test(q);
+    var format;
+    if (isConstructOrDescribe) {
+      format = 'text%2Fx-html-nice-turtle';
+    } else if (usesTripleFunction) {
+      format = 'application%2Fsparql-results%2Bjson';
+    } else {
+      format = 'text%2Fx-html%2Btr';
+    }
     // Prefer GRAPH-scoped query body (recipes already include GRAPH); keep format contract.
-    var href = endpoint + '?default-graph-uri=&query=' + encoded + '&format=text%2Fx-html%2Btr&timeout=0&debug=on&run=+Run+Query+';
+    var href = endpoint + '?default-graph-uri=&query=' + encoded + '&format=' + format + '&timeout=0&debug=on&run=+Run+Query+';
     if (sparqlBtn) sparqlBtn.href = href;
     if (liveLink) liveLink.href = href;
   }

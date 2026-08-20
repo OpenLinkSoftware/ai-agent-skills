@@ -174,10 +174,33 @@ function initKGExplorer(config) {
       .force('collision', d3.forceCollide(30));
     window._kgSim = sim;
 
-    var linkLines = d3.select(g).selectAll('line.link-line').data(linkGroups).join('line')
-      .attr('stroke', '#94A3B8').attr('stroke-width', 1.5).attr('stroke-opacity', 0.5)
-      .attr('marker-end', function(d) { return arrowStyle === 'none' ? null : 'url(#arrow-end)'; });
+    // Invisible wide "hit" lines sit under the real lines purely to make
+    // hovering a thin 1.5px edge reliable — the visible line stays thin so
+    // the graph doesn't read as a tangle of thick strokes.
+    var linkHitLines = d3.select(g).selectAll('line.link-hit').data(linkGroups).join('line')
+      .attr('class', 'link-hit')
+      .attr('stroke', 'transparent').attr('stroke-width', 14)
+      .style('cursor', 'pointer');
 
+    var linkLines = d3.select(g).selectAll('line.link-line').data(linkGroups).join('line')
+      .attr('class', 'link-line')
+      .attr('stroke', '#94A3B8').attr('stroke-width', 1.5).attr('stroke-opacity', 0.5)
+      .attr('marker-end', function(d) { return arrowStyle === 'none' ? null : 'url(#arrow-end)'; })
+      .style('pointer-events', 'none');
+
+    // Predicate labels are visible by default — the harness contract lists
+    // "Edge/connector labels that are clickable hyperlinks to property/type
+    // IRIs" as a plain (non-hover-gated) Basic Mode requirement; only the
+    // tooltip/highlight are explicitly hover behaviors. To avoid label
+    // spaghetti once a view has many edges, labels dim to a low base opacity
+    // above a link-count threshold rather than disappearing entirely, and
+    // hover always brings any label to full opacity/contrast. Every label
+    // keeps its resolver-backed <a> anchor at all opacity levels — this is
+    // a visibility tune, not a change to the dereferenceable structure.
+    // See howto/kg-explorer-label-density.ttl Step 3 (corrects Step 1's
+    // opacity:0-by-default, which a live-page user report found made labels
+    // practically undiscoverable despite being technically dereferenceable).
+    var baseLabelOpacity = filteredLinks.length <= 90 ? 0.82 : 0.28;
     var linkGs = d3.select(g).selectAll('g.link-label-group').data(linkGroups).join('g').attr('class', 'link-label-group pred-anchor');
     var predAnchor = linkGs.append('a')
       .attr('data-resolver-href', function(d) { return resolveIRI(resolvePredicateIRI(d.label)) || ''; })
@@ -193,13 +216,30 @@ function initKGExplorer(config) {
       });
     predAnchor.append('text')
       .text(function(d) { return d.label; })
-      .attr('font-size', '9').attr('fill', '#94A3B8')
-      .attr('text-anchor', 'middle').attr('dy', '-4');
+      .attr('font-size', '9.5').attr('fill', '#64748B')
+      .attr('paint-order', 'stroke').attr('stroke', 'var(--bg)').attr('stroke-width', '3')
+      .attr('text-anchor', 'middle').attr('dy', '-4')
+      .attr('opacity', baseLabelOpacity).style('transition', 'opacity .15s ease').style('pointer-events', 'none');
 
-    linkLines.on('click', function(e, d) {
-      e.stopPropagation();
-      openInResolver(resolvePredicateIRI(d.label));
-    });
+    function showLinkLabel(d) {
+      linkGs.filter(function(d2) { return d2 === d; }).select('text').attr('opacity', 1);
+      linkLines.filter(function(d2) { return d2 === d; }).attr('stroke-opacity', 0.9).attr('stroke-width', 2.25);
+    }
+    function hideLinkLabel(d) {
+      linkGs.filter(function(d2) { return d2 === d; }).select('text').attr('opacity', baseLabelOpacity);
+      linkLines.filter(function(d2) { return d2 === d; }).attr('stroke-opacity', 0.5).attr('stroke-width', 1.5);
+    }
+
+    linkHitLines
+      .on('mouseenter', function(e, d) { showLinkLabel(d); })
+      .on('mouseleave', function(e, d) { hideLinkLabel(d); })
+      .on('click', function(e, d) {
+        e.stopPropagation();
+        openInResolver(resolvePredicateIRI(d.label));
+      });
+    linkGs
+      .on('mouseenter', function(e, d) { showLinkLabel(d); })
+      .on('mouseleave', function(e, d) { hideLinkLabel(d); });
 
     var nodesG = d3.select(g).selectAll('g.node-group').data(filteredNodes).join('g').attr('class', 'node-group')
       .call(d3.drag().clickDistance(6)
@@ -227,17 +267,26 @@ function initKGExplorer(config) {
       .attr('fill', function(d) { return NODE_COLORS[d.group] || '#94A3B8'; })
       .attr('stroke', '#fff').attr('stroke-width', 2);
 
+    // Labels sit below the circle (y = r + 11), not beside it: a label to
+    // the right collides with any neighbor to the east and forces text to
+    // overlap adjacent nodes/edges in a dense graph — the skill's own
+    // documented node-label-geometry rule (SKILL.md), previously undone in
+    // this file. paint-order:stroke gives contrast against crossing lines.
     nodesG.append('text')
       .text(function(d) { return d.label; })
       .attr('font-size', '10')
-      .attr('dx', 15).attr('dy', 4)
+      .attr('text-anchor', 'middle')
+      .attr('dy', function(d) { return (d.group === 'Class' ? 12 : d.group === 'Property' ? 8 : 10) + 11; })
       .attr('fill', 'var(--text)')
+      .attr('paint-order', 'stroke').attr('stroke', 'var(--bg)').attr('stroke-width', '3')
       .style('pointer-events', 'none');
 
     svg.appendChild(g);
 
     sim.on('tick', function() {
       linkLines.attr('x1', function(d) { return d.source.x; }).attr('y1', function(d) { return d.source.y; })
+        .attr('x2', function(d) { return d.target.x; }).attr('y2', function(d) { return d.target.y; });
+      linkHitLines.attr('x1', function(d) { return d.source.x; }).attr('y1', function(d) { return d.source.y; })
         .attr('x2', function(d) { return d.target.x; }).attr('y2', function(d) { return d.target.y; });
       linkGs.select('text').attr('x', function(d) { return (d.source.x + d.target.x) / 2; }).attr('y', function(d) { return (d.source.y + d.target.y) / 2; });
       nodesG.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });

@@ -24,8 +24,8 @@
 
 :step-classifyTrigger a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Classify the identity query: 'whoami?' → Trigger A (full two-section); 'who are you?' → Trigger B (agent-only)"@en ;
-    schema:text "Identity queries have two triggers. Trigger A — 'whoami?' — produces the full two-section response (User + Agent) with verification badges. Trigger B — 'who are you?' / 'who is this?' / 'identify yourself' — produces only the Agent section: no User lines, no cert verification, no ✅/⚠️ badges."@en .
+    schema:name "Classify the identity query: 'whoami?' and its natural-language equivalents → Trigger A (full two-section); 'who are you?' → Trigger B (agent-only)"@en ;
+    schema:text "Identity queries have two triggers, classified by WHO the question is about, not by exact wording. Trigger A — any query asking about the USER's own identity, including the literal 'whoami?' AND natural-language equivalents like 'who am I?', 'who am I and what are my preferences?', 'what do you know about me?', 'tell me about myself' — produces the full two-section response (User + Agent) with cert-verification badges (see verified-identity.ttl). Trigger B — queries asking about the AGENT's identity: 'who are you?' / 'who is this?' / 'identify yourself' — produces only the Agent section: no User lines, no cert verification, no ✅/⚠️ badges. RULE OF THUMB: if the question's grammatical subject is 'I'/'me'/'my', it is Trigger A regardless of whether the literal string 'whoami' appears. A plain-language User-identity question must not be answered by reading memory facts alone (name, email, owl:sameAs) without also running the Step 2 verification gate — that half-response is the specific failure this step exists to prevent (caught 2026-08-17: 'Who am I and what are my preferences?' was answered from core.ttl/preferences.ttl without cert verification, since the literal string 'whoami' was absent)."@en .
 
 # ── Step 2: Run the Verification Gate (Trigger A Only) ───────────────────────
 

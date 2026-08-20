@@ -1,49 +1,79 @@
+/* PALETTE — OpenLink Software brand scheme. This is the STANDING DEFAULT
+   (preferences.ttl Step 125, howto/openlink-brand-color-scheme.ttl), sourced
+   from openlinksw.com's own opal- / ols- custom properties. A per-document
+   brand instruction from the user still overrides it for that document.
+   NOTE: do not write a literal star-slash inside these comments — it closes
+   the CSS comment early and silently kills the whole :root block.
+   --primary = entity-hyperlink colour; --accent = supporting accent only.
+   --on-accent = ink for text sitting ON a saturated accent/tier fill: white
+   in light (every accent is dark), near-black in dark (accents brighten). */
 :root {
-  --primary: #4F46E5;
-  --primary-light: #818CF8;
-  --secondary: #7C3AED;
-  --accent: #06B6D4;
-  --accent-warm: #F59E0B;
-  --success: #059669;
-  --danger: #DC2626;
-  --neutral-50: #F8FAFC;
-  --neutral-100: #F1F5F9;
-  --neutral-200: #E2E8F0;
-  --neutral-300: #CBD5E1;
-  --neutral-400: #94A3B8;
-  --neutral-500: #64748B;
-  --neutral-600: #475569;
-  --neutral-700: #334155;
-  --neutral-800: #1E293B;
-  --neutral-900: #0F172A;
+  --primary: #1f4e79;
+  --primary-light: #2d6a9f;
+  --secondary: #163a5c;
+  --accent: #00b4ff;
+  --accent-soft: rgba(0,180,255,.12);
+  --accent-warm: #b45309;
+  --success: #047857;
+  --danger: #b91c1c;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
   --bg: #ffffff;
-  --bg-alt: #F8FAFC;
-  --text: #1E293B;
-  --text-secondary: #475569;
+  --bg-alt: #f9fafb;
+  --text: #111827;
+  --text-secondary: #6b7280;
   --card-bg: #ffffff;
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --card-hover-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-  --border: #E2E8F0;
-  --nav-bg: rgba(255,255,255,0.85);
-  --nav-border: rgba(226,232,240,0.8);
-  --hero-from: #1E3A5F;
-  --hero-to: #0F172A;
+  --card-shadow: 0 1px 2px rgba(16,32,52,.06), 0 4px 16px rgba(31,78,121,.06);
+  --card-hover-shadow: 0 2px 4px rgba(16,32,52,.07), 0 18px 40px rgba(31,78,121,.14);
+  --border: #e5e7eb;
+  --border-strong: #d5dbe3;
+  --nav-bg: rgba(255,255,255,0.88);
+  --nav-border: rgba(213,219,227,0.9);
+  --hero-from: #163a5c;
+  --hero-to: #0b1524;
+  --hero-glow: rgba(0,180,255,.30);
+  --hero-ink: #ffffff;
+  --hero-ink-soft: rgba(233,242,250,.80);
+  --hero-hairline: rgba(255,255,255,.16);
+  --focus-ring: rgba(0,180,255,.55);
+  --on-accent: #ffffff;
 }
 html[data-theme="dark"] {
-  --bg: #0F172A;
-  --bg-alt: #1E293B;
-  --text: #E2E8F0;
-  --text-secondary: #94A3B8;
-  --card-bg: #1E293B;
-  --primary: #7dd3fc;
-  --accent: #7dd3fc;
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --card-hover-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.3);
-  --border: #334155;
-  --nav-bg: rgba(15,23,42,0.9);
-  --nav-border: rgba(51,65,85,0.8);
-  --hero-from: #0F172A;
-  --hero-to: #020617;
+  --primary: #00b4ff;
+  --primary-light: #5fd0ff;
+  --secondary: #5fd0ff;
+  --accent: #5fd0ff;
+  --accent-soft: rgba(0,180,255,.16);
+  --accent-warm: #fbbf24;
+  --success: #34d399;
+  --danger: #f87171;
+  --bg: #0b1524;
+  --bg-alt: #101d30;
+  --text: #eef2f7;
+  --text-secondary: #93a3ba;
+  --card-bg: #122238;
+  --card-shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 20px rgba(0,0,0,.32);
+  --card-hover-shadow: 0 2px 6px rgba(0,0,0,.55), 0 20px 44px rgba(0,0,0,.45);
+  --border: #23344c;
+  --border-strong: #2e4361;
+  --nav-bg: rgba(11,21,36,0.90);
+  --nav-border: rgba(46,67,97,0.85);
+  --hero-from: #0e1c2e;
+  --hero-to: #060d17;
+  --hero-glow: rgba(0,180,255,.26);
+  --hero-ink: #f2f7fc;
+  --hero-ink-soft: rgba(200,216,232,.78);
+  --hero-hairline: rgba(255,255,255,.10);
+  --focus-ring: rgba(0,180,255,.65);
+  --on-accent: #08131f;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
@@ -162,6 +192,47 @@ html[data-theme="dark"] .theme-btn:hover{background:var(--neutral-700)}
 .card p{font-size:.9rem;color:var(--text-secondary);line-height:1.6;overflow-wrap:anywhere;word-break:break-word}
 .card .card-icon{font-size:1.8rem;margin-bottom:.5rem}
 
+/* Inline SVG figures (RDF schema:image literals). The SVG carries its own
+   viewBox and uses theme CSS variables for fill/stroke, so it scales with the
+   column and recolours with the theme. overflow-x:auto keeps a wide diagram
+   scrollable inside its own box on phones instead of forcing the page to
+   scroll horizontally; min-width holds the diagram's legible size while doing
+   so, since an SVG squeezed to 320px is unreadable regardless of how it scales. */
+.fig-wrap{margin:2rem 0 0;padding:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-wrap .fig-svg{display:block;width:100%;min-width:620px;height:auto}
+@media (max-width:700px){
+  .fig-wrap{border:1px solid var(--border);border-radius:12px;padding:.75rem;background:var(--card-bg)}
+}
+
+/* Stat band — headline figures from schema:PropertyValue children. The number
+   is the hero; the label is the anchor (resolver-linked, --accent per the
+   entity-link colour rule); the note is supporting detail at reduced weight. */
+.stat-band{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.25rem;margin-top:2rem}
+.stat-tile{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.35rem 1.4rem;box-shadow:var(--card-shadow);min-width:0;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.stat-tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--primary),var(--secondary))}
+.stat-tile:hover{transform:translateY(-3px);box-shadow:var(--card-hover-shadow)}
+.stat-value{font-family:'Poppins',sans-serif;font-size:2.1rem;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--text);display:flex;align-items:baseline;gap:.4rem;flex-wrap:wrap}
+.stat-unit{font-size:.82rem;font-weight:600;color:var(--text-secondary);letter-spacing:0}
+.stat-label{margin-top:.5rem;font-size:.92rem;font-weight:600;overflow-wrap:anywhere}
+.stat-label a{color:var(--accent)}
+.stat-note{margin-top:.4rem;font-size:.83rem;line-height:1.55;color:var(--text-secondary);overflow-wrap:anywhere}
+@media (max-width:520px){
+  .stat-band{grid-template-columns:1fr}
+  .stat-value{font-size:1.85rem}
+}
+
+/* Feature block — a section whose single child IS its content. Full width (no
+   dead grid track beside it), accent rule marking it as a distinct editorial
+   voice, and prose sized for reading an argument rather than scanning a card.
+   Used for critical-perspective / counter-argument sections, where the content
+   is agent-authored commentary and benefits from reading visibly different
+   from the source article's reported narrative. */
+.feature-block{background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:1.75rem 2rem;box-shadow:var(--card-shadow);min-width:0}
+.feature-block h3{font-size:1.25rem;line-height:1.35;margin-bottom:.85rem;color:var(--primary);overflow-wrap:anywhere}
+.feature-block h3 a{color:var(--primary)}
+.feature-block p{font-size:1rem;line-height:1.75;color:var(--text-secondary);margin:0;overflow-wrap:anywhere}
+@media (max-width:640px){ .feature-block{padding:1.25rem 1.15rem} .feature-block h3{font-size:1.1rem} }
+
 /* Timeline */
 .timeline{position:relative;padding-left:2rem;margin-top:2rem}
 .timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
@@ -169,6 +240,32 @@ html[data-theme="dark"] .theme-btn:hover{background:var(--neutral-700)}
 .timeline-item::before{content:'';position:absolute;left:-1.5rem;top:.5rem;width:12px;height:12px;border-radius:50%;background:var(--primary);border:2px solid var(--card-bg)}
 .timeline-item h4{font-size:1rem;margin-bottom:.3rem}
 .timeline-item p{font-size:.88rem;color:var(--text-secondary)}
+
+/* Numbered timeline variant — an ordered RDF sequence (schema:position on
+   every item) rendered as a step-by-step narrative instead of a plain dot
+   marker or flat card grid: a numbered badge per step, connected by its own
+   line, each step's content in its own card, so the sequence reads as a
+   story. Fully self-contained under .timeline.numbered — deliberately does
+   not share geometry with the legacy dot-marker .timeline/.timeline-item
+   rules above (their pixel math is tuned for a 12px dot, not a 2.3rem badge)
+   so existing hand-authored documents using the plain variant are unaffected. */
+.timeline.numbered{position:relative;padding-left:3.25rem;margin-top:2rem}
+.timeline.numbered::before{content:none}
+.timeline.numbered .timeline-item{position:relative;margin-bottom:2rem;padding-left:0}
+.timeline.numbered .timeline-item::before{content:none}
+.timeline.numbered .timeline-item:last-child{margin-bottom:0}
+.timeline.numbered .timeline-item:not(:last-child)::after{content:'';position:absolute;left:-2.65rem;top:2.35rem;bottom:-2rem;width:2px;background:linear-gradient(var(--primary),var(--secondary));opacity:.35}
+.timeline.numbered .timeline-marker{position:absolute;left:-3.25rem;top:0;width:2.35rem;height:2.35rem;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:1}
+.timeline.numbered .timeline-content{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.35rem 1.6rem;box-shadow:var(--card-shadow);transition:box-shadow .3s,transform .3s}
+.timeline.numbered .timeline-content:hover{box-shadow:var(--card-hover-shadow);transform:translateX(2px)}
+.timeline.numbered .timeline-content h4{font-size:1.08rem;margin:0 0 .5rem;color:var(--primary)}
+.timeline.numbered .timeline-content h4 a{color:var(--primary)}
+.timeline.numbered .timeline-content p{font-size:.92rem;line-height:1.65;margin:0;color:var(--text-secondary)}
+@media (max-width:640px){
+  .timeline.numbered{padding-left:2.75rem}
+  .timeline.numbered .timeline-marker{left:-2.75rem;width:2rem;height:2rem;font-size:.9rem}
+  .timeline.numbered .timeline-item:not(:last-child)::after{left:-2.15rem}
+}
 
 /* KG Explorer */
 #kg-explorer{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .3s,border .3s;position:relative;min-height:500px}
@@ -233,7 +330,7 @@ html[data-theme="dark"] .theme-btn:hover{background:var(--neutral-700)}
    container added outside the .section/.section-alt system inherits none of
    its width constraint and needs it restated explicitly. */
 .section-accordion{max-width:1100px;margin:0 auto 1.75rem}
-.section-accordion-summary{cursor:pointer;list-style:none;padding:1.1rem 1.75rem;margin:0 2rem 0;background:var(--card-bg,var(--card));border:1px solid var(--border);box-shadow:var(--card-shadow,0 1px 3px rgba(0,0,0,.06));border-radius:12px;display:flex;align-items:center;gap:.65rem;transition:filter .2s,background .2s,box-shadow .2s}
+.section-accordion-summary{cursor:pointer;list-style:none;padding:1.1rem 1.75rem;margin:0 2rem 0;background:var(--card-bg,var(--card));border:1px solid var(--border);box-shadow:var(--card-shadow,0 1px 3px rgba(0,0,0,.06));border-radius:12px;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;transition:filter .2s,background .2s,box-shadow .2s}
 .section-accordion-summary::-webkit-details-marker{display:none}
 .section-accordion-summary:hover{filter:brightness(.97);box-shadow:var(--card-hover-shadow,0 4px 14px rgba(0,0,0,.1))}
 .section-accordion-icon{flex:0 0 auto;width:30px;height:30px;display:inline-flex;color:var(--accent,var(--primary))}
@@ -318,6 +415,14 @@ html[data-theme="dark"] .theme-btn:hover{background:var(--neutral-700)}
 .howto-num{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;margin-top:2px}
 .howto-content h4{font-size:.95rem;margin-bottom:.3rem}
 .howto-content p{font-size:.85rem;color:var(--text-secondary);line-height:1.5}
+.howto-groups{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:2.2rem}
+.howto-group{padding-top:1.4rem;border-top:1px solid var(--border)}
+.howto-group:first-child{padding-top:0;border-top:none}
+.howto-group-title{font-size:1.05rem;margin-bottom:.35rem;color:var(--text)}
+.howto-group-title a{color:inherit;text-decoration:none}
+.howto-group-title a:hover{color:var(--primary)}
+.howto-group-desc{font-size:.85rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.5}
+.howto-group .howto-list{max-width:none}
 
 /* Comments */
 .comment-grid{display:grid;gap:1.2rem;margin-top:2rem}
@@ -581,15 +686,131 @@ blockquote p{margin-bottom:.3rem}
 
 /* System-preference dark mode — separate block, never comma-combined with html[data-theme="dark"] */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0F172A; --bg-alt: #1E293B;
-    --text: #E2E8F0; --text-secondary: #94A3B8;
-    --card-bg: #1E293B;
-    --primary: #7dd3fc; --accent: #7dd3fc;
-    --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-    --card-hover-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.3);
-    --border: #334155;
-    --nav-bg: rgba(15,23,42,0.9); --nav-border: rgba(51,65,85,0.8);
-    --hero-from: #0F172A; --hero-to: #020617;
+  :root:not([data-theme="light"]) {
+    --primary: #00b4ff;
+    --primary-light: #5fd0ff;
+    --secondary: #5fd0ff;
+    --accent: #5fd0ff;
+    --accent-soft: rgba(0,180,255,.16);
+    --accent-warm: #fbbf24;
+    --success: #34d399;
+    --danger: #f87171;
+    --bg: #0b1524;
+    --bg-alt: #101d30;
+    --text: #eef2f7;
+    --text-secondary: #93a3ba;
+    --card-bg: #122238;
+    --card-shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 20px rgba(0,0,0,.32);
+    --card-hover-shadow: 0 2px 6px rgba(0,0,0,.55), 0 20px 44px rgba(0,0,0,.45);
+    --border: #23344c;
+    --border-strong: #2e4361;
+    --nav-bg: rgba(11,21,36,0.90);
+    --nav-border: rgba(46,67,97,0.85);
+    --hero-from: #0e1c2e;
+    --hero-to: #060d17;
+    --hero-glow: rgba(0,180,255,.26);
+    --hero-ink: #f2f7fc;
+    --hero-ink-soft: rgba(200,216,232,.78);
+    --hero-hairline: rgba(255,255,255,.10);
+    --focus-ring: rgba(0,180,255,.65);
+    --on-accent: #08131f;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REUSABLE EDITORIAL DESIGN SYSTEM (2026-08-14)
+   ---------------------------------------------------------------------------
+   Section header system + synopsis executive-summary deck + card/FAQ/glossary/
+   HowTo polish. Every rule below uses only template CSS variables, so light
+   and dark mode adapt automatically (dark blocks stay separate, never
+   comma-combined). All visible entities remain resolver-linked; this layer is
+   pure presentation. Applies to any collection generated by html_assembler.py
+   -- see preferences.ttl step-synopsisDeckDesignSystem and howto/
+   synopsis-deck-design-system.ttl.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Section header system (kicker eyebrow + heading + rule) ─────────────── */
+.sec-head{display:flex;align-items:center;gap:.85rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.sec-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);background:var(--bg-alt);border:1px solid var(--border);border-radius:999px;padding:.28rem .75rem;white-space:nowrap}
+.sec-head h2{font-family:'Poppins',sans-serif;font-size:1.7rem;letter-spacing:-.02em;margin:0;color:var(--text);flex:0 1 auto}
+.sec-head .sec-rule{flex:1;min-width:40px;height:1px;background:var(--border)}
+@media(max-width:768px){.sec-head h2{font-size:1.35rem}}
+
+/* ── Synopsis executive-summary deck ─────────────────────────────────────── */
+#synopsis .syn-deck{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;box-shadow:var(--card-shadow);padding:2.2rem 2.4rem 2.4rem;overflow:hidden}
+#synopsis .syn-deck::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent))}
+#synopsis .syn-kicker{display:flex;align-items:center;gap:.85rem;margin-bottom:1.05rem;flex-wrap:wrap}
+#synopsis .syn-pill{display:inline-flex;align-items:center;gap:.42rem;font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--primary);background:var(--bg-alt);border:1px solid var(--border);border-radius:999px;padding:.3rem .8rem}
+#synopsis .syn-pill .syn-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+#synopsis .syn-kicker-rule{flex:1;min-width:40px;height:1px;background:var(--border)}
+#synopsis .syn-kicker-meta{font-size:.78rem;color:var(--text-secondary)}
+#synopsis .syn-kicker-meta a{color:var(--primary);text-decoration:none}
+#synopsis .syn-heading{font-family:'Poppins',sans-serif;font-size:1.7rem;letter-spacing:-.02em;margin:0 0 1.15rem;color:var(--text)}
+#synopsis .syn-deck .lede{font-size:1.28rem;line-height:1.66;font-weight:500;color:var(--text);border-left:3px solid var(--primary);padding-left:1.1rem;margin:0 0 1.6rem;max-width:72ch}
+#synopsis .syn-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:1.8rem;align-items:start}
+#synopsis .syn-body p{font-size:.97rem;line-height:1.78;color:var(--text-secondary);margin-bottom:1rem}
+#synopsis .syn-body p:first-child{color:var(--text)}
+#synopsis .syn-body a{color:var(--primary)}
+#synopsis .syn-panel{background:var(--bg-alt);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.35rem}
+#synopsis .syn-panel-title{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 1rem}
+#synopsis .debt-row{display:flex;gap:.55rem;align-items:center;border-bottom:1px solid var(--border);padding:.42rem .15rem;transition:background .15s ease}
+#synopsis .debt-row:last-child{border-bottom:none}
+#synopsis .debt-row:hover{background:var(--card-bg)}
+#synopsis .debt-dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;border:2px solid currentColor}
+#synopsis .debt-row .debt-dot{color:var(--accent)}
+#synopsis .debt-name{display:block;min-width:0;flex:1 1 auto;font-size:.82rem;font-weight:600;color:var(--text);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#synopsis .debt-name:hover{color:var(--primary)}
+#synopsis .debt-row.featured{background:var(--card-bg);box-shadow:inset 2px 0 0 var(--accent)}
+#synopsis .debt-tag{flex:0 0 auto;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+#synopsis .syn-panel-more{display:block;text-align:center;font-size:.76rem;font-weight:600;color:var(--text-secondary);padding-top:.2rem}
+#synopsis .syn-mesh{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;margin-top:1.7rem;padding-top:1.4rem;border-top:1px dashed var(--border)}
+#synopsis .syn-mesh-label{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-secondary);margin-right:.3rem}
+#synopsis .mesh-chip{display:inline-flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:500;color:var(--primary);background:var(--bg-alt);border:1px solid var(--border);border-radius:999px;padding:.38rem .85rem;text-decoration:none;transition:border-color .18s ease,transform .18s ease,background .18s ease}
+#synopsis .mesh-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+#synopsis .mesh-chip:hover{border-color:var(--primary);transform:translateY(-1px);background:var(--card-bg)}
+#synopsis .syn-quote{position:relative;margin:1.7rem 0 0;padding:1.3rem 1.6rem 1.3rem 3.2rem;background:var(--bg-alt);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:12px}
+#synopsis .syn-quote::before{content:"\201C";position:absolute;left:1.05rem;top:.3rem;font-family:'Poppins',sans-serif;font-size:2.6rem;line-height:1;color:var(--primary);opacity:.45}
+#synopsis .syn-quote p{margin:0;font-size:1.05rem;font-style:italic;line-height:1.6;color:var(--text)}
+#synopsis .syn-quote a{color:var(--primary);text-decoration:none}
+#synopsis .syn-cta{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.62rem 1.15rem;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-size:.85rem;font-weight:600;text-decoration:none;box-shadow:var(--card-shadow);transition:transform .18s ease,box-shadow .18s ease}
+#synopsis .syn-cta:hover{transform:translateY(-2px);box-shadow:var(--card-hover-shadow)}
+#synopsis .syn-arrow{transition:transform .18s ease}
+#synopsis .syn-cta:hover .syn-arrow{transform:translateX(3px)}
+@media(max-width:900px){
+  #synopsis .syn-grid{grid-template-columns:1fr}
+  #synopsis .syn-deck{padding:1.7rem 1.3rem 1.8rem}
+}
+@media(max-width:768px){
+  #synopsis .syn-deck .lede{font-size:1.12rem}
+  #synopsis .syn-kicker-meta{white-space:normal}
+}
+
+/* ── Card polish: gradient accent bar revealed on hover ──────────────────── */
+.card{position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent));opacity:0;transition:opacity .25s ease}
+.card:hover::before{opacity:1}
+
+/* ── FAQ polish ──────────────────────────────────────────────────────────── */
+.faq-item.open{border-color:var(--primary-light);box-shadow:var(--card-shadow)}
+.faq-question{font-weight:600}
+
+/* ── Glossary polish ─────────────────────────────────────────────────────── */
+.glossary-term:hover{border-color:var(--primary-light)}
+.glossary-term h4 a{font-weight:600}
+
+/* ── HowTo polish ────────────────────────────────────────────────────────── */
+.howto-step:hover{border-color:var(--primary-light);transform:translateX(4px)}
+.howto-num{background:linear-gradient(135deg,var(--primary),var(--secondary))}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  #synopsis .syn-deck,#synopsis .debt-row,#synopsis .mesh-chip,#synopsis .syn-cta,
+  .card,.faq-item,.glossary-term,.howto-step{transition:none;transform:none}
+}
+
+@media (max-width:700px){
+  .section-accordion-summary{margin:0 .5rem;padding:.9rem 1rem;gap:.5rem}
+  .section-accordion-title{font-size:1.3rem}
+  .section-accordion-stat{margin-left:0}
+  .section-accordion-body{padding-left:1rem;padding-right:1rem}
 }
