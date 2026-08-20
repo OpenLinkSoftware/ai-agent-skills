@@ -35,6 +35,52 @@ def _find_git_root(path: Path) -> Path | None:
     return None
 
 
+# Classes emitted by rdf_infographic_harness's attribution_footer(),
+# footer_sparql_workbench() and kg_explorer_shell(). Each one that appears in
+# the page must also have a CSS rule somewhere in the page.
+#
+# WHY. Until 2026-08-20 not one template in this skill defined any of these,
+# so every page hand-assembled from the harness helpers rendered its footer as
+# full-bleed unstyled text and its SPARQL workbench as bare form controls with
+# the percent-encoded query URL bleeding across the page. Nothing caught it:
+# valid HTML, no console error, correct content, and a full PASS from this
+# validator — the page was simply, silently, unstyled. The generalisable
+# failure is markup from one generation meeting a stylesheet from another
+# (the same drift produced a KG Explorer whose element ids the JS could not
+# find). rdf_infographic_harness.harness_styles() now ships the CSS with the
+# markup; this gate is what notices when a page skips it.
+_HARNESS_STYLED_CLASSES = (
+    "attribution-panel", "attribution-inner", "attribution-grid",
+    "attribution-card", "attribution-label", "attribution-links",
+    "attribution-pill", "entity-link",
+    "sparql-launch", "sparql-head", "sparql-grid", "sparql-field",
+    "sparql-editor", "sparql-actions", "sparql-link-preview", "sparql-note",
+    "run-query",
+)
+
+
+def check_harness_class_styling(html: str, failures: list[str]) -> None:
+    """Fail when harness-emitted markup lands on the page with no CSS rule."""
+    style_blocks = "\n".join(re.findall(r"<style[^>]*>(.*?)</style>", html, re.S))
+    # Body = everything outside <style>, so a class name mentioned only inside
+    # a CSS comment or selector is not mistaken for markup usage.
+    body = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.S)
+    used: set[str] = set()
+    for attr in re.findall(r'class="([^"]+)"', body):
+        used.update(attr.split())
+    defined = set(re.findall(r"\.([A-Za-z][\w-]+)", style_blocks))
+    unstyled = sorted(c for c in _HARNESS_STYLED_CLASSES if c in used and c not in defined)
+    if unstyled:
+        fail(
+            "Harness-emitted classes present in the markup with no CSS rule anywhere in "
+            f"the page: {', '.join(unstyled)}. The page renders unstyled in those regions "
+            "(typically the attribution footer and/or the SPARQL workbench). Append "
+            "rdf_infographic_harness.harness_styles() to the page stylesheet, or define "
+            "equivalent rules in the selected template.",
+            failures,
+        )
+
+
 def check_output_location(
     path: Path | None,
     expected_subdir: str,
@@ -258,6 +304,8 @@ def main() -> int:
         "Extraction provenance",
     ]:
         require(html, label, f"Attribution item missing: {label}", failures)
+
+    check_harness_class_styling(html, failures)
 
     require(html, "https://linkeddata.uriburner.com/describe/?url=", "URIBurner resolver pattern missing", failures)
     require(html, "https://linkeddata.uriburner.com/sparql", "URIBurner SPARQL endpoint missing", failures)

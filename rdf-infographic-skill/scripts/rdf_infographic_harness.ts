@@ -37,6 +37,102 @@ export function resolverUrl(iri: string): string {
   return RESOLVER + encodeURIComponent(iri);
 }
 
+/**
+ * CSS for every class the harness helpers emit.
+ *
+ * WHY THIS EXISTS. attributionFooter(), footerSparqlWorkbench() and
+ * kgExplorerShell() emit .attribution-* / .sparql-* / .entity-link markup.
+ * Until 2026-08-20 NO template in this skill carried a single rule for any of
+ * those classes, so every page assembled from these helpers rendered its
+ * footer as full-bleed unstyled text and its SPARQL workbench as bare form
+ * controls with the percent-encoded live-query URL bleeding across the page.
+ * The failure is silent: valid HTML, no console error, correct content — the
+ * page is simply unstyled. Markup and CSS now ship from the same module so
+ * they cannot separate.
+ *
+ * Returned WITHOUT <style> tags — never nest it inside a block that already
+ * has them; a nested <style><style> corrupts parsing of the FIRST rule in the
+ * block and has previously eaten an entire :root custom-property definition.
+ *
+ * Every colour is a var() fallback chain ending in a literal, because
+ * templates in this skill use different custom-property vocabularies
+ * (--card-bg/--border/--text vs --panel/--line/--ink) and an unresolvable
+ * var() makes the whole declaration invalid at computed-value time — the rule
+ * then silently does nothing, which is the very failure mode this fixes.
+ *
+ * Kept byte-identical to rdf_infographic_harness.py harness_styles().
+ */
+export function harnessStyles(): string {
+  return `/* ── rdf-infographic harness helper styles ──────────────────────────────── */
+.entity-link{color:var(--primary, var(--accent, #1f4e79));text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s,color .2s}
+.entity-link:hover{border-bottom-color:var(--primary, var(--accent, #1f4e79));text-decoration:none}
+
+/* Footer attribution surface (attribution_footer) */
+footer#sources{background:var(--bg-alt, var(--bg-soft, #f9fafb));border-top:1px solid var(--border, var(--line, #e5e7eb));margin-top:3rem;padding:4rem 0 3.25rem}
+.attribution-panel{max-width:1100px;margin:0 auto;padding:0 2rem;min-width:0}
+.attribution-inner{min-width:0}
+.attribution-panel .section-head{display:block;margin:0 0 1.6rem}
+.attribution-panel .section-head h2{font-size:1.45rem;letter-spacing:-.02em;margin:0 0 .5rem;color:var(--text, var(--ink, #111827))}
+.attribution-panel .section-head p{font-size:.92rem;line-height:1.55;color:var(--text-secondary, var(--muted, #6b7280));max-width:62ch;margin:0}
+.attribution-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:1rem;align-items:stretch}
+.attribution-card{background:var(--card-bg, var(--panel, var(--card, #ffffff)));border:1px solid var(--border, var(--line, #e5e7eb));border-radius:12px;padding:1.05rem 1.15rem 1.15rem;min-width:0;overflow-wrap:anywhere;box-shadow:var(--card-shadow, 0 1px 2px rgba(16,32,52,.06), 0 4px 16px rgba(31,78,121,.06));transition:border-color .2s,box-shadow .2s,transform .2s}
+.attribution-card:hover{border-color:var(--primary-light, var(--accent, #2d6a9f));box-shadow:var(--card-hover-shadow, 0 2px 4px rgba(16,32,52,.07), 0 18px 40px rgba(31,78,121,.14));transform:translateY(-2px)}
+/* span 2 only where 2 columns can exist, else the card overflows its grid */
+@media(min-width:720px){.attribution-card.wide{grid-column:span 2}}
+.attribution-label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary, var(--muted, #6b7280));margin:0 0 .6rem}
+.attribution-card p{font-size:.86rem;line-height:1.6;color:var(--text, var(--ink, #111827));margin:0 0 .45rem;overflow-wrap:anywhere}
+.attribution-card p:last-child{margin-bottom:0}
+.attribution-card code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem;background:var(--accent-soft, var(--chip, rgba(127,127,127,.14)));border-radius:4px;padding:.1em .35em;overflow-wrap:anywhere}
+/* The named-graphs card stacks long DAV IRIs in <code> chips separated only by
+   <br>. Left inline, each chip's tinted background wraps mid-IRI and the two
+   graphs read as one run-on block. Scoped to <br>-separated paragraphs so
+   prose paragraphs keep their trailing punctuation on the same line. */
+.attribution-card p:has(br) > code{display:inline-block;max-width:100%;padding:.3em .55em;margin-bottom:.3rem;line-height:1.5}
+.attribution-card a:not(.attribution-pill){color:var(--primary, var(--accent, #1f4e79));font-weight:500;text-decoration:none;overflow-wrap:anywhere}
+.attribution-card a:not(.attribution-pill):hover{text-decoration:underline}
+.attribution-links{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 .65rem}
+.attribution-links:last-child{margin-bottom:0}
+.attribution-pill{display:inline-flex;align-items:center;background:var(--accent-soft, var(--chip, rgba(127,127,127,.14)));border:1px solid transparent;border-radius:999px;padding:.32rem .8rem;font-size:.76rem;font-weight:600;color:var(--primary, var(--accent, #1f4e79));text-decoration:none;white-space:nowrap;transition:border-color .2s,transform .2s}
+.attribution-pill:hover{border-color:var(--primary-light, var(--accent, #2d6a9f));transform:translateY(-1px);text-decoration:none}
+
+/* SPARQL workbench (footer_sparql_workbench) */
+.sparql-launch{position:relative;background:var(--card-bg, var(--panel, var(--card, #ffffff)));border:1px solid var(--border, var(--line, #e5e7eb));border-radius:14px;padding:1.6rem 1.5rem 1.4rem;box-shadow:var(--card-shadow, 0 1px 2px rgba(16,32,52,.06), 0 4px 16px rgba(31,78,121,.06));overflow:hidden;min-width:0}
+.sparql-launch::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--primary, var(--accent, #1f4e79)),var(--accent, var(--primary, var(--accent, #1f4e79))))}
+.sparql-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1.25rem;flex-wrap:wrap}
+.sparql-head h3{font-size:1.15rem;letter-spacing:-.01em;margin:0 0 .35rem;color:var(--text, var(--ink, #111827))}
+.sparql-head p{font-size:.86rem;line-height:1.55;color:var(--text-secondary, var(--muted, #6b7280));margin:0;max-width:62ch}
+.run-query{background:var(--primary, var(--accent, #1f4e79));color:var(--on-accent, #ffffff);border:1px solid var(--primary, var(--accent, #1f4e79));border-radius:10px;padding:.6rem 1.15rem;font-size:.86rem;font-weight:600;text-decoration:none;white-space:nowrap;flex:0 0 auto;transition:background .2s,transform .2s}
+.run-query:hover{background:var(--secondary, var(--primary-light, #163a5c));border-color:var(--secondary, var(--primary-light, #163a5c));color:var(--on-accent, #ffffff);text-decoration:none;transform:translateY(-1px)}
+.run-query:focus-visible{outline:2px solid var(--focus-ring, rgba(0,180,255,.55));outline-offset:2px}
+.sparql-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:.75rem;margin:1.35rem 0 .9rem}
+.sparql-field{display:flex;flex-direction:column;gap:.32rem;min-width:0;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary, var(--muted, #6b7280))}
+.sparql-field select,.sparql-field input{font:inherit;font-size:.82rem;font-weight:400;letter-spacing:normal;text-transform:none;color:var(--text, var(--ink, #111827));background:var(--bg, #ffffff);border:1px solid var(--border, var(--line, #e5e7eb));border-radius:8px;padding:.5rem .6rem;width:100%;min-width:0}
+.sparql-field select:focus-visible,.sparql-field input:focus-visible,.sparql-editor:focus-visible{outline:2px solid var(--focus-ring, rgba(0,180,255,.55));outline-offset:1px;border-color:var(--primary-light, var(--accent, #2d6a9f))}
+.sparql-field input[readonly]{color:var(--text-secondary, var(--muted, #6b7280));background:var(--bg-alt, var(--bg-soft, #f9fafb));cursor:default}
+.sparql-editor{display:block;width:100%;min-height:210px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;line-height:1.65;tab-size:2;color:var(--text, var(--ink, #111827));background:var(--bg, #ffffff);border:1px solid var(--border, var(--line, #e5e7eb));border-radius:10px;padding:.9rem 1rem}
+.sparql-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.9rem;min-width:0}
+.sparql-actions button{font:inherit;font-size:.78rem;font-weight:500;color:var(--text, var(--ink, #111827));background:var(--card-bg, var(--panel, var(--card, #ffffff)));border:1px solid var(--border, var(--line, #e5e7eb));border-radius:8px;padding:.42rem .9rem;cursor:pointer;transition:border-color .2s,background .2s}
+.sparql-actions button:hover{background:var(--bg-alt, var(--bg-soft, #f9fafb));border-color:var(--primary-light, var(--accent, #2d6a9f))}
+.sparql-actions button:focus-visible{outline:2px solid var(--focus-ring, rgba(0,180,255,.55));outline-offset:2px}
+/* display on a class always beats the \`hidden\` attribute's UA rule, so a
+   toggled-off control stays visible unless this guard is present. Has bitten
+   this workbench before (footer-sparql-explorer-gate.ttl). */
+.sparql-actions [hidden],.sparql-link-preview[hidden]{display:none !important}
+/* #sparqlLinkPreview is filled with the full percent-encoded query URL.
+   Unconstrained it wraps across a dozen lines and bleeds past the panel; keep
+   it one truncating chip -- the href still carries the whole query. */
+.sparql-link-preview{display:inline-flex;align-items:center;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.74rem;font-weight:500;color:var(--primary, var(--accent, #1f4e79));background:var(--accent-soft, var(--chip, rgba(127,127,127,.14)));border:1px solid transparent;border-radius:999px;padding:.35rem .85rem;text-decoration:none}
+.sparql-link-preview:hover{border-color:var(--primary-light, var(--accent, #2d6a9f));text-decoration:none}
+.sparql-note{font-size:.78rem;line-height:1.6;color:var(--text-secondary, var(--muted, #6b7280));margin-top:.9rem}
+.sparql-note code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.74rem;background:var(--accent-soft, var(--chip, rgba(127,127,127,.14)));border-radius:4px;padding:.1em .35em}
+@media(max-width:768px){
+  footer#sources{padding:2.5rem 0 2rem}
+  .attribution-panel{padding:0 1rem}
+  .sparql-launch{padding:1.25rem 1rem 1.1rem;border-radius:12px}
+  .run-query{width:100%;text-align:center}
+}`;
+}
+
 export function sparqlResultFormat(query: string): string {
   const first = query.trim().split(/\s+/, 1)[0].toUpperCase();
   return first === "DESCRIBE" || first === "CONSTRUCT"
@@ -183,24 +279,40 @@ export function footerSparqlScript(
 })();`;
 }
 
+/**
+ * Render the single canonical attribution surface.
+ *
+ * includeMarkdown=false for runs that produce RDF + HTML only. The footer
+ * previously advertised a Markdown companion unconditionally, so any such run
+ * shipped a dead pill link to a .md that was never written, plus a provenance
+ * card claiming Markdown had been generated. Both are factual claims about the
+ * artifact, so they track what was actually produced.
+ */
 export function attributionFooter(
   ctx: HarnessContext,
   skillsHtml: string,
   environmentHtml: string,
+  includeMarkdown = true,
 ): string {
+  const mdPill = includeMarkdown
+    ? `<a class="attribution-pill" href="${escape(ctx.markdownFile)}" target="_blank" rel="noopener noreferrer">Markdown</a>`
+    : "";
+  const provenance = includeMarkdown
+    ? "RDF, Markdown, HTML, SPARQL examples, and KG Explorer data are generated from the companion graph."
+    : "RDF, HTML, SPARQL examples, and KG Explorer data are generated from the companion graph. No Markdown companion was generated for this artifact.";
   return `<footer id="sources">
   <section class="attribution-panel">
     <div class="attribution-inner">
       <div class="section-head"><h2>Sources And Attribution</h2><p>This collection is derived from source material, generated RDF, and the RDF infographic harness contract.</p></div>
       <div class="attribution-grid">
         <article class="attribution-card wide"><span class="attribution-label">Source material</span><p><a class="entity-link" href="${resolverUrl(ctx.sourceEntityIri)}" target="_blank" rel="noopener noreferrer">${escape(ctx.sourceLabel)}</a> by <a class="entity-link" href="${resolverUrl(ctx.authorEntityIri)}" target="_blank" rel="noopener noreferrer">${escape(ctx.authorLabel)}</a>, published on <a class="entity-link" href="${resolverUrl(ctx.platformEntityIri)}" target="_blank" rel="noopener noreferrer">${escape(ctx.platformLabel)}</a>. Entity IRIs use the canonical article URL as the document base.</p></article>
-        <article class="attribution-card"><span class="attribution-label">Companion files</span><div class="attribution-links"><a class="attribution-pill" href="${escape(ctx.turtleRel)}" target="_blank" rel="noopener noreferrer">RDF Turtle</a><a class="attribution-pill" href="${escape(ctx.jsonldRel)}" target="_blank" rel="noopener noreferrer">JSON-LD</a><a class="attribution-pill" href="${escape(ctx.markdownFile)}" target="_blank" rel="noopener noreferrer">Markdown</a></div><p>All files share the <code>${escape(ctx.stem)}</code> artifact stem.</p></article>
+        <article class="attribution-card"><span class="attribution-label">Companion files</span><div class="attribution-links"><a class="attribution-pill" href="${escape(ctx.turtleRel)}" target="_blank" rel="noopener noreferrer">RDF Turtle</a><a class="attribution-pill" href="${escape(ctx.jsonldRel)}" target="_blank" rel="noopener noreferrer">JSON-LD</a>${mdPill}</div><p>All files share the <code>${escape(ctx.stem)}</code> artifact stem.</p></article>
         <article class="attribution-card"><span class="attribution-label">Skills used</span>${skillsHtml}</article>
         <article class="attribution-card wide"><span class="attribution-label">Generation environment</span>${environmentHtml}</article>
         <article class="attribution-card"><span class="attribution-label">Linked Data runtime</span><p>Semantic links use <a href="https://linkeddata.uriburner.com/fct" target="_blank" rel="noopener noreferrer">URIBurner describe</a>; live queries target <a href="${SPARQL_ENDPOINT}" target="_blank" rel="noopener noreferrer">URIBurner SPARQL</a> over <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Virtuoso</a>. The KG Explorer uses <a href="https://d3js.org/" target="_blank" rel="noopener noreferrer">D3.js</a>.</p></article>
         <article class="attribution-card"><span class="attribution-label">Named graphs</span><p><code>${escape(ctx.ttlGraphIri)}</code><br><code>${escape(ctx.jsonldGraphIri)}</code></p></article>
         <article class="attribution-card"><span class="attribution-label">Resolver pattern</span><p>Visible semantic links route through <code>https://linkeddata.uriburner.com/describe/?url={encodedIRI}</code>.</p></article>
-        <article class="attribution-card"><span class="attribution-label">Extraction provenance</span><p>RDF, Markdown, HTML, SPARQL examples, and KG Explorer data are generated from the companion graph.</p></article>
+        <article class="attribution-card"><span class="attribution-label">Extraction provenance</span><p>${provenance}</p></article>
       </div>
       ${footerSparqlWorkbench(ctx)}
     </div>
