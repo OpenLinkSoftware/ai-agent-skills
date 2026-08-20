@@ -36,6 +36,52 @@ function forbidRegex(html: string, pattern: RegExp, label: string): void {
   if (pattern.test(html)) fail(label);
 }
 
+// Classes emitted by rdf_infographic_harness's attributionFooter(),
+// footerSparqlWorkbench() and kgExplorerShell(). Each one appearing in the
+// page must also have a CSS rule somewhere in the page.
+//
+// WHY. Until 2026-08-20 not one template in this skill defined any of these,
+// so every page assembled from the harness helpers rendered its footer as
+// full-bleed unstyled text and its SPARQL workbench as bare form controls with
+// the percent-encoded query URL bleeding across the page. Nothing caught it:
+// valid HTML, no console error, correct content, and a full PASS from this
+// validator — the page was simply, silently, unstyled. harnessStyles() now
+// ships the CSS with the markup; this gate notices when a page skips it.
+const HARNESS_STYLED_CLASSES = [
+  "attribution-panel", "attribution-inner", "attribution-grid",
+  "attribution-card", "attribution-label", "attribution-links",
+  "attribution-pill", "entity-link",
+  "sparql-launch", "sparql-head", "sparql-grid", "sparql-field",
+  "sparql-editor", "sparql-actions", "sparql-link-preview", "sparql-note",
+  "run-query",
+];
+
+function checkHarnessClassStyling(html: string): void {
+  const styleBlocks = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+    .map((m) => m[1]).join("\n");
+  // Body = everything outside <style>, so a class named only inside a CSS
+  // comment or selector is not mistaken for markup usage.
+  const body = html.replace(/<style[^>]*>[\s\S]*?<\/style>/g, "");
+  const used = new Set<string>();
+  for (const m of body.matchAll(/class="([^"]+)"/g)) {
+    for (const c of m[1].split(/\s+/)) if (c) used.add(c);
+  }
+  const defined = new Set(
+    [...styleBlocks.matchAll(/\.([A-Za-z][\w-]+)/g)].map((m) => m[1]),
+  );
+  const unstyled = HARNESS_STYLED_CLASSES
+    .filter((c) => used.has(c) && !defined.has(c)).sort();
+  if (unstyled.length) {
+    fail(
+      `Harness-emitted classes present in the markup with no CSS rule anywhere in ` +
+      `the page: ${unstyled.join(", ")}. The page renders unstyled in those regions ` +
+      `(typically the attribution footer and/or the SPARQL workbench). Append ` +
+      `harnessStyles() to the page stylesheet, or define equivalent rules in the ` +
+      `selected template.`,
+    );
+  }
+}
+
 function parseArgs(argv: string[]): { html: string; ttl?: string; jsonld?: string } {
   let html = "";
   let ttl: string | undefined;
@@ -151,6 +197,8 @@ async function main(): Promise<number> {
   ]) {
     require(html, label, `Attribution item missing: ${label}`);
   }
+  checkHarnessClassStyling(html);
+
   require(html, "https://linkeddata.uriburner.com/describe/?url=", "URIBurner resolver pattern missing");
   require(html, "https://linkeddata.uriburner.com/sparql", "URIBurner SPARQL endpoint missing");
   require(html, "https://virtuoso.openlinksw.com/", "OpenLink Virtuoso attribution missing");

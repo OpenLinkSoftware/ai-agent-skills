@@ -248,6 +248,29 @@ Required adaptations before reuse:
 - Re-run `scripts/validate-harness-contract.py` after every structural change (tier map regeneration, demo-query additions, byline correction) — several of the fixes above were only caught because the validator's SPARQL-accordion and KG-orphan gates fired on a change that looked cosmetic.
 - CSS comment hygiene: never write a literal `*/` sequence inside a CSS comment documenting a property-name glob (e.g. `--opal-*/--ols-*`) — it silently truncates the comment and drops the following rule block. Run the brace/comment-balance scan in `howto/css-comment-star-slash-trap.ttl` after any hand-edit to the `<style>` block.
 
+### Thesis & Framework / Harness-Styled — use when hand-assembling from `rdf_infographic_harness`
+
+Asset: `assets/templates/thesis-framework-harness-styled-claude_sonnet_5.html`
+
+The OpenLink-brand thesis chassis above, carrying the **first complete style layer for the harness helper surfaces** — the attribution footer and the SPARQL workbench. Select it whenever a page is hand-assembled from `attribution_footer()` / `footer_sparql_workbench()` / `kg_explorer_shell()` rather than driven through `html_assembler.py`.
+
+Why it exists: until 2026-08-20 **no template in this collection defined a single rule for any harness-emitted class** (`.attribution-*`, `.sparql-*`, `.entity-link`). Pages built from the helpers therefore shipped a full-bleed unstyled footer and a SPARQL workbench of bare form controls with the percent-encoded live-query URL wrapping across the page — while remaining valid HTML with correct content and a full validator PASS. The CSS now ships from `rdf_infographic_harness.harness_styles()`, and `validate-harness-contract.py` fails any page that uses the markup without it.
+
+Characteristics worth preserving:
+
+- **Footer as a card grid**, not a text stack: uppercase micro-labels (`.attribution-label`), tinted companion-file/skill pills (`.attribution-pill`), equal-height rows, `.wide` cards spanning two columns only above 720px, and a `--bg-alt` band with a top hairline so the footer reads as a distinct region.
+- **SPARQL workbench as a real panel** (`.sparql-launch`): a `--primary → --accent` gradient hairline on the top edge, a solid primary "Run live query" CTA, a three-field control row, and a 210px monospace editor with `resize:vertical` and `tab-size:2`.
+- **`#sparqlLinkPreview` constrained to one truncating chip.** It is filled with the full percent-encoded query URL; unconstrained it wraps across a dozen lines and bleeds past the panel. The href still carries the whole query.
+- **One shared measure.** Footer, SPARQL panel, KG panel and body sections all resolve to the same 1036px content width (1100px box − 2rem padding), so nothing sits visibly wider than the column above it.
+- Every colour in the supplement is a `var()` fallback chain ending in a literal, so the rules survive being dropped into a template using a different token vocabulary instead of failing silently at computed-value time.
+
+Required adaptations before reuse:
+
+- **This is a chassis, not a blank.** Its `kgData`, prose, entity IRIs and title belong to the x402/Circle meshup. Replace all of them and re-check against the companion TTL — the semantic-fidelity gate exists because carried-forward prior-task content is the recurring failure here.
+- **Check for stale ids and titles inherited from the chassis you copy.** This page was itself built by copying a chassis, and shipped with the *source* template's KG panel title ("Right-Sizing Your Intelligence Spend") plus a duplicate `id="kg-explorer"` on both the outer `<section>` and the inner panel — the duplicate made `#kg-explorer`'s card styling paint the whole section and made `getElementById('kg-explorer')` return the section instead of the panel. Outer is now `#kg-explorer-section`.
+- When extracting a `<style>` block from a template, **strip the source file's own `<style>`/`</style>` boundary lines** before re-wrapping. A nested `<style><style>` corrupts parsing of the first rule through error recovery and has silently eaten an entire `:root` custom-property definition.
+- Pass `include_markdown=False` to `attribution_footer()` on runs that produce RDF + HTML only, or the footer advertises a Markdown companion that was never written.
+
 ## Validation
 
 Run:
