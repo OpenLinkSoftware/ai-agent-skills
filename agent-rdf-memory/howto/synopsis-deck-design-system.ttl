@@ -1,0 +1,50 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Synopsis Deck Design System HowTo"@en ;
+    schema:description "Specification of the reusable editorial design system shipped in the rdf-infographic-skill pipeline: the synopsis executive-summary deck and the section header system, with the RDF conventions that drive them."@en ;
+    schema:dateCreated "2026-08-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-14T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :synopsisDeckDesignSystem .
+
+:synopsisDeckDesignSystem a schema:HowTo ;
+    schema:name "Synopsis Deck Design System"@en ;
+    schema:description "How the reusable editorial design system works and how a collection's RDF drives it."@en ;
+    schema:step :step1, :step2, :step3, :step4, :step5, :step6 .
+
+:step1 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Use the pipeline, not hand patches"@en ;
+    schema:text "The design system lives in the rdf-infographic-skill pipeline: scripts/templates/styles.css (deck + section-header + card/FAQ/glossary/HowTo components), scripts/html_assembler.py (render_synopsis_deck + render_narrative_section eyebrow support), scripts/rdf_parser.py (_extract_deck). Regenerate HTML through html_assembler.py — never hand-patch published HTML for this design."@en .
+
+:step2 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Synopsis deck slots are RDF-driven and optional"@en ;
+    schema:text "The deck renders: kicker pill 'Executive Summary' + author/publisher/date meta (from the article's schema:author, schema:publisher, schema:datePublished); lede + narrative body (the article's multi-paragraph schema:abstract, first <p> becomes the lede); an optional spotlight panel; optional source chips; an optional pull-quote; and the KG-entity CTA. Any missing slot degrades gracefully to nothing."@en .
+
+:step3 a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Spotlight panel convention (document-ontology classes)"@en ;
+    schema:text "Instances of classes declared rdfs:isDefinedBy an owl:Ontology in the graph, carrying schema:name and schema:description, form spotlight groups (grouped by class). Panel title = the class's schema:name, fallback rdfs:label, fallback 'Key Concepts'. Rows order by the instances' schema:position. The instance the article schema:about's is the featured row (accent ring + tag); the tag text = the instance's schema:alternateName, fallback 'Featured'. If multiple spotlight groups exist, the one containing the featured instance wins, else the first by title."@en .
+
+:step4 a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Source chips convention (schema:citation)"@en ;
+    schema:text "URIRef objects of the article's schema:citation render as resolver-linked chips in the deck's source strip, labeled by each object's schema:name (fallback rdfs:label). Cap at 8."@en .
+
+:step5 a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Pull-quote convention (schema:Quotation)"@en ;
+    schema:text "The first schema:Quotation in the graph (schema:text, optional schema:author) renders as the deck's pull-quote blockquote, with the author resolver-linked."@en .
+
+:step6 a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Section header system"@en ;
+    schema:text "Every narrative section renders a .sec-head header: kicker eyebrow pill (section label or 'Section N'), an h2 with a stable kebab-case id ({section-id}-heading) and the ¶ fragment anchor, and a rule. All colors are template CSS variables so dark mode adapts automatically; dark-mode blocks stay separate (never comma-combined); prefers-reduced-motion disables transitions."@en .

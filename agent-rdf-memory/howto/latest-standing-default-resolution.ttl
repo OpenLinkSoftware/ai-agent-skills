@@ -1,0 +1,48 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Resolve a Standing Default to Its Latest Non-Superseded Step"@en ;
+    schema:description "Procedure for citing a 'preferred default' HowToStep without reproducing a stale answer: preferences.ttl chains multiple entries on the same topic across days, each superseding the last, and a stale schema:name (no forward pointer) or a document section read in isolation both reproduce the outdated default."@en ;
+    schema:dateCreated "2026-08-20T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-20T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :latestStandingDefaultResolution ;
+    rdfs:seeAlso <../preferences.ttl#step-latestStandingDefaultResolution>,
+        <elicit-before-conditional-default.ttl>,
+        <../../rdf-infographic-skill/references/template-options.md> .
+
+:latestStandingDefaultResolution a schema:HowTo ;
+    schema:name "Walk the Chain Before Citing a Standing Default"@en ;
+    schema:description "A 'preferred default' recorded on day N is not guaranteed current on day N+1; treat every default citation as a pointer to verify, not a fact to reuse."@en ;
+    schema:step :stepScanForwardByTopic,
+        :stepDontTrustIsolatedSections,
+        :stepCheckPositionCollisions,
+        :stepBannerEverySupersededEntry .
+
+:stepScanForwardByTopic a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Grep preferences.ttl for the topic, not just the one step ID you were handed"@en ;
+    schema:text "Before generating anything against a cited standing-default step (e.g. 'use step-thesisFrameworkTemplatePreference'), grep preferences.ttl for the topic's own keywords (e.g. 'thesis', 'framework', 'template', 'aesthetic') across ALL schema:position values, not just the one ID in the instruction. Read every match's schema:name for 'SUPERSEDED', 'REFINED', 'REVERSED', or 'supersedes' before treating any single match as current. The incident this rule was written for: Step 233 (OpenLink Brand template) was cited by ID for a Thesis & Framework Article generation on 2026-08-20, one day after it had already been superseded by Step 236, itself refined the same day by Step 244 — three chained entries for one decision, all within 24 hours, and the session that cited Step 233 never looked past it."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+:stepDontTrustIsolatedSections a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "A reference document's top-level Selection Rule can be correct while an individual section further down is stale — read both"@en ;
+    schema:text "rdf-infographic-skill/references/template-options.md's own Selection Rule at the top of the file correctly pointed at the Editorial Data-Viz/Intelligence-Threshold entry over the OpenLink Brand entry. But the OpenLink Brand section further down the same file still read 'PREFERRED DEFAULT' in isolation, with no forward pointer to the entry that superseded it. A reader (human or agent) who jumps straight to a named section — the common case when a session is told 'use template X' — never sees the top-of-file correction. Every individual template/step entry that has been superseded MUST carry its own forward pointer in its own heading, not rely on a corrective note existing only at the top of the document."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+:stepCheckPositionCollisions a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "When adding a new HowToStep, grep for its intended schema:position first — a collision is a symptom of the same discipline gap"@en ;
+    schema:text "Found in the same pass: :step-webidTlsPort5443Default and :step-editorialDataVizAesthetic had silently collided on schema:position 236 (two unrelated topics, same integer) — nothing had checked for an existing position before assigning the number. A position collision means two decisions may be resolved inconsistently depending on which one a reader's tooling happens to surface first (e.g. `grep 'position 236'` returns both, in file order, with no signal which is 'the' Step 236). Before writing schema:position N on a new step, grep for that exact position string across preferences.ttl and pick the next genuinely free integer." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+:stepBannerEverySupersededEntry a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "When a new step supersedes an old one, edit the OLD step's schema:name in place — don't just write the new step and leave the old one looking current"@en ;
+    schema:text "The forward direction is cheap to add (a new step's schema:text can say 'supersedes Step N') but the backward direction is the one that actually prevents reuse of a stale answer, because citations name the step people already know about, which is usually the oldest one. Whenever a new standing-default step supersedes or refines an existing one, immediately edit the existing step's schema:name to carry an explicit SUPERSEDED/REFINED banner plus an rdfs:seeAlso pointer forward to the new step — do this in the same edit pass that creates the new step, not as a follow-up. Also apply the same banner inside any prose reference document (e.g. template-options.md) that documents the superseded option in its own section, not only in the top-level selection rule of that document." ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .

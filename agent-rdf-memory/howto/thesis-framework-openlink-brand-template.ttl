@@ -1,0 +1,67 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Thesis & Framework / OpenLink Brand Template — Standing Preferred Default"@en ;
+    schema:description "2026-08-19: the user asked for right-sizing-your-intelligence-spend-claude_sonnet_5-1.html's visual design and demo-data completeness to become the default going forward for kg-generator's Thesis & Framework Article template, not stay a one-off. Saved as rdf-infographic-skill/assets/templates/thesis-framework-openlink-brand-claude_opus_5.html and registered in references/template-options.md as the preferred default for that content shape."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-whatItIs, :step-buildLineage, :step-nonNegotiables, :step-selectionRule ;
+    schema:step :step-whatItIs, :step-buildLineage, :step-nonNegotiables, :step-selectionRule ;
+    rdfs:seeAlso <../preferences.ttl#step-thesisFrameworkTemplatePreference>,
+        <../preferences.ttl#step-tierMapDriftFromHandAuthoring>,
+        <../references/template-options.md>,
+        <openlink-brand-color-scheme.ttl>,
+        <css-comment-star-slash-trap.ttl>,
+        <kg-explorer-label-density.ttl>,
+        <theme-toggle-os-preference-guard.ttl> .
+
+# ── Step 1: what it is ────────────────────────────────────────────────────
+
+:step-whatItIs a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "A worked Thesis & Framework Article page, saved as a reusable template and pointed to as the preferred default in references/template-options.md"@en ;
+    schema:text """Source article: Jaya Gupta's LinkedIn post "Right-Sizing Your Intelligence Spend" — a thesis piece proposing that every enterprise AI workload has an intelligence threshold, mapping named example workflows onto three capability tiers, and predicting a specific downstream architecture. Generated via kg-generator's Thesis & Framework Article template (RDF-Turtle) plus rdf-infographic-skill (HTML/MD), then iterated through several rounds of Claude Opus 5 visual design and user-caught data gaps on 2026-08-19.
+
+Template asset: rdf-infographic-skill/assets/templates/thesis-framework-openlink-brand-claude_opus_5.html — a full worked page kept as a visual/structural reference, in the same spirit as the other assets/templates/*.html files (adapt content, keep the patterns). Registered in references/template-options.md with its own "PREFERRED DEFAULT" section, and the file's own Selection Rule bullet list updated to point at it before other templates for this content shape.
+
+Companion RDF: the finished right-sizing-your-intelligence-spend-claude_sonnet_5-1.ttl (966+ triples by the end of the session) is the reference example of how much structure a Thesis & Framework Article graph should actually carry — not just the ontology and FAQ/glossary/HowTo floor, but per-category instance detail and typed evidence claims (see Step 3)."""@en .
+
+# ── Step 2: how it got this way — the build lineage worth knowing ─────────
+
+:step-buildLineage a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "The template's current state is the result of five user-caught gaps in one session, not first-draft output — each one is why a specific non-negotiable exists"@en ;
+    schema:text """In order, same session, 2026-08-19:
+1. KG Explorer edge labels were hover-reveal-only (opacity:0 by default) — user called it a contract violation; fixed to a non-zero base opacity with hover-boost. See kg-explorer-label-density.ttl Step 3.
+2. Dark/light theme toggle silently failed for any visitor whose OS preferred dark, because the @media(prefers-color-scheme:dark) block was unguarded against an explicit data-theme="light" choice. See theme-toggle-os-preference-guard.ttl.
+3. Hero byline joint-credited three names when the source's own platform metadata named only one bylined author — the other two were body-text co-writers. Split into schema:author (one) vs schema:contributor (the rest, including commenters).
+4. The SPARQL workbench had only generic entity-summary/all-triples recipes — none of the source's own quantitative examples or workload-to-tier mapping were demonstrated as runnable queries. Fixed by modeling six, then eight, purpose-built demo queries as schema:SoftwareSourceCode entities, each verified against the graph before shipping.
+5. Two of the three intelligence tiers (Threshold-Crossing, Context-and-Execution) had only a name+description+tier-link per workload while the frontier tier had real employment-count data — even though the source article gives MORE specific detail for the lower tiers (named context inputs, definitions of done, overqualification failure modes). Fixed by modeling that detail as new typed properties and regenerating the tier-map HTML section directly from the graph.
+
+A separate self-inflicted bug during step 5's palette work: a CSS comment documenting a custom-property glob (--opal-*/--ols-*) contained a literal star-slash that terminated the comment early and silently deleted the entire :root palette block. See css-comment-star-slash-trap.ttl. The lesson generalizes: every one of these six incidents had the SAME shape — the artifact looked correct by the check that was run (source read fine, DOM had the right structure, the generator's own validator passed) and was wrong only when checked the way a real user actually encounters it (a real hover, a real OS-dark visitor, a direct question about what's queryable). The required-adaptations list in Step 3 exists to front-load exactly these checks."""@en .
+
+# ── Step 3: non-negotiables when reusing this template ────────────────────
+
+:step-nonNegotiables a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "The five required-adaptation items in template-options.md are not optional polish — each one is the fix for one of the five build-lineage incidents in Step 2"@en ;
+    schema:text """Restated as a checklist (full text lives in references/template-options.md under this template's entry, kept there rather than duplicated verbatim here so there is one place to update):
+
+- Regenerate the tier/category map from the RDF at build time (rdflib walk), never hand-author it — Step 2 incident 5's root cause was static markup that could not track the graph.
+- Before calling any category/tier "has no data to model," re-read the source for what it actually says about that category — the two under-modeled tiers were, if anything, the ones the source was MORE specific about.
+- Treat every quantitative claim in the source as evidence data to model (schema:value/minValue/maxValue/unitText), not prose to leave alone — verify by grep/regex scanning the companion TTL for numeric literals, since "the file contains the number" (in a description string) is not the same as "the number is queryable."
+- Run every demo SPARQL query against the graph with rdflib before shipping; a query that returns zero rows is worse than no query.
+- Sync new RDF entities into the embedded kgData payload and re-check the orphan-node gate whenever the TTL changes after the KG Explorer was first built.
+
+Plus the two carried-forward platform-level fixes that are now baked into the template file itself and don't need re-discovering per document: the theme toggle's OS-preference guard (theme-toggle-os-preference-guard.ttl) and KG Explorer edge labels visible-by-default (kg-explorer-label-density.ttl Step 3)."""@en .
+
+# ── Step 4: when to select it vs. another template ─────────────────────────
+
+:step-selectionRule a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Default to this template for Thesis & Framework Article content; still defer to an explicit user template choice or to preserving an existing artifact's visual language on repair"@en ;
+    schema:text """This is a standing preference, not an unconditional override — the same priority order the OpenLink brand palette rule (openlink-brand-color-scheme.ttl) already uses applies here: (1) an explicit user-named template for a specific document wins; (2) repairing an existing artifact preserves its visual language unless a redesign is requested; (3) otherwise, for kg-generator Thesis & Framework Article content specifically — a named framework, a workload/tier/category mapping, sample instance data meant to be queried — select this template before reaching for the Semantic Medallion, Spec-Sheet Editorial Essay, Gartner Dashboard, or Competitive/Head-to-Head templates, which remain the right choice for their own respective content shapes (technical explainers, long-form narrative-only essays with no KG surface, dense operational dashboards, and multi-entity comparisons, respectively)."""@en .

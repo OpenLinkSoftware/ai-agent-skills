@@ -4,13 +4,24 @@ Use templates as visual and interaction references, not as hard dependencies. Th
 
 ## Selection Rule
 
-- If the user names or supplies a template, use that as the visual reference and retrofit the contract features into it.
-- If the user asks for the "usual" collection and gives no preference, infer the best template from the source content, audience, and nearby prior artifacts.
-- **For Thesis & Framework Article content specifically (a named framework, a workload/tier/category mapping, sample instance data meant to be queried) — default to the Editorial Data-Viz / Intelligence-Threshold template below** (recorded 2026-08-19, preferences.ttl Step 236 / howto/editorial-data-viz-aesthetic.ttl), which supersedes the OpenLink Brand shell for this content class; use the OpenLink Brand template only when the user names it or the OpenLink brand palette is required. This is a standing preference, not just one more option in the list.
+⚠ **This document's "PREFERRED DEFAULT" status moves between template entries over time** — three consecutive entries below claimed default status for the same content class within a 24-hour span (2026-08-19 to 2026-08-20). Before citing any entry as current, read its own heading for a supersession banner, and cross-check `preferences.ttl` for a step with a higher position number on the same topic. See `howto/latest-standing-default-resolution.ttl`.
+
+- If the user names or supplies a template, use that as the visual reference and retrofit the contract features into it. No elicitation needed.
+- **For Thesis & Framework Article content specifically** (a named framework, a workload/tier/category mapping, sample instance data meant to be queried) — default to the **Intelligence Network Editorial Aesthetic** entry below (Step 244, current as of 2026-08-20), not the Editorial Data-Viz or OpenLink Brand entries, both superseded. No elicitation needed — this is a standing preference specifically so it does not have to be re-asked every time.
+- **For a comparison piece** (source compares 2+ named platforms/products/systems) — default to Competitive / Head-to-Head Analysis. No elicitation needed — the content shape (a comparison matrix) uniquely identifies this template.
+- **Elicit only when 2 or more templates plausibly fit and no standing default resolves it** — e.g. a dense technical explainer that could reasonably go Gartner Dashboard (dashboard/briefing feel) or Semantic Medallion (layered-architecture editorial feel), or a long-form thesis piece where it's unclear whether the point is a sustained narrative read (Spec-Sheet Editorial Essay, no KG Explorer) versus a data-exploration surface (Intelligence Network / Editorial Data-Viz, full KG Explorer). Ask a short, closed question naming the candidates and their tradeoff (mirroring kg-generator's RDF Format Elicitation / Generation Modality blocks), e.g.: *"This reads as [dashboard-style / narrative-essay-style] — (1) [Template A], best for [X], or (2) [Template B], best for [Y]?"* Record the answer in `preferences.ttl` per `howto/elicit-before-conditional-default.ttl` step 3 if it looks likely to recur (e.g. "this user's technical explainers go Semantic Medallion"), so the same content shape isn't re-elicited indefinitely.
+- If the user asks for the "usual" collection and gives no preference, infer the best template from the source content, audience, and nearby prior artifacts using the rules above; elicit only if that inference is genuinely tied between two or more candidates.
+- **A source with quantitative claims worth foregrounding, or a relational structure between multiple meshed sources (responds-to/meshes-with, cites, extends)** — layer the **Editorial Enhancement Module** (see below) onto whichever base template is selected above, regardless of which one it is. The module is not itself a template choice.
 - If an existing artifact is being repaired, preserve its visual language unless the user asks for a redesign.
 - If a helper script is convenient, use it; if the template calls for a different implementation, implement directly and run the validator.
 
 ## Available References
+
+### Editorial Enhancement Module (layer on any template below — not itself a template choice)
+
+Reference: `references/editorial-enhancement-module.md`
+
+Six components extracted from an aesthetic-enhancement pass over an already-delivered infographic (Coyle/Idehen ontologies-meshup, Claude Sonnet 5, 2026-08-20): a DOM-parity-safe section rhythm fix, an N-source provenance strip, a stat band + generated-from-RDF trend figure for a buried quantitative claim, a duality panel for a source's central two-way contrast, and mesh cards for a synthesis/critical-perspective section connecting multiple meshed source documents. Layer this onto whichever base template is selected below when the signals in the table at the top of the reference doc apply — it does not replace a base template selection.
 
 ### Harness Reference
 
@@ -151,11 +162,11 @@ Required adaptations before reuse:
 - Confirm the person/creator credited per image resolves to a real, user-supplied profile URL — never invent or guess one.
 - If the piece will be deployed to a Virtuoso/URIBurner endpoint, add the Server platform + Linked data resolver footer cards; omit them only when the artifact is genuinely staying client-side (e.g. Claude Artifacts only, no DAV deployment planned).
 
-### Editorial Data-Viz / Intelligence-Threshold Template — PREFERRED DEFAULT for Thesis & Framework + data-rich content (2026-08-19)
+### Editorial Data-Viz / Intelligence-Threshold Template — refined 2026-08-20 by Intelligence Network aesthetic below (Step 244); not the current default
+
+> **⚠ REFINED 2026-08-20.** This entry was the preferred default for one day (2026-08-19, Step 236). It is now superseded by the **Intelligence Network Editorial Aesthetic** entry immediately below (Step 244), which extends this same inline-SVG-data-viz approach with a refined palette, editorial type pairing, and additional signature components (token-flow hero, layered-pipeline HowTo visualization). This entry remains a valid, simpler alternative shell — select it explicitly if the newer entry's specific additions (Newsreader serif ledes, the token-flow bridge SVG, layer-badge mesh cards) don't fit the source, but do not cite it as "the standing default." See `howto/latest-standing-default-resolution.ttl` for how this chain caused a stale-template delivery on 2026-08-20.
 
 Canonical implementation: `{LLM_ROOT}/DeepSeek/webpages/right-sizing-intelligence-spend-deepseek_v4flash-1.html` (the Right-Sizing Your Intelligence Spend collection) and its generator suite `{LLM_ROOT}/DeepSeek/_build/right-sizing/html_{css,visuals,body,js}.py`.
-
-**This is the current standing preferred default for Thesis & Framework Article content and data-rich collections** (a named framework, workload/tier/category mapping, sample instance data meant to be queried) — select it before the OpenLink Brand shell below unless the user names a different template or an existing artifact's visual language should be preserved. Recorded 2026-08-19 (preferences.ttl Step 236 / howto/editorial-data-viz-aesthetic.ttl) after the user asked for this page's look to become the going-forward default. The OpenLink Brand entry below remains a valid alternative shell; the Editorial Data-Viz aesthetic extends it with the inline-SVG data-visualization signature.
 
 Best for:
 
@@ -181,47 +192,47 @@ Characteristics worth preserving:
 Required adaptations before reuse:
 
 - Generate the visuals from the companion RDF (the canonical `html_visuals.py` builds dots from the instance list) — do not hand-author coordinates that drift from the graph.
-- Keep the standing section order `kg-explorer < sparql-workbench < howto < faq < glossary` and the validator's SPARQL-accordion/escape gates.
+- Keep the standing section order `howto < faq < glossary < kg-explorer < sparql-workbench` and the validator's SPARQL-accordion/escape gates.
 - Re-run `scripts/validate-harness-contract.py` (0 failures) plus the anchor audit, `node --check`, orphan-node check, and the headless-browser DOM check (0 JS errors, KG renders) before delivery.
 
-### Editorial Data-Viz / Intelligence-Threshold Template — PREFERRED DEFAULT for Thesis & Framework + data-rich content (2026-08-19)
+### Intelligence Network Editorial Aesthetic — CURRENT DEFAULT for Thesis & Framework + data-rich content (Step 244, 2026-08-20)
 
-Canonical implementation: `{LLM_ROOT}/DeepSeek/webpages/right-sizing-intelligence-spend-deepseek_v4flash-1.html` (the Right-Sizing Your Intelligence Spend collection) and its generator suite `{LLM_ROOT}/DeepSeek/_build/right-sizing/html_{css,visuals,body,js}.py`.
+Canonical implementation: `{LLM_ROOT}/DeepSeek/_build/openrouter-stripe/{design.css,build_html.py,build_rdf.py}` and `{LLM_ROOT}/DeepSeek/webpages/openrouter-stripe-intelligence-network-meshup-deepseek_v4flash-1.html`. **Not yet packaged as a file under `assets/templates/` in this repo** — the canonical build lives outside this repo under `{LLM_ROOT}` (per `core.ttl`, `~/Documents/LLMs/`); port the CSS/JS from the canonical implementation rather than starting from scratch, and consider copying a packaged snapshot into `assets/templates/` the next time this template is selected, so future sessions don't need cross-repo access to reuse it.
 
-**This is the current standing preferred default for Thesis & Framework Article content and data-rich collections** (a named framework, workload/tier/category mapping, sample instance data meant to be queried) — select it before the OpenLink Brand shell below unless the user names a different template or an existing artifact's visual language should be preserved. Recorded 2026-08-19 (preferences.ttl Step 236 / howto/editorial-data-viz-aesthetic.ttl) after the user asked for this page's look to become the going-forward default. The OpenLink Brand entry below remains a valid alternative shell; the Editorial Data-Viz aesthetic extends it with the inline-SVG data-visualization signature.
+**This is the current standing preferred default for Thesis & Framework Article content and data-rich collections**, refining the Editorial Data-Viz entry above (Step 236, itself superseding the OpenLink Brand entry below, Step 232/233) — select it before either of those unless the user names a different template or an existing artifact's visual language should be preserved. Recorded 2026-08-20 (preferences.ttl Step 244 / `howto/intelligence-network-editorial-aesthetic.ttl`) after a UI/UX redesign pass on the OpenRouter & Stripe meshup collection was user-approved.
 
 Best for:
 
-- Thesis/opinion pieces proposing a named framework (pillars, tiers, predictions) that maps onto categorized sample data meant to be queried.
-- Any collection whose argument is quantitative or ordinal — thresholds, tiers, trends, trade-offs — where the visuals carry the argument.
+- Everything the Editorial Data-Viz entry above is best for, plus:
+- Meshup/synthesis collections with a clear cross-source relational structure (e.g. "this section responds to/extends that other document") worth visualizing as a connective diagram rather than plain prose links.
+- Pieces wanting a warmer, more editorial (serif-lede) reading experience than the Editorial Data-Viz entry's straight sans-serif treatment.
 
-Characteristics worth preserving:
+Characteristics worth preserving (extends the Editorial Data-Viz entry above with):
 
-- **CSS-variable theming** — `:root` light tokens overridden in `html[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` as two entirely separate blocks; no hardcoded colors; SVG visuals use `var()` via style attributes (var() does not resolve in SVG presentation attributes).
-- **Editorial typography** — uppercase letter-spaced eyebrows (`eyebrow`/`eyebrow-dark`), clamp()-scaled display headings, muted `section-sub` lines, lede/body synopsis deck, `Author`/`Contributors` hero labels.
-- **Inline-SVG data visualizations as the signature** (see `howto/editorial-data-viz-aesthetic.ttl`):
-  - Hero threshold/capability curve — rising gradient line, shaded `frontier band`, workload dots positioned by threshold, annotation 'below the line: context & execution / above: frontier intelligence pays';
-  - Workload threshold spectrum — gradient None→Extreme bar with threshold ticks and a dashed rising capability line;
-  - Workload intelligence map — scatter of sample instances (intelligence-threshold × token-sensitivity), colored by value class (discovery/application/hybrid), dot radius encoding a third dimension (e.g. overqualification risk), shaded frontier-reserve region;
-  - Descending trend line for metrics that fall toward zero (e.g. intelligence consumed per successful outcome).
-  - Animated line draws via stroke-dashoffset, disabled under `prefers-reduced-motion`.
-- **Stat cards with mini magnitude bars** under each key figure.
-- **Every visual entity resolver-linked** — dots/markers/labels are SVG `<a>` with `href` + `xlink:href` + `data-iri` + `target="_blank" rel="noopener noreferrer"` pointing at `describe/?url={iri}`, each with a `<title>` tooltip.
-- **SPARQL workbench with a visible demo-instance-data panel** — the sample instances the source covers, resolver-linked, plus demo recipes (one `<details class="sparql-card">` per query, `FROM <DAV graph>` clause) that actually exercise them.
-- **Responsive dual-presentation matrices** for multi-entity comparisons (harness item 15: table ≥901px, cards ≤900px).
-- **Full harness contract retained** — floating collapsed nav, theme toggle in the nav header, KG Explorer Basic/Advanced with settings panel, 8-item attribution footer, open-tab links.
+- **Refined palette + type pairing** — accent `#1d4fd8`, accent2 purple `#7c3aed`, accent3 green `#0e9f6e`, token amber `#c8870a`; Space Grotesk display + Inter body + **Newsreader serif** for ledes/pull-quotes + JetBrains Mono for eyebrows.
+- **Deep-ink hero band** (dark in both themes) with a grid + radial-glow background, gradient accent word, glass deck, and stat cards with mini bars.
+- **Signature SVG hero visualization: the token-flow bridge** — two resolver-linked node groups connected by an animated dashed arc with 3 SMIL moving dots, for sources whose argument is fundamentally about a flow or bridge between two systems/parties.
+- **Article sections as cards** with gradient index ticks + serif pull-quote cards.
+- **Mesh/synthesis sources as cards with color-coded layer badges** (e.g. representation/routing/settlement/prior, or any domain-appropriate 3-4-way categorization) — directly relevant to any meshup collection connecting multiple source documents, since it gives each cross-reference a visually distinct role rather than a uniform card treatment.
+- **HowTo as a layered-pipeline SVG** — color-coded layer bands + resolver-linked step nodes + animated flow path + capstone outcome node, in place of (or alongside) a plain numbered list.
+- **Animated FAQ accordion** (`grid-rows 0fr→1fr`), glossary card grid.
+- **Polished KG Explorer shell + SPARQL workbench**, workbench `<details>` open by default (Step 245 — supersedes the closed-by-default rendering elsewhere in this document for this template only).
+- **Standing section order** (Step 243): narrative, mesh, comparisons, HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench, About.
+- **Glass floating nav**, scroll-reveal, focus-visible rings, `prefers-reduced-motion` support throughout.
 
 Required adaptations before reuse:
 
-- Generate the visuals from the companion RDF (the canonical `html_visuals.py` builds dots from the instance list) — do not hand-author coordinates that drift from the graph.
-- Keep the standing section order `kg-explorer < sparql-workbench < howto < faq < glossary` and the validator's SPARQL-accordion/escape gates.
-- Re-run `scripts/validate-harness-contract.py` (0 failures) plus the anchor audit, `node --check`, orphan-node check, and the headless-browser DOM check (0 JS errors, KG renders) before delivery.
+- Same RDF-source-of-truth, harness-contract, and validation requirements as every other template in this document — this is a visual/interaction layer, not a contract exemption.
+- GATE: `validate-harness-contract.py` 0 failures **and** SVG XML validity (numeric entities only — never named HTML entities like `&mdash;` inside inline SVG; use `&#8212;` etc.).
+- Since the canonical build isn't packaged in this repo yet, verify the ported CSS/JS against the harness contract checklist directly rather than assuming a copied external file is already compliant with this repo's current gates.
 
-### Thesis & Framework / OpenLink Brand Template — PREFERRED DEFAULT for Thesis & Framework Article content
+### Thesis & Framework / OpenLink Brand Template — SUPERSEDED, valid alternative shell only
+
+> **⚠ SUPERSEDED 2026-08-19** (same day it was recorded) by the Editorial Data-Viz entry above, itself refined 2026-08-20 by the Intelligence Network entry above. Do not select this as "the default" for Thesis & Framework Article content — select one of the two entries above unless the user explicitly names this template or the OpenLink brand palette is specifically required (e.g. an OpenLink-branded deliverable outside the Thesis & Framework content class). See `howto/latest-standing-default-resolution.ttl`.
 
 Asset: `assets/templates/thesis-framework-openlink-brand-claude_opus_5.html`
 
-**This is the standing preferred default for the kg-generator Thesis & Framework Article template** (a named framework, a workload/tier/category mapping, sample instance data meant to be queried) — select it before reaching for another template, unless the user names a different one or an existing artifact's visual language should be preserved. Recorded 2026-08-19 (preferences.ttl Step 232 / howto/thesis-framework-openlink-brand-template.ttl) after the user asked for this page's look and the demo-data discipline behind it to become the going-forward default rather than a one-off.
+Recorded 2026-08-19 (preferences.ttl Step 232/233 / howto/thesis-framework-openlink-brand-template.ttl) after the user asked for this page's look and the demo-data discipline behind it to become the going-forward default rather than a one-off — that default status lasted one day; see the supersession chain above.
 
 Best for:
 
