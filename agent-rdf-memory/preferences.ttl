@@ -3105,28 +3105,28 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-bash32EmptyArrayBug> .
 
-# ── Step 239: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
+# ── Step 243: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
 
 :step-webidTlsRedirectNotUniversal a schema:HowToStep ;
-    schema:position 239 ;
+    schema:position 243 ;
     schema:name "Do not assume every WebID-TLS-gated x402 resource 302-redirects through a ?k=... URL before its 402 — a /sparql/ query endpoint answered 402 directly at :5443 with no redirect at all"@en ;
     schema:text "2026-08-19: confirmed with a live probe of an ods-qa.openlinksw.com SPARQL query endpoint (urn:jch:test named graph) — cert accepted on :5443 went straight to 402, no 302/?k= hop, unlike the DAV file resource probed earlier in the same session. A redirect-follow (curl -L) handles both shapes correctly as a no-op when nothing needs following; don't build detection logic that treats an absent redirect as a failure signal." ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-redirectHopNotUniversal> .
 
-# ── Step 240: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
+# ── Step 244: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
 
 :step-x402JsonschemaRequired a schema:HowToStep ;
-    schema:position 240 ;
+    schema:position 244 ;
     schema:name "The x402 Python SDK needs jsonschema + the extensions extra even when the caller uses no extensions — it validates whatever extension the SERVER'S challenge advertises before creating a payment payload"@en ;
     schema:text "2026-08-19: discovered running x402-buyer's first real end-to-end settlement. A challenge advertising eip2612GasSponsoring failed deep inside signing with ImportError: Extensions validation requires jsonschema — after the challenge had already decoded and the buyer address already printed, reading like a mid-run crash rather than a missing dependency. Fixed in every install line across the skill (docstring, SKILL.md, setup.md) plus a troubleshooting.md entry keyed on the exact error text." ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-jsonschemaRequiredDependency> .
 
-# ── Step 241: verify a payment client's own success report independently against the chain before repeating it ──
+# ── Step 245: verify a payment client's own success report independently against the chain before repeating it ──
 
 :step-verifySettlementIndependently a schema:HowToStep ;
-    schema:position 241 ;
+    schema:position 245 ;
     schema:name "When a payment/settlement client reports success, verify independently against the underlying ledger before repeating the claim — never take the client's self-report as sufficient when real value (even testnet) moved"@en ;
     schema:text "2026-08-19: x402-buyer's first real settlement (ods-qa.openlinksw.com TestFile.txt, $9.99) reported success with a transaction hash. Verified independently via a direct eth_getTransactionReceipt RPC call to the SAME already-established Base Sepolia endpoint the script itself defaults to (never a fresh unverified URL) — confirmed status 0x1, correct ERC-20 Transfer event, correct from/to/amount matching the challenge exactly. A block-explorer URL (sepolia.basescan.org) was tried first, returned 403, and was NOT worked around with a substitute or fabricated URL — fell back to the already-verified RPC endpoint instead, per the no-fabricated-URLs rule. Also checked remaining wallet balance directly via balanceOf() rather than assuming from the settlement amount." ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;

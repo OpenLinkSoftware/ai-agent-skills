@@ -4,11 +4,23 @@
 @prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
 @prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
 @prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 <#FileAccessProductShape> a sh:NodeShape ;
-    sh:targetClass schema:WebAPI ;
-    sh:property [ sh:path schema:applicationCategory ; sh:minCount 1 ; sh:hasValue "File Access" ] ;
+    sh:targetSubjectsOf schema:applicationCategory ;
+    sh:property [ sh:path schema:applicationCategory ; sh:minCount 1 ; sh:hasValue "File Access"@en ] ;
+    sh:property [ sh:path schema:applicationSubCategory ; sh:minCount 1 ; sh:hasValue "ACL controlled file access"@en ] ;
+    sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path skos:related ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
     sh:property [ sh:path schema:provider ; sh:minCount 0 ] ;
-    sh:property [ sh:path schema:url ; sh:minCount 0 ] .
+    sh:property [ sh:path schema:url ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:hasPart ; sh:minCount 1 ;
+        sh:node [ a sh:NodeShape ;
+            sh:class schema:WebAPI ;
+            sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:serviceType ; sh:minCount 1 ; sh:hasValue "WebDAV Service"@en ] ;
+            sh:property [ sh:path schema:url ; sh:minCount 1 ; sh:nodeKind sh:IRI ]
+        ] ] .
 <#FileAccessLicenseShape> a sh:NodeShape ;
     sh:targetClass opllic:ProductLicense ;
     sh:property [ sh:path opllic:uriParameter ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
@@ -17,4 +29,5 @@
 <#FileAccessOfferShape> a sh:NodeShape ;
     sh:targetClass schema:Offer ;
     sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupFileAccess#this> ] ;
-    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ] .
+    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
+        sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] .

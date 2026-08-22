@@ -4,11 +4,27 @@
 @prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
 @prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
 @prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix oplacl: <http://www.openlinksw.com/ontology/acl#> .
+@prefix wdrs: <http://www.w3.org/2007/05/powder-s#> .
 <#GraphAccessProductShape> a sh:NodeShape ;
-    sh:targetClass schema:WebAPI ;
-    sh:property [ sh:path schema:applicationCategory ; sh:minCount 0 ] ;
+    sh:targetSubjectsOf schema:applicationCategory ;
+    sh:property [ sh:path schema:applicationCategory ; sh:minCount 1 ; sh:hasValue "Data Access"@en ] ;
+    sh:property [ sh:path schema:applicationSubCategory ; sh:minCount 1 ; sh:hasValue "ACL controlled knowledge graph access"@en ] ;
+    sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path skos:related ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
     sh:property [ sh:path schema:provider ; sh:minCount 0 ] ;
-    sh:property [ sh:path schema:url ; sh:minCount 0 ] .
+    sh:property [ sh:path schema:url ; sh:minCount 1 ] ;
+    sh:property [ sh:path schema:hasPart ; sh:minCount 1 ;
+        sh:node [ a sh:NodeShape ;
+            sh:class schema:WebAPI ;
+            sh:property [ sh:path schema:name ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:description ; sh:minCount 1 ] ;
+            sh:property [ sh:path schema:serviceType ; sh:minCount 1 ; sh:hasValue "SPARQL Query Service"@en ] ;
+            sh:property [ sh:path schema:url ; sh:minCount 1 ; sh:nodeKind sh:IRI ]
+        ] ] .
 <#GraphAccessLicenseShape> a sh:NodeShape ;
     sh:targetClass opllic:ProductLicense ;
     sh:property [ sh:path opllic:graphParameter ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
@@ -17,4 +33,37 @@
 <#GraphAccessOfferShape> a sh:NodeShape ;
     sh:targetClass schema:Offer ;
     sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupGraphAccess#this> ] ;
-    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ] .
+    sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
+        sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Graph Access offer must have a corresponding acl:Authorization granting oplacl:Read access to the graph named in the License's opllic:graphParameter." ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <http://schema.org/itemOffered> ?lic .
+                ?lic <http://www.openlinksw.com/ontology/licenses#graphParameter> ?graph .
+                FILTER NOT EXISTS {
+                    ?auth a <http://www.w3.org/ns/auth/acl#Authorization> ;
+                          <http://www.w3.org/ns/auth/acl#accessTo> ?graph ;
+                          <http://www.openlinksw.com/ontology/acl#hasAccessMode> <http://www.openlinksw.com/ontology/acl#Read> .
+                }
+            }
+        """ ;
+    ] .
+<#ConditionalGroupShape> a sh:NodeShape ;
+    sh:targetClass oplacl:ConditionalGroup ;
+    sh:property [ sh:path foaf:name ; sh:minCount 1 ] ;
+    sh:property [ sh:path oplacl:hasCondition ; sh:minCount 1 ;
+        sh:node [ a sh:NodeShape ;
+            sh:class oplacl:GroupCondition ;
+            sh:property [ sh:path oplacl:hasQuery ; sh:minCount 1 ]
+        ] ] .
+<#AuthorizationShape> a sh:NodeShape ;
+    sh:targetClass acl:Authorization ;
+    sh:property [ sh:path acl:accessTo ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path oplacl:hasAccessMode ; sh:minCount 1 ; sh:hasValue oplacl:Read ] ;
+    sh:property [ sh:path oplacl:hasRealm ; sh:minCount 1 ; sh:hasValue oplacl:DefaultRealm ] ;
+    sh:property [ sh:path oplacl:hasScope ; sh:minCount 1 ; sh:hasValue oplacl:PrivateGraphs ] ;
+    sh:property [ sh:path acl:agent ; sh:minCount 1 ; sh:class oplacl:ConditionalGroup ] ;
+    sh:property [ sh:path wdrs:describedby ; sh:minCount 1 ; sh:class schema:CreativeWork ] .

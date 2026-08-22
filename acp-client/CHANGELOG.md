@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.7.0 — 2026-08-19
+
+### Changed
+
+- **WebID-TLS/NetID-TLS now defaults to port 5443 automatically, as an
+  upfront RULE in Auth Protocol Selection, not as prose buried in
+  Protocol-Specific Notes discovered after a misleading `401` on 443.**
+  Verified live against `ods-qa.openlinksw.com`: port 443 never issues a
+  `CertificateRequest` in the TLS handshake at all (falls straight to `401
+  Digest` regardless of certificate availability); port 5443 does, and the
+  resulting `302 ?k=...` redirect is what actually leads to the `402`
+  challenge. Frontmatter, "When to Use", and the WebID-TLS Protocol-Specific
+  Notes bullet updated to match, plus the NetID-TLS alias throughout (same
+  mechanism, different name).
+
 ## 1.6.0 — 2026-08-02
 
 ### Changed
