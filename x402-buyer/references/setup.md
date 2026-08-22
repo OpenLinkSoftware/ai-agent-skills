@@ -52,7 +52,52 @@ The `--key` wallet is the one spent from. It must hold testnet USDC on the
 network the server's `PAYMENT-REQUIRED` `accepts[]` advertises — Base Sepolia
 (`eip155:84532`) by default.
 
+### Path 1 — Circle web faucet (direct to the buyer address)
+
 Fund at <https://faucet.circle.com>, selecting **Base Sepolia**.
+
+### Path 2 — Circle CLI testnet mode (agent wallet → buyer EOA)
+
+Circle's CLI has a dedicated `--testnet` mode (sessions stored separately
+from mainnet, 7-day expiry). Agent wallets are auto-created on every
+supported blockchain after the first testnet login; on testnet
+`circle wallet fund` draws **20 testnet USDC from the Circle faucet** — no
+fiat or QR transfer needed. Requires Node.js v20.18.2+.
+
+```bash
+npm install -g @circle-fin/cli
+
+# Authenticate in testnet mode; Circle emails a one-time password
+circle wallet login you@example.com --testnet
+
+# List the agent wallet (auto-created on all supported blockchains)
+circle wallet list --type agent --chain BASE-SEPOLIA
+
+# Fund from the Circle faucet — on testnet, omit --method and --amount
+circle wallet fund --address 0xYourWalletAddress --chain BASE-SEPOLIA
+
+# Confirm the funds arrived
+circle wallet balance --address 0xYourWalletAddress --chain BASE-SEPOLIA
+
+# Transfer testnet USDC to the self-custody buyer EOA the script signs with
+circle wallet transfer 0xBuyerAddress --amount 1.0 \
+  --address 0xYourWalletAddress --chain BASE-SEPOLIA
+```
+
+**Why the transfer step?** Circle Agent Wallets are MPC-custodial — key
+shares are never exposed to the agent — and the x402 settlement path verifies
+EIP-3009 authorizations offchain via `ecrecover`, which requires the raw EVM
+private key this script resolves from the credential store. The agent wallet
+can therefore be the **funding source** (faucet draw, then transfer), but it
+cannot sign the x402 payment itself. Do not expect `--key` or the credential
+store to hold a Circle agent-wallet key — it does not and cannot.
+
+Supported testnet chain identifiers for `--chain`: `BASE-SEPOLIA` (default),
+`ARB-SEPOLIA`, `ETH-SEPOLIA`, `OP-SEPOLIA`, `MATIC-AMOY`, `AVAX-FUJI`,
+`UNI-SEPOLIA`, `MONAD-TESTNET`, `ARC-TESTNET` (testnet only). Run
+`circle blockchain list` for the current list. See the
+[Circle agent-wallets quickstart](https://developers.circle.com/agent-stack/agent-wallets/quickstart)
+for the canonical walkthrough.
 
 An unfunded wallet produces `invalid_exact_evm_insufficient_balance` from the
 facilitator. That is the expected failure, not a bug.

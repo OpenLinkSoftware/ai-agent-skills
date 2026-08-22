@@ -14,7 +14,7 @@ description: >
   challenge on Base Sepolia", or any request naming x402, EIP-3009, a
   PAYMENT-REQUIRED header, a facilitator settlement, or WebID-TLS/NetID-TLS
   against an x402-protected resource.
-version: 1.3.0
+version: 1.4.0
 type: skill
 ---
 
@@ -63,8 +63,15 @@ resolver skips straight to the interactive prompt on every run. See
 
 A funded **buyer wallet** private key. It is spent from, so it must hold
 testnet USDC on whatever network the server's `PAYMENT-REQUIRED` `accepts[]`
-advertises — Base Sepolia (`eip155:84532`) by default. Fund it at
-<https://faucet.circle.com> (select Base Sepolia).
+advertises — Base Sepolia (`eip155:84532`) by default. Two testnet funding
+paths:
+
+1. **Circle web faucet (direct to the buyer address):**
+   <https://faucet.circle.com> (select Base Sepolia).
+2. **Circle CLI testnet mode** — bootstrap a Circle agent wallet, draw testnet
+   USDC from the Circle faucet, and transfer it to the buyer address. See
+   [Testnet funding via Circle CLI](#testnet-funding-via-circle-cli) and
+   [examples/circle-testnet-funding.sh](examples/circle-testnet-funding.sh).
 
 ⚠️ **Two `x402` package sources report the same version (2.19.0) but differ.**
 PyPI's build lacks `x402ClientSync.set_spend_controls`, so `--max-amount` is
@@ -72,6 +79,49 @@ PyPI's build lacks `x402ClientSync.set_spend_controls`, so `--max-amount` is
 of <https://github.com/x402-foundation/x402> has it. See
 [references/setup.md](references/setup.md) for the distinction and the
 `file://` install form. Both settle payments correctly; only the cap differs.
+
+## Testnet funding via Circle CLI
+
+Circle's official CLI supports a dedicated `--testnet` mode with sessions
+stored separately from mainnet (7-day expiry). Agent wallets are auto-created
+on every supported blockchain after the first testnet login, and on testnet
+`circle wallet fund` draws **20 testnet USDC from the Circle faucet** — no
+fiat, no QR transfer needed.
+
+```bash
+# 1. Install the CLI (requires Node.js v20.18.2+)
+npm install -g @circle-fin/cli
+
+# 2. Authenticate in testnet mode — Circle emails a one-time password
+circle wallet login you@example.com --testnet
+
+# 3. List the agent wallet (auto-created on all supported blockchains)
+circle wallet list --type agent --chain BASE-SEPOLIA
+
+# 4. Fund from the Circle faucet — on testnet omit --method and --amount;
+#    this draws 20 testnet USDC into the agent wallet
+circle wallet fund --address 0xYourWalletAddress --chain BASE-SEPOLIA
+
+# 5. Confirm the funds arrived
+circle wallet balance --address 0xYourWalletAddress --chain BASE-SEPOLIA
+
+# 6. Transfer testnet USDC to the self-custody buyer address the script
+#    signs with (the EOA whose key resolves from the credential store)
+circle wallet transfer 0xBuyerAddress --amount 1.0 \
+  --address 0xYourWalletAddress --chain BASE-SEPOLIA
+```
+
+⚠️ **An agent wallet cannot sign x402 payments directly.** Circle Agent
+Wallets are MPC-custodial — key shares are never exposed to the agent — and
+the x402 settlement path verifies EIP-3009 authorizations offchain via
+`ecrecover`, which requires the raw EVM private key this script resolves.
+The agent wallet is the **funding source**, not the signer: fund it from the
+faucet, transfer testnet USDC to the buyer EOA, then run the buyer as usual.
+
+Supported testnet chain identifiers for `--chain`: `BASE-SEPOLIA` (default),
+`ARB-SEPOLIA`, `ETH-SEPOLIA`, `OP-SEPOLIA`, `MATIC-AMOY`, `AVAX-FUJI`,
+`UNI-SEPOLIA`, `MONAD-TESTNET`, `ARC-TESTNET` (testnet only). Run
+`circle blockchain list` for the current list.
 
 ## Workflow
 
@@ -365,4 +415,5 @@ and read the seller address from the `opl_shop_x402_pay_to` registry key.
 - [references/troubleshooting.md](references/troubleshooting.md) — failure
   modes and what each one actually indicates.
 - [examples/local-dav.sh](examples/local-dav.sh),
-  [examples/probe-challenge.sh](examples/probe-challenge.sh)
+  [examples/probe-challenge.sh](examples/probe-challenge.sh),
+  [examples/circle-testnet-funding.sh](examples/circle-testnet-funding.sh)
