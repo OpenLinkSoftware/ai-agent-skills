@@ -1,0 +1,54 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Progressive Prior-Session Context Loading"@en ;
+    schema:description "Per-task procedure for deciding whether prior session context is needed, selecting only three to five relevant indexed sessions, honoring the session-scoped model filter, and recording the context actually loaded."@en ;
+    schema:dateCreated "2026-07-23T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-22T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :progressiveContextLoading ;
+    schema:step :stepAssessContextNeed, :stepResolveSessionScope,
+        :stepSearchIndex, :stepLoadRelevantSessions,
+        :stepUseOnlyRelevantEvidence, :stepRecordContextLoad ;
+    rdfs:seeAlso <../preferences.ttl#step-progressiveContextLoading>,
+        <../preferences.ttl#step-semanticSessionBootstrap>,
+        <session-read-llm-scope-gate.ttl> .
+
+:progressiveContextLoading a schema:Thing ;
+    schema:name "Progressive context-loading workflow"@en .
+
+:stepAssessContextNeed a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Assess context need for the current task"@en ;
+    schema:text "Load prior session context only when the task references a prior session or artifact, corrects or updates earlier work, requires accumulated patterns or corrections, explicitly requests history, or invokes a named workflow whose safe execution depends on those lessons."@en .
+
+:stepResolveSessionScope a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Resolve the per-session model scope before the first prior-session read"@en ;
+    schema:text "Before the first sessions directory read in a session, apply session-read-llm-scope-gate.ttl: elicit whether to keep the current-model filter or read across models, and reuse that answer only for the current session."@en ;
+    rdfs:seeAlso <session-read-llm-scope-gate.ttl> .
+
+:stepSearchIndex a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Use index.ttl as the discovery source"@en ;
+    schema:text "Extract task concepts, named entities, artifact names, and workflow terms, then search index.ttl names and descriptions within the selected model scope; do not broadly scan every session when the index supplies candidates."@en .
+
+:stepLoadRelevantSessions a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Load the three to five strongest session matches"@en ;
+    schema:text "Open only the three to five best-matching session records, or fewer when sufficient, and prioritize exact artifact, workflow, correction, and error evidence over merely recent sessions."@en .
+
+:stepUseOnlyRelevantEvidence a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Inject only task-relevant lessons into working context"@en ;
+    schema:text "Carry forward concrete decisions, exact failures, validation results, provenance, and user corrections that bear on the task; do not import unrelated session narrative or stale runtime state."@en .
+
+:stepRecordContextLoad a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Record which prior sessions informed the task"@en ;
+    schema:text "When a session record is written, link or enumerate the prior session documents actually loaded and state the selected model scope and the task-relevant reason for each; record no sessions when the assessment correctly skipped loading."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation, onto:triggerNamedWorkflow .

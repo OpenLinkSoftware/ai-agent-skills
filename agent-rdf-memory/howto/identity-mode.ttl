@@ -1,0 +1,60 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Session Identity Mode"@en ;
+    schema:description "Procedure for establishing agent-only mode by default, enabling delegation only on explicit user assertion, and exposing the resulting session state to authenticated downstream workflows."@en ;
+    schema:dateCreated "2026-07-23T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-22T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :identityModeGate ;
+    schema:step :stepStartAgentOnly, :stepRecognizeDelegationAssertion,
+        :stepDoNotInferDelegation, :stepRecordMode,
+        :stepAllowTaskOverride, :stepApplyDownstream ;
+    rdfs:seeAlso <../preferences.ttl#step-identityMode>,
+        <../preferences.ttl#step-curlAuth>, <verified-identity.ttl> .
+
+:identityModeGate a schema:Thing ;
+    schema:name "Identity-mode selection gate"@en .
+
+:identityModeAgentOnly a schema:Thing ;
+    schema:name "agent-only"@en .
+
+:identityModeDelegation a schema:Thing ;
+    schema:name "delegation"@en .
+
+:stepStartAgentOnly a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Set agent-only mode at session start"@en ;
+    schema:text "After preferences establishment, use agent-only mode unless the current user explicitly requests delegation; agent-only means the agent credential may be used where authorized without an On-Behalf-Of assertion."@en .
+
+:stepRecognizeDelegationAssertion a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Enable delegation only from explicit current-user language"@en ;
+    schema:text "Treat phrases such as 'use delegation', 'use my credentials', or 'on behalf of me' as an explicit delegation assertion for the session or named task; ambiguous identity-aware operations require elicitation before delegation is enabled."@en .
+
+:stepDoNotInferDelegation a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Do not infer operational delegation from certificate corroboration"@en ;
+    schema:text "Reciprocal hasIdentityDelegate and onBehalfOf triples establish that delegation is possible, not that the user requested it for this operation; keep the mode agent-only until explicit authorization exists."@en ;
+    rdfs:seeAlso <verified-identity.ttl> .
+
+:stepRecordMode a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Record exactly one current identity mode in session state"@en ;
+    schema:text "Record :session onto:identityMode :identityModeAgentOnly or :identityModeDelegation in the session record, with the mode resource defined in that document or resolved unambiguously; replace rather than duplicate the value when the mode changes."@en ;
+    onto:hasTrigger onto:triggerSessionStart .
+
+:stepAllowTaskOverride a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Allow an explicit task-scoped override without silently changing the standing session mode"@en ;
+    schema:text "When the user authorizes delegation for one named task, apply it only to that task unless the user states that the session mode should change; record the scope with the task provenance."@en .
+
+:stepApplyDownstream a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Make authenticated workflows read the established mode"@en ;
+    schema:text "Before authenticated curl, remote WebDAV upload, or another identity-aware request, read the current identity mode: agent-only uses the agent certificate without On-Behalf-Of, while delegation uses the agent certificate plus the authorized principal WebID header."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-curlAuth>, <remote-webdav-upload.ttl> .

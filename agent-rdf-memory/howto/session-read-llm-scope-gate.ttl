@@ -1,0 +1,53 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Session-Read LLM-Scope Gate"@en ;
+    schema:description "agent-rdf-memory/sessions/ holds session records for multiple LLMs sharing this memory store (Claude, DeepSeek, Grok, GPT, GLM, etc.). Default behavior when reading prior session files is to scope reads to the current session's resolved model identity only. The FIRST time in a session that a prior-session read is about to happen, elicit whether the user wants that filter applied, rather than assuming either way. The elicited answer is a session-scoped preference only — it does not persist across sessions; each new session re-elicits."@en ;
+    schema:dateCreated "2026-07-23T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-23T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :sessionReadLlmScopeGate ;
+    schema:step :step-recognizeMultiModelSessions, :step-defaultToOwnModelScope,
+        :step-elicitOnFirstSessionRead, :step-scopeIsSessionOnlyNotPersistent ;
+    rdfs:seeAlso <../preferences.ttl#step-sessionReadLlmScope>,
+        <model-identity-resolution.ttl>, <elicit-before-conditional-default.ttl> .
+
+:sessionReadLlmScopeGate a schema:Thing ;
+    schema:name "Session-Read LLM-Scope Gate"@en ;
+    schema:description "Model-scoped default for reading agent-rdf-memory/sessions/, with mandatory first-read elicitation and a session-only (non-persistent) answer."@en .
+
+# ── Step 1: Recognize that sessions/ is multi-model ──────────────────────────
+
+:step-recognizeMultiModelSessions a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Recognize that agent-rdf-memory/sessions/ is shared across multiple LLMs, not Claude-only"@en ;
+    schema:text """agent-rdf-memory/ is a shared memory store consumed by multiple LLM harnesses pointed at the same directory (see .claude/settings.json, .grok/settings.json, and core.ttl's per-model output-path entries: deepseekOutputPath, claudeOutputPath, grokOutputPath, glmOutputPath, etc. — see model-identity-resolution.ttl). Session filenames encode the model, e.g. sessions/2026-07-14-deepseek_v4pro-pi.ttl. Treating sessions/ as if it only ever contains this model's own history is incorrect and will silently pull in another model's session content."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+# ── Step 2: Default to own-model scope ────────────────────────────────────────
+
+:step-defaultToOwnModelScope a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Default: scope prior-session reads to the current session's resolved model identity"@en ;
+    schema:text """Once model identity is resolved (per model-identity-resolution.ttl's three-source chain), the default behavior for any read of agent-rdf-memory/sessions/*.ttl is to filter to files matching that resolved model (by filename convention, e.g. containing 'claude' vs 'deepseek' vs 'grok'). Do not read or summarize cross-model session content by default."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+# ── Step 3: Elicit on first session read this session ────────────────────────
+
+:step-elicitOnFirstSessionRead a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "BLOCKING (first occurrence only) — elicit whether to apply the LLM-scope filter before the first prior-session read of the session"@en ;
+    schema:text """This is the elicit-before-conditional-default pattern (see elicit-before-conditional-default.ttl) applied to session reads specifically: the default (own-model scope) carries an implicit user-conditioned exception ('unless the user wants cross-model visibility'), and that has not been established as a standing preference. The FIRST time in a given session that the agent is about to read from agent-rdf-memory/sessions/, ask the user (a short question, or AskUserQuestion if the read is otherwise blocking): 'Should I scope session reads to my own model's history only, or read across all models?' Wait for the answer before performing that first read. Do not re-ask for subsequent session reads within the SAME session once answered — see Step 4 for why it does re-ask in a NEW session."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+# ── Step 4: Session-scoped only, not persisted ────────────────────────────────
+
+:step-scopeIsSessionOnlyNotPersistent a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "The elicited answer is a standing preference for THIS session only — do not write it to preferences.ttl as a permanent default"@en ;
+    schema:text """Confirmed explicitly by the user 2026-07-23: unlike most elicited gate answers (which get recorded per step-recordResultingPreference in elicit-before-conditional-default.ttl so the same question is never re-asked), the LLM-scope answer is deliberately NOT promoted to a cross-session default. Each new session re-runs Step 3's elicitation from scratch. Do not add a preferences.ttl rule like 'always scope to own model' or 'always read cross-model' based on a prior session's answer — that would defeat the intent, which is to let the user decide per-session (e.g. because they are actively comparing model behavior in one session and not in the next)."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
