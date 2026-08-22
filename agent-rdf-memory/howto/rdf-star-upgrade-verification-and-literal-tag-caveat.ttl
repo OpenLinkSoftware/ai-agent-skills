@@ -1,0 +1,51 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Re-Verify After an Endpoint Upgrade — RDF-star Now Confirmed Live, With a Narrow Language-Tagged-Literal Caveat"@en ;
+    schema:description "Follow-up to sparql-sample-query-self-containment-gate.ttl step-rdfStarNotVerified: 2026-08-13/14, the commercial-edition URIBurner instance a document links to was upgraded to support RDF 1.2 (RDF-star). Re-testing the exact previously-failing queries found the upgrade genuinely fixed the SP030 syntax error, plus surfaced one new, narrow, reproducible limitation: a language-tagged literal object inside a <<...>> WHERE-clause pattern does not match, even though the same data loads and stores correctly. Companion to preferences.ttl Step 202."@en ;
+    schema:dateCreated "2026-08-14T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :rdfStarUpgradeVerification ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfStarUpgradeReverify>,
+        <sparql-sample-query-self-containment-gate.ttl>,
+        <pragma-ab-toggle-variant.ttl> .
+
+:rdfStarUpgradeVerification a schema:HowTo ;
+    schema:name "Re-verify a previously-failing capability claim after the user reports an upgrade — do not just flip the prose back to 'supported'"@en ;
+    schema:description "An endpoint being upgraded to support a feature is itself a claim that needs the same live-test discipline as the original 'does it support this' question — and the re-test can surface new, narrower findings the first test never reached (because the first test failed outright before getting to the interesting cases)."@en ;
+    schema:step :step_upgradeConfirmed, :step_newLimitationFound, :step_isolateVariable, :step_rawDumpDiagnosis, :step_workaround, :step_documentUpdate .
+
+:step_upgradeConfirmed a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Re-ran the exact two queries that previously failed with Virtuoso SP030 syntax error — both now parse cleanly, confirming the upgrade"@en ;
+    schema:text "`<<:Beethoven :composed :NinthSymphony>> :speechAct ?act` (the :c10 form) and `BIND(<<:defendant :claims \"I am innocent\"@en>> AS ?claim)` (the :c6 form) both previously errored with 'Virtuoso 37000 Error SP030: SPARQL compiler ... syntax error'. Re-run 2026-08-14: no syntax error on either. One transient 'Error SR175: Uniqueness violation' appeared on a single BIND-form attempt and did not reproduce on immediate retry — noted as a possible flake, not confirmed as a real bug, since a second and third run were both clean."@en .
+
+:step_newLimitationFound a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Loading the actual RDF-star assertions (not just testing the query syntax) revealed a genuine result-matching gap: c10's IRI-object quoted triple matched correctly; c6's language-tagged-literal-object quoted triple matched nothing, no error"@en ;
+    schema:text "After the user uploaded a companion RDF-star demo-data file (two quoted-triple assertions, matching the exact forms that had previously failed to parse), re-querying scoped to the real graph IRI (discovered via SELECT DISTINCT ?g WHERE { GRAPH ?g {...} }, never assumed) showed: `<<:Beethoven :composed :NinthSymphony>> :speechAct ?act` returned the correct bound value (:INFORM); the equivalent query for the defendant's language-tagged-literal claim returned zero rows with no error — a silent non-match, not a failure that announces itself."@en .
+
+:step_isolateVariable a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Isolated the variable methodically: tried the BIND form vs. a direct WHERE-clause triple pattern (ruled out BIND as the cause — both failed identically), then tried the literal with vs. without the @en tag (found the actual cause)"@en ;
+    schema:text "Removing @en from \"I am innocent\"@en, with everything else held constant, made the query match immediately. This is the kind of single-variable isolation that distinguishes a real, reproducible, narrowly-scoped finding from a vague 'RDF-star sometimes doesn't work' impression — the fix is precise (drop the language tag on THIS literal, in THIS query pattern position) rather than a broad hedge."@en .
+
+:step_rawDumpDiagnosis a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Before concluding 'data problem' vs. 'query-matching problem', dumped the raw stored triples for the loaded graph directly (SELECT * WHERE {?s ?p ?o}) rather than relying only on pattern-matching queries that might themselves be the broken part"@en ;
+    schema:text "The raw dump showed Virtuoso materializes each RDF-star quoted triple as a blank node (nodeID://bNNNNN) linked via rdf:reifies to an internal urn:rdf-star:triple:{p1}:{p2}:{suffix} identifier, with the annotation triples (:speechAct, :assertedBy) correctly attached to that blank node in BOTH the working (c10) and non-matching (c6) cases. For the literal-object case, the suffix embedded a hex-encoded copy of the literal's lexical form (decoded and confirmed: '4920616d20696e6e6f63656e74' = 'I am innocent'). This proved the DATA was stored correctly in both cases — the bug was specifically in the query compiler's ability to re-derive the same internal identifier from a language-tagged-literal <<...>> pattern at query time, not in the loader or the storage layer. Never assume 'no results' means 'no data' without checking the raw storage directly first."@en .
+
+:step_workaround a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Workaround: drop the language tag on the affected literal — confirmed by the user as spec-compliant (RDF 1.1/1.2: an untagged literal defaults to xsd:string, a language tag is optional descriptive metadata, not a structural requirement)"@en ;
+    schema:text "User explicitly asked 'drop the lang tag if doing so is spec compliant' before authorizing the change — confirmed yes, then updated the companion RDF-star file, had the user re-upload/replace the graph (same filename = same DAV graph IRI), and re-verified live before touching any document prose. This is the same 'verify after every edit, never assume the fix landed' discipline used throughout this incident family."@en .
+
+:step_documentUpdate a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Only after full live re-verification: promoted RDF-star from documented-fallback to primary demonstrated mechanism in :c6/:c10, added new live Execute-button sample queries (:demoQ12/:demoQ13) scoped with FROM <the-real-graph-iri>, and swept every prose passage that had said 'will support in an upcoming release' to reflect the now-confirmed status"@en ;
+    schema:text "Six passages needed updating (both :correctedTurtle/:correctedSparql/:reasoningEngine fields for :c6 and :c10, the :demoQ7 comment, two glossary entries, two FAQ answers, two HowTo steps) — the same sweep discipline as the original 2026-08-13 incident, this time updating TOWARD confirmed support rather than away from an unverified claim, but requiring the identical thoroughness: grep for every passage referencing the topic, not just the ones directly touched by the immediate fix."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified .

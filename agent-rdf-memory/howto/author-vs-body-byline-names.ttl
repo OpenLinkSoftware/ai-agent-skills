@@ -1,0 +1,67 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Author vs. Body-Byline Names — Who Gets Credited, and Where"@en ;
+    schema:description "2026-08-19 incident, settled after three rounds on one LinkedIn article whose body opens 'By: Jaya Gupta, Avanika Narayan, Jon Saad-Falcon' while LinkedIn's own metadata names Jaya Gupta alone. Final model: schema:author = the platform-asserted author of record; the byline's other names = schema:contributor, rendered verbatim in the byline itself; no separate 'Contributors:' credit line anywhere."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-theRule, :step-renderByline, :step-correctionHistory ;
+    schema:step :step-theRule, :step-renderByline, :step-correctionHistory ;
+    rdfs:seeAlso <../preferences.ttl#step-authorVsBodyBylineNames>,
+        <thesis-framework-openlink-brand-template.ttl> .
+
+# ── Step 1: the settled three-way split ──────────────────────────────────
+
+:step-theRule a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "schema:author = the single author of record the publishing platform asserts; schema:contributor = byline co-writers AND commenters; schema:mentions = named-but-uncredited people"@en ;
+    schema:text """schema:author — the author the publishing platform's own structured metadata asserts, read from the source page's application/ld+json ("author": {"@type":"Person","name":"..."}), not inferred from prose. For a LinkedIn Pulse article this is the single account under which the post is published. Normally exactly one person. This is the author OF RECORD — the identity every downstream consumer (feed, search, citation) will use.
+
+schema:contributor — two groups, both genuinely credited:
+  (a) Co-writers the article names in its own byline line ("By: X, Y, Z") beyond the author of record. The article crediting them is the evidence; they are collaborators on the text itself.
+  (b) Commenters on the page, each of whom is also schema:author of its own schema:Comment, with those comments schema:hasPart of the page.
+
+schema:mentions — people and organizations the piece names WITHOUT crediting for the work: a reviewer thanked in a closing note, executives quoted, companies discussed. Give these a neutral descriptor of how they appear ("acknowledged as its reviewer"), never a credit label."""@en .
+
+# ── Step 2: how to render it ─────────────────────────────────────────────
+
+:step-renderByline a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Render the article's OWN byline verbatim in every byline surface — it may name more people than schema:author does — and never add a second, separate credit line beside it"@en ;
+    schema:text """The rendered byline reproduces what the article prints. If the source opens "By: Jaya Gupta, Avanika Narayan, Jon Saad-Falcon", every byline surface says that: hero, synopsis kicker meta, footer source-material card, and the Markdown header. The fact that schema:author carries only one of those names is a statement about authorship of record in the graph — it is not a licence to shorten what the reader sees.
+
+Do NOT add a separate "Contributors: X · Y" line next to the byline. The co-writers are already visible in the byline itself, exactly as the source presents them; a second surface repeating them reads as inventing a credit the article never separated out. Commenters are a different case — they may be listed in a footer source-material card under "Commenters ·", because that label is factually what they are and they are not in the byline.
+
+Practical check when prose and metadata disagree: fetch the source and read its application/ld+json author field before modeling. On this incident the evidence was available from the first curl and simply was not consulted, which is what produced the initial three-joint-authors error."""@en .
+
+# ── Step 3: the correction history, and what each round was really about ──
+
+:step-correctionHistory a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Three rounds of correction on one byline: the user's objection was always author-of-record vs. co-writer, never whether the co-writers should be visible — a half-fix that shifts a name between predicates without re-deriving the whole model will not land"@en ;
+    schema:text """Round 1 — all three names modeled as joint schema:author. User: "…is incorrect, since Jaya is the post author. Commentators, are just supplementary contributors." Correct reading: fix the author-of-record.
+Round 2 — the two extra names were moved to schema:contributor AND given a NEW visible line, "Contributors: Avanika Narayan · Jon Saad-Falcon", in the hero plus a "Contributors ·" row in the footer. This preserved (and in the footer amplified) exactly the credit surface just challenged, while technically satisfying the letter of the correction. User: "Why do you still have stuff like: Contributors: Avanika Narayan · Jon Saad-Falcon."
+Round 3 — over-corrected: names demoted to schema:mentions and stripped from the byline entirely. User: "By: Jaya Gupta, Avanika Narayan, Jon Saad-Falcon, so reinsert."
+
+What the three rounds actually taught: the user was drawing ONE distinction throughout — who is the author of record versus who are co-writers — and each of my responses mistook it for a different question (how many authors; which predicate; whether to display them at all). Two failure modes to avoid, in order of how easy they are to commit:
+  - The HALF-FIX: shifting a name one rung between predicates and inventing a fresh visible surface for it. An attribution correction is about who is credited and how the source presents it, not about which property name carries the credit.
+  - The OVER-CORRECTION: reading "X is the author" as "everyone else must disappear." Removing a name the source itself prints in its byline loses information the artifact is supposed to faithfully carry.
+Apply the settled model (Step 1) and rendering rule (Step 2) across RDF, JSON-LD, hero, synopsis meta, footer cards, People index and Markdown in one pass, and re-check the source's own byline text before deciding anyone should be removed from view.
+
+Cleanup note: an artifact promoted into rdf-infographic-skill/assets/templates/ was copied from a pre-fix version mid-incident, carrying wrong credit lines into a reusable asset. Whenever a promoted artifact is subsequently corrected, re-copy the template — otherwise the fixed mistake ships to every future document generated from it."""@en .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── INCIDENT RESOLUTION (2026-08-19, same day) ────────────────────────────────
+# The principal's FINAL word on the Right-Sizing Your Intelligence Spend article:
+# the three-author byline "By: Jaya Gupta, Avanika Narayan, Jon Saad-Falcon" is
+# CORRECT after all — all three are schema:author. The page's own structured
+# metadata (the JSON-LD headline) lists all three, so the step's own test
+# ("consult the platform's structured metadata") resolves to three authors here,
+# not one. Do not apply the 'sole author' reading of this howto to that article.
+# General principle stands: consult the platform's structured metadata, and never
+# demote/re-promote names without re-reading it. Commenters remain authors of
+# their own schema:Comment entities only (see howto/comment-verbatim-extraction.ttl).

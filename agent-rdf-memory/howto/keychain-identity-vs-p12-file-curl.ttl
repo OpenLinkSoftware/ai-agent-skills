@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/keychain-identity-vs-p12-file-curl.ttl"@en ;
+    schema:description "This machine's curl cannot consume a macOS Keychain identity (by name or SHA-1) for --cert — it must be a PEM/P12 FILE PATH — despite curl -V printing (SecureTransport). Do not infer file-less mTLS is available from that banner alone; test it."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-bannerMisleading, :step-testResult, :step-whatKeychainActuallyGives .
+
+:step-bannerMisleading a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "curl -V printing (SecureTransport) is NOT sufficient evidence that --cert accepts a Keychain identity name/hash directly — the build's actual TLS backend for cert loading can still be LibreSSL/OpenSSL"@en ;
+    schema:text """Agent error, 2026-08-18: told the user 'your curl is built against SecureTransport, so --cert accepts a keychain identity name or SHA-1 hash directly — no p12 file and no passphrase at all' based solely on the version banner:
+  curl 8.7.1 (x86_64-apple-darwin25.0) libcurl/8.7.1 (SecureTransport) LibreSSL/3.3.6 zlib/1.2.12 nghttp2/1.68.1
+This was stated as fact without testing it, and it is WRONG for this specific build: --cert loading goes through LibreSSL, which treats the argument as a file path only. The user correctly pushed back ('You are presenting .p12 credentials whereas keychain access offers an alternative route than .p12 files') before this was tested, which is what surfaced the error.
+
+The (SecureTransport) tag in the banner describes ONE compiled TLS backend option; a libcurl build can link multiple backends or use SecureTransport only for some operations while cert/key loading still routes through the bundled LibreSSL/OpenSSL. Never infer capability from the banner — attempt the operation and read the actual error."""@en .
+
+:step-testResult a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Empirical test, this machine: curl --cert '<Keychain identity name>' and --cert '<SHA-1 thumbprint>' both fail identically with error 58"@en ;
+    schema:text """curl -k --cert "Kingsley Uyi Idehen (Link In Bio 4)" -o /dev/null "https://linkeddata.uriburner.com:5443/DAV/demos/daas/"
+  -> curl: (58) could not load PEM client certificate from Kingsley Uyi Idehen (Link In Bio 4), LibreSSL error error:02FFF002:system library:func(4095):No such file or directory, (no key found, wrong pass phrase, or wrong file format?)
+
+curl -k --cert "F4F190BBF8B0F0EED4D38A0C9013E4D57668726E" -o /dev/null "https://linkeddata.uriburner.com:5443/DAV/demos/daas/"
+  -> identical error 58
+
+Both the human-readable identity name and the raw SHA-1 thumbprint (the two forms SecureTransport-native curl accepts for keychain-backed --cert) were rejected the same way a nonexistent file path would be. This is conclusive: this curl treats --cert as a filesystem path, full stop, regardless of what looks addressable via `security find-identity -v`.
+
+NOTE for a future re-test: if curl is ever reinstalled/upgraded (e.g. via Homebrew against a build that links Secure Transport for cert loading, not just as a listed backend), this could change. Re-run the exact two commands above before assuming either the old or new behavior."""@en .
+
+:step-whatKeychainActuallyGives a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "What Keychain DOES provide today: the PKCS#12 passphrase, not the certificate/identity — see p12-passphrase-retrieval.ttl for the working chain"@en ;
+    schema:text "Given the error-58 result, the migration implemented 2026-08-18 uses Keychain for what it can reliably do here: hold the passphrase that unlocks the standing cert.p12 FILE (item uriburner-p12, read via security find-generic-password -s uriburner-p12 -a \"$USER\" -w). The .p12 file itself remains the --cert argument to curl. This was verified end-to-end: openssl unlock succeeded and an authenticated HTTP 200 was obtained against linkeddata.uriburner.com. A genuinely file-less route (Keychain-native identity for TLS) would require a client built against a TLS backend that actually honors it for certificate loading — not this curl — or a small Keychain-native helper (e.g. Security.framework via Swift/PyObjC) replacing curl for these calls. Not attempted; flagged as a possible future improvement only if the user asks for it." ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <p12-passphrase-retrieval.ttl> .

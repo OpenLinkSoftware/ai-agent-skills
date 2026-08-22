@@ -79,11 +79,10 @@
 <!-- Narrative Sections (primary: synopsis/analysis/people/organizations) -->
 {{ narrative_html_primary }}
 
-<!-- KG Explorer and SPARQL Workbench MUST precede FAQ/Glossary/HowTo: they
-     are how a reader interacts with the underlying data directly, and the
-     reference material below assumes that exploration has already happened.
-     See preferences.ttl step-explorerPrecedesReference /
-     howto/explorer-precedes-reference.ttl. -->
+<!-- Narrative Sections (reference: HowTo, FAQ, Glossary) -->
+{{ narrative_html_reference }}
+
+<!-- KG Explorer and SPARQL Workbench follow reference sections (preferences.ttl step-sparqlWorkbenchPlacement) -->
 
 <!-- KG Explorer — always-visible section (no accordion); id="kg-explorer"
      kept unchanged so nav anchors, CSS (#kg-explorer.kg-active) and JS
@@ -211,9 +210,6 @@
     </div>
   </div>
 </section>
-
-<!-- Narrative Sections (reference: FAQ/glossary/HowTo) -->
-{{ narrative_html_reference }}
 
 <!-- Attribution Footer — polished stock shell (prior-artifact-footer-polish-gate) -->
 <section class="footer-attribution" id="footer">

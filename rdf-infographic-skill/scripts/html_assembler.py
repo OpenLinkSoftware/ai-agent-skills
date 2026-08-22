@@ -514,21 +514,18 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     # which cannot execute via SPARQL at all) are left out of any live-query
     # surface entirely — they remain in the RDF, resolvable via KG Explorer.
 
-    # KG Explorer / SPARQL Workbench nav entries are inserted here — between
-    # the primary content (synopsis/analysis/people/orgs) and the reference
-    # content (FAQ/glossary/HowTo) — matching the document order enforced in
-    # base_template.html (explorer-precedes-reference: preferences.ttl
-    # step-explorerPrecedesReference).
-    nav_links.extend([
-        {"href": "#kg-explorer", "label": "KG Explorer"},
-        {"href": "#sparql-explorer", "label": "SPARQL"},
-    ])
+    # Narrative reference sections (HowTo, FAQ, Glossary) come next, followed
+    # by KG Explorer and SPARQL Workbench (preferences.ttl step-sparqlWorkbenchPlacement).
     if has_howto:
         nav_links.append({"href": "#howto", "label": "HowTo"})
     if has_faq:
         nav_links.append({"href": "#faq", "label": "FAQ"})
     if has_glossary:
         nav_links.append({"href": "#glossary", "label": "Glossary"})
+    nav_links.extend([
+        {"href": "#kg-explorer", "label": "KG Explorer"},
+        {"href": "#sparql-explorer", "label": "SPARQL"},
+    ])
     nav_links.append({"href": "#footer", "label": "Footer"})
 
     return "\n".join(html_parts), "\n".join(html_parts_ref), nav_links, sections

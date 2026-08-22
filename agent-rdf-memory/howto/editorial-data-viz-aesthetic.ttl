@@ -1,0 +1,85 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Editorial Data-Viz Infographic Aesthetic"@en ;
+    schema:description "Specification of the preferred HTML document aesthetic going forward: editorial typography, CSS-variable theming, and inline-SVG data visualizations (threshold curves, spectrum bars, scatter maps, trend lines) with every visual entity resolver-linked to its KG IRI."@en ;
+    schema:about :editorialDataVizAesthetic ;
+    schema:dateCreated "2026-08-19T15:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T15:30:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> .
+
+:editorialDataVizAesthetic a schema:HowTo ;
+    schema:name "Editorial Data-Viz Infographic Aesthetic"@en ;
+    schema:description "How to reproduce the preferred HTML infographic aesthetic introduced by the Right-Sizing Your Intelligence Spend collection (2026-08-19). Registered as standing preference Step 236 in preferences.ttl; apply by default to thesis/framework and data-rich collections unless the user names another template."@en ;
+    schema:hasPart :step-themeFoundation, :step-typography, :step-heroCurve,
+        :step-dataMap, :step-spectrum, :step-trendLine, :step-statBars,
+        :step-responsiveMatrices, :step-resolverLinkedVisuals, :step-reproduction,
+        :step-gate ;
+    rdfs:seeAlso <../preferences.ttl#step-editorialDataVizAesthetic>,
+        <thesis-framework-openlink-brand-template.ttl>,
+        <../../../../../LLMs/DeepSeek/webpages/right-sizing-intelligence-spend-deepseek_v4flash-1.html>,
+        <../../../../../LLMs/DeepSeek/_build/right-sizing/html_visuals.py>,
+        <../../../../../LLMs/DeepSeek/_build/right-sizing/html_css.py>,
+        <../../../../../LLMs/DeepSeek/_build/right-sizing/html_body.py>,
+        <../../../../../LLMs/DeepSeek/_build/right-sizing/html_js.py> .
+
+:step-themeFoundation a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Theme foundation: CSS variables only"@en ;
+    schema:text "Define every color as a CSS variable in :root (light) and override in html[data-theme=\"dark\"] and @media (prefers-color-scheme: dark) as two entirely separate blocks — never comma-combined. Palette roles: --accent (entity links), --accent2 (counter badges, eyebrow accents), --accent3 (positive/success/data), --gold (frontier/discovery accents), --ink/--muted/--line/--panel/--chip/--shadow. Inline SVG visuals must use var() via style attributes (var() does not resolve in SVG presentation attributes)."@en .
+
+:step-typography a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Editorial typography and hierarchy"@en ;
+    schema:text "Uppercase letter-spaced eyebrow labels (eyebrow/eyebrow-dark) above section titles; strong display headings with tight letter-spacing (clamp()-scaled); muted section-sub lines; lead paragraphs in a deck with lede/body columns. Section titles and every visible semantic entity stay resolver-hyperlinked."@en .
+
+:step-heroCurve a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Hero data-viz: the threshold/capability curve"@en ;
+    schema:text "A full-width inline SVG in the hero showing a rising capability line (gradient stroke) crossing a shaded 'frontier band' at the top; workload/entity dots positioned by their threshold, each dot an SVG <a> resolver link (href + xlink:href + data-iri, target=_blank rel=noopener), with an annotation line 'below the line: context & execution; above: frontier intelligence pays'. Animate the line with stroke-dashoffset (class cap-line), disabled under prefers-reduced-motion."@en .
+
+:step-dataMap a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Data map: scatter visualizations"@en ;
+    schema:text "For sample-instance datasets, render a scatter/map SVG: x = one ordinal (e.g. intelligence threshold None->Extreme), y = another (e.g. token sensitivity), dots colored by value class (discovery/application/hybrid), dot radius encoding a third dimension (e.g. overqualification risk), a shaded region for the 'frontier reserve', gridlines, axis labels, and a legend. Every dot is a resolver-linked SVG <a> with a <title> tooltip."@en .
+
+:step-spectrum a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Spectrum: threshold bar with capability line"@en ;
+    schema:text "A horizontal gradient bar from None to Extreme with threshold ticks; workload dots sit on the thresholds they cross; a dashed rising 'capability line' below the bar with a caption explaining that once crossed the bottleneck is context & execution."@en .
+
+:step-trendLine a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Trend line: descending outcome metrics"@en ;
+    schema:text "For a thesis whose progress metric falls toward zero (e.g. intelligence consumed per successful outcome), render a descending SVG curve with today/future annotations, styled with the positive accent color and animated draw."@en .
+
+:step-statBars a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Stat cards with mini bars"@en ;
+    schema:text "Stat strips show one card per key figure: large number, muted label, and a mini horizontal bar (gradient) encoding relative magnitude so the 'narrow frontier' story is visible at a glance."@en .
+
+:step-responsiveMatrices a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Responsive dual-presentation matrices"@en ;
+    schema:text "Multi-entity comparisons keep the harness item-15 dual presentation: semantic table for >=901px, per-entity cards for <=900px, CSS-only switch at 900px, identical facts, resolver-linked entity headers and first-column aspect/dimension links."@en .
+
+:step-resolverLinkedVisuals a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Resolver-link every visual entity"@en ;
+    schema:text "Every visible entity in a visual — dots, markers, labels — must resolve through https://linkeddata.uriburner.com/describe/?url={iri} (SVG <a href + xlink:href + data-iri + target/_blank rel=noopener>), keeping the human-readable <-> machine-readable loop intact inside charts."@en .
+
+:step-reproduction a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Reproduce from the canonical generator modules"@en ;
+    schema:text "The canonical implementation is the generator suite at {LLM_ROOT}/DeepSeek/_build/right-sizing/: html_css.py (design tokens), html_visuals.py (SVG assets as functions producing resolver-token markup), html_body.py (section markup with {{res:IRI}} tokens), html_js.py (nav/theme/KG Explorer/workbench), and the assembler build_right_sizing_html.py which resolves tokens and enforces the section order kg < workbench < howto < faq < glossary. Reuse these modules (or their patterns) rather than re-inventing the visuals."@en .
+
+:step-gate a schema:HowToStep ;
+    schema:position "11"^^xsd:integer ;
+    schema:name "Gate: harness contract still mandatory"@en ;
+    schema:text "The aesthetic never relaxes the harness contract: validate-harness-contract.py must PASS 0 failures (floating collapsed nav, theme toggle in header, KG Explorer Basic/Advanced with settings panel, SPARQL workbench with visible demo instance data, 8-item attribution footer, open-tab links, dark-mode parity, responsive comparisons). Also re-run rdflib equality, anchor audit, node --check, orphan-node check, and the headless-browser DOM check (0 JS errors, KG renders) before delivery."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .

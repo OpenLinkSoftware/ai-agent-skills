@@ -1,0 +1,45 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Never Conflate Two Reasoning Engines Inside One Labeled Code Block"@en ;
+    schema:description "2026-08-15: the why-the-triple-is-the-wrong-grain-rebuttal document claimed 'Virtuoso/FuXi reasoning' throughout its prose, but three of the twelve correction cards (c3, c4, c12) buried an actual FuXi N3 rule as a code COMMENT inside a code block generically labeled 'SPARQL / Rule' alongside real Virtuoso SPARQL. The user correctly flagged this as confusing: visually and structurally, the document read as Virtuoso-only. Fixed by splitting every mixed block into separate, distinctly labeled code blocks ('SPARQL (Virtuoso)' vs 'N3 Rule (FuXi)', the latter accent-colored) and adding a dedicated :correctedN3Rule RDF property alongside :correctedSparql so the two engines are never structurally conflated at the data-model level either. Companion to preferences.ttl step-dualEngineBlockSeparation."@en ;
+    schema:dateCreated "2026-08-15T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :dualEngineBlockSeparation ;
+    rdfs:seeAlso <../preferences.ttl#step-dualEngineBlockSeparation>,
+        <pragma-ab-toggle-variant.ttl> .
+
+:dualEngineBlockSeparation a schema:HowTo ;
+    schema:name "When a document claims two independent reasoning mechanisms (e.g. 'Virtuoso/FuXi'), each must get its own labeled code block and its own RDF property — never share one generic label or one string field"@en ;
+    schema:description "A slash in prose ('Virtuoso/FuXi reasoning') is a claim that both are independently demonstrated. If the second engine's example is only reachable by reading a code comment inside a block labeled after the first engine, the claim is not actually delivered — a reader skimming code-block labels will conclude only the first engine has examples, exactly as happened here."@en ;
+    schema:step :step_symptom, :step_diagnosis, :step_dataModelFix, :step_renderFix, :step_verify .
+
+:step_symptom a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "User's exact complaint: 'Virtuoso/FuXi reasoning is confusing. It is Virtuoso or FuXi. Right now there are only Virtuoso examples, as far as I can tell.'"@en ;
+    schema:text "Grepping the document confirmed FuXi was named in prose 15+ times but only 3 of 12 correction cards (c3, c4, c12) had any FuXi content, and in all 3 it was a '# N3 rule (not SPARQL)' comment inside a code block whose visible label was the generic 'SPARQL / Rule' — indistinguishable at a glance from the 9 cards that were genuinely Virtuoso-only."@en .
+
+:step_diagnosis a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Root cause was two-fold: a single :correctedSparql RDF property held both languages concatenated as one string, and the renderer had one generic label for whatever that property contained"@en ;
+    schema:text "The ontology's own :correctedSparql rdfs:comment literally said 'A literal SPARQL query, CONSTRUCT rule, or N3 rule' — the data model itself permitted conflating two engines in one field, which is what let the rendering-level conflation happen unnoticed."@en .
+
+:step_dataModelFix a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Added a sibling :correctedN3Rule property (domain :RDFCorrectionPattern, range xsd:string) and moved every FuXi N3 rule into it, leaving :correctedSparql pure SPARQL/SPARQL-Update only"@en ;
+    schema:text "c3 previously had ONLY an N3 rule under :correctedSparql with no actual SPARQL — added a genuine SPARQL INSERT...WHERE equivalent (marked illustrative, not live-verified, since it is a write) so the Virtuoso side was not merely asserted in prose but actually shown."@en .
+
+:step_renderFix a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Split each mixed rebuttal-code-grid into 3 columns (Turtle / 'SPARQL (Virtuoso)' / 'N3 Rule (FuXi)', the FuXi label accent-colored via a new .fuxi-label CSS class) and widened .rebuttal-code-grid from a fixed 2-column grid to repeat(auto-fit,minmax(260px,1fr)) so a 3rd column wraps responsively instead of overflowing"@en ;
+    schema:text "Also renamed the remaining 9 rebuttal cards' and all 4 Sowa cards' labels from generic 'SPARQL / Rule' to plain 'SPARQL', since none of those blocks actually contain rule syntax — the generic label was itself part of the confusion even where no conflation existed."@en .
+
+:step_verify a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Validated the edited TTL parses (rdflib), checked HTML div-tag balance stayed even, and visually confirmed all three fixed cards (c3, c4, c12) in a live browser render as 3 distinct, clearly labeled columns"@en ;
+    schema:text "This document's #rebuttal/#sowa-objections sections are hand-spliced HTML with no persisted generator script, so the fix was applied by hand-patching both the source TTL (canonical data) and the live HTML (rendered output) in parallel rather than regenerating, to avoid destroying the existing hand-authored splice."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .

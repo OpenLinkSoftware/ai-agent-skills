@@ -1,0 +1,52 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "RDF-Driven Figures, Stat Bands, and Deterministic Section Order"@en ;
+    schema:description "Four rdf-infographic-skill generator capabilities added 2026-08-18 after a component-inventory audit of a delivered page found 82 paragraphs, 0 tables, 0 stat tiles and 0 explanatory diagrams — an argument about capital flow and stack ownership rendered entirely as uniform prose cards."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-componentInventory, :step-inlineFigure, :step-statBand,
+        :step-sectionPosition, :step-accordionSummaryOverflow ;
+    schema:step :step-componentInventory, :step-inlineFigure, :step-statBand,
+        :step-sectionPosition, :step-accordionSummaryOverflow ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfDrivenFigures>,
+        <ordered-section-timeline.ttl>, <kg-explorer-label-density.ttl> .
+
+# ── Step 1: audit the component inventory, not just the validators ─────────
+
+:step-componentInventory a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Before calling a generated page finished, count its DISTINCT visual component types — a page that is 100% prose cards fails visual communication even when every validator passes"@en ;
+    schema:text """A one-line audit exposes what section-by-section reading does not: count occurrences of cards-grid, timeline, table, stat tile, inline svg, blockquote and img in the rendered body. The 2026-08-18 audit of grok-bot-fourth-moment-of-ai-claude_sonnet_5-1.html returned 82 paragraphs, 2 card grids, 3 timelines, and ZERO tables, stat tiles, figures or pull-quotes — while validate-harness-contract.py reported PASS and validate-kg-compliance.sh reported its usual 16/18. Both validators check structural/contract conformance; neither can see that an article whose entire argument is about capital flow and layer ownership was rendered as undifferentiated prose. Run the inventory whenever the source material contains numbers worth foregrounding, a flow/cycle, a layered stack, or a comparison — those four shapes each have a correct visual form that a card grid is not."""@en .
+
+# ── Step 2: inline SVG figures via a schema:image literal ──────────────────
+
+:step-inlineFigure a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "A section carries an explanatory diagram as a schema:image LITERAL beginning with '<svg' — rendered raw into a .fig-wrap, using theme CSS variables so it recolours with the page"@en ;
+    schema:text """Convention: schema:image whose object is a Literal starting with "<svg" is trusted author-controlled markup, rendered raw — the same trust model schema:abstract already uses for the synopsis deck. A literal beginning "<svg" is unambiguous (no real image URL starts that way), so this cannot collide with conventional schema:image usage and needs no custom predicate, which keeps it generator-portable across documents with different base IRIs. Authoring rules: give the SVG a viewBox (not fixed width/height), a <title>+<desc> pair referenced by aria-labelledby, and use var(--primary)/var(--text)/var(--card-bg)/var(--border)/var(--accent-warm) for all fill and stroke so it themes automatically. Do NOT use var(--secondary): it is #7C3AED in BOTH palettes (never redefined for dark) and drops to roughly 3:1 against the dark #0F172A background — use var(--accent-warm) for emphasis that must stay legible in both themes. Container: .fig-wrap sets overflow-x:auto with the SVG at min-width:620px, so a wide diagram scrolls inside its own box on a phone instead of forcing the whole document into horizontal scroll, while never being squeezed below legibility."""@en .
+
+# ── Step 3: schema:PropertyValue children render as a stat band ────────────
+
+:step-statBand a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "A section whose children are all schema:PropertyValue with a schema:value renders as a stat band — headline figure, resolver-linked label, supporting note — instead of prose cards"@en ;
+    schema:text """Model each headline number as a schema:PropertyValue with schema:value (the display figure, e.g. "$1.25B"), optional schema:unitText ("per month"), schema:name (the label), schema:description (the note) and schema:position. rdf_parser.py captures value/unitText and flags is_metric; html_assembler.py renders .stat-band > .stat-tile when EVERY child of the section is such a metric, otherwise falls through to the existing timeline/card-grid branches — so this never hijacks a mixed-content section. The figure is the hero (2.1rem Poppins, --text), the label is the resolver anchor (--accent per the entity-link colour rule), the note is --text-secondary at .83rem. Hard numbers buried mid-paragraph carry none of the weight they carry in the argument; a source that reports "$60 billion all-stock", "$1.25 billion per month", "220,000+ GPUs" and "90-day cancellation" is handing over a stat band."""@en .
+
+# ── Step 4: section order is editorial, so assert it ───────────────────────
+
+:step-sectionPosition a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Narrative section order now honours schema:position on the section entities; without it the reading order fell out of rdflib's hasPart iteration order, which is not a guaranteed contract"@en ;
+    schema:text """rdf_parser.py's section extractor iterated g.objects(main_entity, SCHEMA.hasPart) with no sort, so the rendered reading order of a document's main sections was whatever order rdflib happened to yield — stable in practice for a freshly parsed file (it tends to follow file order), but not a contract, and silently re-orderable by an unrelated edit. Now: sections carry schema:position and the parser sorts on it, with unpositioned sections falling back to 9999 and keeping their relative order via Python's stable sort. Reading order is an editorial decision (set the scale with figures, then the narrative, then the mechanism, then the counter-argument) and should be asserted in the RDF rather than inherited from a parser's iteration order."""@en .
+
+# ── Step 5: the accordion summary's mobile overflow ────────────────────────
+
+:step-accordionSummaryOverflow a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "The KG Explorer / SPARQL Workbench summary bar was a nowrap flex row that pushed the whole document into horizontal scroll on phones — fixed with flex-wrap plus a mobile margin/size query, not with overflow-x:hidden"@en ;
+    schema:text """Measured 2026-08-18 at a 375px viewport: documentElement.scrollWidth was 401px against clientWidth 375. Isolating elements outside deliberately-scrollable containers found a single offender — span.section-accordion-stat ("N sample queries"), a flex:0 0 auto white-space:nowrap pill sitting after a 1.8rem title inside .section-accordion-summary, which had display:flex with no flex-wrap and a fixed margin:0 2rem 0. A previous session recorded band-aiding this exact 26px with html/body overflow-x:hidden, which hides the symptom and leaves the content clipped. Real fix: flex-wrap:wrap on the summary so the pill drops to a second line, plus a max-width:700px query reducing the summary margin to .5rem, padding to .9rem 1rem, and the title to 1.3rem. Verified after: scrollWidth 375 == clientWidth 375, zero offenders. SEPARATELY, the same badge read "0 sample queries" on every document whose RDF carried no schema:SoftwareSourceCode query entities, because it counted only RDF-embedded queries while ignoring the three runnable recipes the workbench always ships — now counts len(sparql_recipes) + embedded, so the badge describes what the reader actually finds."""@en .

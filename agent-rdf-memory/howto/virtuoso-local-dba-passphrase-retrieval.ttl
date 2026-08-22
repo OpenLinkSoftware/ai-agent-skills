@@ -1,0 +1,53 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/virtuoso-local-dba-passphrase-retrieval.ttl"@en ;
+    schema:description "Resolution chain for the local Virtuoso instance's dba account password: macOS Keychain item virtuoso-local-dba (LIVE as of 2026-08-19, migrated from /tmp/uyi with the user's permission), /tmp/uyi DBA_PWD=... as fallback while it still exists. Same pattern as p12-passphrase-retrieval.ttl, applied to a second, independent secret — the two must not share a keychain item or collide in naming."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Resolve the local Virtuoso dba password — Keychain first, /tmp/uyi fallback"@en ;
+    schema:description "Procedure for authenticating isql/iSQL sessions against the local Virtuoso instance (port 1111, account dba) without hardcoding or re-eliciting the password each session."@en ;
+    schema:step :step-keychainItem, :step-canonicalSnippet, :step-verificationFailed, :step-redact ;
+    rdfs:seeAlso <p12-passphrase-retrieval.ttl>,
+        <../core.ttl> .
+
+:step-keychainItem a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Keychain item virtuoso-local-dba, service/account pattern identical to uriburner-p12 but a DISTINCT item — never reuse or overload one keychain item for two different secrets"@en ;
+    schema:text """CREATE (user-run, interactive, value never passes through the agent):
+  security add-generic-password -U -s virtuoso-local-dba -a "$USER" -T /usr/bin/security -w
+
+READ:
+  security find-generic-password -s virtuoso-local-dba -a "$USER" -w
+
+MIGRATED 2026-08-19: value copied from /tmp/uyi (single line, DBA_PWD=... at the time) into this new item by the agent, since the user explicitly asked for the same Keychain treatment already given to the p12 passphrase and the value was already resolvable from the documented /tmp/uyi fallback. Verified byte-for-byte equal to the source file immediately after write (compared the two values in-shell, printed only a match/mismatch boolean, never the value itself). This mirrors :step-keychainPrimary in p12-passphrase-retrieval.ttl exactly — same -T /usr/bin/security requirement to avoid a blocking GUI prompt on non-interactive reads, same -U-is-overwrite caution, same never-print-the-value rule."""@en .
+
+:step-canonicalSnippet a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Canonical fallback-safe snippet for a local Virtuoso dba session"@en ;
+    schema:text """export VIRT_DBA_PWD="$(security find-generic-password -s virtuoso-local-dba -a "$USER" -w 2>/dev/null \\
+  || python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+isql 1111 dba "$VIRT_DBA_PWD" exec="..."
+unset VIRT_DBA_PWD
+
+Always unset immediately after the isql call. Never echo, never pass on a logged command line, never write into RDF memory or the transcript."""@en .
+
+:step-verificationFailed a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "RESOLVED 2026-08-19: initial migration returned 'Bad login' (VD CL034) because /tmp/uyi held a stale value; user updated /tmp/uyi, re-migration to Keychain succeeded and both sources now authenticate"@en ;
+    schema:text """Initial migration (first value in /tmp/uyi, 12 bytes) returned:
+  *** Error 28000: VD CL034: Bad login
+The Keychain item was independently verified to hold the exact same value as /tmp/uyi at that time (string-compared before testing), so the migration itself had not corrupted anything — the /tmp/uyi value was already wrong or stale. Only ONE login attempt was made per value tested; no retry loop, because repeated failed dba logins risk triggering a Virtuoso account lockout.
+
+User then updated /tmp/uyi (new DBA_PWD value, 19 bytes). Re-tested directly from the file first (single isql attempt) — succeeded. Re-ran the same `security add-generic-password -U ...` migration to sync the Keychain item to the corrected value, verified equal to the file, then re-tested login using the KEYCHAIN-sourced value (not the file) — also succeeded. Both sources are now live and correct as of 2026-08-19."""@en .
+
+:step-redact a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Never store the dba password in RDF memory, reports, or chat"@en ;
+    schema:text "Record only WHICH source resolved it and whether the isql connection succeeded. Never copy the value into preferences.ttl, session TTL, howto files, commit messages, or chat."@en .

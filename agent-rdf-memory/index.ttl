@@ -1407,6 +1407,7 @@
     schema:description "Created the llm-routing-skill in ai-agent-skills/: intelligent LLM routing via a living capability x cost x latency graph (7,790-triple TTL, 145 models/11 vendors from live llm-prices.com feeds updated 2026-08-13, 30 task types, Pareto frontiers + escalation ladders). User confirmed skill location (ai-agent-skills/llm-routing-skill) and capability/latency sourcing (curated seed profiles + feedback loop). Deliverables: SKILL.md (full routing contract — taxonomy, cost tiers low/medium/high/max, policies, advisor escalation, feedback loop, governance, 5 SPARQL templates), capability-profiles.json (8-dimension seeds), task-types.json, routing-graph.{ttl,json}, scripts/{fetch_prices,build_routing_graph,validate_graph,route}.py, feedback-log.ttl, worked example, README, CHANGELOG 1.0.0; ZIP repackaged (17 files, -x DS_Store/__pycache__). Verified dynamic pricing (live vs stale local checkout), model-page URL pattern 404 (no fabricated URLs), rdflib comma-collection rejection (space-separated lists), seed-rule ordering fixes. GATE PASSED 0 failures. Memory: llm-routing-skill entity in tools.ttl, llmr: ontology in ontology-terms.ttl, project file llm-routing-skill-meshup.ttl."@en .
 
 :sessionIndex schema:itemListElement :session20260819DeepSeekV4FlashDshLlmRoutingSkill .
+
 # ── 2026-08-19: this session (Claude Opus 5 + Claude Code) — x402-buyer skill generation ──
 
 :session20260819ClaudeOpus5ClaudeCodeX402Buyer a schema:ListItem ;
@@ -1416,3 +1417,134 @@
     schema:description "Generated the x402-buyer skill from a user-supplied zip (x402_test.zip) containing a single x402 v2 buyer-side Python client, x402_get.py. Built it out to this repo's skill conventions (acp-client / mpp-stripe-client as structural models): SKILL.md with YAML frontmatter and trigger phrases, scripts/x402_get.py (verbatim), references/{setup,protocol,troubleshooting}.md, examples/{probe-challenge,local-dav}.sh. Two judgment additions beyond the source: a no-cost challenge-probe + base64-decode step (a 402 in this repo's world may be x402 OR Stripe/MPP, so the protocol must be identified before committing to a client), and a Payment Gate checklist (an x402 run signs an irreversible on-chain EIP-3009 authorization). Documented the two same-version-number x402 SDK sources whose only difference is set_spend_controls, i.e. whether --max-amount is actually enforced. All URLs verbatim from the source script; no fabricated URLs. x402-buyer.zip repackaged per the standing ZIP rule. Flagged to the user that the upstream script's docstring carried a throwaway Base Sepolia buyer private key; the user then asked for it to be moved to the Keychain and prompted for when required, which was done (service x402-buyer-evm-key, four-source resolver, key literal stripped and swept from both the skill dir and the ZIP, skill bumped to 1.1.0) and generalised into preferences.ttl Step 235 + howto/secret-resolution-in-generated-skills.ttl. Session continued (model switched mid-session to Claude Sonnet 5, Step 222): corrected cross-platform key-access docs (keyring required not optional off macOS, headless-Linux caveat, honest macOS-only-tested scope, 1.1.0 -> 1.1.1); live-probed a real x402-protected OPL Shop resource on ods-qa.openlinksw.com, first plain then with the user's WebID-TLS cert, discovering the WebID-TLS handshake lives on port 5443 not 443; user asked both x402-buyer and acp-client be tweaked to default to 5443 automatically, done as x402-buyer's first-ever client-certificate support (rewrite_for_webid_tls, resolve_cert_passphrase under a separate credential-store service, extract_pem_from_p12 as the sanctioned PEM-extraction exception, 1.1.1 -> 1.2.0) and acp-client's Auth-Protocol-Selection RULE promotion (1.6.0 -> 1.7.0); also found and fixed a latent macOS-awk-IGNORECASE portability bug in the challenge-decode pipeline discovered while live-testing the fix. Full pipeline verified end-to-end against the real resource with the principal's real cert. Generalised into preferences.ttl Steps 236-237 + howto/webid-tls-port-5443-default.ttl."@en .
 
 :sessionIndex schema:itemListElement :session20260819ClaudeOpus5ClaudeCodeX402Buyer .
+
+# ── 2026-08-19: this session (DeepSeek V4 Flash + dsh) — Embracing the AI Platform KG collection ──
+
+:session20260819DeepSeekV4FlashDshEmbracingAiPlatform a schema:ListItem ;
+    schema:position 1133 ;
+    schema:item <sessions/2026-08-19-deepseek_v4flash-dsh-3.ttl> ;
+    schema:name "Session 2026-08-19 (DeepSeek V4 Flash + dsh — Embracing the AI Platform KG collection)"@en ;
+    schema:description "kg-generator Social Media Post & Comment Thread + rdf-infographic-skill strict harness (plan approved, Script-Assisted, rdflib builder): 565-triple schema.org KG (Turtle + JSON-LD, rdflib set-equality 0-diff, validate-kg-compliance.sh TTL 15/15 + JSON-LD 9/9 PASS) + 185.7 KB HTML infographic for Steven Sinofsky's X post 2090183470773629018 + linked X Article 'Embracing the AI platform' (14 sections, cover image, exact counters 11 likes/3 RT/6 bookmarks/2 quotes/0 replies/2067 views). Person IRI LinkedIn-first (linkedin.com/in/sinofsky#this) with verified owl:sameAs aliases (X @stevesi, blog, DBpedia Steven_Sinofsky, Wikidata Q2098467); glossary DBpedia-primary subjects with verified Wikidata sameAs; 15 FAQ, 14 glossary terms, 5 HowTo steps; no comment thread (0 replies). validate-harness-contract.py PASS 0 failures; kgData 21 nodes/25 links/0 orphans; render verified in headless Chrome via PinchTab (no console errors). Source fetched via Twitter oEmbed + fxtwitter API — browser login not needed. Lessons: rdflib 'schema' prefix rename to schema1 (TTL post-process); JSON-LD @vocab context + absolute @ids + inline owl:sameAs for line-based audit. Registered :stevenSinofsky in entities/people.ttl. Delivered to {LLM_ROOT}/DeepSeek/{rdf,webpages}/."@en .
+
+:sessionIndex schema:itemListElement :session20260819DeepSeekV4FlashDshEmbracingAiPlatform .
+
+# ── 2026-08-19: this session (DeepSeek V4 Flash + dsh) — Open Agentic Economy x x402-buyer meshup ──
+
+:session20260819DeepSeekV4FlashDshOaeX402Meshup a schema:ListItem ;
+    schema:position 1132 ;
+    schema:item <sessions/2026-08-19-deepseek_v4flash-dsh-4.ttl> ;
+    schema:name "Session 2026-08-19 (DeepSeek V4 Flash + dsh — Open Agentic Economy x x402-buyer meshup)"@en ;
+    schema:description "kg-generator (Business & Market Analysis shape) + rdf-infographic-skill strict harness (plan approved, Script-Assisted, rdflib builder): 810-triple schema.org meshup KG (Turtle + JSON-LD; validate-kg-compliance.sh TTL 19/19 + JSON-LD 9/9 PASS) + 177.9 KB HTML infographic meshing Circle's 'Building the Open Agentic Economy' vision paper with the x402-buyer skill as the reference implementation of the x402 value-transfer protocol the vision names. Mesh expressed as skill:this isReferenceImplementationOf x402 (https://x402.org/#this) and oplShop implementsProtocol x402 via a document owl:Ontology; 16 FAQ, 38-term DefinedTermSet, 5-step HowTo (x402-buyer workflow), 11 cdx:ComparisonDimension (stack 7x3 + agents-vs-open 4x2, dual-presented responsive comparison), 3 people, 3 orgs (Circle/OpenLink/x402 Foundation), 6 SoftwareApplications. validate-harness-contract.py PASS 0 failures (incl. conditional sparql-card accordion + comparison dual-presentation gates); kgData 32/38/0 orphans; node --check OK; all authority IRIs HTTP-verified. Lessons: rdflib schema->schema1 prefix rename; JSON-LD line-based sameAs inlining; sparql-card gate fires on any SoftwareSourceCode+SPARQL TTL text; cdx:ComparisonDimension reuse. Delivered to {LLM_ROOT}/DeepSeek/{rdf,webpages}/."@en .
+
+:sessionIndex schema:itemListElement :session20260819DeepSeekV4FlashDshOaeX402Meshup .
+
+# ── 2026-08-20: Gemini 3.7 Flash + Antigravity — OpenRouter & Stripe Intelligence Network x LOAC x x402 Meshup ──
+
+:session20260820Gemini37FlashIntelligenceNetworkMeshup a schema:ListItem ;
+    schema:position 1134 ;
+    schema:item <sessions/2026-08-20-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-20 (Gemini 3.7 Flash + Antigravity — OpenRouter & Stripe Intelligence Network x LOAC x x402 Meshup)"@en ;
+    schema:description "Generated complete 3-artifact semantic collection (507-triple RDF-Turtle Knowledge Graph, Interactive HTML Infographic with D3.js v7 KG Explorer & SPARQL Workbench, and Comprehensive Companion Markdown Document) synthesizing Martin Casado's a16z analysis 'OpenRouter & Stripe: The Intelligence Network' with Kingsley Uyi Idehen's Linked Open Agentic Commerce (LOAC), x402 payment protocol buyer skill, and the Living LLM Routing Graph. Models tokens as a universal medium of economic exchange while contrasting proprietary routing/clearing with open, verifiable, hyperlink-traversable semantic entity-relationship graphs and machine-native cryptographic settlement."@en .
+
+:sessionIndex schema:itemListElement :session20260820Gemini37FlashIntelligenceNetworkMeshup .
+
+# ── 2026-08-20: this session (DeepSeek V4 Flash + dsh) — OpenRouter & Stripe Intelligence Network x LOAC x x402 x llm-routing meshup ──
+
+:session20260820DeepSeekV4FlashDshIntelligenceNetworkMeshup a schema:ListItem ;
+    schema:position 1135 ;
+    schema:item <sessions/2026-08-20-deepseek_v4flash-dsh.ttl> ;
+    schema:name "Session 2026-08-20 (DeepSeek V4 Flash + dsh — OpenRouter & Stripe Intelligence Network x LOAC x x402-buyer x llm-routing-skill meshup)"@en ;
+    schema:description "kg-generator (News Article with Framework Commentary shape) + rdf-infographic-skill strict harness (plan approved, Script-Assisted, rdflib builder): 953-triple schema.org meshup KG (Turtle only per preferences; validate-kg-compliance.sh 19/19 PASS) + 169 KB HTML infographic meshing Martin Casado's a16z.news post 'OpenRouter & Stripe: The Intelligence Network' with LOAC (representation), llm-routing-skill (routing), x402 via x402-buyer (settlement), and the prior Open Agentic Economy x x402-buyer collection. dbr:OpenRouter/dbr:Stripe_(company)/dbr:Martin_Casado/dbr:Alex_Atallah/dbr:Chris_Dixon canonical subjects (HTTP-verified); 16 FAQ, 24-term DefinedTermSet, 6-step HowTo, 12 cdx:ComparisonDimension (OpenRouter-vs-Stripe 7x2 + agentic-stack 5x4, dual-presented), 5 quotes, 2 comments, distinct owl:Ontology with 5 mesh properties (registered in ontology-terms.ttl). validate-harness-contract.py PASS 0 failures; kgData 37/47/0 orphans; node --check OK; all authority IRIs HTTP-verified. Lessons: rdflib 7.6 ':' prefix must bind as empty string; 'schema' bind needs replace=True; naive prefix checker trips on verbatim URL tokens (placeholder @prefix declarations); hash-based object order needs hasPart post-process for the 3-line window. Sibling collection by Gemini 3.7 Flash same day (index 1133). Delivered to {LLM_ROOT}/DeepSeek/{rdf,webpages}/."@en .
+
+:sessionIndex schema:itemListElement :session20260820DeepSeekV4FlashDshIntelligenceNetworkMeshup .
+
+# ── 2026-08-20: DeepSeek V4 Flash + dsh — Why Agentic Systems Need Ontologies meshup (Frank Coyle x Idehen x agent-rdf-memory) ──
+
+:session20260820DeepSeekV4FlashDshAgenticOntologiesMeshup a schema:ListItem ;
+    schema:position 1136 ;
+    schema:item <sessions/2026-08-20-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-20 (DeepSeek V4 Flash + dsh — Why Agentic Systems Need Ontologies meshup)"@en ;
+    schema:description "kg-generator (Thesis & Framework shape, framed as notes per Step 162) + rdf-infographic-skill strict harness (Script-Assisted, rdflib builder): 718-triple RDF meshup KG (Turtle + JSON-LD, both serializations equal) + 287 KB HTML infographic meshing Frank Coyle's Medium essay 'Why Agentic Systems Need Ontologies' (AI Engineer World's Fair, 2026-08-04) with Kingsley Uyi Idehen's LLMs-as-generic-RDF-clients thesis (2025-08-23), the Semantic Web yin-yang (2025-06-14), and the agent-rdf-memory skill as a working ontology-grounded agent contract. 13 FAQ, 22-term DefinedTermSet (18 DBpedia primary subjects HTTP-verified), 7-step HowTo, 10 cdx:ComparisonDimension (neurosymbolic pairing 5x2 + expert-systems-vs-2026 5x2, dual-presented), 8 quotes, 5 stats, 8 citations, distinct owl:Ontology with :OntologyGuardrailLayer class. validate-harness-contract.py PASS 0 failures; kgData 92/181/0 orphans; node --check OK; JSON-LD WebPage accountablePerson/actedOnBehalfOf = Kingsley WebID. Lessons: Frank Coyle has no confident LinkedIn (Medium profile #this primary + frank-coyle.ai/s2.smu.edu sameAs); rdflib JSON-LD needs context param for @language en compaction + WebPage provenance merge for the validator; comparison cell values may live in the HTML builder as long as dimension instances + resolver-linked aspect columns are in the TTL. Delivered to {LLM_ROOT}/DeepSeek/{rdf,webpages}/."@en .
+
+:sessionIndex schema:itemListElement :session20260820DeepSeekV4FlashDshAgenticOntologiesMeshup .
+
+# ── 2026-08-20: Gemini 3.7 Flash + Antigravity — Why Agentic Systems Need Ontologies (Neurosymbolic AI & RDF Memory Meshup) ──
+
+:session20260820Gemini37FlashAgenticOntologiesMeshup a schema:ListItem ;
+    schema:position 1137 ;
+    schema:item <sessions/2026-08-20-gemini_3_7_flash-antigravity-2.ttl> ;
+    schema:name "Session 2026-08-20 (Gemini 3.7 Flash + Antigravity — Why Agentic Systems Need Ontologies)"@en ;
+    schema:description "Generated a complete 4-artifact semantic collection (513-triple RDF-Turtle Knowledge Graph, JSON-LD Knowledge Graph, Interactive HTML Infographic with D3.js v7 KG Explorer & SPARQL Workbench, and Comprehensive Companion Markdown Document) synthesizing Frank Coyle's 'Why Agentic Systems Need Ontologies' (AI Engineer World's Fair / Medium) with Kingsley Uyi Idehen's LLMs-as-generic-RDF-clients thesis, the Semantic Web Yin/Yang, and the OpenLink Agent RDF Memory harness. Models neurosymbolic architecture (probabilistic LLM core wrapped in deterministic ontological guardrails and Pydantic boundary validators), 8 comparison dimensions (dual-presented responsive layout), 14 FAQ items, 16 SKOS glossary terms, 7 HowTo engineering steps, and 8 interactive SPARQL recipes scoped to DAV named graph. Validated 100% against strict harness contract (validate-harness-contract.py: 0 failures). Delivered to {LLM_ROOT}/Google Gemini Generated/{rdf,webpages,md}/."@en .
+
+:sessionIndex schema:itemListElement :session20260820Gemini37FlashAgenticOntologiesMeshup .
+
+# ── 2026-08-20: Claude Sonnet 5 + Claude Code — Ontologies-Meshup KG+Infographic, Aesthetic Enhancement Pass, Stale-Default Bookkeeping Fix ──
+
+:session20260820ClaudeSonnet5AgenticOntologiesMeshupEnhancement a schema:ListItem ;
+    schema:position 1138 ;
+    schema:item <sessions/2026-08-20-claude_sonnet_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-20 (Claude Sonnet 5 + Claude Code — Why Agentic Systems Need Ontologies meshup, aesthetic enhancement, stale-default bookkeeping fix)"@en ;
+    schema:description "Generated a 501-triple RDF-Turtle KG + HTML infographic meshing Frank Coyle's 'Why Agentic Systems Need Ontologies' with Kingsley Idehen's two companion LinkedIn articles and agent-rdf-memory as a working proof-point (sibling collections on the same topic generated independently the same day by DeepSeek V4 Flash and Gemini 3.7 Flash — indices 1135, 1136). User then requested a UI/UX aesthetic enhancement pass: added a stat band + RDF-formula-computed SVG decay figure surfacing the essay's buried composition-reliability arithmetic, a duality panel surfacing the two GuardrailDimension RDF entities, rebuilt mesh cards fixing a mid-sentence truncation bug and adding responds-to/meshes-with relation chips, a 4-source provenance strip, and alternating section rhythm — plus fixed a real robustness bug where a pre-existing DOM-parity section-alt IIFE was fighting a new background-color declaration. Verified via Playwright with alpha-composited WCAG-AA contrast auditing (both themes, transition-settled) after discovering the sandboxed Browser pane only renders local files as static snapshots without a live server. User's two follow-up questions (template reuse, elicitation) surfaced a real defect: the delivered HTML cited preferences.ttl Step 233 (OpenLink Brand) as the standing default, but Step 233 had been superseded same-day by Step 236 (Editorial Data-Viz), itself refined next-day by Step 244 (Intelligence Network) — a 3-entry chain within 24h with no supersession banners, plus a byte-identical duplicate section in template-options.md and a silent schema:position 236 collision between two unrelated preferences.ttl steps. User elected to leave the delivered HTML as-is and fix bookkeeping only: added SUPERSEDED/REFINED banners to Steps 233/236, renumbered the colliding step to 247, added new Step 248 (:step-latestStandingDefaultResolution) + companion howto generalizing the resolve-to-latest-non-superseded rule, deduplicated template-options.md, added the missing Step 244 template entry, and packaged the enhancement pass as references/editorial-enhancement-module.md (a layer on any base template, not a template of its own) with ambiguity-only elicitation guidance added to SKILL.md mirroring kg-generator's existing elicitation pattern."@en .
+
+:sessionIndex schema:itemListElement :session20260820ClaudeSonnet5AgenticOntologiesMeshupEnhancement .
+
+# ── 2026-08-20: Big Pickle + OpenCode — Meta AI macOS Evaluation Voice-Over Screencast ──
+
+:session20260820BigPickleOpenCodeMetaAIMacOSScreencast a schema:ListItem ;
+    schema:position 1139 ;
+    schema:item <sessions/2026-08-20-big-pickle-opencode.ttl> ;
+    schema:name "Session 2026-08-20 (Big Pickle + OpenCode — Initial Evaluation of Meta's AI App for macOS voice-over screencast)"@en ;
+    schema:description "Produced a narrated screencast bundle from a user-supplied silent screen recording (1220x818, H.264) of a Meta AI app for macOS evaluation session, with narration grounded in the companion transcript {LLM_ROOT}/Meta/about-virtuoso.md (OpenLink ODBC driver discovery, SQL Server ODBC install on macOS and Windows, entity hyperlinking redo, Virtuoso installation across platforms, the multi-model data-silo problem, Virtuoso as AI agent memory layer, agent-rdf-memory analysis). Source replaced mid-session: initial 61.19s Desktop capture superseded by meta-macos-ai-app.mov (85.73s), with narration extended from 150 to ~205 words to fit the longer cut rather than leaving ~24s of dead silence. Pipeline: lossless MP4 remux, narration draft + extension, OpenAI TTS onyx male voice (user approved quality before first mux), tpad freeze-frame tail extension so narration fits without tempo artifacts, AAC mux preserving the original silent MP4, VP9 WebM fallback, poster frame, RDF log, and gate-validated distribution HTML big-pickle-meta-ai-macos-evaluation-presentation.html per step-screencastPresentationNaming and the step-screencastEmbedMp4 blocking gate (embedded player sourcing the narrated MP4 first, POSH enclosure, JSON-LD WebPage/VideoObject/AudioObject graph with @language en, hero/footer on-behalf-of attribution). Final narrated MP4: 86.66s. All bundle gates validated with zero failures; delivered to {LLM_ROOT}/Big Pickle/screencasts/2026-08-20-meta-ai-macos-evaluation/."@en .
+
+:sessionIndex schema:itemListElement :session20260820BigPickleOpenCodeMetaAIMacOSScreencast .
+
+# ── 2026-08-21: Gemini 3.7 Flash + Antigravity — SQuARE OWL DL Reasoning & Class Disjointness Collection ──
+
+:session20260821Gemini37FlashSQuAREReasoningCollection a schema:ListItem ;
+    schema:position 1140 ;
+    schema:item <sessions/2026-08-21-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-21 (Gemini 3.7 Flash + Antigravity — SQuARE OWL DL Deductive Inferencing & Class Disjointness Collection)"@en ;
+    schema:description "Generated a 726-triple RDF-Turtle Knowledge Graph, interactive HTML Infographic with an in-browser SQuARE Axiom Reasoner / SPARQL CONSTRUCT query simulator, D3.js v7 Knowledge Graph Explorer, dual-presentation comparison matrix, FAQ accordion, Technical Glossary, and companion Markdown document based on SQuARE (tetherless-world.github.io/SQuARE/#class-disjointness) and the SETS benchmark dataset. Uploaded TTL, HTML, and MD to URIBurner WebDAV. Re-aligned all SPARQL queries and execution endpoints with FROM <https://linkeddata.uriburner.com/DAV/demos/daas/square-sparql-agent-reasoning-axioms-gemini_3_7_flash-1.ttl> and default-graph-uri parameter."@en .
+
+:sessionIndex schema:itemListElement :session20260821Gemini37FlashSQuAREReasoningCollection .
+
+
+# ── 2026-08-21: DeepSeek V4 Flash + dsh — SQuARE SPARQL CONSTRUCT Axiom Catalog (full 65-axiom collection, Virtuoso-verified) ──
+
+:session20260821DeepSeekV4FlashSquareAxiomCatalog a schema:ListItem ;
+    schema:position 1141 ;
+    schema:item <sessions/2026-08-21-deepseek_v4flash-dsh.ttl> ;
+    schema:name "Session 2026-08-21 (DeepSeek V4 Flash + dsh — SQuARE SPARQL CONSTRUCT Axiom Catalog: full 65-axiom RDF/HTML/MD collection with live Virtuoso verification)"@en ;
+    schema:description "Generated an interactive HTML + RDF-Turtle + JSON-LD + Markdown collection of the complete SQuARE SPARQL CONSTRUCT axiom set (65 axiom sections, 20 groups) from tetherless-world.github.io/SQuARE/#class-disjointness and the SETS test set. All 60 published example blocks parsed into 1,399 real instance triples (SIO/SETS/SETS-KB namespaces); catalog graph (3,919 triples) loaded into the local Virtuoso and all 61 runnable CONSTRUCT queries executed there — 45 page-stated inferences reproduced exactly, 2 documented discrepancies, 13 Virtuoso-compatible runnable variants added as schema:isVariantOf. Interactive HTML passes rdf-infographic-skill validate-harness-contract.py (0 failures) with per-axiom query accordions + run buttons, D3 v7 KG Explorer, SPARQL workbench, floating nav, theme toggle, resolver links, format-toggle footer. Deliverables: {LLM_ROOT}/DeepSeek/{rdf,webpages,md}/square-axiom-catalog-deepseek_v4flash-1.{ttl,jsonld,html,md}. Project memory: projects/square-axiom-catalog.ttl."@en .
+
+:sessionIndex schema:itemListElement :session20260821DeepSeekV4FlashSquareAxiomCatalog .
+
+# ── 2026-08-21: GPT-5 Codex — Codex Router installation ──
+
+:session20260821Gpt5CodexRouterInstall a schema:ListItem ;
+    schema:position 1142 ;
+    schema:item <sessions/2026-08-21-gpt5-codex-router-install.ttl> ;
+    schema:name "Session 2026-08-21 (GPT-5 Codex — Codex Router installation)"@en ;
+    schema:description "Stable checkout and pinned dependencies prepared; configured-provider selection preserved existing Grok OAuth and loopback-only local backends; five managed Codex skills installed; native ChatGPT login preserved. Router foreground health passed, but sandboxed launchctl bootstrap returned status 5, so the installer safely retained native Codex routing and produced a support bundle."@en .
+
+:sessionIndex schema:itemListElement :session20260821Gpt5CodexRouterInstall .
+
+# ── 2026-08-21: Gemini 3.7 Flash + Antigravity — Conceptual Data Virtualization Collection (David Ogilvy Value Prop) ──
+
+:session20260821GeminiConceptualVirtualization a schema:ListItem ;
+    schema:position 1143 ;
+    schema:item <sessions/2026-08-21-gemini_3_7_flash-antigravity-2.ttl> ;
+    schema:name "Session 2026-08-21-2 (Gemini 3.7 Flash + Antigravity — Conceptual Data Virtualization for SQL and RDF Collection)"@en ;
+    schema:description "Created a 3-artifact collection (RDF-Turtle Knowledge Graph, interactive HTML Infographic with D3.js v7 KG Explorer & SPARQL Workbench, and companion Markdown document) based on Kingsley Uyi Idehen's Medium article 'Conceptual Data Virtualization for SQL and RDF using Open Standards'. Designed with David Ogilvy value proposition articulation, 4-tier architectural hierarchy, responsive head-to-head comparison matrix, 7 HowTo steps, 12 FAQs, 10 primary DBpedia glossary terms, and 4 executable SPARQL queries."@en .
+
+:sessionIndex schema:itemListElement :session20260821GeminiConceptualVirtualization .
+
+# ── 2026-08-21-2: DeepSeek V4 Flash + dsh — Conceptual Data Virtualization Collection (David Ogilvy Value Prop) ──
+
+:session20260821DeepSeekV4FlashConceptualVirtualization a schema:ListItem ;
+    schema:position 1144 ;
+    schema:item <sessions/2026-08-21-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-21-2 (DeepSeek V4 Flash + dsh — Conceptual Data Virtualization for SQL and RDF Collection, David Ogilvy value-prop framing)"@en ;
+    schema:description "Generated an RDF-Turtle + HTML infographic collection (Turtle only per Step 165; no MD requested) from Kingsley Uyi Idehen's Medium post 'Conceptual Relational Data Virtualization, using Existing Open Standards' (2018-04-27). Content captured via r.jina.ai reader proxy (Cloudflare blocked curl and PinchTab; Wayback snapshot also confirmed). 679-triple TTL: TechArticle, 7 sections, 8 concepts, 3 IntegrationApproach x 8 cdx:ComparisonDimension (corpus-canonical class reused), 12 FAQ, 12-term primary-DBpedia glossary, 7-step HowTo with absolute post: IRIs, 4 SPARQL recipes (2 are the article's own virtrdf Quad Map + URIBurner R2RML queries), distinct owl:Ontology, prov chain. HTML per Intelligence Network Editorial Aesthetic (Step 244 standing default): Relational-Graph Bridge hero SVG, 4-tier layered-pipeline HowTo SVG, dual-presentation 3x8 comparison, animated FAQ, glossary grid, D3 v7 KG Explorer (35 nodes/46 edges, 0 orphans), open-by-default SPARQL workbench, glass nav, theme toggle, 8-item attribution. Gates: validate-harness-contract.py 0 failures, validate-kg-compliance.sh 19/19, node --check clean, shot-scraper browser verification at 1440px/390px (dual-presentation switch, zero horizontal overflow after .wb-row min-width:0 + overflow-x:hidden CSS patch). Builder suite forked to _build/conceptual-data-virtualization/. :ArchitecturalTier and :IntegrationApproach registered as corpus re-mints in entities/ontology-terms.ttl. Deliverables: rdf/conceptual-data-virtualization-sql-rdf-deepseek_v4flash-1.ttl, webpages/conceptual-data-virtualization-sql-rdf-deepseek_v4flash-1.html."@en .
+
+:sessionIndex schema:itemListElement :session20260821DeepSeekV4FlashConceptualVirtualization .

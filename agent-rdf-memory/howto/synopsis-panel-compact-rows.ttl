@@ -1,0 +1,40 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Compact Spotlight-Panel Rows, Not More Rows, Fixes Synopsis Deck Whitespace"@en ;
+    schema:description "2026-08-15: user asked for the synopsis spotlight sidebar to be '14+ to reduce the unused space effect'. First read taken literally — raised the item cap from 4 to 14, which INCREASED panel height (3080px, worse than the original 3-line-per-row design) rather than reducing whitespace. User corrected: the actual intent was more items packed into LESS space — compress row density, don't just show more of the same tall row style. Fixed by converting each spotlight row from a bordered card with a name + 2-3-line description into a single-line ellipsis-truncated title (full text moved to a title= hover tooltip) with a hairline-divider list instead of individual card boxes. Result: 14 rows at 593px, versus body's 517px — near-parity, versus the original 4-row single-line-desc version's 914px or the literal '14 rows, same style' version's 3080px. Companion to preferences.ttl step-synopsisPanelCompactRows."@en ;
+    schema:dateCreated "2026-08-15T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :synopsisPanelCompactRows ;
+    rdfs:seeAlso <../preferences.ttl#step-synopsisPanelCompactRows>,
+        <synopsis-deck-design-system.ttl> .
+
+:synopsisPanelCompactRows a schema:HowTo ;
+    schema:name "When a user says a list needs to be 'longer/more' AND 'less space', they mean denser rows, not more of the current row style"@en ;
+    schema:description "A count instruction ('needs to be 14+') paired with a space complaint ('reduce the unused space effect') is not two separable requests to satisfy independently — read literally, raising the count while keeping the same per-row footprint makes the space problem worse, which is exactly what happened here and required a follow-up correction from the user."@en ;
+    schema:step :step_misread, :step_correction, :step_compactDesign, :step_result .
+
+:step_misread a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "First pass: raised rdf_parser.py's spotlight-panel cap from 4 to 14, keeping the existing bordered-card-with-description row style, and hand-patched the live HTML to add 10 more of the same rows"@en ;
+    schema:text "This satisfied the literal '14+' number but made the aesthetic problem the user was actually complaining about worse: panel height went from 914px (cap=4) to 3080px (cap=14), because each row still cost ~220px (name + 2-3 wrapped lines of description + card padding + border + margin)."@en .
+
+:step_correction a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "User's exact correction: 'I wanted the sidebar further compressed, not expanded to minimize the aesthetically problematic empty space'"@en ;
+    schema:text "This clarified the original '14+' instruction meant: fit at least 14 items INTO a compressed footprint, not 'show 14 of the current tall rows' — the count and the space complaint were describing the same single fix (denser rows), not two independent instructions."@en .
+
+:step_compactDesign a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Compact row redesign: dropped the visible multi-line description entirely (moved to a title= attribute on the row's link for hover-accessible detail), single-line name with CSS text-overflow:ellipsis, replaced individual bordered card boxes with a plain hairline-divider list (border-bottom only, no per-row border/radius/box-shadow/margin), shrank font-size/dot-size/padding throughout"@en ;
+    schema:text "Applied at both the shared-template level (rdf_parser.py's row-building loop, html_assembler.py's render_synopsis_deck panel markup, styles.css's #synopsis .debt-* rules) and hand-patched into the live document's inline <style> and hand-spliced HTML, since this document's #rebuttal/#sowa-objections/synopsis sections have no persisted regeneration script."@en .
+
+:step_result a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Measured in a live browser before declaring done: panel 593px vs body 517px (near-parity) — down from the over-compressed cap-4 version's 914px and the literal-reading cap-14 version's 3080px"@en ;
+    schema:text "Never trust a CSS/layout fix without a live getBoundingClientRect() measurement comparing the two grid columns directly — 'looks more compact' is not the same claim as 'is now proportionate to the other column', and this document's history has repeatedly shown eyeballing alone misses the actual pixel imbalance."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .

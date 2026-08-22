@@ -1,0 +1,28 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "RDF-Positioned Sections Render as a Numbered Timeline, Not a Flat Card Grid"@en ;
+    schema:description "A redesign made 2026-08-18 after the user pushed past bug-fix-level review ('is this the very best you can offer... this is part of a competition') and explicitly delegated the redesign call. Every generic RDF-driven section previously rendered identically as a flat card grid regardless of whether its items were an ordered sequence or an unordered set, discarding real structure the RDF already asserted."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-orderedTimelineDetection, :step-nestedSectionPromotion ;
+    schema:step :step-orderedTimelineDetection, :step-nestedSectionPromotion ;
+    rdfs:seeAlso <../preferences.ttl#step-orderedSectionTimeline> .
+
+# ── Step 1: schema:position on every item triggers a timeline, not a grid ───
+
+:step-orderedTimelineDetection a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "html_assembler.py's generic section renderer now detects a real, non-sentinel schema:position on every item and switches from .cards-grid to a numbered .timeline.numbered component"@en ;
+    schema:text """rdf_parser.py already captured schema:position on every section child (c_pos, default sentinel 9999 when absent) but html_assembler.py never read it — every section (an ordered 5-move strategic narrative, an ordered 8-term harness mapping, an unordered glossary-like list) rendered through the identical flat .cards-grid of .card divs, discarding whether the source data was sequential or not. Fixed: when a section has more than one item AND every item carries a real position (none equal to the 9999 sentinel), it renders as <div class="timeline numbered"> with a numbered gradient badge (.timeline-marker, background:linear-gradient(135deg,var(--primary),var(--secondary))) per item, connected by a vertical gradient line between markers, each item's content in its own card (.timeline-content). Sections without full positional coverage (a single item, or a genuinely unordered set) still render as the flat .cards-grid — this is a real RDF-driven branch, not a per-document visual choice; the same generator applied to any future document with schema:position-complete section children gets the timeline automatically. New CSS is scoped entirely under .timeline.numbered so it does not alter the pre-existing plain-dot .timeline/.timeline-item component already used by several older hand-authored documents."""@en .
+
+# ── Step 2: a section nested two hasPart levels deep never rendered at all ──
+
+:step-nestedSectionPromotion a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "rdf_parser.py's narrative-section extractor only walks ONE hasPart level below the main entity — a section that matters gets zero visibility if it is nested two or more levels deep, and must be promoted to a direct schema:hasPart child of the main entity to render at all"@en ;
+    schema:text """Found while redesigning grok-bot-fourth-moment-of-ai-claude_sonnet_5-1.ttl: :harnessLayerMappingSection (the document's 8-term critical-perspective mapping — arguably its single most load-bearing content) was schema:isPartOf :platformAgnosticHarnessPerspective, itself schema:isPartOf :criticalPerspectivesSection, itself schema:hasPart of :analysis — two levels below the shallow extractor's reach. The section's OWN heading rendered (as the one-item card content of its parent), but its 8 children never appeared anywhere in the HTML at all, silently. This is not a generator bug to fix (a recursive-descent extractor is a much larger, riskier change affecting every document) — it is a modeling discipline: any section whose own children need independent visibility must be added directly to the main entity's schema:hasPart list (with the matching schema:isPartOf :analysis reciprocal), in addition to whatever narrative-context parent it also legitimately belongs under. Multi-valued schema:isPartOf (a section legitimately isPartOf both its narrative parent AND the top-level analysis entity) is valid RDF and was used here rather than restructuring the existing parent chain."""@en .

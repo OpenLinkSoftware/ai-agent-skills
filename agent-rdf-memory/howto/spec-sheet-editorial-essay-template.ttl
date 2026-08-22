@@ -1,0 +1,33 @@
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix :       <#> .
+
+<> a schema:HowTo ;
+    schema:name "HowTo: Spec-Sheet Editorial Essay Template — Registration and Reuse"@en ;
+    schema:description "Companion to preferences.ttl Step 208. Documents the new rdf-infographic-skill template introduced by the 'The Judgment Layer' essay, why it was registered, and the rule for when a template may omit harness-contract items."@en ;
+    schema:dateCreated "2026-08-16T00:00:00Z"^^xsd:dateTime ;
+    schema:step :stepWhatWasNew, :stepWhereItLives, :stepScopeBoundaryRule, :stepAssetContents ;
+    rdfs:seeAlso <../preferences.ttl#step-registerNewInfographicTemplate>,
+        <../../rdf-infographic-skill/references/template-options.md>,
+        <../../rdf-infographic-skill/SKILL.md> .
+
+:stepWhatWasNew a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "What made this pattern distinct from every existing template"@en ;
+    schema:text """'The Judgment Layer' (nlp-judgment-layer-claude_sonnet_5-1.{html,md,ttl}) is a long-form narrative essay, not a KG-exploration surface — the format none of the four prior templates (harness reference, competitive/head-to-head, Gartner dashboard, Semantic Medallion) targeted. Its distinguishing elements: a quiet limestone/ink spec-sheet editorial palette pairing serif body text with monospace structural labels (eyebrows, step numbers, quadrant tags); numbered chapter sections (§1…§8) each with a self-linking fragment-id anchor (`<section class="chapter" id="{slug}">` + `<span class="num"><a href="#{slug}">§N</a></span>`) so cross-references between sections are real hyperlinks, not bare prose; a hub-and-quadrant diagram (`.tetrad`/`.tetrad-hub`/`.tetrad-cell`) for rendering any reciprocal four-part framework — McLuhan's tetrad of media effects here — with a center circle absolutely positioned over a 2×2 grid on wide viewports and a static stacked fallback under 620px, using asymmetric per-quadrant padding on the hub-facing corner (not just a small hub) to keep prose clear of the circle regardless of content length; `.figure-block` figures for crediting third-party source images (chart, cartoon) inline with a resolver-wrapped creator link and a "view full size" out to the original; and a footer `.tech-grid` that separates the stack into distinct role-labeled cards (language model, agent platform, framework cited, RDF companion, and — only when actually deployed there — server platform and linked-data-resolver)."""@en .
+
+:stepWhereItLives a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Registration locations"@en ;
+    schema:text """Three files were touched, matching how every prior template (Gartner dashboard, Semantic Medallion, competitive/head-to-head) was registered: (1) the reference asset itself at rdf-infographic-skill/assets/templates/spec-sheet-editorial-essay-claude_sonnet_5.html — the real generated example, not a blanked skeleton, consistent with existing template assets which are also live prior outputs; (2) a new dedicated section in rdf-infographic-skill/references/template-options.md with the same Best for / Asset / Characteristics worth preserving / Required adaptations before reuse structure every other template entry uses; (3) an updated one-sentence pointer in rdf-infographic-skill/SKILL.md's "Template Selection And Reusable Harness Assets" section so the template is discoverable from the skill's own top-level instructions, not only from the references file."""@en .
+
+:stepScopeBoundaryRule a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "A template may omit contract items that are structurally inapplicable, but must say so explicitly and still satisfy every applicable item"@en ;
+    schema:text """This template deliberately omits the KG Explorer and SPARQL workbench (harness contract items 7, 8, 13 in rdf-infographic-skill/SKILL.md) because a long-form narrative essay is not a graph-exploration surface — bolting on a force-directed graph nobody asked to explore would be a contract mismatch dressed up as compliance, not genuine adherence. But omission is scoped narrowly: every other applicable contract item still holds, most importantly item 3 (resolver-backed entity links). The essay's companion RDF minted schema:DefinedTerm/schema:HowToStep/schema:ItemList entities for its own concepts (the tetrad's four effects, the five identity-stack layers, the three debts, the seven rules, the three developer roles) — the first version of the HTML/MD shipped without hyperlinking any of them, and the user caught it by asking "Have you applied the RDF IRIs as hyperlinks to relevant entities in the HTML and MD docs using resolver pattern?" after they'd already been generated. Fixed by wrapping each concept's first visible mention in both files with a resolver link built from the document's own IRI plus the entity's fragment (https://linkeddata.uriburner.com/describe/?url={encoded '{doc-IRI}#{fragment}'}), the same construction used for person entities. GENERAL RULE going forward: when a template's own documentation states it omits certain contract items, that statement must name exactly which items and why — never a vague "lighter-weight" — and the omission never extends to resolver-linking, attribution, or RDF/MD parity, which apply regardless of whether the KG Explorer is present."""@en .
+
+:stepAssetContents a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "What the reference asset actually contains"@en ;
+    schema:text """The registered asset is the delivered essay itself, including its two inline data-URI-embedded third-party figures (a chart credited to Carlos E. Perez / Intuit Machine, a cartoon credited to Justin Miller) and its full resolver-linked concept graph — kept as a real, complete example rather than trimmed to a bare shell, matching how the other three template assets in the same directory are also real prior generations, not templates in the blank-skeleton sense."""@en .

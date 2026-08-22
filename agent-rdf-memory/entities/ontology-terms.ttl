@@ -330,3 +330,54 @@ Property alignments use owl:inverseOf rather than owl:equivalentProperty because
     schema:dateCreated "2026-08-19T15:10:00Z"^^xsd:dateTime ;
     rdfs:seeAlso <https://www.openlinksw.com/ontology/llm-routing#> ,
         <https://linkeddata.uriburner.com/DAV/demos/daas/ontology/intelligence-allocation#> .
+
+# ── Agentic Commerce Stack Mesh Properties (minted 2026-08-20 in
+#    openrouter-stripe-intelligence-network-meshup-deepseek_v4flash-1.ttl) ──
+# Five owl:ObjectProperty terms minted document-locally in the a16z
+# intelligence-network meshup (:meshupOntology, @prefix : =
+# https://www.a16z.news/p/openrouter-and-stripe-the-intelligence#).
+# First corpus registration (the prior open-agentic-economy session minted
+# implementsProtocol / isReferenceImplementationOf document-locally without
+# registering). Future documents needing these concepts should REUSE the
+# document-local IRIs via owl:equivalentProperty, not re-mint.
+
+:meshPropertyImplementsProtocol a owl:ObjectProperty ;
+    rdfs:label "implements protocol"@en ;
+    rdfs:comment "Relates a software application or service to the protocol it implements (e.g. x402-buyer -> x402). Document-local canonical: <https://www.a16z.news/p/openrouter-and-stripe-the-intelligence#implementsProtocol> and <https://www.circle.com/blog/building-the-open-agentic-economy#implementsProtocol>."@en ;
+    rdfs:isDefinedBy :ontology .
+
+:meshPropertyIsReferenceImplementationOf a owl:ObjectProperty ;
+    rdfs:label "is reference implementation of"@en ;
+    rdfs:comment "Relates a concrete, executable implementation to the protocol or standard it demonstrates (e.g. x402-buyer -> x402). Document-local canonical: <https://www.a16z.news/p/openrouter-and-stripe-the-intelligence#isReferenceImplementationOf>."@en ;
+    rdfs:isDefinedBy :ontology .
+
+:meshPropertyRoutesIntelligence a owl:ObjectProperty ;
+    rdfs:label "routes intelligence"@en ;
+    rdfs:comment "Relates a software application or service to the intelligence-network function of routing model, token, and information flows between businesses (OpenRouter, Ori Eval, llm-routing-skill). Document-local canonical: <https://www.a16z.news/p/openrouter-and-stripe-the-intelligence#routesIntelligence>."@en ;
+    rdfs:isDefinedBy :ontology .
+
+:meshPropertySettlesValue a owl:ObjectProperty ;
+    rdfs:label "settles value"@en ;
+    rdfs:comment "Relates a software application, service, or protocol to the settlement of value - dollars, tokens, or other media of exchange (Stripe, x402, x402 Facilitator). Document-local canonical: <https://www.a16z.news/p/openrouter-and-stripe-the-intelligence#settlesValue>."@en ;
+    rdfs:isDefinedBy :ontology .
+
+:meshPropertyRepresentsCommerce a owl:ObjectProperty ;
+    rdfs:label "represents commerce"@en ;
+    rdfs:comment "Relates a document or framework to the representation of commerce as a hyperlink-based entity-relationship graph of principals, agents, offers, licenses, and access rights (LOAC). Document-local canonical: <https://www.a16z.news/p/openrouter-and-stripe-the-intelligence#representsCommerce>."@en ;
+    rdfs:isDefinedBy :ontology .
+
+# ── ArchitecturalTier — 2 disjoint re-mints aligned (2026-08-21) ──
+
+:ArchitecturalTier a owl:Class ;
+    rdfs:label "Architectural Tier"@en ;
+    rdfs:comment "A functional layer within a conceptual data virtualization architecture (e.g. physical relational storage, conceptual mapping/virtualization, semantic graph and inference, universal consumption). Canonical corpus IRI; 2 disjoint re-mints aligned: Gemini 3.7 Flash collection (2026-08-21) and DeepSeek V4 Flash collection (2026-08-21-2), both minting the same document-local IRI under the Medium post URL. Future documents needing this concept should REUSE this IRI, not re-mint."@en ;
+    rdfs:isDefinedBy :ontology ;
+    owl:equivalentClass <https://medium.com/virtuoso-blog/conceptual-data-virtualization-for-sql-and-rdf-using-open-standards-24520925c7ce#ArchitecturalTier> .
+
+# ── IntegrationApproach — 2 disjoint re-mints aligned (2026-08-21) ──
+
+:IntegrationApproach a owl:Class ;
+    rdfs:label "Integration Approach"@en ;
+    rdfs:comment "A methodology for combining or accessing multi-source relational and graph data (e.g. SQL-only RDBMS worldview, dedicated graph store 'NoSQL' worldview, multi-model conceptual virtualization). Canonical corpus IRI; 2 disjoint re-mints aligned: Gemini 3.7 Flash collection (2026-08-21) and DeepSeek V4 Flash collection (2026-08-21-2), both minting the same document-local IRI under the Medium post URL. Future documents needing this concept should REUSE this IRI, not re-mint."@en ;
+    rdfs:isDefinedBy :ontology ;
+    owl:equivalentClass <https://medium.com/virtuoso-blog/conceptual-data-virtualization-for-sql-and-rdf-using-open-standards-24520925c7ce#IntegrationApproach> .

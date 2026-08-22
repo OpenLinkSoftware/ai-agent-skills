@@ -1,0 +1,99 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Remote Resource Removal — HTTP, then WebDAV, then iSQL"@en ;
+    schema:description "Standing procedure for deleting a named remote DAV/HTTP resource after explicit user request. Codified 2026-08-18 after URIBurner daas uploads of grok-bot-fourth-moment-of-ai-grok_4_6-1.{md,jsonld}: HTTP DELETE on :5443 with the principal PKCS#12 succeeded (204); sql:DAV_DELETE and PEM-in-TMPDIR curl were the wrong first moves."@en ;
+    schema:dateCreated "2026-08-18T16:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T16:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-explicitNamedTarget,
+        :step-credentialsPattern,
+        :step-uriburnerWebidTlsPort,
+        :step-tryHttpFirst,
+        :step-tryWebdavSecond,
+        :step-tryIsqlThird,
+        :step-verificationGate,
+        :step-reportIfAllFail ;
+    rdfs:seeAlso <../preferences.ttl#step-remoteRemovalOrder>,
+        <../preferences.ttl#step-remoteUploadOrder>,
+        <remote-webdav-upload.ttl>,
+        <no-unauthorized-deletion.ttl>,
+        <p12-passphrase-retrieval.ttl>,
+        <credential-location-session-start.ttl>,
+        <../core.ttl> .
+
+:step-explicitNamedTarget a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Delete only the named remote resource the user asked to remove"@en ;
+    schema:text "Remote removal requires an explicit user request that names the remote object (URL or DAV path). Do not delete siblings, local companions, or a whole collection unless each is named. Local files are out of scope unless the user names those paths too."@en ;
+    rdfs:seeAlso <no-unauthorized-deletion.ttl>,
+        <../preferences.ttl#step-approval> .
+
+:step-credentialsPattern a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Use the principal PKCS#12 file path plus the keychain-first resolved passphrase — never a TMPDIR PEM extract"@en ;
+    schema:text """For every HTTP, WebDAV, and iSQL removal attempt:
+
+1. PKCS#12 path from core.ttl :userPrincipalCredentials (not a mid-task find): {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12
+2. Passphrase resolves keychain-first: macOS Keychain item uriburner-p12, falling back to the VALUE of the first KEY=VALUE line in /tmp/uyi (see p12-passphrase-retrieval.ttl). Export to MTLS_PKCS12_PW. Never print, log, or store it.
+3. curl MUST use --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Do not extract a PEM to TMPDIR. Do not pass --cert file.p12:password.
+4. iSQL MUST use the same p12 path as -X {p12-path} and the same env passphrase as the third positional argument (never a literal in the shown command).
+5. unset MTLS_PKCS12_PW when finished."""@en ;
+    rdfs:seeAlso <p12-passphrase-retrieval.ttl>,
+        <credential-location-session-start.ttl>,
+        <../core.ttl> .
+
+:step-uriburnerWebidTlsPort a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Against URIBurner DAV, send the client cert to port 5443"@en ;
+    schema:text "https://linkeddata.uriburner.com/DAV/... on port 443 does not consume the client certificate (PUT/DELETE return 401 even with a valid p12). Use https://linkeddata.uriburner.com:5443 plus the same DAV path. A public URL the user wrote (including a doubled slash such as /DAV/demos//daas/) is the identifier to verify after removal, not the TLS endpoint."@en .
+
+:step-tryHttpFirst a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Attempt 1 — HTTP DELETE"@en ;
+    schema:text "First attempt is an HTTP DELETE of the resource URL on the WebID-TLS listener, using the credentials pattern in :step-credentialsPattern. Success is HTTP 200, 202, or 204. Do not skip to WebDAV or iSQL while HTTP has not been tried. Worked command: see :workExample-httpDelete."@en .
+
+:step-tryWebdavSecond a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Attempt 2 — WebDAV, only if HTTP DELETE failed"@en ;
+    schema:text "If HTTP DELETE is 4xx/5xx or times out, next try WebDAV on the same :5443 URL with the same p12 pattern: PROPFIND Depth 0 to confirm the href, then MOVE out of the collection or a WebDAV DELETE retry. sql:DAV_DELETE via SPARQL BIND is a WebDAV-API fallback on the same host, not the first attempt — it has hit VAL RDF_IRI uniqueness errors (WAC_DELETE) on this server."@en .
+
+:step-tryIsqlThird a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Attempt 3 — iSQL DAV_DELETE, only if HTTP and WebDAV failed"@en ;
+    schema:text "Last resort: isql with empty username, -X {p12-path}, -T {ca-bundle}, -W {principal WebID}, then DB.DBA.DAV_DELETE('/DAV/.../filename', 1, '', '');. Do not open iSQL first when HTTP DELETE has not been tried. Preview the command with the passphrase shown as ****."@en ;
+    rdfs:seeAlso <../../mtls-curl/references/virtuoso-isql-mtls.md> .
+
+:step-verificationGate a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "BLOCKING GATE — do not claim removal until every user-facing URL and the folder listing agree"@en ;
+    schema:text """After any 2xx delete response, verify ALL of the following before telling the user the remote object is gone:
+
+1. GET the exact URL the user named (preserve doubled slashes if they wrote them).
+2. GET the normalized public https://linkeddata.uriburner.com{dav-path} URL (port 443).
+3. GET the :5443 WebID-TLS URL with the same p12.
+4. GET or scrape the public collection listing (e.g. https://linkeddata.uriburner.com/DAV/demos/daas/) and confirm the filename is absent.
+5. PROPFIND Depth 1 on the parent collection over :5443 and confirm no href for that filename.
+6. Contrast siblings the user did not name: they must still be present (typically 401 on anonymous 443, 200 on :5443).
+
+A single :5443 GET 404 is not sufficient. The public folder page is what the operator actually looks at."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+:step-reportIfAllFail a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "If all three methods fail, report each status and stop — do not claim removal"@en ;
+    schema:text "Record HTTP status and a short redacted error body for each attempt (HTTP, WebDAV, iSQL). Leave the resource in place. Do not empty-and-pretend, and do not delete a local companion as a substitute."@en .
+
+:workExample-httpDelete a schema:CreativeWork ;
+    schema:name "Worked HTTP DELETE that removed the JSON-LD DAV resource (2026-08-18)"@en ;
+    schema:description "Returned HTTP 204. Passphrase stays in MTLS_PKCS12_PW, resolved keychain-first per p12-passphrase-retrieval.ttl."@en ;
+    schema:text """export MTLS_PKCS12_PW=\"$(security find-generic-password -s uriburner-p12 -a \"$USER\" -w 2>/dev/null || python3 -c \"from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())\")\"
+P12=\"{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12\"
+curl -sk --cert-type P12 --cert \"$P12\" --pass \"$MTLS_PKCS12_PW\" \\
+  -X DELETE \\
+  \"https://linkeddata.uriburner.com:5443/DAV/demos/daas/{filename}\"
+unset MTLS_PKCS12_PW"""@en .

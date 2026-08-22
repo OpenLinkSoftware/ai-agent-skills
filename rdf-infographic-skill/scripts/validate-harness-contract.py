@@ -465,21 +465,23 @@ def main() -> int:
         return m.start() if m else None
 
     pos_kg = _pos("kg-explorer")
-    pos_sparql = _pos("sparql-explorer")
+    pos_sparql = _pos("sparql-workbench") or _pos("sparql-explorer")
     pos_howto = _pos("howto")
     pos_faq = _pos("faq")
     pos_glossary = _pos("glossary")
 
-    if pos_kg is not None and pos_faq is not None and pos_kg > pos_faq:
-        fail("KG Explorer must precede FAQ in document order (explorer-precedes-reference)", failures)
-    if pos_sparql is not None and pos_faq is not None and pos_sparql > pos_faq:
-        fail("SPARQL Workbench must precede FAQ in document order (explorer-precedes-reference)", failures)
     if pos_howto is not None and pos_faq is not None and pos_howto > pos_faq:
-        fail("Section order violation: HowTo must come before FAQ (standing order is HowTo, FAQ, Glossary)", failures)
+        fail("Section order violation: HowTo must come before FAQ (standing order: HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench)", failures)
     if pos_faq is not None and pos_glossary is not None and pos_faq > pos_glossary:
-        fail("Section order violation: FAQ must come before Glossary (standing order is HowTo, FAQ, Glossary)", failures)
+        fail("Section order violation: FAQ must come before Glossary (standing order: HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench)", failures)
     if pos_howto is not None and pos_glossary is not None and pos_howto > pos_glossary:
-        fail("Section order violation: HowTo must come before Glossary (standing order is HowTo, FAQ, Glossary)", failures)
+        fail("Section order violation: HowTo must come before Glossary (standing order: HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench)", failures)
+    if pos_glossary is not None and pos_kg is not None and pos_glossary > pos_kg:
+        fail("Section order violation: KG Explorer must follow Glossary (standing order: HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench)", failures)
+    if pos_glossary is not None and pos_sparql is not None and pos_glossary > pos_sparql:
+        fail("Section order violation: SPARQL Workbench must follow Glossary (standing order: HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench)", failures)
+    if pos_kg is not None and pos_sparql is not None and pos_kg > pos_sparql:
+        fail("Section order violation: SPARQL Workbench must follow KG Explorer (standing order: HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench)", failures)
 
     # People and Organizations sections were removed by explicit user request
     # (2026-08-18) — a standalone name+description card grid duplicating what

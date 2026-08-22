@@ -1,0 +1,57 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Verbatim Comment Extraction"@en ;
+    schema:description "Procedure for obtaining real comment threads verbatim from login-walled sources (e.g. LinkedIn) via an authenticated browser session, and modeling them as schema:Comment entities. Recorded after the 2026-08-19 fabrication incident."@en ;
+    schema:about :verbatimCommentExtraction ;
+    schema:dateCreated "2026-08-19T17:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T17:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> .
+
+:verbatimCommentExtraction a schema:HowTo ;
+    schema:name "Verbatim Comment Extraction"@en ;
+    schema:description "How to extract comment threads verbatim from authenticated sessions and model them faithfully. Never reconstruct, summarize, or repurpose comment text."@en ;
+    schema:hasPart :step-principle, :step-tooling, :step-login, :step-extract,
+        :step-model, :step-fallback, :step-gate ;
+    rdfs:seeAlso <../preferences.ttl#step-neverFabricateCommentText>,
+        <author-vs-body-byline-names.ttl> .
+
+:step-principle a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Comments are evidence: verbatim or absent"@en ;
+    schema:text "Comment text attributed to a person must be the person's actual words from the source thread. Reconstructing text from thematic summaries, known positions, or sibling-session notes is fabrication — forbidden. If the thread cannot be retrieved, omit the comments; never approximate."@en .
+
+:step-tooling a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Browser tooling: Playwright first, pinchtab fallback"@en ;
+    schema:text "Install playwright in a venv (pip install playwright) and drive the already-installed Google Chrome via channel='chrome' with an isolated persistent profile (user-data-dir under /tmp) — no browser download needed. Fallback: pinchtab (session create -> nav -> snap/text)."@en .
+
+:step-login a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Handle the login wall"@en ;
+    schema:text "LinkedIn hides comment threads behind a sign-in wall. Launch HEADED (headless=False) with the persistent profile so the user can log in (email or Google) when the wall appears. Poll until the wall markers disappear, then re-navigate to the article. Persist the profile so later runs skip login. Ask the user to authenticate when needed — do not attempt to bypass or scrape credentials."@en .
+
+:step-extract a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Extract every comment with its own author"@en ;
+    schema:text "After auth: click 'View previous comments' / 'Load more comments' / 'Load previous replies' repeatedly, scroll to force lazy loading, and click every 'see more' inside comment bodies so texts are complete (no '...more'). Select article/div.comments-comment-entity items; for EACH item take the author from its own a.comments-comment-meta__actor (aria-label cleaned of 'View ... graphic link' noise, or inner text), the profile href (normalize /in/... to https://www.linkedin.com/in/...), and the body from [class*='comments-comment-item__main-content']. Record is_reply (class contains 'reply') — replies are often by the article author and must NOT be attributed to the parent commenter. Save JSON plus the page HTML for verification."@en .
+
+:step-model a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Model as schema:Comment with provenance"@en ;
+    schema:text "One schema:Comment per thread item: schema:author = commenter's LinkedIn IRI (#this), schema:text = verbatim text, schema:isPartOf the article, schema:description naming the extraction method and date (e.g. 'verbatim text extracted from the live thread via an authenticated browser session (Playwright + Chrome), 2026-08-19'). Replies keep their own author; do not add article-level schema:contributor for commenters."@en .
+
+:step-fallback a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "If extraction fails: drop the comments, never guess"@en ;
+    schema:text "Login timeout, layout change, or zero items -> ship the collection WITHOUT the comment section (or with a placeholder stating comments are omitted), and record why. Never substitute text from memory, summaries, or other models' outputs."@en .
+
+:step-gate a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Verify before delivery"@en ;
+    schema:text "Every rendered comment must match the extracted JSON exactly; grep the artifacts for any previously-reconstructed phrases to prove removal; confirm comment count parity between RDF (schema:comment) and the Reader Perspectives section; re-run validate-harness-contract.py and the anchor/JS/orphan checks."@en ;
+    onto:hasTrigger onto:triggerUserCorrection .

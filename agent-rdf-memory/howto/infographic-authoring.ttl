@@ -7,13 +7,14 @@
     schema:name "Infographic Authoring — Attribution, Dark Mode, KG Explorer Reuse, Template Selection, Responsive Comparison"@en ;
     schema:description "Rules governing the authoring of HTML infographics: footer attribution format, dark mode CSS requirements (two-block selectors, general anchor rule, bright accent), KG Explorer template reuse mandate, template selection by content type, responsive head-to-head comparison dual presentation (table large / cards small), and the long-token overflow gate. The overflow gate exists because the same defect recurred three times (fixed 2026-06-29, recurred 2026-07-01 and 2026-07-02) in different element types — including a plain-text <h4> with no <code> wrapper, and a shared .sparql-code class that had never carried the fix and would have propagated the bug silently through reuse."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-11T16:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-20T11:25:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:step :step-attribution, :step-darkModeCSS, :step-generalAnchorRule,
         :step-brightDarkAccent, :step-kgExplorerReuse, :step-templateSelection,
-        :step-responsiveComparison, :step-footerCardOverflow, :step-overflowVerification ;
+        :step-responsiveComparison, :step-footerCardOverflow, :step-overflowVerification,
+        :step-sectionSequenceOrder ;
     schema:workExample :workExample-kgExplorerProvenPatterns ;
-    rdfs:seeAlso <../preferences.ttl#step-templateSelection>, <../preferences.ttl#step-darkModeCSS>, <../preferences.ttl#step-attribution>, <../preferences.ttl#step-iifeGlobalScope>, <../preferences.ttl#step-kgExplorerReuse>, <../preferences.ttl#step-themeToggleInNavHeader>, <../preferences.ttl#step-footerCardOverflow>, <../preferences.ttl#step-openlinkBrandColorScheme>, <../preferences.ttl#step-readerFacingCopyGate>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-responsiveComparisonPresentation>, <responsive-comparison-presentation.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-templateSelection>, <../preferences.ttl#step-darkModeCSS>, <../preferences.ttl#step-attribution>, <../preferences.ttl#step-iifeGlobalScope>, <../preferences.ttl#step-kgExplorerReuse>, <../preferences.ttl#step-themeToggleInNavHeader>, <../preferences.ttl#step-footerCardOverflow>, <../preferences.ttl#step-openlinkBrandColorScheme>, <../preferences.ttl#step-readerFacingCopyGate>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-responsiveComparisonPresentation>, <../preferences.ttl#step-sparqlWorkbenchPlacement>, <responsive-comparison-presentation.ttl> .
 
 # ── Step 1: Footer Attribution ───────────────────────────────────────────────
 
@@ -76,12 +77,20 @@
   {any-text-element-that-may-carry-a-long-token} { overflow-wrap: anywhere; word-break: break-word }
 This includes: attribution/footer cards, offer/source/id cards' <h4> titles, and any <pre>/<code> block (including shared ones like .sparql-code) — audit the SHARED CLASS ITSELF before reusing it for new content; don't assume a class used elsewhere in the same document already has the protection."""@en .
 
-# ── Step 8: Overflow Verification (BLOCKING) ─────────────────────────────────
+# ── Step 9: Overflow Verification (BLOCKING) ─────────────────────────────────
 
 :step-overflowVerification a schema:HowToStep ;
     schema:position "9"^^xsd:integer ;
     schema:name "BLOCKING pre-delivery check: el.scrollWidth <= el.clientWidth on every long-token element"@en ;
     schema:text "After generating or editing any card, heading, or pre/code block that may contain a long token, check el.scrollWidth <= el.clientWidth via preview_eval — do not rely on a screenshot alone, overflow can be subtle at normal viewport widths. This is a BLOCKING check before delivery, not an optional nicety — the defect recurred twice after being fixed, in two different element types."@en .
+
+# ── Step 10: Section Sequence Order ──────────────────────────────────────────
+
+:step-sectionSequenceOrder a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Canonical section ordering: Overview/Architecture/Comparison -> HowTo -> FAQ -> Glossary -> KG Explorer -> SPARQL Workbench -> Footer"@en ;
+    schema:text "HTML infographics and companion documents MUST follow the canonical section sequence: (1) Overview & Insights / Architecture / Comparison Matrix, (2) HowTo Execution Pipeline / Workflow, (3) Frequently Asked Questions (FAQ), (4) Core Technical Glossary, (5) Interactive KG Explorer, (6) SPARQL Workbench Recipes, and (7) Attribution & Provenance Footer. KG Explorer and SPARQL Workbench MUST follow the Glossary — never place them before HowTo, FAQ, or Glossary."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sparqlWorkbenchPlacement> .
 
 # ── Worked Example: KG Explorer Proven Patterns ──────────────────────────────
 
