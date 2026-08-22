@@ -1,0 +1,94 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Intelligence Network Editorial Data-Viz Aesthetic"@en ;
+    schema:description "Specification of the evolved preferred HTML infographic aesthetic introduced by the OpenRouter & Stripe: The Intelligence Network meshup (2026-08-20): deep-ink hero band with signature SVG token-flow bridge, layered HowTo pipeline visualization, color-coded mesh layer badges, editorial type pairing, and the standing section order HowTo -> FAQ -> Glossary -> KG Explorer -> SPARQL Workbench."@en ;
+    schema:about :intelligenceNetworkAesthetic ;
+    schema:dateCreated "2026-08-20T15:45:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-20T18:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> .
+
+:intelligenceNetworkAesthetic a schema:HowTo ;
+    schema:name "Intelligence Network Editorial Data-Viz Aesthetic"@en ;
+    schema:description "How to reproduce the preferred HTML infographic aesthetic introduced by the OpenRouter & Stripe: The Intelligence Network collection (DeepSeek V4 Flash, 2026-08-20, user-approved after a UI/UX redesign pass). Registered as standing preference Step 244 in preferences.ttl; applies by default to thesis/framework and data-rich collections, refining Step 236 (right-sizing editorial data-viz) unless the user names another template or an existing artifact's visual language must be preserved. Canonical implementation: the deterministic builder suite at {LLM_ROOT}/DeepSeek/_build/openrouter-stripe/ (build_rdf.py, build_html.py, design.css) and webpages/openrouter-stripe-intelligence-network-meshup-deepseek_v4flash-1.html."@en ;
+    schema:hasPart :step-themeFoundation, :step-typography, :step-heroBand,
+        :step-tokenBridge, :step-sectionChrome, :step-meshBadges,
+        :step-howtoPipeline, :step-comparisons, :step-faqGlossary,
+        :step-kgSparql, :step-sectionOrder, :step-gates, :step-reproduction ;
+    rdfs:seeAlso <../preferences.ttl#step-intelligenceNetworkAesthetic>,
+        <../preferences.ttl#step-editorialDataVizAesthetic>,
+        <editorial-data-viz-aesthetic.ttl>,
+        <../../../../../LLMs/DeepSeek/_build/openrouter-stripe/design.css>,
+        <../../../../../LLMs/DeepSeek/_build/openrouter-stripe/build_html.py>,
+        <../../../../../LLMs/DeepSeek/_build/openrouter-stripe/build_rdf.py>,
+        <../../../../../LLMs/DeepSeek/webpages/openrouter-stripe-intelligence-network-meshup-deepseek_v4flash-1.html> .
+
+:step-themeFoundation a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Theme foundation: refined palette + editorial type pairing"@en ;
+    schema:text "CSS variables only: :root (light) plus html[data-theme=\"dark\"] and @media (prefers-color-scheme: dark) as two entirely separate blocks, never comma-combined. Palette: --accent #1d4fd8 (entity links) / dark #7d96ff, --accent2 #7c3aed (purple: routing/secondary), --accent3 #0e9f6e (green: settlement/positive), --token #c8870a (amber: value/tokens/capstone), --ink/--muted/--faint/--line/--line-strong/--panel/--panel-strong/--chip/--shadow/--glow/--radius family. Type pairing: --font-display 'Space Grotesk' (headings, weight 500-700, tight letter-spacing), --font 'Inter' (body), --font-serif 'Newsreader' (ledes and pull-quotes, italic), --mono 'JetBrains Mono' (eyebrows, code, stats labels); load via Google Fonts <link>. All colors via var(); no hardcoded hexes outside the token definitions."@en .
+
+:step-typography a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Editorial hierarchy"@en ;
+    schema:text "Eyebrows: mono, uppercase, letter-spaced .22em, accent color, with a 26px gradient tick before the label. Section titles: display font, clamp(1.55rem, 3.2vw, 2.25rem), weight 700, gradient text (ink -> accent mix) via background-clip:text. Section sub: muted, max-width 74ch. Every visible semantic entity stays resolver-hyperlinked (describe/?url=)."@en .
+
+:step-heroBand a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Hero: deep-ink band with grid + glows"@en ;
+    schema:text "The hero is a dark gradient band regardless of theme (linear-gradient 158deg ink -> #101c3f -> #17307c) with two radial glows (blue/purple) and a fine 44px grid overlay (masked radially). Light-on-dark content: mono eyebrow, giant display title (clamp 2.4-4.6rem) with a gradient accent word (blue -> teal), serif italic tagline, a glass deck panel (backdrop blur) holding the lede + body paragraphs, stat cards, the token-flow bridge SVG, and mono hero-meta rows (author, publisher, source link, 'KG curated by ... on behalf of ...')."@en .
+
+:step-tokenBridge a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Hero visualization: the token-flow bridge"@en ;
+    schema:text "Signature SVG (viewBox 0 0 960 236): two resolver-linked node groups (subject entity left, counterpart right; e.g. OpenRouter <-> Stripe) connected by an animated dashed arc (stroke-dasharray + stroke-dashoffset animation, gradient stroke, arrowheads), 3 SMIL <animateMotion> dots travelling the arc with staggered begin times, a mono center tag (e.g. 'TOKENS <-> DOLLARS'), and small mono chips under each node. Use ONLY numeric character references in SVG text (&#8596; &#183;) — named HTML entities like &rarr; fail strict XML validation. Respect prefers-reduced-motion: disable animation, hide dots."@en .
+
+:step-sectionChrome a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Article sections: cards with gradient index ticks + serif pull-quotes"@en ;
+    schema:text "Article sections render as .article-section cards: paper panel, 4px left gradient tick (accent -> accent2), mono section index (01 .. N 'article section' / 'Agent-authored commentary'), display h3, muted abstract, optional serif italic quote cards (.quote-card) with amber left border, token-colored opening quote mark, and resolver-linked figcaption author. Hover: lift + border emphasis."@en .
+
+:step-meshBadges a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Mesh sources: color-coded layer badges"@en ;
+    schema:text "When the collection meshes multiple sources into a stack, render .mesh-card entries with a 4px top gradient and a mono pill badge colored by layer: layer-repr (blue: representation), layer-routing (purple), layer-settle (green), layer-prior (amber). Card: resolver-linked title, muted blurb, hover lift. Concept rows in a paired panel below."@en .
+
+:step-howtoPipeline a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "HowTo visualization: the layered pipeline"@en ;
+    schema:text "Enhance every HowTo with a .howto-viz layered-pipeline SVG before the step list: 2-3 color-coded layer bands (tinted fills + colored mono layer labels with sub-labels) containing the resolver-linked step nodes, an animated dashed flow path (single <path> with multiple M subpaths, stroke-dashoffset animation), a capstone node for the terminal outcome (e.g. 'Enforce access: 403 -> 200 OK'), and a mono cap label. Step nodes: circle (layer color, white stroke halo) + step number + label below (text-anchor middle, paint-order stroke halo, <= 15-char truncation). Steps list below mirrors the same nodes as numbered rows with gradient step-num chips (layer-colored) and resolver-linked step titles."@en .
+
+:step-comparisons a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Comparisons: dual presentation, premium table + cards"@en ;
+    schema:text "Multi-entity comparisons keep harness item-15 dual presentation (semantic table >=901px, per-entity cards <=900px, CSS-only switch at 900px, identical facts, resolver-linked entity headers and first-column aspect/dimension links via cdx:ComparisonDimension instances). Polish: sticky-felt aspect column, striped rows, hover tint, display-font headers; cards with per-entity top-border colors."@en .
+
+:step-faqGlossary a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "FAQ accordion animation + glossary cards"@en ;
+    schema:text "FAQ: .accordion list with mono number chip (Q01..), display-font question (resolver-linked), animated disclosure via the grid-rows 0fr -> 1fr trick (requires an inner <div> wrapper around the answer <p>), plus-sign rotates 45deg when open, answer indented with a soft left rule. Glossary: 3-column (responsive) .term-card grid, hover accent border + lift, display-font resolver-linked term names, muted definitions."@en .
+
+:step-kgSparql a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "KG Explorer shell + SPARQL workbench polish"@en ;
+    schema:text "KG Explorer: glass/pill Controls button + mono count badge; toolbar as a card (mode buttons with active accent state, type-filter checkboxes, physics sliders, resolver preference, arrow style); compact settings panel (position absolute, display:none on one line so the closed-by-default regex matches, open class toggles) holding ALL advanced controls (never hidden data-advanced-control divs in the toolbar - nothing unhides them; only settings-btn carries data-advanced-control hidden, which the engine reveals in Advanced mode). DETERMINISTIC ACTIVE STATE (2026-08-20 user rule): ANY click on the #kg-canvas container arms the focus-activated zoom (kg-active ring) - not hit-test dependent on the exact svg element; node and resolver-anchor clicks keep their own actions; disarm happens ONLY on clicks outside the whole #kg-explorer widget (graph UI like Controls/Settings never flickers the state); the armed state survives re-renders (filters/sliders/resize) via kgZoomArmed re-application in render(). Zoom gestures exclude g.node and a targets. SPARQL: OPEN-BY-DEFAULT <details class=\"sparql-card\"> (per preferences.ttl Step 245 - auto-open via JS on load, never a literal `open` attribute, which the harness validator forbids) with summary pill (+ rotates), inner layout wrapper (.sparql-card-inner) for grid fields/textarea/actions, result-format guidance (text/x-html+tr, text/x-html-nice-turtle), styled results table/turtle output."@en .
+
+:step-sectionOrder a schema:HowToStep ;
+    schema:position "11"^^xsd:integer ;
+    schema:name "Standing section order (Step 243)"@en ;
+    schema:text "Section order per preferences.ttl Step 243 (reversed 2026-08-20): narrative/analysis sections, The Mesh, comparisons, HowTo, FAQ, Glossary, KG Explorer, SPARQL Workbench, About, footer. The floating-nav link order must match. This matches the current validate-harness-contract.py standing order (HowTo < FAQ < Glossary < KG Explorer < SPARQL Workbench)."@en .
+
+:step-gates a schema:HowToStep ;
+    schema:position "12"^^xsd:integer ;
+    schema:name "Validation gates (0 failures)"@en ;
+    schema:text "Before delivery: validate-harness-contract.py PASS 0 failures (incl. entity-link/attribution-* CSS presence — design.css must carry .entity-link, .attribution-*, .sparql-note rules; #settings-panel{display:none on one line), validate-kg-compliance.sh (TTL) 19/19, rdflib re-parse, HTML tag balance, node --check on every inline script, resolver-link audit (no %2523 / double %23), kgData zero orphans, unique kebab heading ids, two separate dark-mode blocks, SVGs XML-valid (numeric entities only), real-browser render check (shot-scraper over a local http.server — file:// URLs break shot-scraper) confirming graph nodes/links render and no console errors."@en .
+
+:step-reproduction a schema:HowToStep ;
+    schema:position "13"^^xsd:integer ;
+    schema:name "Reproduce from the canonical builder suite"@en ;
+    schema:text "The deterministic generators are at {LLM_ROOT}/DeepSeek/_build/openrouter-stripe/: build_rdf.py (rdflib; source of truth extraction), build_html.py (renders the TTL via rdflib lookups; embeds design.css, the proven v4flash harness JS components, and the SVG visuals), design.css (this aesthetic). Regeneration from the same TTL is byte-stable. New collections: fork these modules, swap the content data, keep the harness IDs/classes and this design.css. Reference the rendered artifact webpages/openrouter-stripe-intelligence-network-meshup-deepseek_v4flash-1.html as the visual exemplar."@en .

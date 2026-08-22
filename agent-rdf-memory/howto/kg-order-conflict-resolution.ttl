@@ -1,0 +1,29 @@
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix :       <#> .
+
+<> a schema:HowTo ;
+    schema:name "HowTo: Resolution of the UB-vs-Local Retrieval Order Conflict"@en ;
+    schema:description "Companion to preferences.ttl Step 211. preferences.ttl Step 131 and howto/skill-invocation.ttl Step 4 defined 'KG-only mode' with opposite retrieval orders. The user resolved the conflict on 2026-08-17: the standing order for ALL KG/data-twingler retrieval is UB (URIBurner endpoint) first, Local ({LLM_ROOT}/ RDF scan) second as fallback — not merely when the user utters the phrase 'KG-only mode.'"@en ;
+    schema:dateCreated "2026-08-17T00:00:00Z"^^xsd:dateTime ;
+    schema:step :stepConflict, :stepResolution, :stepScope ;
+    rdfs:seeAlso <../preferences.ttl#step-kgOrderResolved>,
+        <../preferences.ttl#step-sparqlEndpointSearchOrder>,
+        <skill-invocation.ttl#step-kgOnlyMode>,
+        <skill-invocation.ttl#step-kgQueryMode> .
+
+:stepConflict a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "The conflict"@en ;
+    schema:text """preferences.ttl Step 131 (:step-sparqlEndpointSearchOrder) stated: when the user signals 'KG-only mode' (or names URIBurner), skip local vector search entirely and proceed directly to Graph IRI Discovery on the default (remote) endpoint. howto/skill-invocation.ttl Step 4 (:step-kgOnlyMode), covering the same named mode, stated the opposite: KG-ONLY MODE means a local vector search over {LLM_ROOT}/ with a user checkpoint and explicitly no endpoint call. These two rules describe the identically-named mode with reversed retrieval order and reversed default source of truth (remote-first vs. local-only). The conflict surfaced 2026-08-17 when the agent, having correctly followed Step 131's endpoint-first order across four consecutive KG-only-mode queries, was asked why it appeared to be 'refusing to invoke the KG-only mode gate that routes to relevant query skill' — prompting a check of skill-invocation.ttl, which revealed the contradiction."""@en .
+
+:stepResolution a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "The resolution"@en ;
+    schema:text """The user resolved the conflict directly: the order is (1) UB — query the URIBurner default endpoint first, (2) Local — fall back to the {LLM_ROOT}/ RDF scan only if the endpoint pass returns zero results. This is now recorded as the standing default for ALL data-twingler-mediated retrieval (T5/T6/T7/T8 templates alike), not a special behavior gated behind the user explicitly saying 'KG-only mode' or naming URIBurner. howto/skill-invocation.ttl Step 4 was rewritten to state the corrected order and explicitly flag its prior text as superseded. Step 2 of the same file (:step-kgQueryMode) and the KG-HYBRID description (Step 5, :step-kgHybridMode) were both edited for consistency with UB-first ordering."""@en .
+
+:stepScope a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "What this does and does not change"@en ;
+    schema:text """Does change: the default answer-retrieval order across all data-twingler question-answering templates is now UB (endpoint) first, Local second — this was already the agent's actual behavior in the immediately preceding session turns, so no retroactive re-answering was required; it's the documentation that was wrong, not the executed behavior. Does NOT change: the mandatory T6 index-query + checkpoint sequence (SKILL.md Rules 4-6), which remains a separate, still-unresolved gap identified in the same exchange — reaching UB before Local does not exempt a query from also completing and reporting the index step and waiting for user confirmation before the final query runs. That gap is tracked separately and still needs the same redo-with-full-protocol treatment regardless of this retrieval-order fix."""@en .

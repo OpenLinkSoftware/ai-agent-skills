@@ -10,7 +10,7 @@
     schema:description "Canonical schema:Person entity IRIs for individuals recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a person entity, and MUST register newly resolved person IRIs here rather than only in session files. Populated 2026-07-14 from a SPARQL census of schema:Person instances across all DAV named graphs (1,271 instances, 1,150 distinct IRIs, 499 owl:sameAs/name-merged clusters, 41 recurring in >= 3 documents)."@en ;
     rdfs:comment "The local names below (:kingsleyIdehen, :tonySeale, etc.) are registry-internal index labels for lookup within THIS file only — they are not entity IRIs and must never be copied into generated/delivered RDF documents. In any generated document (an infographic's companion entities.ttl, a KG collection, etc.), the canonical platform IRI itself (the owl:sameAs target, e.g. <https://linkedin.com/in/kidehen#this>) must be used as the sole subject directly — per howto/canonical-entity-iri-denotation.ttl Step 7 (:step-localIriProhibition), which explicitly prohibits document-local IRIs when a canonical platform IRI is available. Caught 2026-08-04: this registry's own local-name convention was mistakenly copied into hospital-os-rdf-harness/entities.ttl as :brianDeFrancesca/:kingsleyIdehen local IRIs with owl:sameAs to canonical — exactly the anti-pattern in that howto's own worked example."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T22:55:11Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :kingsleyIdehen, :tonySeale, :satyaNadella, :jayaGupta, :alexKarp,
         :aaronLevie, :jessicaTalisman, :robertScoble, :adedejiOlowe, :veronikaHeimsbakk,
@@ -20,7 +20,8 @@
         :joostDeValk, :gauravMalhotra, :samAltman, :stuartMichaelEdelenbos, :saanyaOjha,
         :danielAtherton, :popeLeoXIV, :florianWirtz, :jonathanJaffe, :virgilVanDijk,
         :nickZervoudis, :vivianVoss, :dennisJuarez, :naomiXia, :tomaszTunguz,
-        :andrejKarpathy, :henryYin, :carlosPerez, :peterSteinberger, :brianDeFrancesca ;
+        :andrejKarpathy, :henryYin, :carlosPerez, :peterSteinberger, :brianDeFrancesca,
+        :stevenSinofsky ;
     rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl>,
         <../howto/entity-iri-denotation-mechanics.ttl>,
@@ -389,3 +390,15 @@
                <https://ae.linkedin.com/in/brian-de-francesca#this> ;
     rdfs:comment "www.linkedin.com form supplied verbatim by Kingsley (user-provided source) for the hospital-os-rdf-harness collection; ae.linkedin.com (UAE regional subdomain) observed as the actor-profile href on the live rendered LinkedIn post page during the same task and added as an alias. First registered 2026-08-04 from hospital-os-rdf-harness/entities.ttl."@en ;
     schema:dateCreated "2026-08-04T00:00:00Z"^^xsd:dateTime .
+
+:stevenSinofsky a schema:Person ;
+    schema:name "Steven Sinofsky"@en ;
+    schema:description "Seed investor and writer; former President of the Windows division at Microsoft. Author of the X post 'Optimism (and courage) is the path to creativity, productivity, and growth.' (2026-08-19) and its linked X Article 'Embracing the AI platform', arguing AI is a platform ingredient, that embracing the platform and tools is key, and that an explosion of apps is next. Runs the Hardcore Software blog at hardcoresoftware.learningbyshipping.com."@en ;
+    owl:sameAs <https://www.linkedin.com/in/sinofsky#this>,
+               <https://linkedin.com/in/sinofsky#this>,
+               <https://x.com/stevesi#this>,
+               <http://hardcoresoftware.learningbyshipping.com#this>,
+               <http://dbpedia.org/resource/Steven_Sinofsky>,
+               <http://www.wikidata.org/entity/Q2098467> ;
+    rdfs:comment "LinkedIn is canonical (kg-generator person-IRI priority ladder). All aliases verified 2026-08-19: LinkedIn URL read from his X bio website field (via fxtwitter API); X handle @stevesi (id 13418072, joined 2008-02-13, 211,023 followers); blog 'Subscribe http://hardcoresoftware.learningbyshipping.com' from his X bio; DBpedia resource Steven_Sinofsky HTTP 200; Wikidata Q2098467 label-match verified. First registered from the Embracing the AI Platform KG collection session 2026-08-19."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime .

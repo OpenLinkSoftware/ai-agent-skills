@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "KG Explorer Label Density — Visible-by-Default Edge Labels (Dimmed When Dense), Below-Circle Node Labels"@en ;
+    schema:description "rdf-infographic-skill/scripts/templates/kg_explorer.js label-visibility history: a 2026-08-18 fix made predicate labels opacity:0-by-default (hover-only) to fight clutter, which a 2026-08-19 user-flagged incident found was itself a contract violation (labels effectively unusable/undiscoverable), corrected to a non-zero base opacity that only dims (never fully hides) as edge count grows."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-hoverRevealEdgeLabels, :step-nodeLabelBelowCircle, :step-visibleByDefaultCorrection ;
+    schema:step :step-hoverRevealEdgeLabels, :step-nodeLabelBelowCircle, :step-visibleByDefaultCorrection ;
+    rdfs:seeAlso <../preferences.ttl#step-kgExplorerLabelDensity>, <../preferences.ttl#step-kgExplorerEdgeLabelsVisibleByDefault> .
+
+# ── Step 1: Edge (predicate) labels hidden by default, revealed on hover — SUPERSEDED by Step 3 below ────────────
+
+:step-hoverRevealEdgeLabels a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "SUPERSEDED 2026-08-19 (see Step 3): predicate labels were set to opacity:0 by default, revealed only on precise hover of a thin edge line"@en ;
+    schema:text """Found 2026-08-18: kg_explorer.js's predAnchor text (the resolver-linked predicate label at each edge's midpoint) had no opacity gating at all — every edge's label was always rendered, at font-size 9 with a low-contrast #94A3B8 fill, directly overlapping node labels, other edge labels, and the lines themselves the moment the graph had more than a handful of edges (the Grok Bot document's 'Core' density view alone has 69-70 edges). Fixed by: (1) setting predAnchor text to opacity:0 by default with a .15s CSS transition; (2) adding an invisible 14px-wide 'hit' line (class link-hit) under each thin 1.5px visible line purely to make hovering a thin edge reliable, since the visible line alone is too thin to hover consistently; (3) mouseenter/mouseleave on both the hit-line and the label group set opacity to 1/0 and simultaneously bump the visible line's stroke-opacity/stroke-width for a combined highlight; (4) added paint-order:stroke with stroke:var(--bg) to the label text so it reads over crossing lines once visible. The resolver-backed <a data-resolver-href> anchor structure the validator requires is completely unchanged — only default visibility changed, so every predicate remains dereferenceable by click, just not visually always-on. Verified: dispatching a native mouseenter MouseEvent on the first .link-hit element sets the matching .link-label-group text's opacity to 1 (confirmed via D3 datum reference equality between the hit-line and label-group selections, both bound to the same linkGroups array).
+
+SUPERSEDED 2026-08-19: this "verified" fix was checked by dispatching synthetic events and reading D3 handler wiring — never by an actual mouse hovering over the actual rendered pixels of an actual line. When the user flagged a real generated page's edges as having "missing" labels, a real computer-tool hover at an approximate (not pixel-exact) point over a 1.5px-wide diagonal line produced no visible change, and only succeeded once the exact getBoundingClientRect() midpoint was hand-computed and targeted. A requirement satisfied only under laboratory-precision interaction is not satisfied in the sense the contract intends. See Step 3."""@en .
+
+# ── Step 2: Node labels moved from beside the circle to below it ────────────
+
+:step-nodeLabelBelowCircle a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "kg_explorer.js positioned node labels to the right of the circle (dx:15, dy:4) — contradicting rdf-infographic-skill's own SKILL.md rule that labels belong below the circle (y = r + 11); now fixed to match"@en ;
+    schema:text """SKILL.md's 'Operating Modality' section has stated since early in the corpus: 'Node label geometry — KG Explorer node labels belong below the circle (y = r + 11), never inside it... Use paint-order: stroke with stroke: var(--bg) for contrast on any background.' The actual D3 rendering code in kg_explorer.js never implemented this — labels were positioned dx:15 (to the right), no text-anchor, no paint-order/stroke halo. In a dense force-directed layout, a right-hand label increases the chance of colliding with whatever node/edge sits to its east, and reads inconsistently once nodes settle at arbitrary angles from their neighbors. Fixed to text-anchor:middle, dy computed per node radius (Class 12→dy 23, Property 8→dy 19, other 10→dy 21) plus the paint-order:stroke/var(--bg) halo the rule already specified. This is a pure positioning/contrast change — node radius, color, drag behavior, click-to-resolve, and the collision force (still r:30, unchanged) are untouched."""@en .
+
+# ── Step 3: CORRECTED — edge labels visible by default, dimmed (not hidden) when the graph is busy ──────────
+
+:step-visibleByDefaultCorrection a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Predicate labels now default to a non-zero base opacity (0.82 when the rendered edge count is small, 0.28 when large) instead of opacity:0; hover still boosts to full opacity/contrast, and clutter is managed by dimming rather than disappearance"@en ;
+    schema:text """Found 2026-08-19 on a live generated page (right-sizing-your-intelligence-spend-claude_sonnet_5-1.html): the user reported edge labels and their hyperlinks as 'missing' from the KG Explorer, calling it a skills-contract and prefs violation. Investigation confirmed Step 1's opacity:0-by-default design (see its SUPERSEDED note) technically kept every predicate's resolver-anchor structure intact but made labels practically undiscoverable — SKILL.md's Basic Mode bullet list states 'Edge/connector labels that are clickable hyperlinks to property/type IRIs' as a plain requirement with no hover qualifier, unlike the neighboring bullets for 'Edge hover tooltip' and 'Edge line highlights on hover', which ARE explicitly hover-gated. Reading the contract text literally, labels must be present/visible, and only the tooltip/highlight are hover enhancements.
+
+Fix applied in kg_explorer.js's renderKG(): replaced the hardcoded `.attr('opacity', 0)` on predAnchor text with `var baseLabelOpacity = filteredLinks.length <= 90 ? 0.82 : 0.28;` computed per-render from the actual filtered edge count, applied as the text's initial opacity. showLinkLabel() still sets opacity to 1 on hover; hideLinkLabel() now resets to baseLabelOpacity (not hardcoded 0) so labels never fully vanish, only dim in dense (Full-density, 90+ edge) views. The <a data-resolver-href>/href/xlink:href/data-iri anchor structure, the wide invisible hit-line for reliable hover targeting, and the line stroke-width/opacity highlight on hover are all unchanged — only the default text opacity and the hide-target opacity changed.
+
+Verification lesson (see Step 1's SUPERSEDED note for the anti-pattern this replaces): confirmed via a real running browser (python http.server + Claude_Browser navigate, since local file:// preview panes render JS-inert static snapshots) — screenshotted the default KG Explorer view before the fix (no visible edge text at all) and after (labels like "rdf:type", "schema1:hasPart" visible at reduced but legible opacity across all 62 default-view edges), then confirmed every label's <a href> still resolves through the URIBurner describe pattern. Ran scripts/validate-harness-contract.py after the fix — still PASS, confirming the opacity change alone does not regress the harness contract's other checks."""@en .

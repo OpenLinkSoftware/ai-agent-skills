@@ -1,0 +1,46 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Theme Toggle Must Be Guarded Against the OS Color-Scheme Preference"@en ;
+    schema:description "2026-08-19 incident: a live generated page's light/dark toggle was reported broken (user: 'this has been covered multiple times now as a contract violation'). Root cause traced to rdf-infographic-skill's own scripts/templates/styles.css and base_template.html, fixed at the template level plus the specific generated output that triggered the report."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-rootCause, :step-threePartFix, :step-verification ;
+    schema:step :step-rootCause, :step-threePartFix, :step-verification .
+
+# ── Step 1: Root cause ────────────────────────────────────────────────────
+
+:step-rootCause a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "An unguarded @media(prefers-color-scheme:dark){ :root {...} } block always wins over an explicit data-theme attribute, because CSS cascade order (media query appears after the base :root block) beats attribute-selector specificity when the media query targets the SAME bare :root selector rather than an attribute-scoped one"@en ;
+    schema:text """Found on right-sizing-your-intelligence-spend-claude_sonnet_5-1.html after the user reported the toggle as not working. Investigation: (1) clicking the toggle via a real browser click DID flip the `data-theme` attribute and DID work when the OS color-scheme was left at its default (light); (2) emulating an OS dark preference (Claude_Browser resize_window colorScheme:dark) and reloading showed the page rendering dark with `data-theme` still absent/unset — expected, since the page has no default theme baked in besides the OS media query; (3) but clicking the toggle to explicitly choose 'light' while the OS was still dark did NOT change the rendered colors, because `@media (prefers-color-scheme: dark) { :root { --bg: #0F172A; ... } }` in scripts/templates/styles.css targeted the bare `:root` selector with no exclusion for an explicit choice — it simply repainted the same CSS custom properties regardless of what `data-theme` said. `html[data-theme="dark"] { ... }` (the explicit-choice block) and the media query both wrote the same variables to overlapping scope, and the media query's `:root` matches unconditionally whenever the OS preference is dark, with nothing to make it defer to an explicit `data-theme="light"`.
+
+A second, compounding bug was in the toggle's own click handler: `var current = html.getAttribute('data-theme'); var next = current === 'light' ? 'dark' : 'light';`. Because the page's `<html>` tag hardcoded `data-theme=\"light\"` at load (rather than leaving the attribute unset and letting the media query alone determine the OS-preference default), this ternary happened to work correctly on the very first click in the common case — but it meant the media query's OS-dark rendering and the `data-theme=\"light\"` attribute were simultaneously true and contradictory from the start: the DOM said 'light' while the pixels said 'dark' whenever the visitor's OS preferred dark. The toggle's `current` read was always 'light' on load regardless of what the user actually saw, so a dark-OS visitor's first click computed `next='dark'` (setting an already-effectively-dark-looking page to dark — visually a no-op) and their second click set `next='light'` — which still couldn't overcome the unguarded media query from bug #1, so the toggle looked completely non-functional to that visitor specifically. A light-OS visitor never hit this path since the hardcoded default and the OS preference happened to agree.
+
+Confirmed via direct JS execution in a real browser (not just source reading): `window.matchMedia('(prefers-color-scheme: dark)').matches` plus `document.documentElement.getAttribute('data-theme')` plus `getComputedStyle(document.body).backgroundColor` before and after a real `.click()` on the toggle button, under both `colorScheme:'dark'` and default emulation."""@en .
+
+# ── Step 2: Three-part fix ──────────────────────────────────────────────
+
+:step-threePartFix a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Fix has three parts: guard the media query's :root selector, stop hardcoding data-theme on <html>, and fix the toggle's current-state resolution to fall back to matchMedia when the attribute is absent"@en ;
+    schema:text """Applied to the live output (right-sizing-your-intelligence-spend-claude_sonnet_5-1.html) and to the two template sources that generate this pattern by default (rdf-infographic-skill/scripts/templates/styles.css and scripts/templates/base_template.html — both under ~/.claude/skills/, which is the actually-loaded copy; the repo path rdf-infographic-skill/scripts/templates/ is the same file via sync):
+
+1. CSS: `@media (prefers-color-scheme: dark) { :root { ... } }` → `@media (prefers-color-scheme: dark) { :root:not([data-theme=\"light\"]) { ... } }`. This exact guarded pattern already existed correctly in a DIFFERENT template in the same skill (assets/templates/spec-sheet-editorial-essay-claude_sonnet_5.html uses `:root:not([data-theme=\"light\"])`; assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html uses the dark-first mirror `html:not([data-theme=\"dark\"])` on its `@media (prefers-color-scheme: light)` block) — the fix was known and implemented once in the corpus but never propagated to the actually-most-used scripts/templates/styles.css + base_template.html pair.
+
+2. HTML: removed the hardcoded `<html lang=\"en\" data-theme=\"light\">` in favor of a plain `<html lang=\"en\">`, plus a tiny inline `<script>` in `<head>` (before any stylesheet/paint) that reads a `localStorage.getItem('kg-theme-pref')` value and sets the attribute only if the visitor has an explicit saved choice — otherwise the attribute stays absent and the guarded media query alone determines the OS-preference default, with no contradiction between DOM state and rendered pixels.
+
+3. JS: the toggle's click handler now resolves 'no attribute' to the OS-preference-implied theme via `window.matchMedia('(prefers-color-scheme: dark)').matches` before deciding which way to flip (rather than treating an absent attribute as equivalent to 'light'), and persists the explicit choice to `localStorage.setItem('kg-theme-pref', next)`. A companion IIFE also syncs the button's icon/aria-label to the resolved-on-load theme (attribute, else localStorage-restored, else matchMedia), so the icon does not show the wrong state until the first click.
+
+Every other template file in the skill (semantic-medallion-editorial-technical.html: no CSS media query at all, sets data-theme via JS matchMedia check on load with no conflicting CSS, self-consistent; competitive-analysis-head-to-head and gartner-dashboard: dark-first designs with no @media block at all, or already correctly guarded) was checked and found NOT to have this specific bug — only styles.css/base_template.html did, but that pair is the one generate_infographic.py's default pipeline actually uses, which is why it reached the user."""@en .
+
+# ── Step 3: Verification ────────────────────────────────────────────────
+
+:step-verification a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Verified by emulating an OS-dark preference, reloading, confirming the page renders dark with data-theme unset, clicking the toggle, confirming the page turns white/light with data-theme='light' persisted to localStorage, then reloading again and confirming the light choice survives the still-dark OS preference"@en ;
+    schema:text """Ran the full sequence via Claude_Browser: resize_window(colorScheme:'dark') → navigate → JS check confirmed `dataThemeAttr:null, osPrefersDark:true, bodyBg:'rgb(15, 23, 42)'` (correctly dark via the guarded media query, no attribute needed) → `document.getElementById('themeToggle').click()` → confirmed `dataThemeAttr:'light', bodyBg:'rgb(255, 255, 255)', savedPref:'light'` (the guard now correctly lets an explicit light choice override the still-dark OS preference) → reload → confirmed `dataThemeAttrAfterReload:'light', bodyBgAfterReload:'rgb(255, 255, 255)'` (the pre-paint localStorage-restore script correctly re-applies the saved choice on a fresh load, still under a dark OS preference). Re-ran scripts/validate-harness-contract.py after each stage of the fix — PASS throughout, confirming the changes did not regress the harness contract's other checks. This is the class of verification Step 1 (the superseded kg-explorer-label-density fix) skipped: checking DOM/JS wiring is not the same as checking what actually renders under the actual condition (OS dark preference) the bug report implies."""@en .

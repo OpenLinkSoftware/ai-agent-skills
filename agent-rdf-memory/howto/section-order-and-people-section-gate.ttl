@@ -1,0 +1,46 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Section Order (HowTo/FAQ/Glossary) and People/Organizations-Section Removal — Code + Validator Enforced"@en ;
+    schema:description "rdf-infographic-skill generator fixes made 2026-08-18 after these rules had previously existed only as session memory (hand-patched per document, never fixed in the generator or checked by the validator) and therefore silently regressed on every fresh generate_infographic.py run."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-18T16:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-howtoFaqGlossaryOrder, :step-peopleSectionRemoved, :step-organizationsSectionRemoved,
+        :step-sectionBackgroundAlternation ;
+    schema:step :step-howtoFaqGlossaryOrder, :step-peopleSectionRemoved, :step-organizationsSectionRemoved,
+        :step-sectionBackgroundAlternation ;
+    rdfs:seeAlso <../preferences.ttl#step-howtoFaqGlossaryOrder>, <../preferences.ttl#step-peopleSectionRemoved>,
+        <../preferences.ttl#step-organizationsSectionRemoved>, <../preferences.ttl#step-sectionBackgroundAlternation>,
+        <../preferences.ttl#step-explorerPrecedesReference>, <explorer-precedes-reference.ttl> .
+
+# ── Step 1: HowTo/FAQ/Glossary order ─────────────────────────────────────────
+
+:step-howtoFaqGlossaryOrder a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Reference-section order is HowTo, then FAQ, then Glossary — now enforced in rdf-infographic-skill's own generator and validator, not just in session memory"@en ;
+    schema:text """The order (HowTo before FAQ before Glossary: HowTo is the actionable takeaway, FAQ is targeted lookup, Glossary is pure reference) was first specified 2026-08-14 and applied by hand-patching one HTML output (claude-text-watermark-meshup-deepseek_v4flash-1.html); the rule was recorded in that session's memory but the actual generator (rdf-infographic-skill/scripts/html_assembler.py) kept emitting FAQ-then-Glossary-then-HowTo by default, so every subsequent fresh generate_infographic.py run (including grok-bot-fourth-moment-of-ai-claude_sonnet_5-1.html, 2026-08-18) silently reproduced the wrong order. Fixed 2026-08-18: moved the HowTo rendering block before the FAQ/Glossary blocks in html_assembler.py's render_narrative(), reordered the corresponding nav_links.append() calls to match, and added a character-position section-order gate to validate-harness-contract.py (compares the first id="howto"/id="faq"/id="glossary" occurrence index in the rendered HTML, alongside a same-style check that KG Explorer and SPARQL Workbench precede FAQ per the pre-existing but previously unenforced step-explorerPrecedesReference rule). The lesson: a rule recorded only in session-memory prose, with no code fix and no validator check, is not actually enforced — it will regress on the next fresh generation unless the generator itself and its validator are both updated."""@en .
+
+# ── Step 2: People section removed ───────────────────────────────────────────
+
+:step-peopleSectionRemoved a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "generate_infographic.py no longer renders a standalone People section — person entities and their descriptions remain in the RDF and must still pass canonical-identity/cross-reference gates"@en ;
+    schema:text """Removed by explicit user request 2026-08-18: a standalone name+description card grid under a 'People' nav section duplicated what resolver-linked mentions of the same schema:Person entities already surface inline throughout the narrative/analysis sections and KG Explorer, adding a section with no information not already available elsewhere. Fix: html_assembler.py's render_narrative() no longer builds or appends the People section/card-grid/nav-link; rdf_parser.py's extraction of narrative["people"] is UNCHANGED (Person entities still populate KG Explorer nodes and inline resolver links) — only the dedicated showcase section was removed. validate-harness-contract.py now fails if id="people" is present in the rendered HTML, to catch a regenerated/copied older template reintroducing it. This does NOT relax any canonical-identity requirement: every schema:Person entity's schema:description and owl:sameAs cross-references must still follow the platform-priority IRI ladder (see howto/canonical-entity-iri-denotation.ttl) regardless of whether a People section renders."""@en .
+
+# ── Step 3: Organizations section removed ────────────────────────────────────
+
+:step-organizationsSectionRemoved a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "generate_infographic.py no longer renders a standalone Organizations section — organization entities and their canonical-identity/cross-reference requirements still apply in the RDF"@en ;
+    schema:text """Removed by explicit user request 2026-08-18, in the same session and for the same reason as the People section (Step 2): a standalone name+description card grid under an 'Organizations' nav section duplicated what resolver-linked mentions of the same schema:Organization entities already surface inline throughout the narrative/analysis sections and KG Explorer. Fix: html_assembler.py's render_narrative() no longer builds or appends the Organizations section/card-grid/nav-link (the has_orgs flag and its rendering block were removed alongside the earlier has_people removal); rdf_parser.py's extraction of narrative["organizations"] is UNCHANGED. validate-harness-contract.py now fails if id="organizations" is present in the rendered HTML. This does NOT relax any canonical-identity requirement: every schema:Organization entity must still follow the DBpedia → Wikidata → LinkedIn#this → X#this → homepage#this → hash-fallback denotation ladder (see howto/canonical-entity-iri-denotation.ttl) regardless of whether an Organizations section renders."""@en .
+
+# ── Step 4: no section-background alternation at all ─────────────────────────
+
+:step-sectionBackgroundAlternation a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Every generated section rendered with the identical tinted background — html_assembler.py and base_template.html each hardcode class=\"section section-alt\" with no shared counter between them"@en ;
+    schema:text """Found 2026-08-18 during a direct UI/UX self-critique of grok-bot-fourth-moment-of-ai-claude_sonnet_5-1.html, prompted by the user asking 'is this the very best you can offer?': every top-level section (Synopsis, every RDF-driven analysis-N section, KG Explorer, SPARQL Workbench, HowTo, FAQ, Glossary) rendered with class="section section-alt" — no plain .section without the alt tint anywhere on the page, killing the alternating visual rhythm the corpus has otherwise hand-patched into individual documents before (see prior session note on claude-text-watermark-meshup-deepseek_v4flash-1.html flipping HowTo to plain to preserve alternation, 2026-08-14). Root cause: html_assembler.py hardcodes section-alt on every dynamically-rendered section (render_narrative_section, the analysis-N loop, the synopsis deck), and base_template.html separately hardcodes it on the static KG Explorer and SPARQL Workbench sections — neither file has any concept of the other's section count or position, so a shared alternating counter was never possible at generation time. Fixed by adding a small client-side IIFE to base_template.html's inline <script> bundle: after the page loads, it selects every top-level .section element in real DOM order (filtering out any nested inside another .section, so an inner card grid never gets toggled) and applies section-alt to every other one by index — reliable regardless of which generator emitted which section or how many there are. Verified live: synopsis(alt) → analysis-1(plain) → analysis-2(alt) → analysis-3(plain) → analysis-4(alt) → kg-explorer(plain) → sparql-explorer(alt) → howto(plain) → faq(alt) → glossary(plain), zero console errors, both themes use CSS variables (not fixed/pinned colors) so toggling the class dynamically is safe."""@en .

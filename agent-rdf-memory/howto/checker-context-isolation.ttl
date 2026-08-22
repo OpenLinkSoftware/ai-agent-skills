@@ -1,0 +1,42 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Name and Cross-Link the Recurring Workflow-Verification Failure Classes"@en ;
+    schema:description "2026-08-18: reviewing an X/Twitter thread on 'Graph Engineering' (fan-out/reduce/synthesize, the fake-edge dependency test, checker-context isolation, and 'anchors' as ground-truth signals a self-grading system cannot fake) against this corpus found that two of its three core failure modes had already been independently re-learned here — each time as a one-off incident note rather than a named, reusable principle. This howto names them so future incidents are recognized by pattern instead of re-derived from scratch, and cross-links the five prior incident entries that are instances of it. It also names the fake-edge dependency test as a reusable heuristic for deciding whether two subtasks may run in parallel or must stay sequential, since one existing rule already applies its logic correctly without ever naming it."@en ;
+    schema:dateCreated "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :checkerContextIsolation ;
+    schema:citation <https://x.com/AnatoliKopadze/status/2080668775796314331> ;
+    rdfs:seeAlso <../preferences.ttl#step-checkerContextIsolation>,
+        <generator-script-output-not-a-substitute-for-contract-check.ttl>,
+        <rdf-infographic-gated-workflow.ttl>,
+        <entity-lookup-disambiguation.ttl>,
+        <full-skills-contract-always-applies.ttl> .
+
+:checkerContextIsolation a schema:HowTo ;
+    schema:name "Three named failure classes for multi-step or multi-artifact generation work"@en ;
+    schema:description "A bundled/self-authored validator, a pair of subtasks that look independent, and a decision about whether two steps can run in parallel are three distinct places this corpus has been burned before. Naming each one turns a growing pile of incident-specific fixes into a small, reusable checklist."@en ;
+    schema:step :step_selfGradingCheckers, :step_falseIndependence, :step_fakeEdgeTest .
+
+:step_selfGradingCheckers a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "A generator's own bundled validator is not an independent checker — it shares the generator's authorship and blind spots, so a PASS is a floor, not an anchor"@en ;
+    schema:text "This exact shape has recurred at least five times in generator-script-output-not-a-substitute-for-contract-check.ttl (preferences.ttl Steps 169, 173, 174, 186, 187): validate-harness-contract.py's own D3 check matched the literal broken CDN string it should have caught; a 'validator green' state gave false confidence about document order and attribution redundancy the validator was never written to check; bundled validators covered a narrower surface (resolver hrefs, KG explorer anchors) than the full skills contract (nav fade, About-section consolidation, Synopsis rendering, live browser DOM). The fix each time was the same underlying move even though it was rediscovered separately: treat the bundled validator's PASS as necessary but not sufficient, and check the delivered artifact directly against full-skills-contract-always-applies.ttl and a real browser render — a check is only an anchor when it observes true runtime/rendered state, not when it re-confirms what the same code already assumed."@en ;
+    rdfs:seeAlso <generator-script-output-not-a-substitute-for-contract-check.ttl>,
+        <full-skills-contract-always-applies.ttl> .
+
+:step_falseIndependence a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Two artifacts that look independently authored may share a hidden dependency (one should derive from the other) — producing them 'in parallel' instead of one from the other is a silent-drift trap"@en ;
+    schema:text "rdf-infographic-gated-workflow.ttl's founding incident (2026-06-17) was exactly this: HTML was authored in parallel with its companion TTL instead of being derived from it, and the gap was not caught until an audit — 13 unlinked entities, 2 missing glossary terms, wrong owl:sameAs/rdfs:seeAlso usage. The fix already in place (script-assisted extraction from the TTL as the only source of href IRIs, gate-first validator checkpoints per section) is the general remedy: before treating two generation steps as parallel-safe, ask whether one is supposed to be a rendering/projection of the other's data — if so there is a real edge between them and they must be sequenced source-then-derivative, not authored side by side."@en ;
+    rdfs:seeAlso <rdf-infographic-gated-workflow.ttl> .
+
+:step_fakeEdgeTest a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Before treating two subtasks as sequential, ask whether the second genuinely needs the first's output — if not, the ordering is a fake edge and the work can run at the same time; if a shared external resource makes them dependent anyway, that dependency must be named explicitly, not left implicit in 'just because'"@en ;
+    schema:text "entity_lookup.py's CLI docs already apply this correctly without naming it: entities are processed in sequence for batch lookups 'because API round-trips dominate' — i.e. a genuine shared dependency (the same rate-limited external API) makes the ordering real, not a fake edge left over from writing the steps in a list. Use this as the template going forward: for any new multi-entity or multi-artifact task, name explicitly whether a proposed sequential ordering is (a) a real edge — one step's output feeds the next, or a shared rate-limited/stateful resource is contended — or (b) a fake edge that only exists because the steps were written down in a line, in which case use the Agent tool to fan the independent steps out in parallel rather than serializing them for no reason."@en ;
+    rdfs:seeAlso <entity-lookup-disambiguation.ttl> .

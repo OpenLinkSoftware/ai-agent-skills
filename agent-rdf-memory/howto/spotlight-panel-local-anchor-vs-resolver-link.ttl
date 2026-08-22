@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Synopsis Spotlight-Panel Rows Link In-Page When a Full Section Already Exists Below"@en ;
+    schema:description "2026-08-15: user asked whether the synopsis spotlight-panel rows (see synopsis-panel-compact-rows.ttl) should be local fragment identifiers linking to the matching on-page section, instead of the external resolver IRI used for ordinary first-mention entity links. Confirmed yes and implemented: each row's href changed from the resolver describe/?url=...#cN link (which opened a new tab to an external KG-entity description page) to a same-page #rebuttal-N / #sowa-N anchor matching the existing rebuttal-pair/sowa-pair section id already in the DOM, with target=_blank/rel dropped since it is now in-page navigation. The resolver-IRI link is preserved where it belongs: the <h4> correction title inside the full card each row previews. Companion to preferences.ttl step-spotlightPanelLocalAnchor."@en ;
+    schema:dateCreated "2026-08-15T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :spotlightPanelLocalAnchor ;
+    rdfs:seeAlso <../preferences.ttl#step-spotlightPanelLocalAnchor>,
+        <synopsis-panel-compact-rows.ttl>,
+        <entity-href-companion-ttl.ttl> .
+
+:spotlightPanelLocalAnchor a schema:HowTo ;
+    schema:name "A preview/jump-list row for content that ALSO exists in full on the same page must link to that on-page section, not to an external resolver describing the same entity"@en ;
+    schema:description "The resolver-IRI-for-every-entity-href rule (entity-href-companion-ttl.ttl) governs ordinary in-prose first-mention references, where the link's job is to let a reader dereference the entity's canonical description. A spotlight-panel row previewing a section that is fully rendered further down the SAME document is a different kind of link entirely — its job is in-page navigation, and sending the reader to an external page to read a summary of content they could reach by scrolling is an anti-pattern, not extra rigor."@en ;
+    schema:step :step_question, :step_mapping, :step_implementation, :step_boundary .
+
+:step_question a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "User's exact question: 'should the sidebar links, in this case re sidebar, be local fragment identifiers the link to relevant html sections?'"@en ;
+    schema:text "Answered as a design recommendation first (2-3 sentences, per the exploratory-question convention) rather than implementing unprompted, since it changes link behavior across every row and was phrased as a question, not an instruction — user then confirmed with a plain 'yes'."@en .
+
+:step_mapping a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Derived the IRI-fragment-to-DOM-id mapping empirically by grepping the actual rendered HTML's rebuttal-pair/sowa-pair id= attributes, never assumed a numbering convention"@en ;
+    schema:text "cN maps 1:1 to id=\"rebuttal-N\" (both use the article's :correctedPattern schema:position order); scN maps 1:1 to id=\"sowa-N\" — confirmed by grepping the sowa-correction-title anchors' own #scN resolver hrefs inside each sowa-pair block, not by assuming the two numbering schemes line up."@en .
+
+:step_implementation a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Hand-patched the live document's 14 debt-name hrefs from the resolver describe/?url=... form to #rebuttal-N/#sowa-N, dropping target=_blank and rel=noopener since in-page anchors should stay in the same tab"@en ;
+    schema:text "Not implemented in the shared rdf_parser.py/html_assembler.py pipeline, because this document's #rebuttal/#sowa-objections sections are hand-spliced HTML with no persisted generator script for them — the shared render_synopsis_deck function has no way to know a given spotlight instance also has a full on-page card elsewhere, since that card isn't part of its own rendering output for this document."@en .
+
+:step_boundary a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "The resolver-IRI link is NOT removed from the document — it stays on the <h4> correction title inside each full rebuttal/sowa card, which is the correct place for a canonical entity-description link since that IS the first full-detail rendering of the entity"@en ;
+    schema:text "This preserves the entity-href-companion-ttl.ttl contract (every entity gets a resolver-wrapped href somewhere) while fixing the specific UX defect of a preview row sending readers away from content already on the page."@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .

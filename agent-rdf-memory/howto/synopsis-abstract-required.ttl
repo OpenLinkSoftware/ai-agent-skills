@@ -1,0 +1,29 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a schema:HowTo ;
+    schema:name "Synopsis Deck Requires a Real schema:abstract, Not Just schema:description"@en ;
+    schema:description "Root-cause fix (2026-08-15) for a sparse-looking rdf-infographic-skill synopsis section: the deck's lede/body prose comes only from schema:abstract (or schema:articleBody), never schema:description, on the main article entity. Omitting schema:abstract leaves the synopsis card as kicker + heading + spotlight panel + CTA with zero narrative text — visually broken even though every other harness element is present."@en ;
+    schema:step :step1, :step2, :step3, :step4 .
+
+:step1 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Always set schema:abstract on the main article/post entity"@en ;
+    schema:text "A 2-4 sentence executive summary as plain text, or as <p>...</p> HTML for a multi-paragraph lede+body split. schema:description alone is not enough — it is usually a one-line meta-description, too short to fill the deck's lede+body columns."@en .
+
+:step2 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Generator now falls back schema:abstract -> schema:articleBody -> schema:description"@en ;
+    schema:text "rdf_parser.py _extract_deck (rdf-infographic-skill/scripts/rdf_parser.py) was extended with a third fallback to schema:description so a missing schema:abstract degrades gracefully instead of producing an empty lede. The fallback is a safety net, not a substitute for setting schema:abstract directly."@en .
+
+:step3 a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Validator gate added: synopsis section must contain a lede/body paragraph"@en ;
+    schema:text "validate-harness-contract.py now fails with 'Synopsis section has no lede/body prose' whenever id=\"synopsis\" is present in the HTML but neither class=\"lede\" nor a non-empty class=\"syn-body\"><p> is found. This turns the defect into a build-time failure instead of a silent, later-discovered UI complaint."@en .
+
+:step4 a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Fixed a second, related bug: multi-paragraph abstracts never got the .lede CSS class"@en ;
+    schema:text "html_assembler.py render_synopsis_deck split a multi-paragraph HTML abstract into lede + body_paras correctly, but only the single-paragraph plain-text fallback branch wrapped its output in <p class=\"lede\">. The multi-paragraph branch left the first paragraph as a bare <p>, so it rendered with identical styling to ordinary body prose instead of the deck's larger/bolder/accent-bordered lede treatment (styles.css #synopsis .syn-deck .lede). Fixed by injecting class=\"lede\" onto the first paragraph in both branches."@en .

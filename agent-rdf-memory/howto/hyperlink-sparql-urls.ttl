@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <http://www.openlinksw.com/schemas/ontology#> .
+
+<> a schema:HowTo ;
+    schema:name "Hyperlink Generated SPARQL URLs"@en ;
+    schema:description "Every generated SPARQL query URL must be emitted as a clickable hyperlink with a short label, and verified to return results before presentation."@en ;
+    schema:dateCreated "2026-08-19T16:45:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto ;
+    rdfs:seeAlso <../preferences.ttl#step-hyperlinkSparqlUrls> .
+
+:howto a schema:HowTo ;
+    schema:name "Hyperlink SPARQL URLs — procedure"@en ;
+    schema:step :stepCompose, :stepLabel, :stepVerify, :stepFormat .
+
+:stepCompose a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Compose the URL"@en ;
+    schema:text "Build endpoint + url-encoded query using the data-twingler convention: http://localhost:8890/sparql?default-graph-uri=&query={percent-encoded SPARQL}&format=text%2Fx-html%2Btr. The format value text/x-html+tr MUST itself be percent-encoded (text%2Fx-html%2Btr) because '+' in a raw URL decodes to a space. Encode with python3 -c \"import urllib.parse; print(urllib.parse.quote(q, safe=''))\" — never hand-encode."@en .
+
+:stepLabel a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Give it a short human label"@en ;
+    schema:text "Emit as Markdown hyperlink: [Run: code-generation frontier (cheapest first)]({url}). Label states what the query returns, not the raw SPARQL."@en .
+
+:stepVerify a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Verify before presenting"@en ;
+    schema:text "Execute the URL (curl the encoded query) and confirm it returns the expected row count before including it in any response or document. A hyperlink to a 0-row or erroring query is a defect, not a link."@en .
+
+:stepFormat a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Format consistency"@en ;
+    schema:text "SPARQL code blocks stay as fenced code for readability; the hyperlink is the runnable companion. In HTML output, wrap the same URL in an anchor with target=_blank rel=noopener."@en .

@@ -1,0 +1,61 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "CSS Comment Star-Slash Trap — Documenting Custom-Property Globs Can Silently Delete a Stylesheet Block"@en ;
+    schema:description "2026-08-19 incident during a visual-design pass on right-sizing-your-intelligence-spend-claude_sonnet_5-1.html: a provenance comment written above the :root block contained a custom-property glob whose star-slash terminated the CSS comment early, discarding the entire palette. Includes the detection method and a reusable balance-checker."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-19T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-theTrap, :step-symptom, :step-checker ;
+    schema:step :step-theTrap, :step-symptom, :step-checker ;
+    rdfs:seeAlso <../preferences.ttl#step-cssCommentStarSlashTrap> .
+
+# ── Step 1: The trap ──────────────────────────────────────────────────────
+
+:step-theTrap a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "CSS comments do not nest and have no escape mechanism, so the first star-slash inside one ends it — writing a custom-property glob like opal-star-slash-ols-star in a comment terminates the comment mid-sentence"@en ;
+    schema:text """The comment written was, in effect: slash-star ... sourced from openlinksw.com's own --opal-*/--ols-* custom properties ... star-slash, above the :root block. CSS terminates that comment at the star-slash inside '--opal-*/', so everything after it ('--ols-* custom properties).' plus several more lines of prose, plus the intended closing star-slash) was handed to the CSS parser as declarations. The parser discarded tokens until it could resynchronise, which consumed the entire :root { ... } block that followed.
+
+Note the asymmetry that makes this easy to miss: the SOURCE FILE reads perfectly. grep, Read, and any diff show the comment exactly as intended, correctly opened and closed. Only the browser's parser disagrees. Any verification that stops at 'the file contains what I meant to write' passes while the page is broken — the same failure mode as Step 228's opacity:0 edge labels (DOM correct, render wrong) and Step 229's unguarded media query (CSS present, behaviour wrong).
+
+The same hazard applies to any glob, regex, or path written inside a CSS comment: '*/*', 'a*/b', 'url(*/)', and file globs like 'assets/*/theme.css' all terminate the comment. Write them without the star-slash sequence — 'opal- and ols- custom properties', 'assets / any-dir / theme.css' — or omit the glob."""@en .
+
+# ── Step 2: Symptom and detection ────────────────────────────────────────
+
+:step-symptom a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Symptom is total palette loss: every var() falls back to nothing, so text renders black on white, gradients vanish, and any -webkit-text-fill-color:transparent gradient heading becomes invisible"@en ;
+    schema:text """Observed rendering: the hero lost its navy gradient and rendered white; the h1 word styled with a background-clip gradient disappeared entirely (transparent fill over no background); body text fell back to rgb(0,0,0). Confirmed in one JS call rather than by eye:
+
+  var rs = getComputedStyle(document.documentElement);
+  rs.getPropertyValue('--primary')   // '' when the :root block was dropped
+  rs.getPropertyValue('--bg')        // ''
+  getComputedStyle(document.querySelector('.hero')).backgroundImage  // 'none'
+
+An empty string from getPropertyValue for a property the source file clearly defines is the signature of a dropped rule block — treat it as a parse error upstream, not a missing declaration. Because a stale cache can produce a similar false negative, reload before concluding (the same caution openlink-brand-color-scheme.ttl Step 4 already records for palette verification)."""@en .
+
+# ── Step 3: The checker to run after editing generated CSS ───────────────
+
+:step-checker a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "After editing any CSS inside a generated artifact, run a comment-balance and brace-balance scan over the style block before trusting the file"@en ;
+    schema:text """Cheap, catches this class of error immediately, and does not require a browser:
+
+  css = html[html.find('<style>')+7 : html.find('</style>')]
+  depth = 0; i = 0; problems = []
+  while i < len(css)-1:
+      if css[i:i+2] == '/*':
+          if depth: problems.append(('nested-open', i))
+          depth = 1; i += 2; continue
+      if css[i:i+2] == '*/':
+          if not depth: problems.append(('stray-close', i, css[max(0,i-70):i+10]))
+          depth = 0; i += 2; continue
+      i += 1
+  # report: problems, bool(depth) for an unclosed comment, and
+  #         css.count('{') == css.count('}')
+
+A 'stray-close' hit is exactly this bug: it means a star-slash appeared while the scanner believed it was outside a comment, i.e. an earlier comment already ended sooner than the author intended. Run this together with the getComputedStyle spot-check in Step 2 — the static scan localises the damage, the computed-style read proves the browser agrees the fix worked."""@en .
