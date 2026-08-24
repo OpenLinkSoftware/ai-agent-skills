@@ -713,3 +713,99 @@ def validate_orphans(kgdata: dict) -> list[str]:
         incident.add(tgt)
     orphans = [n["id"] for n in kgdata["nodes"] if n["id"] not in incident]
     return orphans
+
+
+def extract_comparison(rdf_path, base_iri: str = "") -> dict:
+    """Extract a head-to-head comparison from ComparisonDimension + Position shape.
+
+    Recognises the corpus-canonical comparison pattern: instances of any class
+    whose local name is ComparisonDimension, each with schema:name and an
+    optional relation literal, plus Position resources pointing at a dimension
+    (:ofDimension) and a subject (:ofSubject) carrying a short stance token and
+    a prose schema:description.
+
+    Returns {"subjects": [...], "dimensions": [...]} where each dimension holds
+    a per-subject cell map. A dimension with NO position for a given subject
+    yields an explicit empty cell, so a genuine silence in the source renders as
+    a visible "not addressed" rather than being dropped from the table.
+    """
+    from rdflib import Graph, RDF, URIRef
+    g = Graph()
+    g.parse(str(rdf_path))
+    SCH = Namespace("http://schema.org/")
+
+    dim_class = None
+    for c in set(g.objects(None, RDF.type)):
+        if isinstance(c, URIRef) and str(c).rsplit("#", 1)[-1].rsplit("/", 1)[-1] == "ComparisonDimension":
+            dim_class = c
+            break
+    if dim_class is None:
+        return {"subjects": [], "dimensions": []}
+
+    def local(u):
+        return str(u).rsplit("#", 1)[-1].rsplit("/", 1)[-1]
+
+    p_ofdim = p_ofsubj = p_stance = p_rel = None
+    for p in set(g.predicates(None, None)):
+        ln = local(p)
+        if ln == "ofDimension":  p_ofdim = p
+        elif ln == "ofSubject":  p_ofsubj = p
+        elif ln == "stance":     p_stance = p
+        elif ln == "hasRelation": p_rel = p
+    if p_ofdim is None or p_ofsubj is None:
+        return {"subjects": [], "dimensions": []}
+
+    positions = []
+    for pos in set(g.subjects(p_ofdim, None)):
+        d = next(iter(g.objects(pos, p_ofdim)), None)
+        subj = next(iter(g.objects(pos, p_ofsubj)), None)
+        if d is None or subj is None:
+            continue
+        positions.append({
+            "dim": d, "subject": subj,
+            "stance": str(next(iter(g.objects(pos, p_stance)), "")) if p_stance else "",
+            "description": extract_description(pos, g) or "",
+            "iri": str(pos),
+        })
+
+    # Deterministic column order. Iterating a set of subjects would let the
+    # column order flip between otherwise identical regenerations, so sort by
+    # label. Stable output matters more than any particular ordering here.
+    subj_order = sorted(
+        {pos["subject"] for pos in positions},
+        key=lambda su: (extract_label(su, g) or local(su)).lower(),
+    )
+    subjects = [{
+        "iri": str(su),
+        "name": extract_label(su, g) or local(su),
+        "badge": str(next(iter(g.objects(su, SCH.applicationCategory)), "")),
+    } for su in subj_order]
+
+    dims = []
+    for d in sorted(g.subjects(RDF.type, dim_class), key=lambda x: (extract_label(x, g) or str(x))):
+        cells = {}
+        for pos in positions:
+            if pos["dim"] == d:
+                cells[str(pos["subject"])] = pos
+        # schema:citation on a dimension is supporting evidence for that specific
+        # axis of the comparison -- rendered as source chips in the row, so a
+        # claim (especially an "unaddressed" one) can be followed to the material
+        # that backs it rather than being taken on assertion.
+        cites = []
+        for c in g.objects(d, SCH.citation):
+            cites.append({
+                "iri": str(c),
+                "name": extract_label(c, g) or local(c),
+                "description": extract_description(c, g) or "",
+                "contentUrl": str(next(iter(g.objects(c, SCH.contentUrl)), "")),
+            })
+        cites.sort(key=lambda c: c["name"].lower())
+        dims.append({
+            "iri": str(d),
+            "name": extract_label(d, g) or local(d),
+            "relation": str(next(iter(g.objects(d, p_rel)), "")) if p_rel else "",
+            "note": extract_description(d, g) or "",
+            "cells": cells,
+            "citations": cites,
+        })
+    return {"subjects": subjects, "dimensions": dims}

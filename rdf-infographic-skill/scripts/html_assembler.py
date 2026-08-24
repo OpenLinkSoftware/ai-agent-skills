@@ -18,7 +18,7 @@ except ImportError:
     HAS_JINJA = False
     from string import Template as StrTemplate
 
-from rdf_parser import build_kgdata, extract_narrative, get_base_iri, validate_orphans
+from rdf_parser import extract_comparison, build_kgdata, extract_narrative, get_base_iri, validate_orphans
 
 
 HERE = Path(__file__).parent
@@ -278,6 +278,9 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     has_synopsis = narrative.get("synopsis") is not None
     has_sections = len(narrative.get("sections", [])) > 0
 
+    cmp_data = extract_comparison(rdf_path, base_iri)
+    has_comparison = bool(cmp_data.get("dimensions")) and bool(cmp_data.get("subjects"))
+
     if has_synopsis:
         # The synopsis renders as the reusable executive-summary deck (kicker
         # meta, lede, narrative body, optional spotlight panel from document-
@@ -290,6 +293,16 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
         html_parts.append(render_synopsis_deck(narrative["synopsis"], narrative.get("deck", {}), resolver_pattern))
         nav_links.append({"href": "#synopsis", "label": "Synopsis"})
         sections.append("synopsis")
+
+    if has_comparison:
+        html_parts.append(render_narrative_section(
+            "comparison",
+            "Comparison Matrix",
+            render_comparison(cmp_data, resolver_pattern),
+            eyebrow="HEAD TO HEAD",
+        ))
+        nav_links.append({"href": "#comparison", "label": "Comparison"})
+        sections.append("comparison")
 
     if has_sections:
         for idx, sec in enumerate(narrative["sections"], 1):
@@ -529,6 +542,98 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     nav_links.append({"href": "#footer", "label": "Footer"})
 
     return "\n".join(html_parts), "\n".join(html_parts_ref), nav_links, sections
+
+
+def render_comparison(cmp_data: dict, resolver_pattern: str) -> str:
+    """Render a head-to-head comparison as BOTH a table (>=901px) and cards (<=900px).
+
+    Satisfies the responsive head-to-head contract: identical facts in both
+    views generated from one data structure, CSS-only switch at 900px, resolver
+    links on entity names in both headers AND on every first-column dimension
+    label. A dimension with no position for a subject renders an explicit
+    "Not addressed" cell rather than being silently dropped -- the silences are
+    the point of the comparison, not a gap in it.
+    """
+    subs = cmp_data.get("subjects", [])
+    dims = cmp_data.get("dimensions", [])
+    if not subs or not dims:
+        return ""
+
+    def elink(iri, label, cls="entity-link"):
+        return (f'<a class="{cls}" href="{make_resolver_link(iri, resolver_pattern)}" '
+                f'target="_blank" rel="noopener noreferrer">{escape(label)}</a>')
+
+    def cell(dim, sub):
+        pos = dim["cells"].get(sub["iri"])
+        if not pos:
+            return '<span class="comp-absent">Not addressed</span>'
+        stance = f'<span class="comp-stance">{escape(pos["stance"])}</span>' if pos["stance"] else ""
+        return f'{stance}<span class="comp-text">{escape(pos["description"])}</span>'
+
+    def cites(dim):
+        cs = dim.get("citations") or []
+        if not cs:
+            return ""
+        chips = "".join(
+            f'<a class="comp-cite" href="{escape(c["iri"])}" target="_blank" rel="noopener noreferrer" '
+            f'title="{escape(c["description"])}">{escape(c["name"])}</a>'
+            for c in cs
+        )
+        label = "Evidence" if dim.get("relation") != "unaddressed" else "Counter-evidence"
+        return f'<div class="comp-cites"><span class="comp-cites-label">{label}</span>{chips}</div>'
+
+    n_sil = sum(1 for d in dims if len(d["cells"]) < len(subs))
+    n_conv = sum(1 for d in dims if d.get("relation") == "convergent")
+    n_div = sum(1 for d in dims if d.get("relation") == "divergent")
+
+    out = ['<div class="comparison-wrap" data-comparison-layout="responsive">']
+    out.append(
+        '<div class="comp-summary">'
+        f'<span class="comp-chip comp-chip-conv">{n_conv} convergent</span>'
+        f'<span class="comp-chip comp-chip-div">{n_div} divergent</span>'
+        f'<span class="comp-chip comp-chip-sil">{n_sil} unaddressed</span>'
+        '</div>'
+    )
+
+    # --- table view (>=901px) ---
+    out.append('<div class="comparison-table-view" role="region" aria-label="Comparison matrix for larger screens">')
+    out.append('<table class="comparison-table"><thead><tr><th scope="col">Dimension</th>')
+    for sub in subs:
+        badge = f'<span class="comp-badge">{escape(sub["badge"])}</span>' if sub.get("badge") else ""
+        out.append(f'<th scope="col">{elink(sub["iri"], sub["name"])}{badge}</th>')
+    out.append('</tr></thead><tbody>')
+    for dim in dims:
+        rel = dim.get("relation") or ""
+        out.append(f'<tr data-relation="{escape(rel)}">')
+        note = f'<span class="comp-dim-note">{escape(dim["note"])}</span>' if dim.get("note") else ""
+        out.append(f'<th scope="row">{elink(dim["iri"], dim["name"])}'
+                   f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel)}</span>{note}'
+                   f'{cites(dim)}</th>')
+        for sub in subs:
+            out.append(f'<td>{cell(dim, sub)}</td>')
+        out.append('</tr>')
+    out.append('</tbody></table></div>')
+
+    # --- cards view (<=900px) ---
+    out.append('<div class="comparison-cards-view" role="region" aria-label="Comparison cards for smaller screens">')
+    out.append('<div class="comparison-cards">')
+    for sub in subs:
+        badge = f'<span class="comp-badge">{escape(sub["badge"])}</span>' if sub.get("badge") else ""
+        out.append('<article class="comp-card">')
+        out.append(f'<header class="comp-card-header">{elink(sub["iri"], sub["name"])}{badge}</header>')
+        out.append('<div class="comp-card-body">')
+        for dim in dims:
+            rel = dim.get("relation") or ""
+            out.append('<div class="comp-row">')
+            out.append(f'<div class="comp-row-label">{elink(dim["iri"], dim["name"])}'
+                       f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel)}</span></div>')
+            if sub is subs[0]:
+                out.append(cites(dim))
+            out.append(f'<div class="comp-row-value">{cell(dim, sub)}</div>')
+            out.append('</div>')
+        out.append('</div></article>')
+    out.append('</div></div></div>')
+    return "\n".join(out)
 
 
 def render_narrative_section(section_id: str, title: str, inner_html: str, eyebrow: str = "") -> str:
