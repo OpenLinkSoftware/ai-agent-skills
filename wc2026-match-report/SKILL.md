@@ -1,8 +1,13 @@
+---
+name: wc2026-match-report
+description: "Generate a complete single-file HTML intelligence report for the FIFA World Cup 2026 from live Knowledge Graph data. Three report types: match report (a fixture, Team A vs Team B), player report (a single player across the tournament), and analytics scatter report (tournament-wide player comparisons). Pick the player report for single-person requests and the analytics scatter report for cross-player metric comparisons; everything else defaults to the match report."
+version: 1.2.0
+license: AGPL-3.0
+---
+
 # FIFA World Cup 2026 Match Intelligence Report Skill
 
-**Name:** `wc2026-match-report`  
-**Version:** 1.2.0  
-**Description:** Generate a complete single-file HTML intelligence report for the FIFA World Cup 2026 from live Knowledge Graph data. Three report types:
+Three report types:
 
 | Type | Subject | Script |
 |---|---|---|

@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-08-19T23:59:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-24T22:42:44Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -1548,3 +1548,72 @@
     schema:description "Generated an RDF-Turtle + HTML infographic collection (Turtle only per Step 165; no MD requested) from Kingsley Uyi Idehen's Medium post 'Conceptual Relational Data Virtualization, using Existing Open Standards' (2018-04-27). Content captured via r.jina.ai reader proxy (Cloudflare blocked curl and PinchTab; Wayback snapshot also confirmed). 679-triple TTL: TechArticle, 7 sections, 8 concepts, 3 IntegrationApproach x 8 cdx:ComparisonDimension (corpus-canonical class reused), 12 FAQ, 12-term primary-DBpedia glossary, 7-step HowTo with absolute post: IRIs, 4 SPARQL recipes (2 are the article's own virtrdf Quad Map + URIBurner R2RML queries), distinct owl:Ontology, prov chain. HTML per Intelligence Network Editorial Aesthetic (Step 244 standing default): Relational-Graph Bridge hero SVG, 4-tier layered-pipeline HowTo SVG, dual-presentation 3x8 comparison, animated FAQ, glossary grid, D3 v7 KG Explorer (35 nodes/46 edges, 0 orphans), open-by-default SPARQL workbench, glass nav, theme toggle, 8-item attribution. Gates: validate-harness-contract.py 0 failures, validate-kg-compliance.sh 19/19, node --check clean, shot-scraper browser verification at 1440px/390px (dual-presentation switch, zero horizontal overflow after .wb-row min-width:0 + overflow-x:hidden CSS patch). Builder suite forked to _build/conceptual-data-virtualization/. :ArchitecturalTier and :IntegrationApproach registered as corpus re-mints in entities/ontology-terms.ttl. Deliverables: rdf/conceptual-data-virtualization-sql-rdf-deepseek_v4flash-1.ttl, webpages/conceptual-data-virtualization-sql-rdf-deepseek_v4flash-1.html."@en .
 
 :sessionIndex schema:itemListElement :session20260821DeepSeekV4FlashConceptualVirtualization .
+
+# ── 2026-08-22: Gemini 3.7 Flash + Antigravity — Beyond the Agent Marketplace (Granular Digital Commodities) ──
+
+:session20260822GeminiDigitalCommodities a schema:ListItem ;
+    schema:position 1145 ;
+    schema:item <sessions/2026-08-22-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-22 (Gemini 3.7 Flash + Antigravity — Beyond the Agent Marketplace: Granular Digital Commodities Collection)"@en ;
+    schema:description "Synthesized and generated a complete Knowledge Graph, Markdown companion, and interactive HTML Infographic collection on expanding the Agent Marketplace into a decentralized Digital Commodities Marketplace for Data, Information, and Knowledge. Grounded in x402 micropayments (EIP-3009), Circle batching middleware, and Linked Open Agentic Commerce (LOAC). Explicitly detailed the 3 Digital Commodity classes: (1) Protected Files (documents, datasets, skill bundles), (2) Service Endpoints (stateless API routes, analytical solvers), and (3) Named Graphs (graph DBMS hosted knowledge graphs, SPARQL query slices, and reasoning axioms). Deliverables placed in /Users/kidehen/Documents/LLMs/Google Gemini Generated/ (rdf/, md/, webpages/)."@en .
+
+:sessionIndex schema:itemListElement :session20260822GeminiDigitalCommodities .
+
+# ── 2026-08-24: Gemini 3.7 Flash + Antigravity — Scaling AI for the Enterprise (Control Plane, Last-Mile Security, RDF Memory Meshup) ──
+
+:session20260824GeminiControlPlaneLastMileMeshup a schema:ListItem ;
+    schema:position 1146 ;
+    schema:item <sessions/2026-08-24-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-24 (Gemini 3.7 Flash + Antigravity — Scaling AI for the Enterprise: Control Plane Architecture, Last-Mile Security, and RDF Memory Meshup)"@en ;
+    schema:description "Generated a comprehensive RDF Knowledge Graph, interactive HTML Infographic with D3.js v7 KG Explorer & SPARQL Workbench, and companion Markdown document synthesizing Suvankar Mazumder's 'Scaling AI in the Enterprise' series overview and 'Part 2: Securing the Last Mile' with OpenLink Software's Agent RDF Memory harness. Mapped out how Agent RDF Memory operationalizes Mazumder's 5 Pillars of the Enterprise AI Control Plane (Approval Gates, Scoped Permissions, Audit Trails, State Rollback, and Evaluation Harness) and secures inference transactions using WebID-TLS cryptographic delegation and SPARQL query governance. Deliverables placed in /Users/kidehen/Documents/LLMs/Google Gemini Generated/ (rdf/, md/, webpages/). Passed validate-harness-contract.py with 0 failures."@en .
+
+:sessionIndex schema:itemListElement :session20260824GeminiControlPlaneLastMileMeshup .
+
+:session20260824DeepSeekV4ProPiDavUpload a schema:ListItem ;
+    schema:position 1147 ;
+    schema:item <sessions/2026-08-24-deepseek_v4pro-pi.ttl> ;
+    schema:name "Session 2026-08-24 (DeepSeek V4 Pro + pi — URIBurner DAV publication of conceptual-data-virtualization-semantic-layers-gpt5-codex-1 collection)"@en ;
+    schema:description "Uploaded the gpt5-codex conceptual-data-virtualization-semantic-layers HTML + Turtle collection to the URIBurner DAV publication location (https://linkeddata.uriburner.com:5443/DAV/demos/daas/) via mTLS/WebID-TLS PUT with principal link-in-bio-credentials-5 cert.p12 (passphrase from macOS Keychain item uriburner-p12, never printed). First batch hit a transient DAV issue (HTML PUT 201 yet public GET 404; TTL PUT 500) — re-PUT both to 201 and confirmed public :443 GET 200 byte-exact (HTML 381,779 B; TTL 88,789 B). Lesson: always re-verify with a public GET after DAV PUT, since 201 does not guarantee immediate readability."@en .
+
+:sessionIndex schema:itemListElement :session20260824DeepSeekV4ProPiDavUpload .
+
+
+# ── 2026-08-24-2: DeepSeek V4 Flash + dsh — Scaling AI in the Enterprise x Agent RDF Memory Control Plane Alignment Meshup ──
+
+:session20260824DeepSeekV4FlashControlPlaneMeshup a schema:ListItem ;
+    schema:position 1147 ;
+    schema:item <sessions/2026-08-24-deepseek_v4flash-dsh-2.ttl> ;
+    schema:name "Session 2026-08-24-2 (DeepSeek V4 Flash + dsh — Scaling AI in the Enterprise x Agent RDF Memory Control Plane Alignment Meshup)"@en ;
+    schema:description "Generated an RDF-Turtle + HTML infographic meshup collection meshing Suvankar Mazumder's 'Scaling AI in the Enterprise' series (Series Overview + Part 2: Securing the Last Mile, captured via the author's RSS feed after Cloudflare blocked curl and PinchTab's daemon could not create its profile dir under the sandbox) with the agent-rdf-memory skill. Critical requirement delivered as explicit RDF: 13 ControlPlaneAlignment instances mapping the 5 control-plane pillars, 3 inference vulnerabilities, and 5 last-mile security layers to concrete agent-rdf-memory components (preferences.ttl elicitation gates, WebID-TLS identity + delegated PKCS#12 credentials, session files + index ledger, durable memory checkpoints, scripts/ compliance gates, retrieval protocol, secret-hygiene storage rules, per-task scoped authorization). 1074-triple TTL (validate-kg-compliance.sh 19/19) + harness-validated 415KB HTML (validate-harness-contract.py 0 failures) with dual-presentation blueprint-vs-implementation matrix (9 cdx:ComparisonDimension aspects), 13 alignment sections, 15 FAQ, 14-term glossary (5 DBpedia primaries), 7-step HowTo, 222-node/693-link KG Explorer, single Turtle format tab. Deliverables: rdf/scaling-ai-enterprise-control-plane-meshup-deepseek_v4flash-1.ttl, webpages/scaling-ai-enterprise-control-plane-meshup-deepseek_v4flash-1.html."@en .
+
+:sessionIndex schema:itemListElement :session20260824DeepSeekV4FlashControlPlaneMeshup .
+
+# ── 2026-08-24-2: ox-alpha + OpenCode — Scaling AI x Agent RDF Memory Control Plane Alignment Meshup (ox-alpha edition) ──
+
+:session20260824OxAlphaControlPlaneMeshup a schema:ListItem ;
+    schema:position 1148 ;
+    schema:item <sessions/2026-08-24-ox_alpha-opencode-2.ttl> ;
+    schema:name "Session 2026-08-24-2 (ox-alpha + OpenCode — Scaling AI in the Enterprise x Agent RDF Memory Control Plane Alignment Meshup)"@en ;
+    schema:description "ox-alpha edition of the same-day Scaling AI control-plane meshup brief (DeepSeek V4 Flash sibling edition recorded at position 1147). LLM-Direct-authored RDF-Turtle (984 triples) under the Intelligence Network Editorial Aesthetic standing default (Step 244), meshing the Series Overview and Part 2 with agent-rdf-memory via eight typed AlignmentMapping instances (cdx:ComparisonDimension subclass) each carrying Control Plane / memory-harness / shared-principle columns plus alignsWithPillar and implementedBy links to eight MemoryComponent entities; arm:this reused via bound prefix per grok-bot precedent. Content captured via r.jina.ai retry ladder after Cloudflare 403s (Wayback empty, freedium unreachable); Intel TDX page unverifiable so modeled without schema:url. HTML: token-flow hero bridge, dual-presentation eight-row alignment matrix, layered-pipeline HowTo SVG across five defense bands, 14 FAQ, 25-term glossary (11 authority-primary subjects incl. dbr:Prompt_injection, RFC 9449 DPoP, W3C Turtle/SPARQL), 45-node/50-link KG Explorer zero orphans, SPARQL workbench open-by-default. validate-harness-contract.py PASS after generator-level fixes (JSON-LD prov:actedOnBehalfOf; SVG ampersand XML validity). Deliverables: {LLM_ROOT}/Ox Alpha/rdf|webpages/scaling-ai-enterprise-agent-rdf-memory-meshup-ox_alpha-1.{ttl,html}; project memory in projects/scaling-ai-agent-rdf-memory-control-plane-meshup.ttl."@en .
+
+:sessionIndex schema:itemListElement :session20260824OxAlphaControlPlaneMeshup .
+
+# ── 2026-08-24-11: DeepSeek V4 Flash + dsh — virtuoso-opentofu RDF + HTML Collection ──
+
+:session20260824DeepSeekV4FlashVirtuosoOpentofu a schema:ListItem ;
+    schema:position 1149 ;
+    schema:item <sessions/2026-08-24-deepseek_v4flash-dsh-11.ttl> ;
+    schema:name "Session 2026-08-24-11 (DeepSeek V4 Flash + dsh — virtuoso-opentofu RDF + HTML Collection)"@en ;
+    schema:description "Generated RDF-Turtle + JSON-LD (592 triples, rdflib-verified equivalent) and harness-validated HTML infographic (134 KB) for OpenLinkSoftware/virtuoso-opentofu — self-managed OpenTofu deployment scripts for Virtuoso Universal Server across AWS, Azure, and Google Cloud. Source: GitHub API metadata + README.md (repo created 2026-08-24). 4 provider schema:Service baselines (aws/, azure/, azure/aci/ experimental, gcp/), DBpedia-first org/software denotation (11 IRIs verified 200), OpenTofu homepage #this, 6 cdx:ComparisonDimension aspects reused via bound prefix with 18 approach leaves under a distinct owl:Ontology, 8-step HowTo with absolute post: IRIs, 14 FAQ, 16-term glossary, 4 SPARQL recipes, full prov chain with prov:actedOnBehalfOf. HTML: dual-presentation 3x6 comparison matrix, D3 v7 KG Explorer (50 nodes / 70 links / 0 orphans), SPARQL workbench, floating nav, theme toggle, hero-meta delegation line all parties hyperlinked. Gates: validate-harness-contract.py PASS 0 failures, node --check clean, HTMLParser clean, zero %2523 double-encodings, grep gates passed. Deliverables: rdf/virtuoso-opentofu-deepseek_v4flash-1.{ttl,jsonld}, webpages/virtuoso-opentofu-deepseek_v4flash-1.html."@en .
+
+:sessionIndex schema:itemListElement :session20260824DeepSeekV4FlashVirtuosoOpentofu .
+
+# ── 2026-08-24: Claude Opus 5 + Claude Code — virtuoso-opentofu RDF + HTML + MD Collection ──
+
+:session20260824ClaudeOpus5VirtuosoOpentofu a schema:ListItem ;
+    schema:position 1150 ;
+    schema:item <sessions/2026-08-24-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-24 (Claude Opus 5 + Claude Code — virtuoso-opentofu RDF + HTML + MD Collection)"@en ;
+    schema:description "Claude Opus 5 edition of the OpenLinkSoftware/virtuoso-opentofu collection (a DeepSeek V4 Flash edition was generated separately the same day, session 2026-08-24-11, routed to DeepSeek/). 765-triple Turtle, zero blank nodes, one owl:Ontology entity distinct from and differently named to the document entity. DOAP adopted for the repository after the ontology-discovery gate ran with prefix.cc unreachable (HTTP 000) — namespace dereferenced and its 58 terms inspected directly, then presented for accept/reject. Reused cdx:ComparisonDimension, kpx:KeyPrinciple, and oqx:OpenQuestion by bound prefix; minted 5 classes + 6 properties for the deployment-baseline domain, each fully characterised with a verified external cross-reference. 14 FAQ, 16 glossary terms, 8 HowTo steps, 6 sample queries. HTML ported from the newest same-model artifact (neo4j-graph-technology-vs-virtuoso-rdf-claude_opus_5-1.html, same day) with only kgData (202 nodes / 436 links), the sample queries, and the body new, built by a Python pipeline that derives both from the companion TTL. THREE inherited template defects found by live browser measurement while both validators stayed green: --accent at #00b4ff in BOTH themes gave every entity link 2.34:1 on the light page (fixed to #0b6fa4, 5.49:1 light / 10.42:1 dark); the floating nav had the manual-hide, fade, manuallyHidden guard and reactivation marker but no resize rule at all; and 199px of horizontal overflow at 390px from an unprotected pre.sparql-code and a native select sized to its longest option label. validate-harness-contract.py PASS; validate-kg-compliance.sh 19/20 with the single FAIL being the Step 212 documented CURIE false positive, left unexpanded. Deliverables: rdf/, webpages/, md/ virtuoso-opentofu-self-managed-deployments-claude_opus_5-1.{ttl,html,md}. Companion TTL not yet uploaded to the URIBurner DAV collection."@en .
+
+:sessionIndex schema:itemListElement :session20260824ClaudeOpus5VirtuosoOpentofu .
