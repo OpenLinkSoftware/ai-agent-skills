@@ -175,6 +175,23 @@ Default voice for male narration is **onyx**; use **coral** (or another OpenAI T
 
 The script requires `OPENAI_API_KEY` and the Python `openai` package. If local Python dependencies are broken, tell the user clearly and either repair the environment with approval or ask them to provide an externally generated MP3.
 
+#### Fallback: local/offline narration via Piper
+
+If OpenAI TTS is unreachable (no API key, out of quota, network down) and the user wants to proceed without waiting, offer `scripts/screencast-piper-voiceover.py` as a local, offline alternative. It is an **optional dependency** -- nothing installs at skill-load time. The script installs `piper-tts` (pip) and downloads the requested voice model (one-time, ~50-120MB depending on quality tier) only when actually run, and only if not already cached under `~/.cache/piper-voices/`.
+
+```bash
+python3 scripts/screencast-piper-voiceover.py \
+  --text-file narration.txt \
+  --output "{SCREENCAST_DIR}/{filename}-voiceover.mp3" \
+  --voice en_US-ryan-high
+```
+
+Default voice for male narration is **en_US-ryan-high** (highest quality tier). Other male options: `en_US-norman-medium`, `en_US-bryce-medium`, `en_US-hfc_male-medium`, `en_GB-alan-medium`, `en_GB-northern_english_male-medium`. Full voice list: https://huggingface.co/rhasspy/piper-voices/tree/main/en
+
+**Known limitation, state this to the user before using it:** Piper has no style/instructions prompt -- it is fixed-voice, fixed-prosody synthesis. There is no way to ask for "steady, unhurried power" or any other delivery style the way the OpenAI path's `--instructions` allows. The script's defaults (`--length-scale 1.05`, `--noise-scale 0.5`, `--noise-w-scale 0.6`, all tuned down/up from Piper's own stock defaults of 1.0/0.667/0.8) are the closest numeric PROXY for a steady, measured delivery -- flatter variation and a touch slower pace -- but this is an approximation, not real style control. It cannot add emphasis, warmth, urgency, or any other directed quality; the voice choice itself carries most of the tone. If the user needs precise, describable style control, OpenAI TTS (or another cloud provider) remains the better fit -- Piper is for when a narration is needed and no cloud TTS is reachable, not a drop-in style-equivalent replacement.
+
+The upstream project (`OHF-Voice/piper1-gpl`) is GPL-3.0 licensed. That is not a practical concern for local, personal use of the installed tool, but do not bundle/redistribute the package or voice models as part of a shipped product without checking license compatibility first.
+
 After the user approves the MP3, mux it into the MP4 while preserving captions:
 
 ```bash
