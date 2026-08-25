@@ -211,7 +211,8 @@
         <howto/workbench-brevity-gate.ttl>,
         <howto/responsive-comparison-presentation.ttl>,
         <howto/prior-artifact-footer-polish-gate.ttl>,
-        <howto/generator-script-output-not-a-substitute-for-contract-check.ttl> ;
+        <howto/generator-script-output-not-a-substitute-for-contract-check.ttl>,
+        <howto/ported-template-measured-defect-sweep.ttl> ;
     schema:step :step-attribution, :step-darkModeCSS, :step-kgExplorerReuse,
         :step-templateSelection, :step-kgNavPlacement, :step-kgNavCollapsed,
         :step-kgControlsMasterClose, :step-kgNoOrphans, :step-kgToolbarGroups,
@@ -234,7 +235,9 @@
         :step-responsiveComparisonPresentation,
         :step-priorArtifactFooterPolishGate,
         :step-synopsisDeckDesignSystem ,
-        :step-editorialDataVizAesthetic .
+        :step-editorialDataVizAesthetic ,
+        :step-portedTemplateMeasuredDefectSweep ,
+        :step-priorWorkEvaluationGates .
 
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
@@ -1005,14 +1008,14 @@ Certificate paths:
 
 :step-uiUxExpertPersona a schema:HowToStep ;
     schema:position 58 ;
-    schema:name "Operate as a modern UI/UX expert when producing any visual or interactive artifact"@en ;
-    schema:text "Operate as a modern UI/UX expert on all visual artifacts: enforce the accent color system (--accent blue for entity links), explicit hyperlink CSS, label precision, and cross-section visual coherence."@en ;
+    schema:name "Operate as a modern UI/UX, visual-communication, and storytelling expert when producing any visual or interactive artifact"@en ;
+    schema:text "Operate as a modern UI/UX, visual-communication, and storytelling expert on all visual artifacts. Begin with a reader journey and evidence-backed narrative spine; translate RDF facts into purposeful hierarchy, pacing, comparison, and interactive query surfaces; choose tables, diagrams, figures, and prose according to what communicates each relationship most clearly; enforce accessible interaction, the accent color system (--accent blue for entity links), explicit hyperlink CSS, label precision, and cross-section visual coherence."@en ;
     onto:hasTrigger onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/ui-ux-expert-persona.ttl> .
 
 :topicUiUxExpertPersona a schema:Thing ;
-    schema:name "UI/UX Expert Persona"@en ;
-    schema:description "Standing behavioral default: operate as a UI/UX expert whenever producing any visual or interactive artifact. Enforces color system discipline, hyperlink consistency (--accent blue for entity links), label precision, and cross-section visual coherence. Never requires explicit per-session activation by the user."@en .
+    schema:name "UI/UX, Visual Communication, and Storytelling Expert Persona"@en ;
+    schema:description "Standing behavioral default: operate as a UI/UX expert, visual-communications designer, and storyteller whenever producing any visual or interactive artifact. Enforces a reader-centered narrative arc, evidence-led visual selection, information hierarchy, accessible interaction, color-system discipline, hyperlink consistency (--accent blue for entity links), label precision, and cross-section visual coherence. Never requires explicit per-session activation by the user."@en .
 
 # ── Step 114: No Raw URL Dump ──────────────────────────────────────────────────
 
@@ -3186,3 +3189,54 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
         <preferences.ttl#step-intelligenceNetworkAesthetic>,
         <howto/elicit-before-conditional-default.ttl>,
         <../references/template-options.md> .
+
+# ── Step 249: LI100 / license-manager-contact failures on Virtuoso need a SERVER restart, not just an oplmgr restart ──
+
+:step-virtuosoLicenseManagerRestartOrder a schema:HowToStep ;
+    schema:position 249 ;
+    schema:name "LI100 'Number of licensed connections exceeded' on an otherwise-healthy Virtuoso instance: restart the Virtuoso SERVER, not just oplmgr — Virtuoso caches its license grant at its own startup"@en ;
+    schema:text """User correction (2026-08-23): 'Next time around, this kind of issue is typically due to the fact that the Virtuoso server wasn't restarted following a license manager restart to incorporate new licenses (Virtuoso or UDA).' Incident: a local Virtuoso instance (shop-database, port 1111) returned LI100 on every ISQL connection attempt while its HTTP/SPARQL endpoint (8890) answered 200 the whole time — the agent wrongly read this as a full outage and started restarting oplmgr (the OpenLink License Manager daemon) as a first move, which the user flagged as unnecessary tinkering. oplmgr restarts do not clear this: Virtuoso checks out its license grant once at its OWN process startup and holds that state for the life of the process, so if oplmgr was restarted, or new/updated .lic files were installed, AFTER the Virtuoso server last started, the server keeps using its stale grant and keeps failing new SQL/ISQL connections regardless of oplmgr's current health. Diagnostic order going forward: (1) verify via a non-ISQL path (curl the HTTP/SPARQL endpoint) whether the instance is actually down before escalating — it usually isn't; (2) if oplmgr/license files are newer than the Virtuoso server process, the fix is restarting that VIRTUOSO SERVER instance, not re-restarting oplmgr; (3) a server restart is service-affecting (drops connections) — confirm with the user first, same as any other service-affecting action.""" ;
+    onto:hasTrigger onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/virtuoso-license-manager-restart-order.ttl> .
+
+# ── Step 250: the output-root blocking gate applies to ANY generated Markdown deliverable, not only kg-generator/rdf-infographic-skill artifacts ──
+
+:step-outputRootGateAppliesBeyondKgGenerator a schema:HowToStep ;
+    schema:position 250 ;
+    schema:name "A drafted chat/forum-reply Markdown file is still a generated artifact subject to step-outputDirs/step-outputRootBlockingGate — scratchpad is never the final destination"@en ;
+    schema:text "See howto/artifact-routing.ttl for the incident (2026-08-24, a drafted community-forum reply written to scratchpad) and the generalization to any generated deliverable regardless of which skill/workflow produced it."@en ;
+    onto:hasTrigger onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/artifact-routing.ttl#step-outputRootGateAppliesBeyondKgGenerator>,
+        <howto/artifact-routing.ttl#step-outputRootBlockingGate>,
+        <preferences.ttl#step-outputDirs> .
+
+# ── Step 256: three ported-template defects that both validators pass on either side of the fix ──
+
+:step-portedTemplateMeasuredDefectSweep a schema:HowToStep ;
+    schema:position 256 ;
+    schema:name "Before delivering an HTML infographic whose shell was ported from a prior artifact, MEASURE token contrast in both themes, the floating nav's full expand/resize/hide/restore lifecycle, and document-level horizontal overflow at ~390px"@en ;
+    schema:text "2026-08-24, virtuoso-opentofu collection: a shell ported from that day's newest same-model artifact carried an --accent value giving every entity link 2.34:1 on the light page, no nav resize rule at all despite carrying every other nav behaviour, and 199px of horizontal overflow at phone width — all three invisible to validate-harness-contract.py and validate-kg-compliance.sh, which check required content rather than rendered geometry or computed colour."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/ported-template-measured-defect-sweep.ttl>,
+        <howto/generator-script-output-not-a-substitute-for-contract-check.ttl>,
+        <howto/checker-context-isolation.ttl>,
+        <howto/prior-artifact-footer-polish-gate.ttl> .
+
+# ── Step 257: prior-work evaluation is a mandatory gate at planning, snag response, and verification ──
+
+:step-priorWorkEvaluationGates a schema:HowToStep ;
+    schema:position 257 ;
+    schema:name "Prior-work evaluation is a mandatory gate: at PLANNING (port the newest validated artifact's subsystems verbatim, never build fresh when a working shell exists), at SNAGS (a fix that doesn't work means STOP patching and search the corpus for the documented root cause first), and at VERIFICATION (verify under the actual reported condition — e.g. OS color-scheme — and confirm handlers are bound, not merely present)"@en ;
+    schema:text """Codified after the 2026-08-24 Neo4j-vs-Virtuoso collection saga: five user reports to fix the dark/light toggle (plus KG Explorer and floating-nav regressions) for what was ultimately a two-line CSS guard already documented in howto/theme-toggle-os-preference-guard.ttl (the 2026-08-19 incident). Root causes of the spend: (1) PLANNING built a fresh custom HTML builder instead of following howto/kg-explorer-reuse-first.ttl (port the newest validated artifact's subsystems verbatim); (2) SNAG RESPONSE patched JS wiring repeatedly instead of first searching the corpus for the symptom — the howto for the exact bug existed; (3) VERIFICATION stubbed matchMedia to light, so the OS-dark path (the user's actual condition) was never exercised; harness PASS and syntax checks do not prove runtime behavior, and function existence does not prove a handler is bound. Apply the three gates in howto/prior-work-evaluation-gates.ttl to every future artifact generation."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/prior-work-evaluation-gates.ttl>,
+        <howto/kg-explorer-reuse-first.ttl>,
+        <howto/theme-toggle-os-preference-guard.ttl>,
+        <howto/kg-explorer-d3-patterns.ttl>,
+        <preferences.ttl#step-kgExplorerReuse>,
+        <preferences.ttl#step-portedTemplateMeasuredDefectSweep> .
+
+:topicPriorWorkEvaluation a schema:Thing ;
+    schema:name "Prior-Work Evaluation Gates"@en ;
+    schema:description "Mandatory evaluation of prior work (newest validated artifacts, corpus howtos, logged sessions) at artifact planning, at snag response, and in verification — the antidote to the 2026-08-24 toggle/KG-Explorer/nav saga."@en ;
+    rdfs:seeAlso <howto/prior-work-evaluation-gates.ttl> .
