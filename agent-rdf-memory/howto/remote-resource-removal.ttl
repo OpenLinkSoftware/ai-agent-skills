@@ -39,7 +39,7 @@
     schema:text """For every HTTP, WebDAV, and iSQL removal attempt:
 
 1. PKCS#12 path from core.ttl :userPrincipalCredentials (not a mid-task find): {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12
-2. Passphrase resolves keychain-first: macOS Keychain item uriburner-p12, falling back to the VALUE of the first KEY=VALUE line in /tmp/uyi (see p12-passphrase-retrieval.ttl). Export to MTLS_PKCS12_PW. Never print, log, or store it.
+2. Passphrase resolves keychain-first: macOS Keychain item uriburner-p12 (SOLE source — the /tmp/uyi fallback is HISTORICAL, that file was deleted 2026-08-25; see p12-passphrase-retrieval.ttl). Export to MTLS_PKCS12_PW. Never print, log, or store it.
 3. curl MUST use --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Do not extract a PEM to TMPDIR. Do not pass --cert file.p12:password.
 4. iSQL MUST use the same p12 path as -X {p12-path} and the same env passphrase as the third positional argument (never a literal in the shown command).
 5. unset MTLS_PKCS12_PW when finished."""@en ;
@@ -91,7 +91,7 @@ A single :5443 GET 404 is not sufficient. The public folder page is what the ope
 :workExample-httpDelete a schema:CreativeWork ;
     schema:name "Worked HTTP DELETE that removed the JSON-LD DAV resource (2026-08-18)"@en ;
     schema:description "Returned HTTP 204. Passphrase stays in MTLS_PKCS12_PW, resolved keychain-first per p12-passphrase-retrieval.ttl."@en ;
-    schema:text """export MTLS_PKCS12_PW=\"$(security find-generic-password -s uriburner-p12 -a \"$USER\" -w 2>/dev/null || python3 -c \"from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())\")\"
+    schema:text """export MTLS_PKCS12_PW=\"$(security find-generic-password -s uriburner-p12 -a \"$USER\" -w)\"
 P12=\"{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12\"
 curl -sk --cert-type P12 --cert \"$P12\" --pass \"$MTLS_PKCS12_PW\" \\
   -X DELETE \\

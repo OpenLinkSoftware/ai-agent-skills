@@ -6,7 +6,7 @@
 
 <> a schema:CreativeWork ;
     schema:name "howto/p12-passphrase-retrieval.ttl"@en ;
-    schema:description "Resolution chain for the principal YouID PKCS#12 unlock passphrase: macOS Keychain item uriburner-p12 (LIVE as of 2026-08-18, migrated from /tmp/uyi with the user's permission), /tmp/uyi as documented fallback while it still exists, user elicitation last. RENAMED 2026-08-18 from p12-passphrase-uyi-file.ttl to p12-passphrase-retrieval.ttl — the old name was filesystem-fallback-specific and stopped fitting once Keychain became primary and a cross-platform (keyring-package) path was added; all referencing files (core.ttl, preferences.ttl, sibling howto files) were updated to the new name, git mv preserved history. IMPORTANT SCOPE NOTE (2026-08-18): the client in this environment (curl 8.7.1 / LibreSSL 3.3.6) can only consume a client certificate as a FILE — a SecureTransport version banner is not evidence that --cert accepts a Keychain identity name/SHA-1 directly, and testing proved it does not (curl error 58, could not load PEM client certificate). So Keychain here holds the PASSPHRASE that unlocks the standing .p12 FILE, not the certificate/identity itself; the .p12 file remains required."@en ;
+    schema:description "Resolution chain for the principal YouID PKCS#12 unlock passphrase: macOS Keychain item uriburner-p12 (LIVE as of 2026-08-18, migrated from /tmp/uyi with the user's permission), /tmp/uyi as documented fallback while it still exists, user elicitation last. RENAMED 2026-08-18 from p12-passphrase-uyi-file.ttl to p12-passphrase-retrieval.ttl — the old name was filesystem-fallback-specific and stopped fitting once Keychain became primary and a cross-platform (keyring-package) path was added; all referencing files (core.ttl, preferences.ttl, sibling howto files) were updated to the new name, git mv preserved history. IMPORTANT SCOPE NOTE (2026-08-18): the client in this environment (curl 8.7.1 / LibreSSL 3.3.6) can only consume a client certificate as a FILE — a SecureTransport version banner is not evidence that --cert accepts a Keychain identity name/SHA-1 directly, and testing proved it does not (curl error 58, could not load PEM client certificate). So Keychain here holds the PASSPHRASE that unlocks the standing .p12 FILE, not the certificate/identity itself; the .p12 file remains required. NOTE 2026-08-25: /tmp/uyi has been DELETED at the user's instruction; its last contents were UB_PWD only (no DBA_PWD, no p12 value), so no secret was stranded. Every /tmp/uyi fallback described below is HISTORICAL — the Keychain items are now the sole sources."@en ;
     schema:dateCreated "2026-07-30T16:00:00Z"^^xsd:dateTime ;
     schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
@@ -91,11 +91,12 @@ PROHIBITED: treating each line as a bare password string; concatenating lines; l
 
 :step-canonicalSnippet a schema:HowToStep ;
     schema:position "4"^^xsd:integer ;
-    schema:name "Canonical one-liner: try Keychain, fall back to /tmp/uyi, in a single expression"@en ;
-    schema:text """Use this verbatim wherever MTLS_PKCS12_PW is needed. It is fallback-safe: it works today (keychain item absent -> /tmp/uyi) and keeps working after the user creates the item, with no edit:
+    schema:name "Canonical one-liner: read the Keychain item (the /tmp/uyi fallback limb was removed 2026-08-25 when that file was deleted)"@en ;
+    schema:text """Use this verbatim wherever MTLS_PKCS12_PW is needed:
 
-  export MTLS_PKCS12_PW="$(security find-generic-password -s uriburner-p12 -a "$USER" -w 2>/dev/null \\
-    || python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+  export MTLS_PKCS12_PW="$(security find-generic-password -s uriburner-p12 -a "$USER" -w)"
+
+HISTORICAL: this one-liner previously carried a `|| python3 -c ...Path('/tmp/uyi')...` fallback limb. /tmp/uyi was DELETED 2026-08-25 at the user's instruction, so that limb was removed — it can only ever resolve empty now, and silently returning an empty passphrase is worse than failing loudly. If the Keychain read yields nothing, STOP and elicit from the user; do not synthesize a replacement fallback path.
 
 Always `unset MTLS_PKCS12_PW` when the operation completes. Never echo it, never pass it as a literal on a command line that gets logged or shown to the user, never write it into a file, RDF memory, or the transcript."""@en .
 
@@ -169,8 +170,10 @@ Backend routing is automatic:
 CANONICAL CROSS-PLATFORM SNIPPET (replaces the macOS-only one-liner in :step-canonicalSnippet when the host is not confirmed macOS):
   export MTLS_PKCS12_PW="$(python3 -c "import keyring; print(keyring.get_password('uriburner-p12', '$USER') or '')" )"
   if [ -z "$MTLS_PKCS12_PW" ]; then
-    export MTLS_PKCS12_PW="$(python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+    echo "keyring lookup failed — elicit the passphrase from the user" >&2
   fi
+
+(The second limb formerly read /tmp/uyi; that file was deleted 2026-08-25 and the branch now fails loudly instead.)
 
 CURL BACKEND CAVEAT ON WINDOWS — do not assume a file-less route exists there either. curl.exe CAN be built against SChannel (Windows' native TLS stack), and an SChannel build genuinely does support referencing a certificate from the Windows store by thumbprint via --cert, with no file and no PKCS#12 at all — a real difference from this session's LibreSSL-backed macOS curl. But do not assume the curl binary actually present is that build: curl shipped via git-bash/MSYS2 and via the official curl.se Windows releases is commonly OpenSSL-backed, file-path-only, same limitation as here. Check with `curl -V` AND THEN TEST the exact operation before asserting either way — the SecureTransport-banner-was-misleading lesson from :step-testResult in keychain-identity-vs-p12-file-curl.ttl applies identically to an SChannel banner claim.
 
