@@ -7,24 +7,25 @@
 # ── Self-describing document entity ──────────────────────────────────────────
 
 <> a schema:CreativeWork ;
-    schema:name "HowTo: UI/UX Expert Persona — Standing Behavioral Default"@en ;
-    schema:description "Companion howto document for preferences.ttl Step 44. Specifies that the agent must apply expert-level UI/UX judgment to all visual artifacts without per-session activation. Cross-references the color design token system, hyperlink conventions, accordion patterns, and section title behavior established across multiple infographic sessions."@en ;
+    schema:name "HowTo: UI/UX, Visual Communication, and Storytelling Expert Persona — Standing Behavioral Default"@en ;
+    schema:description "Companion howto document for preferences.ttl Step 44. Specifies that the agent must apply expert-level UI/UX, visual-communication, and storytelling judgment to all visual artifacts without per-session activation. Cross-references narrative structure, evidence-led visual selection, the color design token system, hyperlink conventions, accordion patterns, and section title behavior established across multiple infographic sessions."@en ;
     schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-14T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-24T00:00:00Z"^^xsd:dateTime ;
     schema:about :HowToUiUxExpertPersona .
 
 # ── HowTo: UI/UX Expert Persona ──────────────────────────────────────────────
 
 :HowToUiUxExpertPersona a schema:HowTo ;
-    schema:name "Operate as a UI/UX Expert When Producing Visual Artifacts"@en ;
-    schema:description "Standing behavioral default (Step 44): apply expert-level UI/UX judgment to all HTML pages, infographics, dashboards, and interactive artifacts without requiring per-session reminders. Treat deviations from the established design token system as contract violations."@en ;
+    schema:name "Operate as a UI/UX, Visual Communication, and Storytelling Expert When Producing Visual Artifacts"@en ;
+    schema:description "Standing behavioral default (Step 44): apply expert-level UI/UX, visual-communication, and storytelling judgment to all HTML pages, infographics, dashboards, and interactive artifacts without requiring per-session reminders. Treat a missing reader journey, weak evidence hierarchy, decorative rather than explanatory visuals, inaccessible interaction, or deviation from the established design token system as contract violations."@en ;
     schema:step :stepColorSystemDiscipline,
                 :stepHyperlinkConsistency,
                 :stepLabelPrecision,
                 :stepSectionHeadingTreatment,
                 :stepAccordionToggleLinks,
                 :stepCrossSessionConsistency,
-                :stepNoRawUrlDump .
+                :stepNoRawUrlDump,
+                :stepVisualStorytelling .
 
 # ── Steps ─────────────────────────────────────────────────────────────────────
 
@@ -100,9 +101,14 @@ Instead, render it as a compact styled affordance consistent with the design tok
   - the label text stays static; only the href updates on refresh — never overwrite textContent with the raw URL
 Failure mode observed: the rdf-infographic-skill SPARQL-workbench template (copied verbatim from a prior session's HTML as a structural base) rendered `preview.textContent = btn.href` — a raw ~500-character percent-encoded URL wrapped as plain muted text under the Refresh/Copy buttons. This is a template-inherited flaw, not a one-off: check every reused template section against the design system rather than assuming prior output was already compliant."""@en .
 
+:stepVisualStorytelling a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "Build an evidence-led visual story and reader journey"@en ;
+    schema:text """Before implementation, define the reader's starting question, the central contrast or tension, the evidence sequence, the decisive insight, and the action or exploration surface that resolves the story. Every section must advance that arc. Use visual forms according to communication purpose: tables for exact comparisons, flows for sequence and causality, diagrams for architecture, charts for quantitative patterns, and prose for interpretation. Prefer RDF-derived figures and live query results over decorative illustration. A technically valid page that is a uniform stack of prose cards, buries its thesis, or treats SPARQL as a footer ornament rather than an explanatory interaction fails this gate."""@en .
+
 # ── Why This HowTo Was Created ────────────────────────────────────────────────
 
 :OriginContext a schema:CreativeWork ;
     schema:name "Origin context for UI/UX Expert Persona rule"@en ;
-    schema:description "The user had to request UI/UX expert behavior explicitly across multiple sessions to fix: (1) glossary term links using purple --accent2 instead of blue --accent; (2) FAQ accordion toggle links unstyled/inherited; (3) section headings mislabeled. User stated: 'I don't want to keep on requesting that re aesthetics.' This rule codifies the standing expectation."@en ;
+    schema:description "The user had to request UI/UX expert behavior explicitly across multiple sessions to fix: (1) glossary term links using purple --accent2 instead of blue --accent; (2) FAQ accordion toggle links unstyled/inherited; (3) section headings mislabeled. The user later clarified that the standing behavior must also cover visual communications and storytelling, including live-query HTML documents whose interaction carries the narrative. This rule codifies the complete standing expectation."@en ;
     schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime .

@@ -1,6 +1,6 @@
 ---
 name: kg-generator
-description: "Generate comprehensive Knowledge Graphs (RDF-Turtle by default, or JSON-LD and other RDF serializations on request) from content at file: or http(s): scheme URLs. Uses curated prompt templates: a Generic template for general web content (producing JSON-LD); a Business and Market Analysis template for strategy/analysis content (RDF-Turtle with NAICS codes, lightweight ontology, FAQ, glossary, HowTo); a Conference and Event Recap template for conference write-ups, panel summaries, and case-study-driven narrative articles (RDF-Turtle with case-study/panel/quotation ontology); a Thesis and Framework Article template for opinion pieces proposing a named framework, with optional agent-authored critical-perspective response; a Social Media Post and Comment Thread template for a post plus its full comment thread; and a News Article with Framework Commentary template for third-party news articles with an optional agent-authored framework-application lens. Trigger when users ask to: generate a knowledge graph, generate RDF or RDF-Turtle, generate JSON-LD, convert a URL to structured semantic data, or extract schema.org data from a page or document."
+description: "Generate comprehensive Knowledge Graphs from file: or http(s): sources, using RDF-Turtle by default or another requested RDF serialization. Supports general documents, business and market analysis, event recaps, thesis and framework articles, social-media threads, and news commentary. Use when asked to generate a knowledge graph, create RDF or JSON-LD, convert a URL to semantic data, or extract schema.org data from a page or document."
 ---
 
 # Knowledge Graph Generator Skill
@@ -25,6 +25,12 @@ Generate comprehensive, standards-compliant Knowledge Graphs from any `file:` or
 This skill is a Knowledge Graph generation entry point. For document/source-to-RDF requests, interpret the request through the `document-to-kg-skill` **Document-to-KG Harness Mode** contract when that skill is available. For requests that also ask for HTML, Markdown, an infographic, or a KG Explorer, hand off to the `rdf-infographic-skill` **RDF Infographic Harness Mode** after RDF generation.
 
 Do not let this skill drift into standalone HTML generation, source summarization, or manually invented graph visualization. RDF remains the source of truth, and companion HTML/Markdown artifacts must satisfy the RDF/HTML/MD pairing contract in `rdf-infographic-skill`.
+
+### Narrative and Visual-Communication Contract
+
+When the RDF will drive a reader-facing document, model a coherent evidence-backed narrative spine rather than an undifferentiated fact inventory. Preserve the source's thesis, contrasts, causal chain, quantitative evidence, limitations, and conclusion as ordered, queryable entities and relationships. Model comparison dimensions, metric observations, claims, provenance, and SPARQL recipes explicitly so the companion document can communicate them through the most appropriate visual form.
+
+For any visual or interactive companion, operate as a UI/UX expert, visual-communications designer, and storyteller, and inherit the full `rdf-infographic-skill` operating modality. The reader journey must determine hierarchy and pacing; tables serve exact comparisons, flows serve sequence or causality, diagrams serve architecture, charts serve quantitative patterns, and prose serves interpretation. Live SPARQL interaction is part of the story surface when it lets readers test or extend the document's claims; it must not be relegated to decorative or disconnected query text.
 
 If this skill produces or templates any HTML directly, it must inherit the `rdf-infographic-skill` open-tab contract: every generated HTML `<a>` whose `href` is not a same-page fragment (`#section`) uses `target="_blank" rel="noopener noreferrer"`, while same-page fragment navigation remains same-tab. Attribution links must hyperlink the attributed label itself, not generic labels such as `Visit` or `Learn more`.
 

@@ -1,0 +1,97 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Measured-Defect Sweep on a Ported HTML Template"@en ;
+    schema:description "Three checks that must be MEASURED in a live browser — never read off the CSS or inferred from a green validator — before delivering an HTML infographic whose shell was ported from a prior artifact: token contrast in both themes, the floating nav's full expand/resize/hide/restore lifecycle, and document-level horizontal overflow at a phone width. Each check exists because it caught a real defect that both validate-harness-contract.py and validate-kg-compliance.sh passed on either side of the fix."@en ;
+    schema:dateCreated "2026-08-24T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-24T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :portedTemplateDefectSweep ;
+    schema:step :step-measureTokenContrastBothThemes,
+        :step-exerciseNavLifecycle,
+        :step-measureOverflowAtPhoneWidth,
+        :step-clippedFlexOverflowIsInvisibleToScrollWidth,
+        :step-compositeAlphaBeforeJudgingContrast,
+        :step-scopeRepairsToThisPage ;
+    rdfs:seeAlso <../preferences.ttl#step-portedTemplateMeasuredDefectSweep>,
+        <generator-script-output-not-a-substitute-for-contract-check.ttl>,
+        <checker-context-isolation.ttl>,
+        <prior-artifact-footer-polish-gate.ttl>,
+        <fixed-background-color-pinning.ttl>,
+        <nav-panel-localstorage-race.ttl>,
+        <openlink-brand-color-scheme.ttl> .
+
+:portedTemplateDefectSweep a schema:Thing ;
+    schema:name "Measured-defect sweep for ported HTML template shells"@en ;
+    schema:description "A ported shell inherits its source's defects along with its proven behaviour. These three defects are invisible to every static check in the harness because they live in rendered geometry and computed colour, not in required content."@en .
+
+# ── Step 1: contrast, computed and composited, in BOTH themes ────────────────
+
+:step-measureTokenContrastBothThemes a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Compute the real contrast ratio of every text-bearing colour token against its actual ground, in BOTH themes — a token that is correct in one theme is not thereby correct in the other"@en ;
+    schema:text """Incident 2026-08-24, virtuoso-opentofu collection, shell ported from neo4j-graph-technology-vs-virtuoso-rdf-claude_opus_5-1.html generated the same day: the palette set --accent to #00b4ff on bare :root AND left it bright in the dark blocks. That is correct on the dark ground and required by the bright-accent dark-mode rule — but --accent is also the entity-hyperlink colour (.entity-link{color:var(--accent)}), so on the light theme's white page every entity link on the page measured 2.34:1, well under the 4.5:1 AA floor. The sheet's own header comment already said '--primary = entity-hyperlink colour; --accent = supporting accent only' and '--on-accent: #ffffff ... (every accent is dark)', both of which the light --accent value contradicted. Nobody had measured it.
+
+PROCEDURE: in the live page, for each text-bearing token usage, read getComputedStyle(el).color and the composited background, then compute the WCAG relative-luminance ratio in the browser. Do not eyeball a screenshot and do not reason from the hex value. Repeat after flipping the theme — and flip it by reloading with the persisted preference set, not by setAttribute alone, because the style bridge can return a stale computed value read in the same task as the attribute change (observed repeatedly in this incident, and the reason an intermediate 3.33:1 reading looked like a cascade bug that did not exist).
+
+FIX SHAPE: move only the failing theme's value. A light-only repair declared on bare :root is safe next to the usual dark selectors, because html[data-theme="dark"] is (0,1,1) and :root:not([data-theme="light"]) is (0,2,0) against :root's (0,1,0) — both outrank it, so the dark palette survives in the explicit-toggle and the OS-preference path alike."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified , onto:triggerArtifactGeneration .
+
+# ── Step 2: the whole nav lifecycle, with real input ─────────────────────────
+
+:step-exerciseNavLifecycle a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Exercise the floating nav's full lifecycle with real input — expand, resize, manual hide, ambient movement, marker restore — because the contract's five nav behaviours are implemented in four separate places and a template can carry four of them"@en ;
+    schema:text """Same incident: the ported shell carried the manual-hide button, the inactivity fade, the manuallyHidden guard that makes the hide stick through ambient mousemove, and the dynamically-created reactivation marker — everything the two nav rules describe — but contained no `resize` declaration for the nav at all, in any block. The nav simply could not be resized, and no static check notices an absent CSS property.
+
+PROCEDURE: click the toggle with real input (a programmatic .click() plus a same-task getComputedStyle read reports a stale max-height and will make a working nav look broken), then assert resize/overflow/max-height in the expanded state and `resize:none` in the collapsed one; click the hide control, then move the mouse for real and confirm the nav STAYS hidden; click the marker and confirm it returns in the state it left.
+
+FIX SHAPE: the toggle puts .open on #nav-links, not a class on the nav, so scope the expanded-state rule with #floating-nav:has(#nav-links.open). Raise the max-height cap in the same rule — a tight cap silently defeats the native resize handle even when resize:both is set."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified , onto:triggerArtifactGeneration .
+
+# ── Step 3: overflow at a phone width, measured on the document ──────────────
+
+:step-measureOverflowAtPhoneWidth a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Measure document.documentElement.scrollWidth minus clientWidth at ~390px and require 0 — then attribute any excess to a specific element, excluding SVG children, whose rects legitimately exceed a scrolling wrapper"@en ;
+    schema:text """Same incident: 199px of document-level horizontal overflow at 390px, from two elements the validators cannot see. First, the workbench's sample-query `pre.sparql-code` — the ported sheet applies overflow-wrap/word-break protection only to `.footer-attribution .sparql-code` and `#sparql-explorer-code`, so a plain pre.sparql-code elsewhere in the workbench kept a 475px unbroken run of IRI text. Second, #sparqlRecipe: a native `select` sizes itself to its widest OPTION LABEL, and question-shaped recipe names ran the document to a 589px scrollWidth inside a 390px viewport. This is the long-token overflow gate recurring in two new element kinds — the rule was already written; only the selectors were new.
+
+MEASUREMENT NOTE: filter SVG descendants out of the per-element sweep. getBoundingClientRect ignores clipping, so every child of an overflow-x:auto figure wrapper reports a rect past the viewport and drowns the real culprits. Also confirm the pane actually has a width first — a hidden or unsized Browser pane reports clientWidth 0 and a meaningless scrollWidth, which reads exactly like page overflow."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified , onto:triggerArtifactGeneration .
+
+
+# ── Step 3b: overflow hidden by an ancestor's overflow:hidden ────────────────
+
+:step-clippedFlexOverflowIsInvisibleToScrollWidth a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "document.scrollWidth == clientWidth does NOT prove nothing overflows — inside a flex container with overflow:hidden, a wide child silently pushes its siblings off-screen and the document scroll stays clean"@en ;
+    schema:text """Incident 2026-08-24, same collection, found while adding a signature hero figure: the hero is `display:flex` centring a `.hero-content` item, and the new figure's SVG carried `min-width:660px` so it would stay legible inside its own scrolling wrapper. A flex item defaults to `min-width:auto`, so `.hero-content` grew to that 660px min-content width — at a 390px viewport the eyebrow, heading, tagline and meta were all pushed out past the viewport and clipped by `.hero{overflow:hidden}`. The page-level overflow check reported 0 the whole time, because the clipping ancestor absorbed it.
+
+PROCEDURE: alongside the document-level scrollWidth check, sweep per element for `getBoundingClientRect().right > clientWidth` and read the results even when the document check is clean. Excluding SVG descendants (whose rects legitimately exceed a scrolling wrapper) leaves the real offenders visible — here, `.hero-content` and every one of its text children reporting right:525 in a 390px viewport.
+
+FIX SHAPE: `min-width:0` on the flex item so it may shrink below its min-content width, plus `max-width:100%` and `overflow-x:auto` on the wide child's own wrapper, so the figure scrolls in its box rather than resizing its parent."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified , onto:triggerArtifactGeneration .
+
+# ── Step 3c: alpha compositing before any contrast verdict ──────────────────
+
+:step-compositeAlphaBeforeJudgingContrast a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "A contrast ratio computed from an rgba() colour without compositing it against its actual ground is meaningless — and it fails OPTIMISTICALLY, reporting a pass for text that fails"@en ;
+    schema:text """Incident 2026-08-24: a first contrast sweep over a hero band whose text uses `rgba(255,255,255,.62)` and `rgba(255,255,255,.58)` returned 16.3:1 for all three text roles, because the helper read only the first three numbers of the colour string and dropped the alpha — effectively measuring pure white on the dark band. Every value looked identical and implausibly high, which is the tell. Compositing each colour against the hero gradient's lighter stop before computing luminance gave the true figures: 7.23, 6.48, and 5.06 in dark and light respectively — all still passing, but by a margin four to eleven points smaller than the bogus reading, and a slightly more transparent token would have failed while still reporting 16.3.
+
+RULE: parse the alpha, composite `fg.a * fg + (1 - fg.a) * bg` against the real background, and for a gradient ground use whichever stop is *closest in luminance to the text* as the worst case. Identical ratios across several different-looking colours means the alpha was dropped, not that the palette is unusually consistent."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified , onto:triggerArtifactGeneration .
+
+# ── Step 4: repair scope ────────────────────────────────────────────────────
+
+:step-scopeRepairsToThisPage a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Repair the delivered page in an appended, commented override block; propagating the fix back into the source template or the generator is a separate, user-visible decision"@en ;
+    schema:text """A defect found this way lives in a shared ancestor — the prior artifact, and often the generator's own styles.css behind it. Fixing it at the generator is usually right (that is the standing lesson from the palette and theme-guard incidents), but it changes every future page and is not implied by a request to produce one collection. Apply the repair to the page being delivered as an appended override block, comment each rule with what was measured and why, and report the upstream implication to the user rather than editing the skill unasked.
+
+Keep the ported block byte-identical when you do this. An override appended after it is auditable — a diff against the source template shows exactly what this page changed and nothing else — whereas an in-place edit makes the port and the repair indistinguishable to the next session that greps the template lineage."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .

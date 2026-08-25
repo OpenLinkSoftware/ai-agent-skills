@@ -1,0 +1,24 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Virtuoso license-manager restart order"@en ;
+    schema:description "Diagnosing LI100 'Number of licensed connections exceeded' and similar license-manager-contact failures on a Virtuoso server that is otherwise healthy: the fix is restarting the Virtuoso server itself, not just the license manager daemon."@en ;
+    schema:dateCreated "2026-08-23T18:30:00Z"^^xsd:dateTime ;
+    rdfs:seeAlso <../preferences.ttl#step-virtuosoLicenseManagerRestartOrder> .
+
+:step-diagnoseLI100 a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "LI100 / 'Unable to contact the OpenLink License Manager' on an otherwise-healthy Virtuoso instance is almost always a stale license grant from server startup, not a real capacity or licensing problem"@en ;
+    schema:description "User correction, 2026-08-23: 'this kind of issue is typically due to the fact that the Virtuoso server wasn't restarted following a license manager restart to incorporate new licenses (Virtuoso or UDA).' Prior to this, the agent misdiagnosed the symptom as the whole Virtuoso instance being down and began restarting oplmgr (the OpenLink License Manager daemon) as a first move — overreach the user flagged, since the instance's HTTP/SPARQL endpoint (port 8890) was answering 200 the whole time. Restarting oplmgr alone does NOT clear the error: Virtuoso checks out its license grant once at its own process startup and caches that state for the life of the process. If oplmgr was restarted (or new/updated .lic files were dropped into the license directory) AFTER Virtuoso last started, Virtuoso keeps using its stale in-memory license state and continues failing new SQL/ISQL-protocol (port 1111-class) connections with LI100, even though oplmgr itself is now healthy and the license file is well within its limits (verified in this incident: 20 connections licensed, only 1 actually open, no expiry set)."@en ;
+    schema:workExample """Correct diagnostic order for LI100 / license-manager-contact failures:
+1. Confirm the instance is actually healthy via a non-ISQL path first (curl the HTTP/SPARQL endpoint, e.g. `curl -s -o /dev/null -w '%{http_code}' http://localhost:8890/sparql` should be 200). If it is, this is NOT a full-outage — say so, don't escalate to daemon restarts.
+2. Check whether oplmgr (or the Virtuoso instance's license files) were touched/restarted more recently than the Virtuoso server process itself (compare `ps -o etime` / process start time against oplmgr restart time or .lic file mtimes).
+3. If oplmgr is newer than the Virtuoso server process, the fix is to restart the VIRTUOSO SERVER ITSELF (the specific instance hitting the error, e.g. the 'shop-database' instance on port 1111/8890/443), not to keep restarting oplmgr. Restarting oplmgr again when it is already running and reachable does nothing for an already-stale Virtuoso process.
+4. Only restart oplmgr first if oplmgr itself is confirmed down/unreachable (e.g. not in `ps aux`, or not listening on its port) — and even then, still expect to restart the Virtuoso server afterward if the server had ever connected under the old license state.
+5. A Virtuoso server restart is service-affecting (drops open connections, briefly interrupts the SPARQL/HTTP endpoint too) — confirm with the user before doing it, same as any other service-affecting action.""" ;
+    onto:hasTrigger onto:triggerUserCorrection ;
+    rdfs:seeAlso <../preferences.ttl#step-virtuosoLicenseManagerRestartOrder> .
