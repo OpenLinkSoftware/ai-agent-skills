@@ -1,0 +1,35 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <https://www.openlinksw.com/ontology/> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Prior-Work Evaluation Gates for Artifact Generation"@en ;
+    schema:description "Prevents recurrence of the 2026-08-24 Neo4j-vs-Virtuoso collection saga (five user reports to fix the dark/light toggle, plus KG Explorer and floating-nav regressions) by making prior-work evaluation a mandatory gate at three points: planning, snag response, and verification."@en ;
+    schema:dateCreated "2026-08-25T04:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-25T04:30:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :HowToPriorWorkEvaluationGates .
+
+:HowToPriorWorkEvaluationGates a schema:HowTo ;
+    schema:name "Prior-Work Evaluation Gates"@en ;
+    schema:description "Three mandatory gates: (1) PLANNING — before building any artifact, locate and port the newest validated prior artifact's subsystems instead of building fresh; (2) SNAG — when a reported defect is not fixed by the first attempt, stop patching and search the corpus for the exact symptom before touching code; (3) VERIFICATION — verify under the actual reported condition, never a convenient stub."@en ;
+    schema:step :stepPlanningGate,
+               :stepSnagGate,
+               :stepVerificationGate .
+
+:stepPlanningGate a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Planning gate: evaluate prior work before generating"@en ;
+    schema:text """Before generating any HTML/RDF collection or infographic: (1) list the newest artifacts in the active model's webpages/ and rdf/ roots; (2) read howto/kg-explorer-reuse-first.ttl and follow it — identify the 3 most recent working implementations of each subsystem you need (KG Explorer, floating nav, theme toggle, SPARQL workbench); (3) port the newest validated shell VERBATIM (markup + CSS + JS), adapting only content; (4) build fresh ONLY when no working shell exists. The 2026-08-24 Neo4j-vs-Virtuoso collection violated this at planning (a fresh custom builder), which seeded the KG Explorer, nav, and theme regressions that followed."""@en .
+
+:stepSnagGate a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Snag gate: when a fix does not work, stop patching and search the corpus first"@en ;
+    schema:text """When a reported defect survives the first fix attempt: (1) STOP editing the artifact; (2) grep the corpus howtos and session memory for the exact symptom (e.g. 'theme toggle', 'prefers-color-scheme', 'KG Explorer', 'navigation', 'toggle not working') — the failure has very likely happened before and is documented (howto/theme-toggle-os-preference-guard.ttl documented the unguarded media-query toggle bug from the 2026-08-19 incident; the 2026-08-21 session documented the forceLink mutation KG-Explorer failure; Step 256 documents ported-template defect sweeps); (3) read the documented root cause and fix before touching code again; (4) if prior work exists, apply it verbatim rather than inventing a new variant."""@en .
+
+:stepVerificationGate a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Verification gate: verify under the actual reported condition"@en ;
+    schema:text """Harness PASS and syntax checks are necessary but not sufficient: (1) verify each interactive element has its handler BOUND (addEventListener/onclick per element id), not merely that the function exists; (2) verify under the condition the user reported — for theme issues emulate the OS color-scheme (matchMedia matches:true) and confirm the toggle changes what RENDERS, not just the data-theme attribute; (3) execute the actual built JS with a recorded-binding harness and invoke the real handlers. The 2026-08-24 saga repeatedly stubbed matchMedia to light, so the OS-dark path — the user's actual condition — was never exercised, and the toggle appeared fixed five times while the unguarded @media(prefers-color-scheme:dark){:root{...}} block silently overrode the attribute."""@en .
