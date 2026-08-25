@@ -142,12 +142,21 @@ The hook is project-scoped and fires automatically for any new Claude Code sessi
 This document previously hard-coded a step/file count ("36 operational rules", "9 thematic howto docs") that silently went stale as `preferences.ttl` and `howto/` grew — corrected 2026-07-23. Rather than re-embed a number that will drift again, compute it live when needed:
 
 ```bash
-# Current HowToStep count in preferences.ttl (count declarations, not distinct
-# positions -- deduping by position UNDERCOUNTS whenever two steps collide)
-grep -c 'a schema:HowToStep' agent-rdf-memory/preferences.ttl
-
-# Collision check: any output here means two steps share a schema:position
-grep -oE 'schema:position [0-9]+' agent-rdf-memory/preferences.ttl | sort | uniq -d
+# Current HowToStep count + collision check in preferences.ttl.
+# Query the GRAPH, not the text: grep counts "a schema:HowToStep" and
+# "schema:position N" occurrences that appear INSIDE schema:text literals,
+# which inflates the count and invents phantom collisions.
+python3 -c "
+import rdflib, collections
+g = rdflib.Graph().parse('agent-rdf-memory/preferences.ttl', format='turtle')
+S = rdflib.Namespace('http://schema.org/')
+pos = collections.defaultdict(list)
+for s in g.subjects(rdflib.RDF.type, S.HowToStep):
+    pos[int(g.value(s, S.position))].append(str(s).split('#')[-1])
+dupes = {k: v for k, v in pos.items() if len(v) > 1}
+print('steps:', sum(len(v) for v in pos.values()), '| distinct positions:', len(pos))
+print('collisions:', dupes or 'NONE')
+"
 
 # Current number of howto/*.ttl files
 ls agent-rdf-memory/howto/*.ttl | wc -l
