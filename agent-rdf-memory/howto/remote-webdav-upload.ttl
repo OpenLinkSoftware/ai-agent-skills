@@ -60,8 +60,8 @@ Ask: "Use On-Behalf-Of identity delegation? If so, provide the WebID URI." """@e
 
 :step-elicitCredentials a schema:HowToStep ;
     schema:position 3 ;
-    schema:name "Resolve PKCS#12 client certificate credentials (Keychain first, /tmp/uyi fallback)"@en ;
-    schema:text """Do not re-elicit the PKCS#12 path. Use core.ttl :userPrincipalCredentials, and resolve the passphrase via the chain in howto/p12-passphrase-retrieval.ttl — macOS Keychain item uriburner-p12 FIRST, /tmp/uyi first KEY=VALUE as fallback. Same credential pattern as remote removals: --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Never extract a PEM to TMPDIR. Never put the passphrase on the --cert path as file.p12:password. Never log or store the password."""@en .
+    schema:name "Resolve PKCS#12 client certificate credentials (Keychain only; /tmp/uyi deleted 2026-08-25)"@en ;
+    schema:text """Do not re-elicit the PKCS#12 path. Use core.ttl :userPrincipalCredentials, and resolve the passphrase via the chain in howto/p12-passphrase-retrieval.ttl — macOS Keychain item uriburner-p12 (SOLE source — the /tmp/uyi fallback is HISTORICAL, that file was deleted 2026-08-25; if the Keychain read is empty, STOP and elicit). Same credential pattern as remote removals: --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Never extract a PEM to TMPDIR. Never put the passphrase on the --cert path as file.p12:password. Never log or store the password."""@en .
 
 # ── Step 4: Construct Curl Command ────────────────────────────────────────────
 

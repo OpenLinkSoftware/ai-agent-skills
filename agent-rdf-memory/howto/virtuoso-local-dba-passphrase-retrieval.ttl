@@ -5,7 +5,7 @@
 
 <> a schema:CreativeWork ;
     schema:name "howto/virtuoso-local-dba-passphrase-retrieval.ttl"@en ;
-    schema:description "Resolution chain for the local Virtuoso instance's dba account password: macOS Keychain item virtuoso-local-dba (LIVE as of 2026-08-19, migrated from /tmp/uyi with the user's permission), /tmp/uyi DBA_PWD=... as fallback while it still exists. Same pattern as p12-passphrase-retrieval.ttl, applied to a second, independent secret — the two must not share a keychain item or collide in naming."@en ;
+    schema:description "Resolution chain for the local Virtuoso instance's dba account password: macOS Keychain item virtuoso-local-dba (LIVE as of 2026-08-19, migrated from /tmp/uyi with the user's permission), /tmp/uyi DBA_PWD=... as fallback while it still exists. Same pattern as p12-passphrase-retrieval.ttl, applied to a second, independent secret — the two must not share a keychain item or collide in naming. NOTE 2026-08-25: /tmp/uyi has been DELETED at the user's instruction; its last contents were UB_PWD only (no DBA_PWD, no p12 value), so no secret was stranded. Every /tmp/uyi fallback described below is HISTORICAL — the Keychain items are now the sole sources."@en ;
     schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :howto .
@@ -31,8 +31,7 @@ MIGRATED 2026-08-19: value copied from /tmp/uyi (single line, DBA_PWD=... at the
 :step-canonicalSnippet a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
     schema:name "Canonical fallback-safe snippet for a local Virtuoso dba session"@en ;
-    schema:text """export VIRT_DBA_PWD="$(security find-generic-password -s virtuoso-local-dba -a "$USER" -w 2>/dev/null \\
-  || python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
+    schema:text """export VIRT_DBA_PWD="$(security find-generic-password -s virtuoso-local-dba -a "$USER" -w)"
 isql 1111 dba "$VIRT_DBA_PWD" exec="..."
 unset VIRT_DBA_PWD
 

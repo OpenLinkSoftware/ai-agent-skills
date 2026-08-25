@@ -2222,7 +2222,7 @@ Applies alongside step-screencastDistributionArtifacts (routing) and step-screen
 :step-p12PassphraseUyiFile a schema:HowToStep ;
     schema:position 160 ;
     schema:name "When PKCS#12 password is in /tmp/uyi (or user-named path): each line is KEY=VALUE — unlock with the VALUE of the first pair only"@en ;
-    schema:text """Stated by the user 2026-07-30 after the agent failed to unlock link-in-bio-credentials-5/cert.p12 by treating whole lines of /tmp/uyi as bare passwords. SUPERSEDED AS PRIMARY 2026-08-18 by :step-p12PassphraseKeychainFirst — /tmp/uyi is now the FALLBACK, not the first source. Its parse remains exactly as recorded: lines are KEY=VALUE pairs; the principal p12 passphrase is the substring after the first '=' on the first non-empty line (first key-pair value). Never use the whole line, the key, or concatenated lines unless the user explicitly says otherwise. Never print, log, or store the value in memory files. Companion: howto/p12-passphrase-retrieval.ttl."""@en ;
+    schema:text """Stated by the user 2026-07-30 after the agent failed to unlock link-in-bio-credentials-5/cert.p12 by treating whole lines of /tmp/uyi as bare passwords. SUPERSEDED AS PRIMARY 2026-08-18 by :step-p12PassphraseKeychainFirst — /tmp/uyi is now the FALLBACK, not the first source. Its parse remains exactly as recorded: lines are KEY=VALUE pairs; the principal p12 passphrase is the substring after the first '=' on the first non-empty line (first key-pair value). Never use the whole line, the key, or concatenated lines unless the user explicitly says otherwise. Never print, log, or store the value in memory files. Companion: howto/p12-passphrase-retrieval.ttl. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user."""@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl>, <howto/session-governance.ttl>, <howto/verified-identity.ttl> .
 
@@ -2806,7 +2806,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 
 :step-remoteUploadOrder a schema:HowToStep ;
     schema:position 216 ;
-    schema:name "BLOCKING GATE — remote uploads try HTTP PUT first, then WebDAV, then iSQL; same principal PKCS#12 file path and /tmp/uyi passphrase as removals, never a TMPDIR PEM extract"@en ;
+    schema:name "BLOCKING GATE — remote uploads try HTTP PUT first, then WebDAV, then iSQL; same principal PKCS#12 file path and Keychain-resolved passphrase as removals (was /tmp/uyi until its deletion 2026-08-25), never a TMPDIR PEM extract"@en ;
     schema:text "2026-08-18: user presumed the HTTP/WebDAV/iSQL order and credentials pattern also cover uploads. They do now. First attempt is HTTP PUT to https://linkeddata.uriburner.com:5443{dav-path} with --cert-type P12 --cert {principal-p12} --pass $MTLS_PKCS12_PW. Port 443 PUT returns 401 because that listener does not consume the client cert. Verify :5443 GET and the public 443 GET separately — a :5443 200 plus a 443 401 means the file is stored but not anonymously readable. Procedure: howto/remote-webdav-upload.ttl."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/remote-webdav-upload.ttl>,
@@ -2890,7 +2890,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 :step-p12PassphraseKeychainFirst a schema:HowToStep ;
     schema:position 224 ;
     schema:name "Resolve the principal PKCS#12 passphrase from the macOS Keychain item uriburner-p12 FIRST, falling back to the /tmp/uyi first KEY=VALUE, then eliciting — and guard any keychain read the agent did not create with perl alarm, since `timeout` does not exist on stock macOS"@en ;
-    schema:text "2026-08-18: agent observed /tmp/uyi is mode -rw-r--r-- — a live credential in world-readable plaintext in a shared directory — and verified via a throwaway probe item that a keychain entry created with -T /usr/bin/security reads back non-interactively; the user approved making keychain primary." ;
+    schema:text "2026-08-18: agent observed /tmp/uyi is mode -rw-r--r-- — a live credential in world-readable plaintext in a shared directory — and verified via a throwaway probe item that a keychain entry created with -T /usr/bin/security reads back non-interactively; the user approved making keychain primary. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user." ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
         <howto/p12-passphrase-retrieval.ttl#step-canonicalSnippet>,

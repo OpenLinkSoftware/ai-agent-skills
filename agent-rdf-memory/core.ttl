@@ -80,13 +80,13 @@
 
 :userPrincipalCredentials a schema:PropertyValue ;
     schema:name "User principal PKCS#12 bundle (link-in-bio-credentials-5)"@en ;
-    schema:description "Kingsley's principal WebID-TLS credential bundle — cert.p12 (plus cert.pem, cert.crt, profile.ttl, certificate.ttl siblings). WebID SAN: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid, owl:sameAs the canonical identity https://www.linkedin.com/in/kidehen#this. Passphrase is never stored here — resolved at unlock time via the chain in howto/p12-passphrase-retrieval.ttl (macOS Keychain item uriburner-p12 first, /tmp/uyi KEY=VALUE file as fallback, user elicitation last), and never printed, logged, or persisted."@en ;
+    schema:description "Kingsley's principal WebID-TLS credential bundle — cert.p12 (plus cert.pem, cert.crt, profile.ttl, certificate.ttl siblings). WebID SAN: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid, owl:sameAs the canonical identity https://www.linkedin.com/in/kidehen#this. Passphrase is never stored here — resolved at unlock time via the chain in howto/p12-passphrase-retrieval.ttl (macOS Keychain item uriburner-p12 first, then user elicitation), and never printed, logged, or persisted. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user."@en ;
     schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12" ;
     schema:dateCreated "2026-08-16"^^xsd:date .
 
 :p12PassphraseKeychainItem a schema:PropertyValue ;
     schema:name "Principal PKCS#12 passphrase — macOS Keychain item"@en ;
-    schema:description "PRIMARY source for the link-in-bio-credentials-5 cert.p12 unlock passphrase, LIVE as of 2026-08-18. Generic-password item; read with: security find-generic-password -s uriburner-p12 -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Verified end-to-end: unlocks cert.p12 via openssl and completed an authenticated call against linkeddata.uriburner.com. Replaces /tmp/uyi as primary because that file was mode -rw-r--r-- (world-readable plaintext) in a shared directory; /tmp/uyi remains present as fallback until the user removes it. Passphrase only — the CLIENT CERTIFICATE remains the .p12 FILE at :userPrincipalCredentials, since this environment's curl (LibreSSL-backed) cannot consume a Keychain identity directly for --cert (tested and rejected 2026-08-18, curl error 58). The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:description "PRIMARY source for the link-in-bio-credentials-5 cert.p12 unlock passphrase, LIVE as of 2026-08-18. Generic-password item; read with: security find-generic-password -s uriburner-p12 -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Verified end-to-end: unlocks cert.p12 via openssl and completed an authenticated call against linkeddata.uriburner.com. Replaces /tmp/uyi as primary because that file was mode -rw-r--r-- (world-readable plaintext) in a shared directory; /tmp/uyi was DELETED 2026-08-25 at the user's instruction — this Keychain item is now the sole source. Passphrase only — the CLIENT CERTIFICATE remains the .p12 FILE at :userPrincipalCredentials, since this environment's curl (LibreSSL-backed) cannot consume a Keychain identity directly for --cert (tested and rejected 2026-08-18, curl error 58). The value itself is never recorded here or anywhere in this repository."@en ;
     schema:value "security find-generic-password -s uriburner-p12 -a \"$USER\" -w" ;
     schema:dateCreated "2026-08-18"^^xsd:date .
 
@@ -98,9 +98,15 @@
 
 :virtuosoLocalDbaPasswordKeychainItem a schema:PropertyValue ;
     schema:name "Local Virtuoso dba account password — macOS Keychain item"@en ;
-    schema:description "PRIMARY source for the local Virtuoso instance's dba account password (port 1111), LIVE as of 2026-08-19. Generic-password item; read with: security find-generic-password -s virtuoso-local-dba -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Migrated from /tmp/uyi (DBA_PWD=...) with the user's permission, same pattern as :p12PassphraseKeychainItem but a DISTINCT keychain item — the two secrets are never shared or overloaded onto one entry. VERIFIED end-to-end 2026-08-19: an initial migration surfaced a stale /tmp/uyi value (Bad login, VD CL034); the user corrected /tmp/uyi, the Keychain item was re-synced, and isql login now succeeds using the Keychain-sourced value. See howto/virtuoso-local-dba-passphrase-retrieval.ttl. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:description "PRIMARY source for the local Virtuoso instance's dba account password (port 1111), LIVE as of 2026-08-19. Generic-password item; read with: security find-generic-password -s virtuoso-local-dba -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Migrated from /tmp/uyi (DBA_PWD=...) with the user's permission, same pattern as :p12PassphraseKeychainItem but a DISTINCT keychain item — the two secrets are never shared or overloaded onto one entry. VERIFIED end-to-end 2026-08-19: an initial migration surfaced a stale /tmp/uyi value (Bad login, VD CL034); the user corrected /tmp/uyi, the Keychain item was re-synced, and isql login now succeeds using the Keychain-sourced value. See howto/virtuoso-local-dba-passphrase-retrieval.ttl. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user. The value itself is never recorded here or anywhere in this repository."@en ;
     schema:value "security find-generic-password -s virtuoso-local-dba -a \"$USER\" -w" ;
     schema:dateCreated "2026-08-19"^^xsd:date .
+
+:ubIsqlPasswordKeychainItem a schema:PropertyValue ;
+    schema:name "UB kidehen SQL/WebDAV account password — macOS Keychain item"@en ;
+    schema:description "PRIMARY source for the kidehen account password used for isql sessions and WebDAV requests, LIVE as of 2026-08-25. Generic-password item; read with: security find-generic-password -s uriburner-isql -a kidehen -w. Note the account field is the literal SQL username kidehen, not \"$USER\". Created with -T /usr/bin/security so reads are non-interactive. Migrated from /tmp/uyi (UB_PWD=...) with the user's permission — a THIRD distinct keychain item alongside :p12PassphraseKeychainItem and :virtuosoLocalDbaPasswordKeychainItem, never shared or overloaded. VERIFIED end-to-end 2026-08-25 on four paths: isql localhost:1111 as kidehen, and PROPFIND returning HTTP 207 against https://localhost, http://localhost:8890, and https://linkeddata.uriburner.com. Remote SQL is NOT reachable — linkeddata.uriburner.com:1111/1112 are firewalled and :1113 is the TLS listener wanting certificate auth with an empty username, so SQL for this account is localhost-only. See howto/ub-isql-credential-resolution.ttl. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s uriburner-isql -a kidehen -w" ;
+    schema:dateCreated "2026-08-25"^^xsd:date .
 
 # ── Output Paths ─────────────────────────────────────────────────────────────
 
@@ -152,3 +158,10 @@
     schema:description "Generated artifacts (RDF, MD, HTML) from Google Gemini sessions go to {LLM_ROOT}/Google Gemini Generated/ with subfolders rdf/, md/, webpages/."@en ;
     schema:value "{LLM_ROOT}/Google Gemini Generated/" ;
     schema:dateCreated "2026-08-13"^^xsd:date .
+
+:oxAlphaOutputPath a schema:PropertyValue ;
+    schema:name "Ox Alpha output path"@en ;
+    schema:description "Generated artifacts (RDF, MD, HTML) from ox-alpha sessions go to {LLM_ROOT}/Ox Alpha/ with subfolders rdf/, md/, webpages/. Directory name uses the letter O — 'Ox Alpha', faithful to the model name ox-alpha; initially created as '0x Alpha' (zero-x) and renamed at the user's request 2026-08-24. Do not revert to the zero variant on disk."@en ;
+    schema:value "{LLM_ROOT}/Ox Alpha/" ;
+    schema:dateCreated "2026-08-24"^^xsd:date ;
+    schema:dateModified "2026-08-24"^^xsd:date .
