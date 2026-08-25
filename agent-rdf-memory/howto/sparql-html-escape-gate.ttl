@@ -1,6 +1,7 @@
 @prefix : <#> .
 @prefix schema: <http://schema.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <> a schema:CreativeWork ;
     schema:about :sparqlHtmlEscapeGate .
@@ -9,8 +10,8 @@
     schema:name "SPARQL HTML Escape Gate — Angle Brackets in <pre> Blocks"@en ;
     schema:description "Mandatory HTML-escaping of SPARQL query text in <pre class=\"sparql-code\"> blocks. Angle brackets in GRAPH IRIs, PREFIX declarations, and triple patterns MUST be rendered as &lt; and &gt; — never raw < and > which are consumed as invisible HTML tags by browsers."@en ;
     schema:dateCreated "2026-06-17T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
-    schema:step :step1, :step2, :step3 .
+    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:step :step1, :step2, :step3, :step4 .
 
 :step1 a schema:HowToStep ;
     schema:position 1 ;
@@ -56,3 +57,16 @@ query text before embedding it in HTML. Never hand-patch the published HTML."""@
 These three MUST be applied independently. HTML-escaping a query that is then URL-encoded
 produces broken live links. URL-encoding a query that is then HTML-escaped produces
 double-escaped display text. Each transformation targets its own output channel."""@en .
+
+:step4 a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "BLOCKING GATE — an unclosed <a> in <summary> swallows the sibling <pre> query-text block"@en ;
+    schema:text """A fourth failure mode, distinct from escaping/encoding: `<summary><a href="...">Title</summary>` with the `</a>` dropped before `</summary>` causes the browser to keep the anchor open across the `</summary>` boundary, so the following `<pre class="sparql-code">` query text renders entirely as link styling (blue/underlined) — it LOOKS like the query text vanished into a giant hyperlink, even though it is present and correctly escaped in the DOM. This is invisible to the escaping/encoding gates above because tag closure is a different defect class.
+
+Recurred 2026-07-08 in aaron-levie-enterprise-ai-agent-issues-semantic-web-virtuoso-claude_sonnet_5-1.html: the `</a>` was dropped during a surgical title-text swap when adapting a reuse-first source template that had it correctly closed.
+
+MANDATORY GREP GATE:
+  grep -oE '<summary><a[^>]*>[^<]*</summary>' file.html   # any match = FAIL (missing </a>)
+
+MANDATORY VISUAL CHECK: expand the accordion in the live preview and confirm the query text renders in normal (non-link) text color — do not rely solely on checking the JS-populated `<textarea>`'s `.value`, since the textarea and the static `<pre>` accordion are separate elements and one being correct does not guarantee the other is."""@en ;
+    rdfs:seeAlso <../preferences.ttl> .

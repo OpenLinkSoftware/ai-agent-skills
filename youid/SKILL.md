@@ -2,9 +2,10 @@
 name: youid
 description: >
   Generate, verify, and manage Web-scale verifiable digital identities (NetIDs)
-  using semantic web standards. Produces self-signed X.509 certificates, WebID
-  profile documents (Turtle, JSON-LD, RDFa HTML), identity card HTML pages with
-  optional OPAL AI widget, vCard VCF, and complete linked-data identity bundles.
+  using semantic web standards. Produces X.509 certificates (self-signed or
+  CA-signed via Let's Encrypt/ZeroSSL), WebID profile documents (Turtle, JSON-LD,
+  RDFa HTML), identity card HTML pages with optional OPAL AI widget, vCard VCF,
+  and complete linked-data identity bundles.
   Uploads identity documents to WebDAV/LDP endpoints via curl. Verifies existing
   WebID profiles by fetching and executing SPARQL queries against URIBurner.
   Triggers on phrases like "generate a NetID", "create a YouID identity card",
@@ -18,7 +19,7 @@ description: >
 
 # YouID Skill — Web-Scale Verifiable Digital Identity
 
-Version: 1.0.1
+Version: 1.1.0
 
 ## Operating Modality — Read This First
 
@@ -36,6 +37,16 @@ What this means in practice:
 
 ---
 
+**2026-07-08 Updates (v1.1.0):**
+- Added ACME certificate support: Let's Encrypt and ZeroSSL cert type modalities
+- Created `scripts/acme_helper.sh`: ACME.sh orchestration (install, CSR generation with DNS+URI SANs, signing, download)
+- Extended `generate_certificate.sh` with `--mode self-signed|letsencrypt|zerossl` flag
+- Extended `generate_identity.sh` with `-M <cert_type>`, `-D <domain>`, `-Z <zerossl_key>` flags
+- Created `references/acme-workflows.md`: ACME reference documentation
+- Added `ca_cert_url` and `cert_type` fields to `cert_data.json` output (enables `!!{ca_cert_url}` template conditionals)
+- Updated T1/T2/T3 workflows with cert type elicitation steps
+- ACME mode auto-installs `acme.sh` if missing; fetches ZeroSSL EAB credentials via API
+
 **2026-06-18 Updates:**
 - Fixed exponent extraction bug in `generate_certificate.sh:107` — `grep -A1` captured `X509v3extensions:` instead of `65537`. Replaced with `awk '/Exponent:/ {print $2}'`.
 - Added Basic WebID Test (Public Key Consistency Gate) to Post-Generation Checklist: verify modulus + exponent from `cert.p12` match `index.html`, `profile.ttl`, and `profile.jsonld`.
@@ -48,7 +59,7 @@ Use this skill whenever the user wants to:
 
 - **Generate a WebID profile** (Turtle, JSON-LD, RDFa HTML, vCard VCF)
 - **Create a full NetID identity bundle** (profile + cert + public key + identity card HTML)
-- **Generate a self-signed X.509 certificate** bound to a WebID URI (SAN)
+- **Generate an X.509 certificate** bound to a WebID URI (SAN) — self-signed or CA-signed via Let's Encrypt/ZeroSSL via ACME
 - **Verify an existing WebID profile** by fetching and SPARQL-querying it
 - **Upload identity documents** to WebDAV/LDP storage backends
 - **Explain semantic web identity concepts** (WebID, FOAF, cert ontology, DPKI, NetID)
@@ -59,7 +70,9 @@ Use this skill whenever the user wants to:
 |---------|--------|
 | "Generate a WebID profile for {user}" | Collect identity data, generate profile in all formats |
 | "Create a NetID / YouID identity card" | Full identity bundle: profile + cert + card HTML + vCard |
-| "Generate an X.509 certificate for {WebID}" | Create self-signed .pem/.p12 with WebID SAN |
+| "Generate an X.509 certificate for {WebID}" | Create .pem/.p12 with WebID SAN (self-signed or ACME) |
+| "Generate a Let's Encrypt / ZeroSSL certificate for {WebID}" | Create CA-signed .pem/.p12 via ACME |
+| "Sign my certificate with Let's Encrypt / ZeroSSL" | Sign existing CSR with an ACME CA |
 | "Verify WebID {url}" / "Check identity at {url}" | Fetch and SPARQL-verify the WebID profile |
 | "Upload identity documents to {destination}" | Upload generated artifacts to WebDAV/LDP |
 | "Delegate identity for {WebID}" | Generate On-Behalf-Of delegation profile |
@@ -76,7 +89,11 @@ Use this skill whenever the user wants to:
 | Upload backend | WebDAV | Default upload method (see references/upload-backends.md) |
 | Output directory | `./youid-output/` | Generated files land here |
 | Bundle format | Plain directory | Optionally ZIP with `zip -r` |
-| Chat agent config | `virtuoso-support-assistant-config` | OPAL fine-tune module/agent config name (passed as `w_module`). Elicited from user via T2; default is `virtuoso-support-assistant-config.json` |
+| Certificate type | `self-signed` | Certificate signing: `self-signed`, `letsencrypt`, or `zerossl`. Elicited from user via T1/T2/T3 with ACME-specific parameters |
+| ACME domain | Parsed from WebID | Domain used for ACME domain validation (extracted from WebID URI hostname) |
+| ACME staging | `false` | Use Let's Encrypt staging endpoint for testing (`--acme-staging`) |
+| ACME email | From `--acme-email` or email param | Contact email for ACME account registration and renewal |
+| ZeroSSL EAB | Required for zerossl mode | Fetch via ZeroSSL API: `POST /acme/eab-credentials?access_key=<key>` |
 
 ## Harness Mode
 
@@ -126,7 +143,7 @@ Before delivering any output to the user, the following MUST pass:
 
 ### When to Use Each
 
-- **scripts/generate_identity.sh** — Use for ALL identity generation (cert + profiles + card). This is the primary execution path. The script handles deterministic cert generation and template filling. Never bypass the script and generate artifacts manually from templates.
+- **scripts/generate_identity.sh** — Use for ALL identity generation (cert + profiles + card). This is the primary execution path. Use `-M letsencrypt` or `-M zerossl` for ACME-signed certificates. The script handles deterministic cert generation, ACME.sh orchestration, and template filling. Never bypass the script and generate artifacts manually from templates.
 - **scripts/verify_webid.sh** — Use when the user asks to verify a WebID profile. Fall back to URIBurner SPASQL (Demo.demo.execute_spasql_query) if the script fails.
 - **curl** — Use for WebDAV/LDP upload. Follow the exact curl commands in `references/upload-backends.md`.
 - **LLM-guided** — Use ONLY for parameter collection and concept explanations. Never for generating final artifacts.
@@ -149,6 +166,13 @@ Before delivering any output to the user, the following MUST pass:
   - Social relation links (optional, list of platform URLs)
   - Bio summary (optional, free-text, for dark template bio section; set as `subj_summary` in extra data JSON)
   - Certificate validity in years (optional, default 1)
+  - **Certificate type** (optional, default `self-signed`):
+    - Ask: *"What type of X.509 certificate? (1) Self-signed — quick, no external dependency. (2) Let's Encrypt — publicly trusted CA, needs domain ownership validation. (3) ZeroSSL — publicly trusted CA, needs API key for External Account Binding."*
+    - If `letsencrypt` or `zerossl` selected, collect ACME-specific parameters:
+      - ACME domain (default: parsed from WebID URI hostname)
+      - Contact email for ACME account registration (default: subject email or `contact@{domain}`)
+      - Use Let's Encrypt staging? (default: no — production) — recommend staging for testing
+      - If `zerossl`, ask: *"What is your ZeroSSL API key? (create one at https://app.zerossl.com/developers)"*
 
 2. **Elicit template style** after collecting parameters:
    - Ask: *"Which profile page style would you like? (1) Default — gradient hero, compact layout. (2) Premium — clean white hero, larger photo, credential badge bar. (3) Dark — dark hero, circular photo, question chips, dual CTA."*
@@ -158,11 +182,12 @@ Before delivering any output to the user, the following MUST pass:
    - Set `photo_url` and optionally `subj_summary` in extra data JSON if provided
    - If certificate validity was not provided, ask: *"How many years should the X.509 certificate be valid? (default: 1)"*
 
-3. **Generate certificate**: Run `scripts/generate_certificate.sh` with the collected parameters. Pass validity as the 9th argument (`validity_days` = years × 365). This creates:
-   - `cert.pem` — PEM-encoded X.509 certificate
+3. **Generate certificate**: Run `scripts/generate_identity.sh` with the collected parameters (or `scripts/generate_certificate.sh` directly). For ZeroSSL mode, the script auto-installs `acme.sh` if missing and fetches EAB credentials. Pass validity as the 9th positional argument or `--validity-days` for named-arg mode. This creates:
+   - `cert.pem` — PEM-encoded X.509 certificate (fullchain for ACME modes)
    - `cert.crt` — DER-encoded X.509 certificate
    - `cert.p12` — PKCS#12 bundle (cert + key, password-protected)
-   - `cert_data.json` — extracted fields (modulus, exponent, fingerprints, NI/DI URIs, dates, serial)
+   - `cert_data.json` — extracted fields (modulus, exponent, fingerprints, NI/DI URIs, dates, serial, issuer, ca_cert_url, cert_type)
+   - `ca.cer` — CA certificate (ACME modes only)
 
 4. **Fill templates**: Run `scripts/generate_identity.sh` with:
    - The certificate data file
@@ -193,7 +218,7 @@ Before delivering any output to the user, the following MUST pass:
 
 ### T2 — Create Full NetID Identity Card
 
-Same as T1 but with OPAL widget configuration collected as additional parameters:
+Same as T1 (including certificate type elicitation: self-signed, Let's Encrypt, or ZeroSSL) but with OPAL widget configuration collected as additional parameters:
 - Enable OPAL widget (yes/no)
 - OPAL endpoint URL (e.g., `https://linkeddata.uriburner.com`)
 - Auth mode (`bearer` or `oauth`)
@@ -208,9 +233,19 @@ The `index.html.tpl` template includes conditional `!!{use_opal_widget}` / `!!{u
 
 ### T3 — Generate X.509 Certificate
 
-1. Collect WebID URI, common name, email, org, country, password, certificate validity (years, default 1)
-2. Run `scripts/generate_certificate.sh` to produce .pem, .crt, .p12 (pass validity_days as 9th arg)
-3. Display fingerprint, modulus, exponent, validity dates to the user
+1. Collect parameters from the user:
+   - WebID URI (required)
+   - Common name (required)
+   - Email (optional)
+   - Organization (optional)
+   - Country (optional)
+   - Password (default: youid)
+   - Certificate validity (years, default 1)
+   - **Certificate type** (default: self-signed):
+     - Ask: *"Self-signed, or CA-signed via Let's Encrypt/ZeroSSL?"*
+     - If ACME: collect `--acme-domain` (parsed from WebID if omitted), `--acme-email`, and for ZeroSSL `--zerossl-api-key`
+2. Run `scripts/generate_certificate.sh` with positional args (self-signed) or named args (`--mode`, `--common-name`, etc.) to produce .pem, .crt, .p12, cert_data.json
+3. Display fingerprint, modulus, exponent, issuer, validity dates, and CA cert URL (ACME) to the user
 4. Deliver the certificate files
 
 ### T4 — Verify WebID Profile
@@ -218,7 +253,12 @@ The `index.html.tpl` template includes conditional `!!{use_opal_widget}` / `!!{u
 1. Fetch the WebID URL using curl
 2. Determine the RDF serialization format (content-type negotiation or heuristic)
 3. Run `scripts/verify_webid.sh` or use URIBurner SPARQL endpoint
-4. Report: name(s), public keys (modulus, exponent, fingerprint), certificates, delegates, storage locations, inbox, outbox, foaf:knows relations, email
+4. Report: name(s), public keys (modulus, exponent, fingerprint), certificates (including CA signer for ACME certs), delegates, storage locations, inbox, outbox, foaf:knows relations, email
+5. **For ACME-signed certificates**, additionally verify:
+   - Issuer DN references the CA, not the subject
+   - `oplcert:IAN` triple present (CA certificate URL)
+   - Certificate chain validates: `openssl verify -CAfile ca.cer cert.pem`
+   - DNS Subject Alternative Name matches the ACME domain
 
 Verification SPARQL queries are in `references/verification-queries.md`.
 
@@ -230,7 +270,7 @@ Verification SPARQL queries are in `references/verification-queries.md`.
    - Generic LDP over TLS
    - WebDAV over HTTPS
 2. Use curl PUT/PROPPATCH commands from `references/upload-backends.md`
-3. Upload all files from the output directory (5–15 files depending on config)
+3. Upload all files from the output directory (5–15 files depending on config; ACME modes also upload `ca.cer`)
 4. Verify uploads with HEAD requests
 
 ### T6 — Generate On-Behalf-Of Delegation
@@ -353,7 +393,7 @@ Full variable reference in `references/template-variables.md`.
 | Category | Variables | Source |
 |----------|-----------|--------|
 | Identity | `subj_name`, `subj_email`, `subj_org`, `subj_country`, `subj_state`, `subj_title` | User input |
-| Certificate | `modulus`, `exponent`, `fingerprint_hex`, `fingerprint_256_hex`, `date_before`, `date_after`, `serial`, `subject`, `issuer` | Computed from X.509 cert |
+| Certificate | `modulus`, `exponent`, `fingerprint_hex`, `fingerprint_256_hex`, `date_before`, `date_after`, `serial`, `subject`, `issuer`, `ca_cert_url`, `cert_type` | Computed from X.509 cert |
 | Fingerprint URIs | `fingerprint_ni`, `fingerprint_di`, `fingerprint_colon`, `vcard_digest_uri` | Computed from fingerprint |
 | URLs | `prof_url`, `card_url`, `cert_url`, `pubkey_url`, `pubkey_pem_url`, `jsonld_*`, `rdfa_*` | Derived from base URL + filenames |
 | Conditionals | `!{pdp_url}`, `!{subj_email}`, `!!{use_opal_widget}`, `!!{ca_cert_url}` | Set/non-set flags |
@@ -376,6 +416,17 @@ Before running any generation workflow, you MUST:
    ```
    which python3
    ```
+6. ⛔ **If ACME cert type selected**: Verify `curl` is available and `https://get.acme.sh` is reachable:
+   ```
+   curl -fsI https://get.acme.sh
+   ```
+   If `acme.sh` is not installed, the script will auto-install it via `curl`.
+   If ZeroSSL mode, verify the user has a ZeroSSL API key ready.
+7. ⛔ **If ACME cert type selected**: Verify the domain resolves:
+   ```
+   dig +short <acme-domain> A
+   ```
+   ACME validation requires the domain to resolve to a publicly accessible IP for HTTP-01 challenges.
 
 ## Post-Generation Checklist
 
@@ -406,6 +457,20 @@ Before delivering any generated identity to the user:
 - [ ] **`<link rel="me">` in head**: `index.html` has `<link rel="me">` tags for each social platform URL
 - [ ] **Social grid populated**: `index.html`'s `.social-grid` div contains platform-icon `<a>` tags with `rel="me"` for each social URL
 - [ ] **No empty social-grid**: if social links were collected, verify `.social-grid` is non-empty; if none were collected, the section should be conditionally hidden
+
+#### ACME-Specific Post-Generation Checks
+
+- [ ] **CA-signed certificate chain valid** (ACME modes only):
+  ```
+  openssl verify -CAfile <(openssl x509 -in ca.cer) cert.pem
+  ```
+- [ ] **URI SAN present in ACME cert**: `openssl x509 -in cert.pem -noout -ext subjectAltName | grep 'URI:'`
+- [ ] **DNS SAN matches domain**: `openssl x509 -in cert.pem -noout -ext subjectAltName | grep 'DNS.'` matches the ACME domain
+- [ ] **`ca_cert_url` populated in `cert_data.json`**: checked with `python3 -c "import json; d=json.load(open('cert_data.json')); assert d['ca_cert_url'], 'missing ca_cert_url'"`
+- [ ] **`ca.cer` exists**: For ACME modes, the CA certificate file must be present in the output directory
+- [ ] **`cert_type` in `cert_data.json`**: set to `letsencrypt` or `zerossl` (not `self-signed`)
+- [ ] **Issuer is CA** (not self-signed): `issuer` field in `cert_data.json` should reference the CA, not the subject
+- [ ] **Template conditionals active**: verify `profile.ttl` and `profile.jsonld` contain `oplcert:IAN` and `xhv:alternate` for `ca_cert_url`
 
 ## Operational Rules
 
@@ -477,7 +542,8 @@ youid/
 │   ├── identity-ontologies.md        # FOAF, cert, oplcert, schema.org, X.509 vocab reference
 │   ├── template-variables.md         # Complete variable reference (%{key}, !{key}, !!{key})
 │   ├── verification-queries.md       # SPARQL queries for WebID profile verification
-│   └── upload-backends.md            # curl commands for WebDAV/LDP uploads
+│   ├── upload-backends.md            # curl commands for WebDAV/LDP uploads
+│   └── acme-workflows.md             # ACME certificate workflow reference (LE, ZeroSSL)
 ├── templates/
 │   ├── profile.ttl.tpl               # Turtle profile document template
 │   ├── profile.jsonld.tpl            # JSON-LD profile document template
@@ -496,7 +562,8 @@ youid/
 │   ├── vcard.vcf.tpl                 # vCard VCF template
 │   └── style.css                     # Card CSS
 ├── scripts/
-│   ├── generate_certificate.sh       # openssl-based self-signed X.509 cert generation
+│   ├── generate_certificate.sh       # X.509 cert generation (self-signed or ACME-signed)
+│   ├── acme_helper.sh               # ACME.sh orchestration (install, CSR, sign, download)
 │   ├── compute_fingerprints.sh       # Compute SHA-1/SHA-256 fingerprints and NI/DI URIs
 │   ├── template_fill.py              # Template engine (%{key}, !{key}, !!{key} substitution)
 │   ├── generate_identity.sh          # Orchestrator: cert → variables → template fill → bundle

@@ -2,7 +2,7 @@
 #
 # YouID Identity Generator — Orchestrator
 # Generates a complete NetID identity bundle:
-#   1. Self-signed X.509 certificate
+#   1. X.509 certificate (self-signed, Let's Encrypt, or ZeroSSL)
 #   2. All RDF profile documents via template filling
 #   3. Identity card HTML page
 #   4. vCard VCF
@@ -12,24 +12,28 @@
 #                          [-s <state>] [-p <password>] [-b <base_url>] [-d <output_dir>]
 #                          [-P <photo_url>] [-u <pdp_url>] [-S <pim_storage>]
 #                          [-T <style>] [-V <validity_days>] [-f <data_json>]
+#                          [-M <cert_type>] [-D <domain>] [-Z <zerossl_key>]
 #
 # All arguments:
-#   -n <name>        Common name (required)
-#   -w <webid>       WebID URI (required)
-#   -t <title>       Professional title (e.g., "Founder & CEO, OpenLink Software")
-#   -e <email>       Email address
-#   -o <org>         Organization
-#   -c <country>     2-letter ISO country code
-#   -s <state>       State/province
-#   -p <password>    PKCS#12 password (default: youid)
-#   -b <base_url>    Base URL for generated artifact IRIs (default: file:///path/to/output/)
-#   -d <output_dir>  Output directory (default: ./youid-output)
-#   -P <photo_url>   Photo URL (default: photo_130x145.jpg)
-#   -u <pdp_url>     Personal profile page URL
-#   -S <pim_storage> Storage URL
-#   -T <style>       Identity card template style: default, premium, dark (default: default)
-#   -V <days>        Certificate validity in days (default: 365 = 1 year)
-#   -f <data_json>   Path to additional JSON data (for social relations, OPAL settings, etc.)
+#   -n <name>           Common name (required)
+#   -w <webid>          WebID URI (required)
+#   -t <title>          Professional title (e.g., "Founder & CEO, OpenLink Software")
+#   -e <email>          Email address
+#   -o <org>            Organization
+#   -c <country>        2-letter ISO country code
+#   -s <state>          State/province
+#   -p <password>       PKCS#12 password (default: youid)
+#   -b <base_url>       Base URL for generated artifact IRIs (default: file:///path/to/output/)
+#   -d <output_dir>     Output directory (default: ./youid-output)
+#   -P <photo_url>      Photo URL (default: photo_130x145.jpg)
+#   -u <pdp_url>        Personal profile page URL
+#   -S <pim_storage>    Storage URL
+#   -T <style>          Identity card template style: default, premium, dark (default: default)
+#   -V <days>           Certificate validity in days (default: 365 = 1 year)
+#   -f <data_json>      Path to additional JSON data (for social relations, OPAL settings, etc.)
+#   -M <cert_type>      Certificate type: self-signed, letsencrypt, zerossl (default: self-signed)
+#   -D <domain>         ACME domain (for letsencrypt/zerossl; default: extracted from WebID)
+#   -Z <zerossl_key>    ZeroSSL API key (required for zerossl mode)
 #
 set -euo pipefail
 
@@ -54,8 +58,11 @@ STYLE="default"
 VALIDITY_DAYS="365"
 EXTRA_DATA=""
 CHAT_CONFIG="virtuoso-support-assistant-config"
+CERT_TYPE="self-signed"
+ACME_DOMAIN=""
+ZEROSSL_API_KEY=""
 
-while getopts "n:w:t:e:o:c:s:p:b:d:P:u:S:T:V:f:C:h" opt; do
+while getopts "n:w:t:e:o:c:s:p:b:d:P:u:S:T:V:f:C:M:D:Z:h" opt; do
     case $opt in
         n) NAME="$OPTARG" ;;
         w) WEBID="$OPTARG" ;;
@@ -74,7 +81,10 @@ while getopts "n:w:t:e:o:c:s:p:b:d:P:u:S:T:V:f:C:h" opt; do
         V) VALIDITY_DAYS="$OPTARG" ;;
         f) EXTRA_DATA="$OPTARG" ;;
         C) CHAT_CONFIG="$OPTARG" ;;
-        h) echo "Usage: $0 -n <name> -w <webid> [-t title] [-e email] [-o org] [-c country] [-s state] [-p password] [-b base_url] [-d out_dir] [-P photo_url] [-u pdp_url] [-S pim_storage] [-T style] [-V validity_days] [-f extra.json] [-C chat_config]"
+        M) CERT_TYPE="$OPTARG" ;;
+        D) ACME_DOMAIN="$OPTARG" ;;
+        Z) ZEROSSL_API_KEY="$OPTARG" ;;
+        h) echo "Usage: $0 -n <name> -w <webid> [-t title] [-e email] [-o org] [-c country] [-s state] [-p password] [-b base_url] [-d out_dir] [-P photo_url] [-u pdp_url] [-S pim_storage] [-T style] [-V validity_days] [-f extra.json] [-C chat_config] [-M cert_type] [-D acme_domain] [-Z zerossl_api_key]"
            exit 0 ;;
         *) echo "Unknown option -$opt"; exit 1 ;;
     esac
@@ -85,12 +95,44 @@ if [ -z "$NAME" ] || [ -z "$WEBID" ]; then
     exit 1
 fi
 
+if [ "$CERT_TYPE" != "self-signed" ]; then
+    if [ -z "$ACME_DOMAIN" ]; then
+        ACME_DOMAIN=$(echo "$WEBID" | python3 -c "
+import sys, urllib.parse
+uri = sys.stdin.read().strip()
+parsed = urllib.parse.urlparse(uri)
+print(parsed.hostname or '')
+" 2>/dev/null)
+    fi
+    if [ -z "$ACME_DOMAIN" ]; then
+        echo "Error: -D (domain) is required for ACME modes"
+        exit 1
+    fi
+fi
+
 mkdir -p "$OUT_DIR"
 
 # Step 1: Generate certificate
-echo "=== Step 1: Generating X.509 Certificate ==="
-"$SCRIPT_DIR/generate_certificate.sh" \
-    "$NAME" "$WEBID" "$EMAIL" "$ORG" "$COUNTRY" "$STATE" "$PASSWORD" "$OUT_DIR" "$VALIDITY_DAYS"
+echo "=== Step 1: Generating X.509 Certificate (type: ${CERT_TYPE}) ==="
+if [ "$CERT_TYPE" = "self-signed" ]; then
+    "$SCRIPT_DIR/generate_certificate.sh" \
+        "$NAME" "$WEBID" "$EMAIL" "$ORG" "$COUNTRY" "$STATE" "$PASSWORD" "$OUT_DIR" "$VALIDITY_DAYS"
+else
+    "$SCRIPT_DIR/generate_certificate.sh" \
+        --mode "$CERT_TYPE" \
+        --common-name "$NAME" \
+        --webid "$WEBID" \
+        --email "$EMAIL" \
+        --org "$ORG" \
+        --country "$COUNTRY" \
+        --state "$STATE" \
+        --password "$PASSWORD" \
+        --output-dir "$OUT_DIR" \
+        --validity-days "$VALIDITY_DAYS" \
+        --acme-domain "$ACME_DOMAIN" \
+        --acme-email "$EMAIL" \
+        $( [ -n "$ZEROSSL_API_KEY" ] && echo "--zerossl-api-key $ZEROSSL_API_KEY" )
+fi
 
 # Step 2: Build template data
 echo "=== Step 2: Building Template Data ==="

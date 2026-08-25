@@ -8,7 +8,7 @@
     schema:name "RDF-to-HTML Infographic: Gated Workflow HowTo"@en ;
     schema:description "Full specification for the script-assisted, gate-first, port-don't-write protocol required for all RDF-backed HTML infographic generation. Recorded after session 2026-06-17 audit."@en ;
     schema:dateCreated "2026-06-17T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-17T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
     schema:about :howto .
 
 :howto a schema:HowTo ;
@@ -53,3 +53,13 @@ Command:
     schema:name "Why this rule exists"@en ;
     schema:description "Session 2026-06-17 audit of public-trust-problem-ai-claude_sonnet_4_6-1 artifacts found: HTML authored in parallel with TTL (not derived from it); validator run post-delivery; KG Explorer written from scratch causing SVG drag conflict and broken resolver links. Resulted in 13 unlinked entities, 2 missing glossary terms, rdfs:seeAlso instead of owl:sameAs on 5 DefinedTerms, missing JSON-LD companion, and broken KG node/edge hyperlinks."@en ;
     rdfs:seeAlso <checker-context-isolation.ttl#step_falseIndependence> .
+
+:correction2026_07_06 a schema:CreativeWork ;
+    schema:name "2026-07-06 correction: canonical template did not pass its own gate"@en ;
+    schema:description """A 2026-07-06 session found that assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html — named in step3 and in infographic-authoring.ttl's step-kgExplorerReuse as the file to port verbatim — FAILED validate-harness-contract.py with ~20 checks (missing POSH rel=\"alternate\", non-resolver-backed SVG node/edge anchors, no footer SPARQL textarea/named-graph/query-recipe controls, missing 8-item attribution grid, missing kgData JSON payload). Root cause: two independently-evolved contract sources existed — the hand-authored visual templates in assets/templates/ (older) and the harness contract encoded in scripts/rdf_infographic_harness.py + validate-harness-contract.py (newer) — and kg-explorer-reuse-first.ttl's step-reuseFallback plus step3 here both hard-referenced the older, non-compliant template as canonical, overriding step-reuseFallback's OWN correct original instruction to scan recent webpages/ output and validate before reuse.
+
+FIX APPLIED: the template file itself was patched in place (2026-07-06) to satisfy validate-harness-contract.py — added POSH rel=\"alternate\", wrapped KG node/edge-label click targets in SVG <a data-resolver-href> anchors, added a full footer SPARQL workbench (named-graph select, SELECT/DESCRIBE/CONSTRUCT query-recipe select with format-aware routing per sparql_result_format() logic, editable textarea), added the 8 required attribution-grid items, and added a static valid-JSON kgData snapshot alongside the live KGDATA object used by render(). It now passes validate-harness-contract.py cleanly and was spot-checked live in-browser (KG Explorer renders, resolver anchors carry real hrefs, SPARQL recipe switch changes the result format correctly).
+
+Also: validate-harness-contract.py itself had several overly literal, naming-brittle checks (required id=\"nav-toggle\" exactly, id=\"theme-btn\" exactly, id=\"settingsPanel\" exactly, literal substring \"d3@7\") that failed against the template's equally-valid but differently-named conventions (id=\"fnav-toggle\", id=\"fnav-theme\", id=\"kg-settings\", d3.v7 CDN URL). These were widened to accept both naming conventions rather than forcing a template rewrite for cosmetic reasons.
+
+GOING FORWARD: before naming any file \"canonical\" in this howto or in infographic-authoring.ttl's step-kgExplorerReuse, run validate-harness-contract.py against it first. If it fails, either fix the template (as done here) or do not reference it as a port-verbatim source."""@en .

@@ -212,9 +212,9 @@ def main() -> int:
     require(html, 'rel="alternate"', "POSH alternate link missing", failures)
     require(html, 'application/ld+json', "Embedded JSON-LD missing", failures)
 
-    require_any(html, ['class="section-nav"', 'id="nav-panel"', 'aria-label="Section navigation"'], "Navigation panel missing", failures)
-    require_any_regex(html, [r'class="nav-toggle"[^>]*(aria-label="Expand navigation"|title="Expand)', r'id="nav-toggle"', r'toggleNav\('], "Navigation collapsed expand toggle missing", failures)
-    require_any(html, ['theme-toggle', 'id="theme-btn"', 'themeCycle', 'toggleTheme'], "Page theme toggle missing", failures)
+    require_any(html, ['class="section-nav"', 'id="nav-panel"', 'aria-label="Section navigation"', 'id="fnav"'], "Navigation panel missing", failures)
+    require_any_regex(html, [r'class="nav-toggle"[^>]*(aria-label="Expand navigation"|title="Expand)', r'id="nav-toggle"', r'toggleNav\(', r'id="fnav-toggle"'], "Navigation collapsed expand toggle missing", failures)
+    require_any(html, ['theme-toggle', 'id="theme-btn"', 'themeCycle', 'toggleTheme', 'id="fnav-theme"'], "Page theme toggle missing", failures)
 
     require_any(html, ['id="kg-explorer"', 'id="kg"', 'Knowledge Graph Explorer'], "KG Explorer missing", failures)
     # KG Explorer / SPARQL Workbench are always-visible sections, NOT wrapped
@@ -226,8 +226,8 @@ def main() -> int:
     forbid_regex(html, re.escape('<details class="section-accordion" id="kg-explorer-accordion">'), "KG Explorer must NOT be wrapped in a section-level accordion (removed by explicit user request)", failures)
     forbid_regex(html, re.escape('<details class="section-accordion" id="sparql-explorer-accordion">'), "SPARQL Workbench must NOT be wrapped in a section-level accordion (removed by explicit user request)", failures)
     require_any(html, ['id="kgControlsToggle"', 'id="nav-toggle"', 'btn-basic', 'btn-advanced'], "KG controls/mode controls missing", failures)
-    require_any_regex(html, [r'id="kgToolbar" hidden', r'#nav-body\{[^}]*max-height:0', r'id="settings-panel"\s+style="display:none', r'#settings-panel\{display:none'], "KG controls/settings are not clearly closed by default", failures)
-    require_any(html, ['id="settingsPanel" hidden', 'id="settings-panel"', 'settingsPanel.hidden=true'], "Advanced settings panel missing", failures)
+    require_any_regex(html, [r'id="kgToolbar" hidden', r'#nav-body\{[^}]*max-height:0', r'id="settings-panel"\s+style="display:none', r'#settings-panel\{display:none', r'\[data-advanced-control\]\{display:none\}', r'#kg-settings\{[^}]*right:-\d'], "KG controls/settings are not clearly closed by default", failures)
+    require_any(html, ['id="settingsPanel" hidden', 'id="settings-panel"', 'settingsPanel.hidden=true', 'id="kg-settings"'], "Advanced settings panel missing", failures)
     require_any(html, ['data-mode="Basic"', 'btn-basic', "switchMode('basic')"], "Basic mode toggle missing", failures)
     require_any(html, ['data-mode="Advanced"', 'btn-advanced', "switchMode('advanced')"], "Advanced mode toggle missing", failures)
     require_any(html, ['data-density="Core"', 'density-core', "setDensity('core')"], "Core density toggle missing", failures)
