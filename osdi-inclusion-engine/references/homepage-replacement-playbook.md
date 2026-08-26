@@ -2,6 +2,8 @@
 
 Worked scenario (2026-07): replacing the homepages of virtuoso.openlinksw.com, uda.openlinksw.com, and ps.openlinksw.com with three self-styled mockups hosted on an intranet DAV server. Generalizes to any "drop this finished HTML design in as page X" request.
 
+> **Dated scope.** This playbook predates composite skins and its remediations are the legacy Path A / Path B pair, which is still correct for any site selected by `xslt_sheet`. If the target site is on a composite skin (`skin_manifest` set), Path C — region suppression via `regions_off` — is available and preferred: it is the only option that lets the page keep its own chrome *and* the engine's head services. Read the live `skin_manifest` for the target URL before applying anything here. See `composite-skins.md`.
+
 ## Why this scenario needs the gate
 
 Analysis of the three replacement documents (`scripts/check_chrome_conflict.py`) showed:

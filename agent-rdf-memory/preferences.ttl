@@ -319,7 +319,7 @@
     schema:name "Destructive Command Guard"@en ;
     schema:description "Standing rule: never execute destructive shell commands. Covers git force operations, recursive deletion, filesystem wipes, fork bombs, and pipe-to-shell patterns."@en ;
     rdfs:seeAlso <howto/destructive-command-guard.ttl> ;
-    schema:step :step-destructiveCommandGuard .
+    schema:step :step-destructiveCommandGuard, :step-buildFixtureIsStillAnArtifact .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Step Definitions (referenced by sub-HowTos above) ────────────────────
@@ -3293,3 +3293,18 @@ Recorded in rdf-infographic-skill/SKILL.md harness item 10 as well as here."""@e
         <howto/remote-resource-removal.ttl>,
         :step-remoteUploadOrder,
         :step-remoteRemovalOrder .
+
+:step-buildFixtureIsStillAnArtifact a schema:HowToStep ;
+    schema:position "263"^^xsd:integer ;
+    schema:name "Generator output written into a source repo as a test fixture or build directory is STILL a generated artifact and routes to the LLM root"@en ;
+    schema:text """Routing is decided by artifact TYPE (a generated .ttl/.md/.html), never by the directory's name, never by the generator script sitting beside it, and never by the output being regenerable.
+
+Caught 2026-08-26 while building composite-skin support for the OSDI Inclusion Engine: a rebased RDF site graph, de-chromed WebDAV content, and a 16-page rendered site were all written into the inclusion-engine repo under infrastructure-tests/composite/{site,out}/ and left there. Three things made that output feel like repo scaffolding rather than a deliverable — the generators legitimately live in the repo, the parent directory is named infrastructure-tests/, and everything was regenerable — and none of them is a valid exemption. That rendered site WAS the deliverable; it was the acceptance test the user set for the task.
+
+PROCEDURE when a generator must write into a repo as an intermediate: gitignore the output directory, and add an explicit packaging step that routes the finished artifact to {model-root}/{rdf,md,webpages}/ per howto/artifact-routing.ttl#step-outputDirs. Group a multi-file collection in a per-artifact subfolder when its members link to each other relatively.
+
+A source repository holds hand-authored source — engine code, XSLT, skin bundles, generator scripts — and never their output."""@en ;
+    rdfs:seeAlso <howto/artifact-routing.ttl>,
+        <howto/artifact-routing.ttl#step-buildFixtureIsStillAnArtifact>,
+        :step-outputRootBlockingGate,
+        :step-outputDirs .
