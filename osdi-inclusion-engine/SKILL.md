@@ -9,19 +9,31 @@ Use this skill to inspect, configure, and deploy content into websites run by th
 
 All configuration lives in the RDF quadstore graph `<urn:com.openlinksw.virtuoso.incleng>`, accessed via the `incleng..config_*` SQL API — **never** the legacy `incleng..sites` table. Read `references/config-api.md` before issuing any config SQL.
 
-## Blocking Gate — Chrome Conflict Check Before Any Page Deployment
+## Blocking Gate — This Is a Skin-Authoring Decision, Not a Deploy-Path Choice
 
-Every chrome-bearing skin — legacy `openlink`/`responsive` in the inclusion-engine VAD, and modern `matrix`/`bootstrap-2022` in the **opl-skins VAD** — **unconditionally injects** the corporate masthead and footer around whatever is in the source document's `<body>`. If a replacement page carries its own `<nav>`, `<header>`, or `<footer>` markup, deploying it under those skins stacks two sets of chrome — and when the replacement's CSS deliberately mirrors the live site's design, the duplication is visually subtle and easy to miss in review.
+Every chrome-bearing skin — legacy `openlink`/`responsive` in the inclusion-engine VAD, and modern `matrix`/`bootstrap-2022` in the **opl-skins VAD** — **unconditionally injects** the corporate masthead and footer around whatever is in the source document's `<body>`. A page carrying its own `<nav>`/`<header>`/`<footer>` deployed under one of these skins stacks two sets of chrome.
 
-Therefore, before deploying ANY page into an OSDI site:
+The **passthrough override** (per-URL `xslt_sheet` → `/DAV/VAD/inclusion-engine/skin/passthrough/xslt/PostProcess.xslt`) avoids the stack, but its cost is too great to be a default: it freezes one page as a permanent one-off outside the skin system, forfeiting engine-supplied feeds links, canonical, JSON-LD SearchAction, analytics, OPAL widget, and site-wide nav consistency — forever, since nothing about the override is a stepping stone to anything better. Only use it as an explicit, time-boxed stopgap the user has chosen with that cost stated.
 
-1. Read the **live** `xslt_sheet` for the target URL (`config_get`) to learn which skin/VAD is actually active — never assume.
-2. Fetch the replacement document and run `scripts/check_chrome_conflict.py <file-or-url>`.
-3. If it reports self-contained chrome, elicit which remediation the user wants (see Path A/B below); never deploy a chrome-carrying page under a chrome-injecting skin without the user's explicit, informed choice.
+**The real question is never "strip this one page to fit the current skin" — it's "does this new appearance become the site's skin?"** A homepage mockup only has opinions about the homepage; every site has a multiplicity of other page types (contact forms, customer-snapshot/testimonial layouts, pricing, docs, etc.) that the mockup says nothing about. Treat every self-styled replacement as a candidate **new skin**, and resolve these design questions before writing any XSLT or touching DAV content:
 
-**Path A — passthrough override (page keeps its own chrome).** Per-URL `xslt_sheet` override to `/DAV/VAD/inclusion-engine/skin/passthrough/xslt/PostProcess.xslt`, which copies `/html/head/*` and `/html/body` through essentially verbatim while still merging RDFa/SPARQL data-islands and Markdown blocks. Fastest and page-atomic, but the page loses engine-supplied extras: feeds links, canonical, JSON-LD SearchAction, analytics, OPAL widget, and site-wide nav consistency.
+1. **How many appearances do you actually want?** One shared look across all affected sites, or a distinct one per site?
+2. **Relationship to the current skin (`matrix` or whichever is live)**: same CSS framework (Bootstrap) across all of them? Same dynamic-menu/nav-toggle JS?
+3. **Coverage beyond the homepage**: what do Contact forms, Customer Snapshots, and other recurring page/component types need to look like under the new appearance? A homepage-only mockup is silent on this — it must be extended or the gap flagged before go-live.
+4. **Common features across the candidate mockups** — literal overlap in fonts, color tokens, nav markup, CSS frameworks — is the input to the decision below. Run `scripts/check_chrome_conflict.py` on each candidate first for a fast per-file signal, then compare across candidates by eye (font-family, `--custom-property` names, Bootstrap usage, nav/toggle markup) — see `references/skin-commonality-assessment.md` for the method and a worked example.
+5. **Minimize conditionality in the skin.** Every `<xsl:if>`/`<xsl:choose>` branching on site or content shape is a maintenance liability — prefer factoring differences into includes or separate skins over branching logic in one shared `PostProcess.xslt`.
 
-**Path B — chrome-strip under the live skin (recommended when the replacement's CSS derives from the live site).** Remove the replacement's own masthead/nav/footer and any head includes the live skin already injects (under `matrix`: Bootstrap 5.3.3 CSS/JS, Inter font, jQuery, `/skin/matrix/css/style.css` — `tidyups.xslt` dedupes many of these automatically); keep its `<style>` blocks and content sections. No config change at all — a pure WebDAV PUT. Matrix copies body children as-is when a `.container` structure exists, so wrap stripped content accordingly. Preserves site-wide chrome, feeds, search, analytics, and OPAL integration.
+Both the inclusion-engine and opl-skins VADs already carry a `common/` directory — any new skin must integrate with these, not reimplement them:
+
+- **inclusion-engine `common/`** — engine functionality: feeds (`feeds.vsp`), search (`search.vsp`), sitemap (`sitemap.vsp`), 404 handling, `osdi.vsp`.
+- **opl-skins `common/`** — skin-level integration: authentication (`auth/login.vsp`, `logout.vsp`, `register.vsp`, `profile.vsp`, cart), `data-islands.xslt` (RDFa/SPARQL merge), `embedding.xslt` (embedded queries), analytics (`urchin*.xslt`), feed transforms (`feed2atom/json/rss/sitemap.xslt`), `opal.xslt`.
+
+**Decide, then act** (full process in `references/skin-commonality-assessment.md` and `references/skin-authoring-howto.md`):
+
+- **Enough commonality across the candidates** → author **one new shared skin** (e.g. `zion` — deliberately the inverse of `matrix`: per-site layout supplies the variation, not per-page content-stripping) with per-site includes, e.g. `<xsl:include href="uda/xslt/layout.xslt"/>`.
+- **Not enough commonality** → author **one new skin per site**, following the community-documented process in `references/skin-authoring-howto.md`: paste the mockup HTML into a new `PostProcess.xslt`, strip content down to appearance-only markup plus an `<xsl:apply-templates select="/something/appropriate" mode="copy"/>` at the correct insertion point, integrate the two `common/` directories above, then replace DAV `content/index.html` with just the content fragment (the appearance now lives in the skin, not the page).
+
+Passthrough remains available for a genuine one-off with no skin ambition — but it is the exception, not step one.
 
 ## Elicitations — Establish Before Acting
 
@@ -33,21 +45,24 @@ Ask (or confirm from context) each of the following before running SQL or WebDAV
 4. **Actual `webdav_base` per site**: always read it live via `incleng..config_get(null, '<site>', 'webdav_base')` — never assume the path.
 5. **Source document(s)**: URL or local path of each replacement page, and which target page each one replaces (homepage → `content/index.html`; other pages → `content/{name}.html`).
 6. **Override scope**: per-URL (recommended for homepage swaps — leaves all other pages on the site's normal skin), per-site, or global.
-7. **Chrome remediation & skin choice**: Path A (passthrough override, page keeps own chrome) vs Path B (strip page chrome, deploy under live skin). Available skins span two VADs: `/DAV/VAD/inclusion-engine/skin/` (legacy: `openlink`, `responsive`, `passthrough`, …) and `/DAV/VAD/opl-skins/` (modern: `matrix`, `bootstrap-2022`, `docs-v3`, …). Read the live `xslt_sheet` first to know the active skin.
+7. **Skin strategy**: one shared new skin (e.g. `zion`) vs one new skin per site vs a one-off passthrough override — resolved via the commonality assessment above and `references/skin-commonality-assessment.md`. Available skins span two VADs: `/DAV/VAD/inclusion-engine/skin/` (legacy: `openlink`, `responsive`, `passthrough`, …) and `/DAV/VAD/opl-skins/` (modern: `matrix`, `bootstrap-2022`, `docs-v3`, …). Read the live `xslt_sheet` first to know the active skin.
+7a. **Non-homepage page/component coverage**: which additional page types (Contact, Customer Snapshot, pricing, docs, …) must be styled under the new skin before go-live, and who is supplying those designs if the mockup doesn't cover them.
 8. **Backup/rollback policy**: whether to preserve the current `content/index.html` (default: yes — copy to `content/index.html.pre-<YYYYMMDD>` or a user-designated location before overwriting).
 9. **Go-live confirmation**: deploying to a public site requires explicit user go-ahead per site. Preparing a validated bundle without deploying is a valid stopping point when credentials or approval are absent.
 
 ## Workflow — Homepage / Page Replacement
 
-1. **Elicit** the values above. Fetch each source document; verify HTTP 200 and non-trivial size.
-2. **Classify** each document with `scripts/check_chrome_conflict.py`: fragment vs full document; self-contained chrome or not; external asset references (CDN fonts, stylesheets) that must resolve from the live origin.
-3. **Read live config**: enumerate sites, read each target site's `webdav_base` and current `xslt_sheet` resolution for the target URL (`references/config-api.md` has the queries).
-4. **Back up** the current target file via WebDAV GET before overwriting, unless the user declines.
-5. **Apply skin override** (config change) when the gate requires it, scoped per the elicited choice — see `templates/skin-override.sql`.
-6. **Deploy content**: WebDAV PUT the replacement as `content/index.html` (or the elicited target path) under the site's `webdav_base`. Use curl per the standing curl-first rule; MCP tools only when no CLI path exists.
-7. **Flush cache once** after any config change: `select incleng..config_flush_cache();`. Content-only changes self-invalidate on mtime and need no flush. If skin XSLT files themselves were edited, run `select incleng..staleall();` instead (Virtuoso caches compiled XSLT).
-8. **Verify**: fetch each live homepage; confirm single chrome (exactly one masthead/nav/footer), title correctness, resolvable external assets, and that at least one *other* page on the site still renders with the normal skin (proves the override stayed scoped).
-9. **Report** per site: config statements executed, files PUT (with backup locations), verification results. Never claim success without step 8.
+1. **Elicit** the values above, including the skin-strategy questions (how many appearances, relationship to the live skin, non-homepage coverage). Fetch each source document; verify HTTP 200 and non-trivial size.
+2. **Classify** each document with `scripts/check_chrome_conflict.py`: fragment vs full document; self-contained chrome or not; external asset references (CDN fonts, stylesheets); fonts, CSS custom-property names, CSS framework, and nav/toggle markup for the cross-candidate commonality comparison.
+3. **Assess commonality** across all candidate mockups per `references/skin-commonality-assessment.md`; decide with the user: shared `zion`-style skin, per-site skins, or (exceptionally) passthrough for a single page.
+4. **Read live config**: enumerate sites, read each target site's `webdav_base` and current `xslt_sheet` resolution for the target URL (`references/config-api.md` has the queries).
+5. **Author the skin(s)** per `references/skin-authoring-howto.md`: paste mockup HTML into a new `PostProcess.xslt`, strip to appearance-only markup plus the correct `apply-templates mode="copy"` insertion point, integrate both `common/` directories (feeds/search/sitemap from inclusion-engine; auth/data-islands/embedding/analytics from opl-skins), install under the target VAD.
+6. **Back up** the current target file(s) via WebDAV GET before overwriting, unless the user declines.
+7. **Switch the skin**: `xslt_sheet` config to the new skin, scoped per the elicited choice (per-URL for a single-page passthrough stopgap; per-site or global for a real new skin) — see `templates/skin-override.sql`.
+8. **Deploy content**: WebDAV PUT each page's stripped content fragment as `content/{name}.html` under the site's `webdav_base`. Use curl per the standing curl-first rule; MCP tools only when no CLI path exists.
+9. **Flush**: `select incleng..staleall();` after any new/changed skin XSLT (compiled-XSLT cache); `select incleng..config_flush_cache();` after any other config change. Content-only changes self-invalidate on mtime.
+10. **Verify**: fetch each live page; confirm single chrome (exactly one masthead/nav/footer), title correctness, resolvable external assets, and — if the skin change was scoped — that at least one *other* page still renders correctly (proves scope was respected). Spot-check any non-homepage page types elicited in step 1.
+11. **Report** per site: skin strategy chosen and why, XSLT/config statements executed, files PUT (with backup locations), verification results. Never claim success without step 10.
 
 ## Other Supported Operations
 
@@ -61,6 +76,8 @@ Ask (or confirm from context) each of the following before running SQL or WebDAV
 
 - `references/engine-architecture.md` — how index.vsp, skins, tidy, caching, vhosts/vdirs, and opt-outs fit together; skin inventory and per-skin chrome behavior.
 - `references/config-api.md` — config graph structure, all `incleng..config_*` signatures, resolution order (URL → site → global), ready-to-run inspection queries.
-- `references/homepage-replacement-playbook.md` — the worked virtuoso/uda/ps homepage-swap scenario end to end, including the chrome-conflict findings that motivated the gate.
-- `templates/skin-override.sql` — parameterized SQL for per-URL/per-site skin overrides and rollback.
-- `scripts/check_chrome_conflict.py` — classifies a replacement document and emits a deploy recommendation.
+- `references/skin-commonality-assessment.md` — the method for deciding shared-skin vs per-site-skins vs passthrough, with a worked commonality scan across the virtuoso/uda/ps mockups (fonts, CSS custom properties, framework usage, nav markup all diverged — recorded as a real example of "not enough commonality").
+- `references/skin-authoring-howto.md` — the community-documented new-skin authoring process (PostProcess.xslt content-stripping, `common/` integration, DAV content replacement), plus the `zion` shared-skin variant with per-site `xsl:include` layouts.
+- `references/homepage-replacement-playbook.md` — the worked virtuoso/uda/ps scenario end to end, revised to the skin-authoring decision framework.
+- `templates/skin-override.sql` — parameterized SQL for `xslt_sheet` switches (per-URL, per-site, or global) and rollback.
+- `scripts/check_chrome_conflict.py` — classifies a candidate document (structure, chrome, assets, fonts, CSS custom properties, framework, nav markup) as input to the commonality assessment.
