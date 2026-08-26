@@ -1,0 +1,86 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Every Example SPARQL Query Must Return At Least One IRI"@en ;
+    schema:description "A sample/workbench SPARQL query whose solution projects only literals produces a dead result table: nothing in it can be clicked, dereferenced, or fed into a follow-up DESCRIBE. Every SELECT recipe published in an HTML infographic, Markdown companion, or chat response MUST project at least one IRI-valued variable alongside its human-readable labels."@en ;
+    schema:dateCreated "2026-08-26T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :iriInSolutionGate ;
+    rdfs:seeAlso <../preferences.ttl#step-sparqlExampleQueryIriInSolution>,
+        <sparql-sample-query-self-containment-gate.ttl>,
+        <sparql-explore-query-as-url.ttl>,
+        <hyperlink-sparql-urls.ttl>,
+        <virtuoso-sparql-formats.ttl>,
+        <entity-href-companion-ttl.ttl> .
+
+:iriInSolutionGate a schema:HowTo ;
+    schema:name "IRI-in-Solution Gate for Example SPARQL Queries"@en ;
+    schema:description "Pre-publication check applied to every schema:SoftwareSourceCode SPARQL entity and every query rendered into a workbench, sample-query card, recipe dropdown, or chat answer."@en ;
+    schema:step :step-whyItMatters, :step-theRule, :step-namingConvention,
+        :step-aggregateForms, :step-graphForms, :step-verifyCheck .
+
+:step-whyItMatters a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "A literals-only solution is a dead end for the reader"@en ;
+    schema:text """The whole point of publishing a query against a Linked Data graph is that the result set is a launch pad, not a report. A row of labels — "Many jobs will disappear forever" / "over the course of a decade" / "Set aside some jobs for humans" — tells the reader what the graph says but gives them nowhere to go next. The same row carrying the subject IRI is navigable three ways: paste it into the URIBurner resolver, DESCRIBE it, or use it as a bound term in a follow-up query.
+
+Virtuoso's own text/x-html+tr rendering makes this concrete: IRI-valued cells render as hyperlinks in the results table, literal cells render as plain text. A literals-only SELECT therefore produces a results page with zero links on it.
+
+Caught 2026-08-26 by the user on the Gates Notes 'turbulent AI era' collection, where 7 of 12 published recipes projected only literals (?risk ?horizon ?proposal, ?claim ?figure ?statement, ?domain ?position ?evidence, and so on). Every one of them had a perfectly good IRI bound in the WHERE clause — ?r, ?p, ?c, ?b — that simply was not projected."""@en .
+
+:step-theRule a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "RULE: every published SELECT projects at least one IRI-valued variable; prefer the IRI of the row's primary subject"@en ;
+    schema:text """For each SELECT recipe, ask: what entity is this row ABOUT? Project that entity's IRI, not only its schema:name.
+
+Wrong:
+  SELECT ?risk ?horizon ?proposal
+  WHERE { ?r a :TransitionRisk ; schema:name ?risk ; :hasTimeHorizon ?horizon ; :mitigatedBy ?p .
+          ?p schema:name ?proposal . }
+
+Right:
+  SELECT ?riskIri ?risk ?horizon ?proposalIri ?proposal
+  WHERE { ?riskIri a :TransitionRisk ; schema:name ?risk ; :hasTimeHorizon ?horizon ; :mitigatedBy ?proposalIri .
+          ?proposalIri schema:name ?proposal . }
+
+When a row joins two entities, project both IRIs. Keep the labels — the IRI is an addition, never a replacement, because an IRI-only result is as unreadable as a literal-only result is unnavigable."""@en .
+
+:step-namingConvention a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Name the IRI variable after its entity with an Iri suffix, and place it immediately before its own label column"@en ;
+    schema:text "Use ?riskIri ?risk, ?claimIri ?claim, ?stepIri ?step — not ?s, ?r, ?x. The suffix tells the reader which column is the identifier without them having to inspect a value, and the adjacency makes the identifier/label pairing obvious in a wide results table. Where a query already projects a naturally IRI-valued variable under a good name (?type, ?country, ?iri), no suffix is needed — just make sure it is projected, and put it first."@en .
+
+:step-aggregateForms a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Aggregate queries: use SAMPLE() to surface a representative IRI, or GROUP_CONCAT the IRIs alongside the labels"@en ;
+    schema:text """A GROUP BY collapses the subject away, so the IRI has to be reintroduced deliberately:
+
+  SELECT ?wave (SAMPLE(?occupationIri) AS ?exampleOccupationIri)
+               (GROUP_CONCAT(?occupation ; separator=", ") AS ?occupations)
+  WHERE { ?occupationIri a schema:Occupation ; schema:name ?occupation ; schema:additionalType ?wave . }
+  GROUP BY ?wave
+
+SAMPLE() is the light-touch option and matches the canonical entity-census recipe already used as the default workbench query (see sparql-explore-query-as-url.ttl). Where every member matters rather than a representative, GROUP_CONCAT the IRIs into a second column instead."""@en .
+
+:step-graphForms a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "DESCRIBE and CONSTRUCT are exempt — they return triples, so IRIs are inherent"@en ;
+    schema:text "The gate applies to SELECT (and to ASK only in the trivial sense that it has no solution to inspect). DESCRIBE and CONSTRUCT emit RDF, whose subjects and predicates are IRIs by construction, and Virtuoso renders them via text/x-html-nice-turtle with the terms already hyperlinked. Do not contort a graph-form query to satisfy this rule."@en .
+
+:step-verifyCheck a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "BLOCKING CHECK — execute each recipe and assert an IRI-typed binding appears in the results"@en ;
+    schema:text """Run every published recipe against the live endpoint with format=application/sparql-results+json and assert that at least one binding in the result set has "type": "uri":
+
+  for each query q:
+      d = json(GET /sparql?query=q&format=application/sparql-results+json)
+      iri_vars = {k for row in d.results.bindings for k,v in row.items() if v.type == "uri"}
+      assert iri_vars, f"{q.name} projects no IRI"
+
+One caveat that will bite: a query designed to return ZERO rows (an anti-join proving an absence, e.g. 'risks with no proposal attached') has no bindings to inspect, so this check reports no IRI even when the projection is correct. Read the SELECT clause by hand for those, and do not 'fix' a correct query on the strength of an empty result set.
+
+This check is cheap and belongs in the same pass as the existing live-execution verification in live-sparql-verification-against-loaded-graph.ttl — the queries are already being run; only the assertion is new."""@en .

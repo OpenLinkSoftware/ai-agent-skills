@@ -6,7 +6,7 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-08-24T22:42:44Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-26T16:05:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
@@ -1617,3 +1617,34 @@
     schema:description "Claude Opus 5 edition of the OpenLinkSoftware/virtuoso-opentofu collection (a DeepSeek V4 Flash edition was generated separately the same day, session 2026-08-24-11, routed to DeepSeek/). 765-triple Turtle, zero blank nodes, one owl:Ontology entity distinct from and differently named to the document entity. DOAP adopted for the repository after the ontology-discovery gate ran with prefix.cc unreachable (HTTP 000) — namespace dereferenced and its 58 terms inspected directly, then presented for accept/reject. Reused cdx:ComparisonDimension, kpx:KeyPrinciple, and oqx:OpenQuestion by bound prefix; minted 5 classes + 6 properties for the deployment-baseline domain, each fully characterised with a verified external cross-reference. 14 FAQ, 16 glossary terms, 8 HowTo steps, 6 sample queries. HTML ported from the newest same-model artifact (neo4j-graph-technology-vs-virtuoso-rdf-claude_opus_5-1.html, same day) with only kgData (202 nodes / 436 links), the sample queries, and the body new, built by a Python pipeline that derives both from the companion TTL. THREE inherited template defects found by live browser measurement while both validators stayed green: --accent at #00b4ff in BOTH themes gave every entity link 2.34:1 on the light page (fixed to #0b6fa4, 5.49:1 light / 10.42:1 dark); the floating nav had the manual-hide, fade, manuallyHidden guard and reactivation marker but no resize rule at all; and 199px of horizontal overflow at 390px from an unprotected pre.sparql-code and a native select sized to its longest option label. validate-harness-contract.py PASS; validate-kg-compliance.sh 19/20 with the single FAIL being the Step 212 documented CURIE false positive, left unexpanded. Deliverables: rdf/, webpages/, md/ virtuoso-opentofu-self-managed-deployments-claude_opus_5-1.{ttl,html,md}. Companion TTL not yet uploaded to the URIBurner DAV collection."@en .
 
 :sessionIndex schema:itemListElement :session20260824ClaudeOpus5VirtuosoOpentofu .
+
+# ── 2026-08-26: Google Gemini 3.7 Flash + Antigravity — Bill Gates Make AI Work for Everyone Collection ──
+
+:session20260826Gemini37FlashGatesNotesAI a schema:ListItem ;
+    schema:position 1151 ;
+    schema:item <sessions/2026-08-26-gemini_3_7_flash-antigravity.ttl> ;
+    schema:name "Session 2026-08-26 (Google Gemini 3.7 Flash + Antigravity — Bill Gates 'A turbulent AI era — and critical choices to make' Visual Keynote Collection)"@en ;
+    schema:description "Generated a 4-artifact collection (.ttl, .jsonld, .html, .md) synthesizing Bill Gates' August 26, 2026 GatesNotes publication 'Make AI work for everyone: A turbulent AI era and critical choices to make' as a competition-grade visual presentation entry. Formalized lightweight OWL ontology modeling transition phases, systemic risk vectors, strategic policy instruments, and high-leverage public-good domains (461 triples, zero blank nodes). HTML presentation features an expert UI/UX visual communications architecture with an executive synopsis deck, interactive Two-Path Trajectory horizon map SVG, automation risk vs human-reserved roles matrix (responsive dual presentation), 5-pillar strategic framework, actionable 7-step roadmap, 12-item FAQ accordion, 12-item glossary grid, D3.js v7 Knowledge Graph Explorer (with focus-activated zoom isolation, sticky drag, click-distance guard, and resolver SVG anchors), and live SPARQL workbench. Passed strict harness validator with 0 failures. Deliverables routed to Google Gemini Generated/rdf/, webpages/, and md/."@en .
+
+:sessionIndex schema:itemListElement :session20260826Gemini37FlashGatesNotesAI .
+
+
+# ── 2026-08-26: Claude Opus 5 + Claude Code — Gates Notes 'turbulent AI era' collection ──
+
+:session20260826ClaudeOpus5GatesTurbulentAiEra a schema:ListItem ;
+    schema:position 1152 ;
+    schema:item <sessions/2026-08-26-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-08-26 (Claude Opus 5 + Claude Code — Bill Gates 'The turbulent AI era is here' RDF+HTML+MD+JSON-LD collection, visual competition entry)"@en ;
+    schema:description "Four-artifact collection about Bill Gates's 19 August 2026 Gates Notes essay, routed to Claude Generated/ and published to /DAV/demos/daas/. 905-triple Turtle, zero blank nodes, one owl:Ontology entity distinct from the document entity; four classes and four properties minted for the AI-transition-governance domain, each fully characterised with a verified external cross-reference, and bbt:OpenQuestion reused by bound prefix rather than re-minted. 16 FAQ with named Answer IRIs, 20 glossary DefinedTerms (16 DBpedia-primary, 4 coined), 9 HowToSteps, 11 Claims, 12 SPARQL recipes all executed live. HTML assembled from the newest passing same-model donor (neo4j-graph-technology-vs-virtuoso-rdf-claude_opus_5-1.html) per the reuse-first gate, with a bespoke seven-section narrative arc, two inline data-viz figures, and semantic role tokens (--risk/--benefit/--policy) defined in both themes. Central editorial finding is computed rather than asserted: crossing the three risks against the three proposals shows job loss draws all three while the other two risks draw only one. NOTE: gatesnotes.com returns HTTP 403 to curl behind Akamai regardless of headers — the in-app Browser pane retrieved the article on the first attempt. Three defects the validators could not see were caught by live browser measurement: a dropped <style> open tag, SVG text overflowing its viewBox, and three donor-text residues. validate-harness-contract.py PASS. A separate Gemini 3.7 Flash edition of the same source exists (session 2026-08-26-gemini_3_7_flash-antigravity), routed to Google Gemini Generated/."@en .
+
+:sessionIndex schema:itemListElement :session20260826ClaudeOpus5GatesTurbulentAiEra .
+
+# ── 2026-08-26: Grok 4.6 + Grok CLI — Gates Notes turbulent AI era collection ──
+
+:session20260826Grok46GatesTurbulentAiEra a schema:ListItem ;
+    schema:position 1153 ;
+    schema:item <sessions/2026-08-26-grok_4_6-grok-cli.ttl> ;
+    schema:name "Session 2026-08-26 (Grok 4.6 + Grok CLI — Bill Gates 'The turbulent AI era is here' RDF+HTML visual competition entry)"@en ;
+    schema:description "Grok-routed RDF-Turtle + HTML collection (no Markdown, no JSON-LD) of Bill Gates' Gates Notes essay. 863 triples, 0 blank nodes, 0 file: IRIs. Thesis-and-Framework ontology: EquityFork, StructuralRisk, PolicyPillar, BenefitDomain. 15 FAQ, 12 glossary terms, 5 HowTo steps. HTML from generate_infographic.py (219 nodes / 531 links, 0 orphans) plus a competition visual layer: hero equity-fork SVG, six RDF-derived stat tiles, duality panel, five-step HowTo pipeline. validate-kg-compliance.sh 20/20 PASS. validate-harness-contract.py PASS after enhancements. Browser QA: theme toggle, FAQ accordion, KG Explorer, mobile 390px overflow fix on the synopsis grid. Artifacts: Grok/rdf/ and Grok/webpages/ turbulent-ai-era-critical-choices-grok_4_6-1.{ttl,html}."@en .
+
+:sessionIndex schema:itemListElement :session20260826Grok46GatesTurbulentAiEra .
