@@ -9,16 +9,19 @@
     schema:dateCreated "2026-06-10T00:00:00Z"^^xsd:dateTime ;
     schema:dateModified "2026-08-18T16:20:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
+    schema:about :step-markdownExcludedByDefault, :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
         :step-constructCurl, :step-executeConfirm, :step-tryHttpPutFirst,
         :step-tryWebdavPutSecond, :step-tryIsqlPutThird, :step-uploadVerification ;
-    schema:step :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
+    schema:step :step-markdownExcludedByDefault, :step-offerUpload, :step-elicitEndpoint, :step-elicitCredentials,
         :step-constructCurl, :step-executeConfirm, :step-tryHttpPutFirst,
         :step-tryWebdavPutSecond, :step-tryIsqlPutThird, :step-uploadVerification ;
     rdfs:seeAlso <../preferences.ttl#step-remoteWebdavUpload>,
         <../preferences.ttl#step-remoteUploadOrder>,
+        <../preferences.ttl#step-markdownNotUploadedByDefault>,
         <remote-resource-removal.ttl>,
-        <../preferences.ttl#step-remoteRemovalOrder> .
+        <../preferences.ttl#step-remoteRemovalOrder>,
+        <artifact-routing.ttl>,
+        <dav-public-url-default.ttl> .
 
 # ── Step 1: Offer Upload ──────────────────────────────────────────────────────
 
@@ -121,3 +124,33 @@ Port 443 on linkeddata.uriburner.com does not consume the client cert (PUT retur
     schema:position 9 ;
     schema:name "Report :5443 GET and public 443 GET separately — do not treat 443 401 as upload failure or as public success"@en ;
     schema:text "After a 2xx PUT, GET the :5443 URL with the same p12 (expect 200) and PROPFIND the parent for the filename. Also GET the public https://linkeddata.uriburner.com{dav-path} URL. New resources on URIBurner daas often return 401 anonymously (owner-only ACL) even when the PUT succeeded — say that plainly. Never claim a public browseable URL from a :5443-only 200."@en .
+
+# ── Step 10 (evaluated BEFORE Step 1): compose the upload set ────────────────
+
+:step-markdownExcludedByDefault a schema:HowToStep ;
+    schema:position 10 ;
+    schema:name "The Markdown companion is EXCLUDED from the upload set by default — publish .html, .ttl and .jsonld only, unless the user instructs otherwise"@en ;
+    schema:text """Evaluated before :step-offerUpload, because it determines which files are even offered.
+
+DEFAULT UPLOAD SET: {stem}.html, {stem}.ttl, {stem}.jsonld.
+EXCLUDED BY DEFAULT: {stem}.md.
+
+The Markdown companion exists to be read and re-used inside the generating tree ({LLM_ROOT}/<Model Directory>/md/, per artifact-routing.ttl). It carries no named graph, is not dereferenced by the resolver, and duplicates the HTML narrative — so publishing it adds a public surface that nothing links to and that must be kept in sync for no benefit.
+
+OVERRIDE: upload the .md only on an explicit user instruction naming it ("upload the markdown too", "put the .md on UB", "publish all four"). An override is per-request and does NOT become the new default for later collections in the same session or afterwards — re-apply this exclusion on the next upload unless told again.
+
+CONSEQUENCE FOR THE OTHER ARTIFACTS: when the .md is not published, nothing may carry a public DAV IRI pointing at it. Before uploading, check and remove:
+  - any rdfs:seeAlso / schema:sameAs in the companion TTL naming {DAV}/{stem}.md — this is the one that matters most, because it also propagates into the embedded kgData as a node plus an edge, and into the JSON-LD;
+  - any DAV .md URL in the Markdown's own companion-files list;
+  - any DAV .md URL in the HTML attribution footer.
+A document's OWN relative links (../md/{stem}.md from the HTML) are correct and stay — they resolve inside the local tree, per dav-public-url-default.ttl.
+
+Verify with:
+  grep -c 'daas/{stem}[.]md' {stem}.html {stem}.ttl {stem}.jsonld {stem}.md   # all MUST be 0
+  curl -s -o /dev/null -w '%{http_code}' {DAV}/{stem}.md                       # MUST be 404
+
+Recorded 2026-08-26 after the Gates Notes 'turbulent AI era' collection published all four files and the user corrected it. Removal of the already-published .md followed remote-resource-removal.ttl (HTTP DELETE succeeded first attempt, 204); the dangling IRI cleanup above was the larger part of the fix, since a published-then-deleted file leaves a 404 IRI inside the graph if the seeAlso is not dropped."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-markdownNotUploadedByDefault>,
+        <artifact-routing.ttl>,
+        <dav-public-url-default.ttl>,
+        <remote-resource-removal.ttl> .

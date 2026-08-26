@@ -149,7 +149,8 @@
         :step-modelOverEnvironment, :step-noPromptModelOverride, :step-modelIdentityResolution,
         :step-artifactPlacement, :step-screencastDistributionArtifacts,
         :step-screencastPresentationNaming, :step-screencastEmbedMp4,
-        :step-remoteWebdavUpload, :step-remoteUploadOrder, :step-remoteRemovalOrder, :step-savedPromptsFolder, :step-filesystemPathVerification .
+        :step-remoteWebdavUpload, :step-remoteUploadOrder, :step-remoteRemovalOrder,
+        :step-markdownNotUploadedByDefault, :step-savedPromptsFolder, :step-filesystemPathVerification .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
 
@@ -277,11 +278,13 @@
 
 :howto-virtuoso-sparql a schema:HowTo ;
     schema:name "Virtuoso & SPARQL"@en ;
-    schema:description "Virtuoso SPARQL URL format parameters by query type, workbench query deduplication via named graphs, and SPARQL absolute PREFIX IRI rules."@en ;
+    schema:description "Virtuoso SPARQL URL format parameters by query type, workbench query deduplication via named graphs, SPARQL absolute PREFIX IRI rules, and the requirement that every published example SELECT return at least one IRI."@en ;
     rdfs:seeAlso <howto/virtuoso-sparql-formats.ttl>,
-        <howto/virtuoso-workbench-query-dedup.ttl> ;
+        <howto/virtuoso-workbench-query-dedup.ttl>,
+        <howto/sparql-example-query-iri-in-solution.ttl> ;
     schema:step :step-virtuosoSparqlFormats,
-        :step-virtuosoWorkbenchQueryDedup .
+        :step-virtuosoWorkbenchQueryDedup,
+        :step-sparqlExampleQueryIriInSolution .
 
 # ── 9. Terminology & Conventions ────────────────────────────────────────────
 
@@ -3240,3 +3243,53 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     schema:name "Prior-Work Evaluation Gates"@en ;
     schema:description "Mandatory evaluation of prior work (newest validated artifacts, corpus howtos, logged sessions) at artifact planning, at snag response, and in verification — the antidote to the 2026-08-24 toggle/KG-Explorer/nav saga."@en ;
     rdfs:seeAlso <howto/prior-work-evaluation-gates.ttl> .
+
+# ── Step 258: every published example SPARQL query must return at least one IRI ──
+
+:step-sparqlExampleQueryIriInSolution a schema:HowToStep ;
+    schema:position 258 ;
+    schema:name "Every example/workbench SPARQL SELECT MUST project at least one IRI-valued variable alongside its labels, so each result row is a link into the resolver rather than a dead string"@en ;
+    schema:text """User-identified gap, 2026-08-26 (Gates Notes 'turbulent AI era' collection): 7 of 12 published recipes projected only literals — ?risk ?horizon ?proposal, ?claim ?figure ?statement, ?domain ?position ?evidence and so on — even though each had a perfectly good subject IRI bound in its WHERE clause that simply was not selected. Virtuoso's text/x-html+tr rendering hyperlinks IRI cells and leaves literal cells as plain text, so a literals-only SELECT produces a results page with zero links on it and no way to continue exploring.
+
+RULE: for each SELECT, ask what entity the row is ABOUT and project that entity's IRI in addition to (never instead of) its schema:name. Where a row joins two entities, project both. Name the variable after its entity with an Iri suffix (?riskIri ?risk, ?claimIri ?claim, ?stepIri ?step) and place it immediately before its own label column. For GROUP BY queries reintroduce the identifier with SAMPLE(?entityIri) or GROUP_CONCAT the IRIs into a second column. DESCRIBE and CONSTRUCT are exempt — they emit triples, so IRIs are inherent.
+
+BLOCKING CHECK, folded into the existing live-execution pass: run each recipe with format=application/sparql-results+json and assert at least one binding carries \"type\": \"uri\". Caveat — an anti-join deliberately returning zero rows has no bindings to inspect; read its SELECT clause by hand rather than 'fixing' a correct query on the strength of an empty result.
+
+This is a contract-level gate, not a per-document nicety: it applies to sample-query cards, workbench recipe dropdowns, the default editor query, Markdown companions, and any SPARQL handed back in a chat response. Recorded in rdf-infographic-skill/SKILL.md harness item 13 as well as here."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerUserCorrection,
+        onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/sparql-example-query-iri-in-solution.ttl>,
+        <howto/sparql-sample-query-self-containment-gate.ttl>,
+        <howto/sparql-explore-query-as-url.ttl>,
+        <howto/live-sparql-verification-against-loaded-graph.ttl>,
+        <howto/virtuoso-sparql-formats.ttl>,
+        <howto/hyperlink-sparql-urls.ttl> .
+
+# ── Step 259: the Markdown companion is excluded from the DAV upload set by default ──
+
+:step-markdownNotUploadedByDefault a schema:HowToStep ;
+    schema:position 259 ;
+    schema:name "The Markdown companion is NOT uploaded to URIBurner DAV unless the user explicitly instructs it — default upload set is .html, .ttl and .jsonld only"@en ;
+    schema:text """User instruction, 2026-08-26 (Gates Notes 'turbulent AI era' collection, after all four artifacts had been published): "MD shouldn't be uploaded unless there's a user instructional override."
+
+DEFAULT UPLOAD SET: {stem}.html, {stem}.ttl, {stem}.jsonld.
+EXCLUDED BY DEFAULT: {stem}.md.
+
+Rationale: the Markdown companion is a local reading/re-use artifact belonging to the generating tree ({LLM_ROOT}/<Model Directory>/md/, per howto/artifact-routing.ttl). It carries no named graph, is never dereferenced by the URIBurner resolver, and duplicates the HTML narrative — so publishing it creates a public surface nothing links to and that must be kept in sync for no benefit.
+
+OVERRIDE SEMANTICS: upload the .md only when the user explicitly names it ("upload the markdown too", "put the .md on UB", "publish all four"). The override is PER-REQUEST — it does not become a standing default for later collections, in this session or afterwards. Re-apply the exclusion on the next upload unless instructed again. This mirrors the session-only scope rule in howto/session-read-llm-scope-gate.ttl.
+
+DANGLING-IRI COROLLARY (the part that actually costs rework): when the .md is not published, nothing may carry a public DAV IRI naming it. Before uploading, remove any rdfs:seeAlso/schema:sameAs in the companion TTL pointing at {DAV}/{stem}.md — that single triple also propagates into the embedded kgData as a node plus an edge and into the JSON-LD — plus any DAV .md URL in the Markdown's own companion-files list and in the HTML attribution footer. A document's OWN relative links (../md/{stem}.md from the HTML) are correct and stay, per howto/dav-public-url-default.ttl.
+
+VERIFY: grep for 'daas/{stem}[.]md' across .html/.ttl/.jsonld/.md must return 0 in every file, and GET {DAV}/{stem}.md must return 404. If the .md was already published before this rule was applied, remove it per howto/remote-resource-removal.ttl (HTTP DELETE first; it succeeded on the first attempt here, 204) and re-check the graph for surviving .md IRIs with a FILTER(isIRI(?o) && STRENDS(STR(?o),'.md')) query.
+
+Recorded in rdf-infographic-skill/SKILL.md harness item 10 as well as here."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerUserCorrection,
+        onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/remote-webdav-upload.ttl>,
+        <howto/remote-webdav-upload.ttl#step-markdownExcludedByDefault>,
+        <howto/artifact-routing.ttl>,
+        <howto/dav-public-url-default.ttl>,
+        <howto/remote-resource-removal.ttl>,
+        :step-remoteUploadOrder,
+        :step-remoteRemovalOrder .
