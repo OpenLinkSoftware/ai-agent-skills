@@ -127,7 +127,7 @@
     schema:description "Generated artifacts from Claude sessions go to {LLM_ROOT}/Claude Generated/ with subfolders rdf/, md/, webpages/, saved-prompts/. Lowercase rdf/ is the canonical on-disk directory name — not uppercase RDF/ (corrected 2026-08-13 after on-disk verification found the described casing didn't match the actual 166-file rdf/ directory). saved-prompts/ holds reusable reproduction-prompt .md files for a collection — a sibling of md/, not a file inside it, since a reproduction prompt is a distinct artifact type from the companion Markdown document."@en ;
     schema:value "{LLM_ROOT}/Claude Generated/" ;
     schema:dateCreated "2026-05-28"^^xsd:date ;
-    schema:dateModified "2026-07-06"^^xsd:date .
+    schema:dateModified "2026-07-07"^^xsd:date .
 
 :kimiOutputPath a schema:PropertyValue ;
     schema:name "kimi output path"@en ;
