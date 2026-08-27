@@ -136,6 +136,32 @@ Only the tree sourcing differs, so a page composed either way comes out of ident
 
 ---
 
+## Where the Site's RDF Lives
+
+`site_graph` names the graph a skin's SPARQL is scoped to. How the triples get there is deployment configuration, and there are two arrangements worth knowing.
+
+**One graph for the site.** Load every Turtle document into one named graph with `TTLP`. Simplest, and a content change is: edit the file, re-upload it, re-run the loader, flush.
+
+**One graph per document, via an LDP Basic Container.** Give the collection holding the Turtle the WebDAV property
+
+```
+LDP = ldp:BasicContainer
+```
+
+and Virtuoso treats each RDF document in it as an `ldp:RDFSource`: it loads on upload, and **the graph IRI is the document's own HTTP URL**. That is LDP's identity contract, not a naming convention — the resource you `PUT`, the resource you `GET` and the graph you query have to be the same thing, or dereferencing and querying would disagree about what the document denotes.
+
+There is then no loader step. **Uploading is the load.** A content change is one `PUT` of one Turtle document — no HTML, no CSS, no template, no stylesheet recompile, no `TTLP`. Each document is separately addressable, fetchable and replaceable, and the container keeps `ldp:contains`, `posix:size` and `posix:mtime` in a graph named after the collection, so the document list is live queryable data rather than a directory listing.
+
+Set the property with `PROPPATCH` (`<LDP xmlns="">ldp:BasicContainer</LDP>`), before uploading anything — a document already sitting in a plain collection is not retro-imported.
+
+**The one preparation the documents need:** absolute IRIs for any custom ontology terms. LDP resolves relative IRIs against the resource's own URL, which is right for instance data — `<#page>` becomes `…/oracle.ttl#page`, distinct per document, free of charge. But a relative `@prefix : <../ontology.ttl#>` resolves the same way, making your *predicates* hostname- and path-specific: the same content deployed to another host would use different predicates. Keep instance IRIs relative if you like; make the ontology prefix absolute.
+
+**Addressing many graphs at once.** Repeat `default-graph-uri` once per graph. That is SPARQL 1.1 Protocol dataset construction, so the merge is the standard's behaviour, not a server feature. A graph group is the obvious alternative and is **not reliable** — on one 8.3 instance `RDF_GRAPH_GROUP_CREATE`/`_INS` report success, the membership table shows every member, and queries against the group return zero rows over both isql and HTTP, while the identical construction works on another. Cost of the repeated parameter is URL length: 16 graphs plus a 4KB query is a 6.4KB URL, which Virtuoso serves without complaint.
+
+**Not the same as the RDFImport DET**, which also produces per-document graphs and is easy to reach for by mistake. RDFImport names graphs `urn:dav:{path}`, resolves relative IRIs against a malformed `http:/…` base (one slash, silently), and **appends on PUT** rather than replacing — so an edited re-upload leaves old and new values both live. LDP does none of those. Use RDFImport only where LDP is not available.
+
+---
+
 ## Gotchas
 
 Each of these cost real debugging time; all are fixed in the shipped engine code, but they shape how a skin must be authored and verified.
