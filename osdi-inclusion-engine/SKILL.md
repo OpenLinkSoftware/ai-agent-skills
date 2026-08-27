@@ -17,6 +17,8 @@ Which kind is in play determines almost everything else, so establish it first.
 
 **Composite skins** are manifest-declared bundles — a `skin.ttl` naming a theme, a set of plain-XHTML templates carrying `data-osdi-*` binding attributes, and SPARQL bindings resolved against a named graph at render time. Navigation is data, the stylesheet is a manifest string, and chrome is a set of independently suppressible regions. They are selected by the `skin_manifest` config parameter, which overrides `xslt_sheet`. See `references/composite-skins.md`.
 
+**Check the target engine before promising a composite deployment.** `skin_manifest` is only read by an engine whose `transform` carries the composite block; on a stock instance it is an unread config value. Confirm with `select count(*) from DB.DBA.SYS_PROCEDURES where P_NAME like '%osdi_skin%'` before planning. If it returns 0, either install the engine code — which redefines `incleng..transform` for **every** site on that instance, so treat it as a change needing explicit approval and a before/after regression on the other sites — or use the `composite-doc` front end, which needs no stored procedure and is selected with `xslt_sheet`. See the deployment section in `references/composite-skins.md`.
+
 Read the live config for the target URL before reasoning about either — never assume.
 
 ## Blocking Gate — Chrome Conflict Check Before Any Page Deployment

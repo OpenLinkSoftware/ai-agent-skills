@@ -110,6 +110,32 @@ The manifest is parsed into `urn:osdi:skin:{manifest-path}`, one graph per manif
 
 ---
 
+## Deploying to an Engine Without Composite Support
+
+`skin_manifest` is read inside `incleng..transform`. On an instance running a stock engine it is an unread config value, and adding the composite block means redefining a procedure every other site on that instance renders through — not something to do casually on a shared or staging box.
+
+There is a second front end for exactly this case. It is selected with the ordinary **`xslt_sheet`** parameter that every engine build already has, and it sources the three trees itself:
+
+| | Composite engine | Stock engine |
+|---|---|---|
+| front end | `skin/composite/xslt/PostProcess.xslt` | `skin/composite-doc/xslt/PostProcess.xslt` |
+| trees module | `osdi-trees.xslt` (params from `transform`) | `osdi-trees-doc.xslt` (`document()`) |
+| selected by | `skin_manifest` | `xslt_sheet` |
+| directive expander | `osdi-compose.xslt` | **same file** |
+| page scaffold | `osdi-page.xslt` | **same file** |
+
+Only the tree sourcing differs, so a page composed either way comes out of identical code.
+
+**What makes it possible.** Three Virtuoso XPath facilities, each verified before relying on it: `document('virt://WS.WS.SYS_DAV_RES.RES_FULL_PATH.RES_CONTENT:/DAV/…')` reads a DAV resource; `document('http://host/sparql/?query=…&format=application/sparql-results+xml')` returns a result set — **note the trailing slash**, since `/sparql` issues a 301 and `document()` does not follow redirects; and `document-literal(string, cache_uri)` parses an assembled string into a node-set, which is Virtuoso's stand-in for `exsl:node-set` (that one is absent). Give `document-literal` a **per-page** `cache_uri` or every page after the first is composed from the first page's data.
+
+**Compile the bundle first.** The theme and the template bundle do not vary per request, so `infrastructure-tests/composite/build_compiled.py` writes `compiled/skintheme.xml`, `compiled/skintemplate.xml` and `compiled/datasources.xml` into the bundle at deploy time. Queries are stored **already percent-encoded**, with `__SLUG__` and `__URLENC__` left as substitution tokens — XSLT 1.0 has no URL-encode function, and both tokens survive encoding untouched so the stylesheet only ever splices URL-safe text into URL-safe text. `--widget-base` retargets an absolute asset path that differs per host.
+
+**Each site needs a shim.** The five deployment bindings — `skinbase`, `sparqlbase`, `sitegraphenc`, `sitebase`, `regions_off` — must be `xsl:variable` in the **principal** stylesheet, which then `xsl:include`s the front end. That is forced by the two non-conformances in the Gotchas below, not a style choice.
+
+**Cost.** One HTTP round trip to the SPARQL endpoint per declared data source per render. With the page cache broken (below), that is per *request*: a 22-source skin measured ~1.5s against ~0.15s for a legacy page on the same instance.
+
+---
+
 ## Gotchas
 
 Each of these cost real debugging time; all are fixed in the shipped engine code, but they shape how a skin must be authored and verified.
@@ -129,6 +155,19 @@ Each of these cost real debugging time; all are fixed in the shipped engine code
 **Data-island placeholders.** With no statements about a page, `inline_html5md` and `inline_rdfa` emit visible placeholder prose ("This document is empty and basically useless…"). Set both to `0` unless the site graph actually describes its pages.
 
 **`debug_level`.** Leave it set and a debug trailer renders as visible text on every page. Unset it before declaring done.
+
+**Virtuoso's XSLT is not conformant on two points that matter for module layout.** Both were found by probe, not by reading:
+
+- **Import precedence does not apply to `xsl:param`.** Where the spec says an importing stylesheet's binding wins, Virtuoso keeps the *imported* one. `xsl:variable` does override correctly.
+- **A variable reference resolves against its own module's bindings**, not the highest-precedence binding in the stylesheet. So a variable defined in an imported module and *referenced* there keeps seeing its own definition even when an importing stylesheet rebinds the name.
+
+Together these mean **you cannot override a composer's variable from above by importing it.** `xsl:include` — a flat textual merge — does work, and works through a chain: a name bound in the principal stylesheet is visible to a module two levels down. That is why tree sourcing is a swappable *included* module (`osdi-trees.xslt` / `osdi-trees-doc.xslt`) rather than something an importing front end overrides.
+
+**Entity references in attribute values are expanded twice.** `string-length('&amp;amp;')` returns **1**, not 5 — the parser resolves `&amp;amp;` to `&amp;` and then to `&`. Any escape written as a literal silently becomes a no-op, and a tree assembled from those values fails to parse on the first value containing an ampersand (`Entity reference expected after '&' character`). Build the replacement by concatenation instead — `concat($AMP, 'amp;')` where `$AMP` is `'&amp;'` — because the plain-text tail has no entity syntax for the second expansion to consume.
+
+**`staleall()` only invalidates the skins the engine knows about.** A stylesheet outside the registered skin collections stays compiled in Virtuoso's cache across edits, so a fix appears to have no effect. Call `xslt_stale('virt://…:/DAV/…/your.xslt')` on each file by name, then `config_flush_cache()`.
+
+**The engine's page cache never hits for a WebDAV-backed page.** `incleng..cache.mtime` is timezoneless (`curutcdatetime()`) while `WS.WS.SYS_DAV_RES.RES_MOD_TIME` is timezoned, so the hit predicate `mtime > modtime` in `cached_transform` raises `DT013: Mixed timezoned and timezoneless arguments` — which the enclosing `declare exit handler for sqlstate '*'` swallows into a cache miss. Every such page re-renders on every request; `use_count` stays `0` for every site. Reproduced on two independent 8.3 instances. Legacy skins hide it because they are cheap to render, but a skin doing per-request work pays it in full on every hit. **Do not benchmark a skin assuming the cache is helping you.**
 
 ---
 
