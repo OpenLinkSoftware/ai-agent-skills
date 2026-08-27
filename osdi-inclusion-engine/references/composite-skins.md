@@ -72,6 +72,14 @@ Directives are attributes in no namespace, so a template stays a valid, browser-
 
 **Template files must be well-formed XML.** Named HTML entities are not: use numeric (`&#8212;`, not `&mdash;`). Each file may carry a leading comment; the loader strips it.
 
+**Directives work in WebDAV-authored pages too, not just skin templates.** A page injected with `data-osdi-content` can mark the places where live data belongs, and everything inside such an element is treated as template markup — so a repeat row uses `data-osdi-text` exactly as it would in the bundle. This is what lets an author keep a hand-written page — its form markup, its page-scoped CSS, its bespoke layout — without either rewriting it as a skin template or restating data the graph already holds.
+
+`data-osdi-content` is the one directive not honoured inside authored content: it means "insert the authored body", and acting on it while already copying that body recurses forever.
+
+Use it to kill duplication rather than to smuggle layout into content. The case that motivated it: a contact page restating the office addresses, phone and fax numbers that `site.ttl` already held as `schema:Place` entities and the footer already rendered from — the company's own details with two sources of truth, in two languages, changed twice or not at all.
+
+Judgement about *what* to move: an address, a price, a phone number, a product list is content and belongs in the graph. A form is UI structure — modelling eight inputs as triples buys nothing, and its page-scoped CSS would have to move into the skin, which is a CSS change and so defeats the reason for moving it.
+
 ---
 
 ## Config Parameters
@@ -108,6 +116,17 @@ The manifest is parsed into `urn:osdi:skin:{manifest-path}`, one graph per manif
 7. **`staleall()`**, not just `config_flush_cache()` — the composer is XSLT and Virtuoso caches compiled XSLT.
 8. **Verify in a browser**, not only by diffing markup. See the gotchas below for what only a browser load catches.
 
+## Verify Against a Static Control
+
+Deploy the hand-written source as plain static files at its own endpoint — no engine, no skin, no SPARQL — and compare the rendered site against it page for page. It costs one collection and one vdir, and it is the only check that answers "does the RDF-driven site actually reproduce the design", as opposed to "does it render without erroring".
+
+Two rules make the comparison mean something:
+
+- **Keep the control current.** If the design source has been revised since it was packaged, run the control through the same copy transformations the generated site gets, reusing the same function rather than restating it. A stale control turns every editorial change into a false positive on the most-looked-at page, which is exactly where a real regression would hide.
+- **Expect a short, enumerated difference list, and know each entry.** Regions the design never had (a chat widget added as a composite region) and whitespace between elements the composer emits adjacently will differ legitimately. Anything else is a finding.
+
+Compare *rendered visible text and link targets*, not bytes — and beware your own comparison script. A crude tag-to-space substitution reports `<span>City</span>, <span>Region</span>` as `City , Region` and invents a difference that does not exist on the page.
+
 ---
 
 ## Deploying to an Engine Without Composite Support
@@ -130,7 +149,9 @@ Only the tree sourcing differs, so a page composed either way comes out of ident
 
 **Compile the bundle first.** The theme and the template bundle do not vary per request, so `infrastructure-tests/composite/build_compiled.py` writes `compiled/skintheme.xml`, `compiled/skintemplate.xml` and `compiled/datasources.xml` into the bundle at deploy time. Queries are stored **already percent-encoded**, with `__SLUG__` and `__URLENC__` left as substitution tokens — XSLT 1.0 has no URL-encode function, and both tokens survive encoding untouched so the stylesheet only ever splices URL-safe text into URL-safe text. `--widget-base` retargets an absolute asset path that differs per host.
 
-**Each site needs a shim.** The five deployment bindings — `skinbase`, `sparqlbase`, `sitegraphenc`, `sitebase`, `regions_off` — must be `xsl:variable` in the **principal** stylesheet, which then `xsl:include`s the front end. That is forced by the two non-conformances in the Gotchas below, not a style choice.
+**Each site needs a shim.** The five deployment bindings — `skinbase`, `sparqlbase`, `datasetparams`, `sitebase`, `regions_off` — must be `xsl:variable` in the **principal** stylesheet, which then `xsl:include`s the front end. That is forced by the two non-conformances in the Gotchas below, not a style choice.
+
+`datasetparams` is the **already-encoded dataset clause**, not a graph IRI: `default-graph-uri=<encoded>` for a site whose triples are in one graph, or that parameter repeated once per graph for a site whose RDF is one LDP resource per document.
 
 **Cost.** One HTTP round trip to the SPARQL endpoint per declared data source per render. With the page cache broken (below), that is per *request*: a 22-source skin measured ~1.5s against ~0.15s for a legacy page on the same instance.
 
