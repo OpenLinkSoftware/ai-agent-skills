@@ -114,6 +114,8 @@ The manifest is parsed into `urn:osdi:skin:{manifest-path}`, one graph per manif
 
 Each of these cost real debugging time; all are fixed in the shipped engine code, but they shape how a skin must be authored and verified.
 
+**Virtuoso rejects `EXISTS` inside `BIND`.** rdflib accepts it, so a data source developed against the offline harness can fail outright on the server with `syntax error at EXISTS` — and because the whole data source fails, the page 500s rather than degrading. `FILTER NOT EXISTS` is best avoided for the same reason. Compute structural facts where they are already known (at build time, or when the graph is authored) and record them as triples: a `topLevel`, `hasChildren` or `coversSlug` flag costs one triple and removes the portability question entirely. This is the single most likely way a working offline skin breaks when deployed.
+
 **Serialisation.** The composer emits `method="xml"` and guarantees no non-void element is ever emitted empty. It has to: an XML serialiser writes `<script src="x"/>`, which every browser reads as an unterminated script that swallows the rest of the document — and `<div/>`, `<a/>`, `<span/>` are mis-parsed too. `method="xhtml"` is *not* a portable fix: libxslt builds vary in accepting it, and a rejected output method **silently falls back to xml while still exiting 0**. Never treat a generator's exit code as proof it rendered correctly.
 
 **Entities in RDF literals.** A literal reaches the page either escaped (`xsl:value-of`, for `<title>` and `meta content`) or raw (`disable-output-escaping`, for markup-bearing fields). `&amp;` survives only the second path and appears verbatim in the first. **Store the real character** — it is correct on both paths.
@@ -129,6 +131,16 @@ Each of these cost real debugging time; all are fixed in the shipped engine code
 **`debug_level`.** Leave it set and a debug trailer renders as visible text on every page. Unset it before declaring done.
 
 ---
+
+## Interaction with `?skin=`
+
+`?skin=<name>` is a per-impression override, resolved before any config. Precedence, highest first:
+
+1. **`?skin=` naming an opl-skins bundle with `xslt/PostProcess.xslt`** — an explicit *legacy* skin override wins even on a composite site. Previewing another skin on a page is the point of the parameter, and it would be useless if composite config shadowed it.
+2. **`?skin=` naming a bundle with `skin.ttl`** — the same override, for a composite skin.
+3. **the configured `skin_manifest`** for that URL / site / global scope.
+
+So a composite site stays previewable under any legacy skin, and a composite skin can be previewed on a site that is not yet configured for it. Note the request URL reaches `incleng..transform` with `skin=` still on it; the parameter is stripped only for content and config resolution, so the page cache keys on it and previews do not poison the cached page.
 
 ## When to Use Which
 

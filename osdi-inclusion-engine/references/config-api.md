@@ -48,6 +48,15 @@ incleng..config_propagate_index_vsp(user, password)   -- defaults 'dav'
 incleng..config_migrate(in dangerous integer := 0)
 ```
 
+### `?skin=` — the per-impression override
+
+Not a config parameter, but it resolves ahead of every one of them. `?skin=<name>` selects a bundle under `/DAV/VAD/opl-skins/`: a legacy skin if the directory has `xslt/PostProcess.xslt`, a composite one if it has `skin.ttl`. Either **overrides `skin_manifest`**, so a composite site remains previewable under any other skin. See `references/composite-skins.md`.
+
+```sql
+incleng..skin_param_to_xslt(in skin varchar)      -- -> legacy PostProcess.xslt, or null
+incleng..skin_param_to_manifest(in skin varchar)  -- -> composite skin.ttl, or null
+```
+
 ## Composite Skin Functions
 
 Defined in `inclusion-engine/common/skin-api.sql`. See `references/composite-skins.md` for the manifest vocabulary these read.
