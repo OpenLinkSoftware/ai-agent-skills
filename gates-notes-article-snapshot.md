@@ -1,0 +1,1501 @@
+- generic [active] [ref=e2]:
+  - main [ref=e8]:
+    - generic:
+      - generic [ref=e9]:
+        - generic [ref=e10] [cursor=pointer]:
+          - link:
+            - /url: https://www.gatesnotes.com/
+          - img "siteHeaderMenu" [ref=e12]
+        - link [ref=e14] [cursor=pointer]:
+          - /url: https://www.gatesnotes.com/
+          - img "Logo" [ref=e16]
+        - link [ref=e17] [cursor=pointer]:
+          - /url: https://www.gatesnotes.com/search
+          - img "siteHeaderRight" [ref=e20]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - link "Explore work":
+                  - /url: https://www.gatesnotes.com/work
+                - generic:
+                  - link "Save lives":
+                    - /url: https://www.gatesnotes.com/work/save-lives
+                    - paragraph: Save lives
+                  - link "Accelerate energy innovation":
+                    - /url: https://www.gatesnotes.com/work/accelerate-energy-innovation
+                    - paragraph: Accelerate energy innovation
+                  - link "Make AI work for everyone":
+                    - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+                    - paragraph: Make AI work for everyone
+                  - link "Provide quality education":
+                    - /url: https://www.gatesnotes.com/work/provide-quality-education
+                    - paragraph: Provide quality education
+                  - link "Cure Alzheimer’s":
+                    - /url: https://www.gatesnotes.com/work/cure-alzheimer-s
+                    - paragraph: Cure Alzheimer’s
+                  - generic:
+                    - link "Visit the Gates Foundation icon link arrow":
+                      - /url: https://www.gatesfoundation.org/
+                      - generic:
+                        - text: Visit the Gates Foundation
+                        - img "icon link arrow"
+                - generic: Sign up to get my newsletter
+                - link:
+                  - /url: https://www.gatesnotes.com/account
+        - generic:
+          - generic:
+            - generic:
+              - img "Bill"
+            - generic:
+              - generic:
+                - link "Meet Bill":
+                  - /url: https://www.gatesnotes.com/meet-bill
+                - generic:
+                  - link "Source Code":
+                    - /url: https://www.gatesnotes.com/meet-bill/source-code
+                    - paragraph: Source Code
+                  - link "My philanthropy":
+                    - /url: https://www.gatesnotes.com/meet-bill/my-philanthropy
+                    - paragraph: My philanthropy
+                  - link "Microsoft":
+                    - /url: https://www.gatesnotes.com/meet-bill/microsoft
+                    - paragraph: Microsoft
+                  - link "Family and friends":
+                    - /url: https://www.gatesnotes.com/meet-bill/family-and-friends
+                    - paragraph: Family and friends
+                  - link "Games I love":
+                    - /url: https://www.gatesnotes.com/meet-bill/games-i-love
+                    - paragraph: Games I love
+                  - link "My podcasts":
+                    - /url: https://www.gatesnotes.com/meet-bill/my-podcasts
+                    - paragraph: My podcasts
+                - generic: Sign up to get my newsletter
+                - link:
+                  - /url: https://www.gatesnotes.com/account
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - link "Explore books":
+                  - /url: https://www.gatesnotes.com/books
+                - generic:
+                  - link "All book reviews":
+                    - /url: https://www.gatesnotes.com/books/all-book-reviews
+                    - paragraph: All book reviews
+                  - link "Economics":
+                    - /url: https://www.gatesnotes.com/books/economics
+                    - paragraph: Economics
+                  - link "Education":
+                    - /url: https://www.gatesnotes.com/books/education
+                    - paragraph: Education
+                  - link "Fiction":
+                    - /url: https://www.gatesnotes.com/books/fiction
+                    - paragraph: Fiction
+                  - link "History":
+                    - /url: https://www.gatesnotes.com/books/history
+                    - paragraph: History
+                  - link "People":
+                    - /url: https://www.gatesnotes.com/books/people
+                    - paragraph: People
+                  - link "Science":
+                    - /url: https://www.gatesnotes.com/books/science
+                    - paragraph: Science
+                  - link "Science fiction":
+                    - /url: https://www.gatesnotes.com/books/science-fiction
+                    - paragraph: Science fiction
+                  - link "Society":
+                    - /url: https://www.gatesnotes.com/books/society
+                    - paragraph: Society
+                  - link "Movies and TV":
+                    - /url: https://www.gatesnotes.com/books/movies-and-tv
+                    - paragraph: Movies and TV
+                  - link "Reading lists":
+                    - /url: https://www.gatesnotes.com/books/reading-lists
+                    - paragraph: Reading lists
+                  - link "Books I wrote":
+                    - /url: https://www.gatesnotes.com/books/books-i-wrote
+                    - paragraph: Books I wrote
+                - generic: Sign up to get my newsletter
+                - link:
+                  - /url: https://www.gatesnotes.com/account
+    - generic [ref=e21]:
+      - generic [ref=e24]:
+        - generic [ref=e27]:
+          - paragraph [ref=e29]: An epochal shift
+          - heading "The turbulent AI era is here. The choices we make now are critical." [level=1] [ref=e30]
+          - paragraph [ref=e32]: We need a plan to ensure that the good outweighs the bad.
+          - generic [ref=e33]:
+            - img "Bill profile picture" [ref=e35]
+            - generic [ref=e36]:
+              - generic [ref=e37]:
+                - generic [ref=e38]: By Bill Gates
+                - generic [ref=e39]: published 12 hours ago
+              - link "Make AI work for everyone" [ref=e42] [cursor=pointer]:
+                - /url: https://www.gatesnotes.com//make-ai-work-for-everyone
+        - generic [ref=e45]:
+          - paragraph [ref=e48]: During my entire life I’ve only had two jobs. In the first one, I played a role in developing software to empower people through my work at Microsoft.
+          - paragraph [ref=e49]: In my second one, which I started full time in 2008, I am giving back the wealth I made at Microsoft with the goal of making the world a healthier, better educated, and more equitable place. This is the job I will have for the rest of my life.
+          - paragraph [ref=e50]: Both of these experiences inform my perspective on artificial intelligence. When I first learned about computers at age 13 I was fascinated by the idea of making them more intelligent and able to perform things that, at the time, only humans could do. Although the term “AI” was used from around the time I was born, the technology has only made significant progress in the last decade. It is now incredibly capable and it is continuing to improve at a mind-blowing rate. AI for the first time can replace and even exceed human cognition.
+          - paragraph [ref=e52]: In terms of equity, AI will either be the greatest equalizer ever invented, or the worst source of injustice. The challenge is monumental. Even under the best circumstances, the transition to this new AI era will be one of the most turbulent times in human history. How will we use this technology to make the world a fairer place and keep it from widening the divide between rich and poor? How will we protect the people who are most vulnerable to the harms caused by artificial intelligence, including those who lose their livelihoods and the sense that they are in control of their future?
+          - paragraph [ref=e53]: I believe that answering these questions and acting on the answers should be the world’s top priority. If the world takes the right steps AI will be a force for good and leave everyone better off.
+          - paragraph [ref=e55]: Unfortunately, right now we are not preparing for it. I don’t see evidence that leaders, experts, and communities are confronting the challenges adequately. There is no plan to ease the entry into the AI era.
+          - paragraph [ref=e56]: Part of the reason for this is that many commentators underestimate the extent of the impact AI will have. I think there are a few reasons why.
+          - paragraph [ref=e57]:
+            - text: One is the fact that AI models still make mistakes. It is hard to envision any of them replacing human cognition when, not long ago, they couldn’t solve a simple Sudoku puzzle or figure out how many R’s are in the word
+            - emphasis [ref=e58]: strawberry
+            - text: .
+          - paragraph [ref=e59]: But the reliability problem is being fixed quickly, as researchers create models that can check their own work and improve themselves. Soon they will be substantially better than humans at many tasks.
+          - paragraph [ref=e60]: Another reason people underestimate AI is that analogies to the effects of past innovations are misleading. We have no experience with a technology that can be adopted quickly or that can think and move like a human. When the PC came along, it took twenty years to significantly change how we worked because the software had to be developed, the price had to come down, and people had to learn how to use the tools and incorporate them into their business processes. AI, on the other hand, runs on the devices we already have, and it uses natural language. We don’t have to adapt to it because it can adapt to us. It can watch the same training video that is used to train human workers and learn from existing data.
+          - paragraph [ref=e61]: I want to acknowledge a potential bias. I have benefited enormously from the technology industry. Although I have diversified my portfolio quite a bit, I still have financial ties to it. I am working with Microsoft and other AI companies in my role as chairman of the Gates Foundation to try and ensure AI is deployed in ways that will truly benefit people around the world.
+          - paragraph [ref=e62]: However, my views on AI are not motivated by the potential to make money for myself. Any profits generated by my investments, including those related to technology, will go to the Gates Foundation to tackle global inequity. Of course, readers will have to decide for themselves whether this clouds my view.
+          - paragraph [ref=e63]
+          - heading "This time really is different." [level=2] [ref=e64]
+          - paragraph [ref=e65]: For as long as I can remember, I’ve wished innovation could happen faster. With AI, my feelings are more complicated.
+          - paragraph [ref=e67]: I wish the world could get the benefits rapidly and delay the problems it will cause as long as possible, but the benefits and problems are arriving at the same time. I believe we need time to prepare for the period of social, political, and economic upheaval we are about to enter. The people who need the most time are the ones who have the least—the accounting worker who’s replaced by a bot or the $20-an-hour worker who loses their job to a $10-an-hour robot.
+          - paragraph [ref=e68]: Many observers say that this technology transition will be like previous ones. They give the example of how jobs in the United States shifted from agriculture to office work. However, that proceeded over several generations and created new jobs where human cognition was required. In this case, the technology can substitute for human cognition.
+          - paragraph [ref=e69]: Because it can see, listen, speak, and reason and will eventually do physical work just as smoothly as any human, it will not just affect one sector. AI will take on work in law, customer service, medicine, software, and manufacturing. It will hit these industries rapidly, over the course of a decade rather than a few generations. There will be some new jobs, but without the right policies there will be far fewer than exist today.
+          - paragraph [ref=e70]: If someone had a credible plan for slowing down AI advances globally, I would likely support it. However, I don’t think that’s going to happen. The geopolitical and economic incentives are pushing too hard to go full speed ahead.
+          - paragraph [ref=e71]: To make sure we maximize the positive effects of this unprecedented technology and minimize the bad so we are better off overall, we need to understand both the benefits and the risks. I’ll start with the risks.
+          - paragraph [ref=e72]
+          - heading "The transition to AI comes with three big risks." [level=2] [ref=e73]
+          - paragraph [ref=e74]: I plan to write about each of these in more detail in the future, so I’ll touch briefly on them for now.
+          - paragraph [ref=e75]:
+            - strong [ref=e76]: Many jobs will disappear forever.
+          - paragraph [ref=e77]:
+            - text: In 1933, during the Great Depression, unemployment in the United States was
+            - link "roughly 25 percent" [ref=e78] [cursor=pointer]:
+              - /url: https://www.dol.gov/general/aboutdol/history/chapter5
+            - text: . It remained in double digits for much of the following decade. It ultimately recovered as demand, investment, and growth returned.
+          - paragraph [ref=e79]: AI may not reach this level, but its impact will not go away with an economic cycle. The jobs at most risk are entry- and mid-level, and the new jobs being created will mostly require skills that take many years to learn.
+          - paragraph [ref=e80]:
+            - text: White-collar jobs are already being hit modestly. After the widespread adoption of generative AI, employment
+            - link "fell significantly" [ref=e81] [cursor=pointer]:
+              - /url: https://digitaleconomy.stanford.edu/app/uploads/2025/11/CanariesintheCoalMine_Nov25.pdf
+            - text: among young workers in jobs that are especially vulnerable to replacement, but not among their older colleagues.
+          - paragraph [ref=e82]: "I think this trend will continue, but it will not be confined to a handful of industries or occupations. Jobs in sales and customer support (online and over the phone), software engineering, and paralegal work may be among the first affected, but the disruption will reach much further as AI takes on tasks that today still require trained workers: things like assessing loan applications, doing data analysis, and even triaging patients. A few areas like software engineering will generate new demand as the costs go down, so the net job loss in those areas will be less than in others as long as some tasks, such as design, are better done by humans."
+          - paragraph [ref=e83]: Blue-collar jobs will be affected as well. Although robots are not as far along as AI, eventually their cost will be dramatically lower too. Many Americans I talk to don’t realize how fast dexterous robots are advancing because much of the advanced work is being done in other countries, primarily China. Or they may be confused by those videos of robots dancing badly that have been going viral lately. I think “smart” robots will begin to compete with people on some physical tasks—in the construction and hospitality industries, for example—by the end of the decade.
+          - paragraph [ref=e84]: Robots and AI combined can create a vicious cycle. After one company adopts them and uses the savings to lower its prices, its competitors will feel immense pressure to do the same. If existing companies don’t adopt them, then start-ups will. Many people will shift to other jobs, but the turmoil of losing work, getting retrained, and finding other work will be significant. Market forces will make adoption go faster and faster and, unless we intervene, there will be fewer good jobs available and the benefits will accrue to a small group.
+          - paragraph [ref=e85]: I’m especially worried about young people, who will enter a workforce with fewer entry-level openings. They understand the challenge because they are the most active users of AI and see both the capabilities and the rate of improvement. It’s no wonder that so many of them feel negatively about AI.
+          - paragraph [ref=e86]: The biggest shift for workers will happen when AI provides nearly error-free work. At that point, it will be able to function on its own without a human checking in on it, and companies will have every economic incentive to let it.
+          - paragraph [ref=e87]: This will lead to a fundamental change in how we think about work, income, and economic security. How will an economy that’s been built around employment operate if fewer people are working, or if many people are working fewer hours?
+          - paragraph [ref=e88]: In a capitalist society, employment is the way most people get the money they need to pay for the basics of life as well as being a key source of dignity and social connection.
+          - paragraph [ref=e89]: When a community has high unemployment, the ripple effects can be pervasive. Research suggests that in some parts of the United States, factory closures contribute to a rise in deaths from opioid overdoses. Now imagine similar pressures on both white-collar and blue-collar workers nationwide.
+          - paragraph [ref=e90]: We have to think now about how to reduce job losses so that everyone can share in the prosperity that AI creates. Waiting until people are already displaced or underemployed will be too late. AI is a structural challenge to the way our economy is organized, and it requires thinking and action now.
+          - paragraph [ref=e91]:
+            - strong [ref=e92]: AI will empower people (and perhaps AIs) to do more harm.
+          - paragraph [ref=e93]: "Long before AI entered the mainstream, there was information online about how to create weapons like bombs, bioweapons, even computer viruses. AI will make it much easier to not only get this information but act on it. Even criminals with very limited skills will be able to target victims at every scale: individuals, companies, and governments."
+          - paragraph [ref=e95]: AI-enabled fraud, disinformation, deepfakes, and surveillance are the harms that many people will feel most keenly in their everyday lives.
+          - paragraph [ref=e96]: AI capabilities are starting to be used for cyberattacks. The smartest cybersecurity experts I know are scared about the next few years, because the attackers are getting powerful new capabilities faster than the defenders can fix all the weaknesses. After all, the same AI model that can find a flaw in software so a company can fix it can also help a criminal exploit it. The resources needed to make an attack are going down significantly and we haven’t been able to separate those abilities from benign usage.
+          - paragraph [ref=e97]: "Think about the infrastructure that will be vulnerable: hospitals, financial institutions, water systems, power grids, systems for managing government benefits. When these institutions are attacked, it’s the patients, customers, and benefits recipients who stand to lose."
+          - paragraph [ref=e98]: The same goes for bioterrorism. Although AI will lead to lifesaving advances in drugs and vaccines, it will also make it easier to design a deadly new disease. Again, the positive capabilities are hard to separate from the dangerous ones. This is a global problem.
+          - paragraph [ref=e99]: The risks I’ve just mentioned are all about how AI will empower bad actors who have relatively little power now. The same tools will also concentrate power in places where it already exists. Autonomous weapons, for example, will make governments even more capable of using deadly force without a human being part of the decision. Monitoring and manipulating public opinion will be easier and cheaper, and more effective too.
+          - paragraph [ref=e100]: Eventually, the power to use AI to harm people will not be limited to people or institutions. AI systems themselves already occasionally act in ways their designers didn’t intend. The technology is improving faster than anyone expected and in surprising ways, and as the models become more powerful, they could begin to act against our interests and we could lose control. I’ll have more to say about this in the future.
+          - paragraph [ref=e102]:
+            - strong [ref=e103]: AI could stunt our kids’ development and replace human relationships.
+          - paragraph [ref=e104]: When I was growing up in Seattle, I didn’t have that many friends aside from a few other boys who were like me. It took hard work and a lot of help from my mom to develop my social skills so I could relate to different kinds of people. I still draw on those lessons today at the age of 70.
+          - paragraph [ref=e105]: I doubt I would have put in the same work if I had had an AI companion back then. They talk to you in ways you’re already comfortable with. They don’t push you outside your comfort zone. They are always available and never get mad at you. This gives them the potential to become highly addictive and to rob us of the lessons we learn from connecting with other people.
+          - paragraph [ref=e106]:
+            - text: The body of evidence on this subject is still small and a bit mixed, but there are signs that we should be very concerned. For example, in one
+            - link "study" [ref=e107] [cursor=pointer]:
+              - /url: https://arxiv.org/abs/2506.12605
+            - text: of more than 1,100 people who use AI companions, researchers at Stanford and Carnegie Mellon found that those with smaller social networks were the most likely to turn to a chatbot for companionship. And the heavier and more emotionally personal that use became, the worse they felt.
+          - paragraph [ref=e108]:
+            - text: Young people could be affected for their entire lives. In his book
+            - emphasis [ref=e109]: The Anxious Generation
+            - text: ", Jonathan Haidt makes an observation about the effect of social media that is even more true for AI: “Like young trees exposed to wind, children who are routinely exposed to small risks grow up to become adults who can handle much larger risks without panicking. Conversely, children who are raised in a protected greenhouse sometimes become incapacitated by anxiety before they reach maturity.”"
+          - paragraph [ref=e110]: An AI companion designed to never upset you is a big, protected greenhouse.
+          - paragraph [ref=e111]: We are only beginning to understand the dangers that the internet—especially social media—can pose to young people’s development. We’re seeing compulsive use, disrupted sleep, cyberbullying, and exposure to harmful content. AI could magnify many of these risks by making them more persuasive and difficult to escape, and we should not wait another generation to start taking them seriously. Countries including Australia, the United Kingdom, and Norway are adopting protections for children online. China has gone the furthest. Its rules restrict AI companion apps broadly, bar designs that foster emotional dependence, and ban virtual relatives and romantic partners for minors.
+          - paragraph [ref=e113]:
+            - text: I’m also worried about AI’s impact on education. Ironically, the same tool that will allow people to learn more than ever could also lead to many people learning less. One
+            - link "preliminary survey" [ref=e114] [cursor=pointer]:
+              - /url: https://www.mdpi.com/2075-4698/15/1/6
+            - text: suggested that heavier AI use was associated with less critical thinking. The effect was stronger for younger people.
+          - paragraph [ref=e115]: This would be the worst possible time for humans to lose their critical thinking skills. In an era of deepfakes and misinformation that can be tailored to you individually, the ability to tell what is true from what is not becomes an essential life skill.
+          - paragraph [ref=e116]: It’s unclear where to draw the line on these psychosocial problems. In some cases, AI may help people understand how to do better in their human relationships. It may be the only contact with the outside world for isolated elderly people and people with limited mobility, and it will be better than nothing. Wherever we end up drawing the line, it should be our decision, made intentionally.
+          - paragraph [ref=e117]
+          - heading "The good things we do with AI could be very, very good." [level=2] [ref=e118]
+          - paragraph [ref=e119]: It’s often said that we overestimate how much will change in the short term and underestimate how much will change in the long term.
+          - paragraph [ref=e120]: With AI, I see something different going on. Some people see only the upside of AI and do not focus enough on the negatives. Others make the opposite mistake, which is to focus exclusively on the dangers—which are real—at the cost of missing the potential benefits.
+          - paragraph [ref=e121]: "We need both: deep concern about the AI harms we need to minimize, and grounded optimism about the positives if we maximize them for everyone."
+          - paragraph [ref=e122]: Maximizing the benefits is just as important as minimizing the harms. If people see how AI makes their lives easier, it will help build the public trust that is necessary for managing the harder parts of the transition. If the first thing AI does in most people’s lives is take away their job, those who are already skeptical about it will outright reject it. This will make it harder to ever deliver on the benefits and it is another reason why governments, industries including the medical industry, and AI companies should be working together now.
+          - paragraph [ref=e123]: "With its ability to synthesize knowledge from every scientific field, AI can accelerate innovation in the world’s toughest technical challenges: providing reliable clean energy for everyone, combating climate change, growing enough food, eradicating diseases, and more. Researchers working on cancer treatments or nuclear energy can use AI to search through massive amounts of scientific literature. It can help them identify patterns that a human might miss and decide which experiments offer the most promise. When intelligence is no longer the limiting factor that it is today, smaller companies will be able to compete with organizations that have far larger research budgets. R&D and innovation will be supercharged."
+          - paragraph [ref=e124]: Healthcare is one area where AI can help solve real-world problems. Many small American hospitals lack on-site specialists who can quickly diagnose a patient during a life-threatening emergency. In those places, AI could make sure a heart attack is caught in time and a family avoids the crushing expense of a medical emergency. Viz.ai is one example. It analyzes scans to detect strokes and other emergencies and helps medical teams coordinate their patients’ care. It is being used in nearly 2,000 U.S. hospitals.
+          - paragraph [ref=e125]: AI will also help primary-care doctors make better diagnoses and keep in touch with their patients when they’re not in the clinic. It will help patients understand test results and complicated schedules for taking their medicine.
+          - paragraph [ref=e127]: I surprise a lot of people when I tell them that a second area—agriculture—is where I see the fastest impact of AI in low-income countries. In most low-income countries, farmers don’t get reliable weather forecasts or advice on what seeds to plant, how to protect their crops and livestock from disease, or how to improve their soil. With population growth in these countries and the challenges of climate change, these farmers need more help than ever. Using AI, low-income farmers will soon be able to get better advice about all these things than even the richest farmers get today and increase their output substantially.
+          - paragraph [ref=e128]: Government services are a third area where AI can make people’s lives easier. In the United States, I’ve met families who, understandably, were overwhelmed by the process of applying for health insurance, student aid, or food assistance. Faced with a huge stack of complicated bureaucratic forms, many felt like giving up. AI can streamline things dramatically so they get the help they need faster and the government can operate more efficiently. Governments can make the citizen’s experience far better, starting with those who need its safety net services the most.
+          - paragraph [ref=e129]: Despite my concerns about its impact on our mental health, I think AI can also help a lot there. Most communities have too few counselors, psychiatrists, and addiction specialists. With the right privacy safeguards in place, AI tools could help people recognize warning signs. Then, if needed, they can offer evidence-based coping strategies and team up with a human to provide more responsive treatment.
+          - paragraph [ref=e130]: AI can be a boon for education as well, despite the concerns I mentioned earlier. It can free teachers up to spend more time working with students one on one or in small groups and give them a clearer view of where the whole class is struggling. For students, an AI tool that preserves what researchers call “productive struggle”—the cognitive work that builds understanding—can strengthen learning. When a student first encounters a new idea, the AI gives substantive explanations and offers both questions and answers. Later, when it’s checking their comprehension, it holds the answer back and helps them arrive at it on their own.
+          - paragraph [ref=e131]: Taken together, the advances in all these areas could make everyday life easier, more affordable, and less constrained by a person’s income or connections.
+          - paragraph [ref=e132]: AI could give individuals and small businesses access to capabilities that today require expensive professional help or large staffs, while making products and services better and cheaper. It could help people with disabilities live more independently and enable workers and entrepreneurs with good ideas to accomplish far more than they can today.
+          - paragraph [ref=e133]: "Most importantly, it could give people back some of the time and attention now consumed by paperwork, bureaucracy, searching for reliable information, and tasks they cannot afford to pay someone else to handle. These benefits may seem modest, but multiplied across millions of lives, they would be profound: more people getting good advice when they need it and having greater freedom to focus on the lives they want to build."
+          - paragraph [ref=e135]:
+            - text: In all these areas, the operative word is “can”—AI
+            - emphasis [ref=e136]: can
+            - text: improve life for people at every income level. But it won’t do that automatically. As with any new technology, we have to be deliberate about ensuring that it benefits everyone and not just a wealthy few. This will require governments and philanthropy to play a strong role so that less wealthy citizens and low-income countries are full beneficiaries.
+          - paragraph [ref=e137]: The Gates Foundation has 19 years left of the 20 years in which it will spend its remaining $200 billion. AI will help it achieve its ambitious goals by both accelerating the discovery of vaccines and medicines for HIV, TB, malaria, and malnutrition and helping the healthcare workforce and patients know how to use those tools. The foundation’s goals include cutting the number of children who die every year in half again, as was done from 2000 to 2024. All of our work, not just health but also agriculture and education, will take full advantage of AI.
+          - paragraph [ref=e138]: I will write much more about these efforts next month in the foundation’s annual Goalkeepers report—including our focus on making sure that AI models are available in the languages spoken by people in all the countries where we support work, and not just the ones that are common in rich and middle-income countries. Many of the leading AI companies, including OpenAI, Anthropic, Google, and Microsoft, are partnering with the foundation on all of these initiatives, which is making a big difference.
+          - paragraph [ref=e139]
+          - heading "The world needs a plan." [level=2] [ref=e140]
+          - paragraph [ref=e141]: It is great that some AI companies are proposing solutions to challenges raised by their own technology, but we should not expect them to lead the charge. Some of the issues are outside their area of expertise, and in a democratic society it’s not their role to decide these things.
+          - paragraph [ref=e142]: Instead, solutions should be developed through a public democratic process that includes elected officials, policymakers, educators, health workers, local officials, and community leaders. Millions of people will have their lives disrupted, and we’ll need a stronger, more flexible social safety net to help them manage the transition. Local communities are already raising concerns about the energy and water needed for data centers. Without solutions, some groups will push for stopping AI development and deployment altogether.
+          - paragraph [ref=e143]:
+            - text: The solutions should be shaped by our answers to the profound questions raised by AI, including how we preserve our humanity in a time when machines can out-think us. As people who spend their lives thinking about what it means to be human, religious leaders can play a key role in this. I was fascinated by Pope Leo XIV’s encyclical on AI,
+            - link "“On Safeguarding the Human Person in the Time of Artificial Intelligence.”" [ref=e144] [cursor=pointer]:
+              - /url: https://www.vatican.va/content/leo-xiv/en/encyclicals/documents/20260515-magnifica-humanitas.html
+            - text: It lays a strong foundation for the work that needs to be done.
+          - paragraph [ref=e145]: In the coming months, I will share more ideas for making sure that AI’s benefits outweigh the harm it causes. Here are three to start, beginning with what I think is the most important one.
+          - paragraph [ref=e146]
+          - heading "Build a new system for managing the transition." [level=2] [ref=e147]
+          - paragraph [ref=e148]: "The highest priority is a monumental task: creating a domestic and international framework for dealing with AI."
+          - paragraph [ref=e149]: None of our current institutions were designed to handle a technology that spreads so fast and touches so many parts of our lives. So we’ll need to make new ones.
+          - paragraph [ref=e150]: It’s hard to overstate what an enormous undertaking this will be. After the attacks of 9/11, the U.S. government went through its biggest reorganization since World War II for the purpose of improving just one function, national security.
+          - paragraph [ref=e151]: AI will require much, much more. It will affect national security as well as employment, education, taxation, energy, elections, air and water, public health, the financial system, law enforcement, transportation, public lands, and IT systems.
+          - paragraph [ref=e152]: These sectors overlap in ways our existing bureaucracy is not designed to manage. A labor department may understand workforce disruption but not security risk. A business regulator may understand market concentration but not AI’s effects on children and teenagers. Left to themselves, institutions will see only one part of the system, while the consequences of AI will ripple across the entire system.
+          - paragraph [ref=e153]: At the national level, countries will need bodies that can set priorities across government agencies. The goal will be to make sure that every risk is accounted for. Otherwise, an AI-enabled attack might succeed because no one thought it was their job to stop it.
+          - paragraph [ref=e154]: But even a country that gets its own house in order will still be exposed to risks that cross borders. This is why an international organization will need to be built in parallel.
+          - paragraph [ref=e155]: It will be unlike any other institution we have ever created, though it can follow the model of some existing systems. There’s an inspections regime for nuclear weapons, regulations for international aviation, and agreements that protect the ozone layer. A new global organization for AI will need elements of all three and more.
+          - paragraph [ref=e156]: It is fair to wonder whether the world’s institutions are up to the task of designing and implementing this new architecture. Government moves slowly when it moves at all, and polarization within and between countries makes it harder than ever to get things done. Some cooperation between the U.S. and China will be required.
+          - paragraph [ref=e157]: We do not have the luxury of moving slowly. The place to start is with a process for building the right institutions before the disruption forces governments into crisis mode. National leaders should convene economists, technologists, labor experts, business leaders, and workers themselves regularly to identify where existing institutions are failing and what new authorities may be needed. Countries will need to learn from each other.
+          - paragraph [ref=e158]: And the countries that host the leading AI developers and control critical parts of the supply chain should begin meeting now to set up shared norms, before competitive pressure makes it harder for them to cooperate.
+          - paragraph [ref=e159]: Building the framework I’m talking about will take years, which is why we need to start now.
+          - paragraph [ref=e160]
+          - heading "Set aside some jobs for humans." [level=2] [ref=e161]
+          - paragraph [ref=e162]: My dad died of Alzheimer’s in 2020. In the later stages of his illness, he was cared for day and night by paid caregivers who understood him even when he struggled to express himself. He couldn’t always tell them when he was hungry, but they always knew.
+          - paragraph [ref=e163]: My family and I will always be grateful to that amazing group of professionals. Something in the care they gave my dad was irreplaceably human. No robot could or should have done it.
+          - paragraph [ref=e164]: I think about that team when the question of which jobs will disappear and which will remain comes up. I believe that as AI and robots improve, we’ll set aside certain things for only people to do. I’ve started calling this domain Human Reserved, and it’s an example of the kinds of ideas we’ll need to consider.
+          - paragraph [ref=e165]: I like the phrase Human Reserved because it makes me think of nature reserves—places where we could put buildings and roads, but we choose not to because the loss would be too great.
+          - paragraph [ref=e166]: We might set something aside as Human Reserved for economic reasons. For example, we may do it because allowing machines to take over a certain role will displace a large number of people who can’t easily change jobs. You can’t tell a 55-year-old who has worked in construction their whole career that they need to go work at an elder care facility and expect them to find it fulfilling.
+          - paragraph [ref=e167]: Sometimes the decision to make something Human Reserved will be driven by other factors. In health, for example, imagine a robot giving you the awful news that you have an incurable disease. There’s no technical reason why it couldn’t. Yet it shouldn’t.
+          - paragraph [ref=e168]: The Human Reserved domain will evolve over time—for example, we should consider setting aside some jobs now and phasing in AI slowly over years or decades with a commitment to preserve some jobs. Some areas, like education and mental health care, will be a mix, with a human in charge who’s using the technology to extend what they can do.
+          - paragraph [ref=e169]: The lines will also vary from place to place. Some countries might insist on having humans take care of the elderly. But a country like Japan, which has a shrinking workforce and not enough young people to care for the old, may welcome a caregiving robot.
+          - paragraph [ref=e170]:
+            - text: The idea of Human Reserved raises a host of questions I don’t have answers to.
+            - emphasis [ref=e171]: Who gets to decide what we reserve for humans? What criteria should we use? How do you keep companies from cheating and using robots anyway? What happens to international trade when one country lets robots make something and another country doesn’t?
+            - text: These will need to be worked out in public as part of the transition plan.
+          - paragraph [ref=e172]
+          - heading "Rebalance how we tax labor and capital." [level=2] [ref=e173]
+          - paragraph [ref=e174]: As workers are pushed into different jobs, they will need retraining and other support from the social safety net. But they will be working less, which means they will be paying less in income taxes, and government revenues will drop just when the demand for those services is greatest. The funds will have to come from somewhere at a time when budgets are stretched.
+          - paragraph [ref=e175]:
+            - text: I believe we should tax AI
+            - link "tokens" [ref=e176] [cursor=pointer]:
+              - /url: https://blogs.nvidia.com/blog/ai-tokens-explained/
+            - text: and robots. Right now, if you’re an employer and you hire someone, you pay payroll taxes on their earnings. But if you buy a robot, you can usually write it off right away as a business expense. The tax system nudges you toward replacing people with machines.
+          - paragraph [ref=e177]: A tax would slow the rush away from human labor a little and raise money for retraining and a stronger safety net. It would need to be targeted so it does not slow down the purely beneficial uses of AI, like making medicine and education cheaper.
+          - paragraph [ref=e178]: Critics of this idea point out that it’s not optimally efficient in an economic sense, but they’re not considering the broader value of work for individuals and society. And with all the accelerated innovation we will have, we’ll be able to afford a little inefficiency as the price for keeping people employed.
+          - paragraph [ref=e179]: I proposed a robot tax years ago and most of the reaction was that it was a strange idea. I’m still a big proponent of it. Although it is not the whole solution to the threat of AI, it is part of a wise response.
+          - paragraph [ref=e180]: However we raise money for more assistance, it needs to reach the people who need it most, including workers who lose their jobs to AI and robots, people whose hours or wages decline, and communities where the losses are concentrated. We need to start doing that work now so that the systems are ready when the need becomes acute.
+          - paragraph [ref=e181]
+          - heading "What I’m doing." [level=2] [ref=e182]
+          - paragraph [ref=e183]: I will use my voice and time to get AI and equity higher on the public agenda. I will raise the issue with lawmakers every time I visit Washington, D.C., and when I meet with leaders around the world. It will be front and center in my conversations with the people who are developing AI models. I will advocate for the national and international framework I described earlier. The Gates Foundation will help drive beneficial usage, including in Africa. Breakthrough Energy, a company I founded, will use AI to help companies develop cheap clean energy and help solve the climate problem. I will also be writing about AI on a regular basis.
+          - paragraph [ref=e184]: "My message to leaders is:"
+          - paragraph [ref=e185]:
+            - emphasis [ref=e186]: You have a chance to act now
+            - text: ","
+            - emphasis [ref=e187]: before unemployment rises sharply, communities are hurting, and public trust has eroded. You can make sure that your government handles the problem holistically, rather than divvying it up into multiple bureaucratic fiefdoms. You can make sure AI benefits everyone. And you can work with other governments to meet this national and global challenge.
+          - paragraph [ref=e188]: Finally, I will try to widen the circle of people shaping this debate. It should include workers, college students who are about to enter the workforce, community leaders, religious leaders and faith-based organizations, parents, educators, and others whose voices often aren’t heard but who have insight into how the transition will affect people’s lives.
+          - paragraph [ref=e189]: How do we ensure that the benefits of AI reach people who do not already have wealth, influence, and access?
+          - paragraph [ref=e190]: How do we strengthen the social safety net and help workers and communities thrive even when they’re displaced?
+          - paragraph [ref=e191]: How should public institutions adapt?
+          - paragraph [ref=e192]: And how do we preserve our humanity through all of this?
+          - paragraph [ref=e194]: This unprecedented technology demands an unprecedented global response. If we get it right, the payoff for humanity will be phenomenal and the world will be a more equitable place.
+          - paragraph [ref=e195]: I rarely stop thinking about AI—not because I have all the answers, but because the questions it raises are too consequential to leave to a small group of technologists. Leaders across academia, business, government, and civil society all have a role to play in shaping what comes next.
+        - generic [ref=e196]:
+          - generic [ref=e197] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e198] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e205]:
+        - generic [ref=e208]:
+          - paragraph [ref=e210]: The doctor can see you now
+          - heading "Expanding access to health care through AI" [level=1] [ref=e211]
+          - paragraph [ref=e213]: Today’s AI can transform health care systems and support health care workers the world over.
+          - generic [ref=e214]:
+            - img "Bill profile picture" [ref=e216]
+            - generic [ref=e217]:
+              - generic [ref=e218]:
+                - generic [ref=e219]: By Bill Gates
+                - generic [ref=e220]: published on Wednesday, Jan 21, 2026
+              - generic [ref=e221]:
+                - link "Work" [ref=e223] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e227] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e230]:
+          - paragraph [ref=e231]: A core principle underlying the Gates Foundation’s work is closing the innovation gap between rich countries and everyone else. People in poorer parts of the world shouldn’t have to wait decades for new technologies to reach them. That’s why we've worked for 25 years to accelerate access to life-saving medicines and vaccines in low- and middle-income countries.
+          - paragraph [ref=e232]: It's also why, today, the Gates Foundation and OpenAI are announcing an initiative called Horizon 1000 to support several countries in Africa, starting in Rwanda, as they apply AI technology to improve their health care systems.
+          - paragraph [ref=e234]: Over the next few years, we will collaborate with leaders in African countries as they pioneer the deployment of AI in health. Together, the Gates Foundation and OpenAI are committing $50 million in funding, technology, and technical support to back their work. The goal is to reach 1,000 primary healthcare clinics and their surrounding communities by 2028.
+          - heading "Today’s AI can help save lives" [level=2] [ref=e235]
+          - paragraph [ref=e236]:
+            - text: A few years ago, I wrote that the rise of artificial intelligence
+            - link "would mark a technological revolution as far-reaching for humanity" [ref=e237] [cursor=pointer]:
+              - /url: /The-Age-of-AI-Has-Begun
+            - text: as microprocessors, PCs, mobile phones, and the Internet. Everything I’ve seen since then confirms my view that we are on the cusp of a breathtaking global transformation.
+          - paragraph [ref=e238]:
+            - text: All over the world, AI, in the form of LLMs and machine learning models, are improving far more quickly than I first anticipated. From
+            - link "science" [ref=e239] [cursor=pointer]:
+              - /url: https://www.ft.com/content/b93286a9-be6c-4e0f-8896-026b78c2e279
+            - text: to
+            - link "education" [ref=e240] [cursor=pointer]:
+              - /url: /home/home-page-topic/reader/my-trip-to-the-frontier-of-ai-education
+            - text: to
+            - link "customer service" [ref=e241] [cursor=pointer]:
+              - /url: https://www.linkedin.com/posts/williamhgates_ive-entered-the-startup-world-again-when-activity-7351288702796533761-hEOz/
+            - text: and more, AI tools are reshaping every facet of our lives.
+          - paragraph [ref=e242]: I spend a lot of time thinking about how AI can help us address fundamental challenges like poverty, hunger, and disease. One issue that I keep coming back to is making great health care accessible to all—and that’s why we’re partnering with OpenAI and African leaders and innovators on Horizon 1000.
+          - heading "Not enough doctors in the house" [level=2] [ref=e243]
+          - paragraph [ref=e244]: "We have seen amazing successes in global health over the past 25 years: child mortality has been cut in half, and there are now real pathways to eliminating or controlling deadly diseases like polio, malaria, TB, and HIV. But one stubborn problem that keeps slowing progress is the desperate shortage of health care workers in poorer parts of the world."
+          - paragraph [ref=e245]:
+            - text: In Sub-Saharan Africa, which suffers from
+            - link "the world’s highest child mortality rate" [ref=e246] [cursor=pointer]:
+              - /url: https://www.who.int/data/gho/data/themes/topics/topic-details/GHO/child-mortality-and-causes-of-death
+            - text: ", there is a"
+            - link "shortfall of nearly 6 million health care workers" [ref=e247] [cursor=pointer]:
+              - /url: https://gh.bmj.com/content/7/Suppl_1/e015972
+            - text: ", a gap so large that even the most aggressive hiring and training efforts can’t close it in the foreseeable future."
+          - paragraph [ref=e248]:
+            - text: These huge shortages put health care workers in these countries in an impossible situation. They’re forced to triage too many patients with too little administrative support, modern technology, and up-to-date clinical guidance. Partly as a result, the
+            - link "WHO estimates" [ref=e249] [cursor=pointer]:
+              - /url: https://www.who.int/news-room/fact-sheets/detail/quality-health-services
+            - text: that low-quality care is a contributing factor in 6 to 8 million deaths in low- and middle-income countries every year, and that’s not even counting the millions who die because they aren’t able to access health care
+            - emphasis [ref=e250]: at all
+            - text: .
+          - heading "Rwanda leads the way" [level=2] [ref=e251]
+          - paragraph [ref=e252]: Today’s AI can help save those lives by reaching many more people with much higher-quality care.
+          - paragraph [ref=e253]:
+            - text: Rwanda currently has only one health care worker per 1,000 people, far below the WHO recommendation of about four per 1,000. It would take 180 years for that gap to close at the current pace of progress. So, as part of the
+            - link "4x4 reform initiative" [ref=e254] [cursor=pointer]:
+              - /url: https://www.moh.gov.rw/strategic-plans-priorities/4x4-reform
+            - text: ", Minister of Health Dr. Sabin Nsanzimana recently announced the"
+            - link "launch of an AI-powered Health Intelligence Center" [ref=e255] [cursor=pointer]:
+              - /url: https://www.moh.gov.rw/news-detail/new-health-intelligence-center-to-drive-real-time-evidence-based-decisions
+            - text: in Kigali to help ensure limited health care resources are being used as wisely as possible.
+          - paragraph [ref=e256]: As part of the Horizon 1000 initiative, we aim to accelerate the adoption of AI tools across primary care clinics, within communities, and in people’s homes. These AI tools will support health workers, not replace them.
+          - heading "On the horizon" [level=2] [ref=e257]
+          - paragraph [ref=e258]:
+            - text: Minister Nsanzimana has called AI
+            - link "the third major discovery to transform medicine" [ref=e259] [cursor=pointer]:
+              - /url: https://www.umusanzunews.rw/2025/10/14/rwanda-demonstrates-how-it-is-leveraging-ai-to-improve-healthcare/
+            - text: ", after vaccines and antibiotics, and I agree with his point of view."
+          - paragraph [ref=e260]: If you live in a wealthier country and have seen a doctor recently, you may have already seen how AI is making life easier for health care workers. Instead of taking notes constantly, they can now spend more time talking directly to you about your health, while AI transcribes and summarizes the visit. Afterwards, AI can handle much of the onerous paperwork, so doctors and nurses can focus on the next patient.
+          - paragraph [ref=e261]: "In poorer countries with enormous health worker shortages and lack of health systems infrastructure, AI can be a gamechanger in expanding access to quality care. I believe this partnership with OpenAI, governments, innovators, and health workers in sub-Saharan Africa is a step towards the type of AI we need more of: systems that help people all over the world to solve generational challenges that they simply didn’t know how to address before. I invite others working on AI to think about how we can put these massively powerful tools to the best use."
+          - paragraph [ref=e262]: This announcement is a great example of why I remain optimistic about the improvements we can make. I’m looking forward to seeing health workers using some of these AI solutions in action when I visit Africa, and I plan to continue focusing on ways AI technology can help billions of people in low- and middle-income countries meet their most important needs.
+        - generic [ref=e263]:
+          - generic [ref=e264] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e265] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e272]:
+        - generic [ref=e275]:
+          - paragraph [ref=e277]: The Year Ahead
+          - heading "Optimism with footnotes" [level=1] [ref=e278]
+          - paragraph [ref=e280]: As we start 2026, I am thinking about how the year ahead will set us up for the decades to come.
+          - generic [ref=e281]:
+            - img "Bill profile picture" [ref=e283]
+            - generic [ref=e284]:
+              - generic [ref=e285]:
+                - generic [ref=e286]: By Bill Gates
+                - generic [ref=e287]: published on Friday, Jan 9, 2026
+              - generic [ref=e288]:
+                - link "Work" [ref=e290] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e294] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e297]:
+          - paragraph [ref=e298]: I have always been an optimist. When I founded Microsoft, I believed a digital revolution powered by great software would make the world a better place. When I started the Gates Foundation, I saw an opportunity to save and improve millions of lives because critical areas like children’s health were getting so little money.
+          - paragraph [ref=e299]: In both cases, the results exceeded my expectations. We are far better off than when I was born 70 years ago. I believe the world will keep improving—but it is harder to see that today than it has been in a long time.
+          - paragraph [ref=e300]:
+            - text: "Friends and colleagues often ask me how I stay optimistic in an era with so many challenges and so much polarization. My answer is this:"
+            - strong [ref=e301]: I am still an optimist because I see what innovation accelerated by artificial intelligence will bring. But these days, my optimism comes with footnotes.
+          - paragraph [ref=e303]:
+            - text: "The thing I am most upset about is the fact that the world went backwards last year on a key metric of progress: the number of deaths of children under 5 years old. Over the last 25 years, those deaths went down faster than at any other point in history."
+            - emphasis [ref=e304]
+            - text: But in 2025, they went up for the first time this century, from 4.6 million in 2024 to 4.8 million in 2025—an increase driven by less support from rich countries to poor countries. This trend will continue unless we make progress in restoring aid budgets.
+          - paragraph [ref=e305]:
+            - text: The next five years will be difficult as we try to get back on track and work to scale up new lifesaving tools. Yet I remain optimistic about the long-term future. As hard as last year was, I don’t believe we will slide back into the Dark Ages.
+            - strong [ref=e306]: I believe that, within the next decade, we will not only get the world back on track but enter a new era of unprecedented progress.
+          - paragraph [ref=e307]:
+            - text: The key will be, as always,
+            - strong [ref=e308]: innovation
+            - text: ". Consider this: An HIV diagnosis used to be a death sentence. Today, thanks to revolutionary treatments, a person with HIV can expect to live almost as long as someone without the virus. By the 2040s,"
+            - link "new innovations" [ref=e309] [cursor=pointer]:
+              - /url: /work/save-lives/reader/hiv-prep
+            - text: could virtually eliminate deaths from HIV/AIDS.
+          - paragraph [ref=e311]:
+            - text: Budget cuts limit how many people benefit from lifesaving tools, as we saw to devastating effect last year. But nothing can erase the fact that for decades we didn’t know how to save people from HIV, and now we do.
+            - strong [ref=e312]: Breakthroughs are a bell that cannot be unrung.
+            - text: They ensure that we will never go back to
+            - link "the world in 2000 where over 10 million children died from preventable causes every year" [ref=e313] [cursor=pointer]:
+              - /url: /work/save-lives/reader/how-to-cut-child-mortality-in-half-again
+            - text: —and they form the core of my optimism about where the world is headed.
+          - paragraph [ref=e314]: But as I mentioned, there are footnotes to my optimism. Although the innovation pipeline sets us up for long-term success, the trajectory of progress hinges on how the world addresses three key questions.
+          - heading "1." [level=5] [ref=e315]
+          - heading "Will a world that is getting richer increase its generosity toward those in need?" [level=1] [ref=e316]
+          - paragraph [ref=e317]: The “golden rule” precept is more important now than ever with the record disparities in wealth. This idea of treating others as you wish to be treated does not just apply to rich countries giving aid. It must also include philanthropy from the wealthy to help those in need—both domestically and globally—which should grow rapidly in a world with a record number of billionaires and even centibillionaires.
+          - paragraph [ref=e318]:
+            - text: Through the
+            - link "Giving Pledge" [ref=e319] [cursor=pointer]:
+              - /url: https://www.givingpledge.org/
+            - text: ", I get to work with a number of incredible philanthropists who set a great example by giving away substantial portions of their wealth in smart ways. However, more needs to be done to encourage higher levels of generosity from the rich and to show how fulfilling and impactful it can be."
+          - paragraph [ref=e321]:
+            - text: "Turning to aid budgets for poor countries, I am worried about one number:"
+            - strong [ref=e322]: If funding for health decreases by 20 percent, 12 million more children could die by 2045.
+            - text: I know cuts won’t be reversed overnight, even though aid represented less than 1 percent of GDP even in the most generous countries. But it is critical that we restore some of the funding. The foundation’s
+            - link "Goalkeepers report" [ref=e323] [cursor=pointer]:
+              - /url: https://www.gatesfoundation.org/goalkeepers/report/2025-report/#WeCantStopAtAlmost
+            - text: lays out what is at risk and how the world can best spend the aid it gives.
+          - paragraph [ref=e324]: I will spend much of my year working with partners to advocate for increased funding for the health of the world’s children. I plan to engage with a number of communities, including health care workers, religious groups, and members of diaspora communities to help make this case.
+          - heading "2." [level=5] [ref=e325]
+          - heading "Will the world prioritize scaling innovations that improve equality?" [level=1] [ref=e326]
+          - paragraph [ref=e327]: Some problems require doing far more than just letting market incentives take their course.
+          - paragraph [ref=e328]:
+            - text: The first critical area is
+            - strong [ref=e329]: climate change
+            - text: . Without a large global carbon tax (which is, unfortunately, politically unachievable), market forces do not properly incentivize the creation of technologies to reduce climate-related emissions.
+          - paragraph [ref=e330]: Yet only by replacing all emitting activities with cheaper alternatives will we stop the temperature increase. This is why I started Breakthrough Energy 10 years ago and why I will continue to put billions into innovation.
+          - paragraph [ref=e331]: The world has made meaningful progress in the last decade, cutting projected emissions by more than 40 percent. But we still have a lot of innovation and scaling up to do in tough areas like industrial emissions and aviation. Government policies in rich countries are still critical because unless innovations reach scale, the costs won’t come down and we won’t achieve the impact we need.
+          - paragraph [ref=e332]: If we don’t limit climate change, it will join poverty and infectious disease in causing enormous suffering, especially for the world’s poorest people. Since even in the best case the temperature will continue to go up, we also need to innovate to minimize the negative impacts.
+          - paragraph [ref=e333]: This is called climate adaptation, and a critical example is helping farmers in poor countries with better seeds and better advice so they can grow more even in the face of climate change. Using AI, we will soon be able to provide poor farmers with better advice about weather, prices, crop diseases, and soil than even the richest farmers get today. The foundation has committed $1.4 billion to supporting farmers on the frontlines of extreme weather.
+          - paragraph [ref=e335]:
+            - text: I will be investing and giving more than ever to climate work in the years ahead while also continuing to give more to children’s health, the foundation’s top priority. The need to ensure money is spent on the most important priorities was the topic of a
+            - link "memo" [ref=e336] [cursor=pointer]:
+              - /url: /work/accelerate-energy-innovation/reader/three-tough-truths-about-climate
+            - text: I wrote in the fall.
+          - paragraph [ref=e337]:
+            - text: A second critical area where the world must focus on innovation-driven equality is
+            - strong [ref=e338]: health care
+            - text: . Concerns about healthcare costs and quality are higher than ever in all countries.
+          - paragraph [ref=e339]:
+            - text: In theory, people should feel optimistic about the state of health care with the incredible pipeline of innovations. For example, a recent breakthrough in diagnosing Alzheimer’s will revolutionize how we test for—and ultimately prevent—this disease, saving billions of dollars in costs. (Funding Alzheimer’s research is a
+            - link "particular focus for me" [ref=e340] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/work/cure-alzheimer-s/reader/welcome-to-the-next-phase-of-the-alzheimers-fight
+            - text: .) There’s similar progress on obesity and cancer, as well as on problems in developing countries like malaria, TB, and malnutrition.
+          - paragraph [ref=e341]: Despite so much progress, however, the cost and complexity of the system means very few people are satisfied with their care. I believe we can improve health care dramatically in all countries by using AI not only to accelerate the development of innovations but directly in the delivery of health care.
+          - paragraph [ref=e342]: Like many of you, I already use AI to better understand my own health. Just imagine what will be possible as it improves and becomes available for every patient and provider. Always-available, high-quality medical advice will improve medicine by every measure.
+          - paragraph [ref=e344]: We aren’t quite there yet—developers still have work to do on reliability and how we connect the AI to doctors and nurses so they are empowered to check and override the system. But I’m optimistic we will soon begin to scale access globally. I am following this work so the Gates Foundation and partners can make sure this capability is available in the countries that need it most—where there aren’t enough medical personnel—at the same time it is available elsewhere. We are already working on pilots and making sure that even relatively uncommon African languages are fully supported.
+          - paragraph [ref=e345]: Governments will have to play a central role in leading the implementation of AI into their health systems. This is another case where the market alone won’t and can’t provide the solution.
+          - paragraph [ref=e346]:
+            - text: A third and final area I will mention briefly is
+            - strong [ref=e347]: education
+            - text: . AI gives us a chance for the kind of personalized learning to keep students motivated that we have dreamed of in the past. This is now a focus of the Gates Foundation’s spending on education, and I am hopeful it will be empowering to both teachers and students. I’ve seen this
+            - link "firsthand in New Jersey" [ref=e348] [cursor=pointer]:
+              - /url: /work/provide-quality-education/reader/my-trip-to-the-frontier-of-ai-education
+            - text: ", and it will be game changing as we scale it for the world."
+          - paragraph [ref=e349]: All three of these areas—climate, health, and education—can improve rapidly with the right government focus. This year I will spend a lot of time meeting with pioneers all over the world to see which countries are doing the best work so we can spread best practices.
+          - heading "3." [level=5] [ref=e350]
+          - heading "Will we minimize negative disruptions caused by AI as it accelerates?" [level=1] [ref=e351]
+          - paragraph [ref=e352]: Of all the things humans have ever created, AI will change society the most. It will help solve many of our current problems while also bringing new challenges very different from past innovations.
+          - paragraph [ref=e353]:
+            - text: When people in the AI space predict that
+            - link "AGI" [ref=e354] [cursor=pointer]:
+              - /url: https://en.wikipedia.org/wiki/Artificial_general_intelligence
+            - text: or fully humanoid robots will come soon and then those deadlines are missed, it creates the impression that these things will never happen. However, there is no upper limit on how intelligent AIs will get or on how good robots will get, and I believe the advances will not plateau before exceeding human levels.
+          - paragraph [ref=e355]:
+            - text: The two big challenges in the next decade are
+            - strong [ref=e356]: use of
+            - strong [ref=e357]: AI by bad actors
+            - text: and
+            - strong [ref=e358]: disruption to the job market
+            - text: . Both are real risks that we need to do a better job managing. We’ll need to be deliberate about how this technology is developed, governed, and deployed.
+          - paragraph [ref=e359]:
+            - text: In 2015, I gave a
+            - link "TED talk" [ref=e360] [cursor=pointer]:
+              - /url: https://www.youtube.com/watch?v=6Af6b_wyiwI
+            - text: warning that the world was not ready to handle a pandemic. If we had prepared properly for the Covid pandemic, the amount of human suffering would have been dramatically less. Today, an even greater risk than a naturally caused pandemic is that a non-government group will use open source AI tools to design a bioterrorism weapon.
+          - paragraph [ref=e362]:
+            - text: The second challenge is
+            - strong [ref=e363]: job market disruption
+            - text: . AI capabilities will allow us to make far more goods and services with less labor. In a mathematical sense, we should be able to allocate these new capabilities in ways that benefit everyone. As AI delivers on its potential, we could reduce the work week or even decide there are some areas we don’t want to use AI in.
+          - paragraph [ref=e364]: The effects of this disruption are hard to model. Sometimes, when a game-changing technology improves rapidly, it drives more demand at lower cost and, by making the world richer, increases demand in other areas. For example, AI makes software developers at least twice as efficient, which makes coding cheaper while also creating demand elasticity for code. (Computing is a good historical example where lower costs actually caused the overall market to grow.)
+          - paragraph [ref=e365]: Even with this complexity, the rate of improvement is already starting to be enough to disrupt job demand in areas like software development. Other areas like warehouse work or phone support are not quite there yet, but once the AIs become more capable, the job disruption will be more immediate.
+          - paragraph [ref=e366]: We’re already starting to see the impact of AI on the job market, and I think this impact will grow over the next five years. Even if the transition takes longer than I expect, we should use 2026 to prepare ourselves for these changes—including which policies will best help spread the wealth and deal with the important role jobs play in our society. Different political parties will likely suggest different approaches.
+          - paragraph [ref=e367]: By including these footnotes, particularly the last one, some readers may find my continued optimism even more surprising. But as we start 2026, I remain optimistic about the days ahead because of two core human capabilities.
+          - paragraph [ref=e369]: The first is our ability to anticipate problems and prepare for them, and therefore ensure that our new discoveries make all of us better off. The second is our capacity to care about each other. Throughout history, you can always find stories of people tending not just to themselves or their clan or their country but to the greater good.
+          - paragraph [ref=e370]: Those two qualities—foresight and care—are what give me hope as the year begins. As long as we keep exercising those abilities, I believe the years ahead can be ones of real progress.
+        - generic [ref=e372]:
+          - generic [ref=e373] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e374] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e381]:
+        - img "Gates notes image" [ref=e383]
+        - generic [ref=e384]:
+          - paragraph [ref=e386]: The future of agents
+          - heading "AI is about to completely change how you use computers" [level=1] [ref=e387]
+          - paragraph [ref=e389]: And upend the software industry.
+          - generic [ref=e390]:
+            - img "Bill profile picture" [ref=e392]
+            - generic [ref=e393]:
+              - generic [ref=e394]:
+                - generic [ref=e395]: By Bill Gates
+                - generic [ref=e396]: published on Thursday, Nov 9, 2023
+              - generic [ref=e397]:
+                - link "Work" [ref=e399] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e403] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e406]:
+          - paragraph [ref=e407]: I still love software as much today as I did when Paul Allen and I started Microsoft. But—even though it has improved a lot in the decades since then—in many ways, software is still pretty dumb.
+          - paragraph [ref=e408]: To do any task on a computer, you have to tell your device which app to use. You can use Microsoft Word and Google Docs to draft a business proposal, but they can’t help you send an email, share a selfie, analyze data, schedule a party, or buy movie tickets. And even the best sites have an incomplete understanding of your work, personal life, interests, and relationships and a limited ability to use this information to do things for you. That’s the kind of thing that is only possible today with another human being, like a close friend or personal assistant.
+          - paragraph [ref=e409]: In the next five years, this will change completely. You won’t have to use different apps for different tasks. You’ll simply tell your device, in everyday language, what you want to do. And depending on how much information you choose to share with it, the software will be able to respond personally because it will have a rich understanding of your life. In the near future, anyone who’s online will be able to have a personal assistant powered by artificial intelligence that’s far beyond today’s technology.
+          - paragraph [ref=e410]:
+            - text: This type of software—something that responds to natural language and can accomplish many different tasks based on its knowledge of the user—is called an agent. I’ve been thinking about agents for nearly 30 years and wrote about them in my 1995 book
+            - link [ref=e411] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/The-Road-Ahead-after-25-years
+              - emphasis [ref=e412]: The Road Ahead
+            - text: ", but they’ve only recently become practical because of advances in AI."
+          - paragraph [ref=e413]: Agents are not only going to change how everyone interacts with computers. They’re also going to upend the software industry, bringing about the biggest revolution in computing since we went from typing commands to tapping on icons.
+          - paragraph [ref=e414]
+          - heading [level=1] [ref=e415]:
+            - strong [ref=e416]: A personal assistant for everyone
+          - paragraph [ref=e417]:
+            - text: Some critics have pointed out that software companies have offered this kind of thing before, and users didn’t exactly embrace them. (People still joke about
+            - link "Clippy" [ref=e418] [cursor=pointer]:
+              - /url: https://edition.cnn.com/2021/07/15/tech/microsoft-clippy-emoji/index.html
+            - text: ", the digital assistant that we included in Microsoft Office and later dropped.) Why will people use agents?"
+          - paragraph [ref=e419]: The answer is that they’ll be dramatically better. You’ll be able to have nuanced conversations with them. They will be much more personalized, and they won’t be limited to relatively simple tasks like writing a letter. Clippy has as much in common with agents as a rotary phone has with a mobile device.
+          - paragraph [ref=e420]: An agent will be able to help you with all your activities if you want it to. With permission to follow your online interactions and real-world locations, it will develop a powerful understanding of the people, places, and activities you engage in. It will get your personal and work relationships, hobbies, preferences, and schedule. You’ll choose how and when it steps in to help with something or ask you to make a decision.
+          - paragraph [ref=e422]: To see the dramatic change that agents will bring, let’s compare them to the AI tools available today. Most of these are bots. They’re limited to one app and generally only step in when you write a particular word or ask for help. Because they don’t remember how you use them from one time to the next, they don’t get better or learn any of your preferences. Clippy was a bot, not an agent.
+          - paragraph [ref=e423]: Agents are smarter. They’re proactive—capable of making suggestions before you ask for them. They accomplish tasks across applications. They improve over time because they remember your activities and recognize intent and patterns in your behavior. Based on this information, they offer to provide what they think you need, although you will always make the final decisions.
+          - paragraph [ref=e424]: Imagine that you want to plan a trip. A travel bot will identify hotels that fit your budget. An agent will know what time of year you’ll be traveling and, based on its knowledge about whether you always try a new destination or like to return to the same place repeatedly, it will be able to suggest locations. When asked, it will recommend things to do based on your interests and propensity for adventure, and it will book reservations at the types of restaurants you would enjoy. If you want this kind of deeply personalized planning today, you need to pay a travel agent and spend time telling them what you want.
+          - paragraph [ref=e425]: "The most exciting impact of AI agents is the way they will democratize services that today are too expensive for most people. They’ll have an especially big influence in four areas: health care, education, productivity, and entertainment and shopping."
+          - paragraph [ref=e426]
+          - heading [level=1] [ref=e427]:
+            - strong [ref=e428]: Health care
+          - paragraph [ref=e429]:
+            - text: Today, AI’s main role in healthcare is to help with administrative tasks.
+            - link "Abridge" [ref=e430] [cursor=pointer]:
+              - /url: https://www.abridge.com/
+            - text: ","
+            - link "Nuance DAX" [ref=e431] [cursor=pointer]:
+              - /url: https://www.nuance.com/healthcare/ambient-clinical-intelligence/explore-dax-for-clinicians.html
+            - text: ", and"
+            - link "Nabla Copilot" [ref=e432] [cursor=pointer]:
+              - /url: https://www.nabla.com/
+            - text: ", for example, can capture audio during an appointment and then write up notes for the doctor to review."
+          - paragraph [ref=e433]:
+            - text: The real shift will come when agents can help patients do basic triage, get advice about how to deal with health problems, and decide whether they need to seek treatment. These agents will also help healthcare workers make decisions and be more productive. (Already, apps like
+            - link "Glass Health" [ref=e434] [cursor=pointer]:
+              - /url: https://glass.health/
+            - text: can analyze a patient summary and suggest diagnoses for the doctor to consider.) Helping patients and healthcare workers will be especially beneficial for people in poor countries, where many never get to see a doctor at all.
+          - paragraph [ref=e435]: These clinician-agents will be slower than others to roll out because getting things right is a matter of life and death. People will need to see evidence that health agents are beneficial overall, even though they won’t be perfect and will make mistakes. Of course, humans make mistakes too, and having no access to medical care is also a problem.
+          - paragraph [ref=e437]:
+            - text: Mental health care is another example of a service that agents will make available to virtually everyone. Today, weekly therapy sessions seem like a luxury. But there is a lot of unmet need, and many people who could benefit from therapy don’t have access to it. For example,
+            - link "RAND" [ref=e438] [cursor=pointer]:
+              - /url: https://www.rand.org/health-care/projects/navigating-mental-health-care-for-veterans/barriers-to-care.html
+            - text: found that half of all U.S. military veterans who need mental health care don’t get it.
+          - paragraph [ref=e439]:
+            - text: AI agents that are well trained in mental health will make therapy much more affordable and easier to get.
+            - link "Wysa" [ref=e440] [cursor=pointer]:
+              - /url: https://www.wysa.com/
+            - text: and
+            - link "Youper" [ref=e441] [cursor=pointer]:
+              - /url: https://www.youper.ai/
+            - text: are two of the early chatbots here. But agents will go much deeper. If you choose to share enough information with a mental health agent, it will understand your life history and your relationships. It’ll be available when you need it, and it will never get impatient. It could even, with your permission, monitor your physical responses to therapy through your smart watch—like if your heart starts to race when you’re talking about a problem with your boss—and suggest when you should see a human therapist.
+          - paragraph [ref=e442]
+          - heading [level=1] [ref=e443]:
+            - strong [ref=e444]: Education
+          - paragraph [ref=e445]: For decades, I’ve been excited about all the ways that software would make teachers’ jobs easier and help students learn. It won’t replace teachers, but it will supplement their work—personalizing the work for students and liberating teachers from paperwork and other tasks so they can spend more time on the most important parts of the job. These changes are finally starting to happen in a dramatic way.
+          - paragraph [ref=e446]:
+            - text: The current state of the art is
+            - link "Khanmigo" [ref=e447] [cursor=pointer]:
+              - /url: https://www.khanacademy.org/khan-labs
+            - text: ", a text-based bot created by Khan Academy. It can tutor students in math, science, and the humanities—for example, it can explain the quadratic formula and create math problems to practice on. It can also help teachers do things like write lesson plans. I’ve been a fan and supporter of Sal Khan’s work for a long time and recently had him on my"
+            - link "podcast" [ref=e448] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/Unconfuse-Me-podcast-with-guest-Sal-Khan
+            - text: to talk about education and AI.
+          - paragraph [ref=e449]: But text-based bots are just the first wave—agents will open up many more learning opportunities.
+          - paragraph [ref=e450]: For example, few families can pay for a tutor who works one-on-one with a student to supplement their classroom work. If agents can capture what makes a tutor effective, they’ll unlock this supplemental instruction for everyone who wants it. If a tutoring agent knows that a kid likes Minecraft and Taylor Swift, it will use Minecraft to teach them about calculating the volume and area of shapes, and Taylor’s lyrics to teach them about storytelling and rhyme schemes. The experience will be far richer—with graphics and sound, for example—and more personalized than today’s text-based tutors.
+          - paragraph [ref=e451]
+          - heading [level=1] [ref=e452]:
+            - strong [ref=e453]: Productivity
+          - paragraph [ref=e454]:
+            - text: There’s already a lot of competition in this field. Microsoft is making its
+            - link "Copilot" [ref=e455] [cursor=pointer]:
+              - /url: https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot
+            - text: part of Word, Excel, Outlook, and other services. Google is doing similar things with
+            - link "Assistant with Bard" [ref=e456] [cursor=pointer]:
+              - /url: https://blog.google/products/assistant/google-assistant-bard-generative-ai/
+            - text: and its productivity tools. These copilots can do a lot—such as turn a written document into a slide deck, answer questions about a spreadsheet using natural language, and summarize email threads while representing each person’s point of view.
+          - paragraph [ref=e457]: Agents will do even more. Having one will be like having a person dedicated to helping you with various tasks and doing them independently if you want. If you have an idea for a business, an agent will help you write up a business plan, create a presentation for it, and even generate images of what your product might look like. Companies will be able to make agents available for their employees to consult directly and be part of every meeting so they can answer questions.
+          - paragraph [ref=e459]: Whether you work in an office or not, your agent will be able to help you in the same way that personal assistants support executives today. If your friend just had surgery, your agent will offer to send flowers and be able to order them for you. If you tell it you’d like to catch up with your old college roommate, it will work with their agent to find a time to get together, and just before you arrive, it will remind you that their oldest child just started college at the local university.
+          - paragraph [ref=e460]
+          - heading [level=1] [ref=e461]:
+            - strong [ref=e462]: Entertainment and shopping
+          - paragraph [ref=e463]:
+            - text: Already, AI can help you pick out a new TV and recommend movies, books, shows, and podcasts.
+            - link "Likewise" [ref=e464] [cursor=pointer]:
+              - /url: https://likewise.com/
+            - text: ", a company I’ve invested in, recently launched Pix, which lets you ask questions (“Which Robert Redford movies would I like and where can I watch them?”) and then makes recommendations based on what you’ve liked in the past. Spotify has an"
+            - link "AI-powered DJ" [ref=e465] [cursor=pointer]:
+              - /url: https://newsroom.spotify.com/2023-02-22/spotify-debuts-a-new-ai-dj-right-in-your-pocket/
+            - text: that not only plays songs based on your preferences but talks to you and can even call you by name.
+          - paragraph [ref=e466]:
+            - text: Agents won’t simply make recommendations; they’ll help you act on them. If you want to buy a camera, you’ll have your agent read all the reviews for you, summarize them, make a recommendation, and place an order for it once you’ve made a decision. If you tell your agent that you want to watch
+            - emphasis [ref=e467]: Star Wars
+            - text: ", it will know whether you’re subscribed to the right streaming service, and if you aren’t, it will offer to sign you up. And if you don’t know what you’re in the mood for, it will make customized suggestions and then figure out how to play the movie or show you choose."
+          - paragraph [ref=e468]:
+            - text: You’ll also be able to get news and entertainment that’s been tailored to your interests.
+            - link "CurioAI" [ref=e469] [cursor=pointer]:
+              - /url: https://curio.io/rio/signup
+            - text: ", which creates a custom podcast on any subject you ask about, is a glimpse of what’s coming."
+          - paragraph [ref=e470]
+          - heading [level=1] [ref=e471]:
+            - strong [ref=e472]: A shock wave in the tech industry
+          - paragraph [ref=e473]: In short, agents will be able to help with virtually any activity and any area of life. The ramifications for the software business and for society will be profound.
+          - paragraph [ref=e474]: In the computing industry, we talk about platforms—the technologies that apps and services are built on. Android, iOS, and Windows are all platforms. Agents will be the next platform.
+          - paragraph [ref=e476]:
+            - text: To create a new app or service, you won’t need to know how to write code or do graphic design. You’ll just tell your agent what you want. It will be able to write the code, design the look and feel of the app, create a logo, and publish the app to an online store. OpenAI’s
+            - link "launch" [ref=e477] [cursor=pointer]:
+              - /url: https://www.nytimes.com/2023/11/06/technology/openai-custom-chatgpt.html
+            - text: of GPTs this week offers a glimpse into the future where non-developers can easily create and share their own assistants.
+          - paragraph [ref=e478]: Agents will affect how we use software as well as how it’s written. They’ll replace search sites because they’ll be better at finding information and summarizing it for you. They’ll replace many e-commerce sites because they’ll find the best price for you and won’t be restricted to just a few vendors. They’ll replace word processors, spreadsheets, and other productivity apps. Businesses that are separate today—search advertising, social networking with advertising, shopping, productivity software—will become one business.
+          - paragraph [ref=e479]: I don’t think any single company will dominate the agents business--there will be many different AI engines available. Today, agents are embedded in other software like word processors and spreadsheets, but eventually they’ll operate on their own. Although some agents will be free to use (and supported by ads), I think you’ll pay for most of them, which means companies will have an incentive to make agents work on your behalf and not an advertiser’s. If the number of companies that have started working on AI just this year is any indication, there will be an exceptional amount of competition, which will make agents very inexpensive.
+          - paragraph [ref=e480]:
+            - text: But before the sophisticated agents I’m describing become a reality, we need to confront a number of questions about the technology and how we’ll use it. I’ve written before about the
+            - link "issues that AI raises" [ref=e481] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/The-risks-of-AI-are-real-but-manageable
+            - text: ", so I’ll focus specifically on agents here."
+          - paragraph [ref=e482]
+          - heading [level=1] [ref=e483]:
+            - strong [ref=e484]: The technical challenges
+          - paragraph [ref=e485]: Nobody has figured out yet what the data structure for an agent will look like. To create personal agents, we need a new type of database that can capture all the nuances of your interests and relationships and quickly recall the information while maintaining your privacy. We are already seeing new ways of storing information, such as vector databases, that may be better for storing data generated by machine learning models.
+          - paragraph [ref=e486]: Another open question is about how many agents people will interact with. Will your personal agent be separate from your therapist agent and your math tutor? If so, when will you want them to work with each other and when should they stay in their lanes?
+          - paragraph [ref=e488]: How will you interact with your agent? Companies are exploring various options including apps, glasses, pendants, pins, and even holograms. All of these are possibilities, but I think the first big breakthrough in human-agent interaction will be earbuds. If your agent needs to check in with you, it will speak to you or show up on your phone. (“Your flight is delayed. Do you want to wait, or can I help rebook it?”) If you want, it will monitor sound coming into your ear and enhance it by blocking out background noise, amplifying speech that’s hard to hear, or making it easier to understand someone who’s speaking with a heavy accent.
+          - paragraph [ref=e489]:
+            - text: There are other challenges too. There isn’t yet a standard protocol that will allow agents to talk to each other. The cost needs to come down so agents are affordable for everyone. It needs to be easier to prompt the agent in a way that will give you the right answer. We need to prevent
+            - link "hallucinations" [ref=e490] [cursor=pointer]:
+              - /url: https://www.nytimes.com/2023/05/01/business/ai-chatbots-hallucination.html
+            - text: ", especially in areas like health where accuracy is super-important, and make sure that agents don’t harm people as a result of their biases. And we don’t want agents to be able to do things they’re not supposed to. (Although I worry less about rogue agents than about human criminals using agents for malign purposes.)"
+          - paragraph [ref=e491]
+          - heading [level=1] [ref=e492]:
+            - strong [ref=e493]: Privacy and other big questions
+          - paragraph [ref=e494]: As all of this comes together, the issues of online privacy and security will become even more urgent than they already are. You’ll want to be able to decide what information the agent has access to, so you’re confident that your data is shared with only people and companies you choose.
+          - paragraph [ref=e495]: But who owns the data you share with your agent, and how do you ensure that it’s being used appropriately? No one wants to start getting ads related to something they told their therapist agent. Can law enforcement use your agent as evidence against you? When will your agent refuse to do something that could be harmful to you or someone else? Who picks the values that are built into agents?
+          - paragraph [ref=e496]: "There’s also the question of how much information your agent should share. Suppose you want to see a friend: If your agent talks to theirs, you don’t want it to say, \"Oh, she’s seeing other friends on Tuesday and doesn’t want to include you.” And if your agent helps you write emails for work, it will need to know that it shouldn’t use personal information about you or proprietary data from a previous job."
+          - paragraph [ref=e497]: Many of these questions are already top-of-mind for the tech industry and legislators. I recently participated in a forum on AI with other technology leaders that was organized by Sen. Chuck Schumer and attended by many U.S. senators. We shared ideas about these and other issues and talked about the need for lawmakers to adopt strong legislation.
+          - paragraph [ref=e498]: But other issues won’t be decided by companies and governments. For example, agents could affect how we interact with friends and family. Today, you can show someone that you care about them by remembering details about their life—say, their birthday. But when they know your agent likely reminded you about it and took care of sending flowers, will it be as meaningful for them?
+          - paragraph [ref=e499]: In the distant future, agents may even force humans to face profound questions about purpose. Imagine that agents become so good that everyone can have a high quality of life without working nearly as much. In a future like that, what would people do with their time? Would anyone still want to get an education when an agent has all the answers? Can you have a safe and thriving society when most people have a lot of free time on their hands?
+          - paragraph [ref=e500]: But we’re a long way from that point. In the meantime, agents are coming. In the next few years, they will utterly change how we live our lives, online and off.
+        - generic [ref=e501]:
+          - generic [ref=e502] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e503] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e510]:
+        - img "Gates notes image" [ref=e512]
+        - generic [ref=e513]:
+          - paragraph [ref=e515]: Nuts and bolts
+          - heading "The start-ups making robots a reality" [level=1] [ref=e516]
+          - paragraph [ref=e518]: Here’s why I’m excited about the potential of robotics technology.
+          - generic [ref=e519]:
+            - img "Bill profile picture" [ref=e521]
+            - generic [ref=e522]:
+              - generic [ref=e523]:
+                - generic [ref=e524]: By Bill Gates
+                - generic [ref=e525]: published on Tuesday, Jan 23, 2024
+              - generic [ref=e526]:
+                - link "Work" [ref=e528] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e532] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e535]:
+          - paragraph [ref=e536]: Is it harder for machines to mimic the way humans move or the way humans think? If you had asked me this question a decade ago, my answer would have been “think.” So much of how the brain works is still a mystery. And yet, in just the last year, advancements in artificial intelligence have resulted in computer programs that can create, calculate, process, understand, decide, recognize patterns, and continue learning in ways that resemble our own.
+          - paragraph [ref=e537]: Building machines that operate like our bodies—that walk, jump, touch, hold, squeeze, grip, climb, slice, and reach like we do (or better)—would seem to be an easier feat in comparison. Surprisingly, it hasn’t been. Many robots still struggle to perform basic human tasks that require the dexterity, mobility, and cognition most of us take for granted.
+          - paragraph [ref=e538]: "But if we get the technology right, the uses for robots will be almost limitless: Robots can help during natural disasters when first responders would otherwise have to put their lives on the line—or during public health crises like the COVID pandemic, when in-person interactions might spread disease. On farms, they can be used instead of toxic chemical herbicides to manually pull weeds. They can work long days lugging hundred- or thousand-pound loads around factory floors. A good enough robotic arm will also be invaluable as a prosthesis."
+          - paragraph [ref=e539]:
+            - text: I understand concerns about robots taking people’s jobs, an unfortunate consequence of almost every new innovation—including the internet, which (for example) turned everyone into a travel agent and eliminated much of the vacation-planning industry. If robots have a similar impact on employment, governments and the private sector will have to help people navigate the transition. But given present labor shortages in our economy and the dangerous or unrewarding nature of certain professions, I believe it’s less likely that robots replace us in jobs we love and more likely that they’ll do work people don’t want to be doing. In the process, they can make us safer, healthier, more productive, and even
+            - link "less lonely" [ref=e540] [cursor=pointer]:
+              - /url: https://www.newyorker.com/magazine/2021/05/31/what-robots-can-and-cant-do-for-the-old-and-lonely
+            - text: .
+          - paragraph [ref=e541]: That’s why I’m so excited about the companies across the country and around the world that are at the forefront of robotics technology, working to usher in a robotics revolution. Some of their robots are humanoid or human-like—constructed so they can interact easily in environments built for people. Others have super-human traits like flight or extendable arms that can supplement an ordinary person’s abilities. Some move around on legs. Others have wheels. Some navigate using sensors. Others are operated by remote controls.
+          - paragraph [ref=e542]: "Despite their differences, though, one thing is certain: In healthcare, hospitality, agriculture, manufacturing, construction, and even our homes, robots have the potential to transform the way we live and work. In fact, a few of them already are."
+          - paragraph [ref=e543]:
+            - emphasis [ref=e544]: "Here are some of the cutting-edge robotics start-ups and labs that I’m excited about:"
+          - heading "Agility Robotics" [level=2] [ref=e545]
+          - paragraph [ref=e546]:
+            - text: If we want robots to operate in our environments as seamlessly as possible, perhaps those robots should be modeled after people. That’s what Oregon-based
+            - link "Agility Robotics" [ref=e547] [cursor=pointer]:
+              - /url: https://agilityrobotics.com/
+            - text: decided when creating Digit, what they call the “first human-centric, multi-purpose robot made for logistics work.” It’s roughly the same size as a person—it’s designed to work with people, go where we go, and operate in our workflows—but it’s able to carry much heavier loads and extend its “arms” to reach shelves we’d need ladders for.
+          - heading "Tevel" [level=2] [ref=e548]
+          - paragraph [ref=e549]:
+            - text: For farmers in some rich countries, around 40 percent of costs can come from labor—with workers spending entire days out in the hot sun and then stopping at night. But given the labor shortage in agriculture, farms often have to throw away fruit that’s not harvested in time. That’s why
+            - link "Tevel" [ref=e550] [cursor=pointer]:
+              - /url: https://www.tevel-tech.com/
+            - text: ", founded in Tel Aviv, has created flying autonomous robots that can scan tree canopies and pick ripe apples and stone fruits around the clock, while simultaneously collecting comprehensive harvesting data in real time."
+          - heading "Apptronik" [level=2] [ref=e551]
+          - paragraph [ref=e552]:
+            - text: "What’s more useful: multiple robots that can each do one task over and over, or one robot that can do multiple tasks and learn to do even more? To"
+            - link "Apptronik" [ref=e553] [cursor=pointer]:
+              - /url: https://apptronik.com/
+            - text: ", an Austin-based start-up that spun out of the human-centered robotics lab at the University of Texas, the answer is obvious. So they’re building “general-purpose” humanoid bi-pedal robots like Apollo, which can be programmed to do a wide array of tasks—from carrying boxes in a factory to helping out with household chores. And because it can run software from third parties, Apollo will be just a software update away from new functionalities."
+          - heading "RoMeLa" [level=2] [ref=e554]
+          - paragraph [ref=e555]:
+            - text: Building a robot that can navigate rocky and unstable terrain, and retain its balance without falling over, is no small task. But the Robotics and Mechanisms Lab, or
+            - link "RoMeLa" [ref=e556] [cursor=pointer]:
+              - /url: https://newsroom.ucla.edu/releases/artemis-ucla-humanoid-robot-ready-for-action
+            - text: ", at UCLA is working on improving mobility for robots. They may have cracked the code with ARTEMIS, possibly the fastest “running” robot in the world that’s also difficult to destabilize. ARTEMIS actually competed at the RoboCup 2023, an international soccer competition held in France in July."
+          - heading "Field AI" [level=2] [ref=e557]
+          - paragraph [ref=e558]:
+            - text: Some robots don’t just need great “bodies”; they need great brains, too. That’s what
+            - link "Field AI" [ref=e559] [cursor=pointer]:
+              - /url: https://fieldai.com/
+            - text: —a robotics company based in Southern California that
+            - emphasis [ref=e560]: doesn’t
+            - text: build robots—is trying to create. Instead of focusing on the hardware of these machines, Field AI is developing AI software for
+            - emphasis [ref=e561]: other
+            - text: companies’ robots that enables them to perceive their environments, navigate without GPS (on land, by water, or in the air), and even communicate with each other.
+        - generic [ref=e562]:
+          - generic [ref=e563] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e564] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e571]:
+        - generic [ref=e573]:
+          - paragraph [ref=e575]: Unconfuse Me with Bill Gates
+          - heading "My conversation with Sam Altman" [level=1] [ref=e576]
+          - paragraph [ref=e578]: In the sixth episode of my podcast, I sat down with the OpenAI CEO to talk about where AI is headed next and what humanity will do once it gets there.
+          - generic [ref=e579]:
+            - img "Bill profile picture" [ref=e581]
+            - generic [ref=e582]:
+              - generic [ref=e583]:
+                - generic [ref=e584]: By Bill Gates
+                - generic [ref=e585]: published on Thursday, Jan 11, 2024
+              - generic [ref=e586]:
+                - link "Work" [ref=e588] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e592] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - paragraph [ref=e599]:
+          - text: "If you ask people to name leaders in artificial intelligence, there’s one name you’ll probably hear more than any other: Sam Altman. His team at"
+          - link "OpenAI" [ref=e600] [cursor=pointer]:
+            - /url: https://openai.com/
+          - text: is pushing the boundaries of what AI can do with
+          - link "ChatGPT" [ref=e601] [cursor=pointer]:
+            - /url: https://chat.openai.com/
+          - text: ", and I loved getting to talk to him about what’s next. Our conversation covered why today’s AI models are the stupidest they’ll ever be, how societies adapt to technological change, and even where humanity will find purpose once we’ve perfected artificial intelligence."
+        - generic [ref=e603]:
+          - generic [ref=e604] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e605] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e612]:
+        - img "Gates notes image" [ref=e614]
+        - generic [ref=e615]:
+          - paragraph [ref=e617]: Unconfuse Me with Bill Gates
+          - heading "Breaking down the science of AI with Yejin Choi" [level=1] [ref=e618]
+          - paragraph [ref=e620]: In the fifth episode of my podcast, Yejin Choi joined me to talk about her amazing work on AI training systems.
+          - generic [ref=e621]:
+            - img "Bill profile picture" [ref=e623]
+            - generic [ref=e624]:
+              - generic [ref=e625]:
+                - generic [ref=e626]: By Bill Gates
+                - generic [ref=e627]: published on Thursday, Nov 16, 2023
+              - generic [ref=e628]:
+                - link "Work" [ref=e630] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e634] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - paragraph [ref=e638]:
+          - text: Few people are better at explaining the science of artificial intelligence than Yejin Choi. She’s a computer science professor at the University of Washington, senior research director at the Allen Institute for AI, and the recipient of a MacArthur Fellowship. I thought her recent
+          - link "TED talk" [ref=e639] [cursor=pointer]:
+            - /url: https://www.ted.com/talks/yejin_choi_why_ai_is_incredibly_smart_and_shockingly_stupid?language=en
+          - text: was terrific, and I was thrilled to talk to her about how you train a large language model, why it’s so hard for robots to pick tools out of a box, and why universities must play a key role in the future of AI research.
+        - generic [ref=e641]:
+          - generic [ref=e642] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e643] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e650]:
+        - img "Gates notes image" [ref=e652]
+        - generic [ref=e653]:
+          - paragraph [ref=e655]: Unconfuse Me with Bill Gates
+          - heading "Can AI help close the education gap? Sal Khan thinks so" [level=1] [ref=e656]
+          - paragraph [ref=e658]: In the second episode of my new podcast, I sat down with the founder of Khan Academy to talk about how artificial intelligence will transform education.
+          - generic [ref=e659]:
+            - img "Bill profile picture" [ref=e661]
+            - generic [ref=e662]:
+              - generic [ref=e663]:
+                - generic [ref=e664]: By Bill Gates
+                - generic [ref=e665]: published on Thursday, Aug 10, 2023
+              - generic [ref=e666]:
+                - link "Work" [ref=e668] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e672] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - paragraph [ref=e676]:
+          - text: Sal Khan is a true pioneer of harnessing the power of technology to help kids learn. So, when I wanted to learn more about how artificial intelligence will transform education, I knew I had to talk to the founder of
+          - link "Khan Academy" [ref=e677] [cursor=pointer]:
+            - /url: https://www.khanacademy.org/
+          - text: . I loved chatting with Sal about why tutoring is so important, how his new service
+          - link "Khanmigo" [ref=e678] [cursor=pointer]:
+            - /url: https://www.khanacademy.org/khan-labs
+          - text: is making the most of ChatGPT, and how we can keep teachers at the center of the classroom in the age of AI. We even found time to talk about our favorite teachers and the subject we wish we’d studied in school.
+        - generic [ref=e680]:
+          - generic [ref=e681] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e682] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e689]:
+        - img "Gates notes image" [ref=e691]
+        - generic [ref=e692]:
+          - paragraph [ref=e694]: Domo arigato
+          - heading "Bots, britches, and bees" [level=1] [ref=e695]
+          - paragraph [ref=e697]: A Harvard robotics lab challenges popular images of robots.
+          - generic [ref=e698]:
+            - img "Bill profile picture" [ref=e700]
+            - generic [ref=e701]:
+              - generic [ref=e702]:
+                - generic [ref=e703]: By Bill Gates
+                - generic [ref=e704]: published on Monday, Jan 7, 2019
+              - generic [ref=e705]:
+                - link "Work" [ref=e707] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e711] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e714]:
+          - paragraph [ref=e715]:
+            - text: When you hear the word “robot” what comes to mind? Probably a metal, humanoid machine—something like C-3PO from
+            - emphasis [ref=e716]: Star Wars
+            - text: ", Rosie the Robot Maid from"
+            - emphasis [ref=e717]: The Jetsons
+            - text: ", or perhaps one of the menacing Terminator robots."
+          - paragraph [ref=e718]: At a Harvard University lab, I saw some surprising inventions that challenge our popular images of robots. One robot I wore like a glove. Another you could pull on like a pair of pants. Some robots had spongy arms that could pick up the most delicate objects. And others were so tiny and light they could take to the air on paper-thin wings, like insects.
+          - paragraph [ref=e719]: These incredible creations are powerful examples of the exciting innovation underway in the field of robotics. They were also a reminder that while science fiction writers may lead us to fear a future of Terminator-style robots, robotics discoveries have far greater potential to improve our lives. They could offer physical support and assistance, help with search and rescue efforts, and meet medical and other technological challenges.
+          - paragraph [ref=e721]: Stepping inside of the lab of Dr. Conor Walsh, founder of Harvard’s Biodesign Lab, I met a researcher wearing a pair of robotic britches walking on a treadmill. The britches are part of an exosuit developed by Conor and his team to help restore movement for people with spinal cord injuries or movement disorders due to a stroke or disease. And for healthy people, the exosuits could help ease the physical burdens experienced by firefighters, factory workers, and soldiers.
+          - paragraph [ref=e722]: While rigid exoskeletons have been available for many years to serve these same functions, what’s different about this exosuit is that it’s soft. Bringing together researchers from engineering, industrial design, apparel, and medical fields, Conor and his team developed specially designed clothing that enhances performance while also being light enough that it won’t tire out users.
+          - paragraph [ref=e723]: Another of Conor’s inventions is a soft robotic glove, which he invited me to try on. The black glove was supported with pneumatic tubes which gently assisted me with my grip as a I tried to pick up a coffee mug. This technology could be a life changer for people disabled because of a stroke or disease, allowing them to perform basic tasks like eating, drinking, and even writing.
+          - paragraph [ref=e724]:
+            - text: I also met with Dr. Robert Wood, founder of the Harvard Microrobotics Lab. His team focuses on bio-inspired robots. His best-known invention is the
+            - link "RoboBee" [ref=e725] [cursor=pointer]:
+              - /url: https://www.youtube.com/watch?v=hEZ7rHRifVc
+            - text: ", a flying microbot that’s half the size of a paper clip and weighs less than one tenth of a gram. Some models of the RoboBee are able to transition from swimming underwater to flying in the air. They’re also working on ways for swarms of RoboBees to communicate with one another and coordinate their movements."
+          - paragraph [ref=e726]: To be sure, it’s easy to imagine how such a small and potentially stealthy invention might be used for nefarious purposes. Robert’s team, however, envisions a future where flying microbots could play a beneficial role in agriculture, search and rescue missions, surveillance, and climate monitoring. Their research will also likely have applications to other fields. For example, the technologies developed to manufacture such small robots could be used in the medical field to make small surgical devices for endoscopic procedures.
+          - paragraph [ref=e727]: Before any of these benefits can be realized, Robert’s team must solve some tough technical challenges. One key problem is how to power a small flying robot. Currently, each RoboBee is tethered to a thin wire hooked up to a power source. The goal is to find a way to have onboard power so each RoboBee can be autonomous. A battery that small and light is not yet available, so they are exploring ways to make their own.
+          - paragraph [ref=e728]:
+            - text: Another amazing area of Robert’s research is soft robotics. His team wants to create a new type of robot that is entirely soft—with no rigid components like batteries or electronic systems. Their first creation is a 3D-printed robot—nicknamed the
+            - link "Octobot" [ref=e729] [cursor=pointer]:
+              - /url: https://wyss.harvard.edu/the-first-autonomous-entirely-soft-robot/
+            - text: —which is soft, autonomous, and chemically powered. They also recently developed a soft robotic arm for use in deep-sea research. Up until now, the robotic arms on research submarines have been made of hard materials that lack the dexterity to grasp jellyfish and other fragile sea life. The new soft arms will allow underwater researchers to gently pick up delicate aquatic creatures without damaging them.
+          - paragraph [ref=e730]: It was exciting to see the research underway at both these Harvard labs and speak with the many young students drawn to robotics. I have no doubt we’ll all be hearing more amazing discoveries from them in the years ahead. I left eager to learn more about the rapidly growing field of robotics research.
+        - generic [ref=e731]:
+          - generic [ref=e732] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e733] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e740]:
+        - img "Gates notes image" [ref=e742]
+        - generic [ref=e743]:
+          - paragraph [ref=e745]:
+            - strong [ref=e746]: History helps
+          - heading "The risks of AI are real but manageable" [level=1] [ref=e747]
+          - paragraph [ref=e749]: The world has learned a lot about handling problems caused by breakthrough innovations.
+          - generic [ref=e750]:
+            - img "Bill profile picture" [ref=e752]
+            - generic [ref=e753]:
+              - generic [ref=e754]:
+                - generic [ref=e755]: By Bill Gates
+                - generic [ref=e756]: published on Tuesday, Jul 11, 2023
+              - generic [ref=e757]:
+                - link "Work" [ref=e759] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e763] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e766]:
+          - paragraph [ref=e767]: The risks created by artificial intelligence can seem overwhelming. What happens to people who lose their jobs to an intelligent machine? Could AI affect the results of an election? What if a future AI decides it doesn’t need humans anymore and wants to get rid of us?
+          - paragraph [ref=e768]: "These are all fair questions, and the concerns they raise need to be taken seriously. But there’s a good reason to think that we can deal with them: This is not the first time a major innovation has introduced new threats that had to be controlled. We’ve done it before."
+          - paragraph [ref=e769]: Whether it was the introduction of cars or the rise of personal computers and the Internet, people have managed through other transformative moments and, despite a lot of turbulence, come out better off in the end. Soon after the first automobiles were on the road, there was the first car crash. But we didn’t ban cars—we adopted speed limits, safety standards, licensing requirements, drunk-driving laws, and other rules of the road.
+          - paragraph [ref=e770]: We’re now in the earliest stage of another profound change, the Age of AI. It’s analogous to those uncertain times before speed limits and seat belts. AI is changing so quickly that it isn’t clear exactly what will happen next. We’re facing big questions raised by the way the current technology works, the ways people will use it for ill intent, and the ways AI will change us as a society and as individuals.
+          - paragraph [ref=e771]: In a moment like this, it’s natural to feel unsettled. But history shows that it’s possible to solve the challenges created by new technologies.
+          - paragraph [ref=e772]:
+            - text: I have
+            - link "written before" [ref=e773] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/The-Age-of-AI-Has-Begun
+            - text: about how AI is going to revolutionize our lives. It will help solve problems—in health, education, climate change, and more—that used to seem intractable. The Gates Foundation is making it a priority, and our CEO, Mark Suzman, recently shared how he’s
+            - link "thinking about its role" [ref=e774] [cursor=pointer]:
+              - /url: https://www.gatesfoundation.org/ideas/articles/artificial-intelligence-ai-development-principles
+            - text: in reducing inequity.
+          - paragraph [ref=e775]: I’ll have more to say in the future about the benefits of AI, but in this post, I want to acknowledge the concerns I hear and read most often, many of which I share, and explain how I think about them.
+          - paragraph [ref=e776]: "One thing that’s clear from everything that has been written so far about the risks of AI—and a lot has been written—is that no one has all the answers. Another thing that’s clear to me is that the future of AI is not as grim as some people think or as rosy as others think. The risks are real, but I am optimistic that they can be managed. As I go through each concern, I’ll return to a few themes:"
+          - list [ref=e777]:
+            - listitem [ref=e778]: Many of the problems caused by AI have a historical precedent. For example, it will have a big impact on education, but so did handheld calculators a few decades ago and, more recently, allowing computers in the classroom. We can learn from what’s worked in the past.
+            - listitem [ref=e779]: Many of the problems caused by AI can also be managed with the help of AI.
+            - listitem [ref=e780]: We’ll need to adapt old laws and adopt new ones—just as existing laws against fraud had to be tailored to the online world.
+          - paragraph [ref=e781]: In this post, I’m going to focus on the risks that are already present, or soon will be. I’m not dealing with what happens when we develop an AI that can learn any subject or task, as opposed to today’s purpose-built AIs. Whether we reach that point in a decade or a century, society will need to reckon with profound questions. What if a super AI establishes its own goals? What if they conflict with humanity’s? Should we even make a super AI at all?
+          - paragraph [ref=e782]: But thinking about these longer-term risks should not come at the expense of the more immediate ones. I’ll turn to them now.
+          - heading [level=2] [ref=e783]:
+            - strong [ref=e784]: Deepfakes and misinformation generated by AI could undermine elections and democracy.
+          - paragraph [ref=e785]: The idea that technology can be used to spread lies and untruths is not new. People have been doing it with books and leaflets for centuries. It became much easier with the advent of word processors, laser printers, email, and social networks.
+          - paragraph [ref=e786]:
+            - text: AI takes this problem of fake text and extends it, allowing virtually anyone to
+            - link "create fake audio and video" [ref=e787] [cursor=pointer]:
+              - /url: https://www.theguardian.com/technology/2020/jan/13/what-are-deepfakes-and-how-can-you-spot-them
+            - text: ", known as deepfakes. If you get a voice message that sounds like your child saying “I’ve been kidnapped, please send $1,000 to this bank account within the next 10 minutes, and don’t call the police,” it’s going to have a horrific emotional impact far beyond the effect of an email that says the same thing."
+          - paragraph [ref=e788]: On a bigger scale, AI-generated deepfakes could be used to try to tilt an election. Of course, it doesn’t take sophisticated technology to sow doubt about the legitimate winner of an election, but AI will make it easier.
+          - paragraph [ref=e789]:
+            - text: There are already
+            - link "phony videos" [ref=e790] [cursor=pointer]:
+              - /url: https://www.reuters.com/world/us/deepfaking-it-americas-2024-election-collides-with-ai-boom-2023-05-30/
+            - text: that feature fabricated footage of well-known politicians. Imagine that on the morning of a major election, a video showing one of the candidates robbing a bank goes viral. It’s fake, but it takes news outlets and the campaign several hours to prove it. How many people will see it and change their votes at the last minute? It could tip the scales, especially in a close election.
+          - paragraph [ref=e791]: When OpenAI co-founder Sam Altman testified before a U.S. Senate committee recently, Senators from both parties zeroed in on AI’s impact on elections and democracy. I hope this subject continues to move up everyone’s agenda.
+          - paragraph [ref=e792]: We certainly have not solved the problem of misinformation and deepfakes. But two things make me guardedly optimistic. One is that people are capable of learning not to take everything at face value. For years, email users fell for scams where someone posing as a Nigeran prince promised a big payoff in return for sharing your credit card number. But eventually, most people learned to look twice at those emails. As the scams got more sophisticated, so did many of their targets. We’ll need to build the same muscle for deepfakes.
+          - paragraph [ref=e793]:
+            - text: The other thing that makes me hopeful is that AI can help identify deepfakes as well as create them. Intel, for example, has developed a
+            - link "deepfake detector" [ref=e794] [cursor=pointer]:
+              - /url: https://www.intel.com/content/www/us/en/company-overview/wonderful/deepfake-detection.html
+            - text: ", and the government agency DARPA is"
+            - link "working on technology" [ref=e795] [cursor=pointer]:
+              - /url: https://www.darpa.mil/program/semantic-forensics
+            - text: to identify whether video or audio has been manipulated.
+          - paragraph [ref=e796]: "This will be a cyclical process: Someone finds a way to detect fakery, someone else figures out how to counter it, someone else develops counter-countermeasures, and so on. It won’t be a perfect success, but we won’t be helpless either."
+          - heading [level=2] [ref=e797]:
+            - strong [ref=e798]: AI makes it easier to launch attacks on people and governments.
+          - paragraph [ref=e799]: Today, when hackers want to find exploitable flaws in software, they do it by brute force—writing code that bangs away at potential weaknesses until they discover a way in. It involves going down a lot of blind alleys, which means it takes time and patience.
+          - paragraph [ref=e800]: Security experts who want to counter hackers have to do the same thing. Every software patch you install on your phone or laptop represents many hours of searching, by people with good and bad intentions alike.
+          - paragraph [ref=e801]:
+            - text: AI models will accelerate this process by helping hackers write more effective code. They’ll also be able to use public information about individuals, like where they work and who their friends are, to develop
+            - link "phishing" [ref=e802] [cursor=pointer]:
+              - /url: https://en.wikipedia.org/wiki/Phishing
+            - text: attacks that are more advanced than the ones we see today.
+          - paragraph [ref=e803]: The good news is that AI can be used for good purposes as well as bad ones. Government and private-sector security teams need to have the latest tools for finding and fixing security flaws before criminals can take advantage of them. I hope the software security industry will expand the work they’re already doing on this front—it ought to be a top concern for them.
+          - paragraph [ref=e804]: This is also why we should not try to temporarily keep people from implementing new developments in AI, as some have proposed. Cyber-criminals won’t stop making new tools. Nor will people who want to use AI to design nuclear weapons and bioterror attacks. The effort to stop them needs to continue at the same pace.
+          - paragraph [ref=e805]: "There’s a related risk at the global level: an arms race for AI that can be used to design and launch cyberattacks against other countries. Every government wants to have the most powerful technology so it can deter attacks from its adversaries. This incentive to not let anyone get ahead could spark a race to create increasingly dangerous cyber weapons. Everyone would be worse off."
+          - paragraph [ref=e806]:
+            - text: That’s a scary thought, but we have history to guide us. Although the world’s nuclear nonproliferation regime has its faults, it has prevented the all-out nuclear war that my generation was so afraid of when we were growing up. Governments should consider creating a global body for AI similar to the
+            - link "International Atomic Energy Agency" [ref=e807] [cursor=pointer]:
+              - /url: https://www.iaea.org/
+            - text: .
+          - heading [level=2] [ref=e808]:
+            - strong [ref=e809]: AI will take away people’s jobs.
+          - paragraph [ref=e810]: In the next few years, the main impact of AI on work will be to help people do their jobs more efficiently. That will be true whether they work in a factory or in an office handling sales calls and accounts payable. Eventually, AI will be good enough at expressing ideas that it will be able to write your emails and manage your inbox for you. You’ll be able to write a request in plain English, or any other language, and generate a rich presentation on your work.
+          - paragraph [ref=e811]:
+            - text: As I
+            - link "argued" [ref=e812] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/The-Age-of-AI-Has-Begun#ALChapter3
+            - text: in my February post, it’s good for society when productivity goes up. It gives people more time to do other things, at work and at home. And the demand for people who help others—teaching, caring for patients, and supporting the elderly, for example—will never go away. But it is true that some workers will need support and retraining as we make this transition into an AI-powered workplace. That’s a role for governments and businesses, and they’ll need to manage it well so that workers aren’t left behind—to avoid the kind of disruption in people’s lives that has happened during the decline of manufacturing jobs in the United States.
+          - paragraph [ref=e813]: Also, keep in mind that this is not the first time a new technology has caused a big shift in the labor market. I don’t think AI’s impact will be as dramatic as the Industrial Revolution, but it certainly will be as big as the introduction of the PC. Word processing applications didn’t do away with office work, but they changed it forever. Employers and employees had to adapt, and they did. The shift caused by AI will be a bumpy transition, but there is every reason to think we can reduce the disruption to people’s lives and livelihoods.
+          - heading [level=2] [ref=e814]:
+            - strong [ref=e815]: AI inherits our biases and makes things up.
+          - paragraph [ref=e816]: Hallucinations—the term for when an AI confidently makes some claim that simply is not true—usually happen because the machine doesn’t understand the context for your request. Ask an AI to write a short story about taking a vacation to the moon and it might give you a very imaginative answer. But ask it to help you plan a trip to Tanzania, and it might try to send you to a hotel that doesn’t exist.
+          - paragraph [ref=e817]: Another risk with artificial intelligence is that it reflects or even worsens existing biases against people of certain gender identities, races, ethnicities, and so on.
+          - paragraph [ref=e818]: "To understand why hallucinations and biases happen, it’s important to know how the most common AI models work today. They are essentially very sophisticated versions of the code that allows your email app to predict the next word you’re going to type: They scan enormous amounts of text—just about everything available online, in some cases—and analyze it to find patterns in human language."
+          - paragraph [ref=e819]: When you pose a question to an AI, it looks at the words you used and then searches for chunks of text that are often associated with those words. If you write “list the ingredients for pancakes,” it might notice that the words “flour, sugar, salt, baking powder, milk, and eggs” often appear with that phrase. Then, based on what it knows about the order in which those words usually appear, it generates an answer. (AI models that work this way are using what's called a transformer. GPT-4 is one such model.)
+          - paragraph [ref=e820]: This process explains why an AI might experience hallucinations or appear to be biased. It has no context for the questions you ask or the things you tell it. If you tell one that it made a mistake, it might say, “Sorry, I mistyped that.” But that’s a hallucination—it didn’t type anything. It only says that because it has scanned enough text to know that “Sorry, I mistyped that” is a sentence people often write after someone corrects them.
+          - paragraph [ref=e821]: Similarly, AI models inherit whatever prejudices are baked into the text they’re trained on. If one reads a lot about, say, physicians, and the text mostly mentions male doctors, then its answers will assume that most doctors are men.
+          - paragraph [ref=e822]:
+            - text: Although some researchers think hallucinations are an inherent problem, I don’t agree. I’m optimistic that, over time, AI models can be taught to distinguish fact from fiction. OpenAI, for example, is doing
+            - link "promising work" [ref=e823] [cursor=pointer]:
+              - /url: https://openai.com/research/instruction-following
+            - text: on this front.
+          - paragraph [ref=e824]:
+            - text: Other organizations, including the
+            - link "Alan Turing Institute" [ref=e825] [cursor=pointer]:
+              - /url: https://www.turing.ac.uk/research/interest-groups/fairness-transparency-privacy
+            - text: and the
+            - link "National Institute of Standards and Technology" [ref=e826] [cursor=pointer]:
+              - /url: https://www.nist.gov/artificial-intelligence/ai-fundamental-research-managing-ai-bias
+            - text: ", are working on the bias problem. One approach is to build human values and higher-level reasoning into AI. It’s analogous to the way a self-aware human works: Maybe you assume that most doctors are men, but you’re conscious enough of this assumption to know that you have to intentionally fight it. AI can operate in a similar way, especially if the models are designed by people from diverse backgrounds."
+          - paragraph [ref=e827]: Finally, everyone who uses AI needs to be aware of the bias problem and become an informed user. The essay you ask an AI to draft could be as riddled with prejudices as it is with factual errors. You’ll need to check your AI’s biases as well as your own.
+          - heading [level=2] [ref=e828]:
+            - strong [ref=e829]: Students won’t learn to write because AI will do the work for them.
+          - paragraph [ref=e830]: Many teachers are worried about the ways in which AI will undermine their work with students. In a time when anyone with Internet access can use AI to write a respectable first draft of an essay, what’s to keep students from turning it in as their own work?
+          - paragraph [ref=e831]:
+            - text: There are already
+            - link "AI tools that are learning" [ref=e832] [cursor=pointer]:
+              - /url: https://openai.com/blog/new-ai-classifier-for-indicating-ai-written-text
+            - text: to tell whether something was written by a person or by a computer, so teachers can tell when their students aren’t doing their own work. But some teachers aren’t trying to stop their students from using AI in their writing—they’re actually encouraging it.
+          - paragraph [ref=e833]:
+            - text: In January, a veteran English teacher named Cherie Shields wrote an
+            - link [ref=e834] [cursor=pointer]:
+              - /url: https://www.edweek.org/technology/opinion-dont-ban-chatgpt-use-it-as-a-teaching-tool/2023/01
+              - text: article in
+              - emphasis [ref=e835]: Education Week
+            - text: about how she uses ChatGPT in her classroom. It has helped her students with everything from getting started on an essay to writing outlines and even giving them feedback on their work.
+          - paragraph [ref=e836]: “Teachers will have to embrace AI technology as another tool students have access to,” she wrote. “Just like we once taught students how to do a proper Google search, teachers should design clear lessons around how the ChatGPT bot can assist with essay writing. Acknowledging AI’s existence and helping students work with it could revolutionize how we teach.” Not every teacher has the time to learn and use a new tool, but educators like Cherie Shields make a good argument that those who do will benefit a lot.
+          - paragraph [ref=e837]: It reminds me of the time when electronic calculators became widespread in the 1970s and 1980s. Some math teachers worried that students would stop learning how to do basic arithmetic, but others embraced the new technology and focused on the thinking skills behind the arithmetic.
+          - paragraph [ref=e838]:
+            - text: There’s another way that AI can help with writing and critical thinking. Especially in these early days, when hallucinations and biases are still a problem, educators can have AI generate articles and then work with their students to check the facts. Education nonprofits like
+            - link "Khan Academy" [ref=e839] [cursor=pointer]:
+              - /url: https://www.khanacademy.org/
+            - text: and
+            - link "OER Project" [ref=e840] [cursor=pointer]:
+              - /url: https://www.oerproject.com/
+            - text: ", which I fund, offer teachers and students free online tools that put a big emphasis on testing assertions. Few skills are more important than knowing how to distinguish what’s true from what’s false."
+          - paragraph [ref=e841]: We do need to make sure that education software helps close the achievement gap, rather than making it worse. Today’s software is mostly geared toward empowering students who are already motivated. It can develop a study plan for you, point you toward good resources, and test your knowledge. But it doesn’t yet know how to draw you into a subject you’re not already interested in. That’s a problem that developers will need to solve so that students of all types can benefit from AI.
+          - heading [level=2] [ref=e842]:
+            - strong [ref=e843]: What’s next?
+          - paragraph [ref=e844]: I believe there are more reasons than not to be optimistic that we can manage the risks of AI while maximizing their benefits. But we need to move fast.
+          - paragraph [ref=e845]: "Governments need to build up expertise in artificial intelligence so they can make informed laws and regulations that respond to this new technology. They’ll need to grapple with misinformation and deepfakes, security threats, changes to the job market, and the impact on education. To cite just one example: The law needs to be clear about which uses of deepfakes are legal and about how deepfakes should be labeled so everyone understands when something they’re seeing or hearing is not genuine"
+          - paragraph [ref=e846]: Political leaders will need to be equipped to have informed, thoughtful dialogue with their constituents. They’ll also need to decide how much to collaborate with other countries on these issues versus going it alone.
+          - paragraph [ref=e847]: In the private sector, AI companies need to pursue their work safely and responsibly. That includes protecting people’s privacy, making sure their AI models reflect basic human values, minimizing bias, spreading the benefits to as many people as possible, and preventing the technology from being used by criminals or terrorists. Companies in many sectors of the economy will need to help their employees make the transition to an AI-centric workplace so that no one gets left behind. And customers should always know when they’re interacting with an AI and not a human.
+          - paragraph [ref=e848]: Finally, I encourage everyone to follow developments in AI as much as possible. It’s the most transformative innovation any of us will see in our lifetimes, and a healthy public debate will depend on everyone being knowledgeable about the technology, its benefits, and its risks. The benefits will be massive, and the best reason to believe that we can manage the risks is that we have done it before.
+        - generic [ref=e849]:
+          - generic [ref=e850] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e851] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e858]:
+        - generic [ref=e860]:
+          - paragraph [ref=e862]: Unlimited
+          - heading "Bionic arms empower kids to express themselves" [level=1] [ref=e863]
+          - paragraph [ref=e865]: I recently visited a company that aims to revolutionize the way the world thinks about artificial limbs.
+          - generic [ref=e866]:
+            - img "Bill profile picture" [ref=e868]
+            - generic [ref=e869]:
+              - generic [ref=e870]:
+                - generic [ref=e871]: By Bill Gates
+                - generic [ref=e872]: published on Sunday, Jun 10, 2018
+              - generic [ref=e873]:
+                - link "Work" [ref=e875] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e879] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e885]:
+          - paragraph [ref=e886]: From pitching a fastball to painting a masterpiece, the human arm is amazing in terms of all the things it can do. But I had a new appreciation for what an incredible feat of engineering—and art—the arm is when I visited a non-profit dedicated to designing bionic limbs for children with disabilities.
+          - paragraph [ref=e887]:
+            - link "Limbitless Solutions" [ref=e888] [cursor=pointer]:
+              - /url: https://limbitless-solutions.org/
+            - text: ", supported by the"
+            - link "University of Central Florida" [ref=e889] [cursor=pointer]:
+              - /url: https://www.ucf.edu/
+            - text: ", aims to address the needs of thousands of children who were either born without arms or lost them because of accidents or disease. Its goal is to make custom-designed bionic arms for these children as commonplace as eyeglasses and braces—and at no cost to their families."
+          - paragraph [ref=e891]: Prosthetic arms for adults, of course, are widely available, but access for many children who need them is difficult or they are unwilling to use them, according to Albert Manero, president of Limbitless Solutions. Children complain that traditional prosthetics are heavy, uncomfortable, or often include a hook for picking things up, sometimes drawing unwanted attention and teasing from other children.
+          - paragraph [ref=e892]: Limbitless is working to change the way the world thinks about artificial limbs. Instead of trying to mimic the look of human skin as existing prosthetics do, Limbitless’s engineers and artists work together to design and manufacture artificial limbs that are colorful and artistic. Instead of a hook, the limbs feature hands with moveable fingers that can grasp objects using the body’s own electrical signals.
+          - paragraph [ref=e893]:
+            - text: The first bionic arm the Limbitless team created was an Iron Man-inspired limb for a 7-year-old boy, Alex Pring, who loves superheroes. (
+            - link "Robert Downey Jr." [ref=e894] [cursor=pointer]:
+              - /url: https://www.youtube.com/watch?v=oEx5lmbCKtY
+            - text: teamed up with Limbitless to deliver the bionic arm to Alex in 2015.) Other bionic arms are decorated with flowers, bright colors, and other designs inspired by the children’s interests.
+          - paragraph [ref=e895]: The bionic arms have had a life-changing impact not only on the children’s ability to perform day-to-day tasks like getting dressed, picking things up, or buckling a seatbelt, but also their own sense of themselves. Children who were often asked, “What’s wrong with you?” find that they are now the center of attention whenever they enter a room.
+          - paragraph [ref=e896]: During my visit to Limbitless’s offices in Orlando last year, I had the opportunity to meet Annika Emmert, a 13-year-old girl whose life was changed thanks to the work of Limbitless Solutions. Annika was born with a partially developed right arm, which drew lots of unwanted stares from other kids as she was growing up. When Annika’s parents heard about Limbitless, they reached out to Manero’s team to see if they could help Annika design her own artificial limb.
+          - paragraph [ref=e897]: Annika proudly showed me her creation—a bionic arm painted light blue and decorated with white and pink flowers.
+          - paragraph [ref=e898]: “I’ll wear it sometimes and everybody will want to shake my hand,” she said, “They’ll be like, ‘Oh my gosh, it’s so pretty,’ kind of thing or, ‘Where’d you get it?’ and, ‘Can I get one?’”
+        - generic [ref=e899]:
+          - generic [ref=e900] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e901] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e908]:
+        - generic [ref=e910]:
+          - paragraph [ref=e912]: Ahead of the curve
+          - heading "Sal Khan is pioneering innovation in education…again" [level=1] [ref=e913]
+          - paragraph [ref=e915]:
+            - emphasis [ref=e916]: Brave New Words
+            - text: paints an inspiring picture of AI in the classroom.
+          - generic [ref=e917]:
+            - img "Bill profile picture" [ref=e919]
+            - generic [ref=e920]:
+              - generic [ref=e921]:
+                - generic [ref=e922]: By Bill Gates
+                - generic [ref=e923]: published on Tuesday, May 21, 2024
+              - generic [ref=e924]:
+                - link "Work" [ref=e926] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e930] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e936]:
+          - paragraph [ref=e937]: When Chat GPT 4.0 launched last week, people across the internet (and the world) were blown away. Talking to AI has always felt a bit surreal—but OpenAI’s latest model feels like talking to a real person. You can actually speak to it, and have it talk back to you, without lags. It’s as lifelike as any AI we’ve seen so far, and the use cases are limitless. One of the first that came to my mind was how big a game-changer it will be in the classroom. Imagine every student having a personal tutor powered by this technology.
+          - paragraph [ref=e938]:
+            - text: I recently read a terrific book on this topic called
+            - emphasis [ref=e939]: Brave New Words
+            - text: . It’s written by my friend (and
+            - link "podcast guest" [ref=e940] [cursor=pointer]:
+              - /url: https://www.gatesnotes.com/Unconfuse-Me-podcast-with-guest-Sal-Khan
+            - text: ) Sal Khan, a longtime pioneer of innovation in education. Back in 2006, Sal founded Khan Academy to share the tutoring content he’d created for younger family members with a wider audience. Since then, his online educational platform has helped teach over 150 million people worldwide—including me and my kids.
+          - paragraph [ref=e941]:
+            - text: Well before this recent AI boom, I considered him a visionary. When I learned he was writing this book, I couldn’t wait to read it. Like I expected,
+            - emphasis [ref=e942]: Brave New Words
+            - text: is a masterclass.
+          - paragraph [ref=e943]: "Chapter by chapter, Sal takes readers through his predictions—some have already come true since the book was written—for AI’s many applications in education. His main argument: AI will radically improve both student outcomes and teacher experiences, and help usher in a future where everyone has access to a world-class education."
+          - paragraph [ref=e944]: You might be skeptical, especially if you—like me—have been following the EdTech movement for a while. For decades, exciting technologies and innovations have made headlines, accompanied by similarly bold promises to revolutionize learning and teaching as we know it—only to make a marginal impact in the classroom.
+          - paragraph [ref=e945]:
+            - text: But drawing on his experience creating
+            - link "Khanmigo" [ref=e946] [cursor=pointer]:
+              - /url: https://www.khanmigo.ai/
+            - text: ", an AI-powered tutor, Sal makes a compelling case that AI-powered technologies will be different. That’s because we finally have a way to give every student the kind of personalized learning, support, and guidance that’s historically been out of reach for most kids in most classrooms. As Sal puts it, “Getting every student a dedicated on-call human tutor is cost prohibitive.” AI tutors, on the other hand, aren’t."
+          - paragraph [ref=e947]: "Picture this: You're a seventh-grade student who struggles to keep up in math. But now, you have an AI tutor like the one Sal describes by your side. As you work through a challenging set of fraction problems, it won’t just give you the answer—it breaks each problem down into digestible steps. When you get stuck, it gives you easy-to-understand explanations and a gentle nudge in the right direction. When you finally get the answer, it generates targeted practice questions that help build your understanding and confidence."
+          - paragraph [ref=e948]:
+            - text: And with the help of an AI tutor, the past comes to life in remarkable ways. While learning about Abraham Lincoln’s leadership during the Civil War, you can have a “conversation” with the 16
+            - superscript [ref=e949]: th
+            - text: president himself. (As Sal demonstrates in the book, conversations with one of my favorite literary figures, Jay Gatsby, are also an option.)
+          - paragraph [ref=e950]: When the time comes to write your essay, don’t worry about the dreaded blank page. Instead, your AI tutor asks you thought-starters to help brainstorm. You get feedback on your outline in seconds, with tips to improve the logic or areas where you need more research. As you draft, the tutor evaluates your writing in real-time—almost impossible without this technology—and shows where you might clarify your ideas, provide more evidence, or address a counterargument. Before you submit, it gives detailed suggestions to refine your language and sharpen your points.
+          - paragraph [ref=e951]: Is this cheating?
+          - paragraph [ref=e952]:
+            - text: It’s a complicated question, and there’s no one-size-fits-all answer. Sal notes that bouncing ideas off friends, asking family members to critique work, and using spellcheckers and tools like Grammarly—which can rephrase entire sentences—aren’t considered cheating today by most measures. Similarly, when used right, AI doesn’t work for students but
+            - emphasis [ref=e953]: with
+            - text: them to move something forward that they might otherwise get stuck on. That’s why, according to Sal, a lot of educators who first banned AI from class are now encouraging students to use it.
+          - paragraph [ref=e954]:
+            - text: After all, mastery of AI won’t just be nice to have in a few years—for many professions, it’ll be necessary. Employees who can use AI effectively will be far more valuable than those who can’t. By incorporating this technology into education, we're both improving students’ experiences and outcomes
+            - emphasis [ref=e955]: and
+            - text: preparing them for the jobs of the future—which will become more enjoyable and fulfilling with AI in the mix.
+          - paragraph [ref=e956]: "That includes teaching. With every transformative innovation, there are fears of machines taking jobs. But when it comes to education, I agree with Sal: AI tools and tutors never can and never should replace teachers. What AI can do, though, is support and empower them."
+          - paragraph [ref=e957]: Until now, most EdTech solutions, as great as they may be, haven’t meaningfully made teachers’ lives easier. But with AI, they can have a superhuman teaching assistant to handle routine tasks like lesson planning and grading—which take up almost half of a typical teacher's day. In seconds, an AI assistant can grade spelling tests or create a lesson plan connecting the Industrial Revolution to current events. It can even monitor each student's progress and give teachers instant feedback, allowing for a new era of personalized learning.
+          - paragraph [ref=e958]: "With AI assistants handling the mundane stuff, teachers can focus on what they do best: inspiring students, building relationships, and making sure everyone feels seen and supported—especially kids who need a little extra help."
+          - paragraph [ref=e959]: Of course, there are challenges involved in bringing AI into schools at scale, and Sal is candid about them. We need systems that protect student privacy and mitigate biases. And there’s still a lot to do so that every kid has access to the devices and connectivity they need to use AI in the first place. No technology is a silver bullet for education. But I believe AI can be a game-changer and great equalizer in the classroom, the workforce, and beyond.
+          - paragraph [ref=e960]:
+            - text: I recently visited First Avenue School in Newark, New Jersey, where Khanmigo is currently being piloted. We’re still in the early days, but it was amazing to see firsthand how AI can be used in the classroom—and to speak with students and teachers who are already reaping the benefits. It felt like catching a glimpse of the future. No one understands where education is headed better than Sal Khan, and I can't recommend
+            - emphasis [ref=e961]: Brave New Words
+            - text: enough.
+        - generic [ref=e962]:
+          - generic [ref=e963] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e964] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e971]:
+        - img "Gates notes image" [ref=e973]
+        - generic [ref=e974]:
+          - paragraph [ref=e976]: Gray matter matters
+          - heading "Is this how your brain works?" [level=1] [ref=e977]
+          - paragraph [ref=e979]: Jeff Hawkins’s book explores a new theory about human intelligence.
+          - generic [ref=e980]:
+            - img "Bill profile picture" [ref=e982]
+            - generic [ref=e983]:
+              - generic [ref=e984]:
+                - generic [ref=e985]: By Bill Gates
+                - generic [ref=e986]: published on Monday, Nov 22, 2021
+              - generic [ref=e987]:
+                - link "Work" [ref=e989] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e993] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e996]:
+          - paragraph [ref=e997]: "Of all the subjects I’ve been learning about lately, one stands out for its mind-boggling complexity: understanding how the cells and connections in our brains give rise to consciousness and our ability to learn."
+          - paragraph [ref=e998]: Thanks to better instruments for observing brain activity, faster genetic sequencing, and other technological improvements, we’ve learned a lot in recent years. For example, we now understand more about the different types of neurons that make up the brain, how neurons communicate with one another, and which neurons are active when we’re performing all kinds of tasks. As a result, many people call this the golden era of neuroscience.
+          - paragraph [ref=e999]: But let’s put this progress in context. We’re only beginning to understand how a worm’s brain works—and it has only 300 neurons, compared with our 86 billion. So you can imagine how far we are from getting answers to the really big, important questions about brain function, including what causes neurodegeneration and how we can block it. Watching helplessly as my dad declined from Alzheimer’s made me feel as if this era is not yet a golden era. I think it’s more like an early dawn.
+          - paragraph [ref=e1000]:
+            - text: Over the years, I’ve read quite a few books about the brain, most of them written by academic neuroscientists who view it through the lens of sophisticated lab experiments. Recently, I picked up a brain book that’s much more theoretical. It’s called
+            - emphasis [ref=e1001]: "A Thousand Brains: A New Theory of Intelligence"
+            - text: ", by a tech entrepreneur named Jeff Hawkins."
+          - paragraph [ref=e1002]:
+            - text: I got to know Hawkins in the 1990s, when he was one of the pioneers of mobile computing and co-inventor of the
+            - link "PalmPilot" [ref=e1003] [cursor=pointer]:
+              - /url: https://www.computerhistory.org/revolution/mobile-computing/18/321
+            - text: ". After his tech career, he decided to work with a singular focus on just one problem: making big improvements in machine learning. His platform for doing that is a Silicon Valley–based company called"
+            - link "Numenta" [ref=e1004] [cursor=pointer]:
+              - /url: https://numenta.com/
+            - text: ", which he founded in 2005."
+          - paragraph [ref=e1005]: Machine learning has incredible promise. I believe that in the coming decades we will produce machines that have the kind of broad, flexible “general intelligence” that would enable them to help us address truly complex, multifaceted challenges like improving medicine through a more advanced understanding of how proteins fold. Nothing we call AI today has anything like that kind of intelligence.
+          - paragraph [ref=e1006]: As Hawkins puts it, “There is no ‘I’ in AI.” Computers can beat a grandmaster in chess, but they don’t know that chess is a game. Hawkins argues that we can’t achieve artificial general intelligence “by doing more of what we are currently doing.” In his view, understanding much more about the part of the brain called the neocortex is key to developing true general AI, and that’s what this book is about.
+          - paragraph [ref=e1007]:
+            - emphasis [ref=e1008]: A Thousand Brains
+            - text: is appropriate for non-experts who have little background in brain science or computer science. It’s filled with fascinating insights into the architecture of the brain and tantalizing clues about the future of intelligent machines. In the foreword, the legendary evolutionary biologist Richard Dawkins says the book “will turn your mind into a maelstrom of … provocative ideas.” I agree.
+          - paragraph [ref=e1009]: Hawkins begins by walking us through the basics of the neocortex, which makes up 70 percent of the human brain. It’s responsible for almost everything we associate with intelligence, such as our ability to speak, create music, and solve complex problems.
+          - paragraph [ref=e1010]:
+            - text: Borrowing from the work of neuroscientist
+            - link "Vernon Mountcastle" [ref=e1011] [cursor=pointer]:
+              - /url: https://mitpress.mit.edu/books/mindful-brain
+            - text: ", Hawkins reports that the basic circuit of the neocortex is called a “cortical column,” which is divided into several hundred “minicolumns” with about a hundred individual neurons. He argues that “our quest to understand intelligence boils down to figuring out what a cortical column does and how it does it.”"
+          - paragraph [ref=e1012]: He believes that the basic function of the cortical column is to make constant predictions about the world as we move through it. “With each movement, the neocortex predicts what the next sensation will be,” Hawkins writes. “If any input doesn’t match with the brain’s prediction … this alerts the neocortex that its model of that part of the world needs to be updated.”
+          - paragraph [ref=e1013]: The name of the book comes from Hawkins’s conclusion that cortical columns operate in parallel, each making separate predictions about what the next sensory input will be. In other words, each column functions as its own separate learning machine.
+          - paragraph [ref=e1014]:
+            - text: If Hawkins is right that the only viable path to artificial general intelligence is by replicating the workings of the neocortex, that means it’s unlikely that intelligent machines will supplant or subjugate the human race—the kind of thing you see in classic sci-fi movies like
+            - emphasis [ref=e1015]: The Matrix
+            - text: and
+            - emphasis [ref=e1016]: The Terminator
+            - text: . That’s because the neocortex operates differently from parts of the brain that evolved much earlier and that drive our primal emotions and instincts.
+          - paragraph [ref=e1018]: “Intelligent machines need to have a model of the world and the flexibility of behavior that comes from that model, but they don’t need to have human-like instincts for survival and procreation,” Hawkins writes. In other words, we will eventually be able to create machines that replicate the logical, rational neocortex without having to wrap it around an old brain that’s an “ignorant brute” wired for fear, greed, jealousy, and other human sins. That’s why Hawkins dismisses the notion that humans will lose control of the machines they create.
+          - paragraph [ref=e1019]: Unfortunately, we may still need to worry about the dark side of artificial intelligence. Even if intelligent machines replicate only the “new brain” and are not saddled with an “old brain,” some people will still try to use them for bad purposes. Sadly, that is human nature.
+          - paragraph [ref=e1020]: In the end, I come back to my starting premise that we’re still early in our understanding of the human brain compared with just about every other part of our world. We don’t know yet whether Hawkins’s Thousand Brains Theory will hold up to experimental scrutiny. And even if it does, we still don’t know how to replicate cortical columns with digital technologies.
+          - paragraph [ref=e1021]: All I know for sure is that I’ll be reading a lot more about this topic. My hope is that it will help lead to great breakthroughs in the way we go about solving the world’s hardest problems.
+        - generic [ref=e1022]:
+          - generic [ref=e1023] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e1024] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e1031]:
+        - img "Gates notes image" [ref=e1033]
+        - generic [ref=e1034]:
+          - paragraph [ref=e1036]: Sea change
+          - heading "My favorite book on AI" [level=1] [ref=e1037]
+          - paragraph [ref=e1039]:
+            - emphasis [ref=e1040]: The Coming Wave
+            - text: is a clear-eyed view of the extraordinary opportunities and genuine risks ahead.
+          - generic [ref=e1041]:
+            - img "Bill profile picture" [ref=e1043]
+            - generic [ref=e1044]:
+              - generic [ref=e1045]:
+                - generic [ref=e1046]: By Bill Gates
+                - generic [ref=e1047]: published on Tuesday, Dec 3, 2024
+              - generic [ref=e1048]:
+                - link "Work" [ref=e1050] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e1054] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e1057]:
+          - paragraph [ref=e1058]:
+            - text: "When people ask me about artificial intelligence, their questions often boil down to this: What should I be worried about, and how worried should I be? For the past year, I've responded by telling them to read"
+            - emphasis [ref=e1059]: The Coming Wave
+            - text: "by Mustafa Suleyman. It’s the book I recommend more than any other on AI—to heads of state, business leaders, and anyone else who asks—because it offers something rare: a clear-eyed view of both the extraordinary opportunities and genuine risks ahead."
+          - paragraph [ref=e1060]: The author, Mustafa Suleyman, brings a unique perspective to the topic. After helping build DeepMind from a small startup into one of the most important AI companies of the past decade, he went on to found Inflection AI and now leads Microsoft’s AI division. But what makes this book special isn’t just Mustafa’s firsthand experience—it’s his deep understanding of scientific history and how technological revolutions unfold. He's a serious intellectual who can draw meaningful parallels across centuries of scientific advancement.
+          - paragraph [ref=e1061]:
+            - text: Most of the coverage of
+            - emphasis [ref=e1062]: The Coming Wave
+            - text: has focused on what it has to say about artificial intelligence—which makes sense, given that it's one of the most important books on AI ever written. And there is probably no one as qualified as Mustafa to write it. He was there in 2016 when DeepMind’s AlphaGo beat the world’s top players of Go, a game far more complex than chess with 2,500 years of strategic thinking behind it, by making moves no one had ever thought of. In doing so, the AI-based computer program showed that machines could beat humans at our own game—literally—and gave Mustafa an early glimpse of what was coming.
+          - paragraph [ref=e1063]: But what sets his book apart from others is Mustafa’s insight that AI is only one part of an unprecedented convergence of scientific breakthroughs. Gene editing, DNA synthesis, and other advances in biotechnology are racing forward in parallel. As the title suggests, these changes are building like a wave far out at sea—invisible to many but gathering force. Each would be game-changing on its own; together, they’re poised to reshape every aspect of society.
+          - paragraph [ref=e1064]: The historian Yuval Noah Harari has argued that humans should figure out how to work together and establish trust before developing advanced AI. In theory, I agree. If I had a magic button that could slow this whole thing down for 30 or 40 years while humanity figures out trust and common goals, I might press it. But that button doesn’t exist. These technologies will be created regardless of what any individual or company does.
+          - paragraph [ref=e1065]: As is, progress is already accelerating as costs plummet and computing power grows. Then there are the incentives for profit and power that are driving development. Countries compete with countries, companies compete with companies, and individuals compete for glory and leadership. These forces make technological advancement essentially unstoppable—and they also make it harder to control.
+          - paragraph [ref=e1066]: In my conversations about AI, I often highlight three main risks we need to consider. First is the rapid pace of economic disruption. AI could fundamentally transform the nature of work itself and affect jobs across most industries, including white-collar roles that have traditionally been safe from automation. Second is the control problem, or the difficulty of ensuring that AI systems remain aligned with human values and interests as they become more advanced. The third risk is that when a bad actor has access to AI, they become more powerful—and more capable of conducting cyber-attacks, creating biological weapons, even compromising national security.
+          - paragraph [ref=e1067]:
+            - text: "This last risk—of empowering bad actors—is what leads to the biggest challenge of our time: containment. How do we limit the dangers of these technologies while harnessing their benefits? This is the question at the heart of"
+            - emphasis [ref=e1068]: The Coming Wave,
+            - text: because containment is foundational to everything else. Without it, the risks of AI and biotechnology become even more acute. By solving for it first, we create the stability and trust needed to tackle everything else.
+          - paragraph [ref=e1069]: Of course, that’s easier said than done.
+          - paragraph [ref=e1070]: While previous transformative technologies like nuclear weapons could be contained through physical security and strict access controls, AI and biotech present a fundamentally different challenge. They're increasingly accessible and affordable, their development is nearly impossible to detect or monitor, and they can be used behind closed doors with minimal infrastructure. Outlawing them would mean the good guys unilaterally disarm while bad actors forge ahead anyway. And it would hurt everyone because these technologies are inherently dual-use. The same tools that could be used to create biological weapons could also cure diseases; the same AI that could be used for cyber-attacks could also strengthen cyber defense.
+          - paragraph [ref=e1071]: "So how do we achieve containment in this new reality? It’s hardly fair to complain that Mustafa hasn’t single-handedly solved one of the most complex problems humanity has ever faced. Still, he lays out an agenda that’s appropriately ambitious for the scale of the challenge—ranging from technical solutions (like building an emergency off switch for AI systems) to sweeping institutional changes, including new global treaties, modernized regulatory frameworks, and historic cooperation among governments, companies, and scientists. When you finish his list of recommendations, you might wonder if we can really accomplish all this in time. But that’s precisely why this book is so important: It helps us understand the urgency while there’s still time to act."
+          - paragraph [ref=e1072]:
+            - text: I’ve always been an optimist, and reading
+            - emphasis [ref=e1073]: The Coming Wave
+            - text: hasn’t changed that. I firmly believe that advances in AI and biotech could help make breakthrough treatments for deadly diseases, innovative solutions for climate change, and high-quality education for everyone a reality. But true optimism isn’t about blind faith. It’s about seeing both the upsides and the risks, then working to shape the outcomes for the better.
+          - paragraph [ref=e1074]: Whether you’re a tech enthusiast, a policymaker, or someone simply trying to understand where the world is heading, you should read this book. It won’t give you easy answers, but it will help you ask the right questions—and leave you better prepared to ride the coming wave, instead of getting swept away by it.
+        - generic [ref=e1075]:
+          - generic [ref=e1076] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e1077] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e1082]:
+        - link "Graphic concept of a human brain with digital line drawings of objects labeling parts of the brain":
+          - /url: https://www.gatesnotes.com/
+          - generic:
+            - img "Graphic concept of a human brain with digital line drawings of objects labeling parts of the brain"
+        - generic [ref=e1083]:
+          - link:
+            - /url: https://www.gatesnotes.com/
+          - link "IN DEPTH The Age of AI has begun Artificial intelligence is as revolutionary as mobile phones and the Internet." [ref=e1084] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/the-age-of-ai-has-begun
+            - generic [ref=e1085]: IN DEPTH
+            - generic [ref=e1087]: The Age of AI has begun
+            - paragraph [ref=e1089]: Artificial intelligence is as revolutionary as mobile phones and the Internet.
+      - generic [ref=e1093]:
+        - img "Gates notes image" [ref=e1095]
+        - generic [ref=e1096]:
+          - paragraph [ref=e1098]: Hands off the wheel
+          - heading "The rules of the road are about to change" [level=1] [ref=e1099]
+          - paragraph [ref=e1101]: I believe we’ll reach a tipping point with autonomous vehicles within the next decade.
+          - generic [ref=e1102]:
+            - img "Bill profile picture" [ref=e1104]
+            - generic [ref=e1105]:
+              - generic [ref=e1106]:
+                - generic [ref=e1107]: By Bill Gates
+                - generic [ref=e1108]: published on Wednesday, Mar 29, 2023
+              - generic [ref=e1109]:
+                - link "Work" [ref=e1111] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e1115] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e1118]:
+          - paragraph [ref=e1119]: I’ve always been a car guy. When I was younger, I used to love driving fast (sometimes too fast). Now, I look forward to my daily commute to work. There’s something so fun yet meditative about driving a car.
+          - paragraph [ref=e1120]: Despite that, I’m excited for the day I get to hand over control of my car to a machine.
+          - paragraph [ref=e1121]:
+            - text: That day is coming sooner rather than later. We’ve made tremendous progress on autonomous vehicles, or AVs, in recent years, and I believe we’ll reach a tipping point within the next decade. When it happens, AVs will change transportation as dramatically as the PC changed office work. A lot of this development has been enabled by the progress made in artificial intelligence more broadly. (I recently shared my thoughts about AI on this blog.
+            - link "You can read them here" [ref=e1122] [cursor=pointer]:
+              - /url: /The-Age-of-AI-Has-Begun
+            - text: .)
+          - paragraph [ref=e1123]: "Some background for those who might not know a lot about AVs: The best way to understand where we are today is by looking at the Society of American Engineers, or SAE, classification system. This is widely used to describe how autonomous a vehicle is."
+          - paragraph [ref=e1125]: In levels 0-2, a human driver is in full control of the car, but the vehicle can provide assistance through features like adaptive cruise control and lane centering. Level 3 is when the technology starts to move from the driver being in control to the vehicle being in control. By the time you reach the highest level, the car can be fully autonomous at all times and under all conditions—the level 5 vehicles of the future might not have steering wheels at all.
+          - paragraph [ref=e1126]:
+            - text: Right now, we’re close to the tipping point—between levels 2 and 3—when cars are becoming available that allow the driver to take their hands off the wheel and let the system drive in certain circumstances. The
+            - link "first level 3 car" [ref=e1127] [cursor=pointer]:
+              - /url: https://jalopnik.com/mercedes-benz-approved-for-level-3-automation-in-nevada-1849956039
+            - text: was recently approved for use in the United States, although only in
+            - emphasis [ref=e1128]: very
+            - text: "specific conditions: Autonomous mode is permitted if you’re going under 40 mph on a highway in Nevada on a sunny day."
+          - paragraph [ref=e1129]: Over the next decade, we’ll start to see more vehicles crossing this threshold. AVs are rapidly reaching the point where almost all of the technology required has been invented. Now, the focus is on refining algorithms and perfecting the engineering. There have been huge advances in recent years—especially in sensors, which scan the surrounding environment and tell the vehicle about things it needs to react to, like pedestrians crossing the street or another driver who swerves into your lane.
+          - paragraph [ref=e1130]:
+            - text: There are a lot of different approaches to AVs in development. Many vehicle manufacturers—like GM, Honda, and Tesla—are working on models that look like regular cars but have autonomous features. Then there are companies entirely focused on AVs, some of whose products are pushing the boundaries of what a vehicle can be—like a
+            - link "perfectly symmetrical robotaxi" [ref=e1131] [cursor=pointer]:
+              - /url: https://www.cnbc.com/2023/02/13/zoox-robotaxi-now-giving-rides-to-employees-on-california-public-roads.html
+            - text: or
+            - link "public transit pods" [ref=e1132] [cursor=pointer]:
+              - /url: https://thenextweb.com/news/this-company-wants-to-make-pod-cars-public-transport-for-free
+            - text: . Many others are developing components that can be installed to give an existing vehicle autonomous capabilities.
+          - paragraph [ref=e1133]:
+            - text: I recently had the opportunity to test drive—or test ride, I guess—a vehicle made by the British company
+            - link "Wayve" [ref=e1134] [cursor=pointer]:
+              - /url: https://wayve.ai/
+            - text: ", which has a fairly novel approach. While a lot of AVs can only navigate on streets that have been loaded into their system, the Wayve vehicle operates more like a person. It can drive anywhere a human can drive."
+          - paragraph [ref=e1136]: When you get behind the wheel of a car, you rely on the knowledge you’ve accumulated from every other drive you’ve ever taken. That’s why you know what to do at a stop sign, even if you’ve never seen that particular sign on that specific road before. Wayve uses deep learning techniques to do the same thing. The algorithm learns by example. It applies lessons acquired from lots of real world driving and simulations to interpret its surroundings and respond in real time.
+          - paragraph [ref=e1137]: The result was a memorable ride. The car drove us around downtown London, which is one of the most challenging driving environments imaginable, and it was a bit surreal to be in the car as it dodged all the traffic. (Since the car is still in development, we had a safety driver in the car just in case, and she assumed control several times.)
+          - paragraph [ref=e1138]: It’s not clear yet which approaches will be the most successful, since we’re only starting to reach the threshold where cars become truly autonomous. But once we get there, what will the transition to AVs actually look like?
+          - paragraph [ref=e1139]: For one thing, passenger cars will likely be one of the last vehicle types to see widespread autonomous adoption. Long-haul trucking will probably be the first sector, followed by deliveries. When you finally do step into an AV, it will likely be a taxi or a rental car. (Rental car companies lose a lot of money every year to driver-caused accidents, so they’re eager to transition to an AV fleet that is—at least in theory—less accident-prone.)
+          - paragraph [ref=e1140]: As AVs become more common, we’re going to have to rethink many of the systems we’ve created to support driving. Car insurance is a great example. Who is responsible when an autonomous vehicle gets in an accident, the person riding in the car or the company that programmed the software? Governments will have to create new laws and regulations. Roads might even have to change. A lot of highways have high-occupancy lanes to encourage carpooling—will we one day have “autonomous vehicles only” lanes? Will AVs eventually become so popular that you have to use the “human drivers only” lane if you want to be behind the wheel?
+          - paragraph [ref=e1141]:
+            - text: That type of shift is likely decades away, if it happens at all. Even once the technology is perfected, people might not feel comfortable riding in a car without a steering wheel at first. But I believe the benefits will convince them. AVs will eventually become cheaper than regular vehicles. And if you commute by car like me, just think about how much time you waste driving. You could instead catch up on emails, or read a good book, or watch the new episode of your favorite show—all things that are possible in fully autonomous vehicles. More importantly, AVs will help create more equity for the elderly and people with disabilities by providing them with more transportation options. And they’ll even help us
+            - link "avoid a climate disaster" [ref=e1142] [cursor=pointer]:
+              - /url: /Moving-around-in-a-zero-carbon-world
+            - text: ", since the majority in development are also electric vehicles."
+          - paragraph [ref=e1143]: "Humanity has adapted to new modes of transportation before. I believe we will do it again. For most of our existence, we relied on natural ways of getting around: We walked, or rode on horseback, or traveled in a boat pushed by wind. Then, in the 1700s, we entered the locomotion age when mobility was powered by steam engines and internal combustion. Now, we find ourselves in the early days of the autonomous age. It’s an exciting time, and I can’t wait to see what new possibilities it unlocks."
+        - generic [ref=e1144]:
+          - generic [ref=e1145] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e1146] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e1153]:
+        - generic [ref=e1155]:
+          - paragraph [ref=e1157]: The Da Vinci Codescope
+          - heading "A new way to look at Leonardo" [level=1] [ref=e1158]
+          - paragraph [ref=e1160]: This one-of-a-kind device brings you closer to one of history’s greatest thinkers.
+          - generic [ref=e1161]:
+            - img "Bill profile picture" [ref=e1163]
+            - generic [ref=e1164]:
+              - generic [ref=e1165]:
+                - generic [ref=e1166]: By Bill Gates
+                - generic [ref=e1167]: published on Monday, Dec 17, 2018
+              - generic [ref=e1168]:
+                - link "Work" [ref=e1170] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e1174] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e1180]:
+          - paragraph [ref=e1181]:
+            - text: I’ve been fascinated by the artist and inventor Leonardo da Vinci for decades. He had one of the most innovative minds ever. Next year is the 500
+            - superscript [ref=e1182]: th
+            - text: anniversary of his death, and I thought I would share a short video about a project I’ve worked on that is helping to mark the occasion.
+          - paragraph [ref=e1183]: The project is called the Codescope. It’s an interactive kiosk with a touch screen that lets you explore the Codex Leicester, a notebook of Leonardo’s that I bought in 1994. Using the Codescope, you can learn about the history of the notebook, see every page of Leonardo’s original writing, get a translation, and even watch animated versions of his drawings.
+          - paragraph [ref=e1184]:
+            - text: The Codex and Codescope are traveling together to various museums in Europe as part of the celebration. (
+            - link "They’re at the Uffizi" [ref=e1185] [cursor=pointer]:
+              - /url: https://www.uffizi.it/en/events/water-as-microscope-of-nature-leonardo-da-vinci-s-codex-leicester
+            - text: in Florence through January 20.) Since you can’t touch the Codex itself—it’s preserved behind glass—the Codescope is the next best thing to flipping through the pages that the great man wrote on.
+        - generic [ref=e1187]:
+          - generic [ref=e1188] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e1189] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+      - generic [ref=e1196]:
+        - img "Gates notes image" [ref=e1198]
+        - generic [ref=e1199]:
+          - paragraph [ref=e1201]: Rear view mirror
+          - heading [level=1] [ref=e1202]:
+            - paragraph [ref=e1203]:
+              - emphasis [ref=e1204]: The Road Ahead
+              - text: after 25 years
+          - paragraph [ref=e1206]: The predictions I got right and wrong in my first book.
+          - generic [ref=e1207]:
+            - img "Bill profile picture" [ref=e1209]
+            - generic [ref=e1210]:
+              - generic [ref=e1211]:
+                - generic [ref=e1212]: By Bill Gates
+                - generic [ref=e1213]: published on Monday, Nov 23, 2020
+              - generic [ref=e1214]:
+                - link "Work" [ref=e1216] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work
+                - link "Make AI work for everyone" [ref=e1220] [cursor=pointer]:
+                  - /url: https://www.gatesnotes.com/work/make-ai-work-for-everyone
+        - generic [ref=e1223]:
+          - paragraph [ref=e1224]:
+            - text: Twenty-five years ago today, I published my first book,
+            - emphasis [ref=e1225]: The Road Ahead
+            - text: . At the time, people were wondering where digital technology was headed and how it would affect our lives, and I wanted to share my thoughts—and my enthusiasm. I also had fun making some predictions about breakthroughs in computing, and especially the Internet, that were coming in the next couple of decades.
+          - paragraph [ref=e1226]:
+            - text: Next February, I’ll release
+            - link "another book" [ref=e1227] [cursor=pointer]:
+              - /url: /How-to-Avoid-a-Climate-Disaster-announcement
+            - text: ", this one about climate change. Before it hits the shelves, I thought it would be fun to look back at"
+            - emphasis [ref=e1228]: The Road Ahead
+            - text: and see how things turned out.
+          - paragraph [ref=e1230]:
+            - text: As I wrote in
+            - emphasis [ref=e1231]: The Road Ahead,
+            - text: we tend to overestimate the changes that will happen in the short term and underestimate the ones that will happen over the long term. That is certainly my experience with the book itself. I was too optimistic about some things, but other things happened even faster or more dramatically than I imagined.
+          - paragraph [ref=e1232]:
+            - text: These days, it’s easy to forget just how much the Internet has transformed society. When
+            - emphasis [ref=e1233]: The Road Ahead
+            - text: came out, people were still navigating with paper maps. They listened to music on CDs. Photos were developed in labs. If you needed a gift idea, you asked a friend (in person or over the phone). Today you can do every one of these things much more easily—and in most cases at a much lower cost too—using digital tools.
+          - paragraph [ref=e1234]: "That’s all covered in the book (I was thinking and learning about these things obsessively back then). For instance, there’s a chapter on video on demand and computers that will fit in your pocket. You can download it here for free:"
+          - paragraph [ref=e1236]: One thing I was probably too optimistic about is the rise of digital agents. It is true that we have Cortana, Siri, and Alexa, but working with them is still far from the rich experience I had in mind in 1995. They don’t yet “learn about your requirements and preferences in much the way that a human assistant does,” as I wrote at the time. We’re just at the beginning of what agents will eventually be capable of.
+          - paragraph [ref=e1237]:
+            - text: Another idea that’s central to
+            - emphasis [ref=e1238]: The Road Ahead
+            - text: —that technology would allow unprecedented social networking—has pretty much come to pass. I am surprised, though, by the way social networks are both bringing us together and contributing to a more polarized atmosphere. I didn’t anticipate how much people would choose to filter out different perspectives and harden their own views.
+          - paragraph [ref=e1239]: One thing I wrote about that hasn’t happened yet—but I still think will happen—is the way the Internet will affect the structure of our cities. Today the cost of living in a dense downtown, like Seattle’s, is so high that many workers (including teachers, police officers, and baristas) can’t afford to live there. Even high earners spend a disproportionate percentage of their income on rent. As a result, some cities are arguably too successful, and others are not successful enough. It’s a real problem for our country.
+          - paragraph [ref=e1240]: But as digital technology makes it easier to work at home, then you can commute less often. That, in turn, makes it more attractive to live father away from the office, where you can afford a bigger house than in the city center. It also reduces the number of cars on the road at any given time. Over time, these shifts would mean major changes in the ways our cities work and are built.
+          - paragraph [ref=e1241]:
+            - text: We’re starting to see some of these effects come into play now, as office workers stay home because of COVID-19. Microsoft recently
+            - link "announced" [ref=e1242] [cursor=pointer]:
+              - /url: https://blogs.microsoft.com/blog/2020/10/09/embracing-a-flexible-workplace/
+            - text: a policy recognizing that doing some work from home (for less than 50 percent of the time) will be standard even after the pandemic is over and their offices open back up. I think this trend will accelerate in the coming years.
+          - paragraph [ref=e1243]:
+            - emphasis [ref=e1244]: The Road Ahead
+            - text: has a lot in common with my new book,
+            - emphasis [ref=e1245]: How to Avoid a Climate Disaster
+            - text: . Both are about how technology and innovation can help solve important problems. Both share glimpses into the cutting-edge technology I get to learn about.
+          - paragraph [ref=e1246]: "One thing is different: The stakes are higher with climate change. As passionate as I am about software, the effort to avoid a climate disaster has a whole other level of urgency. Failing to get this right will have bad consequences for humanity. But you can also see the glass as half full. There are huge opportunities to solve this problem, eliminate our greenhouse gas emissions, and create new industries that make clean energy available and affordable for everyone—including people in the world’s poorest countries."
+          - paragraph [ref=e1247]: I’m excited to get the new book out there and continue the conversation about how to keep the planet livable for everyone.
+        - generic [ref=e1248]:
+          - generic [ref=e1249] [cursor=pointer]:
+            - generic:
+              - img "icon_Share"
+            - generic: Share
+          - link "Get my newsletter" [ref=e1250] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/signup
+    - generic [ref=e1255]:
+      - generic [ref=e1257]:
+        - generic [ref=e1259]:
+          - link "Work" [ref=e1260] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/work
+          - link "Meet Bill" [ref=e1263] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/meet-bill
+          - link "Books" [ref=e1266] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/books
+          - link "Heroes" [ref=e1269] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/heroes
+        - generic [ref=e1272]:
+          - link [ref=e1273] [cursor=pointer]:
+            - /url: https://www.facebook.com/BillGates/
+            - img "fb" [ref=e1274]
+          - link [ref=e1275] [cursor=pointer]:
+            - /url: https://x.com/BillGates
+            - img "tw" [ref=e1276]
+          - link [ref=e1277] [cursor=pointer]:
+            - /url: https://www.youtube.com/user/thegatesnotes
+            - img "yt" [ref=e1278]
+          - link [ref=e1279] [cursor=pointer]:
+            - /url: https://www.instagram.com/thisisbillgates/
+            - img "ig" [ref=e1280]
+          - link [ref=e1281] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/williamhgates/
+            - img "in" [ref=e1282]
+      - generic [ref=e1283]:
+        - generic [ref=e1284]:
+          - link "Privacy policy" [ref=e1286] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/privacy-policy
+          - link "Terms of use" [ref=e1288] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/terms-of-use
+          - link "Contact us" [ref=e1290] [cursor=pointer]:
+            - /url: https://www.gatesnotes.com/contact-us
+        - generic [ref=e1291]: © 2026 The Gates Notes LLC
+  - alert [ref=e1]: /work/make-ai-work-for-everyone/reader/a-turbulent-ai-era-and-critical-choices-to-make

@@ -30,7 +30,7 @@
 <link rel="alternate" href="{{ rdf_rel_path }}" type="text/turtle">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
 {{ css_content }}
@@ -62,13 +62,15 @@
 
 <!-- Hero -->
 <section class="hero" id="hero">
+  <div class="hero-texture" aria-hidden="true"></div>
   <div class="hero-content">
-    {% if hero_tagline %}
-    <div class="tagline" style="margin-bottom:.75rem">{{ hero_tagline }}</div>
-    {% endif %}
     <h1>{{ title }}</h1>
     {% if tagline %}
     <p class="tagline">{{ tagline }}</p>
+    {% endif %}
+    {{ hero_stats_html }}
+    {% if hero_tagline %}
+    <div class="hero-credit">{{ hero_tagline }}</div>
     {% endif %}
     {% if meta_html %}
     <div class="meta">{{ meta_html }}</div>
@@ -96,7 +98,7 @@
   </h2>
   <p style="margin-top:0">Interactive graph visualization derived from the companion RDF. Click nodes to resolve, drag to explore. <span style="font-size:12px;color:var(--text-secondary)">Graph data embedded from companion RDF at generation time.</span></p>
 
-  <div id="kg-explorer">
+  <div id="kg-pane">
     <div class="kg-header">
       <h3>{{ title }}</h3>
       <div style="display:flex;gap:8px;align-items:center">
