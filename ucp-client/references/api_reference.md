@@ -25,6 +25,8 @@
 - `--accept-payment VALUE` — send `Accept-Payment`, for example `stripe/charge`.
 - `--access-probe-only` — execute the authenticated resource request, classify `200`/`401`/`402`/`403`, parse response metadata, and stop before commerce.
 
+Interactive callers must pause on `401`, present the discovered authentication choices to the user, and obtain an explicit protocol selection before retrying. Non-interactive callers must stop and return the parsed `authentication_schemes` and authentication links; they must not select Digest or OAuth implicitly.
+
 For `402`, the result contains parsed `payment_challenges`, typed `links`, `Payment-Receipt`, `Location`, and protocol errors. A linked `rel=describedby`/`alternate` RDF document and `rel=ucp`/`service-desc` UCP profile are used automatically when present.
 
 For direct WebID-TLS/mTLS with PKCS#12, compose this skill with [`mtls-curl`](/Users/kidehen/Documents/Management/Development/ai-agent-skills/mtls-curl/SKILL.md); the Python client retains PEM support while curl owns PKCS#12 transport and header capture. OAuth browser authorization is external: this skill consumes the resulting token and assumes the server OAuth backend is already deployed.
