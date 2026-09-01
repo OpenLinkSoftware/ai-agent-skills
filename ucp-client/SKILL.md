@@ -23,6 +23,8 @@ Use the resource URL as the primary identifier. Keep RDF as the authoritative of
 
 Treat `401 Unauthorized` as an authentication-protocol negotiation point. Inspect every `WWW-Authenticate` challenge and authentication `Link` metadata before choosing a retry. Select Digest when Digest is advertised; select OAuth when Bearer/DPoP or OAuth metadata is advertised; or negotiate WebID-TLS/mTLS at the TLS layer when a certificate listener is available. Do not infer that Digest is the only possible method merely because it is the only challenge in one response. A successful identity retry proceeds to ACL evaluation; only an authenticated ACL miss can become `402 Payment Required`.
 
+When running interactively, stop at the first `401` and prompt the user: “Authentication is required. Choose Digest, OAuth Bearer/DPoP, WebID-TLS/mTLS, or cancel.” Show the advertised schemes and metadata links, explain the required credential or browser step, and wait for the user's choice before retrying. Never silently fall back between protocols. In non-interactive mode, return the choices as `authentication_schemes` and authentication links and stop without guessing.
+
 ## RDF offer rules
 
 Prefer Schema.org IRIs (`https://schema.org/`), while accepting the historically equivalent `http://schema.org/` vocabulary in merchant data. A minimal offer should expose:

@@ -41,6 +41,8 @@ The client treats server response headers as the REST discovery surface. A `401`
 
 For direct WebID-TLS, use [`mtls-curl`](/Users/kidehen/Documents/Management/Development/ai-agent-skills/mtls-curl/SKILL.md) with a PEM or PKCS#12 certificate. This is the preferred ODS-QA execution profile. The server OAuth backend is assumed to be implemented already; this skill only discovers metadata and consumes tokens. Preserve the certificate context across redirects and post-payment retries.
 
+An interactive client must turn this discovery into a user choice at the first `401`: list the advertised schemes, linked metadata, and the credential or browser action each requires, then wait for confirmation. If no choice is made, stop. This prevents an unadvertised Digest or OAuth fallback from changing the user's intended identity.
+
 ### Identity-first ACL state machine
 
 The protected resource is ACL-gated and payment is evaluated for an authenticated identity. Use this response sequence:
