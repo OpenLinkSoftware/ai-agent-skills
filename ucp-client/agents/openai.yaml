@@ -1,0 +1,3 @@
+interface:
+  display_name: "UCP Client"
+  short_description: "Buy RDF-described protected resources via UCP + MPP"
