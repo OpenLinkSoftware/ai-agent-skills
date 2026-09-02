@@ -1,0 +1,33 @@
+# .editorconfig — consistent line endings and whitespace across editors
+# See: https://editorconfig.org and the GitHub CRLF normalization guide
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+trim_trailing_whitespace = true
+
+# --- Language-specific indentation ---
+[*.{py,pyi}]
+indent_size = 4
+
+[*.{md,ttl,rdf,jsonld,json,html,css,js,mjs,cjs,ts,tsx,jsx,xml,yaml,yml,sql,rq,sh,zsh,bash,pl,tpl,svg}]
+indent_size = 2
+
+[*.yml]
+indent_size = 2
+
+# --- Binary files: ignore entirely ---
+[*.{png,jpg,jpeg,gif,ico,webp,bmp,tiff,pdf,zip,gz,xz,tar,tgz,7z,rar,woff,woff2,ttf,otf,eot,jar,war,class,so,dll,dylib,pyc,pyo,pyd,exe,deb,rpm,p12,pem,crt,key,cer,pfx,der,icns,obj,o,a,lib,bin,dat,db,sqlite,sqlite3,map,wasm}]
+charset = unset
+end_of_line = unset
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# --- Vendored dependency trees: leave line endings untouched ---
+[rdf-infographic-skill/scripts/node_modules/**]
+end_of_line = unset
+insert_final_newline = false
+trim_trailing_whitespace = false

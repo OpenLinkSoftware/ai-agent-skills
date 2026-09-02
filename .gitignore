@@ -63,6 +63,8 @@ zii6taXt
 # entry above; this is the durable catch-all.
 /.*
 !/.gitignore
+!/.gitattributes
+!/.editorconfig
 !/*sample*
 
 # Test run artifacts (Playwright etc.)
