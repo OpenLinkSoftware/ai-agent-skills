@@ -1,0 +1,130 @@
+# .gitattributes — enforce LF line endings and prevent GitHub CRLF normalization
+# See: https://help.github.com/articles/dealing-with-line-endings/
+# and: https://help.github.com/articles/configuring-git-to-handle-line-endings/
+
+# Normalize all text files to LF in the repository
+* text=auto eol=lf
+
+# --- Normalize by file type ---
+# Source / data / markup formats
+*.ttl        text eol=lf
+*.rdf        text eol=lf
+*.jsonld     text eol=lf
+*.json       text eol=lf
+*.nt         text eol=lf
+*.nq         text eol=lf
+*.trig       text eol=lf
+*.md         text eol=lf
+*.markdown   text eol=lf
+*.txt        text eol=lf
+*.sql        text eol=lf
+*.rq         text eol=lf
+*.sparql     text eol=lf
+*.html       text eol=lf
+*.htm        text eol=lf
+*.css        text eol=lf
+*.js         text eol=lf
+*.mjs        text eol=lf
+*.cjs        text eol=lf
+*.ts         text eol=lf
+*.tsx        text eol=lf
+*.jsx        text eol=lf
+*.py         text eol=lf
+*.pyi        text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.toml       text eol=lf
+*.ini        text eol=lf
+*.cfg        text eol=lf
+*.conf       text eol=lf
+*.sh         text eol=lf
+*.zsh        text eol=lf
+*.bash       text eol=lf
+*.pl         text eol=lf
+*.tpl        text eol=lf
+*.xml        text eol=lf
+*.xsl        text eol=lf
+*.xsd        text eol=lf
+*.svg        text eol=lf
+*.csv        text eol=lf
+*.xslx       text eol=lf
+*.gitignore  text eol=lf
+*.gitconfig  text eol=lf
+*.editorconfig text eol=lf
+*.gitattributes text eol=lf
+LICENSE      text eol=lf
+README*      text eol=lf
+Makefile     text eol=lf
+Dockerfile   text eol=lf
+*.bat        text eol=crlf
+*.cmd        text eol=crlf
+*.ps1        text eol=crlf
+
+# --- Vendored / third-party dependency trees ---
+# GitHub only normalizes on commit; these vendored trees are not ours to
+# reflow and may legitimately carry mixed EOLs. Keep them binary/verbatim.
+rdf-infographic-skill/scripts/node_modules/** -text
+**/node_modules/** -text
+
+# --- Binary files: never touch ---
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.avif binary
+*.bmp  binary
+*.tiff binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.xz   binary
+*.tar  binary
+*.tgz  binary
+*.7z   binary
+*.rar  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.otf  binary
+*.eot  binary
+*.ico  binary
+*.jar  binary
+*.war  binary
+*.class binary
+*.so   binary
+*.dll  binary
+*.dylib binary
+*.pyc  binary
+*.pyo  binary
+*.pyd  binary
+*.exe  binary
+*.deb  binary
+*.rpm  binary
+*.p12  binary
+*.pem  binary
+*.crt  binary
+*.key  binary
+*.cer  binary
+*.p12  binary
+*.pfx  binary
+*.pem  binary
+*.der  binary
+*.icns binary
+*.obj  binary
+*.o    binary
+*.a    binary
+*.lib  binary
+*.bin  binary
+*.dat  binary
+*.db   binary
+*.sqlite binary
+*.sqlite3 binary
+*.map  binary
+*.wasm binary
+
+# --- Editor tooling / OS cruft ---
+.DS_Store    binary
+Thumbs.db    binary
+*.swp        binary
