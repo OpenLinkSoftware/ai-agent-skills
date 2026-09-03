@@ -31,6 +31,12 @@ Accept both `http://schema.org/` and `https://schema.org/`. An offer matches a r
 
 Extract `schema:price`, `schema:priceCurrency`, `schema:availability`, `schema:seller`, and item identifiers. Price and currency may occur directly on the Offer or on its `schema:priceSpecification`. Numeric price comparison must use decimal arithmetic.
 
+Matching is exact-IRI, not resource-equivalent: a resource served from two different URL strings (e.g. a canonical public URL and a distinct `:5443` mTLS access point for the same underlying file) will only match the exact IRI string the RDF actually uses. When the access URL differs from the RDF-published one, pass `--match-url` with the RDF-published IRI rather than expecting the client to infer equivalence — see `api_reference.md`.
+
+Quad stores (Virtuoso and others) commonly store offer data in a named graph rather than the SPARQL protocol default graph. An unscoped SPARQL query that returns zero rows is automatically retried once, scanned across all named graphs (`GRAPH ?g { ... }`), before falling back to RDF dereference; `--sparql-default-graph IRI` scopes the query explicitly instead (standard SPARQL protocol `default-graph-uri` parameter) when the automatic scan is undesirable or ambiguous.
+
+Some servers front the identity-first ACL/payment gate with an application-level redirect — e.g. a `302` to the same URL plus a one-time session-key query parameter — before returning the real `401`/`402`/`200`. The resource probe follows such redirects automatically, but only when the redirect target is same-origin as the requested resource URL; a cross-origin redirect is reported as-is (state `redirect`) rather than followed, since following it would resend the `Authorization` header and present the client identity (cert/bearer token) to an unverified host.
+
 ## MPP / HTTP Payment authentication
 
 MPP uses the HTTP `402 Payment Required` response with `WWW-Authenticate: Payment` challenges. The client fulfills one challenge and retries using `Authorization: Payment`; success may include a `Payment-Receipt` response header. `401 Unauthorized` is an authentication discovery/challenge response, not a Digest-only response: it can advertise Digest, WebID-TLS/mTLS-related metadata, Bearer, or DPoP. The client may use a `401` to begin OAuth authorization and obtain a token, but must not rewrite that `401` as `402` until authentication has succeeded and the authenticated identity has failed the ACL.
