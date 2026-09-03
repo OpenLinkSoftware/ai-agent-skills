@@ -89,3 +89,7 @@ Do not implement Stripe card handling directly in this skill. Delegate payment-s
 ## Versioning
 
 UCP is evolving. Always obey the version and endpoint advertised by the merchant profile instead of assuming a fixed dated schema. MPP Payment authentication is also evolving; preserve raw challenge and receipt headers for reproducibility.
+
+## Known merchant-side gap: checkout total `0` on ODS-QA
+
+`create_checkout` against `ods-qa.openlinksw.com`'s UCP endpoint (either port) consistently returns `"price": 0` / `"totals": [{"type": "total", "amount": 0}]`, regardless of the offer's real RDF-quoted price, for every item ID tested so far (`offerNumber`-derived, e.g. `ODSQA-FA-PROPERLANCASHIREHOTPOTRECIPE-0001`, `ODSQA-DA-JCHTESTGRAPH-0001`). Attempting `--complete-with-stripe-spt` against the real price instead of the checkout's `0` surfaces the actual cause server-side: `UCP.DBA.UCP_GET_PRICE` raises `"No such product id"` for that same item ID — it doesn't recognize the RDF offer's `offerNumber` value as a catalog product ID. This is a server-side product-catalog wiring gap, not fixable from the client; per §12/14's reconciliation rule, treat a `0` checkout total on this merchant as a signal to stop before `--complete-with-stripe-spt`, not as a real price.
