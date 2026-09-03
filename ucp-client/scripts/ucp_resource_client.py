@@ -133,12 +133,33 @@ def resource_access_metadata(response, resource_url, identity_established=False)
     }
 
 
-def probe_resource(session, resource_url, identity_established=False):
-    response = session.get(resource_url, stream=True, allow_redirects=False, timeout=30)
+def probe_resource(session, resource_url, identity_established=False, max_redirects=5):
+    """GET the resource, following same-origin redirects (e.g. a session-key
+    redirect a server issues before the real 401/402/200 response) up to
+    max_redirects hops. A redirect to a different origin is NOT followed
+    automatically -- it is reported as-is via resource_access_metadata,
+    since blindly following would resend the Authorization header and
+    present the client identity (cert/bearer token) to an unverified host.
+    """
+    url = resource_url
+    original_origin = origin(resource_url)
+    response = None
     try:
+        for _ in range(max_redirects + 1):
+            response = session.get(url, stream=True, allow_redirects=False, timeout=30)
+            if 300 <= response.status_code < 400:
+                location = response.headers.get("Location")
+                if location:
+                    next_url = urljoin(url, location)
+                    if origin(next_url) == original_origin:
+                        response.close()
+                        url = next_url
+                        continue
+            return resource_access_metadata(response, resource_url, identity_established)
         return resource_access_metadata(response, resource_url, identity_established)
     finally:
-        response.close()
+        if response is not None:
+            response.close()
 
 
 def configure_identity(session, args):
@@ -275,15 +296,8 @@ def _values(iris):
     return " ".join(f"<{iri}>" for iri in iris)
 
 
-def sparql_offer_graph(session, endpoint, resource_url, resource_predicates=None):
-    """Query direct and item-mediated resource relations across Schema.org namespaces."""
-    if urlparse(resource_url).scheme not in ("http", "https"):
-        raise ValueError("resource URL must be an HTTP(S) IRI")
-    resource_predicates = tuple(resource_predicates or DEFAULT_RESOURCE_PREDICATES)
-    query = f"""SELECT ?offer ?item ?matchedNode ?matchPredicate ?priceSpec ?currencySpec
-       ?offerSku ?offerProductID ?offerIdentifier ?offerNumber
-       ?itemSku ?itemProductID ?itemIdentifier ?price ?currency ?availability ?seller
-WHERE {{
+def _offer_query_body(resource_url, resource_predicates):
+    return f"""
   VALUES ?offerType {{ {_values(schema_terms("Offer"))} }}
   VALUES ?itemOfferedPred {{ {_values(schema_terms("itemOffered"))} }}
   ?offer a ?offerType .
@@ -319,14 +333,49 @@ WHERE {{
        ?offer ?specPred ?currencySpec . ?currencySpec ?currencyPred ?currency }}
   }}
   OPTIONAL {{ VALUES ?availabilityPred {{ {_values(schema_terms("availability"))} }} ?offer ?availabilityPred ?availability }}
-  OPTIONAL {{ VALUES ?sellerPred {{ {_values(schema_terms("seller"))} }} ?offer ?sellerPred ?seller }}
+  OPTIONAL {{ VALUES ?sellerPred {{ {_values(schema_terms("seller"))} }} ?offer ?sellerPred ?seller }}"""
+
+
+def _offer_query(resource_url, resource_predicates, graph_wrap=False):
+    body = _offer_query_body(resource_url, resource_predicates)
+    if graph_wrap:
+        body = f"  GRAPH ?__mppGraph {{ {body}\n  }}"
+    return f"""SELECT ?offer ?item ?matchedNode ?matchPredicate ?priceSpec ?currencySpec
+       ?offerSku ?offerProductID ?offerIdentifier ?offerNumber
+       ?itemSku ?itemProductID ?itemIdentifier ?price ?currency ?availability ?seller
+WHERE {{
+{body}
 }} LIMIT 50"""
-    r = session.get(endpoint, params={"query": query, "format": "application/sparql-results+json"}, timeout=30)
-    r.raise_for_status()
-    try:
-        rows = r.json().get("results", {}).get("bindings", [])
-    except ValueError as e:
-        raise RuntimeError(f"SPARQL endpoint did not return JSON results: {e}") from e
+
+
+def sparql_offer_graph(session, endpoint, resource_url, resource_predicates=None, default_graph_uris=None):
+    """Query direct and item-mediated resource relations across Schema.org namespaces.
+
+    Quad stores (Virtuoso and others) commonly keep offer data in a named graph
+    outside the SPARQL protocol default graph. If an unscoped query returns no
+    rows and the caller did not explicitly scope the query via
+    `default_graph_uris`, automatically retry once with the same WHERE clause
+    wrapped in `GRAPH ?g { ... }` to scan across all named graphs before giving
+    up to RDF dereference.
+    """
+    if urlparse(resource_url).scheme not in ("http", "https"):
+        raise ValueError("resource URL must be an HTTP(S) IRI")
+    resource_predicates = tuple(resource_predicates or DEFAULT_RESOURCE_PREDICATES)
+
+    def run(query):
+        params = [("query", query), ("format", "application/sparql-results+json")]
+        for iri in (default_graph_uris or ()):
+            params.append(("default-graph-uri", iri))
+        r = session.get(endpoint, params=params, timeout=30)
+        r.raise_for_status()
+        try:
+            return r.json().get("results", {}).get("bindings", [])
+        except ValueError as e:
+            raise RuntimeError(f"SPARQL endpoint did not return JSON results: {e}") from e
+
+    rows = run(_offer_query(resource_url, resource_predicates, graph_wrap=False))
+    if not rows and not default_graph_uris:
+        rows = run(_offer_query(resource_url, resource_predicates, graph_wrap=True))
     g = Graph()
     for row in rows:
         offer, item = row.get("offer", {}).get("value"), row.get("item", {}).get("value")
@@ -372,11 +421,11 @@ WHERE {{
 
 
 def discover_offer(session, resource_url, rdf_url=None, merchant_origin=None,
-                   sparql_endpoint=None, resource_predicates=None):
+                   sparql_endpoint=None, resource_predicates=None, default_graph_uris=None):
     """Use merchant SPARQL first, then dereference RDF when needed."""
     endpoint = sparql_endpoint or urljoin((merchant_origin or origin(resource_url)).rstrip("/") + "/", "sparql")
     try:
-        graph = sparql_offer_graph(session, endpoint, resource_url, resource_predicates)
+        graph = sparql_offer_graph(session, endpoint, resource_url, resource_predicates, default_graph_uris)
         if graph:
             return graph, find_offer(graph, resource_url, resource_predicates), {"method": "sparql", "endpoint": endpoint}
         reason = "no matching schema:Offer"
@@ -518,8 +567,16 @@ def run_mpp(command_template, resource_url):
 def main():
     ap = argparse.ArgumentParser(description="RDF offer -> UCP checkout -> MPP protected-resource purchase")
     ap.add_argument("--resource-url", required=True)
+    ap.add_argument("--match-url", help="Canonical resource IRI to match against RDF/SPARQL offers, if different "
+                    "from --resource-url. Use this when the merchant's published resource identifier and the "
+                    "actual access endpoint differ (e.g. access requires a distinct mTLS port not present in the "
+                    "resource's public IRI). Defaults to --resource-url.")
     ap.add_argument("--rdf-url", help="RDF description URL; defaults to resource URL")
     ap.add_argument("--sparql-endpoint", help="Merchant SPARQL endpoint; defaults to <merchant-origin>/sparql")
+    ap.add_argument("--sparql-default-graph", action="append", default=[], metavar="IRI",
+                    help="SPARQL protocol default-graph-uri parameter(s) to scope offer discovery to a named "
+                    "graph; repeatable. When omitted, an unscoped query that returns no rows is automatically "
+                    "retried scanning all named graphs before falling back to RDF dereference.")
     ap.add_argument("--merchant-origin", help="Origin containing /.well-known/ucp; defaults to resource origin")
     ap.add_argument("--quantity", type=int, default=1)
     ap.add_argument("--agent-profile")
@@ -571,9 +628,12 @@ def main():
                            if set(link["rels"]).intersection({"describedby", "alternate"})), None)
     linked_ucp_profile = next((link["url"] for link in access["links"]
                                if set(link["rels"]).intersection({"ucp", "service-desc"})), None)
-    g, offer, discovery = discover_offer(s, args.resource_url, args.rdf_url or linked_rdf_url, args.merchant_origin,
-                                         args.sparql_endpoint, resource_predicates)
-    rec = offer_to_record(g, offer, args.resource_url, args.item_id,
+    match_url = args.match_url or args.resource_url
+    if match_url != args.resource_url:
+        result["match_url"] = match_url
+    g, offer, discovery = discover_offer(s, match_url, args.rdf_url or linked_rdf_url, args.merchant_origin,
+                                         args.sparql_endpoint, resource_predicates, args.sparql_default_graph)
+    rec = offer_to_record(g, offer, match_url, args.item_id,
                           item_id_predicates, args.allow_action_item_id)
     ucp = discover_ucp(s, args.merchant_origin or origin(args.resource_url), linked_ucp_profile)
     result.update({"offer": rec, "offer_discovery": discovery,
@@ -584,7 +644,18 @@ def main():
         result["mpp"] = {"status": "not_executed", "reason": "dry_run"}
         print(json.dumps(result, indent=2)); return
 
-    checkout = create_checkout(s, ucp["endpoint"], rec["ucp_item_id"], args.quantity, args.agent_profile)
+    try:
+        checkout = create_checkout(s, ucp["endpoint"], rec["ucp_item_id"], args.quantity, args.agent_profile)
+    except requests.exceptions.HTTPError as exc:
+        resp = exc.response
+        result["checkout_error"] = {
+            "status": resp.status_code if resp is not None else None,
+            "body": (resp.text[:2000] if resp is not None else None),
+            "endpoint": ucp["endpoint"] + "/checkout-sessions",
+        }
+        result["mpp"] = {"status": "not_executed", "reason": "checkout_creation_failed"}
+        print(json.dumps(result, indent=2))
+        sys.exit(4)
     result["checkout"] = checkout_summary(checkout)
 
     if not args.mpp_command:

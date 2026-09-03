@@ -4,9 +4,11 @@
 
 ## Discovery and mapping options
 
-- `--resource-url URL` — protected resource IRI; required.
+- `--resource-url URL` — protected resource IRI; required. Used for the identity/ACL probe and the MPP handoff.
+- `--match-url URL` — canonical resource IRI to match against RDF/SPARQL offers, if different from `--resource-url`. Defaults to `--resource-url`. Use this when the merchant's RDF-published resource identifier and the actual access endpoint differ in their exact IRI string (e.g. access requires a distinct mTLS port, like ODS-QA's `:5443`, that is absent from the resource's published IRI) — offer matching is exact-IRI, so the two cannot be the same flag when the strings differ.
 - `--rdf-url URL` — explicit RDF offer document used after SPARQL fallback.
 - `--sparql-endpoint URL` — merchant SPARQL endpoint; defaults to `/sparql` on the merchant origin.
+- `--sparql-default-graph IRI` — SPARQL protocol `default-graph-uri` parameter(s) to scope offer discovery to a named graph; repeatable. Quad stores often keep offer data outside the SPARQL default graph; when this is omitted, a first unscoped query that returns zero rows is automatically retried once, scanned across all named graphs (`GRAPH ?g { ... }`), before falling back to RDF dereference. Pass this explicitly to skip the automatic scan or to disambiguate when more than one graph could match.
 - `--merchant-origin URL` — origin used for `/.well-known/ucp` discovery.
 - `--resource-predicate IRI` — additional predicate that explicitly links an Offer or its offered item to the resource; repeatable.
 - `--item-id-predicate IRI` — additional predicate containing a literal UCP item identifier; repeatable.
@@ -37,6 +39,8 @@ For direct WebID-TLS/mTLS with PKCS#12, compose this skill with [`mtls-curl`](/U
 - `--agent-profile URL` — value advertised in the `UCP-Agent` header.
 - `--dry-run` — probe access, discover the offer, and render the checkout request without creating a checkout or invoking payment. It continues discovery after `401` for diagnostics while preserving the failed authentication state.
 - `--mpp-command TEMPLATE` — external MPP client command; `{url}` is replaced with the protected resource URL.
+
+A non-2xx response from `create_checkout` is reported as a `checkout_error` object (`status`, `body`, `endpoint`) in the JSON result rather than an unhandled exception, and the process exits `4`.
 
 ## Compatibility behavior
 
