@@ -42,7 +42,7 @@ A `SessionStart` hook configured in `.claude/settings.json` reads the RDF memory
 On every session start, the hook runs a Python script that reads:
 
 1. `agent-rdf-memory/core.ttl` — user identity, output path routing per LLM
-2. `agent-rdf-memory/preferences.ttl` — lean manifest of all operational rules (HowToSteps; count grows over time — see "Keeping the Step Count in Sync" below for the live count). Each step carries only `schema:position`, `schema:name`, `onto:hasTrigger` (where applicable), and `rdfs:seeAlso <howto/X.ttl>`. The full step text lives in thematic howto docs under `agent-rdf-memory/howto/` (also growing over time), grouped by topic — a representative sample:
+2. `agent-rdf-memory/preferences.ttl` — lean manifest of all 36 operational rules (HowToSteps). Each step carries only `schema:position`, `schema:name`, `onto:hasTrigger` (where applicable), and `rdfs:seeAlso <howto/X.ttl>`. The full step text lives in 9 thematic howto docs under `agent-rdf-memory/howto/`, grouped by topic:
    - `session-governance.ttl` — approval, memory protocol, git, no-fabricated-URLs, curl auth, secret redaction, prompt recording
    - `artifact-routing.ttl` — output dirs, GPT-5 dirs, mashup/meshup, default output root
    - `skill-invocation.ttl` — skill chain, KG query mode, ZIP repackage, retrieval tool order
@@ -52,8 +52,6 @@ On every session start, the hook runs a Python script that reads:
    - `kg-explorer-d3-patterns.ttl` — simulation lifecycle, click guard, kgData regex
    - `rdf-document-authoring.ttl` — document entity declaration, schema:about usage
    - `agent-identity.ttl` — whoami format, Stripe sandbox card
-   - `session-read-llm-scope-gate.ttl` — multi-model session-read scoping and elicitation
-   - ...and others; run the commands in "Keeping the Step Count in Sync" for the complete, current list
 3. `agent-rdf-memory/index.ttl` — session index with pointers to all past session files
 4. The most recent session `.ttl` file — lessons learned from the last recorded session
 
@@ -136,30 +134,3 @@ The hook is project-scoped and fires automatically for any new Claude Code sessi
 - `CLAUDE.md` contains the *instruction* to read `agent-rdf-memory/` but relies on the agent following it — which has proven unreliable across multiple LLMs.
 - `MEMORY.md` is auto-injected but only contains a summary index, not the operational rules.
 - The hook enforces the protocol structurally: the memory files are loaded before the agent generates any response, regardless of what it "remembers" to do.
-
-## Keeping the Step Count in Sync
-
-This document previously hard-coded a step/file count ("36 operational rules", "9 thematic howto docs") that silently went stale as `preferences.ttl` and `howto/` grew — corrected 2026-07-23. Rather than re-embed a number that will drift again, compute it live when needed:
-
-```bash
-# Current HowToStep count + collision check in preferences.ttl.
-# Query the GRAPH, not the text: grep counts "a schema:HowToStep" and
-# "schema:position N" occurrences that appear INSIDE schema:text literals,
-# which inflates the count and invents phantom collisions.
-python3 -c "
-import rdflib, collections
-g = rdflib.Graph().parse('agent-rdf-memory/preferences.ttl', format='turtle')
-S = rdflib.Namespace('http://schema.org/')
-pos = collections.defaultdict(list)
-for s in g.subjects(rdflib.RDF.type, S.HowToStep):
-    pos[int(g.value(s, S.position))].append(str(s).split('#')[-1])
-dupes = {k: v for k, v in pos.items() if len(v) > 1}
-print('steps:', sum(len(v) for v in pos.values()), '| distinct positions:', len(pos))
-print('collisions:', dupes or 'NONE')
-"
-
-# Current number of howto/*.ttl files
-ls agent-rdf-memory/howto/*.ttl | wc -l
-```
-
-Per `howto-authoring-structure.ttl` Step 5, any session that appends a new `schema:HowToStep` to `preferences.ttl` or adds a new file under `howto/` must re-run these two commands and correct any other doc (this file included) that states the count as a fixed number, rather than leaving the stale figure in place.

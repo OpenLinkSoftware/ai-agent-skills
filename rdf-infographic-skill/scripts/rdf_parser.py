@@ -807,5 +807,9 @@ def extract_comparison(rdf_path, base_iri: str = "") -> dict:
             "note": extract_description(d, g) or "",
             "cells": cells,
             "citations": cites,
+            # A claim about the compared PRODUCT (what it cannot do), kept in a
+            # separate property from schema:description (an observation about
+            # the SOURCE) so a rendering can never conflate the two.
+            "gap": str(next(iter(g.objects(d, SCH.disambiguatingDescription)), "")),
         })
     return {"subjects": subjects, "dimensions": dims}

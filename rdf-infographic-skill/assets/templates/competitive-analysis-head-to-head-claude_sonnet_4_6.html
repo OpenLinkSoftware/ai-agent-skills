@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Neo4j Virtual Graph vs. Virtuoso — A Historical Perspective</title>
 <link rel="related" href="../rdf/neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl" type="text/turtle">
-<link rel="alternate" href="../rdf/neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl" type="text/turtle" title="Turtle representation">
 <meta name="description" content="Comparative analysis: Neo4j Virtual Graph (2026) vs. Virtuoso's 20-year virtual DBMS and Knowledge Graph capabilities. Standards alignment, temporal priority, multi-model federation.">
 <meta name="keywords" content="Neo4j, Virtuoso, Virtual Graph, Knowledge Graph, SPARQL, RDF, Federation, GQL, OpenLink Software, RDF Views, SPARQL 1.1">
 <meta property="og:title" content="Neo4j Virtual Graph vs. Virtuoso: A Historical Perspective">
@@ -256,8 +255,6 @@ html[data-theme="light"] #fnav-links ul{background:rgba(255,255,255,0.92)}
 #kg-explorer.kg-active .kg-zoom-hint{opacity:1}
 #kg-legend{display:flex;gap:16px;padding:8px 14px;background:var(--panel-strong);border-top:1px solid var(--line);flex-wrap:wrap;align-items:center}
 #kg-legend .legend-item{display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--muted);cursor:pointer}
-.pred-anchor a{text-decoration:none}
-.pred-anchor{text-decoration:none}
 .legend-dot{width:8px;height:8px;border-radius:50%}
 #kg-settings{position:absolute;top:0;right:-390px;width:380px;height:100%;background:var(--panel);border-left:1px solid var(--line);box-shadow:-8px 0 40px rgba(0,0,0,0.3);z-index:50;padding:18px;overflow-y:auto;transition:right 0.35s cubic-bezier(0.16,1,0.3,1)}
 #kg-settings.open{right:0}
@@ -311,20 +308,6 @@ html[data-theme="light"] #fnav-links ul{background:rgba(255,255,255,0.92)}
 .sparql-cta:hover{opacity:0.9;transform:translateY(-2px);text-decoration:none}
 .footer-legal{font-size:0.73rem;color:var(--muted);text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);line-height:1.7}
 .footer-legal a{color:var(--muted)}
-.attribution-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:28px;min-width:0}
-.attribution-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
-.attribution-card.wide{grid-column:span 2}
-@media(max-width:640px){.attribution-card.wide{grid-column:span 1}}
-.attribution-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:6px;font-weight:700}
-.attribution-card p{font-size:0.8rem;color:var(--ink);line-height:1.6;margin:0;overflow-wrap:anywhere;word-break:break-word}
-.attribution-card code{font-size:0.72rem;overflow-wrap:anywhere;word-break:break-all}
-.sparql-workbench{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:16px 0;text-align:left}
-.sparql-field{display:flex;flex-direction:column;gap:4px;font-size:0.72rem;color:var(--muted)}
-.sparql-field select,.sparql-field input{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);font-family:'Inter',sans-serif;font-size:0.78rem}
-.sparql-editor{width:100%;min-height:100px;font-family:'JetBrains Mono',monospace;font-size:0.76rem;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);margin-bottom:12px}
-.sparql-actions{text-align:center}
-.sparql-note{font-size:0.72rem;color:var(--muted);margin-top:10px;text-align:center}
-.sparql-note code{font-size:0.68rem}
 </style>
 </head>
 <body>
@@ -879,44 +862,18 @@ html[data-theme="light"] #fnav-links ul{background:rgba(255,255,255,0.92)}
         <div class="f-sub"><a href="https://www.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Software</a></div>
       </div>
     </div>
-    <div id="attribution" class="attribution-grid">
-      <div class="attribution-card wide"><span class="attribution-label">Source material</span><p><a href="https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/" target="_blank" rel="noopener noreferrer">Neo4j Virtual Graph Blog Post</a> · <a href="https://www.linkedin.com/feed/update/urn:li:ugcPost:7459616012645240832/" target="_blank" rel="noopener noreferrer">Virtuoso GQL Demo (LinkedIn)</a></p></div>
-      <div class="attribution-card"><span class="attribution-label">Companion files</span><p><a href="neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl" target="_blank" rel="noopener noreferrer">RDF Turtle</a></p></div>
-      <div class="attribution-card"><span class="attribution-label">Skills used</span><p><a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a>, <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill" target="_blank" rel="noopener noreferrer">rdf-infographic-skill</a></p></div>
-      <div class="attribution-card wide"><span class="attribution-label">Generation environment</span><p>Generated by <a href="https://www.anthropic.com/claude/sonnet" target="_blank" rel="noopener noreferrer">claude-sonnet-4-6</a> running in <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">Claude Code</a>.</p></div>
-      <div class="attribution-card"><span class="attribution-label">Linked Data runtime</span><p>Semantic links use <a href="https://linkeddata.uriburner.com/" target="_blank" rel="noopener noreferrer">URIBurner describe</a>; live queries target <a href="https://linkeddata.uriburner.com/sparql" target="_blank" rel="noopener noreferrer">URIBurner SPARQL</a> over <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Virtuoso</a>. The KG Explorer uses <a href="https://d3js.org/" target="_blank" rel="noopener noreferrer">D3.js</a>.</p></div>
-      <div class="attribution-card"><span class="attribution-label">Named graphs</span><p><code>https://linkeddata.uriburner.com/DAV/demos/daas/neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl</code></p></div>
-      <div class="attribution-card"><span class="attribution-label">Resolver pattern</span><p>Visible semantic links route through <code>https://linkeddata.uriburner.com/describe/?url={encodedIRI}</code>.</p></div>
-      <div class="attribution-card"><span class="attribution-label">Extraction provenance</span><p>RDF and HTML generated from the source posts above via the <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a> and <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill" target="_blank" rel="noopener noreferrer">rdf-infographic-skill</a> workflow.</p></div>
-    </div>
     <div class="footer-sparql">
       <div class="kg-format-tabs">
         <button class="active" id="fmtTtl" onclick="setSparqlFormat('ttl')">RDF Turtle</button>
         <button id="fmtJsonld" onclick="setSparqlFormat('jsonld')">JSON-LD</button>
       </div>
-      <div class="sparql-workbench">
-        <label class="sparql-field">Named graph
-          <select id="sparqlGraph" onchange="updateSparqlWorkbench()">
-            <option value="https://linkeddata.uriburner.com/DAV/demos/daas/neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl" selected>RDF Turtle graph</option>
-          </select>
-        </label>
-        <label class="sparql-field">Query recipe
-          <select id="sparqlRecipe" onchange="updateSparqlWorkbench()">
-            <option value="select" selected>SELECT type counts</option>
-            <option value="describe">DESCRIBE analysis entity</option>
-            <option value="construct">CONSTRUCT compact graph</option>
-          </select>
-        </label>
-        <label class="sparql-field">Result format<input id="sparqlFormat" value="text/x-html+tr" readonly></label>
-      </div>
-      <textarea id="sparqlText" class="sparql-editor" spellcheck="false" aria-label="Editable SPARQL query"></textarea>
-      <div class="sparql-actions">
-        <a id="sparqlBtn" class="sparql-cta" href="https://linkeddata.uriburner.com/sparql" target="_blank" rel="noopener noreferrer">Explore Knowledge Graph using SPARQL</a>
-      </div>
-      <p class="sparql-note">SELECT queries use <code>text/x-html+tr</code>. DESCRIBE and CONSTRUCT queries use <code>text/x-html-nice-turtle</code>.</p>
+      <a id="sparqlBtn" class="sparql-cta" href="#" target="_blank" rel="noopener noreferrer">Explore Knowledge Graph using SPARQL</a>
     </div>
     <div class="footer-legal">
-      <p>Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a> and <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill" target="_blank" rel="noopener noreferrer">rdf-infographic-skill</a> skills
+      <p>Source: <a href="https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/" target="_blank" rel="noopener noreferrer">Neo4j Virtual Graph Blog Post</a> · <a href="https://www.linkedin.com/feed/update/urn:li:ugcPost:7459616012645240832/" target="_blank" rel="noopener noreferrer">Virtuoso GQL Demo (LinkedIn)</a><br>
+      Companion RDF: <a href="neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl">neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1.ttl</a> ·
+      Entity resolver: <a href="https://linkeddata.uriburner.com/" target="_blank" rel="noopener noreferrer">URIBurner</a> (powered by <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">Virtuoso</a>)<br>
+      Generated using <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/kg-generator" target="_blank" rel="noopener noreferrer">kg-generator</a> and <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill" target="_blank" rel="noopener noreferrer">rdf-infographic-skill</a> skills
       </p>
     </div>
   </div>
@@ -1117,9 +1074,6 @@ const KGDATA = {
   KGDATA.full = {nodes:[...coreNodes,...extraNodes], links:[...coreLinks,...extraLinks]};
 })();
 
-// Static JSON snapshot of the core dataset (harness-contract provenance/audit payload — kept in sync with KGDATA.core above; the live render() function reads KGDATA, not this constant)
-const kgData = {"nodes":[{"id":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#analysis","label":"Comparative Analysis","type":"instance"},{"id":"http://dbpedia.org/resource/Neo4j","label":"Neo4j","type":"instance"},{"id":"http://dbpedia.org/resource/Virtuoso_Universal_Server","label":"Virtuoso Universal Server","type":"instance"},{"id":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#neo4jVirtualGraph","label":"Neo4j Virtual Graph","type":"instance"},{"id":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#rdfViews","label":"RDF Views","type":"instance"},{"id":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#VirtualGraphPlatform","label":"VirtualGraphPlatform","type":"class"}],"links":[{"source":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#analysis","target":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#neo4jVirtualGraph","label":"schema:about"},{"source":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#analysis","target":"http://dbpedia.org/resource/Virtuoso_Universal_Server","label":"schema:about"},{"source":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#neo4jVirtualGraph","target":"http://dbpedia.org/resource/Neo4j","label":"schema:creator"},{"source":"http://dbpedia.org/resource/Virtuoso_Universal_Server","target":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#rdfViews","label":":hasVirtualGraphCapability"},{"source":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#neo4jVirtualGraph","target":"https://neo4j.com/blog/graph-database/introducing-neo4j-virtual-graph-graph-reasoning-on-the-data-you-already-have/#VirtualGraphPlatform","label":"a"}]};
-
 // ── KG State ──
 let kgMode='basic', kgDensity='core';
 let activeNodeTypes=new Set(['class','instance']);
@@ -1213,19 +1167,16 @@ function render(){
   const linkLines=linkGs.append('line').attr('stroke','var(--line-strong)').attr('stroke-width',1.2).attr('stroke-opacity',0.5).attr('marker-end','url(#arr)').attr('style','cursor:pointer');
   linkLines.on('mouseenter',function(e,d){d3.select(this).attr('stroke',colorHex.instance).attr('stroke-width',2).attr('stroke-opacity',1);}).on('mouseleave',function(){d3.select(this).attr('stroke','var(--line-strong)').attr('stroke-width',1.2).attr('stroke-opacity',0.5);});
   if(dispMode==='labels'){
-    // predAnchor: resolver-backed SVG <a> wrapping each edge label — right-clickable, and readable as a real href by any DOM inspector
-    const predAnchor=linkGs.append('a').attr('class','pred-anchor').attr('data-resolver-href',d=>res(resolvePredicateIRI(d.label))).attr('href',d=>res(resolvePredicateIRI(d.label))).style('cursor','pointer').on('click',(e,d)=>{e.preventDefault();openInResolver(resolvePredicateIRI(d.label));});
-    predAnchor.append('text').text(d=>{const l=d.label.replace('schema:','').replace('prov:','').replace(':','').replace('rdfs:','');return l.length>16?l.slice(0,14)+'…':l;}).attr('text-anchor','middle').attr('dy','0.32em').attr('font-size','8px').attr('fill','var(--muted)').attr('font-family',"'JetBrains Mono',monospace");
+    linkGs.append('text').text(d=>{const l=d.label.replace('schema:','').replace('prov:','').replace(':','').replace('rdfs:','');return l.length>16?l.slice(0,14)+'…':l;}).attr('text-anchor','middle').attr('dy','0.32em').attr('font-size','8px').attr('fill','var(--muted)').attr('font-family',"'JetBrains Mono',monospace").style('cursor','pointer').on('click',(e,d)=>{openInResolver(resolvePredicateIRI(d.label));});
   }
   linkLines.on('click',(e,d)=>{openInResolver(resolvePredicateIRI(d.label));});
   const nodesG=g.append('g').selectAll('g').data(nodes).join('g').attr('style','cursor:pointer').call(d3.drag().on('start',(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;}).on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;}).on('end',(e,d)=>{if(!e.active)simulation.alphaTarget(0);}));
-  // Resolver-backed SVG <a> wrapping the node circle/icon/label — data-resolver-href gives an inspectable, right-clickable link
-  const nodeAnchor=nodesG.append('a').attr('data-resolver-href',d=>res(d.id)).attr('href',d=>res(d.id)).on('click',(e,d)=>{e.preventDefault();openInResolver(d.id);});
-  nodeAnchor.append('circle').attr('r',d=>d.radius||7).attr('fill',d=>colorHex[d.type]||'#64748b').attr('stroke','var(--bg)').attr('stroke-width',2.5);
-  nodeAnchor.append('text').text(d=>d.icon||'').attr('text-anchor','middle').attr('dy','0.35em').attr('font-size',d=>(d.radius||7)+'px').attr('style','pointer-events:none');
-  nodeAnchor.append('text').text(d=>{const l=d.label||'';return l.length>16?l.slice(0,14)+'…':l;}).attr('text-anchor','middle').attr('dy',d=>(d.radius||7)+12+'px').attr('font-size','8.5px').attr('fill','var(--muted)').attr('font-family',"'Inter',sans-serif").attr('style','pointer-events:none');
+  nodesG.append('circle').attr('r',d=>d.radius||7).attr('fill',d=>colorHex[d.type]||'#64748b').attr('stroke','var(--bg)').attr('stroke-width',2.5);
+  nodesG.append('text').text(d=>d.icon||'').attr('text-anchor','middle').attr('dy','0.35em').attr('font-size',d=>(d.radius||7)+'px').attr('style','pointer-events:none');
+  nodesG.append('text').text(d=>{const l=d.label||'';return l.length>16?l.slice(0,14)+'…':l;}).attr('text-anchor','middle').attr('dy',d=>(d.radius||7)+12+'px').attr('font-size','8.5px').attr('fill','var(--muted)').attr('font-family',"'Inter',sans-serif").attr('style','pointer-events:none');
+  nodesG.on('click',(e,d)=>{openInResolver(d.id);});
   nodesG.on('dblclick',(e,d)=>{delete d.fx;delete d.fy;simulation.alpha(0.3).restart();});
-  nodeAnchor.append('title').text(d=>d.label+'\n'+d.desc);
+  nodesG.append('title').text(d=>d.label+'\n'+d.desc);
   const charge=parseInt(document.getElementById('charge-slider')?.value||'-400');
   const dist=parseInt(document.getElementById('dist-slider')?.value||'90');
   const physEnabled=document.getElementById('physics-enabled')?.checked!==false;
@@ -1351,39 +1302,18 @@ function toggleFullscreen(){
   else document.exitFullscreen();
 }
 
-// ── SPARQL Workbench ──
+// ── SPARQL Format Toggle ──
 const SLUG='neo4j-vg-vs-virtuoso-comparison-claude_sonnet_4_6-1';
-const SPARQL_ENDPOINT='https://linkeddata.uriburner.com/sparql';
-let sparqlExt='ttl';
-
-// SELECT uses text/x-html+tr; DESCRIBE/CONSTRUCT use text/x-html-nice-turtle — see sparql_result_format() in rdf_infographic_harness.py
-function sparqlResultFormat(recipe){ return recipe==='select' ? 'text/x-html+tr' : 'text/x-html-nice-turtle'; }
-
-function sparqlQueryText(recipe,graphIri){
-  if(recipe==='describe') return 'DESCRIBE <'+graphIri.replace(/\.(ttl|jsonld)$/,'')+'#analysis>';
-  if(recipe==='construct') return 'CONSTRUCT { ?s ?p ?o }\nWHERE {\n  GRAPH <'+graphIri+'> {\n    ?s ?p ?o .\n    FILTER(isIRI(?o))\n  }\n}\nLIMIT 200';
-  return 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT\n    ?type\n    (SAMPLE(?s) AS ?sampleEntity)\n    (SAMPLE(?label) AS ?sampleLabel)\n    (COUNT(?s) AS ?entityCount)\nWHERE {\n    GRAPH <'+graphIri+'> {\n        ?s rdf:type ?type .\n        OPTIONAL { ?s rdfs:label ?label }\n    }\n}\nGROUP BY ?type\nORDER BY DESC(?entityCount)';
-}
-
-function updateSparqlWorkbench(){
-  const graphIri=document.getElementById('sparqlGraph').value;
-  const recipe=document.getElementById('sparqlRecipe').value;
-  const format=sparqlResultFormat(recipe);
-  const query=sparqlQueryText(recipe,graphIri);
-  document.getElementById('sparqlText').value=query;
-  document.getElementById('sparqlFormat').value=format;
-  document.getElementById('sparqlBtn').href=SPARQL_ENDPOINT+'?query='+encodeURIComponent(query)+'&format='+encodeURIComponent(format);
-}
+const SPARQL_PRE='PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0A%0ASELECT%0A++++%3Ftype%0A++++%28SAMPLE%28%3Fs%29+AS+%3FsampleEntity%29%0A++++%28SAMPLE%28%3Flabel%29+AS+%3FsampleLabel%29%0A++++%28COUNT%28%3Fs%29+AS+%3FentityCount%29%0AWHERE+%7B%0A++++GRAPH+%3C';
+const SPARQL_POST='%3E+%7B%0A++++++++%3Fs+rdf%3Atype+%3Ftype+.%0A++++++++OPTIONAL+%7B+%3Fs+rdfs%3Alabel+%3Flabel+%7D%0A++++%7D%0A%7D%0AGROUP+BY+%3Ftype%0AORDER+BY+DESC%28%3FentityCount%29';
 
 function setSparqlFormat(fmt){
   document.getElementById('fmtTtl').classList.toggle('active',fmt==='ttl');
   document.getElementById('fmtJsonld').classList.toggle('active',fmt==='jsonld');
-  sparqlExt=fmt==='jsonld'?'jsonld':'ttl';
-  const graphIri='https://linkeddata.uriburner.com/DAV/demos/daas/'+SLUG+'.'+sparqlExt;
-  const sel=document.getElementById('sparqlGraph');
-  sel.options[0].value=graphIri;
-  sel.options[0].textContent=(sparqlExt==='jsonld'?'JSON-LD':'RDF Turtle')+' graph';
-  updateSparqlWorkbench();
+  const ext=fmt==='jsonld'?'jsonld':'ttl';
+  const graphIri='https://linkeddata.uriburner.com/DAV/demos/daas/'+SLUG+'.'+ext;
+  const url='https://linkeddata.uriburner.com/sparql?query='+SPARQL_PRE+encodeURIComponent(graphIri)+SPARQL_POST+'&format=text%2Fx-html%2Btr';
+  document.getElementById('sparqlBtn').href=url;
 }
 setSparqlFormat('ttl');
 

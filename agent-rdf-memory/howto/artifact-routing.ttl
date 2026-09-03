@@ -7,7 +7,7 @@
     schema:name "Artifact Routing — Output Directories and Terminology"@en ;
     schema:description "Rules for routing generated artifacts (RDF, HTML, Markdown) to the correct model-specific output directories, preserving active model identity, and applying the meshup vs mashup terminology rule."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-24T14:45:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-26T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
         :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment,
@@ -15,7 +15,8 @@
         :step-savedPromptsFolder, :step-vspsFolder,
         :step-screencastDistributionArtifacts,
         :step-screencastPresentationNaming,
-        :step-scopeFilesystemSearchesToLlmRoot, :step-outputRootGateAppliesBeyondKgGenerator ;
+        :step-scopeFilesystemSearchesToLlmRoot, :step-outputRootGateAppliesBeyondKgGenerator,
+        :step-buildFixtureIsStillAnArtifact ;
     rdfs:seeAlso <../preferences.ttl#step-outputDirs>, <../preferences.ttl#step-defaultOutputRoot>, <../preferences.ttl#step-gpt5ChatCodexOutputDirs>, <../preferences.ttl#step-modelOverEnvironment>, <../preferences.ttl#step-modelIdentityPreflight>, <../preferences.ttl#step-noPromptModelOverride>, <../preferences.ttl#step-mashupVsMeshup>, <../preferences.ttl#step-savedPromptsFolder>, <../preferences.ttl#step-vspArtifactsFolder>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-screencastPresentationNaming>, <../preferences.ttl#step-chatResponsePortableLinks>, <../preferences.ttl#step-remoteRemovalOrder>, <remote-resource-removal.ttl> .
 
 # ── Step 1: Output Directory Routing ─────────────────────────────────────────
@@ -128,3 +129,24 @@ User preference recorded 2026-07-24 for all future screencast operations."""@en 
     schema:name "A drafted chat/forum-reply Markdown file is still a generated artifact subject to step-outputDirs/step-outputRootBlockingGate — scratchpad is never the final destination"@en ;
     schema:text """User correction (2026-08-24): asked to draft a reply for a community.openlinksw.com thread on Virtuoso GQL performance, the agent wrote the .md draft to the session scratchpad directory and left it there after delivering it. All prior recurrences logged under :step-outputRootBlockingGate involved kg-generator or rdf-infographic-skill workflows specifically, which may have narrowed the mental model of when the gate applies to 'KG/infographic generation tasks' rather than 'any generated Markdown/RDF/HTML artifact.' This instance had no kg-generator or rdf-infographic-skill framing at all — it was a plain drafted reply to a technical forum thread, produced by reasoning/research in-conversation, not a skill invocation — yet it is still a generated Markdown deliverable and belongs under {LLM_ROOT}/Claude Generated/md/ per :step-outputDirs, using the model-id filename convention (claude_sonnet_5, not the agent-environment name 'claude_code'), not the session scratchpad. Corrected same-session by moving the file to Claude Generated/md/virtuoso-gql-ingestion-array-optimization-claude_sonnet_5-reply.md and deleting the scratchpad copy. Generalization: the output-root blocking gate is scoped by artifact TYPE — any generated .md/.ttl/.html file meant to persist, be handed to the user as a deliverable, or be posted/sent externally — not by which skill or workflow produced it. A one-off drafted reply, a saved analysis, or a memory-adjacent write-up all qualify equally. Scratchpad remains valid only for genuinely disposable intermediate files that will not be delivered, referenced again, or handed to the user as the finished artifact."""@en ;
     rdfs:seeAlso <../preferences.ttl#step-outputRootGateAppliesBeyondKgGenerator>, <../preferences.ttl#step-outputRootBlockingGate>, <../preferences.ttl#step-outputDirs> .
+
+# ── Step 14: a build fixture inside a source repo is still a generated artifact ──
+
+:step-buildFixtureIsStillAnArtifact a schema:HowToStep ;
+    schema:position "14"^^xsd:integer ;
+    schema:name "Generator output written into a source repo as a 'test fixture' or 'build directory' is subject to step-outputDirs like any other artifact"@en ;
+    schema:text """User correction (2026-08-26): building composite-skin support for the OSDI Inclusion Engine, the agent wrote three kinds of generated output into the inclusion-engine working repo — a rebased RDF site graph (14 .ttl), de-chromed WebDAV content (16 .html), and the rendered site itself (16 .html) — all under infrastructure-tests/composite/{site,out}/, and left them there. User: "You should put production artifacts under the appropriate LLM root subfolder, as per usual."
+
+WHY THIS ONE SLIPPED PAST THE EXISTING GATE: every recurrence logged under :step-outputRootBlockingGate involved a single deliverable produced by an obvious generation workflow (kg-generator, rdf-infographic-skill, a drafted reply). This was different in three ways that each made the output feel like repo-internal scaffolding rather than a deliverable: (1) the files were produced BY scripts that legitimately live in the repo, so output and generator felt like one unit; (2) they sat in a directory named infrastructure-tests/, which reads as test scaffolding, not as a deliverable; (3) they were regenerable, and regenerable output feels like build residue rather than a product. None of those is a valid exemption. The site rendition WAS the deliverable — it was the acceptance test the user set for the whole task.
+
+THE RULE: routing is decided by artifact TYPE (generated .ttl/.md/.html), not by the directory's name, not by whether a generator script sits beside it, and not by whether it can be regenerated. A source repository holds hand-authored source — engine code, XSLT, skin bundles, generator scripts — and never their output. If a generator writes into the repo as an intermediate, gitignore the output directory and add an explicit packaging step that routes the finished artifact to {model-root}/{rdf,md,webpages}/ per :step-outputDirs.
+
+CORRECTED SAME-SESSION by adding infrastructure-tests/composite/package_artifacts.py, which re-renders with a relative asset base, copies the bundle to {LLM_ROOT}/Claude Generated/webpages/openlink-osdi-composite-skin-rendition-claude_opus_5/ and the site RDF to the matching rdf/ subfolder, and by gitignoring site/ and out/. A per-collection subfolder was used rather than 30 flat sibling files because the rendered pages link to each other relatively and need their directory structure preserved — the same grouping allowance :step-vspsFolder already makes for multi-file VSP deliverables.
+
+FILENAME NOTE: the slug carries claude_opus_5 (the active model per the system prompt), not claude_code (the agent environment), per :step-modelOverEnvironment."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-buildFixtureIsStillAnArtifact>,
+        <../preferences.ttl#step-outputRootBlockingGate>,
+        <../preferences.ttl#step-outputDirs>,
+        :step-outputRootBlockingGate,
+        :step-outputRootGateAppliesBeyondKgGenerator,
+        :step-vspsFolder .

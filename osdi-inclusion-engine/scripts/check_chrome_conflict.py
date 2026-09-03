@@ -1,30 +1,26 @@
 #!/usr/bin/env python3
-"""Classify an HTML replacement document as input to an OSDI skin-authoring decision.
+"""Classify an HTML replacement document for OSDI deployment.
 
-Reports, per document:
+Reports:
   - structure: full document vs fragment (tidy will normalize fragments)
-  - chrome: whether the page carries its own nav/header/footer/masthead
+  - chrome: which regions the page supplies itself (nav / header / footer)
   - external assets that must resolve from the live origin
-  - commonality signals: font family, CSS custom-property names, Bootstrap
-    usage, nav/toggle markup — the inputs to a cross-document commonality
-    assessment (see references/skin-commonality-assessment.md)
+  - a recommendation across the three remediation paths
 
-This does NOT recommend a deploy path. Self-contained chrome means the
-document is a candidate new skin, not a page to strip-and-deploy under the
-current skin unmodified. Whether it becomes a shared skin, a per-site skin,
-or (as a stopgap only) a passthrough override is a design decision made
-after comparing commonality signals across ALL candidate documents in the
-batch — run this script on each one first, then compare by eye or with
---compare.
+This is a RECOMMENDER, not a gate. It cannot see the live config, so it does
+not know whether the target site is on a composite skin (where Path C applies)
+or a legacy one (where the choice is A or B). Read the live skin_manifest and
+xslt_sheet for the target URL, then put the choice to the user.
 
 Usage:
-  check_chrome_conflict.py <file-or-url> [--insecure]
-  check_chrome_conflict.py --compare <file-or-url> <file-or-url> [...] [--insecure]
+  check_chrome_conflict.py <file-or-url> [--insecure] [--composite]
 
-Exit codes: 0 = no self-contained chrome (document is plain content)
-            2 = self-contained chrome detected (candidate new skin — see
-                references/skin-commonality-assessment.md before deciding
-                shared vs per-site vs passthrough)
+  --composite   the target site is known to be on a composite skin, so
+                Path C (regions_off) is available; prints the exact
+                regions_off value to set.
+
+Exit codes: 0 = no self-contained chrome (safe under any skin)
+            2 = self-contained chrome detected (remediation choice required)
             1 = fetch/parse error
 """
 import re
@@ -32,18 +28,30 @@ import ssl
 import sys
 import urllib.request
 
-CHROME_TAG = re.compile(r"<(nav|header|footer)\b[^>]*>", re.I)
-CHROME_CLASS = re.compile(
-    r'(?:class|id)\s*=\s*"[^"]*\b(masthead|navbar|site-header|site-footer|topbar|top-bar)\b[^"]*"',
-    re.I,
-)
+# Region names match the conventional region names in a composite skin bundle,
+# so the detected set can be handed straight to regions_off.
+REGION_PATTERNS = {
+    "nav": [
+        re.compile(r"<nav\b", re.I),
+        re.compile(r'(?:class|id)\s*=\s*"[^"]*\b(?:navbar|site-nav|topbar|top-bar)\b', re.I),
+    ],
+    "header": [
+        re.compile(r"<header\b", re.I),
+        re.compile(r'(?:class|id)\s*=\s*"[^"]*\b(?:masthead|site-header)\b', re.I),
+    ],
+    "footer": [
+        re.compile(r"<footer\b", re.I),
+        re.compile(r'(?:class|id)\s*=\s*"[^"]*\b(?:site-footer|colophon)\b', re.I),
+    ],
+    "announcement": [
+        re.compile(r'(?:class|id)\s*=\s*"[^"]*\b(?:annc|announcement|banner-strip)\b', re.I),
+    ],
+}
+
 EXTERNAL_ASSET = re.compile(
     r'(?:href|src)\s*=\s*"(https?://[^"]+\.(?:css|js|woff2?)[^"]*|https?://fonts\.[^"]+)"',
     re.I,
 )
-FONT_FAMILY = re.compile(r"family=([A-Za-z0-9+:@;.,]+)")
-CSS_CUSTOM_PROP = re.compile(r"(--[a-zA-Z0-9-]+)\s*:")
-NAV_TOGGLE = re.compile(r"navbar-toggler|hamburger|mobile-menu|btn-nav", re.I)
 
 
 def load(source: str, insecure: bool) -> str:
@@ -55,105 +63,65 @@ def load(source: str, insecure: bool) -> str:
         return f.read()
 
 
-def classify(source: str, html: str) -> dict:
+def main() -> int:
+    argv = sys.argv[1:]
+    insecure = "--insecure" in argv
+    composite = "--composite" in argv
+    args = [a for a in argv if not a.startswith("--")]
+    if len(args) != 1:
+        print(__doc__)
+        return 1
+    try:
+        html = load(args[0], insecure)
+    except Exception as e:
+        print(f"ERROR: cannot load {args[0]}: {e}")
+        return 1
+
     has_doctype = bool(re.search(r"<!doctype\b", html, re.I))
     has_html = bool(re.search(r"<html\b", html, re.I))
     has_body = bool(re.search(r"<body\b", html, re.I))
     full_doc = has_doctype and has_html and has_body
     rdfa_doctype = bool(re.search(r"<!doctype[^>]*rdfa", html, re.I))
 
-    return {
-        "source": source,
-        "size": len(html),
-        "full_doc": full_doc,
-        "rdfa_doctype": rdfa_doctype,
-        "chrome_tags": sorted({m.group(1).lower() for m in CHROME_TAG.finditer(html)}),
-        "chrome_classes": sorted({m.group(1).lower() for m in CHROME_CLASS.finditer(html)}),
-        "assets": sorted({m.group(1) for m in EXTERNAL_ASSET.finditer(html)}),
-        "fonts": sorted({m.group(1) for m in FONT_FAMILY.finditer(html)}),
-        "css_props": sorted({m.group(1) for m in CSS_CUSTOM_PROP.finditer(html)}),
-        "bootstrap": bool(re.search(r"bootstrap", html, re.I)),
-        "nav_toggle": sorted({m.group(0).lower() for m in NAV_TOGGLE.finditer(html)}),
-    }
+    regions = [name for name, pats in REGION_PATTERNS.items()
+               if any(p.search(html) for p in pats)]
+    assets = sorted({m.group(1) for m in EXTERNAL_ASSET.finditer(html)})
 
-
-def print_single(c: dict) -> int:
-    print(f"source        : {c['source']}")
-    print(f"size          : {c['size']} bytes")
-    print(f"structure     : {'full document' if c['full_doc'] else 'fragment (tidy will wrap it)'}")
-    if c["rdfa_doctype"]:
+    print(f"source        : {args[0]}")
+    print(f"size          : {len(html)} bytes")
+    print(f"structure     : {'full document' if full_doc else 'fragment (tidy will wrap it)'}")
+    if rdfa_doctype:
         print("doctype       : XHTML+RDFa — engine SKIPS tidy for this document")
-    print(f"chrome tags   : {', '.join(c['chrome_tags']) or 'none'}")
-    print(f"chrome classes: {', '.join(c['chrome_classes']) or 'none'}")
-    print(f"fonts         : {', '.join(c['fonts']) or 'none'}")
-    print(f"bootstrap     : {'yes' if c['bootstrap'] else 'no'}")
-    print(f"nav toggle    : {', '.join(c['nav_toggle']) or 'none'}")
-    print(f"css props ({len(c['css_props'])}): {', '.join(c['css_props']) or 'none'}")
-    print(f"external assets ({len(c['assets'])}):")
-    for a in c["assets"]:
+    print(f"chrome regions: {', '.join(regions) or 'none'}")
+    print(f"external assets ({len(assets)}):")
+    for a in assets:
         print(f"  - {a}")
 
-    has_chrome = bool(c["chrome_tags"] or c["chrome_classes"])
-    if has_chrome:
-        print("\nRESULT: self-contained chrome detected — this is a candidate NEW SKIN,")
-        print("not a page to strip-and-deploy under the unchanged current skin.")
-        print("Compare fonts/css props/bootstrap/nav-toggle against any sibling")
-        print("candidates (--compare) before deciding shared vs per-site vs passthrough")
-        print("— see references/skin-commonality-assessment.md and skin-authoring-howto.md.")
-        return 2
-    print("\nRESULT: no self-contained chrome; this document is plain content,")
-    print("safe to deploy under the current live skin unmodified.")
-    return 0
+    if not regions:
+        print("\nRECOMMENDATION: no self-contained chrome detected.")
+        print("The page is safe under any skin; no remediation needed.")
+        return 0
 
+    print("\nSelf-contained chrome detected. Three remediations — the choice is the")
+    print("user's, and depends on the LIVE skin for this URL, which this script")
+    print("cannot see. Read skin_manifest, then xslt_sheet, before recommending.\n")
 
-def print_compare(classifications: list) -> int:
-    print(f"{'source':<40} {'fonts':<20} {'bootstrap':<10} {'nav-toggle':<15} css-props")
-    for c in classifications:
-        print(
-            f"{c['source']:<40} {','.join(c['fonts']) or '-':<20} "
-            f"{'yes' if c['bootstrap'] else 'no':<10} "
-            f"{','.join(c['nav_toggle']) or '-':<15} {','.join(c['css_props']) or '-'}"
-        )
-    all_props = [set(c["css_props"]) for c in classifications]
-    shared_props = set.intersection(*all_props) if all_props else set()
-    all_fonts = {tuple(c["fonts"]) for c in classifications}
-    print(f"\nshared css custom-property names across ALL candidates: {sorted(shared_props) or 'none'}")
-    print(f"distinct font sets across candidates: {len(all_fonts)} (1 = all match)")
-    if shared_props and len(all_fonts) == 1:
-        print("\nSIGNAL: strong commonality — a shared 'zion'-style skin is worth considering.")
+    if composite:
+        print(f"  Path C (preferred here): regions_off = '{','.join(regions)}'")
+        print("      Pure config, page-atomic. The page keeps canonical, feeds,")
+        print("      data islands, analytics and the OPAL widget.")
     else:
-        print("\nSIGNAL: weak/no commonality — separate per-site skins are more likely correct.")
-    return 0
+        print("  Path C: NOT available — target is not known to be on a composite")
+        print("      skin. Re-run with --composite once you have confirmed")
+        print(f"      skin_manifest is set; the value would be '{','.join(regions)}'.")
 
-
-def main() -> int:
-    argv = sys.argv[1:]
-    insecure = "--insecure" in argv
-    argv = [a for a in argv if a != "--insecure"]
-
-    if argv and argv[0] == "--compare":
-        sources = argv[1:]
-        if len(sources) < 2:
-            print(__doc__)
-            return 1
-        classifications = []
-        for s in sources:
-            try:
-                classifications.append(classify(s, load(s, insecure)))
-            except Exception as e:
-                print(f"ERROR: cannot load {s}: {e}")
-                return 1
-        return print_compare(classifications)
-
-    if len(argv) != 1:
-        print(__doc__)
-        return 1
-    try:
-        html = load(argv[0], insecure)
-    except Exception as e:
-        print(f"ERROR: cannot load {argv[0]}: {e}")
-        return 1
-    return print_single(classify(argv[0], html))
+    print("\n  Path A: per-URL xslt_sheet override to the passthrough skin.")
+    print("      Page keeps its layout but forfeits canonical, feeds, JSON-LD")
+    print("      SearchAction, data islands, analytics, OPAL widget and site nav.")
+    print("\n  Path B: strip the page's own chrome and deploy under the live skin.")
+    print(f"      Remove its {', '.join(regions)}; keep <style> blocks and content")
+    print("      sections. No config change — a pure WebDAV PUT.")
+    return 2
 
 
 if __name__ == "__main__":

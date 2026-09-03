@@ -10,7 +10,7 @@
     schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:step :step-oneRequirementPerStep, :step-contentSlotting,
-        :step-anchoredCrossReferences, :step-parseValidation, :step-downstreamCountSync ;
+        :step-anchoredCrossReferences, :step-parseValidation ;
     rdfs:seeAlso <../preferences.ttl#step-howtoAuthoringStructure> .
 
 # ── Step 1: One Requirement Per Step ─────────────────────────────────────────
@@ -41,11 +41,3 @@
     schema:position "4"^^xsd:integer ;
     schema:name "Parse-validate every created or edited memory .ttl file before finishing the task"@en ;
     schema:text "After writing or editing any agent-rdf-memory .ttl file, parse it with a real Turtle parser (e.g. python3 -c \"from rdflib import Graph; Graph().parse('<file>', format='turtle')\") and fix any error before ending the turn. Recurring defect classes to watch: long literals opened with triple quotes but closed with a single quote; illegal backslash escapes (\\? and similar) inside string literals; '#' inside a prefixed name (use a full <IRI> when a fragment is needed); files truncated mid-literal."@en .
-
-# ── Step 5: Downstream Doc Counts Must Be Re-Synced, Never Hard-Coded Stale ──
-
-:step-downstreamCountSync a schema:HowToStep ;
-    schema:position "5"^^xsd:integer ;
-    schema:name "Any doc that states preferences.ttl's step count or howto/'s file count must be re-verified and corrected whenever either grows"@en ;
-    schema:text "SESSION-START-HOOK.md was found 2026-07-23 to still say '36 operational rules' and '9 thematic howto docs' long after preferences.ttl had grown past 150 steps and howto/ past 80 files -- a documentation-drift defect, not a corruption. Any session that appends a new schema:HowToStep to preferences.ttl or adds a new howto/*.ttl file must grep for other docs stating these counts as fixed numbers (starting with SESSION-START-HOOK.md's 'Keeping the Step Count in Sync' section) and either update the number or, preferably, replace the hard-coded figure with the live-count command so it cannot go stale again. VERIFIED 2026-08-25: this step itself had never reached main -- it lived only on an unmerged branch while MEMORY.md cited it as live -- and SESSION-START-HOOK.md still carried the stale 36/9 figures against actual counts of 260 and 144."@en ;
-    onto:hasTrigger onto:triggerPreferencesUpdate .

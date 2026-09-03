@@ -295,6 +295,14 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
         sections.append("synopsis")
 
     if has_comparison:
+        _sil = render_silences(cmp_data, resolver_pattern)
+        if _sil:
+            html_parts.append(render_narrative_section(
+                "silences", "What the Argument Never Mentions", _sil,
+                eyebrow="THE FINDING",
+            ))
+            nav_links.append({"href": "#silences", "label": "Silences"})
+            sections.append("silences")
         html_parts.append(render_narrative_section(
             "comparison",
             "Comparison Matrix",
@@ -544,6 +552,99 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     return "\n".join(html_parts), "\n".join(html_parts_ref), nav_links, sections
 
 
+def comparison_stats(cmp_data: dict) -> dict:
+    """Headline counts for the hero rail, derived rather than authored."""
+    dims = cmp_data.get("dimensions", [])
+    subs = cmp_data.get("subjects", [])
+    if not dims:
+        return {}
+    return {
+        "dimensions": len(dims),
+        "convergent": sum(1 for d in dims if d.get("relation") == "convergent"),
+        "divergent": sum(1 for d in dims if d.get("relation") == "divergent"),
+        "unaddressed": sum(1 for d in dims if len(d.get("cells", {})) < len(subs)),
+    }
+
+
+def render_hero_stats(stats: dict) -> str:
+    """A finding rail in the hero: state the result, not just the title.
+
+    Counts come straight from the comparison graph, so the hero cannot drift
+    out of step with the matrix below it.
+    """
+    if not stats:
+        return ""
+    items = [
+        ("dimensions", "dimensions compared", "neutral"),
+        ("convergent", "convergent", "conv"),
+        ("divergent", "divergent", "div"),
+        ("unaddressed", "unaddressed", "sil"),
+    ]
+    cells = "".join(
+        f'<div class="hero-stat hero-stat-{cls}">'
+        f'<span class="hero-stat-num" data-count="{stats[k]}">{stats[k]}</span>'
+        f'<span class="hero-stat-label">{label}</span></div>'
+        for k, label, cls in items if k in stats
+    )
+    return f'<div class="hero-stats" role="group" aria-label="Comparison findings">{cells}</div>'
+
+
+def render_silences(cmp_data: dict, resolver_pattern: str) -> str:
+    """Feature band for dimensions one side never addresses.
+
+    This is the document's sharpest claim -- that an argument's omissions can
+    be computed rather than asserted -- so it gets its own band ahead of the
+    full matrix instead of being just a row class inside it.
+    """
+    subs = cmp_data.get("subjects", [])
+    dims = cmp_data.get("dimensions", [])
+    if len(subs) < 2:
+        return ""
+    silent = [d for d in dims if len(d.get("cells", {})) < len(subs)]
+    if not silent:
+        return ""
+    missing = {su["iri"]: sum(1 for d in silent if su["iri"] not in d["cells"]) for su in subs}
+    quiet_iri = max(missing, key=lambda k: missing[k])
+    quiet = next(su for su in subs if su["iri"] == quiet_iri)
+    other = next((su for su in subs if su["iri"] != quiet_iri), quiet)
+
+    cards = []
+    for i, d in enumerate(silent, 1):
+        pos = d["cells"].get(other["iri"])
+        answer = escape(pos["description"]) if pos else ""
+        stance = f'<span class="comp-stance">{escape(pos["stance"])}</span>' if pos and pos.get("stance") else ""
+        cites = "".join(
+            f'<a class="comp-cite" href="{escape(c["iri"])}" target="_blank" rel="noopener noreferrer" '
+            f'title="{escape(c["description"])}">{escape(c["name"])}</a>'
+            for c in (d.get("citations") or [])
+        )
+        cites_html = f'<div class="comp-cites"><span class="comp-cites-label">Counter-evidence</span>{cites}</div>' if cites else ""
+        note = f'<p class="silence-note">{escape(d["note"])}</p>' if d.get("note") else ""
+        gap = (f'<div class="silence-gap"><span class="silence-gap-label">The gap</span>'
+               f'<p>{escape(d["gap"])}</p></div>') if d.get("gap") else ""
+        cards.append(
+            f'<article class="silence-card" style="--i:{i}">'
+            f'<span class="silence-index">{i:02d}</span>'
+            f'<h3 class="silence-title">'
+            f'<a class="entity-link" href="{make_resolver_link(d["iri"], resolver_pattern)}" '
+            f'target="_blank" rel="noopener noreferrer">{escape(d["name"])}</a></h3>'
+            f'{note}'
+            f'{gap}'
+            f'<div class="silence-answer"><span class="silence-answer-label">'
+            f'{escape(other["name"])} answers</span>{stance}<p>{answer}</p></div>'
+            f'{cites_html}'
+            f'</article>'
+        )
+    lede = (f'<p class="silence-lede">Across {len(dims)} dimensions, '
+            f'<strong>{escape(quiet["name"])}</strong> states a position on every one but '
+            f'<strong>{len(silent)}</strong>. These are not editorial oversights: in each case the '
+            f'capability is absent from the property-graph stack, and the argument\'s silence '
+            f'tracks that absence. Each omission below is returned by a '
+            f'<code>FILTER NOT EXISTS</code> anti-join against the live graph &mdash; computed, '
+            f'not asserted &mdash; and states the specific gap.</p>')
+    return f'<div class="silences">{lede}<div class="silence-grid">{"".join(cards)}</div></div>'
+
+
 def render_comparison(cmp_data: dict, resolver_pattern: str) -> str:
     """Render a head-to-head comparison as BOTH a table (>=901px) and cards (<=900px).
 
@@ -625,8 +726,18 @@ def render_comparison(cmp_data: dict, resolver_pattern: str) -> str:
         for dim in dims:
             rel = dim.get("relation") or ""
             out.append('<div class="comp-row">')
+            # hasRelation describes the DIMENSION, not a subject. convergent and
+            # divergent are symmetric, so they read correctly inside either
+            # subject's card. "unaddressed" is asymmetric -- it names one
+            # subject's silence -- so echoing it on the card of the subject that
+            # DOES hold a position contradicts the value rendered right beneath
+            # it. Suppress it there; that subject's stance already carries the
+            # per-subject truth.
+            rel_badge = ""
+            if rel and not (rel == "unaddressed" and sub["iri"] in dim["cells"]):
+                rel_badge = f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel)}</span>'
             out.append(f'<div class="comp-row-label">{elink(dim["iri"], dim["name"])}'
-                       f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel)}</span></div>')
+                       f'{rel_badge}</div>')
             if sub is subs[0]:
                 out.append(cites(dim))
             out.append(f'<div class="comp-row-value">{cell(dim, sub)}</div>')
@@ -945,6 +1056,7 @@ def assemble_html(
         "description": description,
         "tagline": tagline,
         "hero_tagline": hero_tagline,
+        "hero_stats_html": render_hero_stats(comparison_stats(extract_comparison(rdf_path, base_iri))),
         "meta_html": meta_html,
         "rdf_rel_path": rdf_rel,
         "rdf_filename": rdf_filename,

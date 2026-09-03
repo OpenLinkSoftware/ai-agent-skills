@@ -1,4 +1,0 @@
-interface:
-  display_name: "XMLA Client"
-  short_description: "Discover XMLA metadata and execute statements."
-  default_prompt: "Use $xmla-client to inspect an XMLA endpoint and return structured results."

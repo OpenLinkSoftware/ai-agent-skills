@@ -871,3 +871,77 @@ blockquote p{margin-bottom:.3rem}
 .comp-cites-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);width:100%;margin-bottom:1px}
 a.comp-cite{display:inline-block;max-width:100%;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:500;line-height:1.35;color:var(--accent);text-decoration:none;overflow-wrap:anywhere;transition:border-color .2s,background .2s}
 a.comp-cite:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);text-decoration:none}
+
+/* ==========================================================================
+   EDITORIAL ART DIRECTION
+   A high-contrast display serif against the technical sans. The serif carries
+   argument (hero, section titles, feature cards); Inter carries data, controls
+   and body. The pairing is what stops a data-heavy page reading as a spec doc.
+   ========================================================================== */
+h1,h2,h3,.silence-title,.stat-value{font-family:'Fraunces','Iowan Old Style',Georgia,serif;font-optical-sizing:auto}
+h1,h2{letter-spacing:-.022em}
+h4,.nav-title{font-family:'Inter',system-ui,sans-serif}
+
+/* ── Hero: asymmetric editorial statement, not a centred banner ──────────── */
+.hero{min-height:auto;text-align:left;justify-content:flex-start;padding:clamp(4rem,10vw,7.5rem) clamp(1.5rem,6vw,5rem) clamp(3.5rem,7vw,5.5rem)}
+.hero-content{max-width:1180px;width:100%;margin:0 auto}
+.hero h1{font-size:clamp(2.5rem,6.2vw,4.6rem);font-weight:700;line-height:1.02;max-width:19ch;margin-bottom:1.35rem;text-wrap:balance}
+.hero .tagline{font-size:clamp(1.05rem,1.65vw,1.35rem);max-width:52ch;margin:0 0 2.6rem;color:var(--hero-ink-soft);line-height:1.55}
+.hero-credit{margin-top:2.4rem;font-size:.82rem;color:var(--hero-ink-soft);opacity:.75}
+.hero .meta{margin-top:.5rem;opacity:.7}
+
+/* Node-network texture: the subject matter as ground, kept far back so it
+   never competes with the headline. */
+.hero-texture{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(circle at 1px 1px,var(--hero-glow) 1px,transparent 0);
+  background-size:34px 34px;
+  mask-image:radial-gradient(ellipse 80% 70% at 78% 32%,#000 0%,transparent 72%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 78% 32%,#000 0%,transparent 72%)}
+
+/* ── Finding rail: the hero states the result, derived from the graph ────── */
+.hero-stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--hero-hairline);padding-top:1.6rem;max-width:900px}
+.hero-stat{flex:1 1 128px;min-width:0;padding:0 1.5rem 0 0;margin-right:1.5rem;border-right:1px solid var(--hero-hairline);display:flex;flex-direction:column;gap:.3rem}
+.hero-stat:last-child{border-right:none;margin-right:0;padding-right:0}
+.hero-stat-num{font-family:'Fraunces',Georgia,serif;font-size:clamp(2.1rem,3.6vw,3rem);font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--hero-ink);font-variant-numeric:tabular-nums}
+.hero-stat-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--hero-ink-soft);line-height:1.35}
+.hero-stat-conv .hero-stat-num{color:#4ade80}
+.hero-stat-div  .hero-stat-num{color:#38bdf8}
+.hero-stat-sil  .hero-stat-num{color:#c4a5fb}
+
+/* ── Silences: the document's sharpest claim, given its own band ─────────── */
+.silence-lede{font-size:1.06rem;line-height:1.7;max-width:68ch;color:var(--text-secondary);margin-bottom:2.4rem}
+.silence-lede strong{color:var(--text);font-weight:600}
+.silence-lede code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;padding:2px 6px;border-radius:4px;background:var(--bg-alt);border:1px solid var(--border)}
+.silence-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1.35rem}
+/* Tinted band so the finding reads as the page's centrepiece, not another
+   card grid. Uses the silence accent at low alpha, so it re-tints with theme. */
+#silences{background:
+   radial-gradient(ellipse 60% 50% at 15% 0%,color-mix(in srgb,var(--accent2,#a371f7) 9%,transparent),transparent 70%),
+   var(--bg-alt)}
+#silences .section-heading-flex h2{font-size:clamp(1.9rem,3.4vw,2.6rem)}
+.silence-card{position:relative;padding:1.6rem 1.5rem 1.4rem;border-radius:14px;background:var(--card-bg);border:1px solid var(--border);
+  border-top:3px solid var(--accent2,#a371f7);box-shadow:var(--card-shadow);min-width:0;
+  animation:silenceIn .6s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--i,1)*70ms);transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s}
+.silence-card:hover{transform:translateY(-4px);box-shadow:var(--card-hover-shadow)}
+@keyframes silenceIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.silence-card{animation:none}}
+.silence-index{font-family:'Fraunces',Georgia,serif;font-size:.82rem;font-weight:700;letter-spacing:.06em;color:var(--accent2,#a371f7);opacity:.75}
+.silence-title{font-size:1.22rem;font-weight:600;line-height:1.25;margin:.35rem 0 .6rem}
+.silence-note{font-size:.87rem;line-height:1.62;color:var(--text-secondary);margin-bottom:1rem}
+.silence-answer{padding-top:.95rem;border-top:1px dashed var(--border)}
+.silence-answer-label{display:block;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text-secondary);margin-bottom:.5rem}
+.silence-answer p{font-size:.87rem;line-height:1.6;margin:.45rem 0 0}
+.silence-card .comp-cites{margin-top:1rem}
+
+/* ── Matrix: relation-coded spine, so the pattern reads before the prose ── */
+.comparison-table tbody tr{border-left:3px solid transparent}
+.comparison-table tbody tr[data-relation="convergent"]{border-left-color:var(--accent3,#3fb950)}
+.comparison-table tbody tr[data-relation="divergent"]{border-left-color:var(--accent)}
+.comparison-table tbody tr[data-relation="unaddressed"]{border-left-color:var(--accent2,#a371f7)}
+.comparison-table tbody th[scope="row"]{font-family:'Fraunces',Georgia,serif;font-size:1rem;font-weight:600}
+
+/* The capability gap: a claim about the product, visually distinct from the
+   article-observation note above it and from the alternative answer below. */
+.silence-gap{margin:.9rem 0 0;padding:.85rem .95rem;border-radius:9px;background:color-mix(in srgb,var(--accent2,#a371f7) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent2,#a371f7) 26%,transparent)}
+.silence-gap-label{display:block;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--accent2,#a371f7);margin-bottom:.4rem}
+.silence-gap p{font-size:.85rem;line-height:1.6;margin:0;color:var(--text)}

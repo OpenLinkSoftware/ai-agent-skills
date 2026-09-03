@@ -319,7 +319,7 @@
     schema:name "Destructive Command Guard"@en ;
     schema:description "Standing rule: never execute destructive shell commands. Covers git force operations, recursive deletion, filesystem wipes, fork bombs, and pipe-to-shell patterns."@en ;
     rdfs:seeAlso <howto/destructive-command-guard.ttl> ;
-    schema:step :step-destructiveCommandGuard .
+    schema:step :step-destructiveCommandGuard, :step-buildFixtureIsStillAnArtifact .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Step Definitions (referenced by sub-HowTos above) ────────────────────
@@ -3077,7 +3077,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 # position collisions are found and resolved.)
 
 :step-awkIgnorecaseNotPortable a schema:HowToStep ;
-    schema:position 261 ;
+    schema:position 249 ;
     schema:name "Never rely on awk's IGNORECASE variable for case-insensitive matching in a shell pipeline meant to run cross-platform — use grep -i instead"@en ;
     schema:text "2026-08-19: found live-testing the x402-buyer WebID-TLS probe flow — awk 'BEGIN{IGNORECASE=1}/^payment-required:/{...}' had been silently non-functional on macOS since first written. BSD/nawk awk (macOS's default) treats IGNORECASE as an ordinary uninitialized variable with no special meaning; the match stays case-sensitive and never fires against curl's uppercase PAYMENT-REQUIRED: header. No error — just an empty result that reads exactly like 'no such header present,' a false negative for a real, present header. Fixed by replacing with grep -i '^header:' | cut -d: -f2- | tr -d ' \\r' — no GNU-awk dependency. This is a general authoring rule, not a one-off fix: audit any awk BEGIN{IGNORECASE=1} usage authored for a skill meant to run on a user's actual machine." ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
@@ -3091,7 +3091,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 # found and resolved.)
 
 :step-hyperlinkSparqlUrls a schema:HowToStep ;
-    schema:position 262 ;
+    schema:position 250 ;
     schema:name "Whenever a SPARQL query URL is generated, present it as a clickable hyperlink — never as bare unlinked text"@en ;
     schema:text "2026-08-19: user directive after the llm-routing-skill SPARQL endpoint URL was shown as a long raw string. Rule: every generated SPARQL query URL MUST be emitted as a Markdown/HTML hyperlink with a short human label (e.g. 'Run: code-generation frontier (cheapest first)'), and the URL must be verified to return results before it is presented. FORMAT: SELECT SPARQL URLs use the data-twingler convention — format=text/x-html+tr (percent-encoded as text%2Fx-html%2Btr, since '+' in a raw URL decodes to space), e.g. http://localhost:8890/sparql?default-graph-uri=&query=...&format=text%2Fx-html%2Btr — NOT format=json. Applies to chat responses, generated documents, and skill output alike. See llm-routing-skill SKILL.md SPARQL Query Templates for the query corpus this rule governs."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
@@ -3111,28 +3111,28 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-bash32EmptyArrayBug> .
 
-# ── Step 258: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
+# ── Step 243: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
 
 :step-webidTlsRedirectNotUniversal a schema:HowToStep ;
-    schema:position 258 ;
+    schema:position 243 ;
     schema:name "Do not assume every WebID-TLS-gated x402 resource 302-redirects through a ?k=... URL before its 402 — a /sparql/ query endpoint answered 402 directly at :5443 with no redirect at all"@en ;
     schema:text "2026-08-19: confirmed with a live probe of an ods-qa.openlinksw.com SPARQL query endpoint (urn:jch:test named graph) — cert accepted on :5443 went straight to 402, no 302/?k= hop, unlike the DAV file resource probed earlier in the same session. A redirect-follow (curl -L) handles both shapes correctly as a no-op when nothing needs following; don't build detection logic that treats an absent redirect as a failure signal." ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-redirectHopNotUniversal> .
 
-# ── Step 259: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
+# ── Step 244: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
 
 :step-x402JsonschemaRequired a schema:HowToStep ;
-    schema:position 259 ;
+    schema:position 244 ;
     schema:name "The x402 Python SDK needs jsonschema + the extensions extra even when the caller uses no extensions — it validates whatever extension the SERVER'S challenge advertises before creating a payment payload"@en ;
     schema:text "2026-08-19: discovered running x402-buyer's first real end-to-end settlement. A challenge advertising eip2612GasSponsoring failed deep inside signing with ImportError: Extensions validation requires jsonschema — after the challenge had already decoded and the buyer address already printed, reading like a mid-run crash rather than a missing dependency. Fixed in every install line across the skill (docstring, SKILL.md, setup.md) plus a troubleshooting.md entry keyed on the exact error text." ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-jsonschemaRequiredDependency> .
 
-# ── Step 260: verify a payment client's own success report independently against the chain before repeating it ──
+# ── Step 245: verify a payment client's own success report independently against the chain before repeating it ──
 
 :step-verifySettlementIndependently a schema:HowToStep ;
-    schema:position 260 ;
+    schema:position 245 ;
     schema:name "When a payment/settlement client reports success, verify independently against the underlying ledger before repeating the claim — never take the client's self-report as sufficient when real value (even testnet) moved"@en ;
     schema:text "2026-08-19: x402-buyer's first real settlement (ods-qa.openlinksw.com TestFile.txt, $9.99) reported success with a transaction hash. Verified independently via a direct eth_getTransactionReceipt RPC call to the SAME already-established Base Sepolia endpoint the script itself defaults to (never a fresh unverified URL) — confirmed status 0x1, correct ERC-20 Transfer event, correct from/to/amount matching the challenge exactly. A block-explorer URL (sepolia.basescan.org) was tried first, returned 403, and was NOT worked around with a substitute or fabricated URL — fell back to the already-verified RPC endpoint instead, per the no-fabricated-URLs rule. Also checked remaining wallet balance directly via balanceOf() rather than assuming from the settlement amount." ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
@@ -3293,3 +3293,18 @@ Recorded in rdf-infographic-skill/SKILL.md harness item 10 as well as here."""@e
         <howto/remote-resource-removal.ttl>,
         :step-remoteUploadOrder,
         :step-remoteRemovalOrder .
+
+:step-buildFixtureIsStillAnArtifact a schema:HowToStep ;
+    schema:position "263"^^xsd:integer ;
+    schema:name "Generator output written into a source repo as a test fixture or build directory is STILL a generated artifact and routes to the LLM root"@en ;
+    schema:text """Routing is decided by artifact TYPE (a generated .ttl/.md/.html), never by the directory's name, never by the generator script sitting beside it, and never by the output being regenerable.
+
+Caught 2026-08-26 while building composite-skin support for the OSDI Inclusion Engine: a rebased RDF site graph, de-chromed WebDAV content, and a 16-page rendered site were all written into the inclusion-engine repo under infrastructure-tests/composite/{site,out}/ and left there. Three things made that output feel like repo scaffolding rather than a deliverable — the generators legitimately live in the repo, the parent directory is named infrastructure-tests/, and everything was regenerable — and none of them is a valid exemption. That rendered site WAS the deliverable; it was the acceptance test the user set for the task.
+
+PROCEDURE when a generator must write into a repo as an intermediate: gitignore the output directory, and add an explicit packaging step that routes the finished artifact to {model-root}/{rdf,md,webpages}/ per howto/artifact-routing.ttl#step-outputDirs. Group a multi-file collection in a per-artifact subfolder when its members link to each other relatively.
+
+A source repository holds hand-authored source — engine code, XSLT, skin bundles, generator scripts — and never their output."""@en ;
+    rdfs:seeAlso <howto/artifact-routing.ttl>,
+        <howto/artifact-routing.ttl#step-buildFixtureIsStillAnArtifact>,
+        :step-outputRootBlockingGate,
+        :step-outputDirs .
