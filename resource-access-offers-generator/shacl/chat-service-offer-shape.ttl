@@ -4,6 +4,7 @@
 @prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
 @prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
 @prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+@prefix oplpro: <http://www.openlinksw.com/ontology/products#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 <#ChatServiceProductShape> a sh:NodeShape ;
     sh:targetClass schema:Service ;
@@ -54,4 +55,6 @@
     sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupChatService#this> ] ;
     sh:property [ sh:path skos:prefLabel ; sh:minCount 1 ] ;
     sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
-        sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] .
+        sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] ;
+    sh:property [ sh:path skos:related ; sh:minCount 1 ; sh:nodeKind sh:BlankNode ;
+        sh:node [ sh:property [ sh:path oplpro:hasFamily ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/product_family/opal#this> ] ] ] .

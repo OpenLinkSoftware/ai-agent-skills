@@ -4,6 +4,7 @@
 @prefix oplofr: <http://www.openlinksw.com/ontology/offers#> .
 @prefix opllic: <http://www.openlinksw.com/ontology/licenses#> .
 @prefix oplsof: <http://www.openlinksw.com/ontology/software#> .
+@prefix oplpro: <http://www.openlinksw.com/ontology/products#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix acl: <http://www.w3.org/ns/auth/acl#> .
@@ -35,6 +36,8 @@
     sh:property [ sh:path oplofr:isMemberOf ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/OfferGroupGraphAccess#this> ] ;
     sh:property [ sh:path schema:potentialAction ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
         sh:pattern "^https://shop\\.openlinksw\\.com/shop/cart\\.vsp\\?command=add&item=" ] ;
+    sh:property [ sh:path skos:related ; sh:minCount 1 ; sh:nodeKind sh:BlankNode ;
+        sh:node [ sh:property [ sh:path oplpro:hasFamily ; sh:minCount 1 ; sh:hasValue <http://data.openlinksw.com/oplweb/product_family/loac#this> ] ] ] ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "Graph Access offer must have a corresponding acl:Authorization granting oplacl:Read access to the graph named in the License's opllic:graphParameter." ;
