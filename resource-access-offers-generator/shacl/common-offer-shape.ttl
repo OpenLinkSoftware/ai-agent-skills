@@ -67,5 +67,19 @@
     sh:property [ sh:path schema:image ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
     sh:property [ sh:path rdf:type ; sh:minCount 1 ; sh:hasValue opllic:Product ] ;
     sh:property [ sh:path rdf:type ; sh:minCount 1 ; sh:hasValue opllic:ACLOnly ] ;
-    sh:property [ sh:path rdf:type ; sh:minCount 1 ; sh:hasValue opllic:SubscriptionLicense ] ;
-    sh:property [ sh:path wdrs:describedby ; sh:minCount 1 ; sh:class schema:CreativeWork ] .
+    sh:property [ sh:path wdrs:describedby ; sh:minCount 1 ; sh:class schema:CreativeWork ] ;
+    sh:sparql [
+        sh:message "opllic:SubscriptionLicense must be present on the License if and only if its Offer is typed oplofr:SubscriptionOffer (one-time offers must NOT carry SubscriptionLicense; subscription offers MUST)." ;
+        sh:select """
+            PREFIX schema: <http://schema.org/>
+            PREFIX oplofr: <http://www.openlinksw.com/ontology/offers#>
+            PREFIX opllic: <http://www.openlinksw.com/ontology/licenses#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            SELECT $this WHERE {
+                ?offer schema:itemOffered $this .
+                BIND(EXISTS { ?offer rdf:type oplofr:SubscriptionOffer } AS ?isSubscription)
+                BIND(EXISTS { $this rdf:type opllic:SubscriptionLicense } AS ?hasSubType)
+                FILTER(?isSubscription != ?hasSubType)
+            }
+        """ ;
+    ] .
