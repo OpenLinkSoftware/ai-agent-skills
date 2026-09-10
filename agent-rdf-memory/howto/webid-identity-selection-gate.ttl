@@ -1,0 +1,35 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/webid-identity-selection-gate.ttl"@en ;
+    schema:description "Standing rule closing a gap identified 2026-09-08: acp-client and ucp-client elicited WHICH AUTH PROTOCOL (WebID-TLS/OAuth/Digest) but never WHICH WEBID-TLS IDENTITY (principal vs agent delegate) once WebID-TLS was chosen, and verified-identity.ttl's cert-modulus check was scoped only to whoami queries, never wired into either skill's purchase/access flow. This is the confirmed root cause of an earlier QA campaign running under the principal's identity for most of a session despite an explicit instruction to use the agent's own delegate identity."@en ;
+    schema:dateCreated "2026-09-08T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :webidIdentitySelectionGate ;
+    schema:step :step-gapClosed, :step-skillsUpdated, :step-verificationScope ;
+    rdfs:seeAlso <verified-identity.ttl>,
+        <../preferences.ttl#step-webidIdentitySelection>,
+        <../../acp-client/SKILL.md>,
+        <../../ucp-client/SKILL.md> .
+
+:webidIdentitySelectionGate a schema:Thing ;
+    schema:name "WebID-TLS Identity Selection Gate"@en ;
+    schema:description "Elicit which WebID-TLS identity (principal vs agent delegate vs a named credential set) before the first authenticated request in any MPP/UCP/ACP purchase or access flow, then verify that identity's cert modulus before presenting it."@en .
+
+:step-gapClosed a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "The gap: protocol selection is not identity selection"@en ;
+    schema:text """Both acp-client/SKILL.md's 'Auth Protocol Selection (Elicitation)' table and ucp-client/SKILL.md's 'Response-driven authentication selection' section only ever chose a MECHANISM: WebID-TLS/mTLS vs OAuth Bearer vs Digest. Neither asked, once WebID-TLS was chosen, WHICH certificate to present. Absent an explicit instruction, the agent defaulted to whichever identity (usually the principal's) had been used most recently or was already loaded in the session — silently, with no elicitation and no verification. This was discovered when the user had to correct, mid-campaign: "You are supposed to use your identity not mine.\""""@en .
+
+:step-skillsUpdated a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Fix: an explicit WebID-TLS identity elicitation step in both skills"@en ;
+    schema:text """Added 'WebID-TLS/NetID-TLS Identity Selection (Elicitation)' to acp-client/SKILL.md (between Auth Protocol Selection and Settlement Route Selection) and 'WebID-TLS/mTLS identity selection' to ucp-client/SKILL.md (between Response-driven authentication selection and RDF offer rules). Both: (a) state that protocol selection is not identity selection, (b) give a signal table / elicitation prompt for principal vs agent-delegate vs a named credential set, (c) require the SAME identity to be held for every hop/resource in a run — no silent mid-run switching, no re-eliciting. Also corrected acp-client's Protocol-Specific Notes, which had hardcoded "Present the principal's client certificate on every hop" — now reads "the *selected* identity's client certificate ... never assume principal by default.\""""@en .
+
+:step-verificationScope a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Verification hook: per-party modulus check only, not the full whoami protocol"@en ;
+    schema:text """Both skills now require running the cert-modulus check (verified-identity.ttl Steps 1-3 for the principal, Steps 1+4-5 for the agent delegate) for the SELECTED party before the first authenticated request — confirming the local PKCS#12/PEM's public key modulus matches the cert:modulus published in that identity's own profile.ttl. A mismatch or missing local file is non-fatal: mark ⚠️ Unverified, tell the user, proceed only on confirmation. Deliberately NOT required: verified-identity.ttl's full 12-step protocol (reciprocal oplcert:hasIdentityDelegate/onBehalfOf corroboration, remote profile cross-serialization check) — that stays scoped to whoami queries per its own schema:description; requiring it before every purchase/access request would be disproportionate to what a purchase flow needs (proof the right cert is being presented, not proof the delegation relationship is bidirectionally published)."""@en .

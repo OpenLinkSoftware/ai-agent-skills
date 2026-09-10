@@ -258,6 +258,47 @@ If the user specifies a protocol explicitly, honor it.
 > already naming some other explicit port (a local/staging server on a custom
 > port) is left untouched — treat that as a deliberate override, not a miss.
 
+### WebID-TLS/NetID-TLS Identity Selection (Elicitation)
+
+Selecting WebID-TLS/NetID-TLS as the protocol picks a TLS *mechanism*, not a
+*certificate*. When more than one WebID-TLS identity is available locally —
+typically a principal identity and one or more agent delegate identities —
+elicit which one to present before the first request. Do not default to
+whichever identity was used most recently in the session, and do not default
+to the principal's identity, without asking:
+
+| Signal | Identity |
+|---|---|
+| "my cert" / "my WebID" / "as me" / "using my identity" | **Principal** identity |
+| "your identity" / "your own WebID" / "the agent's cert" / "on your own behalf" / "as yourself" | **Agent delegate** identity |
+| A specific named credential set (e.g. a particular `link-in-bio-*` bundle) | Use the user's named identity |
+
+Elicitation prompt when ambiguous:
+> "WebID-TLS is selected. Which identity should I present: (1) your
+> principal WebID, or (2) the agent's own delegate WebID?"
+
+If the user specifies an identity explicitly, honor it, and keep presenting
+that same identity across every hop and every resource for the remainder of
+the run — do not re-elicit or silently switch identities mid-run.
+
+> **RULE — verify the selected identity before the first authenticated
+> request.** Resolve the credentials root, then run the cert-modulus
+> verification for the *selected* party only — Steps 1-3 of
+> `agent-rdf-memory/howto/verified-identity.ttl` for the principal, or Steps
+> 1 and 4-5 for the agent delegate — confirming the local PKCS#12/PEM's
+> public key modulus matches the `cert:modulus` published in that identity's
+> own `profile.ttl` before presenting the certificate. A mismatch or a
+> missing local file is not fatal: mark the identity ⚠️ Unverified, tell the
+> user, and proceed only if they confirm. `verified-identity.ttl`'s own
+> full 12-step protocol (including reciprocal delegation corroboration) is
+> scoped to `whoami` queries and remains optional here — only the per-party
+> modulus check is mandatory before a purchase/access flow. Gap closed
+> 2026-09-08: prior to this rule, neither the auth-protocol table above nor
+> `verified-identity.ttl` forced an identity check before commerce
+> operations, which is how an earlier QA campaign ran under the wrong
+> WebID-TLS identity for most of a session despite an explicit instruction
+> to use the agent's own identity.
+
 ### Settlement Route Selection (Elicitation)
 
 Pick the route before acting. Ask the user if not inferable from the request:
@@ -370,10 +411,11 @@ Route B notes:
   dead end for this protocol. Request the resource on
   `https://{host}:5443/...` (e.g. `https://linkeddata.uriburner.com:5443/...`)
   with the WebID-TLS cert to trigger the `302 ?k=...` redirect that precedes
-  the `402` challenge. Present the principal's client certificate on every
-  hop — the initial request, the `?k=...` follow-up, AND the eventual
-  payment-retry request; the authenticated principal WebID is the
-  `service_id`.
+  the `402` challenge. Present the *selected* identity's client certificate
+  (per WebID-TLS/NetID-TLS Identity Selection above — principal or agent
+  delegate, never assume principal by default) on every hop — the initial
+  request, the `?k=...` follow-up, AND the eventual payment-retry request;
+  the authenticated WebID is the `service_id`.
 - **OAuth (Bearer)**: authenticate with `Authorization: Bearer {token}`
   (e.g., `ACP_AUTH_TOKEN`); for delegated resource access use the `On-Behalf-Of`
   header with a **bare WebID URI — no angle brackets** (angle brackets cause
