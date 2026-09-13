@@ -355,7 +355,36 @@ Verification SPARQL queries are in `references/verification-queries.md`.
 9. **Present changes to the user** — show each file that was modified and the exact triple added
    - *"The delegation triple has been added to the following files. Upload them to the server to deploy: [file list]"*
 
-10. **Verify after upload** — suggest the user query the delegator's WebID for `oplcert:hasIdentityDelegate`
+10. **Verify after upload** — the remote OBO test is the SAME corroboration the local whoami identity-verification flow does (`agent-rdf-memory/howto/verified-identity.ttl` Steps 6-8), just resolved remotely by dereferencing the live WebIDs over HTTP instead of grepping local profile files. This is the PRIMARY check; a third-party verification-service call (below) is a weaker, optional supplement — not a substitute.
+
+    **Primary — dereference both profiles, check the reciprocal triples:**
+    ```bash
+    # Delegator side: does the delegator's own profile grant the delegate?
+    curl -sS -L "{delegator-webid-profile-url}" | grep -i "hasIdentityDelegate"
+    # expect: oplcert:hasIdentityDelegate <delegate-webid> .
+
+    # Delegate side: does the delegate's own profile acknowledge the delegator?
+    curl -sS -L "{delegate-webid-profile-url}" | grep -i "onBehalfOf"
+    # expect: oplcert:onBehalfOf <delegator-webid> (possibly among a list of several) .
+
+    # Cross-serialization: same triples should also appear in index.html on both sides
+    # (embedded JSON-LD, embedded Turtle, hidden RDFa, and a POSH <link> in the hero header)
+    curl -sS -L "{delegator-index-html-url}" | grep -i "hasIdentityDelegate"
+    curl -sS -L "{delegate-index-html-url}" | grep -i "onBehalfOf"
+    ```
+    **FULL corroboration requires BOTH sides** to declare the relationship — either side alone is a one-sided, unverified claim (matches `verified-identity.ttl` `:step-verifyDelegationClaims`). Verified live 2026-09-13 for the agent/principal pair: both profiles declared the relationship correctly, consistently, across every serialization — and the delegate's `onBehalfOf` list may legitimately contain more than one delegator (the agent's own profile lists three).
+
+    **Secondary/optional — remote WebID-TLS verification-service call**, presents the delegate's own certificate over mTLS to a verification endpoint, asserting `On-Behalf-Of` the delegator:
+    ```bash
+    curl -iL "https://{Remote-CNAME}:{webid-tls-port}/webid/webid_verify.vsp?callback=webid_result.vsp" \
+         --cert-type P12 \
+         -H "On-Behalf-Of: {delegator-webid}" \
+         --cert "{delegate-webid.p12}" \
+         --pass "{delegate-webid.p12-pwd}"
+    ```
+    `{webid-tls-port}` is the host's mTLS listener (`5443` on OpenLink ODS/Virtuoso deployments — plain `:443` typically never issues a `CertificateRequest`). **Empirically confirmed 2026-09-13, this check is WEAKER than the primary one above and should never be used alone**: it validates and returns only the **presenting certificate's own identity**, ignoring whatever `On-Behalf-Of` names — confirmed by two live tests (self-referential vs. a genuinely different delegator) returning byte-for-byte identical output. It also never populates its own `pku` (public-key) field for any identity tested, suggesting it doesn't even complete the canonical dereference-and-match-published-key step for the certificate holder itself, let alone the delegator. Treat a `200`/`code: Success` from it as proof only that a well-formed certificate was presented — nothing about delegation.
+
+    Full detail: standalone report `webid-tls-on-behalf-of-delegation-no-effect-incident-report-claude_sonnet_5-1.md`, and `agent-rdf-memory/preferences.ttl` Step 296 / `howto/remote-webid-verification-service-obo.ttl`.
 
 ### T7 — Define Identity Concept
 

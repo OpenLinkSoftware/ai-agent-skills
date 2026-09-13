@@ -1,0 +1,97 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "Remote OBO test — dereference both profiles (primary), a third-party verify service (secondary, weaker)"@en ;
+    schema:description "The remote On-Behalf-Of test is the same corroboration verified-identity.ttl's local whoami flow does (Steps 6-8: check both profiles for the reciprocal oplcert:hasIdentityDelegate/oplcert:onBehalfOf triples), just resolved by dereferencing the live WebIDs over HTTP instead of reading local files — that is the PRIMARY test. Calling a third-party remote WebID-TLS verification service (e.g. /webid/webid_verify.vsp) is a secondary, weaker supplementary check that does not itself verify delegation at all — confirmed here."@en ;
+    schema:dateCreated "2026-09-13T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-13T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-primaryDereferenceTest, :step-curlPattern, :step-liveResult, :step-oboStillIgnored ;
+    rdfs:seeAlso <../preferences.ttl#step-remoteWebidVerifyOboIgnored>,
+        <verified-identity.ttl#step-remoteProfileFetch>,
+        <verified-identity.ttl#step-verifyDelegationClaims>,
+        <verified-identity.ttl#step-verifyDelegationRemote>,
+        <keychain-identity-vs-p12-file-curl.ttl>,
+        <../../youid/SKILL.md> .
+
+# ── Step 1: the PRIMARY remote OBO test ───────────────────────────────────────
+
+:step-primaryDereferenceTest a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "PRIMARY test: dereference both WebIDs live and check the reciprocal delegation triples — the remote variant of the local whoami corroboration, not a call to a third-party service"@en ;
+    schema:text """This is the correct definition of \"a remote OBO test\": the SAME corroboration verified-identity.ttl's local whoami flow performs against local profile files (Steps 6-8: :step-delegatorSideCheck, :step-agentSideCheck, :step-verifyDelegationClaims), just resolved remotely via live HTTP GET on the WebID profile documents instead of grepping local files. It requires no third-party verification endpoint at all.
+
+  # Delegator side: does the delegator's own profile grant the delegate?
+  curl -sS -L \"{delegator-webid-profile-url}\" | grep -i \"hasIdentityDelegate\"
+  # expect: oplcert:hasIdentityDelegate <delegate-webid> .
+
+  # Delegate side: does the delegate's own profile acknowledge the delegator?
+  curl -sS -L \"{delegate-webid-profile-url}\" | grep -i \"onBehalfOf\"
+  # expect: oplcert:onBehalfOf <delegator-webid> (possibly among a list of several) .
+
+  # Cross-serialization: same triples should also appear in index.html on both sides
+  # (embedded JSON-LD, embedded Turtle, hidden RDFa, and a POSH <link> in the hero header)
+  curl -sS -L \"{delegator-index-html-url}\" | grep -i \"hasIdentityDelegate\"
+  curl -sS -L \"{delegate-index-html-url}\" | grep -i \"onBehalfOf\"
+
+FULL corroboration requires BOTH sides to declare the relationship — either alone is a one-sided, unverified claim.
+
+VERIFIED LIVE 2026-09-13, agent/principal pair: delegator (principal) profile.ttl correctly declares hasIdentityDelegate -> agent. Delegate (agent) profile.ttl correctly declares onBehalfOf -> principal — as ONE ENTRY in a comma-separated list of THREE: the principal (kingsley.idehen.net), plus two other identities on my.openlinksw.com and my.demo.openlinksw.com (the same two hosts named in a cross-host delegation test referenced elsewhere this session) — a delegate's onBehalfOf list legitimately holding multiple delegators is expected, not an error. Cross-serialization check passed on both sides: Turtle, embedded JSON-LD, embedded Turtle, and hidden RDFa index.html blocks all agreed.
+
+This PRIMARY test passing is a genuine, meaningful result — unlike the secondary check below, this one actually establishes that the delegation relationship is correctly, bidirectionally published and live-resolvable. It says nothing, however, about whether any given RESOURCE SERVER's authorization logic actually consults this data when deciding access — that is a separate question, answered (negatively, so far) by the incident report referenced below."""@en ;
+    onto:hasTrigger onto:triggerUserCorrection .
+
+# ── Steps 2-4: the SECONDARY, weaker check (a third-party verify-service call) ─
+
+:step-curlPattern a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "SECONDARY, weaker check only — the generalized curl pattern for a third-party remote WebID-TLS verify service (host and identity are parameters, never hardcode to one deployment)"@en ;
+    schema:text """curl -iL \"https://{Remote-CNAME}:{webid-tls-port}/webid/webid_verify.vsp?callback=webid_result.vsp\" \\
+     --cert-type P12 \\
+     -H \"On-Behalf-Of: {asserted-webid}\" \\
+     --cert \"{presenting-identity.p12}\" \\
+     --pass \"{presenting-identity.p12-pwd}\"
+
+{webid-tls-port} is the host's mTLS listener — 5443 on OpenLink ODS/Virtuoso deployments (ods-qa.openlinksw.com, linkeddata.uriburner.com confirmed live). The plain :443 listener typically never issues a CertificateRequest during the TLS handshake, so this always fails there regardless of which certificate is presented — see preferences.ttl Step 247 (webid-tls-port-5443-default.ttl) for the general rule this follows.
+
+This is a genuinely different, more specific endpoint than the one previously recorded in verified-identity.ttl's :step-verifyDelegationRemote (which used https://ods-qa.openlinksw.com:5443/webid/?go=Verify) — both were confirmed live and working on 2026-09-13 against ods-qa.openlinksw.com; whether they are aliases of the same underlying handler or two distinct endpoints was not determined, only that both return a valid signed verification response. USE ONLY AS A SUPPLEMENT to :step-primaryDereferenceTest above, never as a substitute — see :step-oboStillIgnored for why."""@en .
+
+:step-liveResult a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "What a successful secondary-check response looks like — verified live against ods-qa.openlinksw.com, agent identity"@en ;
+    schema:text """HTTP/1.1 302 Found
+Location: webid_result.vsp?webid=...&pku=No such info&san=...&ts=...&md5=...&sha1=...&subj=...&elapsed=...&signature=...
+
+HTTP/1.1 200 OK
+code: Success
+webid: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid
+CN: /CN=Kingsley Idehen's Agent/emailAddress=kidehen@openlinksw.com/O=Personal Data Space/C=US/ST=Massachusetts
+SAN: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-agent-credentials/index.html#netid
+md(sha1): B9:58:40:EF:17:45:B7:5E:FE:B9:1F:8B:CD:11:47:DE:98:6A:19:CD
+ts: 2026-09-13T15:04:46.435553
+emoji: (a decorative emoji sequence, apparently derived from the signature/hash — cosmetic, not semantically meaningful)
+
+The response is signed (a base64 signature parameter on the 302's Location) and the sha1 fingerprint matches this campaign's known-good agent fingerprint exactly.
+
+CORRECTION 2026-09-13, same session: the pku field (pku=No such info) was initially glossed over here. Re-tested with the PRINCIPAL's own well-established cert, no On-Behalf-Of at all — an identity extensively verified all campaign, with a confirmed, correctly-published cert:modulus in its own profile.ttl. Result: pku=No such info appears there too, identical to the agent's result. This proves pku is a CONSTANT across every identity tested, not something specific to the agent or to delegation — so it does NOT undermine the On-Behalf-Of finding in :step-oboStillIgnored (the webid/CN/SAN fields still change consistently and correctly per-certificate, still ignoring the header). But it does mean this endpoint most likely verifies only that a well-formed client certificate was presented at the TLS layer and extracts its SAN — it does not appear to complete the canonical WebID-TLS step of dereferencing the SAN's profile document and matching a published cert:key/modulus against the presented certificate. Not confirmed with certainty (the endpoint's actual server-side implementation wasn't inspected), but treat code: Success from this endpoint as proof of \"a valid certificate was presented,\" not \"this WebID's published profile key was cross-checked,\" and never as proof of delegation."""@en .
+
+:step-oboStillIgnored a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Why the secondary check alone is insufficient: On-Behalf-Of made zero difference to it — two live tests, self-referential vs. genuinely different delegator, identical output"@en ;
+    schema:text """Two requests were sent to the identical secondary-check endpoint with the identical presenting certificate (the agent's), differing ONLY in the On-Behalf-Of header value:
+1. On-Behalf-Of: {the agent's own WebID} (self-referential, a no-op by construction)
+2. On-Behalf-Of: {the principal's WebID} (a genuinely different identity, the actual delegator)
+
+Both returned byte-for-byte identical webid:/CN:/SAN:/md(sha1): fields — the agent's own certificate identity, in both cases. The endpoint accepts the header syntactically (no error, no rejection) but never dereferences, resolves, or reports on whatever WebID it names. This is exactly why :step-primaryDereferenceTest, not this endpoint, is the real test.
+
+This is the THIRD independent confirmation of the same underlying gap in this campaign, now spanning three different authorization/verification surfaces:
+1. Flat WAC/ACL denial (food-bookmark-collection-grok-1.html, 2026-09-04/05) — 403, byte-for-byte identical with/without the header.
+2. MPP payment-entitlement check (food-bookmark-collection-snapshot-2026-09-08.html, 2026-09-11) — 402, unentitled-buyer challenge, unaffected by the header.
+3. This remote WebID-TLS verification service (2026-09-13) — 200/Success, but reporting the wrong (certificate-holder's own) identity regardless of the header.
+
+None of the three authorization/verification code paths tested to date implement the mutual oplcert:hasIdentityDelegate / oplcert:onBehalfOf dereference-and-cross-check that :step-primaryDereferenceTest performs directly — see verified-identity.ttl :step-verifyDelegationRemote, which already flagged this as a known feature gap before this confirmation, and the standalone incident report webid-tls-on-behalf-of-delegation-no-effect-incident-report-claude_sonnet_5-1.md for the full write-up of finding #2."""@en ;
+    onto:hasTrigger onto:triggerBehaviorGapIdentified .
