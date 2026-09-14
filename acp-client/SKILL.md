@@ -476,6 +476,7 @@ See `references/acp-api-operations.md` for implementation details.
 - `references/acp-api-operations.md` — Full curl recipes for every endpoint
 - `references/oauth-token-setup.md` — Step-by-step manual token guide
 - `references/product-catalog.md` — Offer IRI mappings from TTL sources
+- [`../ucp-client/references/flow-report-template.md`](../ucp-client/references/flow-report-template.md) — reusable Markdown template (with Mermaid sequence diagrams) for writing up a UCP/ACP/MPP flow test as a standalone report; use it instead of inventing a new report layout
 
 ## Anti-Drift Protocol
 

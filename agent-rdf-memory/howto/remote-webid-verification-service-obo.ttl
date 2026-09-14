@@ -8,10 +8,12 @@
     schema:name "Remote OBO test — dereference both profiles (primary), a third-party verify service (secondary, weaker)"@en ;
     schema:description "The remote On-Behalf-Of test is the same corroboration verified-identity.ttl's local whoami flow does (Steps 6-8: check both profiles for the reciprocal oplcert:hasIdentityDelegate/oplcert:onBehalfOf triples), just resolved by dereferencing the live WebIDs over HTTP instead of reading local files — that is the PRIMARY test. Calling a third-party remote WebID-TLS verification service (e.g. /webid/webid_verify.vsp) is a secondary, weaker supplementary check that does not itself verify delegation at all — confirmed here."@en ;
     schema:dateCreated "2026-09-13T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-09-13T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-14T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :step-primaryDereferenceTest, :step-curlPattern, :step-liveResult, :step-oboStillIgnored ;
+    schema:about :step-primaryDereferenceTest, :step-curlPattern, :step-liveResult, :step-oboStillIgnored,
+        :step-mppEntitlementNowValueChecked ;
     rdfs:seeAlso <../preferences.ttl#step-remoteWebidVerifyOboIgnored>,
+        <../preferences.ttl#step-mppOboValueSpecific>,
         <verified-identity.ttl#step-remoteProfileFetch>,
         <verified-identity.ttl#step-verifyDelegationClaims>,
         <verified-identity.ttl#step-verifyDelegationRemote>,
@@ -93,5 +95,31 @@ This is the THIRD independent confirmation of the same underlying gap in this ca
 2. MPP payment-entitlement check (food-bookmark-collection-snapshot-2026-09-08.html, 2026-09-11) — 402, unentitled-buyer challenge, unaffected by the header.
 3. This remote WebID-TLS verification service (2026-09-13) — 200/Success, but reporting the wrong (certificate-holder's own) identity regardless of the header.
 
-None of the three authorization/verification code paths tested to date implement the mutual oplcert:hasIdentityDelegate / oplcert:onBehalfOf dereference-and-cross-check that :step-primaryDereferenceTest performs directly — see verified-identity.ttl :step-verifyDelegationRemote, which already flagged this as a known feature gap before this confirmation, and the standalone incident report webid-tls-on-behalf-of-delegation-no-effect-incident-report-claude_sonnet_5-1.md for the full write-up of finding #2."""@en ;
+None of the three authorization/verification code paths tested to date implement the mutual oplcert:hasIdentityDelegate / oplcert:onBehalfOf dereference-and-cross-check that :step-primaryDereferenceTest performs directly — see verified-identity.ttl :step-verifyDelegationRemote, which already flagged this as a known feature gap before this confirmation, and the standalone incident report webid-tls-on-behalf-of-delegation-no-effect-incident-report-claude_sonnet_5-1.md for the full write-up of finding #2.
+
+CORRECTION 2026-09-14 — finding #2 (the MPP entitlement path) no longer holds as stated; see :step-mppEntitlementNowValueChecked below. Findings #1 (flat WAC/ACL) and #3 (this verification-service endpoint) were NOT re-tested on 2026-09-14 and should not be assumed corrected by the same finding — #1's resource now 404s (cannot be re-verified) and #3 is a structurally different code path (identity verification, not resource entitlement lookup)."""@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified .
+
+# ── Step 5: CORRECTION — the MPP entitlement path now checks the OBO value ────
+
+:step-mppEntitlementNowValueChecked a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "CORRECTION 2026-09-14: On-Behalf-Of now produces a genuine, value-specific authorization difference on the MPP entitlement path — the first measurable effect of this header anywhere in the campaign — but it does not generalize to resources the named delegator hasn't purchased"@en ;
+    schema:text """Re-tested the exact resource/identity pair from finding #2 (food-bookmark-collection-snapshot-2026-09-08.html, agent cert, On-Behalf-Of naming the principal who holds a confirmed prior purchase) on 2026-09-14, the same day the campaign's cert:key cross-publication gap was fixed at the identity-document layer (youid/SKILL.md step 6b). Result, repeatable and order-independent across many trials:
+
+  Agent + On-Behalf-Of: <exact principal WebID>        -> 200 OK direct, 11/11
+  Agent, no header                                       -> 302 -> 402 Payment Required, 8/8
+  Agent + On-Behalf-Of: <agent's own WebID>              -> 302 (still challenged)
+  Agent + On-Behalf-Of: <a real but unrelated WebID>     -> 302 (still challenged)
+  Agent + On-Behalf-Of: <empty> / garbage                -> 302 (still challenged)
+  Agent + an unrelated, different header name (control)  -> 302 (still challenged)
+
+This is checked BY VALUE, not merely by presence — ruling out a blanket "any On-Behalf-Of header bypasses the challenge" vulnerability. Confirmed via three independent client surfaces the same session: raw curl, the ucp-client skill's ucp_resource_client.py (result: "state": "access_granted", "payment_challenges": []), and the acp-client skill's own documented Route-A probe pattern.
+
+CRITICALLY, THIS DOES NOT GENERALIZE: a second, genuinely never-purchased MPP resource on the same host (trackloaded-premium-knowledge-inventory-snapshot-2026-09-08.ttl) still returns 302 -> 402/401 regardless of the On-Behalf-Of value, principal-named or otherwise — because the principal has never purchased THAT resource.
+
+BEST-SUPPORTED EXPLANATION: the MPP entitlement check now appears to look up entitlement/purchase records for the identity NAMED IN On-Behalf-Of, not only the identity on the presented certificate — the agent inherits the principal's own existing, resource-specific purchases when correctly named, rather than delegation granting any blanket authority. This is narrower than "delegation is now fully honored" and should not be reported as such.
+
+DO NOT re-cite the original finding #2 ("byte-for-byte identical with/without the header") as current fact without re-running this full value-specific control battery (own-WebID, unrelated-WebID, empty/garbage, a different header name, AND a second never-purchased resource) — a superficial single with/without comparison on the same previously-purchased resource can look identical to the old finding by coincidence (e.g. a stale/lingering access grant) without actually re-establishing whether this value-checking behavior is present. Full write-up: webid-tls-on-behalf-of-delegation-no-effect-incident-report-claude_sonnet_5-1.md, Section 7 (added 2026-09-14)."""@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <../../youid/SKILL.md> .

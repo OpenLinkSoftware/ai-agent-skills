@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:HowTo ;
+    schema:name "howto/flow-report-template.ttl"@en ;
+    schema:description "Kingsley explicitly asked to reuse the presentation aesthetics of the 2026-09-14 UCP/ACP-flow report (Mermaid-sequence-diagram-illustrated, agent-OBO-principal QA round) as a standing template for future protocol/delegation flow reports. The reusable template itself lives as plain Markdown at ucp-client/references/flow-report-template.md (content, not RDF, since it is meant to be read and copied verbatim by a future session) -- this file is the memory pointer to it, not a duplicate of its content."@en ;
+    schema:dateCreated "2026-09-14T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :step-templateLocation, :step-whenToUse, :step-structure ;
+    rdfs:seeAlso <../../ucp-client/references/flow-report-template.md>,
+        <../../ucp-client/SKILL.md>,
+        <../../acp-client/SKILL.md>,
+        <../preferences.ttl#step-mppOboValueSpecific> .
+
+:step-templateLocation a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "The reusable template is a plain Markdown file, not RDF -- ucp-client/references/flow-report-template.md, cross-referenced from both ucp-client/SKILL.md and acp-client/SKILL.md"@en ;
+    schema:text "Kingsley, 2026-09-14, after receiving ucp-acp-flow-reports-obo-food-bookmark-claude_sonnet_5-1.md: 'Is the latest report what's in the preview window? ... I like the presentation aesthetics and would like that to be a reusable template for this kind of reporting.' The template was extracted to ucp-client/references/flow-report-template.md (a skeleton with bracketed placeholders plus a rationale section explaining WHY each part of the structure exists) rather than duplicated into RDF here, because it is meant to be read and copied verbatim by a future agent session, not queried as structured data. Both ucp-client/SKILL.md's Output section and acp-client/SKILL.md's References section now point to it, so either skill's own instructions surface it without depending on this memory file being read first."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate .
+
+:step-whenToUse a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Use it whenever a UCP/ACP/MPP flow test, or a WebID-TLS delegation/OBO scenario, is being written up as a standalone report rather than only summarized inline in chat"@en ;
+    schema:text "Check for this template before drafting a new flow-report layout, per the standing cross-document-local-term-reuse convention (howto/cross-document-local-term-reuse.ttl, Step 127) applied here to a document template rather than an ontology term: reuse an existing, working pattern before minting a new one. Not every result needs a standalone report -- an inline chat summary remains correct for a single quick test; reach for the template when the user asks for a report/write-up, or when multiple clients/surfaces are being compared against the same scenario and a side-by-side record is worth keeping."@en .
+
+:step-structure a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Core structural elements the template captures (see the file itself for the full skeleton and rationale)"@en ;
+    schema:text """1. Header block: date, exact resource/endpoint, exact identity presented, and an explicit scope/boundary line (mandatory whenever a payment/purchase flow is anywhere near the scenario, e.g. 'no new purchase was attempted or completed').
+2. Per-flow section: raw \"Result\" block (actual status/JSON/headers) BEFORE the narrative Mermaid sequence diagram, so the diagram is visibly derived from evidence rather than substituting for it.
+3. A \"Sequence -- what actually happened\" diagram paired with at least one \"Contrast\" diagram showing the documented/expected flow for a different outcome (e.g. the unentitled-buyer path) -- this is what shows a reader where the branch point was.
+4. Mermaid color convention: soft green rect for the step that actually settled the outcome, soft amber for a step that ran but turned out moot; an explicit \"NEVER REACHED\" note line for steps the protocol has but this run didn't trigger (never just silently omit them).
+5. A cross-client/cross-surface agreement table when more than one implementation was tested against the same scenario.
+6. A \"Fixes Applied This Session\" section kept clearly separate from the finding being reported -- never bury a tooling fix inside the narrative of a protocol/behavior finding."""@en .

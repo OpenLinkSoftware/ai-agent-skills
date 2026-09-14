@@ -150,6 +150,8 @@ Return a compact machine-readable result where possible, plus a human summary. I
 
 For protocol details and mapping conventions, read `references/protocol-notes.md`.
 
+When the output should be delivered as a standalone written report (not just an inline chat summary) — especially one covering a delegation/OBO test or comparing multiple clients/surfaces against the same scenario — use `references/flow-report-template.md`, which captures the Mermaid-sequence-diagram-illustrated report style established 2026-09-14, instead of inventing a new layout.
+
 ### Direct WebID-TLS/mTLS execution (ODS-QA)
 
 `scripts/ucp_resource_client.py` carries a PKCS#12 or PEM certificate through the whole session itself (`--client-p12 PATH --client-p12-password-env ENV_VAR`, or `--client-cert`/`--client-key`) -- no separate `curl` transport needed, and the same identity automatically covers RDF/UCP discovery, checkout, and the post-payment retry. [`mtls-curl`](/Users/kidehen/Documents/Management/Development/ai-agent-skills/mtls-curl/SKILL.md) remains the option when driving raw `curl` directly instead of this script; keep the password in an environment variable either way. A live ODS-QA request without a certificate may return only `WWW-Authenticate: Digest`; that is one available authentication challenge, not a statement that OAuth or WebID-TLS is unsupported and not an MPP `402`. The observed pattern is public port `443` → `401`/Digest, while the mTLS listener on `5443` accepts the certificate and returns `302` followed by an identity-qualified `402` Payment challenge -- confirmed live with `--client-p12`.

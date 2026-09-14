@@ -3308,3 +3308,34 @@ A source repository holds hand-authored source — engine code, XSLT, skin bundl
         <howto/artifact-routing.ttl#step-buildFixtureIsStillAnArtifact>,
         :step-outputRootBlockingGate,
         :step-outputDirs .
+
+# ── Step 296: remote WebID-TLS verification service also ignores On-Behalf-Of — third confirmation of the same gap ──
+:step-remoteWebidVerifyOboIgnored a schema:HowToStep ;
+    schema:position "296"^^xsd:integer ;
+    schema:name "The remote OBO test's PRIMARY form is dereferencing both WebIDs and checking reciprocal triples (the remote variant of local whoami corroboration) — a third-party /webid/webid_verify.vsp call is secondary and does not itself verify delegation"@en ;
+    schema:text "Kingsley, 2026-09-13: supplied a webid_verify.vsp curl pattern, flagged its pku=No such info field as suspect (re-test proved it's a constant for every identity, not agent/delegation-specific — corrected an overstated 'not a stub' claim), then reframed the actual remote OBO test as the remote-resolution variant of verified-identity.ttl's local whoami corroboration (dereference both profiles, grep for reciprocal hasIdentityDelegate/onBehalfOf) rather than a third-party endpoint call. Ran that corrected primary test live: both profiles correctly, bidirectionally declared the relationship (agent's onBehalfOf list holds 3 entries, principal being one). youid/SKILL.md and the companion howto restructured accordingly — primary test first, verify-service demoted to a clearly-labeled secondary/weaker supplement." ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/remote-webid-verification-service-obo.ttl>,
+        <howto/verified-identity.ttl#step-verifyDelegationRemote>,
+        <../youid/SKILL.md> .
+
+# ── Step 297: CORRECTION — MPP entitlement path now checks On-Behalf-Of by value; UCP/ACP flows confirmed it; a script-side SPARQL bug also fixed ──
+:step-mppOboValueSpecific a schema:HowToStep ;
+    schema:position "297"^^xsd:integer ;
+    schema:name "CORRECTION to Step 296/the MPP incident report: On-Behalf-Of now produces a genuine, value-checked authorization difference on the MPP entitlement path for a resource the named delegator has actually purchased — the first measurable delegation effect anywhere in this campaign — but it does not grant blanket authority and does not generalize to unpurchased resources"@en ;
+    schema:text "Kingsley, 2026-09-14: asked to re-run the protected-resource curl tests, then to repeat the UCP and ACP flows individually to close out the QA round. Re-testing agent-cert + On-Behalf-Of:<principal> against food-bookmark-collection-snapshot-2026-09-08.html (a resource the principal has a confirmed prior purchase for) found 200 OK direct, 11/11 trials, order-independent — versus 302->402 with no header, the agent's own WebID, an unrelated WebID, an empty/garbage value, or an unrelated header name (all still challenged, ruling out a blanket bypass). A second, never-purchased resource (trackloaded-premium-knowledge-inventory-snapshot-2026-09-08.ttl) stayed fully gated regardless of the header value, showing this is entitlement-lookup-scoped to the named delegator's own purchases, not general delegated authority. Confirmed independently via three surfaces: raw curl, the ucp-client skill (ucp_resource_client.py: state=access_granted, payment_challenges=[]), and the acp-client skill's own documented Route-A probe. Separately fixed two issues surfaced along the way: (1) ucp_resource_client.py's unscoped 'GRAPH ?g {}' named-graph-scan fallback was raising an unhandled Virtuoso SR186 SECURITY error (no EXECUTE permission on an internal graph-visibility-check procedure for the anonymous SPARQL user) instead of falling through gracefully to RDF dereference like the plain-empty-rows case already does -- now caught and treated as zero rows; (2) the standing 'On-Behalf-Of has no effect' conclusion in the MPP incident report and remote-webid-verification-service-obo.ttl was corrected in place (not deleted) with a dated addendum, since the original observation was accurate for 2026-09-11 but is no longer current for this resource." ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <#step-remoteWebidVerifyOboIgnored>,
+        <howto/remote-webid-verification-service-obo.ttl#step-mppEntitlementNowValueChecked>,
+        <../ucp-client/scripts/ucp_resource_client.py>,
+        <../acp-client/SKILL.md> .
+
+# ── Step 298: reusable Mermaid-illustrated flow-report template, requested for reuse ──
+:step-flowReportTemplate a schema:HowToStep ;
+    schema:position "298"^^xsd:integer ;
+    schema:name "Kingsley liked the presentation aesthetics of the UCP/ACP flow report (Step 297) and asked for it to be a reusable template for this kind of reporting -- extracted to ucp-client/references/flow-report-template.md, cross-referenced from both ucp-client/SKILL.md and acp-client/SKILL.md"@en ;
+    schema:text "Kingsley, 2026-09-14: 'Is the latest report what's in the preview window? I ask because I like the presentation aesthetics and would like that to be a reusable template for this kind of reporting.' Extracted the structural skeleton (header/scope block, raw-result-before-diagram ordering, paired 'what happened' + 'contrast' Mermaid sequence diagrams with a green/amber rect color convention and explicit 'NEVER REACHED' notes, cross-client agreement table, a clearly separated fixes-applied section) into references/flow-report-template.md as reusable Markdown with bracketed placeholders and a rationale section -- not into RDF, since it is meant to be read and copied verbatim, not queried as data. Companion howto/flow-report-template.ttl is the memory pointer to it." ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/flow-report-template.ttl>,
+        <../ucp-client/references/flow-report-template.md>,
+        <#step-mppOboValueSpecific> .
