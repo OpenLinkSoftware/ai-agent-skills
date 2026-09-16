@@ -1,0 +1,68 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: Aggregated Floating Nav Gates — Single Preflight Checklist"@en ;
+    schema:description "Aggregates the 9 scattered floating-nav sub-gates (preferences.ttl Steps 10.1, 10.2, 69, 146, 148, 149, 176, 177 + SKILL.md Navigation Control Best Practices) into one pre-build checklist to prevent future nav rebuilds from missing one gate."@en ;
+    schema:dateCreated "2026-09-15T14:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-15T14:00:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :HowToNavGates .
+
+:HowToNavGates a schema:HowTo ;
+    schema:name "Floating Nav — 9-Gate Preflight (replaces scattered reads)"@en ;
+    schema:description "Before writing any floating-nav HTML/CSS/JS, verify all 9 gates below. Failure to check one gate produces the exact violations seen in assistantbenchmark 2026-09-15 (collapsed default wrong, theme in body, missing manual-hide, unguarded dark mode). Run validate-harness-contract.py nav checks after."@en ;
+    schema:step :stepPlacement, :stepCollapsed, :stepThemeInHeader, :stepResize, :stepManualHide, :stepManuallyHiddenFlag, :stepLocalStorageRace, :stepGuardedDarkMode, :stepHeroOverlayPointerEvents ;
+    rdfs:seeAlso <../../rdf-infographic-skill/SKILL.md#navigation-control-best-practices>,
+        <../../agent-rdf-memory/preferences.ttl#step-kgNavPlacement>,
+        <../../agent-rdf-memory/preferences.ttl#step-kgNavCollapsed>,
+        <../../agent-rdf-memory/preferences.ttl#step-themeToggleInNavHeader>,
+        <../../agent-rdf-memory/preferences.ttl#step-navResizeAndManualHide>,
+        <../../agent-rdf-memory/howto/theme-toggle-os-preference-guard.ttl> .
+
+:stepPlacement a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Gate 1 — Placement: nav top-LEFT, KG Controls top-RIGHT"@en ;
+    schema:text "Floating nav `#floating-nav` must be `position:fixed; top:16px; left:16px; z-index:1000`. KG Explorer Controls button is always top-RIGHT. See preferences.ttl Step 10.1."@en .
+
+:stepCollapsed a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Gate 2 — Starts COLLAPSED (no `open` class in markup, toggle shows +)"@en ;
+    schema:text "Markup must carry no `open` class on `#floating-nav` or `#nav-links` on load. Toggle shows `+` `aria-label Expand navigation`. See preferences.ttl Step 10.2 / Step 177."@en .
+
+:stepThemeInHeader a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Gate 3 — Theme toggle lives in `#nav-header` (always-visible strip), not in collapsible body"@en ;
+    schema:text "The `◐ Theme` button must be inside `#nav-header` alongside `+`/`×`, not inside `#nav-links`. See preferences.ttl Step 69 / howto/theme-toggle-os-preference-guard.ttl."@en .
+
+:stepResize a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Gate 4 — Resizable when expanded only (`resize:both; max-height:80vh` when `.open`, `resize:none` when collapsed)"@en ;
+    schema:text "CSS: `#floating-nav{resize:none}` + `#floating-nav.open{resize:both; overflow:auto; max-height:80vh}`. A fixed 600px cap blocks the handle. See preferences.ttl Step 148."@en .
+
+:stepManualHide a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Gate 5 — Manual-hide `×` distinct from `−` toggle, calls same `window.__navFadeOut` fade/marker path, with `stopPropagation`"@en ;
+    schema:text "Header must have `<button id=\"nav-hide\">×` distinct glyph from `−`. Its click handler must call `e.stopPropagation(); window.__navFadeOut()` — the same `fadeOut()` used by the 2-min inactivity timer, not a second close mechanism. See preferences.ttl Step 148."@en .
+
+:stepManuallyHiddenFlag a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Gate 6 — `manuallyHidden` flag prevents ambient `mousemove`/`scroll` from undoing manual hide"@en ;
+    schema:text "Second IIFE must hold `var manuallyHidden=false;`. `window.__navFadeOut` sets `manuallyHidden=true` before `fadeOut()`. `resetTimer()` first line `if(manuallyHidden) return;`. Only the `☰` marker's own click clears `manuallyHidden=false`. See preferences.ttl Step 149."@en .
+
+:stepLocalStorageRace a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Gate 7 — localStorage geometry deferred past CSS transition (`setTimeout 320ms`, `MIN_EXPANDED_HEIGHT 100` floor, page-specific key, write only when expanded)"@en ;
+    schema:text "Key `ab-nav-state-`+location.pathname. On `open` defer `getBoundingClientRect` via `setTimeout 320ms`. On restore, ignore `saved.h <100` and discard corrupt entry. See howto/nav-panel-localstorage-race.ttl / preferences.ttl Step 176."@en .
+
+:stepGuardedDarkMode a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "Gate 8 — Guarded dark mode + no hardcoded `data-theme`, matchMedia fallback, localStorage persist"@en ;
+    schema:text "CSS `@media(prefers-color-scheme:dark){:root:not([data-theme=\"light\"]){...}}` (never bare `:root`). HTML `<html lang=\"en\">` no hardcoded `data-theme`. Head pre-paint script restores `kg-theme-pref` from localStorage. Toggle `getCurrentTheme()=attr||matchMedia`, then `setAttribute` + `localStorage.setItem` + sync icon. See howto/theme-toggle-os-preference-guard.ttl."@en .
+
+:stepHeroOverlayPointerEvents a schema:HowToStep ;
+    schema:position 9 ;
+    schema:name "Gate 9 — `hero::before/::after` decorative overlays must have `pointer-events:none`"@en ;
+    schema:text "Any `position:absolute` `::before/::after` inside `.hero` that sits above in-flow links will swallow clicks. Add `pointer-events:none`. See howto/kg-curation-attribution.ttl Step 7."@en .
