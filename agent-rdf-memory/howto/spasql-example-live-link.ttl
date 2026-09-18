@@ -1,0 +1,32 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/spasql-example-live-link.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 285. When an RDF-infographic-skill document presents a SPASQL (SPARQL-embedded-in-SQL) worked example, give it a live link via the SPASQL Query Builder (data-twingler/SKILL.md's documented pattern) rather than the plain HTTP SPARQL endpoint the rest of the SPARQL Workbench recipes use."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Give SPASQL worked examples a live SPASQLQB link, not an HTTP SPARQL endpoint link"@en ;
+    schema:description "SPASQL is a SQL-client feature (isql/ODBC/JDBC), not an HTTP SPARQL protocol call, so its live-execution surface is the SPASQL Query Builder web tool, not the sparql?query= endpoint."@en ;
+    schema:step :step-incident, :step-pattern, :step-caveat ;
+    rdfs:seeAlso <../preferences.ttl#step-spasqlExampleLiveLink> .
+
+:step-incident a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Incident: a SPASQL example card in the Benn Stancil meshup had no live-execution link at all"@en ;
+    schema:text "2026-09-04, virtuoso-semantic-web-spreadsheet-vs-duckdb-meshup-claude_sonnet_5-1: after adding a static SPASQL worked-example card (illustrating the 'adoption path from existing SQL' comparison dimension), Kingsley: 'You can use a SPASQLQB url to make a live link for SPASQL examples.' data-twingler/SKILL.md already documents the exact pattern (base https://linkeddata.uriburner.com/spasqlqb/, permlink_e = URL-encoded JSON {v,url,dsn,uid,pwd,path,tab,idx,fkey,ref,exec:{sql}}), confirmed against demo-spasqlqb-samples.md and demo-northwind-spasql-rdfview.md's working examples; the query was reformatted to the required 'SELECT ... FROM (SPARQL ...) AS x' wrapping form and a live SPASQLQB button was added to the card."@en .
+
+:step-pattern a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "The pattern: https://linkeddata.uriburner.com/spasqlqb/?permlink_e={URL-encoded JSON}"@en ;
+    schema:text "JSON shape: {\"v\":1,\"url\":\"/XMLA\",\"dsn\":\"DSN=Local_Instance\",\"uid\":\"\",\"pwd\":\"\",\"path\":null,\"tab\":\"exec\",\"idx\":null,\"fkey\":null,\"ref\":null,\"exec\":{\"sql\":\"<SPASQL query>\"}}; the sql value must be the full 'SELECT ... FROM (SPARQL ... FROM <graph-iri> WHERE {...}) AS alias' statement, not a bare top-level SPARQL-prefixed statement — the Query Builder specifically requires the wrapping form. Same DSN name (Local_Instance) works whether the tool is hosted at linkeddata.uriburner.com or demo.openlinksw.com, since it names the Virtuoso instance colocated with whichever host serves /spasqlqb/."@en .
+
+:step-caveat a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Caveat: the link only returns real results once the document's own graph is uploaded to its DAV path"@en ;
+    schema:text "Same pre-upload caveat as the plain SPARQL Workbench's 'Open live' recipes: a FROM <DAV-graph-IRI> clause 404s/returns empty until that .ttl is actually PUT to that DAV path — state this plainly next to the button rather than implying it already works."@en .

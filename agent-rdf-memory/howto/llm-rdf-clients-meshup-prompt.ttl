@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/llm-rdf-clients-meshup-prompt.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 288. Reusable meshup prompt: LLMs as generic RDF clients; Semantic Web hyperlink-naming thesis; HttpRange-14 / RDF/XML / OWL hurdles; missing UI/UX until LLMs; Netscape-for-HTML analogy."@en ;
+    schema:dateCreated "2026-09-07T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Run the LLM-as-RDF-clients meshup prompt"@en ;
+    schema:description "When Kingsley invokes this standing prompt, generate an RDF Turtle + HTML meshup collection from the fixed thesis context and the three LinkedIn pulse articles as meshup sources."@en ;
+    schema:step :step-trigger, :step-promptBody, :step-sources, :step-execution ;
+    rdfs:seeAlso <../preferences.ttl#step-llmRdfClientsMeshupPrompt>,
+        <../preferences.ttl#step-meshupPromptStyle>,
+        <../preferences.ttl#step-semanticWebIndefiniteArticle> .
+
+:step-trigger a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Trigger phrases"@en ;
+    schema:text "Run when Kingsley pastes this prompt, says 'the LLM RDF clients meshup', 'LLMs as Netscape for RDF meshup', or 'generate the Semantic Web / LLM RDF clients collection'."@en .
+
+:step-promptBody a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Fixed thesis context"@en ;
+    schema:text """TimBL (@timberners_lee) Web and Semantic Web endeavors: name anything of interest using a hyperlink (HTTP URI). Worked for documents (WWW). Semantic Web follow-on hit a Web of problems: (1) HttpRange-14 — range of an HTTP URI as a name; (2) RDF/XML format wars; (3) OWL-or-not-to-OWL notation/logic wars. Plus a huge hurdle that looked like 'spec before software': absence of a UI/UX stack that masks 1–3 (RDF esoterica) until LLMs. Today LLMs and LLM-powered AI Agents let users and developers harness a Semantic Web without those hurdles. They are to RDF (entity-description framework loosely coupled to notations/serializations) what Mozilla/Netscape were to HTML."""@en .
+
+:step-sources a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Meshup source documents (canonical LinkedIn pulses)"@en ;
+    schema:text """[1] https://www.linkedin.com/pulse/large-language-models-llms-powerful-generic-rdf-clients-idehen-xwhfe — Large Language Models (LLMs) as Powerful Generic RDF Clients
+[2] https://www.linkedin.com/pulse/semantic-web-project-didnt-fail-waiting-ai-yin-its-yang-idehen-j01se — The Semantic Web Project Didn't Fail — It Was Waiting for AI (The Yin of its Yang)
+[3] https://www.linkedin.com/pulse/file-create-save-share-paradigm-revisited-kingsley-uyi-idehen-phxze/ — The File Create, Save, and Share Paradigm — Revisited"""@en .
+
+:step-execution a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Execution notes"@en ;
+    schema:text """Follow Step 282 meshup prompt style (UI/UX expert opener; Turtle + HTML under active LLM root). Render '@timberners_lee' as the full name 'Tim Berners-Lee' in visible prose — never as a raw @handle — and apply standard first-occurrence entity hyperlinking to it (resolver link to dbr:Tim_Berners-Lee on its first mention in the main body; plain text on repeats and in hero/lede teaser text) (corrected 2026-09-08, Step 290 — supersedes the original 'keep as raw @handle' instruction, which was inconsistent with this same step's own 'hyperlink first occurrences' rule below). Prefer 'A Semantic Web' (Step 283). Hyperlink first occurrences of key standards (HTTP URI, RDF, OWL, HttpRange-14) to canonical pages. Do not invent URLs."""@en .

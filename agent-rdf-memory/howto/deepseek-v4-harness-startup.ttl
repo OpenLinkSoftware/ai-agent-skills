@@ -1,0 +1,25 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto:   <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/deepseek-v4-harness-startup.ttl"@en ;
+    schema:description "Standing command recorded 2026-08-30: when starting the DeepSeek-v4 (dsh) harness, run `npx @deepseek-ai/dsh web`."@en ;
+    schema:dateCreated "2026-08-31T01:13:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-31T01:13:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "start the DeepSeek-v4 harness with `npx @deepseek-ai/dsh web`"@en ;
+    schema:description "When starting the DeepSeek-v4 (dsh) harness, run `npx @deepseek-ai/dsh web`."@en ;
+    schema:step :step-startupCommand ;
+    rdfs:seeAlso <../preferences.ttl#step-deepseekV4HarnessStartup> .
+
+:step-startupCommand a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "When starting the DeepSeek-v4 (dsh) harness, run `npx @deepseek-ai/dsh web`"@en ;
+    schema:text "When starting the DeepSeek-v4 (dsh) harness, run `npx @deepseek-ai/dsh web`."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerNamedWorkflow .

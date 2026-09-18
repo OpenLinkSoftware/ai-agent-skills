@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/semantic-web-indefinite-article.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 283. Kingsley's standing terminology preference: 'a Semantic Web', never 'the Semantic Web', when the phrase names the hyperlink/IRI/RDF/SPARQL construction pattern this repo's meshup documents argue for — not a claim about one canonical, singular Web-wide Semantic Web."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Use the indefinite article 'a Semantic Web', never the definite 'the Semantic Web'"@en ;
+    schema:description "Any instance of a semantic-web-as-hyperlink-graph pattern is one instantiation of the idea, not a claim to be the one canonical Web-wide Semantic Web — the wording should say so."@en ;
+    schema:step :step-incident, :step-rule, :step-scope, :step-rationale ;
+    rdfs:seeAlso <../preferences.ttl#step-semanticWebIndefiniteArticle> .
+
+:step-incident a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Incident: the hero H1 and mesh-section H2 of the Benn Stancil meshup both read 'The Semantic Web Is a Spreadsheet Built From Hyperlinks'"@en ;
+    schema:text "2026-09-04, virtuoso-semantic-web-spreadsheet-vs-duckdb-meshup-claude_sonnet_5-1: Kingsley's own thesis title (schema:name/schema:headline on the companion CreativeWork, plus the mirrored H2 heading, meta description, og:description, and several body-prose mentions) used the definite article throughout. Kingsley: '\"The Semantic Web\" is not my preference. It's \"A Semantic Web\"', then, once asked to scope it: 'Fix across the board.' Every instance of 'The/the Semantic Web' referring to this construction pattern was changed to 'A/a Semantic Web' across the companion TTL and the generated HTML (title/headline, H2, meta/og description, glossary and concept descriptions, ontology description, and the relevant FAQ answer) and the harness contract re-verified after the fix."@en .
+
+:step-rule a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Default going forward: write 'a Semantic Web', 'a hyperlink-built Semantic Web', 'a Semantic Web's own X' — not the definite-article form"@en ;
+    schema:text "Apply this in RDF (schema:name, schema:headline, schema:description, schema:text, glossary/concept schema:description, ontology owl:Ontology/rdfs:comment) and in the mirrored HTML (title, meta description, og:title/og:description, headings, section-sub prose, FAQ/glossary text) whenever the phrase asserts or names the construction this repo's Virtuoso-angle meshups build (IRI-as-cell-reference, dereferenced-resource-as-cell-value, SPARQL-as-formula, inference-as-augmentation) — not just the one title string first flagged."@en .
+
+:step-scope a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Scope: applies to sentences asserting/naming the construction pattern, not to every historical/generic mention of the W3C Semantic Web initiative"@en ;
+    schema:text "A reference to the W3C's own historical Semantic Web initiative as a named, singular effort (e.g. citing dbr:Semantic_Web, or discussing 'the Semantic Web Project' the way core.ttl / other howto files already do when recounting its history) is a different grammatical role than this repo's own constructive claim ('a Semantic Web is/built from...') and is not what this rule targets. When in doubt, ask whether the sentence is making Kingsley's own constructive argument (indefinite) versus citing the historical W3C initiative as a proper noun (definite is fine there)."@en .
+
+:step-rationale a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Why: framing this as 'a' Semantic Web keeps the claim modest and instance-scoped rather than a totalizing claim to be the one Semantic Web"@en ;
+    schema:text "The construction argued for (Virtuoso plus dereferenceable IRIs plus SPARQL plus inference) is one working instantiation of a hyperlink-built semantic web, not an assertion that it constitutes or replaces THE (singular, canonical, W3C) Semantic Web. The indefinite article keeps the claim honest about its own scope."@en .

@@ -10,7 +10,7 @@
     schema:name "HowTo: KG Curation Attribution Pattern"@en ;
     schema:description "Companion howto for preferences.ttl Step 47. Specifies the pattern for crediting knowledge graph curation in hero-meta lines and infographic headers: skills + AI agent acting on behalf of the human principal."@en ;
     schema:dateCreated "2026-06-14T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-05T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
     schema:about :HowToKgCurationAttribution .
 
 # ── HowTo ─────────────────────────────────────────────────────────────────────
@@ -24,6 +24,8 @@
                 :stepAntiPatterns,
                 :stepRdfDelegation,
                 :stepEntityLevelAuthorship,
+                :stepHeroOverlayPointerEvents,
+                :stepMintCurationAgentEntities,
                 :stepRecurringMissLog,
                 :stepSingleCanonicalSurface .
 
@@ -63,26 +65,35 @@ All links use target="_blank" rel="noopener noreferrer"."""@en .
 
 :stepSubstitutionRules a schema:HowToStep ;
     schema:position 3 ;
-    schema:name "Substitution rules for template variables"@en ;
-    schema:text """Skill URLs:
-  Always use the canonical GitHub repo URL:
-  https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}
-  Never use the #this IRI suffix in the href — that is for JSON-LD prov:wasGeneratedBy only.
+    schema:name "Substitution rules — resolver-wrap only IRIs verified to hold real accumulated data, never by precedent-copying alone"@en ;
+    schema:text """CORRECTED 2026-07-08, twice in one session — this step's history is itself the lesson. First correction (session start) replaced the old 'skill/LLM always bare, never #this' rule with a blanket 'resolver-wrap all three parties' rule, reasoning by analogy from how-to-plagiarize-talisman-claude_sonnet_5-1.html. That blanket rule was ALSO wrong: the user pointed out https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.anthropic.com%2Fclaude%23this resolves to nothing. Checking with curl -o /dev/null -w '%{http_code}' (which is what the first correction told you to do) is insufficient — it returns 200 for EVERY /describe/?url= request regardless of whether the target IRI has any data, because URIBurner always serves a generic 'Open this link?' confirmation interstitial first, then a 200 'About: {title}' page after the POST-through — even when that page has zero schema:description/schema:name triples and the <title> just echoes the raw input IRI back.
 
-LLM URL:
-  Use the model's canonical product page (verbatim from existing footer, never fabricated).
-  Claude Sonnet 4.6 → https://www.anthropic.com/claude
+MANDATORY VERIFICATION — status code is not enough, check for actual content:
+  curl -sL -X POST -d 'h=1' '{describe-url}' | grep -c 'schema:description'
+  If the count is 0, or the <title> is literally the raw IRI you passed in (not a resolved label), the IRI holds NO data — do not ship it resolver-wrapped.
 
-Kingsley Idehen resolver IRI:
+EMPIRICAL FINDINGS for this ecosystem (re-verify per-IRI, do not assume these generalize forever — URIBurner's index changes as more documents get crawled):
+  - Kingsley Idehen's WebID (https://www.linkedin.com/in/kidehen#this) — resolves richly (many accumulated schema:description triples from years of prior generated documents). Always resolver-wrap.
+  - OpenLink skill repo URLs (e.g. https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill-name}, with or without #this) — resolve with real schema:description/schema:name, apparently sponged from the GitHub page's own OpenGraph/meta tags plus accumulated mentions across prior generated documents' embedded JSON-LD. Resolver-wrapping is safe for these — but still run the verification grep before shipping, since it can vary per skill name.
+  - Third-party LLM/vendor product pages (e.g. https://www.anthropic.com/claude, with or without #this) — resolve to NOTHING. No accumulated entity, no crawlable schema.org metadata on the live page. Use the bare canonical product URL directly, NOT resolver-wrapped — wrapping it only adds a confirmation-dialog hop to an empty result, which is worse than a direct link and misrepresents the link as KG-backed when it isn't.
+
+Kingsley Idehen resolver IRI (verified, canonical, unchanged):
   https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this
-  This is the URIBurner resolver pattern applied to the canonical LinkedIn IRI
-  (https://www.linkedin.com/in/kidehen#this). Do not shorten or alter the percent-encoding.
 
 Skill list grammar:
   - One skill:  "KG curated by {skill} and {llm} on behalf of …"
   - Two skills: "KG curated by {skill1}, {skill2}, and {llm} on behalf of …"
   - N skills:   Oxford-comma list ending with "and {llm}"
   The LLM is always the final item before "on behalf of" — it is not a skill."""@en .
+
+:stepHeroOverlayPointerEvents a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Decorative ::before/::after overlays on positioned containers (e.g. .hero) must have pointer-events:none"@en ;
+    schema:text """Found 2026-07-08: ire-fde-ontology-roles-claude_sonnet46-1.html's .hero::before (a decorative SVG texture, position:absolute; inset:0, no z-index) silently sat above the hero's plain in-flow content (h1/h2/p) in paint and hit-test order, per CSS2.1 Appendix E: positioned descendants with z-index:auto (paint layer 6) render above in-flow non-positioned descendants (paint layers 3 and 5) regardless of DOM/source order. This went unnoticed as long as .hero contained no real links — but once a hero-meta curation-credit line with live <a href> links was added, those links became unclickable, silently swallowed by the decorative overlay.
+
+RULE: any purely decorative absolutely-positioned ::before/::after overlay inside a container that does or might contain interactive content (links, buttons) MUST have pointer-events:none. Add it defensively even before the container has visible interactive children — the bug is invisible until content changes, and is easy to reintroduce via template reuse.
+
+Verify: grep the CSS for 'position:absolute' pseudo-element rules inside any section that has (or gains) an <a> descendant, and confirm pointer-events:none is present."""@en .
 
 :stepRdfDelegation a schema:HowToStep ;
     schema:position 5 ;
@@ -142,6 +153,21 @@ This distinguishes "I (the agent) wrote this distillation of your views, on your
 
 Anti-pattern: schema:author <principal-webid> on an entity the agent itself wrote. Correct pattern: schema:author <agent-entity> ; schema:accountablePerson <principal-webid> ."""@en .
 
+:stepMintCurationAgentEntities a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "The curating skill and LLM must be document-local entities in the companion TTL, resolver-linked like every other entity — never linked to their external homepage"@en ;
+    schema:text """Found 2026-07-08, same ire-fde-ontology-roles-claude_sonnet46-1.html session, third correction in a row on this exact hero-meta line: the first two fixes got the resolver-vs-bare mechanics right per party (Kingsley's WebID resolves; rdf-infographic-skill's GitHub URL happens to resolve; anthropic.com/claude never resolves) — but all of that was still answering the wrong question. The user's actual objection: the skill and LLM in the curation-credit line were being linked to EXTERNAL homepages (github.com, anthropic.com) at all, when howto/entity-href-companion-ttl.ttl already requires every entity hyperlink in the document to be a resolver-wrapped IRI sourced from the document's OWN companion TTL — a rule that was never applied to the curation-credit entities because they were treated as a special case (an 'attribution' concern) instead of as document entities like Kidehen, Alice, John, or any KG-explorer node.
+
+RULE: the skill(s) and LLM named in the KG curation-credit line are NOT exceptions to entity-href-companion-ttl.ttl's Step 2 pre-build gate. Before writing the hero-meta credit line:
+  1. Mint a schema:SoftwareApplication + prov:SoftwareAgent entity in the companion TTL for each skill and for the LLM, with rdfs:label, schema:name, schema:url (the real external homepage, as DATA not as the href), and prov:actedOnBehalfOf pointing to the principal's WebID.
+  2. Link the document's :Ontology (or root) entity to these via prov:wasGeneratedBy.
+  3. Mirror the same nodes into the companion JSON-LD, and reference them by @id (not anonymous blank nodes) from the HTML <head> embedded JSON-LD's prov:wasGeneratedBy array.
+  4. Add the two new entities to the KG-Explorer allNodes/allLinks JS data, same as any other entity — they are part of the graph, not a footnote outside it.
+  5. THEN build the hero-meta href as the resolver wrapping the document's own base+fragment IRI (https://linkeddata.uriburner.com/describe/?url=...{doc-base}%23{SkillAgent-or-LLMAgent-fragment}) — never a raw github.com/anthropic.com href in that line.
+
+The external homepage URL still belongs in the RDF as schema:url data (so a client following the graph can find the real homepage) — it just does not belong as the href of the hero-meta anchor tag itself, which must resolve into this document's own KG like every other entity link on the page.
+
+Whether the resulting document-local resolver href actually returns populated content at any given moment depends on whether the companion TTL has been uploaded/sponged into URIBurner yet — same caveat as every other entity link already in the document (verified 2026-07-08: even pre-existing entities like #EngineeringRole return zero triples until the companion TTL is published to its DAV path). That is expected and is not a defect specific to these two new entities — do not mistake 'not yet published' for 'wrong pattern'."""@en .
 # ── Step 7: Recurring-miss log — treat as a pre-delivery grep gate, not tribal knowledge ──
 
 :stepRecurringMissLog a schema:HowToStep ;

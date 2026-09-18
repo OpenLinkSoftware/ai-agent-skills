@@ -92,9 +92,15 @@
 
 :agentDelegateCredentials a schema:PropertyValue ;
     schema:name "Agent delegate PKCS#12 bundle (link-in-bio-agent-credentials)"@en ;
-    schema:description "The agent's own delegated WebID-TLS credential bundle, used for on-behalf-of operations per oplcert:hasIdentityDelegate."@en ;
+    schema:description "The agent's own delegated WebID-TLS credential bundle, used for on-behalf-of operations per oplcert:hasIdentityDelegate. Passphrase is never stored here — resolved at unlock time via :agentP12PassphraseKeychainItem, and never printed, logged, or persisted."@en ;
     schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/cert.p12" ;
     schema:dateCreated "2026-08-16"^^xsd:date .
+
+:agentP12PassphraseKeychainItem a schema:PropertyValue ;
+    schema:name "Agent delegate PKCS#12 passphrase — macOS Keychain item"@en ;
+    schema:description "PRIMARY source for the link-in-bio-agent-credentials cert.p12 unlock passphrase, LIVE as of 2026-08-31. Generic-password item; read with: security find-generic-password -s uriburner-agent-p12 -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. A DISTINCT keychain item from :p12PassphraseKeychainItem — the two p12 passphrases (principal vs agent delegate) are never shared or overloaded onto one entry, same pattern as :virtuosoLocalDbaPasswordKeychainItem and :ubIsqlPasswordKeychainItem. Migrated via /tmp/uyi with the user's explicit permission (first attempt used a stale/wrong value under key AGENT_P12_PWD and failed openssl Mac verification; the user corrected it under key AGENT_PWD on retry, which verified successfully). VERIFIED end-to-end 2026-08-31: unlocks cert.p12 via openssl (subject CN=Kingsley Idehen's Agent confirmed, valid 2026-06-18 to 2027-06-18). /tmp/uyi was discarded immediately after each read at the user's explicit instruction — it is not a standing fallback source for this item. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s uriburner-agent-p12 -a \"$USER\" -w" ;
+    schema:dateCreated "2026-08-31"^^xsd:date .
 
 :virtuosoLocalDbaPasswordKeychainItem a schema:PropertyValue ;
     schema:name "Local Virtuoso dba account password — macOS Keychain item"@en ;
@@ -107,6 +113,24 @@
     schema:description "PRIMARY source for the kidehen account password used for isql sessions and WebDAV requests, LIVE as of 2026-08-25. Generic-password item; read with: security find-generic-password -s uriburner-isql -a kidehen -w. Note the account field is the literal SQL username kidehen, not \"$USER\". Created with -T /usr/bin/security so reads are non-interactive. Migrated from /tmp/uyi (UB_PWD=...) with the user's permission — a THIRD distinct keychain item alongside :p12PassphraseKeychainItem and :virtuosoLocalDbaPasswordKeychainItem, never shared or overloaded. VERIFIED end-to-end 2026-08-25 on four paths: isql localhost:1111 as kidehen, and PROPFIND returning HTTP 207 against https://localhost, http://localhost:8890, and https://linkeddata.uriburner.com. Remote SQL is NOT reachable — linkeddata.uriburner.com:1111/1112 are firewalled and :1113 is the TLS listener wanting certificate auth with an empty username, so SQL for this account is localhost-only. See howto/ub-isql-credential-resolution.ttl. The value itself is never recorded here or anywhere in this repository."@en ;
     schema:value "security find-generic-password -s uriburner-isql -a kidehen -w" ;
     schema:dateCreated "2026-08-25"^^xsd:date .
+
+:ucpOdsQaAuthTokenKeychainItem a schema:PropertyValue ;
+    schema:name "ucp_curl.sh UCP bearer token (ods-qa) — macOS Keychain item"@en ;
+    schema:description "PRIMARY source for the ods-qa UCP endpoint bearer token used by ucp_curl.sh (Authorization: Bearer header on /ucp/checkout-sessions etc.), LIVE as of 2026-08-31. Generic-password item; read with: security find-generic-password -s ucp-odsqa-auth-token -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Migrated from a hardcoded default value inside ~/Downloads/ucp_curl.zip's ucp_curl.sh (UCP_AUTH_TOKEN env var default) with the user's explicit permission — a DISTINCT keychain item, never shared with any other credential in this file. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s ucp-odsqa-auth-token -a \"$USER\" -w" ;
+    schema:dateCreated "2026-08-31"^^xsd:date .
+
+:ucpOdsQaStripeTestKeyKeychainItem a schema:PropertyValue ;
+    schema:name "ucp_curl.sh Stripe test secret key (ods-qa) — macOS Keychain item"@en ;
+    schema:description "PRIMARY source for the Stripe test secret key (sk_test_...) used by ucp_curl.sh's get_test_spt (Shared Payment Token creation via Stripe's test_helpers/shared_payment/granted_tokens endpoint), LIVE as of 2026-08-31. Generic-password item; read with: security find-generic-password -s ucp-odsqa-stripe-test-key -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Migrated from a hardcoded default value inside ~/Downloads/ucp_curl.zip's ucp_curl.sh (STRIPE_API_KEY env var default, stored WITHOUT the trailing ':' that curl -u syntax appends at use time) with the user's explicit permission — a DISTINCT keychain item, never shared with :ucpOdsQaAuthTokenKeychainItem or any mpp-stripe-client credential. Same Stripe test account prefix (acct_1SzfvZS0XC0wwnMm) as the key in mpp-stripe-client/.env, but recorded as its own item since the two files are independent. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s ucp-odsqa-stripe-test-key -a \"$USER\" -w" ;
+    schema:dateCreated "2026-08-31"^^xsd:date .
+
+:ucpOdsQaKidehenNetidApiKeyItem a schema:PropertyValue ;
+    schema:name "ki-idehen-netid OAuth application API key (ods-qa) — macOS Keychain item, the CORRECT UCP/ACP bearer token"@en ;
+    schema:description "PRIMARY, VERIFIED-WORKING bearer token for the ods-qa UCP checkout API under the user's own identity, LIVE as of 2026-09-03. Generic-password item; read with: security find-generic-password -s ucp-odsqa-kidehen-netid-apikey -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. Obtained via the DOCUMENTED issuance flow in acp-client/references/oauth-token-setup.md: WebID-TLS login (port :5443, same cert as :userPrincipalCredentials) to https://ods-qa.openlinksw.com/oauth/applications.vsp, which showed the user's own already-registered application 'ki-idehen-netid' ('My NetID Credentials for Idehen.NET', app ID 2269) with a live apiKey visible as the page owner. VERIFIED 2026-09-03: presenting this key as Authorization: Bearer against POST /ucp/checkout-sessions returned 422 (missing request-id/idempotency-key/request-signature headers) rather than 401 — proof the auth_fn resolves this token to a NetID and the endpoint moves on to payload validation, independent of the ki-idehen-netid vs iMitkoIliev counter-report. This SUPERSEDES :ucpOdsQaAuthTokenKeychainItem (ucp-odsqa-auth-token) for actual checkout use — that item's value, sourced from a downloaded script of unknown provenance, was never proven valid and produced a uniform 401 regardless of credential content (see howto/untrusted-token-vs-oauth-elicitation.ttl). ucp-odsqa-auth-token has NOT been deleted absent explicit user approval (see howto/keychain-deletion-approval-gate.ttl). The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s ucp-odsqa-kidehen-netid-apikey -a \"$USER\" -w" ;
+    schema:dateCreated "2026-09-03"^^xsd:date .
 
 # ── Output Paths ─────────────────────────────────────────────────────────────
 
@@ -127,7 +151,7 @@
     schema:description "Generated artifacts from Claude sessions go to {LLM_ROOT}/Claude Generated/ with subfolders rdf/, md/, webpages/, saved-prompts/. Lowercase rdf/ is the canonical on-disk directory name — not uppercase RDF/ (corrected 2026-08-13 after on-disk verification found the described casing didn't match the actual 166-file rdf/ directory). saved-prompts/ holds reusable reproduction-prompt .md files for a collection — a sibling of md/, not a file inside it, since a reproduction prompt is a distinct artifact type from the companion Markdown document."@en ;
     schema:value "{LLM_ROOT}/Claude Generated/" ;
     schema:dateCreated "2026-05-28"^^xsd:date ;
-    schema:dateModified "2026-07-06"^^xsd:date .
+    schema:dateModified "2026-07-07"^^xsd:date .
 
 :kimiOutputPath a schema:PropertyValue ;
     schema:name "kimi output path"@en ;
@@ -165,3 +189,15 @@
     schema:value "{LLM_ROOT}/Ox Alpha/" ;
     schema:dateCreated "2026-08-24"^^xsd:date ;
     schema:dateModified "2026-08-24"^^xsd:date .
+
+:museSparkOutputPath a schema:PropertyValue ;
+    schema:name "Muse Spark output path"@en ;
+    schema:description "Generated artifacts (RDF, MD, HTML) from Muse Spark sessions (muse-spark-1.2, muse-spark-1.3 and later variants) go to {LLM_ROOT}/Muse Spark/ with subfolders rdf/, md/, webpages/. Covers the Meta Muse Spark family including Muse Spark 1.2 (Muse Spark) used via OpenCode."@en ;
+    schema:value "{LLM_ROOT}/Muse Spark/" ;
+    schema:dateCreated "2026-09-03"^^xsd:date .
+
+:kiroOutputPath a schema:PropertyValue ;
+    schema:name "Kiro output path"@en ;
+    schema:description "Generated artifacts (RDF, MD, HTML) from Kiro 👻 / KiroCrew dashboard sessions go to {LLM_ROOT}/Kiro/ with subfolders rdf/, md/, webpages/, saved-prompts/. The llm-id in session filenames and artifact filename stems is 'kiro'. Model identity is 'kiro' (KiroCrew dashboard, auto-routed). Created 2026-09-08."@en ;
+    schema:value "{LLM_ROOT}/Kiro/" ;
+    schema:dateCreated "2026-09-08"^^xsd:date .

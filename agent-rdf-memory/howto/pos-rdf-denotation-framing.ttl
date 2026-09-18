@@ -1,0 +1,44 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/pos-rdf-denotation-framing.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 293. Parts-of-speech denotation ladder for RDF/ontology / entity-relationship framing."@en ;
+    schema:dateCreated "2026-09-09T18:35:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Map parts of speech to RDF denotation roles"@en ;
+    schema:description "Use Noun→Entity, Adjective→Attribute, Verb→Action/State/Relation when bridging natural language to machine-computable graph semantics."@en ;
+    schema:step :step-ladder, :step-verbBreadth, :step-graphMapping, :step-usage ;
+    rdfs:seeAlso <../preferences.ttl#step-posRdfDenotationFraming>,
+        <canonical-entity-iri-denotation.ttl>,
+        <entity-iri-denotation-mechanics.ttl> .
+
+:step-ladder a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Denotation ladder"@en ;
+    schema:text """- Noun → Entity/Thing Denotation — denotes an entity, kind, concept, place, etc.
+- Adjective → Attribute/Quality Denotation — denotes a property or quality applicable to something.
+- Verb → Action/State/Relation Denotation — denotes an action, event, state, process, or relationship."""@en .
+
+:step-verbBreadth a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Verbs are not action-only"@en ;
+    schema:text """"Action Denotation" alone is too narrow. Verbs such as owns, knows, contains, exists, and resembles denote relations or states, not straightforward actions. Prefer Action/State/Relation when labeling verb denotation."""@en .
+
+:step-graphMapping a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "RDF / entity-relationship mapping"@en ;
+    schema:text """For RDF/ontology framing that maps onto an entity-relationship graph and machine-computable semantics:
+- Nouns → Entities/Classes
+- Adjectives → Attributes/Characteristics
+- Verbs → Relationships/Actions/States"""@en .
+
+:step-usage a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "When to apply"@en ;
+    schema:text """Apply when authoring or explaining NL→RDF/KG/ontology mappings, thesis copy about denotation, POS→triple sketches, or when a draft collapses verbs to "actions" only."""@en .

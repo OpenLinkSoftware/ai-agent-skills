@@ -8,7 +8,7 @@
     schema:name "KG Explorer Construction — Reuse-First Protocol"@en ;
     schema:description "Protocol for constructing KG Explorer visualizations that optimizes for token economy by reusing proven, validated implementations from prior tasks. Building from scratch is error-prone and reintroduces fixed bugs. Reuse-first means: find the most recent working KG Explorer, validate it, adapt its control shell to new kgData — only build afresh if all recent candidates fail validation."@en ;
     schema:dateCreated "2026-06-04T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-06-04T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-07-06T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :step-reuseSearch, :step-reuseValidate,
         :step-reuseAdapt, :step-reuseFallback ;
@@ -58,9 +58,9 @@ If any structural change is needed (e.g. a new control), prefer adding it as a m
     schema:position "4"^^xsd:integer ;
     schema:name "Build afresh with strict contract adherence only when all candidates fail"@en ;
     schema:text """Only when all three recent candidates fail validation, build the KG Explorer from scratch. When building afresh:
-(a) Follow the canonical template from rdf-infographic-skill/assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html.
-(b) Apply ALL known patterns from preferences: merge pattern in updateGraph, tick handler removal before re-adding, normalised link source/target, resolver-backed anchors, zoom isolation, click-distance guard, orphan prevention in getFilteredData.
-(c) Run validate-harness-contract.py before declaring the build complete.
+(a) Follow the canonical template from rdf-infographic-skill/assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html for VISUAL structure (hero, timeline, comparison matrix, capability panels) — but do NOT assume it currently passes validate-harness-contract.py. Run the validator against the template file itself FIRST, before treating it as proven; a 2026-06-04→2026-07-06 drift left this exact file failing ~20 contract checks (missing resolver-backed SVG anchors, footer SPARQL workbench, 8-item attribution grid, POSH alternate link) despite being named canonical the whole time — see rdf-infographic-gated-workflow.ttl's :correction2026_07_06. It was patched in place on 2026-07-06 and passes as of that date, but re-verify rather than trusting this note indefinitely.
+(b) Apply ALL known patterns from preferences: merge pattern in updateGraph, tick handler removal before re-adding, normalised link source/target, resolver-backed anchors (SVG <a data-resolver-href> wrapping node/edge-label click targets, not bare .on('click') on <circle>/<text>), zoom isolation, click-distance guard, orphan prevention in getFilteredData, and a footer SPARQL workbench (named-graph select, SELECT/DESCRIBE/CONSTRUCT query-recipe select routing to the correct result format, editable textarea) mirroring rdf-infographic-skill/scripts/rdf_infographic_harness.py's helper functions.
+(c) Run validate-harness-contract.py before declaring the build complete. If it fails on the SAME file you just called canonical in step (a), fix that file's gaps rather than silently shipping a failing artifact — do not treat "the reference template says so" as an excuse to skip the gate.
 (d) After delivery, this new implementation becomes the most recent candidate for the next task. The cycle is self-reinforcing — each successful afresh build improves the candidate pool.
 Building afresh is expensive in token economy and error-prone. It should be the exception, not the norm."""@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified .
