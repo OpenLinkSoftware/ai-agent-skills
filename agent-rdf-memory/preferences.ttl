@@ -3694,3 +3694,13 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSessionStart ;
     rdfs:seeAlso <howto/memory-graph-state-table.ttl>,
         <howto/agent-rdf-memory-loader-run.ttl#step-absoluteStorePath> .
+
+# ── Step 303: reasoning over the memory graphs is query-scoped — data-twingler T3 pragmas on existing rule sets, FuXi above SPARQL ──
+:step-memoryQueryInferencePragmas a schema:HowToStep ;
+    schema:position "303"^^xsd:integer ;
+    schema:name "Reasoning over the memory graphs is query-scoped: plain reads stay pragma-free; a query needing entailment reuses data-twingler T3's pragma pattern with the rule set as a parameter, probed on the target endpoint first (SP031 = not registered), shown with its commented-out A/B twin, and restricted to rule sets already registered locally — anything else goes to FuXi above SPARQL"@en ;
+    schema:text "Kingsley, 2026-09-18: apply Virtuoso pragmas per query using data-twingler's logic and the rule sets already on the local instance, or FuXi above the SPARQL layer, implemented as load_memory.py --query [--inference <ruleset>] [--same-as] [--ab]."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/memory-query-inference-pragmas.ttl>,
+        <howto/pragma-ab-toggle-variant.ttl>,
+        <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/data-twingler#this> .

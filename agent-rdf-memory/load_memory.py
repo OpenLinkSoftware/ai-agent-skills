@@ -728,6 +728,93 @@ def append_filesystem_context(ctx):
     return ctx
 
 
+def arg_value(flag):
+    if flag in sys.argv:
+        i = sys.argv.index(flag)
+        if i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    return None
+
+
+def inference_pragmas(ruleset=None, same_as=False):
+    """Virtuoso query-level reasoning pragmas (data-twingler T3 pattern, ruleset as a parameter)."""
+    lines = []
+    if ruleset:
+        lines.append(f'DEFINE input:inference "{ruleset}"')
+    if same_as:
+        lines.append('DEFINE input:same-as "yes"')
+    return lines
+
+
+def ruleset_exists(endpoint, ruleset):
+    """Probe before use: an unregistered rule set fails the compile with SP031."""
+    try:
+        sparql_csv(endpoint, f'DEFINE input:inference "{ruleset}" ASK {{ ?s ?p ?o }}')
+        return True, None
+    except RuntimeError as exc:
+        if "SP031" in str(exc):
+            return False, str(exc)[:200]
+        raise
+
+
+def with_pragmas(query, pragmas, commented=False):
+    """DEFINE lines must precede PREFIX; drop a leading SPASQL 'SPARQL' keyword (data-twingler templates carry it)."""
+    body = re.sub(r"^\s*SPARQL\b", "", query.strip(), count=1).strip()
+    head = [("# " if commented else "") + p for p in pragmas]
+    return "\n".join(head + [body])
+
+
+def print_rows(rows):
+    if not rows:
+        print("  (no rows)")
+        return
+    cols = list(rows[0].keys())
+    print("| " + " | ".join(cols) + " |")
+    print("|" + "---|" * len(cols))
+    for row in rows:
+        print("| " + " | ".join(curie(row.get(c, "")) for c in cols) + " |")
+
+
+if "--query" in sys.argv:
+    # Query-scoped reasoning over the memory graphs: pragmas only when asked for,
+    # rule set existence probed first, A/B twin per preferences.ttl Step 199.
+    # See howto/memory-query-inference-pragmas.ttl.
+    _q = arg_value("--query")
+    if not _q:
+        print("usage: load_memory.py --query <file|text> [--inference <ruleset>] [--same-as] [--ab]")
+        sys.exit(2)
+    if os.path.exists(_q):
+        _q = open(_q).read()
+    elif _q.endswith((".rq", ".sparql")):
+        print(f"Query file not found: {_q}")
+        sys.exit(2)
+    _ruleset = arg_value("--inference")
+    _same_as = "--same-as" in sys.argv
+    _pragmas = inference_pragmas(_ruleset, _same_as)
+    _endpoint, _errors = first_working_endpoint()
+    if not _endpoint:
+        print("No authenticated endpoint:")
+        print("\n".join(f"  {e}" for e in _errors))
+        sys.exit(3)
+    if _ruleset:
+        _ok, _why = ruleset_exists(_endpoint, _ruleset)
+        if not _ok:
+            print(f'Rule set "{_ruleset}" is not registered at {_endpoint} (SP031).')
+            print("Do not register one ad hoc: use an existing rule set, input:same-as,")
+            print("or evaluate the entailment above SPARQL with the fuxi-engineer skill.")
+            sys.exit(4)
+    _runs = [("with pragma", with_pragmas(_q, _pragmas))]
+    if _pragmas and "--ab" in sys.argv:
+        _runs.append(("pragma commented out", with_pragmas(_q, _pragmas, commented=True)))
+    for _label, _text in _runs:
+        print(f"--- {_label} ---" if _pragmas else "--- no pragma ---")
+        print(_text)
+        _rows = sparql_csv(_endpoint, _text)
+        print(f"\n{len(_rows)} row(s)")
+        print_rows(_rows)
+        print()
+    sys.exit(0)
+
 if "--state-table" in sys.argv:
     # On-demand mode (the user said yes to the elicitation): print only the tables.
     _endpoint, _errors = first_working_endpoint()

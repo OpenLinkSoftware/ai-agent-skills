@@ -1929,3 +1929,16 @@
         <projects/atlan-where-should-the-graph-live-vs-virtuoso-agent-rdf-memory-meshup.ttl> .
 
 :sessionIndex schema:itemListElement :session20260918DeepSeekV4ProDshAtlanGraphLiveMeshup .
+
+# ── 2026-09-18: Claude Opus 5 + Claude Code — harness as TBox/RBox Semantic Layer + ABox Context Layer; query-scoped reasoning pragmas ──
+
+:session20260918ClaudeOpus5ClaudeCodeQueryScopedReasoning a schema:ListItem ;
+    schema:position 1181 ;
+    schema:item <sessions/2026-09-18-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-09-18 (Claude Opus 5 + Claude Code — agent-rdf-memory as TBox/RBox Semantic Layer + ABox Context Layer; query-scoped reasoning via data-twingler pragmas)"@en ;
+    schema:description "Verified whoami; memory graph state table (489/489 graphs); ontology-layer breakdown of the harness; local rule set census; load_memory.py --query mode reusing data-twingler T3 pragmas with rule set probe and A/B twin (Step 303)."@en ;
+    rdfs:seeAlso <sessions/2026-09-18-claude_opus_5-claude_code.ttl>,
+        <howto/memory-query-inference-pragmas.ttl>,
+        <howto/pragma-ab-toggle-variant.ttl> .
+
+:sessionIndex schema:itemListElement :session20260918ClaudeOpus5ClaudeCodeQueryScopedReasoning .
