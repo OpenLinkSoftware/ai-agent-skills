@@ -73,5 +73,5 @@ zii6taXt
 # Skill zip bundles are regenerated on demand — no need to track in git
 *.zip
 
-# Live person registry (local). Commit people.example.ttl instead.
+# Live person registry (local). Commit entities/people.ttl.sample instead.
 agent-rdf-memory/entities/people.ttl

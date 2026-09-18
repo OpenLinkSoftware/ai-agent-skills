@@ -1,4 +1,14 @@
-# Live people.ttl is gitignored. Copy this file to people.ttl locally.
+# SAMPLE people registry — not the live registry.
+#
+# The live registry (entities/people.ttl) is private and gitignored; it is
+# never committed or pushed. To use this sample:
+#
+#   cp agent-rdf-memory/entities/people.ttl.sample agent-rdf-memory/entities/people.ttl
+#
+# then add/edit your own schema:Person entries in people.ttl. Agents and the
+# loader (scripts/generate-loader-sql.py globs *.ttl) read people.ttl only;
+# this .sample file is ignored by both.
+#
 # Snapshot of the registry as of 2026-09-02 before Progress OpenEdge ISV contact additions.
 @prefix : <#> .
 @prefix schema: <http://schema.org/> .
