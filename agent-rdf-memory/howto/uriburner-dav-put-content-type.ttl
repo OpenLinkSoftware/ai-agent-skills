@@ -1,0 +1,47 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Always Set an Explicit Content-Type on curl PUT to URIBurner DAV"@en ;
+    schema:description "curl's -d/--data/--data-binary flags silently default the Content-Type header to application/x-www-form-urlencoded whenever no -H \"Content-Type: ...\" is given explicitly — including on a plain PUT that isn't submitting a form. Virtuoso's DAV layer sometimes overrides that with its own extension-based guess (observed correct for .ttl) and sometimes stores/serves the wrong client-supplied value verbatim (observed wrong for .html, served as application/x-www-form-urlencoded instead of text/html). Confirmed recurring: the user reported this exact failure mode again on 2026-09-10 after having manually re-uploaded with correct content types to fix it once before."@en ;
+    schema:dateCreated "2026-09-10T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-10T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-alwaysSetContentType, :step-mimeByExtension, :step-verifyViaHead ;
+    rdfs:seeAlso <../preferences.ttl#step-uriburnerDavPutContentType>, <remote-webdav-upload.ttl> .
+
+# ── Step 1: Always set Content-Type explicitly ───────────────────────────────
+
+:step-alwaysSetContentType a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Every curl PUT to a URIBurner DAV path carries an explicit -H \"Content-Type: ...\" — never rely on curl's or Virtuoso's default"@en ;
+    schema:text """Applies to BOTH upload patterns in use: the Basic-Auth PUT over plain 443 (-u \"user:pass\" --data-binary @file, the pattern actually used across the ai-ontology-bottom-up-virtuoso-live-demo session) and the mTLS PUT over :5443 documented in remote-webdav-upload.ttl (which already specifies -H \"Content-Type: {mime}\" in its :step-constructCurl — that reminder was skipped in practice, which is exactly how this recurred).
+
+WHY: curl's --data-binary (like -d/--data) sets Content-Type: application/x-www-form-urlencoded by default unless overridden — a behavior meant for HTML form submission, not file uploads, but curl applies it unconditionally. Virtuoso's DAV PUT handler does not reliably override this per-extension: verified 2026-09-10 that a .ttl upload with no explicit header happened to be served back as text/turtle (Virtuoso guessed right from the extension), while a .html upload with no explicit header was served back as application/x-www-form-urlencoded (Virtuoso trusted the client's wrong header). Do not treat one file type working as evidence the pattern is safe for others."""@en .
+
+# ── Step 2: MIME type by extension ───────────────────────────────────────────
+
+:step-mimeByExtension a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Content-Type values for this repo's generated artifact extensions"@en ;
+    schema:text """.html → text/html; charset=UTF-8
+.ttl  → text/turtle; charset=UTF-8
+.jsonld → application/ld+json; charset=UTF-8
+.md   → text/markdown; charset=UTF-8 (only relevant if the user explicitly overrides the markdown-excluded-by-default rule)
+
+Example (Basic-Auth pattern):
+curl -X PUT -u \"{user}:{pass}\" \\
+  -H \"Content-Type: text/html; charset=UTF-8\" \\
+  --data-binary @{local-file} \\
+  \"https://linkeddata.uriburner.com/DAV/demos/daas/{filename}\" """@en .
+
+# ── Step 3: Verify via HEAD, not just the PUT status code ───────────────────
+
+:step-verifyViaHead a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "A 201/200 on the PUT does not confirm the Content-Type stuck — HEAD the public URL and grep the Content-Type line"@en ;
+    schema:text """curl -sI \"https://linkeddata.uriburner.com/DAV/demos/daas/{filename}\" | grep -i content-type
+
+Compare against :step-mimeByExtension's expected value for that extension. Do this after every PUT to this DAV path in this session going forward, not only when troubleshooting a report — the 2026-09-10 recurrence happened precisely because the PUT's 201 was treated as sufficient confirmation."""@en .

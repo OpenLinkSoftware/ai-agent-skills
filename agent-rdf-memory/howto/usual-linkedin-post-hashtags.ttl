@@ -1,0 +1,54 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto:   <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/usual-linkedin-post-hashtags.ttl"@en ;
+    schema:description "Standing LinkedIn hashtag convention for Phenny-drafted or Phenny-posted copy in Kingsley's voice. Confirmed 2026-08-30: append the usual C-suite + domain pair unless he supplies a different tag set. Topic extras are optional per post."@en ;
+    schema:dateCreated "2026-08-30T13:55:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-30T13:55:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Usual LinkedIn post hashtags"@en ;
+    schema:description "Confirmed 2026-08-30. When Phenny drafts or posts LinkedIn copy for Kingsley, append the standing C-suite + domain hashtag pair unless he supplies a different tag set. Topic extras are optional per post. Do not invent tags beyond the lists recorded here."@en ;
+    schema:step :step-appendStandingPair,
+                :step-csuiteUsual,
+                :step-csuiteWhenWarranted,
+                :step-domainUsual,
+                :step-topicExtrasOptional ;
+    schema:workExample :workExample-typicalPasteBlock ;
+    rdfs:seeAlso <../preferences.ttl#step-usualLinkedInPostHashtags> .
+
+:step-appendStandingPair a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Append the standing C-suite + domain pair unless Kingsley supplies a different tag set"@en ;
+    schema:text "When Phenny drafts or posts LinkedIn copy for Kingsley, append the standing C-suite + domain hashtag pair recorded in this HowTo. If he supplies a different tag set for a given post, use that set instead of this default. Do not invent extra tags."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration .
+
+:step-csuiteUsual a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "C-suite tags used almost always"@en ;
+    schema:text "#CDO #CDIO #CAIO #CIO #CTO #CMO #CxO"@en .
+
+:step-csuiteWhenWarranted a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "C-suite tags added when the post warrants them"@en ;
+    schema:text "#CISO #CDAO"@en .
+
+:step-domainUsual a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Domain tags used as the usual pair with C-suite"@en ;
+    schema:text "#AI #Agentic #AgenticWeb #SemanticWeb #LinkedData #KnowledgeGraph #DataSpaces"@en .
+
+:step-topicExtrasOptional a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Topic extras are optional per post"@en ;
+    schema:text "#SQL #SPARQL #ODBC #JDBC #RDF #DBMS #Ontology #ContextGraph #VirtuosoRDBMS"@en .
+
+:workExample-typicalPasteBlock a schema:CreativeWork ;
+    schema:name "Typical paste block (C-suite + domain)"@en ;
+    schema:text "#CDO #CDIO #CAIO #CIO #CTO #CMO #CxO #AI #Agentic #AgenticWeb #SemanticWeb #LinkedData #KnowledgeGraph #DataSpaces"@en .

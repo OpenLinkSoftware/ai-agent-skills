@@ -1,0 +1,116 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/agent-rdf-memory-loader-run.ttl"@en ;
+    schema:description "Procedure for bringing the local Virtuoso quad store back into sync with the agent-rdf-memory file store: regenerate the loader, resolve the dba credential from Keychain, run isql with the script as a POSITIONAL argument (never -f), then verify from both directions with the two gates. Records the 2026-09-16 incident in which the graph sat ~15 days behind the filesystem (60 of 472 documents out of sync, including preferences.ttl) because the on-disk loader was itself stale at 432 documents and had never been executed in that form."@en ;
+    schema:dateCreated "2026-09-16T20:25:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Regenerate, load, and verify the agent-rdf-memory quad store"@en ;
+    schema:description "Four-stage procedure plus interpretation rules for syncing the whole memory store (474 documents, one named graph each under urn:dav:/DAV/home/kidehen/agent-rdf-memory/<relpath>) into a local Virtuoso instance."@en ;
+    schema:step :step-when, :step-regenerate, :step-credential, :step-isqlPositional, :step-verify, :step-interpret, :step-orphans, :step-absoluteStorePath ;
+    rdfs:seeAlso <virtuoso-local-dba-passphrase-retrieval.ttl>,
+        <../scripts/refresh-loader.sh>,
+        <../scripts/full-store-graph-gate.py>,
+        <../scripts/session-graph-gate.py> .
+
+:step-when a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Run when a document whose graph should exist is absent or behind — and expect the shipped session gate alone to miss it"@en ;
+    schema:text """Triggers: a SPARQL-based memory load returns stale content; a session graph is absent; or a standing audit is due.
+
+The shipped scripts/session-graph-gate.py audits sessions/ ONLY (279 of 474 documents). On 2026-09-16 it reported 277 IN_SYNC while 19 howto/ docs, 2 projects/ docs and the entire behavioral contract were stale or missing — so 'the gate is clean' is not evidence that the store is in sync. Always run scripts/full-store-graph-gate.py for the whole store.
+
+Drift is normal and continuous, not exceptional: memory is written to files by whatever agent session is running, and only enters the quad store when somebody loads it. Sync is therefore a snapshot, never a steady state."""@en .
+
+:step-regenerate a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Regenerate the loader from the store BEFORE loading — the on-disk SQL can itself be stale, and a stale loader that was never executed is indistinguishable from a fresh one until you check its header"@en ;
+    schema:text """bash scripts/refresh-loader.sh
+
+Expect: 'verify: N/N parse OK with preamble' and 'WROTE ... (N files, ...)'. Read N. If it is smaller than the number of .ttl files in the store, the loader was generated against an older view of the tree.
+
+The 2026-09-16 incident: scripts/load-agent-rdf-memory.sql carried mtime 2026-09-08 but its header claimed only 432 documents, contained no session dated 2026-09-02 or later, and omitted files written in its OWN generation batch (howto/agi-definition.ttl, howto/llm-rdf-clients-meshup-prompt.ttl, howto/no-infra-port-disclosure.ttl — all mtime 2026-09-08T13:31). Files it did list had no graph at all in Virtuoso, proving it had never been run in that form. Never assume the committed loader reflects the store; regenerate first, always.
+
+Zero-byte documents: generate-loader-sql.py now warns about them. An empty Turtle document yields no triples, so the loader CLEARs its graph and loads nothing — the file ends up with no graph by construction (verify with full-store-graph-gate.py, which reports EMPTY_DOC rather than GRAPH_MISSING). Confirm such a file is intentional and not a truncated/abandoned write before treating the store as complete."""@en .
+
+:step-credential a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Resolve the dba password from Keychain service virtuoso-local-dba — never printed, never recorded"@en ;
+    schema:text """Follow virtuoso-local-dba-passphrase-retrieval.ttl exactly. In short, for a non-interactive agent read, guard the read (macOS has no `timeout`) and keep the value in a shell variable only:
+
+  VIRT_DBA_PWD="$(perl -e 'alarm 8; exec @ARGV' security find-generic-password -s virtuoso-local-dba -a "$USER" -w)"
+  [ -n "$VIRT_DBA_PWD" ] || { echo 'EMPTY keychain read -> STOP and elicit'; exit 1; }
+  ... run isql ...
+  unset VIRT_DBA_PWD
+
+Record only WHICH source resolved it and whether the login succeeded. One login per attempt — no retry loop against the live dba account, since repeated failures risk lockout. An empty read means STOP and elicit; /tmp/uyi was deleted 2026-08-25 and must not be reinstated as a fallback.
+
+VERIFIED WORKING 2026-09-16: Keychain resolved non-interactively, one login, whole-store load exit 0 in 16-18 s (474 documents)."""@en .
+
+:step-isqlPositional a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Pass the script as a POSITIONAL argument — '-f <file>' connects and then aborts at line 0, which looks like a credential failure but is a syntax failure"@en ;
+    schema:text """Virtuoso 08.03.3335 isql usage:
+
+  isql <HOST>[:<PORT>] <UID> <PWD> file1 file2 ...
+
+CORRECT:
+  isql 1111 dba "$VIRT_DBA_PWD" "$SQL"
+  isql 1111 dba "$VIRT_DBA_PWD" clear-orphan.sql "$SQL"      # several files, one session, one login
+
+WRONG (this is what refresh-loader.sh used to print, corrected 2026-09-16):
+  isql 1111 dba "$VIRT_DBA_PWD" -f "$SQL"
+
+The -f form produces:
+  Connected to OpenLink Virtuoso
+  Driver: 08.03.3335 OpenLink Virtuoso ODBC Driver
+  .../isql: Cannot open file "-f" for loading, at line 0 of Top-Level
+
+Note the trap: the connection SUCCEEDS. Only the script load fails, so a fresh reader blames the credential and starts re-eliciting or re-migrating a password that was never wrong. Nothing executes when this happens — no partial load, no damage, but also no work done. Inspect the exit code and the log tail rather than assuming a login problem.
+
+The howto's other documented form, isql 1111 dba "$VIRT_DBA_PWD" exec="...", is unaffected — it is the right choice for a short inline statement."""@en .
+
+:step-verify a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Verify from BOTH directions — documents vs graphs, and graphs vs documents"@en ;
+    schema:text """Forward direction (every document has a matching graph):
+
+  python3 scripts/full-store-graph-gate.py --graphs-from <isql-output.log>
+
+Passing the isql output matters: the loader appends a per-graph COUNT query, so the log already contains the graph enumeration that a credentialed store-side read would otherwise be needed for. Without --graphs-from the orphan check is skipped, because anonymous enumeration of graphs on this endpoint returns HTTP 401 'Permission denied: authentication required' (per-graph ASK/COUNT queries are served anonymously; only the variable-graph scan is refused).
+
+Expect: documents=N, in_sync=N (minus empty documents), out_of_sync=0, orphans=0, and an index-graph triple/link count exactly matching disk. The loader is idempotent (CLEAR GRAPH + TTLP_MT per document), so one run repairs missing AND stale documents together — which is required whenever drift spans root/howto/entities/projects and not just sessions/."""@en .
+
+:step-interpret a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Interpret residuals rather than 'fixing' them: a +1 delta on a relative-IRI predicate is a counting artifact, and a document edited after the load is expected to go STALE again"@en ;
+    schema:text """(a) RELATIVE-IRI FALSE POSITIVE — do not chase it. sessions/2026-05-29-gpt5-codex.ttl reports graph=79 / local(rdflib)=78, permanently. A per-predicate diff isolates the whole delta to schema:workExample (graph 26, rdflib 25). Cause: the document writes subjects AND objects as relative IRIs, so the loader resolves them against the graph IRI it passes to TTLP_MT (-> urn:dav:...) while rdflib resolves them against the file/cwd (-> file:///...). Two different relative paths naming the same real file collapse into one triple under file-path normalisation (rdflib is a set) but stay distinct under the urn:dav: base, where COUNT(DISTINCT ?s ?p ?o) also returns 79. The graph is a SUPERSET — no statement is missing. Diagnose with a per-predicate count diff before touching anything.
+
+(b) CONCURRENT WRITERS — sync is a moving target. On 2026-09-16 another agent session edited sessions/2026-09-16-muse_spark_1_2_contributor_free-opencode.ttl at 19:42:58Z, one minute after a load that captured 160 triples; the file then held 186, so that document was legitimately STALE again. Expect it, and re-run the refresh+load once the writer settles (16-18 s).
+
+Checking whether anything changed after a load: use an explicit timezone, because find -newermt interprets its argument in LOCAL time:
+  find . -name '*.ttl' -newermt "$(TZ=UTC date -u -r <load-log-mtime> '+%Y-%m-%d %H:%M:%S')"
+Omitting TZ=UTC silently compares against a future timestamp on a behind-UTC machine and reports 'nothing changed' — a false clean, which is exactly how the 19:42:58Z edit was missed on the first pass."""@en .
+
+:step-orphans a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Orphan graphs (in the store, no file on disk) are cleared only with explicit per-item approval"@en ;
+    schema:text """An orphan appears when a file is renamed or deleted on disk but its graph is never cleared — the loader only CLEARs graphs for documents that still exist.
+
+Detect: full-store-graph-gate.py --graphs-from <loader log>, which lists the extras.
+Resolve: a one-off SQL file starting with 'SPARQL CLEAR GRAPH <urn:dav:...>;' passed to the same isql session before the loader script.
+
+Ask first, per item, in the current turn — the graph-clear equivalent of keychain-deletion-approval-gate.ttl. Never infer standing permission from an earlier approval to load or overwrite.
+
+2026-09-16 example: urn:dav:/DAV/home/kidehen/agent-rdf-memory/howto/p12-passphrase-uyi-file.ttl (33 triples), the /tmp/uyi-era p12 howto superseded by p12-passphrase-retrieval.ttl; cleared after the user approved that specific item."""@en .
+
+:step-absoluteStorePath a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "The loader must carry ABSOLUTE file paths — a relative --store produces a script that CLEARs every graph and loads nothing"@en ;
+    schema:text """Incident 2026-09-18 (Claude Opus 5 session): the loader was regenerated with --store agent-rdf-memory (relative), so every file_to_string_output() call named 'agent-rdf-memory/...'. Virtuoso resolves those against its OWN working directory (the server's database folder), so each document's SPARQL CLEAR GRAPH succeeded and its load failed with FA112 'Can't stat file'. Once that script was run, every agent-rdf-memory graph was empty; the only survivor was entities/people.example.ttl, which the new loader no longer listed. Signature: 489 FA112 errors, graphs present in the loader but 0 triples. Fixed at the source: generate-loader-sql.py now applies os.path.abspath() to --store. Before running any loader, grep it: every file_to_string_output(' must start with '/'. Reload with the regenerated script restored 487/489 IN_SYNC (+1 known relative-IRI artifact, +1 zero-byte doc)."""@en .

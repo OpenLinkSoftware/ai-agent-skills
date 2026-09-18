@@ -13,7 +13,7 @@
 :howto a schema:HowTo ;
     schema:name "Resolve the local Virtuoso dba password — Keychain first, /tmp/uyi fallback"@en ;
     schema:description "Procedure for authenticating isql/iSQL sessions against the local Virtuoso instance (port 1111, account dba) without hardcoding or re-eliciting the password each session."@en ;
-    schema:step :step-keychainItem, :step-canonicalSnippet, :step-verificationFailed, :step-redact ;
+    schema:step :step-keychainItem, :step-canonicalSnippet, :step-verificationFailed, :step-redact, :step-memoryGraphsViaDba, :step-memoryGraphsWebidTls ;
     rdfs:seeAlso <p12-passphrase-retrieval.ttl>,
         <../core.ttl> .
 
@@ -50,3 +50,21 @@ User then updated /tmp/uyi (new DBA_PWD value, 19 bytes). Re-tested directly fro
     schema:position "4"^^xsd:integer ;
     schema:name "Never store the dba password in RDF memory, reports, or chat"@en ;
     schema:text "Record only WHICH source resolved it and whether the isql connection succeeded. Never copy the value into preferences.ttl, session TTL, howto files, commit messages, or chat."@en .
+
+:step-memoryGraphsViaDba a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "All agent interaction with the local memory graphs — reads AND writes — goes through the dba account, credential resolved from this Keychain item"@en ;
+    schema:text """Kingsley, 2026-09-18: 'Re memory graphs, interact with them via dba account (read or write).' Stated after the SessionStart hook's anonymous SPARQL bootstrap failed (https://localhost/sparql -> HTTP 401; http://localhost:8890/sparql -> HTTP 406) and the fallback dumped 75 KB of file content that was truncated to a 2 KB preview. Do not query the memory graphs anonymously and do not propose granting anonymous/SPARQL-user read access as the fix. Resolve the password with the Step 2 snippet (security find-generic-password -s virtuoso-local-dba -a \"$USER\" -w), use it for exactly one isql session or one authenticated HTTP request, then unset it. Same guards as Steps 1-4: one login attempt per value (no retry loop — lockout risk), never echo or log the value, never put it in a URL, RDF, commit message or chat. The same rule applies to scripts that read the memory graphs (load_memory.py, full-store-graph-gate.py): they authenticate as dba via this Keychain item rather than querying anonymously."""@en .
+
+:step-memoryGraphsWebidTls a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "WebID-TLS is an equally valid way to authenticate to the memory graphs — but only on a listener that actually requests a client certificate; verify that before trusting a 200"@en ;
+    schema:text """Kingsley, 2026-09-18: 'authentication shouldn't be strictly digest, it can also be WebID-TLS.' Credentials: principal bundle core.ttl :userPrincipalCredentials (cert.p12), passphrase from Keychain uriburner-p12, handed to curl on stdin as a -K config (cert-type/cert/pass), never argv.
+
+LOCAL FINDINGS 2026-09-18 (Virtuoso pid listening on 1111/1112/8890/443/4443):
+- https://localhost/sparql-auth is Digest-only (WWW-Authenticate: Digest realm=\"SPARQL\"); a client cert alone gets 401.
+- https://localhost (443) never requests a client certificate (openssl s_client: 'No client certificate CA names sent'), so a cert is never sent there; a 200 on /sparql with --cert is ANONYMOUS access, not WebID-TLS. Proof: the unscoped GRAPH ?g COUNT probe returned 401 there with the cert, identical to anonymous.
+- localhost:4443 fails the handshake with the system curl (LibreSSL 3.3.6: 'tlsv1 alert protocol version'), and an openssl s_client probe hung; untested with an OpenSSL-backed curl.
+CLARIFICATION (Kingsley, same day): 'Regarding WebID-TLS, this is for communications via iSQL' — and the dba credential is also for iSQL; 'iSQL is another protocol routing option'. So there are two protocol ROUTES (HTTP SPARQL and iSQL) and two IDENTITY methods (dba username/password and WebID-TLS). iSQL + dba: isql 1111 dba <pwd> (verified working 2026-09-18; CSV=ON yields parseable rows). iSQL + WebID-TLS: isql <host>:<ssl-port> "" <p12-pass> -X <cert.p12> -T <ca-bundle> -W <webid> (mtls-curl skill Mode B; the local SSL iSQL port is presumably 1112 — not yet tested, CA bundle for the local server cert not yet identified). HTTP + dba Digest on /sparql-auth is what load_memory.py and full-store-graph-gate.py use today. The HTTPS 443 findings above only show WebID-TLS is not an HTTP option on this instance.
+
+HOOK WIRING: load_memory.py reads AGENT_RDF_MEMORY_AUTH (default 'webid-tls,digest'). webid-tls is only attempted when AGENT_RDF_MEMORY_WEBID_ENDPOINT is set explicitly — there is no default endpoint, precisely because a cert-ignoring listener would silently degrade to anonymous. A 401 disables that method for the rest of the run (lockout guard) and the next method is tried; verified 2026-09-18 that webid-tls against :443 fell through to digest."""@en .

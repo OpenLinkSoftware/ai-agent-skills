@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-08-18T16:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-16T20:25:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -110,7 +110,7 @@
 
 :howto-memory-management a schema:HowTo ;
     schema:name "Memory Management & Session Governance"@en ;
-    schema:description "Agent RDF memory protocol, session file naming, prompt recording, secret redaction, SPARQL-based memory loading, token-optimized handoffs, and no-unauthorized-deletion rules."@en ;
+    schema:description "Agent RDF memory protocol, session file naming, prompt recording, secret redaction, SPARQL-based memory loading, token-optimized handoffs, no-unauthorized-deletion rules, and Grok Bot platform-memory dual-write sync."@en ;
     rdfs:seeAlso <howto/session-governance.ttl>,
         <howto/memory-protocol-gate.ttl>,
         <howto/token-optimized-session-handoff.ttl>,
@@ -118,7 +118,8 @@
         <howto/no-unauthorized-deletion.ttl>,
         <howto/no-memory-md-write.ttl>,
         <howto/symbolic-log-offloading.ttl>,
-        <howto/howto-authoring-structure.ttl> ;
+        <howto/howto-authoring-structure.ttl>,
+        <howto/grok-bot-memory-sync.ttl> ;
     schema:step :step-approval, :step-memoryProtocol, :step-gitWorkflow,
         :step-noFabricatedUrls, :step-curlAuth, :step-secretRedaction,
         :step-promptRecording, :step-memoryProtocolGate,
@@ -131,7 +132,8 @@
         :step-resolvableIriPayloadPresentation,
         :step-howtoAuthoringStructure,
         :step-identityEstablishment, :step-preferencesEstablishment,
-        :step-identityMode, :step-progressiveContextLoading .
+        :step-identityMode, :step-progressiveContextLoading,
+        :step-grokBotMemorySync .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -267,12 +269,14 @@
     rdfs:seeAlso <howto/skill-invocation.ttl>,
         <howto/webdav-weblog-engine-gate.ttl>,
         <howto/opal-session-vocabulary.ttl>,
-        <howto/uriburner-oauth-authcode-flow.ttl> ;
+        <howto/uriburner-oauth-authcode-flow.ttl>,
+        <howto/meshup-prompt-style.ttl> ;
     schema:step :step-skillChain, :step-kgQueryMode, :step-sparqlEndpointSearchOrder,
         :step-zipRepackage,
         :step-retrievalToolOrder, :step-opalSessionVocabulary,
         :step-uriburnerOAuthAuthCodeFlow,
-        :step-webdavWeblogEngineGate .
+        :step-webdavWeblogEngineGate,
+        :step-meshupPromptStyle .
 
 # ── 8. Virtuoso & SPARQL ────────────────────────────────────────────────────
 
@@ -290,12 +294,14 @@
 
 :howto-terminology a schema:HowTo ;
     schema:name "Terminology & Conventions"@en ;
-    schema:description "Mashup vs meshup terminology, acronym expansion on first use, and other terminological conventions."@en ;
+    schema:description "Mashup vs meshup terminology, acronym expansion on first use, usual LinkedIn post hashtags, and other terminological conventions."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
         <howto/rdf-document-authoring.ttl>,
-        <howto/acronym-expansion.ttl> ;
+        <howto/acronym-expansion.ttl>,
+        <howto/usual-linkedin-post-hashtags.ttl> ;
     schema:step :step-mashupVsMeshup,
-        :step-expandFirstUse .
+        :step-expandFirstUse,
+        :step-usualLinkedInPostHashtags .
 
 # ── 10. ActivityPub & Fediverse Protocol ────────────────────────────────────
 
@@ -319,7 +325,7 @@
     schema:name "Destructive Command Guard"@en ;
     schema:description "Standing rule: never execute destructive shell commands. Covers git force operations, recursive deletion, filesystem wipes, fork bombs, and pipe-to-shell patterns."@en ;
     rdfs:seeAlso <howto/destructive-command-guard.ttl> ;
-    schema:step :step-destructiveCommandGuard .
+    schema:step :step-destructiveCommandGuard, :step-buildFixtureIsStillAnArtifact .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Step Definitions (referenced by sub-HowTos above) ────────────────────
@@ -3294,6 +3300,331 @@ Recorded in rdf-infographic-skill/SKILL.md harness item 10 as well as here."""@e
         :step-remoteUploadOrder,
         :step-remoteRemovalOrder .
 
+:step-buildFixtureIsStillAnArtifact a schema:HowToStep ;
+    schema:position "263"^^xsd:integer ;
+    schema:name "Generator output written into a source repo as a test fixture or build directory is STILL a generated artifact and routes to the LLM root"@en ;
+    schema:text """Routing is decided by artifact TYPE (a generated .ttl/.md/.html), never by the directory's name, never by the generator script sitting beside it, and never by the output being regenerable.
+
+Caught 2026-08-26 while building composite-skin support for the OSDI Inclusion Engine: a rebased RDF site graph, de-chromed WebDAV content, and a 16-page rendered site were all written into the inclusion-engine repo under infrastructure-tests/composite/{site,out}/ and left there. Three things made that output feel like repo scaffolding rather than a deliverable — the generators legitimately live in the repo, the parent directory is named infrastructure-tests/, and everything was regenerable — and none of them is a valid exemption. That rendered site WAS the deliverable; it was the acceptance test the user set for the task.
+
+PROCEDURE when a generator must write into a repo as an intermediate: gitignore the output directory, and add an explicit packaging step that routes the finished artifact to {model-root}/{rdf,md,webpages}/ per howto/artifact-routing.ttl#step-outputDirs. Group a multi-file collection in a per-artifact subfolder when its members link to each other relatively.
+
+A source repository holds hand-authored source — engine code, XSLT, skin bundles, generator scripts — and never their output."""@en ;
+    rdfs:seeAlso <howto/artifact-routing.ttl>,
+        <howto/artifact-routing.ttl#step-buildFixtureIsStillAnArtifact>,
+        :step-outputRootBlockingGate,
+        :step-outputDirs .
+
+# ── Step 267: a .vsp resource's executability is controlled by WS.WS.SYS_DAV_RES.RES_OWNER, not RES_TYPE/RES_PERMS ──
+:step-osdiVspExecutionRegistration a schema:HowToStep ;
+    schema:position "267"^^xsd:integer ;
+    schema:name "OSDI .vsp files served as raw static source instead of executing: fix is a plain UPDATE of WS.WS.SYS_DAV_RES.RES_OWNER to dav — RES_TYPE/RES_PERMS don't determine executability"@en ;
+    schema:text "Isolated 2026-08-30 via single-variable test: with RES_TYPE/RES_PERMS already correct, only changing RES_OWNER (to 2 = dav) flips execution; no special upload procedure is needed."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/osdi-vsp-execution-registration.ttl> .
+
+# ── Step 268: Usual LinkedIn post hashtags (standing Phenny convention) ──
+:step-usualLinkedInPostHashtags a schema:HowToStep ;
+    schema:position "268"^^xsd:integer ;
+    schema:name "When Phenny drafts or posts LinkedIn copy for Kingsley, append the standing C-suite + domain hashtag pair unless he supplies a different tag set"@en ;
+    schema:text "Append the standing C-suite + domain LinkedIn hashtag pair unless Kingsley supplies a different tag set; topic extras are optional per post."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/usual-linkedin-post-hashtags.ttl> .
+
+# ── Step 269: Grok Bot platform memory dual-write with local agent-rdf-memory ──
+:step-grokBotMemorySync a schema:HowToStep ;
+    schema:position "269"^^xsd:integer ;
+    schema:name "Keep Grok Bot platform memory and the local agent-rdf-memory tree in sync: same trigger, immediate dual-write; local Turtle is source of truth"@en ;
+    schema:text "On every memory-write trigger, dual-write immediately to Grok Bot platform memory and the local agent-rdf-memory tree; Grok Bot memory is not a substitute or deferred copy, and local Turtle remains source of truth."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation, onto:triggerNamedWorkflow, onto:triggerBehaviorGapIdentified, onto:triggerTopicChange, onto:triggerSessionEnd ;
+    rdfs:seeAlso <howto/grok-bot-memory-sync.ttl>,
+        <howto/session-governance.ttl>,
+        <howto/no-memory-md-write.ttl>,
+        :step-memoryProtocol,
+        :step-soleMemoryIndex,
+        :step-noMemoryMdWrite .
+
+# ── Step 270: OSDI composite-doc route needs a physical content/{page}.html placeholder even when the layout never reads it ──
+:step-osdiContentFileGate a schema:HowToStep ;
+    schema:position "270"^^xsd:integer ;
+    schema:name "A new template/RDF-driven OSDI route 404s despite correct routing.ttl/skin.ttl: the stock engine still requires a physical content/{page}.html file to exist"@en ;
+    schema:text "index.vsp's own dispatch checks physical content/{page}.html existence before invoking the composer, unconditionally, even for a layout with no data-osdi-content — create a placeholder file (MKCOL the parent collection first if nested) rather than debug the route/skin data, which is likely already correct."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/osdi-composite-doc-caching-and-content-gate.ttl> .
+
+# ── Step 271: staleall() cannot reach a custom-location skin shim, and no working per-file invalidation function exists on this instance ──
+:step-osdiStaleCustomSkinShim a schema:HowToStep ;
+    schema:position "271"^^xsd:integer ;
+    schema:name "Editing a custom-location OSDI skin shim (e.g. skin-ldp.xslt) never takes effect, even after staleall()+config_flush_cache() every time — DB.DBA.xslt_stale()/incleng..xslt_stale() are both undefined on this instance despite being the documented fix"@en ;
+    schema:text "Deploy the corrected shim under a brand-new filename and repoint xslt_sheet at SITE scope — not URL scope, which only overrides the one exact URL requested — rather than retrying staleall()."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/osdi-composite-doc-caching-and-content-gate.ttl> .
+
+# ── Step 272: Start the DeepSeek-v4 harness with npx @deepseek-ai/dsh web ──
+:step-deepseekV4HarnessStartup a schema:HowToStep ;
+    schema:position "272"^^xsd:integer ;
+    schema:name "Start the DeepSeek-v4 harness with npx @deepseek-ai/dsh web"@en ;
+    schema:text "When starting the DeepSeek-v4 (dsh) harness, use `npx @deepseek-ai/dsh web`."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerNamedWorkflow ;
+    rdfs:seeAlso <howto/deepseek-v4-harness-startup.ttl> .
+
+# ── Step 273: Markdown article hero uses the standard on-behalf-of attribution line ──
+:step-markdownHeroAttribution a schema:HowToStep ;
+    schema:position "273"^^xsd:integer ;
+    schema:name "Markdown article hero is the standard on-behalf-of attribution line, never an I-am-Phenny / I-am-not-Kingsley identity contrast"@en ;
+    schema:text """Standing rule from 2026-08-31. A Markdown article Phenny authors opens (immediately under the H1) with the same hero attribution pattern as kg-curation-attribution.ttl / grok-bot-fourth-moment-of-ai-grok_4_6-1.md, not a first-person identity contrast.
+
+Template (all parties hyperlinked):
+
+**Account curated by:** [Phenny]({agent-NetID}) on behalf of [Kingsley Uyi Idehen](https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkidehen%23this), Founder & CEO, [OpenLink Software](https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FOpenLink_Software)
+
+Where {agent-NetID} is the verified agent WebID/NetID. Do not write "I am Phenny. I am not Kingsley Idehen." The delegation line is the identity statement. The article body may then continue in Phenny's first-person account. Principal in the hero line is resolver-wrapped LinkedIn #this, not a bare YouID. Matches preferences Step 47 language: curated by {agent} on behalf of {principal}."""@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/kg-curation-attribution.ttl>, <#step-kgCurationAttribution>, <#step-agentSignoffWebId> .
+
+# ── Step 274: Access X/Twitter content via Playwright, not curl ──
+:step-xAccessViaPlaywright a schema:HowToStep ;
+    schema:position "274"^^xsd:integer ;
+    schema:name "Access X/Twitter content via Playwright (headless Chromium) — not curl"@en ;
+    schema:text """For X/Twitter status/thread content, retrieve it with Playwright browser automation, not curl. X is JS-rendered; curl returns the server shell and can silently drop thread text, whereas Playwright renders the page and extracts the full post. Public status URLs render without a login wall in headless Chromium. Working approach (verified 2026-08-31): playwright npm package (v1.62.1, via npx cache) + chromium launched headless with channel:'chrome' (system Chrome) or executablePath to the Playwright-managed chromium (~/Library/Caches/ms-playwright/chromium-*/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing — note the npm version may want a newer build than the one installed, so pass an explicit path or run `npx playwright install`). Navigate with waitUntil:'domcontentloaded', wait for <article> (30s), sleep ~4s for hydration, then extract the full thread from document.querySelector('article').innerText (fall back to document.body.innerText); the [data-testid="tweetText"] selector returned 0 in headless, so use article/body text. Reusable script: {LLM_ROOT}/DeepSeek/scripts/fetch-x-post.js. Refines :step-retrievalToolOrder (position 38) for the X/Twitter case: Playwright directly — not Chrome MCP and never curl."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <#step-retrievalToolOrder> .
+
+# ── Step 275: Agent delegate cert.p12 passphrase resolves via its own distinct Keychain item ──
+:step-agentP12PassphraseKeychain a schema:HowToStep ;
+    schema:position "275"^^xsd:integer ;
+    schema:name "The agent delegate cert.p12 (link-in-bio-agent-credentials) unlocks via Keychain item uriburner-agent-p12 — a distinct item from the principal's uriburner-p12, never shared"@en ;
+    schema:text "Established 2026-08-31. Read with: security find-generic-password -s uriburner-agent-p12 -a \"$USER\" -w. Created the same way as :p12PassphraseKeychainItem — the user runs security add-generic-password with -T /usr/bin/security so later reads are non-interactive; the value must never pass through the agent's own command line as a literal. Migrated once via /tmp/uyi with the user's explicit permission (discarded immediately after each read, not a standing fallback); a first attempt under key AGENT_P12_PWD held a stale/wrong value and failed openssl Mac verification, corrected on retry under key AGENT_PWD. Verified end-to-end: unlocks cert.p12, subject CN=Kingsley Idehen's Agent confirmed."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl>, <#step-p12PassphraseKeychainFirst>, <core.ttl#agentP12PassphraseKeychainItem> .
+
+# ── Step 276: Never delete a Keychain entry without explicit approval ──
+:step-keychainDeletionApproval a schema:HowToStep ;
+    schema:position "276"^^xsd:integer ;
+    schema:name "Never run security delete-generic-password (or delete-keychain) without the user's explicit, per-item approval in the current turn"@en ;
+    schema:text "Ask first, naming the exact service/account, and wait for a clear yes before running any Keychain delete — a prior create-or-overwrite (-U) approval does not extend to deletion."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/keychain-deletion-approval-gate.ttl>, <howto/p12-passphrase-retrieval.ttl#step-neverProbeProductionCredentialNames> .
+
+# ── Step 277: SQL schema + sample data always gets a consolidated batch-script card, offered for real Virtuoso verification ──
+:step-sqlBatchScriptVerification a schema:HowToStep ;
+    schema:position "277"^^xsd:integer ;
+    schema:name "Whenever a document presents SQL DDL/sample-data cards, also add one consolidated batch-script card, and offer to verify it against a local Virtuoso instance"@en ;
+    schema:text "Add one copy-paste-ready batch-script card (DDL + INSERT + Quad Map, in execution order) alongside the per-concept SQL cards, and offer, with explicit permission, to load it against a local Virtuoso instance as part of the verification loop."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/sql-ddl-batch-script-and-verification.ttl> .
+
+:step-noInfraPortDisclosure a schema:HowToStep ;
+    schema:position "278"^^xsd:integer ;
+    schema:name "Never state a specific network port number for a real live-deployment's connection listener in published document content"@en ;
+    schema:text "When narrating a real deployment (e.g. 'deployed via isql over its SQL listener') in a published TTL/HTML/MD, omit the specific port number even though it's true and already used internally — it's exactly the kind of infrastructure detail an attacker would want, and the narrative reads fine without it."@en ;
+    onto:hasTrigger onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/no-infra-port-disclosure.ttl> .
+
+# ── Step 279: RDF Views verification always replies with sample entity hyperlinks ──
+:step-rdfViewVerificationHyperlinks a schema:HowToStep ;
+    schema:position "279"^^xsd:integer ;
+    schema:name "Verification always implies replying with sample hyperlinks denoting entities from the RDF Views"@en ;
+    schema:text "When verifying RDF Views (or any RDF deployment) against a Virtuoso instance, the reply must include clickable hyperlinks to representative entities the RDF Views actually expose — at least one entity of each mapped class (e.g. organisation, role, person, and the reified assignment), each dereferenceable via the deployed rewrite rule (e.g. http://demo.openlinksw.com/acmebank/person/100). Row counts and SPARQL result tables alone are not sufficient verification output: the user must be able to click a concrete subject IRI and dereference a real subject/predicate/object sample."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/rdf-views-verification-hyperlinks.ttl> .
+
+# ── Step 280: Credentials hardcoded in an attached/downloaded file get their own distinct Keychain items ──
+:step-attachedFileCredentialsToKeychain a schema:HowToStep ;
+    schema:position "280"^^xsd:integer ;
+    schema:name "Migrate credentials found hardcoded in an attached/downloaded file into their own distinct, non-interactively-readable Keychain items, one per secret"@en ;
+    schema:text "Read the file to identify each embedded secret (env-var default values count), then create one Keychain item per secret with security add-generic-password -U -s <descriptive-name> -a \"$USER\" -T /usr/bin/security -w \"$VALUE\" — never reusing or overloading an existing service name, and never printing the value again after initial extraction."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl>, <core.ttl#ucpOdsQaAuthTokenKeychainItem>, <core.ttl#ucpOdsQaStripeTestKeyKeychainItem> .
+
+# ── Step 281: elicit a proper token-issuance flow, never diagnose a server off an untrusted downloaded token ──
+:step-untrustedTokenVsOAuthElicitation a schema:HowToStep ;
+    schema:position "281"^^xsd:integer ;
+    schema:name "When a design specifies a proper credential-issuance flow (OAuth Authorization Code+PKCE, or a deployment's equivalent), elicit and run it before diagnosing a bearer-authenticated endpoint — never substitute a downloaded script's hardcoded token"@en ;
+    schema:text "An identical response across a valid-looking, a garbage, and an absent bearer token only proves that specific token is bad, never that the endpoint rejects everything — a wrong CONFIRMED server-side-gap conclusion on ucp-client's UCP checkout endpoint was retracted 2026-09-03 for exactly this reason."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/untrusted-token-vs-oauth-elicitation.ttl> .
+
+# ── Step 282: Meshup Turtle+HTML prompt style (UI/UX framing + Virtuoso angle + thesis bullets) ──
+:step-meshupPromptStyle a schema:HowToStep ;
+    schema:position "282"^^xsd:integer ;
+    schema:name "Recognize and reuse the standing meshup Turtle+HTML prompt style: UI/UX expert framing, named source URL, Virtuoso angle on ascribed competitor tech, load-bearing thesis bullets"@en ;
+    schema:text """Recorded 2026-09-04 from Kingsley's Benn Stancil How to find insights request. When he asks for a Turtle and HTML collection in this style, treat the shape as contractual:
+
+1. Open as a UI/UX expert well versed in visual communications (activates rdf-infographic-skill operating modality / Step 44 uiUxExpertPersona).
+2. Generate a Turtle + HTML collection about a named URL (kg-generator then rdf-infographic-skill harness; notes-framing when single-source).
+3. Meshup form that incorporates a Virtuoso angle on what the source ascribes to another technology (example: DuckDB / Excel-as-file sandbox becomes Virtuoso as a spreadsheet via a Semantic Web constructed from hyperlinks).
+4. Append short thesis bullets that crystallize the Virtuoso / Linked Data framing — these are load-bearing narrative claims to model in RDF and surface in HTML, not decoration. Canonical example from 2026-09-04:
+   - Excel Semantic Web from hyperlinks?
+   - Each cell reference is what a Linked Data IRI offers.
+   - Each cell value is what the IRI resolves to.
+   - SPARQL enables the creation of data access based manipulation formula.
+   - Beyond Excel, you have inference rules operating as a SPARQL query solution augmentation feature.
+
+Always use meshup not mashup. Output under the active model LLM root per artifact-routing. Include SQL sample data / RDF Views angle when the Virtuoso alternative is relational+semantic (prefs Step 277 / 279)."""@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/meshup-prompt-style.ttl>, <#step-mashupVsMeshup>, <#step-uiUxExpertPersona>, <#step-articleNotesFraming>, <#step-sqlBatchScriptVerification> .
+
+# ── Step 283: "A Semantic Web", never "The Semantic Web" ──
+:step-semanticWebIndefiniteArticle a schema:HowToStep ;
+    schema:position "283"^^xsd:integer ;
+    schema:name "Use the indefinite article: 'a Semantic Web', never the definite 'the Semantic Web', when naming the hyperlink/IRI/SPARQL/inference construction pattern"@en ;
+    schema:text "Kingsley, 2026-09-04, on the Benn Stancil meshup's hero H1 and mesh H2 ('The Semantic Web Is a Spreadsheet Built From Hyperlinks'): '\"The Semantic Web\" is not my preference. It's \"A Semantic Web\"', then 'Fix across the board.' Applies wherever RDF or HTML asserts/names this repo's own constructive pattern (IRI-as-cell-reference, dereferenced-resource-as-cell-value, SPARQL-as-formula, inference-as-augmentation) — schema:name/headline/description/text, ontology rdfs:comment, headings, meta/og tags, glossary and FAQ prose. Does not apply to a genuine historical/proper-noun reference to the W3C's own Semantic Web initiative (e.g. dbr:Semantic_Web), which is a different grammatical role."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/semantic-web-indefinite-article.ttl>, <#step-meshupPromptStyle> .
+
+# ── Step 284: virtuoso.db is a real, copyable file — the claim is added connectivity, not file non-existence ──
+:step-virtuosoDbFileStillExists a schema:HowToStep ;
+    schema:position "284"^^xsd:integer ;
+    schema:name "Never claim Virtuoso 'has nothing to copy' or 'isn't a file' when contrasting it with a file-based store — claim its hyperlink connectivity instead"@en ;
+    schema:text "Virtuoso persists to a real, copyable virtuoso.db file just like DuckDB's .duckdb file, so a portability/sharing/snapshotting comparison must credit the actual differentiator — hyperlinks acting as super-keys that resolve beyond any one copy — rather than the false claim that Virtuoso has no file at all."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/virtuoso-db-file-still-exists.ttl>, <#step-meshupPromptStyle> .
+
+# ── Step 285: SPASQL worked examples get a live SPASQLQB link, not an HTTP SPARQL endpoint link ──
+:step-spasqlExampleLiveLink a schema:HowToStep ;
+    schema:position "285"^^xsd:integer ;
+    schema:name "Give a SPASQL (SPARQL-in-SQL) worked example a live link via the SPASQL Query Builder, per data-twingler/SKILL.md's documented pattern — not the plain HTTP SPARQL endpoint"@en ;
+    schema:text "Whenever an rdf-infographic-skill document includes a SPASQL worked example, link it live using data-twingler/SKILL.md's documented SPASQLQB permalink pattern rather than the HTTP SPARQL endpoint the rest of the SPARQL Workbench targets."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/spasql-example-live-link.ttl>, <../data-twingler/SKILL.md> .
+
+# ── Step 286: ALTER QUAD STORAGE FROM clauses need fully-qualified qualifier.schema.table names ──
+:step-alterQuadStorageFullyQualifiedTableNames a schema:HowToStep ;
+    schema:position "286"^^xsd:integer ;
+    schema:name "Every table in an ALTER QUAD STORAGE FROM clause must be fully qualified as qualifier.schema.table — a bare table name fails with a misleading 'Alias <table> is not defined' error at the closing brace"@en ;
+    schema:text "Found 2026-09-06 on demo.openlinksw.com (Virtuoso 08.03.3335): a bare table name in an ALTER QUAD STORAGE FROM clause fails with a misleading 'Alias <table> is not defined' error, fixed by fully qualifying it as qualifier.schema.table."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/sql-ddl-batch-script-and-verification.ttl>, <#step-sqlBatchScriptVerification> .
+
+# ── Step 287: Kingsley's standing AGI definition ──
+:step-agiDefinition a schema:HowToStep ;
+    schema:position "287"^^xsd:integer ;
+    schema:name "AGI = highly autonomous systems more efficient than humans at a broad range of traditionally economically valuable tasks — intellect-augmentation tools, not replacement framing"@en ;
+    schema:text """Kingsley's standing AGI definition (X post 2026-09-05, https://x.com/kidehen/status/2096292164871582204), offered as a refinement of the OpenAI charter phrasing:
+
+Highly autonomous systems that are more efficient than humans at performing a broad range of traditionally economically valuable tasks.
+
+Fits Steve Jobs' original conception of computers as "bicycles for the mind" which, courtesy of natural language becoming part of the UI/UX stack, are increasingly becoming rocket ships for the mind. Fundamentally, AGI is just another man-made tool for augmenting human intellect.
+
+Use this definition whenever AGI is defined, contrasted with OpenAI/charter wording, or framed in product/marketing copy for Kingsley. Prefer "more efficient" / "broad range of traditionally economically valuable tasks" over "outperform" / "most economically valuable work" when speaking in his voice."""@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/agi-definition.ttl>, <https://x.com/kidehen/status/2096292164871582204> .
+
+# ── Step 288: reusable meshup prompt — LLMs as generic RDF clients / Semantic Web hurdles ──
+:step-llmRdfClientsMeshupPrompt a schema:HowToStep ;
+    schema:position "288"^^xsd:integer ;
+    schema:name "Reusable meshup prompt: RDF+HTML collection on TimBL Web/Semantic Web hyperlink naming, HttpRange-14/RDF-XML/OWL hurdles, missing UI/UX until LLMs, and LLMs-as-Netscape-for-RDF — with three LinkedIn pulse meshup sources"@en ;
+    schema:text """Standing reusable prompt (filed 2026-09-07). When Kingsley asks to run this, or says "the LLM RDF clients meshup prompt", execute as a Turtle+HTML meshup collection per Step 282 (UI/UX expert opener, kg-generator + rdf-infographic-skill, "A Semantic Web" per Step 283). Prompt body:
+
+Generate an RDF and HTML collection from the context provided below, using the references docs as the meshup sources.
+
+Regarding "spec before software" and @timberners_lee's Web and Semantic Web endeavors, the idea (and goal) was simply to name anything of interest using a hyperlink (HTTP URI).
+
+As history shows, that worked brilliantly for documents, as demonstrated by the global adoption of what we now know as the World Wide Web.
+
+The issue with the Semantic Web follow-on — i.e., using hyperlinks to name anything of interest — is that it became caught up in a Web of problems:
+
+1. What is the range of an HTTP URI when functioning as a name? — the HttpRange-14 matter.
+
+2. Formats for representing entity relationships — the old RDF/XML matter.
+
+3. Notation and language preferences for expressing the logic underlying relationship semantics — the OWL-or-not-to-OWL wars.
+
+In addition to 1–3, there was another huge hurdle that superficially looked like a "spec before software" problem: the absence of an appropriate UI/UX stack capable of masking items 1–3 — the RDF esoterica.
+
+That UI/UX simply didn't exist until the emergence of LLMs.
+
+Today, LLMs and LLM-powered AI Agents enable end users and developers alike to harness the powerful interoperability infrastructure offered by a Semantic Web, without the hurdles of yore.
+
+They are to RDF — an entity-description framework loosely coupled with a variety of notations and serialization formats — what Mozilla/Netscape were to HTML.
+
+See Also:
+[1] https://www.linkedin.com/pulse/large-language-models-llms-powerful-generic-rdf-clients-idehen-xwhfe — Large Language Models (LLMs) as Powerful Generic RDF Clients
+[2] https://www.linkedin.com/pulse/semantic-web-project-didnt-fail-waiting-ai-yin-its-yang-idehen-j01se — The Semantic Web Project Didn't Fail — It Was Waiting for AI (The Yin of its Yang)
+[3] https://www.linkedin.com/pulse/file-create-save-share-paradigm-revisited-kingsley-uyi-idehen-phxze/ — The File Create, Save, and Share Paradigm — Revisited
+
+Keep @timberners_lee as a raw @mention (do not convert to a markdown link). Prefer "A Semantic Web" not "The Semantic Web" (Step 283)."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/llm-rdf-clients-meshup-prompt.ttl>, <#step-meshupPromptStyle>, <#step-semanticWebIndefiniteArticle>,
+        <https://www.linkedin.com/pulse/large-language-models-llms-powerful-generic-rdf-clients-idehen-xwhfe>,
+        <https://www.linkedin.com/pulse/semantic-web-project-didnt-fail-waiting-ai-yin-its-yang-idehen-j01se>,
+        <https://www.linkedin.com/pulse/file-create-save-share-paradigm-revisited-kingsley-uyi-idehen-phxze/> .
+
+# ── Step 289: meshup run → store under Documents/LLMs/Grok/ by default ──
+:step-meshupStoreGrokMacPaths a schema:HowToStep ;
+    schema:position "289"^^xsd:integer ;
+    schema:name "When running a noted RDF+HTML meshup prompt, generate and store under Documents/LLMs/Grok/{rdf,webpages,md}/ by default — do not re-ask destination"@en ;
+    schema:text """Standing delivery rule, 2026-09-07 (Kingsley: 'store to usual local on macos. This is how you perform these tasks going forward.'): execute the meshup (Steps 282/288 style), then write artifacts to the Mac Grok LLM root — rdf/ for .ttl+.jsonld, webpages/ for .html, md/ for .md (local only; not DAV by default) — using shared stem {descriptive-slug}-grok-1 (or -grok-N). Do not re-elicit the output folder for ordinary Grok Bot meshup runs unless Kingsley names a different path."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <#step-meshupPromptStyle>, <#step-llmRdfClientsMeshupPrompt>, <howto/meshup-prompt-style.ttl>, <howto/llm-rdf-clients-meshup-prompt.ttl> .
+
+# ── Step 290: named-person @handle mentions render as full name + standard hyperlinking ──
+:step-namedPersonHandleFullNameHyperlink a schema:HowToStep ;
+    schema:position "290"^^xsd:integer ;
+    schema:name "A raw @handle naming a real person in fixed prompt context renders as that person's full name in visible prose, with standard first-occurrence entity hyperlinking applied — never left as a raw @handle"@en ;
+    schema:text "Corrects Step 288's original 'keep @timberners_lee as a raw @handle' instruction, which conflicted with that same step's own first-occurrence hyperlinking rule."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/llm-rdf-clients-meshup-prompt.ttl>, <#step-llmRdfClientsMeshupPrompt> .
+
+# ── Step 291: sync JacquiHand's merged PRs proactively, by cherry-pick not merge ──
+:step-jhandPrSync a schema:HowToStep ;
+    schema:position "291"^^xsd:integer ;
+    schema:name "When Jacqueline Hand's PRs merge into ai-agent-skills main, check for and bring them into the active working branch without being asked each time — cherry-pick the merge commit, never a wholesale git merge origin/main"@en ;
+    schema:text "Kingsley, 2026-09-08: 'merge such that I don't have to keep on doing this[,] every[time] her prs are merged.' A wholesale merge for PR #117 pulled in an unrelated real conflict in ucp-client/*; cherry-pick -m 1 on just her merge commit is clean since her PRs are scoped to one skill directory."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/jhand-pr-sync.ttl> .
+
+# ── Step 292: WebID-TLS identity selection is a separate elicitation from auth-protocol selection ──
+:step-webidIdentitySelection a schema:HowToStep ;
+    schema:position "292"^^xsd:integer ;
+    schema:name "acp-client and ucp-client must elicit WHICH WebID-TLS identity (principal vs agent delegate vs a named credential set) once WebID-TLS is chosen, and verify that identity's cert modulus before the first authenticated request"@en ;
+    schema:text "Kingsley, 2026-09-08: auth-PROTOCOL elicitation was being conflated with WebID-TLS identity elicitation; both skills now separate the two and require a per-party cert-modulus check."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/webid-identity-selection-gate.ttl>, <howto/verified-identity.ttl>,
+        <../acp-client/SKILL.md>, <../ucp-client/SKILL.md> .
+
+# ── Step 293: POS → RDF/ontology denotation framing ──
+:step-posRdfDenotationFraming a schema:HowToStep ;
+    schema:position "293"^^xsd:integer ;
+    schema:name "Parts of speech map to RDF denotation roles: Noun→Entity/Thing, Adjective→Attribute/Quality, Verb→Action/State/Relation (not action-only); graph form Nouns→Entities/Classes, Adjectives→Attributes/Characteristics, Verbs→Relationships/Actions/States"@en ;
+    schema:text """Filed 2026-09-09 from Kingsley. Linguistic denotation ladder:
+
+- Noun → Entity/Thing Denotation — denotes an entity, kind, concept, place, etc.
+- Adjective → Attribute/Quality Denotation — denotes a property or quality applicable to something.
+- Verb → Action/State/Relation Denotation — denotes an action, event, state, process, or relationship.
+
+Important: "Action Denotation" alone is too narrow for verbs. Examples that are relations/states rather than straightforward actions: owns, knows, contains, exists, resembles.
+
+Preferred RDF/ontology / entity-relationship mapping (machine-computable semantics):
+
+- Nouns → Entities/Classes
+- Adjectives → Attributes/Characteristics
+- Verbs → Relationships/Actions/States
+
+Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy about denotation, or POS→triple mapping."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/pos-rdf-denotation-framing.ttl>,
+        <howto/canonical-entity-iri-denotation.ttl>,
+        <howto/entity-iri-denotation-mechanics.ttl> .
+
+# ── Step 294: always set explicit Content-Type on curl PUT to URIBurner DAV ──
+:step-uriburnerDavPutContentType a schema:HowToStep ;
+    schema:position "294"^^xsd:integer ;
+    schema:name "Every curl PUT to a URIBurner DAV path (Basic-Auth 443 or mTLS :5443) must carry an explicit -H \"Content-Type: ...\" matching the file extension, and be verified afterward with a HEAD request — never rely on curl's or Virtuoso's default"@en ;
+    schema:text "Kingsley, 2026-09-10: 'I noticed your uploads to UB were setting the wrong content-types, which has happened in the past' — root cause, per-extension MIME table, and HEAD-verification procedure are in the companion howto."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/uriburner-dav-put-content-type.ttl>, <howto/remote-webdav-upload.ttl> .
+
+# ── Step 295: the "no second About/attribution surface" rule (Step 186) is now an ENFORCED validator gate, after recurring a third time from two root templates ──
+:step-noSecondAttributionSurfaceEnforced a schema:HowToStep ;
+    schema:position "295"^^xsd:integer ;
+    schema:name "SUPERSEDES Step 186 (still correct, now enforced): a standalone mid-page <section id=\"about\"> duplicating the footer attribution grid is a hard validator FAIL, not just a documented rule — fixed at kg-generator/SKILL.md's own About Section Template prose AND at rdf-infographic-skill's canonical competitive-analysis-head-to-head template, the two root sources this defect kept regenerating from"@en ;
+    schema:text "Kingsley, 2026-09-12, on hosted-agent-products-and-interop-protocols-claude_sonnet_5-1.html: 'About this page section has to be part of the footer section, without introducing redundancy. This the rule going forward, and fix whatever makes this the case.' Root-caused to kg-generator/SKILL.md's own '### About Section Template' boilerplate and to rdf-infographic-skill/assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html still containing the anti-pattern — both rewritten/fixed. rdf-infographic-skill/scripts/validate-harness-contract.py now runs forbid_regex on <section id=\"about\"> so any future recurrence fails the gate directly instead of depending on a human or agent remembering to grep for it. Full incident and fix detail in the companion howto."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <#step-noSecondAttributionSurface>,
+        <howto/generator-script-output-not-a-substitute-for-contract-check.ttl#step-aboutSectionRecurredInTemplatesAndSkillProse> .
+
 # ── Step 296: remote WebID-TLS verification service also ignores On-Behalf-Of — third confirmation of the same gap ──
 :step-remoteWebidVerifyOboIgnored a schema:HowToStep ;
     schema:position "296"^^xsd:integer ;
@@ -3324,3 +3655,42 @@ Recorded in rdf-infographic-skill/SKILL.md harness item 10 as well as here."""@e
     rdfs:seeAlso <howto/flow-report-template.ttl>,
         <../ucp-client/references/flow-report-template.md>,
         <#step-mppOboValueSpecific> .
+
+# ── Step 299: the memory store is only "in sync" as a snapshot — load it positionally, verify from both directions, and never let the session-only gate stand as proof ──
+:step-memoryStoreSyncProcedure a schema:HowToStep ;
+    schema:position "299"^^xsd:integer ;
+    schema:name "Bringing the local Virtuoso memory store in sync is a four-stage procedure (regenerate, Keychain credential, positional isql, dual verification) whose residuals must be INTERPRETED rather than fixed — and scripts/session-graph-gate.py alone is never sufficient proof, because it audits sessions/ only"@en ;
+    schema:text "Kingsley, 2026-09-16, after asking 'Is my local virtuoso instance up to date (i.e., in sync) re memories?' and then 'Can't you run that using my credentials from key chain re dba for localhost instance?'. Measured state: 472 documents, 412 IN_SYNC / 49 GRAPH_MISSING / 11 STALE, the graph matching a load from ~2026-09-01 — 15 days of drift in which every session from 2026-09-02 onward, 19 howto docs and 2 projects docs were absent, and the behavioral contract itself was behind (preferences.ttl 2511/2749 triples, index.ttl 1273/1361 with 213/226 schema:item links, core.ttl 108/138, entities/people.ttl 520/1819). Root cause: scripts/load-agent-rdf-memory.sql was stale at 432 documents (nothing dated >= 2026-09-02, files from its own generation batch omitted) AND had never been executed in that form — a committed loader was mistaken for a run one. Fixed by regenerating (472/472 parse-verified), loading via isql with the Keychain credential virtuoso-local-dba (resolved with the perl alarm guard, value never printed, ONE login, 18 s, exit 0), then verifying 472/472 IN_SYNC with an exact index-graph match. THREE STANDING RULES: (1) isql 08.03.3335 takes the script as a POSITIONAL argument — '-f <file>' connects successfully and then aborts at line 0 with 'Cannot open file \"-f\" for loading', which reads as a credential failure and invites re-eliciting or re-migrating a password that was never wrong; nothing executes, so inspect the exit code and log tail instead of blaming the credential. refresh-loader.sh's printed hint was corrected the same day. (2) VERIFY FROM BOTH DIRECTIONS: full-store-graph-gate.py --graphs-from <isql log> covers all documents and the orphan direction, since anonymous whole-graph enumeration returns HTTP 401 while per-graph queries are served, and the loader's appended COUNT query supplies the enumeration without the script holding a credential. (3) INTERPRET, DO NOT 'FIX': a +1 delta concentrated on a relative-IRI predicate is a counting artifact (the loader resolves relative IRIs against the graph IRI -> urn:dav:, rdflib against the file/cwd -> file:///, so two paths naming one file collapse on one side only; the graph is the superset - sessions/2026-05-29-gpt5-codex.ttl, permanently 'graph=79 local=78' on schema:workExample alone), and any document edited by a concurrent agent session after the load is EXPECTED to go STALE again (sessions/2026-09-16-muse_spark_1_2_contributor_free-opencode.ttl: 160 triples at load, edited 19:42:58Z to 186) — sync is a snapshot, never a steady state, so re-run rather than reclassify. Orphan graphs are cleared only with explicit per-item approval; zero-byte documents are flagged by generate-loader-sql.py as EMPTY_DOC, not treated as missing. Companion howto/agent-rdf-memory-loader-run.ttl carries the full procedure." ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/agent-rdf-memory-loader-run.ttl>,
+        <howto/virtuoso-local-dba-passphrase-retrieval.ttl>,
+        <../scripts/refresh-loader.sh>,
+        <../scripts/full-store-graph-gate.py>,
+        <../scripts/generate-loader-sql.py> .
+
+# ── Step 300: live people.ttl is local-only; public repo ships people.ttl.sample ──
+:step-peopleRegistryLocalOnly a schema:HowToStep ;
+    schema:position "300"^^xsd:integer ;
+    schema:name "entities/people.ttl is private and local-only: never commit or push it; the public repo carries only entities/people.ttl.sample (usage header, .sample extension keeps it out of the loader glob)"@en ;
+    schema:text "Kingsley, 2026-09-18, while committing agent-rdf-memory changes: 'I think its safer to have people.ttl.sample in the public repo, with a note about how to use it. The people.ttl remains local going forward.' Implemented as db0ad46 (git rm --cached + .gitignore) and bc81b54 (people.example.ttl renamed to people.ttl.sample with a cp-to-use header; README, .gitignore comment and loader SQL updated). Versions of people.ttl committed before this remain in remote history; purging them would need a history rewrite plus force-push, which was not done. Pre-commit check, sample-refresh approval rule and fresh-clone bootstrap are in the companion howto."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/people-registry-local-only.ttl>,
+        <howto/entity-registry-census-verification.ttl> .
+
+# ── Step 301: memory graphs are read and written via the dba account (Keychain) ──
+:step-memoryGraphsViaDba a schema:HowToStep ;
+    schema:position "301"^^xsd:integer ;
+    schema:name "Interact with the local Virtuoso memory graphs — read or write — only as an authenticated identity: WebID-TLS (principal cert.p12, passphrase from Keychain uriburner-p12) or dba Digest (Keychain virtuoso-local-dba); never anonymously"@en ;
+    schema:text "Kingsley, 2026-09-18: 'Re memory graphs, interact with them via dba account (read or write).' Supersedes the suggestion (same session) to grant anonymous SPARQL read on the memory graphs so the SessionStart hook could bootstrap without credentials. Same day: 'authentication shouldn\'t be strictly digest, it can also be WebID-TLS.' load_memory.py now tries webid-tls then digest (AGENT_RDF_MEMORY_AUTH). Keychain retrieval, single-login guard, redaction rules and the localhost WebID-TLS findings are in the companion howto (Steps 5-6)."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/virtuoso-local-dba-passphrase-retrieval.ttl#step-memoryGraphsViaDba>,
+        <howto/agent-rdf-memory-loader-run.ttl> .
+
+# ── Step 302: session-start memory graph state table (SAMPLE() verification) ──
+:step-memoryGraphStateTable a schema:HowToStep ;
+    schema:position "302"^^xsd:integer ;
+    schema:name "When memory is driven from Virtuoso, a SAMPLE()-based verification query (one FROM NAMED per document graph) feeds per-folder, core-graph and entity-type memory-state tables; running it at session start is ELICITED (ask the user first), never mandatory, and on a yes the tables are part of the standard presentation"@en ;
+    schema:text "Kingsley, 2026-09-18: 'A SAMPLE() based verification query should feed a tabular presentation of the state of the memory graph as the start of session when memory is driven from a virtuoso instance.' / 'Since each folder ttl is a named graph, why not used them in the from clause?' / 'Tabulate the result as part of the standard presentation.' / 'execution of this query at session startup should be elicited rather than mandatory.' The query shape, columns and presentation rule are in the companion howto."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSessionStart ;
+    rdfs:seeAlso <howto/memory-graph-state-table.ttl>,
+        <howto/agent-rdf-memory-loader-run.ttl#step-absoluteStorePath> .

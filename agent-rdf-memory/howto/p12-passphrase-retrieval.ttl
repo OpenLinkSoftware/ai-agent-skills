@@ -17,7 +17,8 @@
     schema:description "Procedure for unlocking the principal link-in-bio-credentials-5 cert.p12. Source order changed 2026-08-18 after the agent observed that /tmp/uyi is mode -rw-r--r-- (world-readable plaintext) in a shared, cleanup-prone directory; macOS Keychain is encrypted at rest and ACL-scoped, so it is now the primary source on macOS. The `security` CLI is macOS-only; :step-crossPlatformKeyring covers Linux/Windows equivalents."@en ;
     schema:step :step-sourceChain, :step-keychainPrimary, :step-uyiFallback,
         :step-canonicalSnippet, :step-unlock, :step-redact, :step-curlUsesP12Path,
-        :step-neverProbeProductionCredentialNames, :step-crossPlatformKeyring ;
+        :step-neverProbeProductionCredentialNames, :step-crossPlatformKeyring,
+        :step-agentP12DistinctItem ;
     rdfs:seeAlso <../preferences.ttl#step-p12PassphraseUyiFile>,
         <../preferences.ttl#step-p12PassphraseKeychainFirst>,
         <../core.ttl>,
@@ -179,3 +180,20 @@ CURL BACKEND CAVEAT ON WINDOWS — do not assume a file-less route exists there 
 
 NODE/TS EQUIVALENT (asked by the user 2026-08-18): the `keytar` package was the direct Node analogue (same native-store routing: macOS Keychain / Secret Service / Credential Manager) but is deprecated/archived upstream (unmaintained since 2022, native-module build pain on modern Node). Current recommendation is `@napi-rs/keyring` (actively maintained, prebuilt binaries, same three-OS routing, API: `new Entry(service, account).getPassword()/setPassword()`). Do not reach for keytar in new code."""@en ;
     rdfs:seeAlso <keychain-identity-vs-p12-file-curl.ttl> .
+
+# ── Step 10: the agent delegate p12 gets its own, distinct Keychain item ─────
+
+:step-agentP12DistinctItem a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "The agent delegate cert.p12 (link-in-bio-agent-credentials) is a SEPARATE secret from the principal p12 — its own Keychain item, uriburner-agent-p12, never overloaded onto uriburner-p12"@en ;
+    schema:text """Established 2026-08-31, same shape as :step-keychainPrimary but for a distinct file: {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-agent-credentials/cert.p12 (core.ttl :agentDelegateCredentials).
+
+CREATE (user runs this themselves; bare -w prompts interactively):
+  security add-generic-password -U -s uriburner-agent-p12 -a "$USER" -T /usr/bin/security -w
+
+READ:
+  security find-generic-password -s uriburner-agent-p12 -a "$USER" -w
+
+MIGRATION PATH ACTUALLY USED 2026-08-31: the user dropped the value into /tmp/uyi (same throwaway-file pattern as the historical principal-p12 migration) rather than typing it interactively, and told the agent to discard the file after each read — this is a one-off convenience, not a reinstated standing fallback; :step-uyiFallback's SOURCE 2 status remains historical/removed for the PRIMARY chain. A first attempt failed: the value sat under key AGENT_P12_PWD and produced "Mac verify error: invalid password" against openssl. The user corrected it under a different key, AGENT_PWD, on retry, which verified successfully — subject CN=Kingsley Idehen's Agent, valid 2026-06-18 to 2027-06-18. LESSON: an /tmp/uyi-sourced value that fails openssl Mac verification is a wrong/stale value, not a tool bug — ask the user to re-check and re-supply rather than retrying variations (no -legacy guessing, no empty-passphrase probing) or silently trying other keys in the file.
+
+Same redaction discipline as :step-redact applies: never print, log, or persist the value; unset the env var after use."""@en .

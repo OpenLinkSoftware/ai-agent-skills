@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/virtuoso-db-file-still-exists.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 284. Virtuoso persists to a real, copyable virtuoso.db file, same as DuckDB persists to a .duckdb file — never claim Virtuoso has 'nothing to copy' or 'isn't a file at all'. The real differentiator over a plain file store is the added connectivity: hyperlinks (IRIs) acting as super-keys that resolve to wherever they point, from any copy, not the absence of a file."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Never claim Virtuoso has no file to copy — claim the added hyperlink connectivity instead"@en ;
+    schema:description "When contrasting Virtuoso with a file-based store (DuckDB, Excel) on portability, sharing, or snapshotting, keep the real distinguishing claim (dereferenceable hyperlink connectivity) and drop the false one (no file exists)."@en ;
+    schema:step :step-incident, :step-realClaim, :step-falseClaim, :step-scope ;
+    rdfs:seeAlso <../preferences.ttl#step-virtuosoDbFileStillExists> .
+
+:step-incident a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Incident: three comparison-table rows and one pull-quote overstated Virtuoso as having 'nothing to copy' / not being a file"@en ;
+    schema:text "2026-09-04, virtuoso-semantic-web-spreadsheet-vs-duckdb-meshup-claude_sonnet_5-1: the 'Portability model' row said 'Nothing to copy — resolve the IRI; the reference IS the shared access point'; the 'Sharing another agent's findings' row said 'no file transfer required'; the hero pull-quote (this meshup's own argument) said 'the sandbox isn't a file an agent copies at all'. Kingsley: 'Virtuoso has a virtuoso.db file, which you can copy just like a DuckDB file. The difference is that its content has the addition[al] connectivity of a Semantic Web that can link to wherever the hyperlinks functioning as super-keys resolve.' Then flagged the 'Sharing' and 'Immutable snapshots' rows needed the identical fix. All three table rows, the FAQ answer restating the Sharing row, and the pull-quote were revised to keep the real claim (dereferenceable hyperlink connectivity; no need to duplicate the whole file per snapshot or per shared finding) while dropping the false one (no file exists at all)."@en .
+
+:step-realClaim a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "The real, defensible claim: virtuoso.db's content carries hyperlink connectivity a plain file format lacks"@en ;
+    schema:text "IRIs inside virtuoso.db act as super-keys that resolve to wherever they point — including data outside that one file/store — from any copy of the file, not just the instance where the original write happened. That is the actual differentiator over DuckDB/Excel: not file-vs-no-file, but locally-scoped-keys-vs-globally-resolvable-keys."@en .
+
+:step-falseClaim a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "The false claim to avoid: 'nothing to copy', 'no file', 'isn't a file at all'"@en ;
+    schema:text "Virtuoso persists like any other database server: there is a real, copyable database file (virtuoso.db). Saying there is 'nothing to copy' or that the sandbox 'isn't a file' is factually wrong and undercuts the honest comparison — the interesting claim survives without it."@en .
+
+:step-scope a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Scope: applies to any Virtuoso-vs-file-store comparison touching portability, sharing, or snapshotting"@en ;
+    schema:text "Check any comparison-table dimension, FAQ answer, or pull-quote making a Virtuoso-vs-DuckDB/Excel claim about copying, sharing, or snapshotting for this same overstatement before publishing — the three flagged rows were not the only ones with parallel wording in this document, and future meshups making the same comparison should be checked from the start rather than corrected after the fact."@en .

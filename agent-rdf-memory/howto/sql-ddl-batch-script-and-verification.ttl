@@ -1,0 +1,113 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/sql-ddl-batch-script-and-verification.ttl"@en ;
+    schema:description "Standing rule: whenever a Virtuoso-alternative demonstration presents SQL DDL/sample-data/RDF-View cards, also add one consolidated batch-script card meant purely for copy-paste execution, and treat offering to run it against a real Virtuoso instance as part of the delivery verification loop."@en ;
+    schema:dateCreated "2026-08-31T00:00:00Z"^^xsd:date ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :sqlBatchScriptVerification ;
+    schema:step :step-triggerCondition, :step-batchCardContent, :step-batchCardLabeling, :step-verificationLoopElicitation, :step-whatVerificationEstablishes, :step-permissionScope, :step-roleReservedWord, :step-createIriClassSyntax, :step-quadMapSyntaxUnresolved, :step-alterQuadStorageFullyQualifiedTableNames ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:sqlBatchScriptVerification a schema:Thing ;
+    schema:name "SQL DDL Batch Script and Live Verification"@en ;
+    schema:description "Pattern for making an illustrative SQL/RDF-View demonstration independently executable and, when the user has a reachable Virtuoso instance, actually verified end to end."@en .
+
+:step-triggerCondition a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "When this applies: any document with per-concept SQL DDL and sample-data cards"@en ;
+    schema:text """Stated by Kingsley 2026-08-31 on the neo4j-ekl-operating-structure-vs-virtuoso-claude_sonnet_5-1 collection, after the individual CREATE TABLE / INSERT / CREATE QUAD MAP cards had already been split one-concept-per-card for readability (per the general SPARQL/SQL accordion presentation rule). The trigger is the presence of SQL schema plus sample data — with or without an accompanying RDF View / Quad Map (R2RML-equivalent) declaration. It applies regardless of whether the surrounding document frames the SQL as illustrative/never-executed or as a live demo; the batch card's job is to make it trivially possible to stop it being illustrative."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:step-batchCardContent a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "What goes in the batch card: every CREATE TABLE, every INSERT, then the RDF View/Quad Map declaration, in that execution order"@en ;
+    schema:text """Concatenate, in the order a fresh database would need to run them: (1) all CREATE TABLE statements, (2) all INSERT statements loading the sample data, (3) when present, the CREATE IRI CLASS and CREATE QUAD MAP (or R2RML) statements declaring the RDF View. Do not reorder for narrative convenience — a reader who copies the card into a file must be able to run it top to bottom without manually re-sequencing anything. Open the script with a short header comment naming a suggested filename (e.g. acmebank.sql) and the run command, e.g. `isql {host}:1111 dba <password> < {file}.sql`, or noting it can be pasted into Virtuoso Conductor's Interactive SQL page. This is IN ADDITION to the individual per-concept cards, which stay split for readability — the batch card is a new, separate schema:SoftwareSourceCode entity whose schema:description says explicitly that its purpose is copy-to-file execution, not exposition."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:step-batchCardLabeling a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Be honest in the card's description about which parts are safe-standard-SQL and which parts are Virtuoso-specific and less certain"@en ;
+    schema:text """The CREATE TABLE / INSERT portion is vanilla SQL and should run unmodified on effectively any SQL engine, Virtuoso included — say so. The CREATE IRI CLASS / CREATE QUAD MAP portion is Virtuoso's own Linked Data Views syntax, and its exact shape can vary by Virtuoso version or require companion setup (e.g. a registered namespace prefix) the generating agent cannot fully verify without running it. State plainly that this second part is the one most likely to need adjustment, and that running the batch script against a real instance is exactly how that gets checked — do not imply higher confidence in untested Virtuoso-specific DDL than is warranted, and do not silently omit the caveat to make the card look more finished."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:step-verificationLoopElicitation a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Treat offering local-instance verification as part of the delivery loop, not a separate feature the user has to request"@en ;
+    schema:text """After generating the batch card (and, more generally, whenever a document ships hand-authored sample RDF or illustrative SQL/RDF-View text), proactively ask whether the user has a reachable Virtuoso instance available — checking a known local endpoint (e.g. the SPARQL endpoint / :1111 iSQL port already recorded in core.ttl for this operator) first is reasonable, but a refused/unreachable probe is not itself permission to run anything; ask explicitly before executing. If the user confirms an instance and gives explicit per-run permission, load the batch script against it (isql or WebDAV/Conductor per the operator's stated preference) as the final verification step, then re-run the document's own SPARQL recipes against that instance's SPARQL endpoint to confirm they now return real results, not just the rdflib-simulated results already checked during authoring. If no instance is available or the user declines, say so plainly in the delivered summary rather than silently skipping the offer."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification>, <live-sparql-verification-against-loaded-graph.ttl> .
+
+:step-whatVerificationEstablishes a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "A successful local run verifies two things static validators cannot reach: DDL correctness and Quad Map/RDF View correctness"@en ;
+    schema:text """rdflib parsing and validate-harness-contract.py confirm the COMPANION TTL is well-formed and the harness contract is satisfied; neither one can confirm that hand-written Virtuoso DDL actually executes, or that a Quad Map declaration actually produces the RDF graph the document's SPARQL recipes assume. Running the batch script for real against Virtuoso closes exactly that gap — it is the SQL/RDF-View analogue of the rdflib query test-run already required for hand-authored sample RDF data before it is asserted as fact in a companion TTL (see the neo4j-ekl-operating-structure-vs-virtuoso-claude_sonnet_5-1 session, where two silent query bugs were only caught by actually executing the queries)."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:step-permissionScope a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Local does not mean automatically authorized — DDL execution still needs its own explicit permission"@en ;
+    schema:text """CREATE TABLE / CREATE QUAD MAP against a real database is a hard-to-reverse, schema-modifying action, not a read-only check. Ask for permission the same way any other side-effectful action requires it, per the global executing-actions-with-care contract — a local dev instance being reachable and 'the user's own' does not itself constitute permission, and a general earlier go-ahead for the task ('generate this document') does not extend to running DDL against a database. Never attempt this against a remote or shared instance without the same per-run permission the Remote WebDAV Upload rule already requires for publishing artifacts."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification>, <remote-webdav-upload.ttl> .
+
+# ── Concrete findings from the first live run (2026-08-31, Virtuoso 8.3.3335) ──
+
+:step-roleReservedWord a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "ROLE is a Virtuoso reserved word — never name a demo table role; use org_role or similar"@en ;
+    schema:text """CREATE TABLE role (...) fails with 'syntax error at role before (' on Virtuoso 8.3.3335, confirmed by direct execution — this is a universal fact about the word, not a one-instance quirk, so rename the table in every future org-structure/role-modeling demo before it is ever run. Also check for naming collisions with tables from an earlier session's demo on a SHARED local Virtuoso instance before assuming 'CREATE TABLE X' is safe: a same-day DeepSeek V4 Pro session had already loaded organisation/business_function/person/role_assignment tables from an equivalent demo onto the SAME local instance, with a DIFFERENT column shape, so a same-named CREATE TABLE 'already exists' and a same-named INSERT can fail with 'no column X' against the OTHER session's schema. Prefer a document-specific or session-specific table name prefix when there is any chance of a shared-instance collision, independent of the reserved-word issue."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:step-createIriClassSyntax a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Verified working CREATE IRI CLASS syntax on Virtuoso 8.3.3335 via isql"@en ;
+    schema:text """CREATE IRI CLASS <name> \"pattern%d\" (in col_name integer not null) ; issued through isql needs BOTH of: (1) a leading SPARQL keyword on the statement (isql defaults to plain SQL parsing; CREATE IRI CLASS is SPARQL-extension DDL and is rejected outright without it — 'syntax error at IRI before CLASS'), and (2) the class name itself as an angle-bracket IRI, e.g. <role_iri>, not a bare identifier (a bare name fails with 'syntax error at <name> before <pattern-string>'). Full verified form:
+
+SPARQL CREATE IRI CLASS <role_iri> \"https://.../role/%d\" (in role_id integer not null) ;
+
+Executed 3 times in one session against a real instance (role_iri, person_iri, assignment_iri) with 'IRI class <...> has been defined' confirmation each time. Neither requirement (SPARQL prefix, angle brackets) is guessable from the DDL shape shown in most illustrative examples — treat this as the corrected canonical form going forward for any document presenting CREATE IRI CLASS as executable SQL."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification> .
+
+:step-quadMapSyntaxUnresolved a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "CREATE QUAD MAP: hand-authored DDL is the WRONG top-level statement — the correct verified form is ALTER QUAD STORAGE virtrdf:DefaultQuadStorage { GRAPH <g> { ... } }"@en ;
+    schema:text """RESOLVED 2026-08-31 (superseding the earlier 'unresolved after 12 attempts' note below, kept for the failure-mode record). virtuoso-support-agent's own 25 MCP tools (RDFVIEW_FROM_TABLES etc.) were not connected in-session, and its documented generator procedures (OAI.DBA.RDFVIEW_FROM_TABLES, DB.DBA.R2RML_GENERATE_LINKED_VIEW) both returned 'Undefined procedure' on this local 8.3.3335 instance — that VAD/package is Demo/URIBurner-specific, not part of a standard local install (the tool-reference.md itself lists RDFVIEW_FROM_TABLES as Demo:/URIBurner: only, never Localhost:). The user redirected to Virtuoso's own online docs (docs.openlinksw.com), which gave the real answer after 6 more live-tested refinements. VERIFIED FULL WORKING FORM (isql, one statement per target graph):
+
+SPARQL
+ALTER QUAD STORAGE virtrdf:DefaultQuadStorage
+  FROM {qualifier}.{schema}.{table} AS alias1
+  FROM {qualifier}.{schema}.{table} AS alias2   -- second alias needed ONLY for a self-referencing FK (e.g. reports_to_role_id); omit for a plain FK to a different table
+{
+  GRAPH <{target-graph-iri}> {
+    <{iri_class_name}> (alias1.{pk_col}) <{predicate_iri}> alias1.{literal_col} as virtrdf:{unique_map_name} ;
+    <{predicate_iri2}> <{iri_class_name}> (alias2.{pk_col})
+      where ( ^{alias1.}^.{fk_col} = ^{alias2.}^.{pk_col} ) as virtrdf:{unique_map_name2} .
+  }
+} ;
+
+Five non-obvious requirements, each individually confirmed necessary by a failing attempt without it: (1) the whole statement needs a leading SPARQL keyword in isql; (2) the container is ALTER QUAD STORAGE virtrdf:DefaultQuadStorage (a QName, not an angle-bracket IRI, and not a freshly CREATEd storage — CREATE QUAD STORAGE <name> and CREATE QUAD MAP <name> as separate top-level statements are NOT the right grammar and fail with 'syntax error at QUAD'/'MAP' in every combination tried); (3) every table referenced anywhere in the mapping body — including a second alias of the same table for a self-join — must appear in its own FROM clause between the ALTER QUAD STORAGE line and the opening brace, not inside the brace body; (4) a self-join condition in a WHERE clause must use Virtuoso's escaped qualifier form ^{alias.}^.column, not plain alias.column (SP031 'Table alias name is not specified for column ...' otherwise); (5) every individual mapping's trailing `as ...` name must be a prefixed QName like virtrdf:my_map_name, never a bare identifier (plain SQL syntax error otherwise), and the whole set of triple patterns must sit inside an explicit GRAPH <iri> { ... } block or Virtuoso reports "The 'GRAPH gp' property is not defined". CRITICAL GOTCHA: issuing a SECOND ALTER QUAD STORAGE statement that targets the SAME GRAPH <iri> REPLACES the first statement's mappings rather than adding to them — each statement reports success independently with no warning that it silently discarded the previous mapping for that graph. All mapping predicates for one target graph must therefore be declared in ONE statement. Verified end to end on a live instance: SELECT * over the resulting graph returned exactly the expected 11 triples (4 roles with schema:name, 3 reportsTo edges, 2 role fills with forRole/filledBy/filledFrom/filledTo, 2 person names), and the document's own current-accountability and historical-holders SPARQL recipes returned exactly the expected rows when run against it.
+
+REMAINING LIMITATION (not a syntax gap — a real behavioral finding): SPARQL property-path traversal (pred+) and Virtuoso's native OPTION (TRANSITIVE, t_in(?s), t_out(?o)) extension both returned ZERO rows over the RDF-View-backed reportsTo predicate on this instance, even though every individual single-hop reportsTo triple is present and directly queryable. Recursive/transitive traversal over a virtual (SQL-compiled-at-query-time) predicate does not behave like traversal over materialized triples on this Virtuoso version. Workaround: walk the chain with repeated single-hop queries, or materialize the view (e.g. via rdf_view_sync-style copy into a real graph) before running a recursive query against it.
+
+--- ORIGINAL FAILURE-MODE RECORD (kept for reference; do not re-attempt these forms) ---
+12 syntax variants were tried before consulting docs.openlinksw.com: bare 'CREATE QUAD MAP <name> FROM table ...' at top level fails at 'QUAD' every time, regardless of SPARQL prefix or angle-bracket naming; wrapping in 'CREATE QUAD STORAGE <name> { ... }' gets past the storage opener but still fails inside at 'CREATE QUAD MAP' / 'CREATE MAP' / 'QUAD MAP'; wrapping in 'ALTER QUAD STORAGE <http://www.openlinksw.com/schemas/virtrdf#DefaultQuadStorage> { CREATE <name> ... }' got furthest but the following bare 'FROM table [AS alias]' clause inside the braces was rejected — the FROM clauses belong BEFORE the opening brace, not inside it, which is the piece that finally unblocked everything once found in the docs."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification>, <../../linked-data-skills/references/workflow-details.md> .
+
+# ── New finding, 2026-09-06: ALTER QUAD STORAGE FROM clauses need fully-qualified table names ──
+
+:step-alterQuadStorageFullyQualifiedTableNames a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "ALTER QUAD STORAGE FROM clauses require fully-qualified qualifier.schema.table names — a bare table name fails with a misleading 'Alias <table> is not defined' error"@en ;
+    schema:text """Discovered 2026-09-06 on demo.openlinksw.com (Virtuoso 08.03.3335) while deploying the ai-ontology-bottom-up-virtuoso-live-demo-claude_sonnet_5-1 collection's Quad Map (5 tables: aio_source_system, aio_business_entity, aio_business_metric, aio_mined_claim, aio_reviewer_feedback). This is a NEW, previously undocumented gotcha in this repo's ALTER QUAD STORAGE knowledge, distinct from the five requirements already recorded in :step-quadMapSyntaxUnresolved (SPARQL keyword prefix, virtrdf:DefaultQuadStorage container, FROM clauses before the brace, ^{alias.}^.column self-join escaping, virtrdf:-prefixed AS names).
+
+Every table referenced in an ALTER QUAD STORAGE statement's FROM clause MUST be given as its fully-qualified qualifier.schema.table form — e.g. DB.kidehen.aio_source_system — not a bare unqualified table name (aio_source_system alone), even when that bare name is unambiguous and the account issuing the statement owns exactly one table by that name. A bare table name compiles far enough to look like a syntax problem: Virtuoso reports 'Alias <table> is not defined' at the CLOSING BRACE of the statement, which reads as though something inside the mapping body referenced an alias that was never declared — the actual FROM clause a few lines above LOOKS complete and correctly formed. Nothing in that error message points at qualification as the fix; a debugging pass is far more likely to re-examine the alias usage inside the GRAPH block (already correct) than the table-name form in the FROM clause itself.
+
+VERIFIED FIX: prefixing every table name with its qualifier and schema resolves the error immediately, with no other change to the statement:
+
+  FROM DB.kidehen.aio_source_system AS s     -- correct
+  FROM aio_source_system AS s                -- fails: 'Alias s is not defined' at closing brace
+
+This applies per-account: the qualifier.schema pair is whatever schema the issuing SQL account actually owns its tables under (DB.kidehen here, matching the earlier :sqlBatchScript session's DB.DBA-vs-DB.kidehen distinction for non-dba accounts) — always confirm the real qualified name rather than assuming a bare name will resolve the same way isql resolves it for ordinary SQL statements. Treat this as mandatory going forward for every ALTER QUAD STORAGE FROM clause in any future document, regardless of how many tables are being mapped."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-sqlBatchScriptVerification>, <../preferences.ttl#step-alterQuadStorageFullyQualifiedTableNames> .

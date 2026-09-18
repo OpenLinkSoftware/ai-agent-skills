@@ -18,6 +18,8 @@ import json
 import os
 import re
 import ssl
+import subprocess
+import sys
 import urllib.parse
 import urllib.request
 
@@ -28,6 +30,49 @@ BASE = os.environ.get(
 MAX_SESSION = 3072
 SPARQL_TIMEOUT = float(os.environ.get("AGENT_RDF_MEMORY_SPARQL_TIMEOUT", "4"))
 MAX_STEPS = int(os.environ.get("AGENT_RDF_MEMORY_MAX_STEPS", "80"))
+
+# preferences.ttl Step 301: memory graphs are never queried anonymously.
+# Two authentication methods, tried in AGENT_RDF_MEMORY_AUTH order:
+#   webid-tls  client cert (PKCS#12) against AGENT_RDF_MEMORY_WEBID_ENDPOINT;
+#              skipped unless that endpoint is set, because a listener that
+#              never requests a client cert silently degrades to anonymous.
+#   digest     dba account (Keychain item virtuoso-local-dba) against /sparql-auth.
+# Secrets come from Keychain, stay in memory, and reach curl on stdin
+# (never argv, env, logs or hook output).
+AUTH_METHODS = [m.strip() for m in os.environ.get(
+    "AGENT_RDF_MEMORY_AUTH", "webid-tls,digest").split(",") if m.strip()]
+DBA_KEYCHAIN_SERVICE = os.environ.get("AGENT_RDF_MEMORY_DBA_KEYCHAIN", "virtuoso-local-dba")
+DBA_USER = "dba"
+WEBID_ENDPOINT = os.environ.get("AGENT_RDF_MEMORY_WEBID_ENDPOINT", "").strip()
+WEBID_P12 = os.environ.get(
+    "AGENT_RDF_MEMORY_WEBID_P12",
+    "/Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/"
+    "link-in-bio-credentials-5/cert.p12",  # core.ttl :userPrincipalCredentials
+)
+WEBID_KEYCHAIN_SERVICE = os.environ.get("AGENT_RDF_MEMORY_WEBID_KEYCHAIN", "uriburner-p12")
+GRAPH_PREFIX = os.environ.get(
+    "AGENT_RDF_MEMORY_GRAPH_PREFIX", "urn:dav:/DAV/home/kidehen/agent-rdf-memory/")
+AUTH_FOR = {}          # endpoint -> "webid-tls" | "digest"
+DETAIL_FOLDERS = ("(root)", "entities")  # listed graph-by-graph in the state table
+TYPE_ROWS = int(os.environ.get("AGENT_RDF_MEMORY_TYPE_ROWS", "20"))
+CURIES = [
+    ("http://schema.org/", "schema:"),
+    ("https://www.openlinksw.com/ontology/opal/", "opal:"),
+    ("http://www.w3.org/2002/07/owl#", "owl:"),
+    ("http://www.w3.org/2000/01/rdf-schema#", "rdfs:"),
+    ("http://www.w3.org/2004/02/skos/core#", "skos:"),
+]
+
+
+def curie(iri):
+    for ns, pfx in CURIES:
+        if iri.startswith(ns):
+            return pfx + iri[len(ns):]
+    if iri.startswith(GRAPH_PREFIX):
+        return "mem:" + iri[len(GRAPH_PREFIX):]   # mem: = GRAPH_PREFIX
+    return iri
+_secrets = {}
+_auth_failed = set()   # methods that got a 401 this run (lockout guard)
 
 
 def strip_comments(text):
@@ -46,18 +91,19 @@ def strip_comments(text):
 
 
 def endpoint_candidates():
-    raw = os.environ.get("AGENT_RDF_MEMORY_SPARQL_ENDPOINTS", "")
-    endpoints = [x.strip() for x in raw.split(",") if x.strip()]
-    one = os.environ.get("AGENT_RDF_MEMORY_SPARQL_ENDPOINT", "").strip()
-    if one:
-        endpoints.insert(0, one)
-
-    # General HTTPS pattern first; localhost:8890 is explicitly local-only.
-    defaults = ["https://localhost/sparql", "http://localhost:8890/sparql"]
-    for endpoint in defaults:
-        if endpoint not in endpoints:
-            endpoints.append(endpoint)
-    return endpoints
+    """(endpoint, auth-method) pairs; every one is authenticated."""
+    pairs = []
+    extra = [x.strip() for x in os.environ.get(
+        "AGENT_RDF_MEMORY_SPARQL_ENDPOINTS", "").split(",") if x.strip()]
+    for method in AUTH_METHODS:
+        if method == "webid-tls" and WEBID_ENDPOINT:
+            pairs.append((WEBID_ENDPOINT, method))
+        elif method == "digest":
+            for ep in extra + ["https://localhost/sparql-auth",
+                               "http://localhost:8890/sparql-auth"]:
+                if (ep, method) not in pairs:
+                    pairs.append((ep, method))
+    return pairs
 
 
 def https_context_for(endpoint):
@@ -66,7 +112,80 @@ def https_context_for(endpoint):
     return None
 
 
+def is_local(endpoint):
+    host = urllib.parse.urlparse(endpoint).hostname or ""
+    return host in ("localhost", "127.0.0.1", "::1")
+
+
+def keychain_secret(service):
+    """Read a generic-password item once; None if unavailable."""
+    if service not in _secrets:
+        try:
+            out = subprocess.run(
+                ["security", "find-generic-password", "-s", service,
+                 "-a", os.environ.get("USER", ""), "-w"],
+                capture_output=True, text=True, timeout=5,
+            )
+            _secrets[service] = out.stdout.rstrip("\n") if out.returncode == 0 else ""
+        except Exception:
+            _secrets[service] = ""
+    return _secrets[service] or None
+
+
+def curl_quote(value):
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def curl_auth_config(method):
+    if method == "digest":
+        pwd = keychain_secret(DBA_KEYCHAIN_SERVICE)
+        if not pwd:
+            raise RuntimeError(f"Keychain item {DBA_KEYCHAIN_SERVICE} unavailable")
+        return "digest\n" + f"user = {curl_quote(DBA_USER + ':' + pwd)}\n"
+    if method == "webid-tls":
+        if not os.path.exists(WEBID_P12):
+            raise RuntimeError(f"PKCS#12 bundle not found: {WEBID_P12}")
+        pwd = keychain_secret(WEBID_KEYCHAIN_SERVICE)
+        if not pwd:
+            raise RuntimeError(f"Keychain item {WEBID_KEYCHAIN_SERVICE} unavailable")
+        return ('cert-type = "P12"\n' + f"cert = {curl_quote(WEBID_P12)}\n"
+                + f"pass = {curl_quote(pwd)}\n")
+    raise RuntimeError(f"unknown auth method {method}")
+
+
+def sparql_csv_auth(endpoint, method, query, timeout):
+    """One authenticated request via curl; credentials passed on stdin."""
+    if method in _auth_failed:
+        raise RuntimeError(f"skipped: {method} login already failed this run (lockout guard)")
+    config = curl_auth_config(method)
+    cmd = ["curl", "-sS", "-K", "-", "-X", "POST",
+           "--max-time", str(int(timeout) + 1),
+           "-H", "Accept: text/csv",
+           "--data-urlencode", f"query={query}",
+           "--data-urlencode", "format=text/csv",
+           "--data-urlencode", "timeout=30000",
+           "-w", "\n%{http_code}", endpoint]
+    if endpoint.startswith("https://") and is_local(endpoint):
+        cmd.insert(1, "-k")  # localhost self-signed cert
+    out = subprocess.run(cmd, input=config, capture_output=True, text=True, timeout=timeout + 3)
+    if out.returncode != 0:
+        raise RuntimeError(f"curl exit {out.returncode}: {out.stderr.strip()[:200]}")
+    body, _, code = out.stdout.rpartition("\n")
+    if code == "401":
+        _auth_failed.add(method)
+        raise RuntimeError(f"HTTP 401 with {method} credentials (not retrying)")
+    if not code.startswith("2"):
+        raise RuntimeError(f"HTTP {code}: {body[:300]}")
+    return body
+
+
 def sparql_csv(endpoint, query, timeout=SPARQL_TIMEOUT):
+    method = AUTH_FOR.get(endpoint)
+    if method:
+        body = sparql_csv_auth(endpoint, method, query, timeout)
+        if "SPARQL compiler" in body or "Virtuoso" in body[:600] and "Error" in body[:600]:
+            raise RuntimeError(body[:600].replace("\n", " "))
+        return list(csv.DictReader(io.StringIO(body)))
     data = urllib.parse.urlencode({
         "query": query,
         "format": "text/csv",
@@ -96,12 +215,13 @@ def sparql_quote(value):
 def first_working_endpoint():
     probe = "SELECT (COUNT(*) AS ?count) WHERE { GRAPH ?g { ?s ?p ?o } } LIMIT 1"
     errors = []
-    for endpoint in endpoint_candidates():
+    for endpoint, method in endpoint_candidates():
+        AUTH_FOR[endpoint] = method
         try:
             sparql_csv(endpoint, probe)
             return endpoint, errors
         except Exception as exc:
-            errors.append(f"{endpoint}: {exc}")
+            errors.append(f"{endpoint} [{method}]: {exc}")
     return None, errors
 
 
@@ -110,6 +230,9 @@ def filename_from_graph(graph):
 
 
 def entity_base_from_graph(graph):
+    # load-agent-rdf-memory.sql resolves relative IRIs against the graph IRI itself.
+    if graph.startswith(GRAPH_PREFIX):
+        return graph
     if graph.startswith("urn:dav:"):
         return "http:" + graph[len("urn:dav:"):]
     if "#" in graph:
@@ -123,7 +246,7 @@ def subject_for(graph, local_name):
 
 def session_graph_from_doc(doc_iri):
     if "sessions/" in doc_iri:
-        return "urn:dav:/DAV/home/kidehen/rdf-import-test/" + doc_iri.split("sessions/", 1)[1]
+        return GRAPH_PREFIX + "sessions/" + doc_iri.split("sessions/", 1)[1]
     if doc_iri.startswith("http:/DAV/"):
         return "urn:dav:" + doc_iri[len("http:"):]
     if doc_iri.startswith("https://localhost/DAV/"):
@@ -134,7 +257,7 @@ def session_graph_from_doc(doc_iri):
 def discover_graphs(endpoint):
     raw_filters = os.environ.get(
         "AGENT_RDF_MEMORY_GRAPH_FILTERS",
-        "urn:dav:/DAV/home/kidehen/rdf-import-test/,/DAV/home/kidehen/ai-related/",
+        GRAPH_PREFIX,
     )
     filters = [item.strip() for item in raw_filters.split(",") if item.strip()]
     filter_expr = " || ".join(
@@ -178,6 +301,90 @@ def select_rows(endpoint, query, limit=None):
     if limit is not None:
         return rows[:limit]
     return rows
+
+
+def memory_state_table(endpoint):
+    """SAMPLE()-based verification of the loaded memory graphs, one row per folder.
+
+    Every on-disk .ttl is a named graph under GRAPH_PREFIX, so the query is
+    scoped with one FROM NAMED per file; per-graph counts are taken in a
+    subquery before the folder BINDs (string functions per triple are slow).
+    """
+    files = sorted(
+        os.path.relpath(f, BASE)
+        for f in glob.glob(os.path.join(BASE, "**", "*.ttl"), recursive=True)
+        if not os.path.relpath(f, BASE).startswith("scripts" + os.sep)
+    )
+    empty = [rel for rel in files if os.path.getsize(os.path.join(BASE, rel)) == 0]
+    files = [rel for rel in files if rel not in empty]  # zero-byte docs yield no graph
+    def folder_of(rel):
+        return rel.split("/", 1)[0] if "/" in rel else "(root)"
+    on_disk = {}
+    for rel in files:
+        on_disk[folder_of(rel)] = on_disk.get(folder_of(rel), 0) + 1
+    from_named = "\n".join(f"FROM NAMED <{GRAPH_PREFIX}{rel}>" for rel in files)
+    query = f"""
+SELECT ?folder (COUNT(?g) AS ?graphs) (SUM(?n) AS ?triples) (SAMPLE(?g) AS ?sampleGraph)
+{from_named}
+WHERE {{
+  {{ SELECT ?g (COUNT(*) AS ?n) WHERE {{ GRAPH ?g {{ ?s ?p ?o }} }} GROUP BY ?g }}
+  BIND(STRAFTER(STR(?g), "{GRAPH_PREFIX}") AS ?rel)
+  BIND(IF(CONTAINS(?rel, "/"), STRBEFORE(?rel, "/"), "(root)") AS ?folder)
+}}
+GROUP BY ?folder ORDER BY ?folder
+"""
+    rows = {r.get("folder"): r for r in sparql_csv(endpoint, query)}
+    lines = [
+        "\n--- Memory graph state (SAMPLE() verification, Virtuoso) ---",
+        f"Graph prefix: {GRAPH_PREFIX}",
+        "| Folder | Files on disk | Graphs loaded | Triples | Sample graph | Status |",
+        "|---|---:|---:|---:|---|---|",
+    ]
+    tot_disk = tot_loaded = tot_triples = 0
+    for folder in sorted(set(on_disk) | set(rows)):
+        r = rows.get(folder, {})
+        disk = on_disk.get(folder, 0)
+        loaded = int(r.get("graphs") or 0)
+        triples = int(r.get("triples") or 0)
+        sample = (r.get("sampleGraph") or "").replace(GRAPH_PREFIX, "")
+        status = "OK" if loaded == disk else f"{disk - loaded:+d} not loaded"
+        lines.append(f"| {folder} | {disk} | {loaded} | {triples} | {sample} | {status} |")
+        tot_disk += disk; tot_loaded += loaded; tot_triples += triples
+    lines.append(f"| **total** | {tot_disk} | {tot_loaded} | {tot_triples} | | "
+                 f"{'OK' if tot_disk == tot_loaded else 'CHECK'} |")
+    # Per-graph detail for the small core folders, so key registries (e.g.
+    # entities/people.ttl) are visible by name rather than hidden behind SAMPLE().
+    detail = [rel for rel in files if folder_of(rel) in DETAIL_FOLDERS]
+    if detail:
+        detail_query = (
+            "SELECT ?g (COUNT(*) AS ?n)\n"
+            + "\n".join(f"FROM NAMED <{GRAPH_PREFIX}{rel}>" for rel in detail)
+            + "\nWHERE { GRAPH ?g { ?s ?p ?o } } GROUP BY ?g ORDER BY ?g"
+        )
+        counts = {r.get("g", "").replace(GRAPH_PREFIX, ""): int(r.get("n") or 0)
+                  for r in sparql_csv(endpoint, detail_query)}
+        lines += ["", "Core graphs (" + ", ".join(DETAIL_FOLDERS) + "):",
+                  "| Graph | Triples | Status |", "|---|---:|---|"]
+        for rel in detail:
+            n = counts.get(rel, 0)
+            lines.append(f"| {rel} | {n} | {'OK' if n else 'MISSING'} |")
+    # Entity-type sampling across every memory graph.
+    type_query = f"""
+SELECT ?type (COUNT(DISTINCT ?s) AS ?instances) (COUNT(DISTINCT ?g) AS ?graphs)
+       (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?g) AS ?sampleGraph)
+{from_named}
+WHERE {{ GRAPH ?g {{ ?s a ?type }} }}
+GROUP BY ?type ORDER BY DESC(?instances) LIMIT {TYPE_ROWS}
+"""
+    lines += ["", f"Entity types (top {TYPE_ROWS} by instances, SAMPLE() entity per type):",
+              "| Type | Instances | Graphs | Sample entity |", "|---|---:|---:|---|"]
+    for r in sparql_csv(endpoint, type_query):
+        lines.append(f"| {curie(r.get('type', ''))} | {r.get('instances')} | "
+                     f"{r.get('graphs')} | {curie(r.get('sampleEntity', ''))} |")
+    if empty:
+        lines.append(f"Zero-byte documents excluded (no graph by construction): {', '.join(empty)}")
+    lines.append("Folder-level check only; run scripts/full-store-graph-gate.py for per-document sync.")
+    return lines
 
 
 def build_sparql_context():
@@ -234,6 +441,22 @@ def build_sparql_context():
     ]
     if private_graph:
         sections.append(f"  private overlay graph: {private_graph}")
+
+    # preferences.ttl Step 302: the SAMPLE() state tables are ELICITED, not mandatory.
+    if os.environ.get("AGENT_RDF_MEMORY_STATE_TABLE", "").lower() in ("1", "yes", "true"):
+        try:
+            sections.extend(memory_state_table(endpoint))
+        except Exception as exc:
+            sections.append(f"\n--- Memory graph state ---\n  unavailable: {exc}")
+    else:
+        sections += [
+            "\n--- Memory graph state (ELICIT, do not run unasked) ---",
+            "Memory is driven from Virtuoso. In your FIRST response, ask the user whether to",
+            "run the SAMPLE()-based memory-graph verification (per-folder, core-graph and",
+            "entity-type tables). Only on a yes, run:",
+            f"  python3 {os.path.join(BASE, 'load_memory.py')} --state-table",
+            "and present its tables to the user. On a no, proceed without them.",
+        ]
 
     # Intent routing summary.
     try:
@@ -504,6 +727,16 @@ def append_filesystem_context(ctx):
             ctx += f"ERROR {fname}: {e}\n"
     return ctx
 
+
+if "--state-table" in sys.argv:
+    # On-demand mode (the user said yes to the elicitation): print only the tables.
+    _endpoint, _errors = first_working_endpoint()
+    if not _endpoint:
+        print("Memory graph state unavailable; no authenticated endpoint:")
+        print("\n".join(f"  {e}" for e in _errors))
+        sys.exit(3)
+    print("\n".join(memory_state_table(_endpoint)).lstrip("\n"))
+    sys.exit(0)
 
 ctx = (
     "╔══════════════════════════════════════════════════════════════════╗\n"

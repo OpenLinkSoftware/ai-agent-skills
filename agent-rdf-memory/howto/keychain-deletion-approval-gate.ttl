@@ -1,0 +1,26 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/keychain-deletion-approval-gate.ttl"@en ;
+    schema:description "Standing rule: a macOS Keychain entry (any `security delete-generic-password` / `security delete-keychain` invocation) must never be deleted by the agent without the user's explicit, per-item approval in the current turn — a prior approval to create or overwrite an item does not extend to deleting it."@en ;
+    schema:dateCreated "2026-08-31T00:00:00Z"^^xsd:date ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :keychainDeletionApprovalGate .
+
+:keychainDeletionApprovalGate a schema:Thing ;
+    schema:name "Keychain Deletion Approval Gate"@en ;
+    schema:description "Blocking rule requiring explicit user approval before any Keychain item deletion."@en .
+
+:step-neverDeleteWithoutApproval a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Never run `security delete-generic-password` (or delete-keychain) without the user's explicit approval for that specific item, in that turn"@en ;
+    schema:text """Stated directly by the user 2026-08-31, immediately after the uriburner-p12 / uriburner-agent-p12 work (see core.ttl :p12PassphraseKeychainItem, :agentP12PassphraseKeychainItem). Creating or overwriting an item (-U) with the user's go-ahead is a SEPARATE authorization from deleting one — do not infer delete permission from a create/overwrite approval, from a prior session's deletion of a different item, or from the fact that a value turned out to be wrong/stale (offer to overwrite it instead, which -U handles safely without an explicit delete). If a Keychain entry genuinely needs removing, ask first and name the exact service/account being deleted; wait for a clear yes before running the command. This is stricter than the general \"destructive operation\" guidance in that no phrasing of the task (e.g. \"clean up unused credentials\") implies standing approval — each delete needs its own ask.
+
+Related but distinct: :step-neverProbeProductionCredentialNames (howto/p12-passphrase-retrieval.ttl Step 8) already forbids using a production item name as a throwaway test/probe fixture that gets created-then-deleted. This rule is broader — it covers ANY deletion of ANY real item, not just the probe-fixture case."""@en ;
+    rdfs:seeAlso <p12-passphrase-retrieval.ttl#step-neverProbeProductionCredentialNames>,
+        <../core.ttl#p12PassphraseKeychainItem>,
+        <../core.ttl#agentP12PassphraseKeychainItem>,
+        <../preferences.ttl#step-keychainDeletionApproval> .

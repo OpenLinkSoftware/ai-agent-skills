@@ -1,0 +1,55 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "Session-Start Memory Graph State Table (SAMPLE() Verification)"@en ;
+    schema:description "When memory is driven from a Virtuoso instance, a SAMPLE()-based verification query feeds a tabular presentation of the memory graph's state at the start of the session, and that table is part of the standard presentation shown to the user. Requested 2026-09-18 after the memory graphs were found emptied mid-session by a broken loader run; a visible per-folder table would have surfaced that at once."@en ;
+    schema:dateCreated "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-query, :step-table, :step-present, :step-typeSampling ;
+    rdfs:seeAlso <../preferences.ttl#step-memoryGraphStateTable>,
+        <agent-rdf-memory-loader-run.ttl>,
+        <virtuoso-local-dba-passphrase-retrieval.ttl#step-memoryGraphsViaDba> .
+
+:step-query a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Scope with one FROM NAMED per on-disk .ttl; count per graph in a subquery; aggregate per folder with SAMPLE()"@en ;
+    schema:text """Every document is its own named graph (urn:dav:/DAV/home/kidehen/agent-rdf-memory/<relative path>), so list them as FROM NAMED clauses (Kingsley's suggestion) rather than scanning GRAPH ?g across the store. Shape:
+
+SELECT ?folder (COUNT(?g) AS ?graphs) (SUM(?n) AS ?triples) (SAMPLE(?g) AS ?sampleGraph)
+FROM NAMED <urn:dav:/DAV/home/kidehen/agent-rdf-memory/core.ttl>
+FROM NAMED <...one per file...>
+WHERE {
+  { SELECT ?g (COUNT(*) AS ?n) WHERE { GRAPH ?g { ?s ?p ?o } } GROUP BY ?g }
+  BIND(STRAFTER(STR(?g), "urn:dav:/DAV/home/kidehen/agent-rdf-memory/") AS ?rel)
+  BIND(IF(CONTAINS(?rel, "/"), STRBEFORE(?rel, "/"), "(root)") AS ?folder)
+}
+GROUP BY ?folder ORDER BY ?folder
+
+MEASURED 2026-09-18 over 488 graphs: 0.18 s. Two slower shapes both exceeded the hook's 15 s budget: an unscoped GRAPH ?g scan with a STRSTARTS filter, and a VALUES list with the folder BINDs applied per TRIPLE instead of per graph. Authenticate per Step 301 (dba), never anonymously. Exclude zero-byte documents from the on-disk count, because they yield no graph by construction."""@en .
+
+:step-table a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Columns: Folder | Files on disk | Graphs loaded | Triples | Sample graph | Status, plus a total row"@en ;
+    schema:text "Status is OK when graphs loaded equals files on disk, otherwise '<n> not loaded'. Note zero-byte documents beneath the table, and that the table is folder-level only: per-document sync is scripts/full-store-graph-gate.py. Below the folder table, list the (root) and entities graphs ONE ROW EACH (Graph | Triples | Status, from a second FROM NAMED query over just those graphs). SAMPLE() names only one arbitrary graph per folder, so key registries such as entities/people.ttl were counted but invisible; Kingsley asked 2026-09-18 why people.ttl was missing from the report. Implemented in load_memory.py memory_state_table() (DETAIL_FOLDERS), injected by the SessionStart hook."@en .
+
+:step-present a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "ELICIT at session start whether to run the verification; never run it unasked. On a yes, tabulate the result as part of the standard presentation"@en ;
+    schema:text """Kingsley, 2026-09-18: 'Tabulate the result as part of the standard presentation', then 'execution of this query at session startup should be elicited rather than mandatory.' A SessionStart hook cannot prompt, so the hook splits the work. By default it injects only an ELICIT note. In the FIRST response of a session whose memory came from Virtuoso, ask whether to run the SAMPLE()-based memory-graph verification. On a yes, run 'python3 agent-rdf-memory/load_memory.py --state-table' (prints only the per-folder, core-graph and entity-type tables; about 0.8 s) and present them, calling out any row that is not OK. On a no, proceed without them. The answer applies to this session only, never as a standing default. Setting AGENT_RDF_MEMORY_STATE_TABLE=1 is an explicit user opt-in that restores automatic execution in the hook. If the hook fell back to filesystem reads, say so instead of offering the tables."""@en .
+
+:step-typeSampling a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Also sample by entity type: one row per rdf:type across all memory graphs, with a SAMPLE() entity"@en ;
+    schema:text """Kingsley, 2026-09-18: 'there should be another sampling by entity type too.' Same FROM NAMED scoping as Step 1:
+
+SELECT ?type (COUNT(DISTINCT ?s) AS ?instances) (COUNT(DISTINCT ?g) AS ?graphs)
+       (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?g) AS ?sampleGraph)
+FROM NAMED <...one per document graph...>
+WHERE { GRAPH ?g { ?s a ?type } }
+GROUP BY ?type ORDER BY DESC(?instances) LIMIT 20
+
+Present as | Type | Instances | Graphs | Sample entity |, with CURIEs (schema:, opal:, owl:, rdfs:, skos:, and mem: for the graph prefix). Row count via AGENT_RDF_MEMORY_TYPE_ROWS (default 20). The whole hook, all three tables included, measured about 2.2 s on 2026-09-18. The type view also exposes data-quality problems. First run: 27 instances were typed mem:sessions/ontology.ttl#Prompt instead of mem:ontology.ttl#Prompt, because some session files bind a relative onto: prefix that resolves against sessions/."""@en .

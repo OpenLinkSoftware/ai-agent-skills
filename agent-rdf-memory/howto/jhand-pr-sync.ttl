@@ -1,0 +1,32 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/jhand-pr-sync.ttl"@en ;
+    schema:description "How to bring Jacqueline Hand's merged ai-agent-skills PRs into an active local branch without being asked each time, and without dragging in unrelated in-flight work from main."@en ;
+    schema:dateCreated "2026-09-08T13:15:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Sync a merged JacquiHand PR into the current working branch"@en ;
+    schema:description "Cherry-pick the specific merge commit rather than merging origin/main wholesale."@en ;
+    schema:step :step-checkForMergedPr, :step-cherryPickNotMerge, :step-realConflictStillAsks .
+
+:step-checkForMergedPr a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Check github.com/OpenLinkSoftware/ai-agent-skills for PRs by JacquiHand merged to main since the working branch diverged, without being asked"@en ;
+    schema:text "`gh pr list --repo OpenLinkSoftware/ai-agent-skills --author JacquiHand --state merged` (needs dangerouslyDisableSandbox=true -- the sandbox network proxy breaks TLS to api.github.com); compare each merge commit against the current branch with `git merge-base --is-ancestor <sha> HEAD`."@en .
+
+:step-cherryPickNotMerge a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Cherry-pick the merge commit (-m 1), never `git merge origin/main` wholesale, to bring in her PR"@en ;
+    schema:text """`git cherry-pick -m 1 <merge-sha>`. Caught 2026-09-08: a full `git merge origin/main` to pick up PR #117 (resource-access-offers-generator only) instead pulled in an unrelated, real conflict in ucp-client/* -- this branch has its own committed, divergent ucp-client work (auth-protocol prompting) that collides with newer, unrelated ucp-client work also landed on main (product-feed support). Neither side is stale; resolving that collision needs Kingsley's judgment, not an automatic pick, and it has nothing to do with the PR being synced. `gh pr view <n> --json files` first to confirm the PR's own file list doesn't overlap anything locally modified -- it essentially never will, since her PRs are scoped to one skill directory."""@en .
+
+:step-realConflictStillAsks a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "If the cherry-pick itself conflicts, stop and ask -- do not guess a resolution"@en ;
+    schema:text "The cherry-pick-not-merge approach (Step 2) avoids the unrelated-conflict case, but a genuine overlap between her PR's files and local uncommitted work is still possible. Treat that the same as any other real merge conflict: report what's on each side and let Kingsley choose, never auto-resolve."@en .
