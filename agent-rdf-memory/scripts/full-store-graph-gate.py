@@ -55,12 +55,17 @@ Usage:
 Exit status: 0 = no deltas (artifacts and empty documents do not fail the run),
              1 = deltas or orphans found, 2 = no documents, 3 = endpoint unreachable.
 """
-import argparse, json, os, re, sys, urllib.parse, urllib.request
+import argparse, json, os, re, subprocess, sys, threading, urllib.parse, urllib.request
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
 STORE    = "/Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory"
-SPARQL   = "http://localhost:8890/sparql"
+# preferences.ttl Step 301: memory graphs are never queried anonymously — dba Digest,
+# password from Keychain item virtuoso-local-dba, handed to curl on stdin.
+SPARQL   = "https://localhost/sparql-auth"
+DBA_KEYCHAIN = "virtuoso-local-dba"
+_pw_lock = threading.Lock()
+_pw = {}
 G_BASE   = "urn:dav:/DAV/home/kidehen/agent-rdf-memory/"
 DM_RE    = re.compile(r'schema:dateModified\s+"([^"]+)"')
 REL_RE   = re.compile(r'<(?:\.\./|#)')
@@ -69,7 +74,37 @@ SKIP_DIRS = {"scripts", "__pycache__", ".git", ".claude", ".hooks"}
 OK_VERDICTS = ("IN_SYNC", "EMPTY_DOC", "REL_IRI_ARTIFACT")
 
 
+def dba_password():
+    with _pw_lock:
+        if "v" not in _pw:
+            out = subprocess.run(["security", "find-generic-password", "-s", DBA_KEYCHAIN,
+                                  "-a", os.environ.get("USER", ""), "-w"],
+                                 capture_output=True, text=True, timeout=5)
+            _pw["v"] = out.stdout.rstrip("\n") if out.returncode == 0 else ""
+            _pw["failed"] = False
+        if _pw["failed"]:
+            raise RuntimeError("dba login already failed this run (lockout guard)")
+        if not _pw["v"]:
+            raise RuntimeError(f"Keychain item {DBA_KEYCHAIN} unavailable")
+        return _pw["v"]
+
+
 def sparql(endpoint, query, timeout=60):
+    if endpoint.rstrip("/").endswith("/sparql-auth"):
+        pwd = dba_password().replace("\\", "\\\\").replace('"', '\\"')
+        cmd = ["curl", "-sS", "-K", "-", "-X", "POST", "--max-time", str(timeout),
+               "-H", "Accept: application/sparql-results+json",
+               "--data-urlencode", f"query={query}", "-w", "\n%{http_code}", endpoint]
+        if endpoint.startswith("https://localhost"):
+            cmd.insert(1, "-k")
+        out = subprocess.run(cmd, input=f'digest\nuser = "dba:{pwd}"\n',
+                             capture_output=True, text=True, timeout=timeout + 5)
+        body, _, code = out.stdout.rpartition("\n")
+        if code == "401":
+            _pw["failed"] = True
+        if out.returncode != 0 or not code.startswith("2"):
+            raise RuntimeError(f"HTTP {code or out.returncode}: {(body or out.stderr)[:200]}")
+        return json.loads(body)
     req = urllib.request.Request(
         endpoint, data=urllib.parse.urlencode({"query": query}).encode(),
         headers={"Accept": "application/sparql-results+json"})
@@ -102,7 +137,7 @@ def collect_files(store):
     for root, dirs, fs in os.walk(store):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for f in sorted(fs):
-            if f.endswith(".ttl"):
+            if f.endswith(".ttl") and not f.endswith(".example.ttl"):  # templates are not loaded
                 out.append(os.path.join(root, f))
     return sorted(out)
 

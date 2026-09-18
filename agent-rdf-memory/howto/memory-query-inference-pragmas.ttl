@@ -1,0 +1,77 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:about :queryScopedReasoning ;
+    schema:name "Query-Scoped Reasoning over the Memory Graphs (Virtuoso Pragmas, FuXi Above SPARQL)"@en ;
+    schema:description "The memory harness's TBox/RBox (ontology.ttl, entities/ontology-terms.ttl) are not materialized into the store and no reasoner runs on plain reads. Reasoning is scoped to the SPARQL query layer: Virtuoso pragmas are applied to a query only when that query needs entailment, reusing data-twingler's T3 pattern; entailments no registered rule set covers are evaluated above SPARQL with the fuxi-engineer skill. The local instance's existing rule sets are used as-is — none are added or modified for the memory graphs."@en ;
+    schema:dateCreated "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-queryScoped, :step-reuseT3, :step-probeRuleset, :step-existingOnly,
+        :step-abTwin, :step-fuxiFallback, :step-loaderMode ;
+    schema:workExample :workExample-abUser ;
+    rdfs:seeAlso <../preferences.ttl#step-memoryQueryInferencePragmas>,
+        <../preferences.ttl#step-pragmaAbToggleVariant>,
+        <pragma-ab-toggle-variant.ttl>,
+        <sparql-sample-query-self-containment-gate.ttl>,
+        <virtuoso-local-dba-passphrase-retrieval.ttl#step-memoryGraphsViaDba>,
+        <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/data-twingler#this>,
+        <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/fuxi-engineer#this> .
+
+:queryScopedReasoning a schema:DefinedTerm ;
+    schema:name "Query-scoped reasoning"@en ;
+    schema:description "Inference applied per query (a pragma on that query, or a FuXi run over its inputs) rather than by materializing entailed triples into the store or enabling a store-wide reasoner."@en .
+
+:step-queryScoped a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Plain memory reads stay pragma-free; add a pragma only when the query needs entailment"@en ;
+    schema:text "Kingsley, 2026-09-18: reasoning and inference are scoped to the SPARQL query layer, where Virtuoso pragmas are applied to queries when needed, or FuXi skills achieve the same above the SPARQL layer. The ontology's axioms (subClassOf, equivalentClass/Property, domain/range, property characteristics) are therefore latent by design, not dead: do not describe them as 'labels only', and do not materialize entailments into the memory graphs."@en .
+
+:step-reuseT3 a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Reuse data-twingler template T3's pragma pattern with the rule set as a parameter; do not restate the logic in the harness"@en ;
+    schema:text "data-twingler/references/query-templates.md T3 prefixes the query with DEFINE input:inference \"urn:rdfs:subclass:subproperty:inference:rules\". The harness takes the same shape with the rule set name parameterized, because that specific rule set exists on URIBurner but not on the local memory endpoint (verified 2026-09-18: URIBurner ASK returned true; the local DB.DBA.SYS_RDF_SCHEMA lists 19 rule sets, none of them this one). DEFINE lines precede PREFIX lines; a leading SPASQL 'SPARQL' keyword is dropped for the HTTP endpoint."@en .
+
+:step-probeRuleset a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Probe the named rule set on the TARGET endpoint before using it: SP031 means it is not registered there"@en ;
+    schema:text "Run DEFINE input:inference \"<ruleset>\" ASK { ?s ?p ?o } against the endpoint the query will hit. Virtuoso answers an unregistered name with 'SP031: SPARQL compiler: define input:inference refers to undefined inference rule set'. A rule set present on one endpoint (URIBurner) proves nothing about another (localhost)."@en .
+
+:step-existingOnly a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Use only rule sets already registered on the local instance; never register, extend or re-run rdfs_rule_set() for the memory graphs"@en ;
+    schema:text "Kingsley, 2026-09-18, declining an extended virtrdf-ifp script (which would have added schema:name, schema:url, schema:sameAs as IFPs): 'We stick with what's already there.' Usable today: DEFINE input:same-as \"yes\" (no rule set; covers the owl:sameAs links in the memory graphs), and existing rule sets such as virtrdf-ifp, skos-trans and http://www.w3.org/2002/07/owl#. Measured: the existing virtrdf-ifp set (foaf:name, foaf:mbox_sha1sum IFP-typed; rdfs:label, dc/dcterms title, skos:prefLabel ifp_like) changes nothing on the memory graphs, which use schema:name."@en .
+
+:step-abTwin a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Every pragma query is shown with its commented-out twin (preferences.ttl Step 199)"@en ;
+    schema:text "The A/B twin is byte-identical except each DEFINE line is prefixed with '# ', so the entailment's contribution is visible and a reader can toggle it with a one-character edit."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-pragmaAbToggleVariant> .
+
+:step-fuxiFallback a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "When no registered rule set covers the axiom, evaluate it above SPARQL with the fuxi-engineer skill"@en ;
+    schema:text "Currently this covers the memory ontology's own TBox/RBox: rdfs:subClassOf over the PromptIntent hierarchy, MemoryWriteTrigger subClassOf prov:Activity/event:Event, schema:author subPropertyOf opal:user, the 30 owl:equivalentClass + 12 owl:equivalentProperty alignments in entities/ontology-terms.ttl, and domain/range and property characteristics (Functional/Asymmetric/Irreflexive), which Virtuoso rule sets do not use for inference."@en .
+
+:step-loaderMode a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Run it with load_memory.py --query <file|text> [--inference <ruleset>] [--same-as] [--ab]"@en ;
+    schema:text "Authenticates per Step 301 (WebID-TLS or dba Digest, never anonymous), probes --inference first (exit 4 with a FuXi pointer on SP031), prepends the pragmas, and with --ab also runs the commented-out twin. A missing .rq/.sparql path exits 2 rather than being sent as query text."@en ;
+    rdfs:seeAlso <../load_memory.py> .
+
+:workExample-abUser a schema:CreativeWork ;
+    schema:name "A/B: description of core.ttl#user, with and without input:same-as (measured 2026-09-18)"@en ;
+    schema:text """python3 load_memory.py --query q1.rq --same-as --ab
+
+SELECT (COUNT(DISTINCT ?p) AS ?predicates) (COUNT(*) AS ?triples)
+FROM <urn:dav:/DAV/home/kidehen/agent-rdf-memory/core.ttl>
+FROM <urn:dav:/DAV/home/kidehen/agent-rdf-memory/entities/people.ttl>
+FROM <urn:dav:/DAV/home/kidehen/agent-rdf-memory/entities/kingsley-uyi-idehen.ttl>
+WHERE { <urn:dav:/DAV/home/kidehen/agent-rdf-memory/core.ttl#user> ?p ?o }
+
+with DEFINE input:same-as "yes": 12 predicates / 34 triples
+pragma commented out:            6 predicates / 8 triples
+DEFINE input:inference "virtrdf-ifp" alone: 6 / 8 (no effect)"""@en .

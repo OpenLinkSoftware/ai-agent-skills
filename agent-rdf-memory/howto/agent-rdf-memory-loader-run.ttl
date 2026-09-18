@@ -13,7 +13,7 @@
 :howto a schema:HowTo ;
     schema:name "Regenerate, load, and verify the agent-rdf-memory quad store"@en ;
     schema:description "Four-stage procedure plus interpretation rules for syncing the whole memory store (474 documents, one named graph each under urn:dav:/DAV/home/kidehen/agent-rdf-memory/<relpath>) into a local Virtuoso instance."@en ;
-    schema:step :step-when, :step-regenerate, :step-credential, :step-isqlPositional, :step-verify, :step-interpret, :step-orphans ;
+    schema:step :step-when, :step-regenerate, :step-credential, :step-isqlPositional, :step-verify, :step-interpret, :step-orphans, :step-absoluteStorePath ;
     rdfs:seeAlso <virtuoso-local-dba-passphrase-retrieval.ttl>,
         <../scripts/refresh-loader.sh>,
         <../scripts/full-store-graph-gate.py>,
@@ -109,3 +109,8 @@ Resolve: a one-off SQL file starting with 'SPARQL CLEAR GRAPH <urn:dav:...>;' pa
 Ask first, per item, in the current turn — the graph-clear equivalent of keychain-deletion-approval-gate.ttl. Never infer standing permission from an earlier approval to load or overwrite.
 
 2026-09-16 example: urn:dav:/DAV/home/kidehen/agent-rdf-memory/howto/p12-passphrase-uyi-file.ttl (33 triples), the /tmp/uyi-era p12 howto superseded by p12-passphrase-retrieval.ttl; cleared after the user approved that specific item."""@en .
+
+:step-absoluteStorePath a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "The loader must carry ABSOLUTE file paths — a relative --store produces a script that CLEARs every graph and loads nothing"@en ;
+    schema:text """Incident 2026-09-18 (Claude Opus 5 session): the loader was regenerated with --store agent-rdf-memory (relative), so every file_to_string_output() call named 'agent-rdf-memory/...'. Virtuoso resolves those against its OWN working directory (the server's database folder), so each document's SPARQL CLEAR GRAPH succeeded and its load failed with FA112 'Can't stat file'. Once that script was run, every agent-rdf-memory graph was empty; the only survivor was entities/people.example.ttl, which the new loader no longer listed. Signature: 489 FA112 errors, graphs present in the loader but 0 triples. Fixed at the source: generate-loader-sql.py now applies os.path.abspath() to --store. Before running any loader, grep it: every file_to_string_output(' must start with '/'. Reload with the regenerated script restored 487/489 IN_SYNC (+1 known relative-IRI artifact, +1 zero-byte doc)."""@en .

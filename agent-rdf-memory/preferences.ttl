@@ -3668,10 +3668,10 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
         <../scripts/full-store-graph-gate.py>,
         <../scripts/generate-loader-sql.py> .
 
-# ── Step 300: live people.ttl is local-only; public repo ships people.ttl.sample ──
+# ── Step 300: live people.ttl is local-only; public repo ships people.example.ttl ──
 :step-peopleRegistryLocalOnly a schema:HowToStep ;
     schema:position "300"^^xsd:integer ;
-    schema:name "entities/people.ttl is private and local-only: never commit or push it; the public repo carries only entities/people.ttl.sample (usage header, .sample extension keeps it out of the loader glob)"@en ;
+    schema:name "entities/people.ttl is private and local-only: never commit or push it; the public repo carries only entities/people.example.ttl (usage header; the loader skips *.example.ttl)"@en ;
     schema:text "Kingsley, 2026-09-18, while committing agent-rdf-memory changes: 'I think its safer to have people.ttl.sample in the public repo, with a note about how to use it. The people.ttl remains local going forward.' Implemented as db0ad46 (git rm --cached + .gitignore) and bc81b54 (people.example.ttl renamed to people.ttl.sample with a cp-to-use header; README, .gitignore comment and loader SQL updated). Versions of people.ttl committed before this remain in remote history; purging them would need a history rewrite plus force-push, which was not done. Pre-commit check, sample-refresh approval rule and fresh-clone bootstrap are in the companion howto."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
     rdfs:seeAlso <howto/people-registry-local-only.ttl>,
@@ -3680,8 +3680,36 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
 # ── Step 301: memory graphs are read and written via the dba account (Keychain) ──
 :step-memoryGraphsViaDba a schema:HowToStep ;
     schema:position "301"^^xsd:integer ;
-    schema:name "Interact with the local Virtuoso memory graphs — read or write — only via the dba account, password resolved from Keychain item virtuoso-local-dba; never query them anonymously"@en ;
-    schema:text "Kingsley, 2026-09-18: 'Re memory graphs, interact with them via dba account (read or write).' Supersedes the suggestion (same session) to grant anonymous SPARQL read on the memory graphs so the SessionStart hook could bootstrap without credentials. Keychain retrieval snippet, single-login guard and redaction rules are in the companion howto (Step 5)."@en ;
+    schema:name "Interact with the local Virtuoso memory graphs — read or write — only as an authenticated identity: WebID-TLS (principal cert.p12, passphrase from Keychain uriburner-p12) or dba Digest (Keychain virtuoso-local-dba); never anonymously"@en ;
+    schema:text "Kingsley, 2026-09-18: 'Re memory graphs, interact with them via dba account (read or write).' Supersedes the suggestion (same session) to grant anonymous SPARQL read on the memory graphs so the SessionStart hook could bootstrap without credentials. Same day: 'authentication shouldn\'t be strictly digest, it can also be WebID-TLS.' load_memory.py now tries webid-tls then digest (AGENT_RDF_MEMORY_AUTH). Keychain retrieval, single-login guard, redaction rules and the localhost WebID-TLS findings are in the companion howto (Steps 5-6)."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
     rdfs:seeAlso <howto/virtuoso-local-dba-passphrase-retrieval.ttl#step-memoryGraphsViaDba>,
         <howto/agent-rdf-memory-loader-run.ttl> .
+
+# ── Step 302: session-start memory graph state table (SAMPLE() verification) ──
+:step-memoryGraphStateTable a schema:HowToStep ;
+    schema:position "302"^^xsd:integer ;
+    schema:name "When memory is driven from Virtuoso, a SAMPLE()-based verification query (one FROM NAMED per document graph) feeds per-folder, core-graph and entity-type memory-state tables; running it at session start is ELICITED (ask the user first), never mandatory, and on a yes the tables are part of the standard presentation"@en ;
+    schema:text "Kingsley, 2026-09-18: 'A SAMPLE() based verification query should feed a tabular presentation of the state of the memory graph as the start of session when memory is driven from a virtuoso instance.' / 'Since each folder ttl is a named graph, why not used them in the from clause?' / 'Tabulate the result as part of the standard presentation.' / 'execution of this query at session startup should be elicited rather than mandatory.' The query shape, columns and presentation rule are in the companion howto."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSessionStart ;
+    rdfs:seeAlso <howto/memory-graph-state-table.ttl>,
+        <howto/agent-rdf-memory-loader-run.ttl#step-absoluteStorePath> .
+
+# ── Step 303: reasoning over the memory graphs is query-scoped — data-twingler T3 pragmas on existing rule sets, FuXi above SPARQL ──
+:step-memoryQueryInferencePragmas a schema:HowToStep ;
+    schema:position "303"^^xsd:integer ;
+    schema:name "Reasoning over the memory graphs is query-scoped: plain reads stay pragma-free; a query needing entailment reuses data-twingler T3's pragma pattern with the rule set as a parameter, probed on the target endpoint first (SP031 = not registered), shown with its commented-out A/B twin, and restricted to rule sets already registered locally — anything else goes to FuXi above SPARQL"@en ;
+    schema:text "Kingsley, 2026-09-18: apply Virtuoso pragmas per query using data-twingler's logic and the rule sets already on the local instance, or FuXi above the SPARQL layer, implemented as load_memory.py --query [--inference <ruleset>] [--same-as] [--ab]."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/memory-query-inference-pragmas.ttl>,
+        <howto/pragma-ab-toggle-variant.ttl>,
+        <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/data-twingler#this> .
+
+# ── Step 304: template/sample files are named *.example.ttl and are never loaded ──
+:step-exampleTtlNaming a schema:HowToStep ;
+    schema:position "304"^^xsd:integer ;
+    schema:name "Name template and sample files {name}.example.ttl (never {name}.ttl.sample); the loader, state table and full-store gate skip *.example.ttl, so templates never enter the memory graphs"@en ;
+    schema:text "Kingsley, 2026-09-18: 'the .ttl extension variant is the preferred one', with example files treated as templates that are not loaded."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/people-registry-local-only.ttl#step-exampleTtlNaming>,
+        <howto/people-registry-local-only.ttl> .

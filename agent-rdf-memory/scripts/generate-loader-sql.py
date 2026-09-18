@@ -26,7 +26,8 @@ DECL  = re.compile(r'@prefix\s+(\w*):\s*<([^>]+)>\s*\.')
 
 def collect_files(store):
     files = sorted(glob.glob(store + "/**/*.ttl", recursive=True))
-    return [f for f in files if "/scripts/" not in f]
+    # *.example.ttl are templates (people.example.ttl, preferences.private.example.ttl), not memory
+    return [f for f in files if "/scripts/" not in f and not f.endswith(".example.ttl")]
 
 def build_preamble(files):
     by = {}
@@ -91,6 +92,10 @@ def main():
     ap.add_argument("--store", default=STORE)
     ap.add_argument("--out", default=OUT)
     a = ap.parse_args()
+    # Virtuoso resolves file_to_string_output() paths against ITS OWN cwd, so a
+    # relative --store yields a loader that CLEARs every graph and loads nothing
+    # (happened 2026-09-18). Always emit absolute paths.
+    a.store = os.path.abspath(a.store)
     files = collect_files(a.store)
     preamble = build_preamble(files)
     if not verify(files, preamble):
