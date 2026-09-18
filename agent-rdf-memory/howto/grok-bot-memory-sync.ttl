@@ -1,0 +1,62 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto:   <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/grok-bot-memory-sync.ttl"@en ;
+    schema:description "Standing rule confirmed 2026-08-30: Grok Bot platform memory and the local agent-rdf-memory tree must stay in sync. Same memory-write trigger, immediate dual-write. Grok Bot memory is not a substitute and must not be a deferred second copy. Local Turtle remains source of truth."@en ;
+    schema:dateCreated "2026-08-30T13:55:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-30T13:55:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Keep Grok Bot platform memory in sync with local agent-rdf-memory"@en ;
+    schema:description "Extends the existing write-on-trigger memory protocol: every onto:MemoryWriteTrigger that writes local Turtle must also write Grok Bot platform memory in the same turn. Local agent-rdf-memory Turtle is the source of truth; platform memory is a simultaneous copy, never a replacement and never a later catch-up. Does not authorize writes to MEMORY.md."@en ;
+    schema:step :step-sameTriggerDualWrite,
+                :step-notASubstitute,
+                :step-localTurtleSourceOfTruth,
+                :step-extendsMemoryProtocol,
+                :step-doesNotAuthorizeMemoryMd ;
+    rdfs:seeAlso <../preferences.ttl#step-grokBotMemorySync>,
+        <../preferences.ttl#step-memoryProtocol>,
+        <session-governance.ttl>,
+        <session-governance.ttl#step-memoryProtocol>,
+        <session-governance.ttl#step-memoryWriteRule>,
+        <../preferences.ttl#step-soleMemoryIndex>,
+        <no-memory-md-write.ttl> .
+
+:step-sameTriggerDualWrite a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Same trigger, immediate dual-write to Grok Bot platform memory and local agent-rdf-memory"@en ;
+    schema:text "When any onto:MemoryWriteTrigger fires, write the local agent-rdf-memory Turtle (preferences.ttl, howto/*.ttl, sessions/*.ttl, index.ttl as applicable) and write Grok Bot platform memory in the same turn. Do not finish the local write and defer the platform write to a later session, a later agent, or a later day."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation, onto:triggerNamedWorkflow, onto:triggerBehaviorGapIdentified, onto:triggerTopicChange, onto:triggerSessionEnd .
+
+:step-notASubstitute a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Grok Bot platform memory is not a substitute and must not be a deferred second copy"@en ;
+    schema:text "Recording a fact only in Grok Bot platform memory does not satisfy the memory protocol. Recording it only in local Turtle and planning to copy it into platform memory later also fails. Both stores are written now, on the same trigger."@en .
+
+:step-localTurtleSourceOfTruth a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Local agent-rdf-memory Turtle remains the source of truth"@en ;
+    schema:text "If the two stores ever disagree, the local agent-rdf-memory tree is authoritative. Reconcile platform memory to match the Turtle; do not overwrite local Turtle from a platform-memory paraphrase."@en .
+
+:step-extendsMemoryProtocol a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "This extends :step-memoryProtocol; it does not replace reading the local tree first"@en ;
+    schema:text "Continue to read agent-rdf-memory/ before tasks that need context, and continue to write the session TTL immediately when a trigger fires, per :step-memoryProtocol and howto/session-governance.ttl. Dual-write adds the Grok Bot platform-memory copy to that same trigger; it does not skip the local read or the local write."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-memoryProtocol>,
+        <session-governance.ttl>,
+        <session-governance.ttl#step-memoryProtocol>,
+        <session-governance.ttl#step-memoryWriteRule> .
+
+:step-doesNotAuthorizeMemoryMd a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Dual-write does not authorize MEMORY.md writes; index.ttl remains the sole discovery index"@en ;
+    schema:text "Grok Bot platform memory is the other half of this dual-write, not MEMORY.md. Never write .claude MEMORY.md under normal operation. agent-rdf-memory/index.ttl remains the sole session-memory discovery mechanism, per :step-soleMemoryIndex and howto/no-memory-md-write.ttl."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-soleMemoryIndex>,
+        <../preferences.ttl#step-noMemoryMdWrite>,
+        <no-memory-md-write.ttl> .

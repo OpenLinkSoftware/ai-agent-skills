@@ -9,9 +9,10 @@
     schema:name "Entity Registry: Organizations"@en ;
     schema:description "Canonical schema:Organization entity IRIs for companies and institutions recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving an organization entity, and MUST register newly resolved organization IRIs here rather than only in session files."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-03T16:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:about :openlinkSoftware ;
+    schema:about :openlinkSoftware,
+        :afterQuery, :sapSE, :yCombinator, :forbes, :spaceX, :spaceXAI, :oIGlass, :huggingFace ;
     rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl> .
 
@@ -29,3 +30,235 @@
     owl:sameAs <http://dbpedia.org/resource/OpenLink_Software> ;
     rdfs:comment "Canonical entity IRI. DBpedia resource is the canonical form (verified via HTTP 200 dereference, 2026-07-08). First referenced in agent-rdf-memory/core.ttl as schema:author and schema:worksFor for Kingsley Uyi Idehen and agent identity. Also referenced in session files as prov:wasAttributedTo target."@en ;
     schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+# ── AfterQuery ─────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/company/afterquery#this
+# Priority ladder: DBpedia (none — resource/page 404) → Wikidata (search empty 2026-09-01) → LinkedIn company #this
+# linkedin.com/company/afterquery HEAD 200 (2026-09-01)
+# Homepage https://afterquery.com HEAD 200 → https://www.afterquery.com/
+
+:afterQuery a schema:Organization ;
+    schema:name "AfterQuery"@en ;
+    schema:description "Y Combinator Winter 2025 company that sells expert-curated training data and reinforcement-learning environments to frontier labs; San Francisco applied research lab; Evaluate/Curate/Post-train/Deploy loop; ~100k verified professionals. Reported $3.2B valuation September 2026."@en ;
+    schema:url "https://afterquery.com" ;
+    schema:email "research@afterquery.com" ;
+    owl:sameAs <https://linkedin.com/company/afterquery#this>,
+               <https://www.linkedin.com/company/afterquery#this>,
+               <https://www.afterquery.com/#this>,
+               <https://afterquery.com#this> ;
+    rdfs:comment "Canonical entity IRI is LinkedIn company #this (linkedin.com/company/afterquery HEAD 200, 2026-09-01). No DBpedia resource (http://dbpedia.org/resource/AfterQuery and page 404). Wikidata wbsearchentities AfterQuery returned zero hits. www.linkedin.com/company/afterquery 429 this pass — www alias still included. Homepage https://afterquery.com HEAD 200 redirects to https://www.afterquery.com/; both homepage#this forms aliased. YC company page https://www.ycombinator.com/companies/afterquery HEAD 200 is a document URL (not used as owl:sameAs). Buyer path research@afterquery.com is an org contact, not a person email. First registered 2026-09-01 from the AfterQuery Grok share and Forbes $3.2B story."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── SAP SE ─────────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/SAP
+# http://dbpedia.org/resource/SAP_SE GET 200 redirects to page/SAP (same as resource/SAP)
+# Wikidata Q552581 label SAP / enwiki SAP / P856 https://www.sap.com/
+
+:sapSE a schema:Organization ;
+    schema:name "SAP SE"@en ;
+    schema:alternateName "SAP"@en ;
+    schema:description "German enterprise-software producer (SAP SE); Business AI Platform, HANA, Datasphere, PartnerEdge."@en ;
+    schema:url "https://www.sap.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/SAP>,
+               <http://dbpedia.org/resource/SAP_SE>,
+               <http://www.wikidata.org/entity/Q552581> ;
+    rdfs:comment "Canonical entity IRI is DBpedia SAP (GET 200, final page https://dbpedia.org/page/SAP, 2026-09-01). DBpedia SAP_SE also GET 200 and redirects to the same page/SAP — aliased, not used as canonical. Wikidata Q552581 label SAP, description German software producer, enwiki sitelink SAP, P856 https://www.sap.com/ (JSON EntityData 200). Homepage https://www.sap.com/ returned HTTP 403 from both the box and the Mac this pass (Akamai Access Denied); URL still asserted as schema:url from Wikidata P856 and the standing homepage. First registered 2026-09-01 from IBPS partner catch-up."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── Y Combinator ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Y_Combinator
+# SPARQL ASK true; data/Y_Combinator.ttl HTTP 200 (2026-09-01)
+
+:yCombinator a schema:Organization ;
+    schema:name "Y Combinator"@en ;
+    schema:description "American startup accelerator (W25 batch includes AfterQuery)."@en ;
+    schema:url "https://www.ycombinator.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Y_Combinator>,
+               <http://www.wikidata.org/entity/Q2616400> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Y_Combinator (SPARQL ASK true; https://dbpedia.org/data/Y_Combinator.ttl HTTP 200, 2026-09-01). Wikidata Q2616400 description American startup accelerator, P856 http://www.ycombinator.com. Homepage https://www.ycombinator.com/ HEAD 200. First registered 2026-09-01 with AfterQuery."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── Forbes ─────────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Forbes
+# HEAD 200 → https://dbpedia.org/page/Forbes (2026-09-01)
+
+:forbes a schema:Organization ;
+    schema:name "Forbes"@en ;
+    schema:description "American business magazine and publisher; employer of AI reporter Anna Tong."@en ;
+    schema:url "https://www.forbes.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Forbes>,
+               <http://www.wikidata.org/entity/Q25161472> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Forbes (HEAD 200 → https://dbpedia.org/page/Forbes, 2026-09-01). Wikidata Q25161472 label Forbes, description American business magazine, enwiki Forbes, P856 https://www.forbes.com. Homepage HEAD 200. First registered 2026-09-01 for Anna Tong worksFor."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── SpaceX ─────────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/SpaceX
+# SPARQL ASK true; data/SpaceX.ttl HTTP 200 (2026-09-01)
+
+:spaceX a schema:Organization ;
+    schema:name "SpaceX"@en ;
+    schema:description "American spaceflight company (Space Exploration Technologies); parent of SpaceXAI."@en ;
+    schema:url "https://www.spacex.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/SpaceX>,
+               <http://www.wikidata.org/entity/Q193701> ;
+    rdfs:comment "Canonical entity IRI is DBpedia SpaceX (SPARQL ASK true; https://dbpedia.org/data/SpaceX.ttl HTTP 200, 2026-09-01). Wikidata Q193701 label SpaceX. Homepage https://www.spacex.com/ HEAD 200 (final /index.html). First registered 2026-09-01 alongside SpaceXAI."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── SpaceXAI ───────────────────────────────────────────────────────────────────
+#
+# No DBpedia (resource 404; SPARQL ASK false)
+# Wikidata Q120599684 label-match SpaceXAI
+# spacexai.com / www.spacexai.com DNS NXDOMAIN — not invented
+
+:spaceXAI a schema:Organization ;
+    schema:name "SpaceXAI"@en ;
+    schema:alternateName "xAI"@en ;
+    schema:description "American artificial intelligence and social media division of SpaceX (formerly xAI; rebranded SpaceXAI). Official website x.ai."@en ;
+    schema:url "https://x.ai/" ;
+    schema:parentOrganization <http://dbpedia.org/resource/SpaceX> ;
+    owl:sameAs <http://www.wikidata.org/entity/Q120599684>,
+               <https://linkedin.com/company/spacexai#this>,
+               <https://x.ai#this> ;
+    rdfs:comment "Canonical entity IRI is Wikidata Q120599684 (EntityData JSON 200, 2026-09-01: label SpaceXAI, description American artificial intelligence and social media division of SpaceX, enwiki SpaceXAI, P856 https://x.ai, P749 parent Q193701 SpaceX). DBpedia SpaceXAI 404 / SPARQL ASK false — not added. spacexai.com and www.spacexai.com failed DNS this pass — not invented. LinkedIn company linkedin.com/company/spacexai HEAD 200; www.linkedin.com/company/spacexai 429 this pass so www company IRI omitted. Homepage https://x.ai/ GET 200; homepage#this aliased. First registered 2026-09-01 from IBPS partner catch-up (Elizabeth Curatolo)."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── O-I Glass ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/O-I_Glass
+# Owens-Illinois HEAD 200 also lands on page/O-I_Glass
+
+:oIGlass a schema:Organization ;
+    schema:name "O-I Glass"@en ;
+    schema:alternateName "Owens-Illinois"@en ;
+    schema:description "American glass-container manufacturer (O-I Glass, formerly Owens-Illinois); employer of Ray Case."@en ;
+    schema:url "https://www.o-i.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/O-I_Glass>,
+               <http://dbpedia.org/resource/Owens-Illinois>,
+               <http://www.wikidata.org/entity/Q180106> ;
+    rdfs:comment "Canonical entity IRI is DBpedia O-I_Glass (HEAD 200 → https://dbpedia.org/page/O-I_Glass, 2026-09-01). DBpedia Owens-Illinois HEAD 200 also lands on page/O-I_Glass — aliased. Wikidata Q180106 label Owens-Illinois, enwiki sitelink O-I Glass, P856 http://www.o-i.com. Homepage https://www.o-i.com/ HEAD 200. www.oi.com HEAD 200 lands on an unrelated above.com marketplace page — omitted. First registered 2026-09-01 for Ray Case worksFor."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ── Hugging Face ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Hugging_Face
+# Priority ladder: DBpedia (1st) -> Wikidata -> LinkedIn company #this -> Homepage #this
+# DBpedia dereference verified: HTTP 200 (2026-09-03); DBpedia's own owl:sameAs
+# names Wikidata Q108943604, independently cross-confirmed via Wikidata search.
+
+:huggingFace a schema:Organization ;
+    schema:name "Hugging Face"@en ;
+    schema:legalName "Hugging Face, Inc."@en ;
+    schema:description "American-French AI company (founded 2016, headquartered in New York City) that operates the Hugging Face Hub, an open platform for sharing and discovering machine-learning models, datasets, and Spaces (applications); creator of the open-source Transformers, Diffusers, and Datasets libraries. Serves 18M+ developers, researchers, and creators, and is used by companies worldwide to discover, evaluate, customize, and deploy AI. On 2026-09-03 NVIDIA agreed to acquire Hugging Face for approximately $12.93B; per NVIDIA CEO Jensen Huang's announcement, Hugging Face is to remain an open, hardware-neutral platform, with NVIDIA compute not required to build on or deploy through it. Deal announced as AGREED, not yet closed."@en ;
+    schema:url "https://huggingface.co" ;
+    owl:sameAs <http://dbpedia.org/resource/Hugging_Face>,
+               <http://www.wikidata.org/entity/Q108943604>,
+               <https://linkedin.com/company/huggingface#this>,
+               <https://www.linkedin.com/company/huggingface#this>,
+               <https://huggingface.co#this> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Hugging_Face (dbpedia.org/resource/Hugging_Face and dbpedia.org/data/Hugging_Face.json GET 200, 2026-09-03; DBpedia's own owl:sameAs cites Wikidata Q108943604, independently cross-confirmed via a separate Wikidata search hit 'Hugging Face (Q108943604), American company'). LinkedIn company page linkedin.com/company/huggingface HEAD 200 (2026-09-03); www.linkedin.com/company/huggingface HEAD 200 also. Homepage https://huggingface.co HEAD 200 (2026-09-03). Acquisition context: NVIDIA agreed to acquire Hugging Face for ~$12.93B per Jensen Huang's 2026-09-03 LinkedIn post (https://www.linkedin.com/posts/jenhsunhuang_im-excited-to-announce-that-nvidia-has-agreed-share-7501248004402667520-Z99s/, HTTP 200) and NVIDIA's own blog (blogs.nvidia.com/blog/nvidia-to-acquire-hugging-face/); corroborated same-day by CNBC and Yahoo Finance coverage. The deal is AGREED, not closed/completed, per Huang's own wording ('agreed to acquire') and press coverage (Trending Topics) noting the deal is not yet finalized and expected to face antitrust review — not overstated here. First registered 2026-09-03 from that announcement and its qualified-reactor context (Victor Mustar, Jeff Boudier — see entities/people.ttl). Local name :huggingFace is a registry index label only."@en ;
+    schema:dateCreated "2026-09-03T16:00:00Z"^^xsd:dateTime .
+
+# ── Andreessen Horowitz (a16z) ────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Andreessen_Horowitz
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04, og:description
+# "Private American venture capital firm") -> Wikidata -> LinkedIn company #this
+
+:andreessenHorowitz a schema:Organization ;
+    schema:name "Andreessen Horowitz"@en ;
+    schema:alternateName "a16z"@en ;
+    schema:description "Private American venture capital firm (Menlo Park, California); Seema Amble is a partner investing in B2B AI companies."@en ;
+    schema:url "https://a16z.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Andreessen_Horowitz>,
+               <https://linkedin.com/company/andreessen-horowitz#this> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Andreessen_Horowitz (dbpedia.org/page/Andreessen_Horowitz HTTP 200, og:description 'Private American venture capital firm', verified 2026-09-04). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :andreessenHorowitz is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ── Anthropic ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Anthropic
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04, og:description
+# "American artificial intelligence corporation")
+
+:anthropic a schema:Organization ;
+    schema:name "Anthropic"@en ;
+    schema:description "American artificial intelligence corporation, creator of Claude; partnered with Salesforce on the Claudeforce integration."@en ;
+    schema:url "https://www.anthropic.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Anthropic> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Anthropic (dbpedia.org/page/Anthropic HTTP 200, og:description 'American artificial intelligence corporation', verified 2026-09-04 — disambiguated from the unrelated dbr:Anthropic_principle philosophy article). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :anthropic is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ── Salesforce ─────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Salesforce
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04, og:description
+# "American cloud-based software company")
+
+:salesforce a schema:Organization ;
+    schema:name "Salesforce"@en ;
+    schema:description "American cloud-based software company; CRM systems-of-record vendor partnering with Anthropic on the Claudeforce integration announced 2026."@en ;
+    schema:url "https://www.salesforce.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Salesforce> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Salesforce (dbpedia.org/page/Salesforce HTTP 200, og:description 'American cloud-based software company', verified 2026-09-04). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :salesforce is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ── DocuSign ───────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/DocuSign
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04)
+
+:docuSign a schema:Organization ;
+    schema:name "Docusign"@en ;
+    schema:description "United States company providing e-signature and contract-lifecycle software; its Iris product reviews contracts against a legal team's playbook."@en ;
+    schema:url "https://www.docusign.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/DocuSign> ;
+    rdfs:comment "Canonical entity IRI is DBpedia DocuSign (dbpedia.org/page/DocuSign HTTP 200, verified 2026-09-04). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :docuSign is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ── Atlassian ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Atlassian
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04, og:description
+# "Australian enterprise software company")
+
+:atlassian a schema:Organization ;
+    schema:name "Atlassian"@en ;
+    schema:description "Australian enterprise software company; its Rovo product aims to resolve and route requests across Atlassian's issue-tracking products."@en ;
+    schema:url "https://www.atlassian.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Atlassian> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Atlassian (dbpedia.org/page/Atlassian HTTP 200, og:description 'Australian enterprise software company', verified 2026-09-04). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :atlassian is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ── Klaviyo ────────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Klaviyo
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04, og:description
+# "Marketing automation platform")
+
+:klaviyo a schema:Organization ;
+    schema:name "Klaviyo"@en ;
+    schema:description "Marketing automation platform; its Composer product builds campaigns and assesses marketing performance."@en ;
+    schema:url "https://www.klaviyo.com/" ;
+    owl:sameAs <http://dbpedia.org/resource/Klaviyo> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Klaviyo (dbpedia.org/page/Klaviyo HTTP 200, og:description 'Marketing automation platform', verified 2026-09-04). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :klaviyo is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ── Harvey ─────────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Harvey_(software)
+# Priority ladder: DBpedia (1st, verified HTTP 200 2026-09-04, og:description
+# "AI services for legal teams" — disambiguated from the historical figure and
+# other unrelated "Harvey"-named entities)
+
+:harveyAI a schema:Organization ;
+    schema:name "Harvey"@en ;
+    schema:description "AI services for legal teams; post-trained an open-weight model (Tenet) using synthetic, public legal, and human-expert-created data to build a manufactured curriculum of ~1,750 legal-task environments."@en ;
+    schema:url "https://www.harvey.ai/" ;
+    owl:sameAs <http://dbpedia.org/resource/Harvey_(software)> ;
+    rdfs:comment "Canonical entity IRI is DBpedia Harvey_(software) (dbpedia.org/page/Harvey_(software) HTTP 200, og:description 'AI services for legal teams', verified 2026-09-04 — disambiguated from dbr:Harvey_(company) and dbr:Harvey_AI, both 404, and from the historical-figure/other Harvey entries). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :harveyAI is a registry index label only."@en ;
+    schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .

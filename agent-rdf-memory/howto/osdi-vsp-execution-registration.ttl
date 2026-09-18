@@ -1,0 +1,60 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/osdi-vsp-execution-registration.ttl"@en ;
+    schema:description "Diagnosis and fix for OSDI Inclusion Engine sites silently serving a .vsp dispatcher as raw static source instead of executing it. Original 2026-08-28 write-up concluded the fix required DB.DBA.DAV_RES_UPLOAD_STRSES_INT specifically; a controlled isolation test on 2026-08-30 disproved that and found the true mechanism is WS.WS.SYS_DAV_RES.RES_OWNER. This file (and the corresponding preferences.ttl step and engine-architecture.md Troubleshooting Map row) were corrected same-day."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-08-30T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Fix a .vsp resource that is served as raw source instead of being executed"@en ;
+    schema:description "Symptom: a URL that should route through index.vsp (or a driver-*.vsp body script) instead returns the literal script text, with WebDAV-serving response headers (Allow: COPY,DELETE,LOCK,...; MS-Author-Via: DAV; Link: rel=\"meta\") rather than rendered HTML. First diagnosed on three sibling OSDI sites on oplussol11.intranet.openlinksw.com sharing one webdav_base (openlink, openlink-ldp, openlink-vsp-demo) after a VSP-script deployment step wrote six .vsp files with the wrong owner."@en ;
+    schema:step :step-diagnose, :step-mechanism, :step-fix, :step-deadEnds, :step-scope .
+
+:step-diagnose a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Diagnose: compare response headers against a real rendered page, not just the body"@en ;
+    schema:text """The tell is in the HEADERS, not the body. A raw-served .vsp file returns WebDAV resource-serving headers: `Allow: COPY, DELETE, GET, HEAD, LOCK, MKCOL, MOVE, OPTIONS, PATCH, POST, PROPFIND, PROPPATCH, PUT, TRACE, UNLOCK`, `MS-Author-Via: DAV`, and `Link: <.../index.vsp,meta>; rel="meta"`. A genuinely executed page has none of these — compare `curl -I` against a known-working OSDI page to see the difference: no DAV headers, `Content-Length` reflecting rendered output rather than the literal script's byte count.
+
+`curl -H "Accept: text/html"` against the broken URL returns `406 Unacceptable` with an `Alternates:` header naming the DAV resource's stored content-type as its only variant — proof the request is being served as a static file, never reaching the VSP compiler."""@en .
+
+:step-mechanism a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "The actual mechanism, isolated 2026-08-30: WS.WS.SYS_DAV_RES.RES_OWNER"@en ;
+    schema:text """Controlled single-variable test on a throwaway .vsp: with RES_TYPE='text/html' and RES_PERMS='111101101NN' already correct and held fixed, a plain `UPDATE WS.WS.SYS_DAV_RES SET RES_OWNER=127 ...` (127 = kidehen, not dav) produced raw source on GET. Changing ONLY RES_OWNER to 2 (dav) via a second plain UPDATE — RES_TYPE/RES_PERMS untouched — made the exact same file execute cleanly on the next GET, no cache flush needed beyond the routine `config_flush_cache()`.
+
+A separate control file (`/DAV/home/webdev/uda/drivers-new-pre-opal.vsp`, untouched, unrelated site) was found executing correctly despite RES_TYPE='text/plain' and RES_PERMS='110100100RM' — both "wrong" by the original (incorrect) theory — because its RES_OWNER was already 2 (dav). Together these two observations show RES_OWNER=dav is necessary and, on its own, sufficient; RES_TYPE and RES_PERMS do not determine whether a .vsp executes (they still govern the reported Content-Type header and standard read/write permission bits respectively, which is why matching them is still good practice, just not the fix)."""@en .
+
+:step-fix a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "The fix: a plain SQL UPDATE of RES_OWNER is sufficient — no special procedure needed"@en ;
+    schema:text """```sql
+UPDATE WS.WS.SYS_DAV_RES SET RES_OWNER = 2   -- 2 = dav; confirm via
+                                              -- select U_ID from WS.WS.SYS_DAV_USER where U_NAME='dav'
+WHERE RES_FULL_PATH = '<full DAV path to the .vsp>';
+
+select incleng..staleall();
+select incleng..config_flush_cache();
+```
+
+Setting RES_TYPE and RES_PERMS to their canonical values alongside RES_OWNER is still worth doing for consistency (correct Content-Type header, standard `111101101NN` permission string matching how the engine's own deploy tooling writes these files), but is not what makes the file executable.
+
+`DB.DBA.DAV_RES_UPLOAD_STRSES_INT(path, content, 'text/html', '111101101NN', 'dav', 'dav', null, null, 0)` (re-uploading with the file's own current content) also works — it fixes RES_OWNER as a side effect of its `owner`/`group` parameters — but is unnecessary machinery for this specific fix; the plain UPDATE above is simpler and equally effective."""@en .
+
+:step-deadEnds a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "What does NOT matter, and the reasoning trap that produced the wrong original conclusion"@en ;
+    schema:text """RES_TYPE and RES_PERMS updates alone (2026-08-28's first two fix attempts) appeared to fail, which was read as "only DAV_RES_UPLOAD_STRSES_INT registers a resource as executable." That conclusion was drawn from a confounded test: RES_OWNER was never checked or controlled for on the originally-broken files, so it may well have been wrong (owned by kidehen from a WebDAV PUT, not dav) the whole time — meaning the RES_TYPE/RES_PERMS-only UPDATEs never had a chance to succeed regardless of mechanism. Re-running DAV_RES_UPLOAD_STRSES_INT "worked" because it explicitly passes `'dav','dav'` as owner/group parameters, not because of any special registration step distinct from a plain column UPDATE.
+
+Lesson generalized: when a fix works, isolate which of its several simultaneous changes actually did the work before writing the mechanism into memory as fact — especially when the fix bundles multiple parameter changes (content-type, permissions, owner, group) in one call."""@en .
+
+:step-scope a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "One shared webdav_base can mean one bug breaks several site registrations at once"@en ;
+    schema:text "Before concluding a fix worked, check every OSDI site registration sharing the affected DAV collection (see references/config-api.md), not just the one URL the user reported. On oplussol11, `openlink`, `openlink-ldp`, and `openlink-vsp-demo` all point `webdav_base` at the identical `/DAV/home/kidehen/sites/openlink` collection with per-site `xslt_sheet` shims — a wrong-owner `index.vsp` in that one collection broke all three simultaneously, and a fix must be verified against all three, not just the reported URL."@en .

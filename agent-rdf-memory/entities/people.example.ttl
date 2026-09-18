@@ -1,0 +1,728 @@
+# SAMPLE people registry — not the live registry.
+#
+# The live registry (entities/people.ttl) is private and gitignored; it is
+# never committed or pushed. To use this sample:
+#
+#   cp agent-rdf-memory/entities/people.example.ttl agent-rdf-memory/entities/people.ttl
+#
+# then add/edit your own schema:Person entries in people.ttl. Agents and the
+# loader (scripts/generate-loader-sql.py skips *.example.ttl) read people.ttl
+# only; this example file is ignored by both.
+#
+# Snapshot of the registry as of 2026-09-02 before Progress OpenEdge ISV contact additions.
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+
+<> a schema:CreativeWork ;
+    schema:name "Entity Registry: People"@en ;
+    schema:description "Canonical schema:Person entity IRIs for individuals recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a person entity, and MUST register newly resolved person IRIs here rather than only in session files. Populated 2026-07-14 from a SPARQL census of schema:Person instances across all DAV named graphs (1,271 instances, 1,150 distinct IRIs, 499 owl:sameAs/name-merged clusters, 41 recurring in >= 3 documents)."@en ;
+    rdfs:comment "The local names below (:kingsleyIdehen, :tonySeale, etc.) are registry-internal index labels for lookup within THIS file only — they are not entity IRIs and must never be copied into generated/delivered RDF documents. In any generated document (an infographic's companion entities.ttl, a KG collection, etc.), the canonical platform IRI itself (the owl:sameAs target, e.g. <https://linkedin.com/in/kidehen#this>) must be used as the sole subject directly — per howto/canonical-entity-iri-denotation.ttl Step 7 (:step-localIriProhibition), which explicitly prohibits document-local IRIs when a canonical platform IRI is available. Caught 2026-08-04: this registry's own local-name convention was mistakenly copied into hospital-os-rdf-harness/entities.ttl as :brianDeFrancesca/:kingsleyIdehen local IRIs with owl:sameAs to canonical — exactly the anti-pattern in that howto's own worked example."@en ;
+    schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-01T21:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :kingsleyIdehen, :tonySeale, :satyaNadella, :jayaGupta, :alexKarp,
+        :aaronLevie, :jessicaTalisman, :robertScoble, :adedejiOlowe, :veronikaHeimsbakk,
+        :abhiYadav, :irenaCronin, :scottBrinker, :richardMacManus, :ngoziDozie,
+        :prukalpaSankar, :fransRiemersma, :robertSanderson, :timBernersLee, :jkRowling,
+        :reidHoffman, :omMalik, :juanSequeda, :aakashGupta, :guyDebord, :mohamedSalah,
+        :joostDeValk, :gauravMalhotra, :samAltman, :stuartMichaelEdelenbos, :saanyaOjha,
+        :danielAtherton, :popeLeoXIV, :florianWirtz, :jonathanJaffe, :virgilVanDijk,
+        :nickZervoudis, :vivianVoss, :dennisJuarez, :naomiXia, :tomaszTunguz,
+        :andrejKarpathy, :henryYin, :carlosPerez, :peterSteinberger, :brianDeFrancesca,
+        :stevenSinofsky, :seanBPalmer, :chimezieOgbuji, :moBitar,
+        :patrickCollison, :osaretinVictorAsemota, :brijKishorePandey,
+        :michaelTruell, :sualehAsif, :amanSanger, :arvidLunnemark, :elonMusk,
+        :aliPartovi, :natFriedman, :arashFerdowsi, :jordanTopoleski, :davidPan,
+        :leeRobinson, :sarahWang, :dwarkeshPatel, :melvinCarvalho, :danBrickley,
+        :spencerMateega, :carlosGeorgescu, :dannyTang, :annaTong, :philippHerzig, :georgKniese, :walterSun, :karlFahrbach, :rayCase, :elizabethCuratolo, :irfanKhan ;
+    rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
+        <../howto/canonical-entity-iri-denotation.ttl>,
+        <../howto/entity-iri-denotation-mechanics.ttl>,
+        <../howto/external-iri-verification.ttl>,
+        <../howto/cross-document-local-term-reuse.ttl> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Correction note (2026-07-14) ────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Three entries added earlier the same session (Jaya Gupta, Alex Karp, Aaron
+# Levie) carried unverified/incorrect canonical IRIs, caught by cross-checking
+# against corpus documents already read this session:
+#   - :jayaGupta was <...linkedin.com/in/jayagupta#this> — WRONG. Verified form
+#     (ai-value-capture-response-claude_sonnet_5-1.ttl) is jayagupta10.
+#   - :aaronLevie was <...linkedin.com/in/aaron-levie#this> — WRONG. Verified
+#     form (aaron-levie-enterprise-ai-agent-issues-...ttl) is boxaaron.
+#   - :alexKarp was <...linkedin.com/in/alexkarp#this> — UNVERIFIED/fabricated.
+#     No document in this corpus ever asserts a personal LinkedIn IRI for Karp;
+#     only dbr:Alex_Karp (DBpedia) appears. Corrected to DBpedia canonical per
+#     the no-fabricated-URLs rule.
+# Lesson: a registry entry must be checked against already-read source
+# documents, not asserted from model recall of a plausible-looking slug.
+
+:kingsleyIdehen a schema:Person ;
+    schema:name "Kingsley Uyi Idehen"@en ;
+    schema:email "kidehen@openlinksw.com" ;
+    schema:jobTitle "Founder & CEO"@en ;
+    schema:worksFor <http://dbpedia.org/resource/OpenLink_Software> ;
+    owl:sameAs <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid>,
+               <https://id.myopenlink.net/dataspace/person/kidehen>,
+               <https://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com>,
+               <http://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com>,
+               <https://linkedin.com/in/kidehen#this>,
+               <https://www.linkedin.com/in/kidehen#this>,
+               <https://x.com/kidehen#this>,
+               <https://substack.com/@kidehen#this> ;
+    rdfs:comment "Current YouID/NetID https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid is the protocol credential (cert-modulus verified in this Grok Bot session). Older ODS WebID https://id.myopenlink.net/dataspace/person/kidehen 303s (2026-08-30) to /dataspace/raw/person/kidehen/sioc.jsonld (application/ld+json); graph id is the hashless person URI, type Person, foaf:name Kingsley Uyi Idehen, cert:key present. ODS shop WebID http://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com 303s (2026-08-30) to /dataspace/raw/person/kidehen@openlinksw.com/sioc.jsonld; JSON-LD id is the https hashless person URI, type Person, cert:key present. Literal @ in the path is RFC 3986 pchar-legal; the percent-encoded %40 form 303s to empty JSON and was not added. A foaf:OnlineAccount in that graph also cites http://id.myopenlink.net/dataspace/person/kidehen#this as the webid account homepage; the content-negotiated person id is hashless. Linkedin.com (non-www) remains the registry canonical platform IRI per the person-IRI ladder. First resolved in agent-rdf-memory/core.ttl (:user entity). Census 2026-07-14: 37 documents."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+:tonySeale a schema:Person ;
+    schema:name "Tony Seale"@en ;
+    owl:sameAs <https://www.linkedin.com/in/tonyseale#this>,
+               <https://uk.linkedin.com/in/tonyseale#this>,
+               <https://www.linkedin.com/in/tonyseale/#this> ;
+    rdfs:comment "Canonical entity IRI. www.linkedin.com is the canonical form; uk.linkedin.com and trailing-slash variant are aliases. Census 2026-07-14: 7 documents."@en ;
+    schema:dateCreated "2026-06-12T00:00:00Z"^^xsd:dateTime .
+
+:satyaNadella a schema:Person ;
+    schema:name "Satya Nadella"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Microsoft> ;
+    owl:sameAs <https://www.linkedin.com/in/satyanadella#this>,
+               <https://linkedin.com/in/satyanadella#this>,
+               <https://x.com/satyanadella#this> ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jayaGupta a schema:Person ;
+    schema:name "Jaya Gupta"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Foundation_Capital> ;
+    owl:sameAs <https://www.linkedin.com/in/jayagupta10#this>,
+               <https://linkedin.com/in/jayagupta10#this>,
+               <https://x.com/JayaGup10#this> ;
+    rdfs:comment "CORRECTED 2026-07-14: verified against ai-value-capture-response-claude_sonnet_5-1.ttl — canonical slug is jayagupta10, not jayagupta. Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:alexKarp a schema:Person ;
+    schema:name "Alex Karp"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Palantir_Technologies> ;
+    owl:sameAs <http://dbpedia.org/resource/Alex_Karp> ;
+    rdfs:comment "CORRECTED 2026-07-14: the prior entry's LinkedIn IRI (alexkarp) was never verified against any source document in this corpus and has been removed as unconfirmed. Only dbr:Alex_Karp is asserted anywhere in the corpus (ai-value-capture-response, reverse-information-paradox). Use DBpedia as canonical until a verified personal LinkedIn is found."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:aaronLevie a schema:Person ;
+    schema:name "Aaron Levie"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Box_(company)> ;
+    owl:sameAs <https://www.linkedin.com/in/boxaaron#this>,
+               <https://x.com/levie#this>,
+               <http://dbpedia.org/resource/Aaron_Levie> ;
+    rdfs:comment "CORRECTED 2026-07-14: verified against aaron-levie-enterprise-ai-agent-issues-semantic-web-virtuoso-claude_sonnet_5-1.ttl — canonical slug is boxaaron, not aaron-levie. Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jessicaTalisman a schema:Person ;
+    schema:name "Jessica Talisman"@en ;
+    owl:sameAs <https://www.linkedin.com/in/jmtalisman#this>,
+               <https://substack.com/@jessicatalisman#this> ;
+    rdfs:comment "Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Corpus-Distilled People (SPARQL census over DAV named graphs, 2026-07-14) ──
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Every person below recurred across >= 3 independently generated documents.
+# Canonical IRI selection follows the priority ladder in
+# canonical-entity-iri-denotation.ttl: LinkedIn -> X/Twitter -> Substack ->
+# other owned platform -> DBpedia (for public figures without an owned
+# professional profile in the corpus) -> document-local hash IRI fallback.
+
+:robertScoble a schema:Person ;
+    schema:name "Robert Scoble"@en ;
+    owl:sameAs <https://linkedin.com/in/scobleizer#this>,
+               <https://www.linkedin.com/in/scobleizer#this>,
+               <https://www.linkedin.com/in/robertscoble#this>,
+               <https://x.com/Scobleizer#this>,
+               <http://dbpedia.org/resource/Robert_Scoble> ;
+    rdfs:comment "Two distinct LinkedIn slugs found in corpus (scobleizer, robertscoble) — both aliased; scobleizer is more frequent and canonical. Census 2026-07-14: 11 documents, 19 IRI variants — highest non-Kingsley recurrence."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:adedejiOlowe a schema:Person ;
+    schema:name "Adedeji Olowe"@en ;
+    owl:sameAs <https://www.linkedin.com/in/adedejiolowe#this>,
+               <https://x.com/dejiolowe#this> ;
+    rdfs:comment "Census 2026-07-14: 7 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:veronikaHeimsbakk a schema:Person ;
+    schema:name "Veronika Heimsbakk"@en ;
+    owl:sameAs <https://www.linkedin.com/in/vheimsbakk#this>,
+               <https://no.linkedin.com/in/vheimsbakk#this>,
+               <https://substack.com/@veronahe#this> ;
+    rdfs:comment "Census 2026-07-14: 7 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:abhiYadav a schema:Person ;
+    schema:name "Abhi Yadav"@en ;
+    owl:sameAs <https://x.com/abhiyadav#this>,
+               <https://x.com/abhishekyd#this> ;
+    rdfs:comment "DATA QUALITY FINDING (2026-07-14): one source document incorrectly asserted owl:sameAs between this person's IRI and dbr:Graph_(discrete_mathematics) — an entity-resolution error (article title 'What Is an Audience Interest Graph' likely triggered a keyword-matched wrong DBpedia link). That erroneous link is excluded here. No verified LinkedIn found; X is canonical. Census 2026-07-14: 6 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:irenaCronin a schema:Person ;
+    schema:name "Irena Cronin"@en ;
+    owl:sameAs <https://linkedin.com/in/irenacronin#this>,
+               <https://www.linkedin.com/in/irenacronin#this> ;
+    rdfs:comment "Census 2026-07-14: 6 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:scottBrinker a schema:Person ;
+    schema:name "Scott Brinker"@en ;
+    owl:sameAs <https://www.linkedin.com/in/scottbrinker#this>,
+               <https://x.com/chiefmartec#this> ;
+    rdfs:comment "Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:richardMacManus a schema:Person ;
+    schema:name "Richard MacManus"@en ;
+    owl:sameAs <https://www.linkedin.com/in/ricmac#this>,
+               <https://x.com/ricmac#this> ;
+    rdfs:comment "DATA QUALITY FINDING (2026-07-14): one source document ('What is the Agentic Web') incorrectly asserted owl:sameAs between this person's IRI and dbr:Agent_(artificial_intelligence) — an entity-resolution error, excluded here. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:ngoziDozie a schema:Person ;
+    schema:name "Ngozi Dozie"@en ;
+    owl:sameAs <https://www.linkedin.com/in/ngozidozie#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:prukalpaSankar a schema:Person ;
+    schema:name "Prukalpa Sankar"@en ;
+    owl:sameAs <https://www.linkedin.com/in/prukalpa#this>,
+               <https://x.com/prukalpa#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:fransRiemersma a schema:Person ;
+    schema:name "Frans Riemersma"@en ;
+    owl:sameAs <https://www.linkedin.com/in/fransriemersma#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:robertSanderson a schema:Person ;
+    schema:name "Robert Sanderson"@en ;
+    owl:sameAs <https://www.linkedin.com/in/robert-sanderson#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:timBernersLee a schema:Person ;
+    schema:name "Tim Berners-Lee"@en ;
+    owl:sameAs <https://www.w3.org/People/Berners-Lee/card#i>,
+               <https://www.linkedin.com/in/timbernerslee#this>,
+               <https://x.com/timberners_lee#this>,
+               <http://dbpedia.org/resource/Tim_Berners-Lee> ;
+    rdfs:comment "WebID https://www.w3.org/People/Berners-Lee/card#i dereferenced 2026-08-30 as text/turtle PersonalProfileDocument, foaf:primaryTopic <#i>, cert:key present. LinkedIn/X/DBpedia retained as platform aliases. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jkRowling a schema:Person ;
+    schema:name "J. K. Rowling"@en ;
+    owl:sameAs <https://x.com/jk_rowling#this>,
+               <http://dbpedia.org/resource/J._K._Rowling> ;
+    rdfs:comment "No owned professional LinkedIn found in corpus; DBpedia is canonical for this public figure. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:reidHoffman a schema:Person ;
+    schema:name "Reid Hoffman"@en ;
+    owl:sameAs <https://www.linkedin.com/in/reidhoffman#this>,
+               <https://x.com/reidhoffman#this>,
+               <http://dbpedia.org/resource/Reid_Hoffman> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:omMalik a schema:Person ;
+    schema:name "Om Malik"@en ;
+    owl:sameAs <https://www.linkedin.com/in/ommalik#this>,
+               <https://x.com/om#this>,
+               <http://dbpedia.org/resource/Om_Malik> ;
+    rdfs:comment "Census 2026-07-14: 4 documents. Personal blog om.co also present in corpus but LinkedIn is canonical per priority ladder."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:juanSequeda a schema:Person ;
+    schema:name "Juan Sequeda"@en ;
+    owl:sameAs <https://www.linkedin.com/in/juansequeda#this>,
+               <https://substack.com/@juansequeda#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:aakashGupta a schema:Person ;
+    schema:name "Aakash Gupta"@en ;
+    owl:sameAs <https://x.com/aakashgupta#this>,
+               <https://x.com/aakashg0#this> ;
+    rdfs:comment "No verified LinkedIn found in corpus; X is canonical. Two distinct X handles found (aakashgupta, aakashg0) — both aliased. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:guyDebord a schema:Person ;
+    schema:name "Guy Debord"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Guy_Debord>,
+               <http://www.wikidata.org/entity/Q191984> ;
+    rdfs:comment "Deceased public figure (philosopher); DBpedia is canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:mohamedSalah a schema:Person ;
+    schema:name "Mohamed Salah"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Mohamed_Salah>,
+               <http://www.wikidata.org/entity/Q1354960> ;
+    rdfs:comment "Public figure (footballer), no owned professional profile in corpus; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:joostDeValk a schema:Person ;
+    schema:name "Joost de Valk"@en ;
+    owl:sameAs <https://www.linkedin.com/in/joostdevalk#this>,
+               <https://x.com/jdevalk#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:gauravMalhotra a schema:Person ;
+    schema:name "Gaurav Malhotra"@en ;
+    owl:sameAs <https://www.linkedin.com/in/tech-nirvana#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:samAltman a schema:Person ;
+    schema:name "Sam Altman"@en ;
+    owl:sameAs <https://www.linkedin.com/in/samaltman#this>,
+               <https://x.com/sama#this>,
+               <http://dbpedia.org/resource/Sam_Altman> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:stuartMichaelEdelenbos a schema:Person ;
+    schema:name "Stuart Michael Edelenbos"@en ;
+    owl:sameAs <https://www.linkedin.com/in/stuart-michael-edelenbos#this>,
+               <https://www.linkedin.com/in/stuart-edelenbos#this> ;
+    rdfs:comment "Two LinkedIn slug variants found (stuart-michael-edelenbos, stuart-edelenbos) — both aliased, former is canonical (fuller form). Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:saanyaOjha a schema:Person ;
+    schema:name "Saanya Ojha"@en ;
+    owl:sameAs <https://x.com/saanyaojha#this>,
+               <https://saanyaojha.substack.com/#this> ;
+    rdfs:comment "No verified LinkedIn found in corpus; X is canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:danielAtherton a schema:Person ;
+    schema:name "Daniel Atherton"@en ;
+    owl:sameAs <https://incidentdatabase.ai/blog/incident-report-2026-february-march-april/#danielAtherton> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical (only one form ever asserted — no disambiguation needed, but registered to prevent future re-minting under a different local name). Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:popeLeoXIV a schema:Person ;
+    schema:name "Pope Leo XIV"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Pope_Leo_XIV>,
+               <http://www.wikidata.org/entity/Q113600054> ;
+    rdfs:comment "Public figure; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:florianWirtz a schema:Person ;
+    schema:name "Florian Wirtz"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Florian_Wirtz>,
+               <http://www.wikidata.org/entity/Q94699949> ;
+    rdfs:comment "Public figure (footballer), no owned professional profile in corpus; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jonathanJaffe a schema:Person ;
+    schema:name "Jonathan Jaffe"@en ;
+    owl:sameAs <https://tomtunguz.com/jonathan-jaffe-office-hours-post-event#jonathanJaffe> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:virgilVanDijk a schema:Person ;
+    schema:name "Virgil van Dijk"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Virgil_van_Dijk>,
+               <http://www.wikidata.org/entity/Q133903> ;
+    rdfs:comment "Public figure (footballer), no owned professional profile in corpus; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:nickZervoudis a schema:Person ;
+    schema:name "Nick Zervoudis"@en ;
+    owl:sameAs <https://x.com/nickzervoudis#this>,
+               <https://substack.com/@nickzervoudis#this> ;
+    rdfs:comment "No verified LinkedIn found in corpus; X is canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:vivianVoss a schema:Person ;
+    schema:name "Vivian Voss"@en ;
+    owl:sameAs <https://www.linkedin.com/in/vvoss#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:dennisJuarez a schema:Person ;
+    schema:name "Dennis Juarez"@en ;
+    owl:sameAs <https://www.linkedin.com/in/dennisjuarez#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:naomiXia a schema:Person ;
+    schema:name "Naomi Xia"@en ;
+    owl:sameAs <https://moe-capital.com/blog-home/the-model-that-dreams-the-world#naomiXia> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:tomaszTunguz a schema:Person ;
+    schema:name "Tomasz Tunguz"@en ;
+    owl:sameAs <https://linkedin.com/in/tomasztunguz#this>,
+               <https://twitter.com/ttunguz#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents. Note: distinct from Jonathan Jaffe's interview host site tomtunguz.com/jonathan-jaffe-* — same person, blog domain differs from LinkedIn slug spelling (tomasztunguz vs tomtunguz)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:andrejKarpathy a schema:Person ;
+    schema:name "Andrej Karpathy"@en ;
+    owl:sameAs <https://x.com/karpathy#this>,
+               <http://dbpedia.org/resource/Andrej_Karpathy> ;
+    rdfs:comment "X is canonical (no LinkedIn found in corpus); popularized the 'LLM wiki' agent-memory pattern referenced across Vault-LD/YAML-LD discussions. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:henryYin a schema:Person ;
+    schema:name "Henry Yin"@en ;
+    owl:sameAs <https://moe-capital.com/blog-home/the-model-that-dreams-the-world#henryYin> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:carlosPerez a schema:Person ;
+    schema:name "Carlos E. Perez"@en ;
+    schema:url <https://intuitionmachine.gumroad.com> ;
+    owl:sameAs <https://x.com/IntuitMachine#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in corpus). Author of X Article 'From Loop Engineering to Graph Engineering?' (2026-07-18). Verified against the read article page x.com/IntuitMachine/status/2078419526354378975; bio URL copied verbatim from profile. First registered from the loops-to-graphs meshup session 2026-07-18."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime .
+
+:peterSteinberger a schema:Person ;
+    schema:name "Peter Steinberger"@en ;
+    owl:sameAs <https://x.com/steipete#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in corpus). Author of the nine-word loops-vs-graphs post (x.com/steipete/status/2078277297791189132) cited by Carlos E. Perez's essay; handle verified verbatim from the read article. First registered from the loops-to-graphs meshup session 2026-07-18."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime .
+
+:brianDeFrancesca a schema:Person ;
+    schema:name "Brian de Francesca"@en ;
+    schema:description "Author of the LinkedIn thesis 'Most hospitals were never fully designed' and its forthcoming paper 'The Hospital That Was Never Fully Designed,' arguing hospital operating architecture (pathways, workflows, decision rights, terminology) must be designed before the physical building."@en ;
+    owl:sameAs <https://www.linkedin.com/in/brian-de-francesca#this>,
+               <https://ae.linkedin.com/in/brian-de-francesca#this> ;
+    rdfs:comment "www.linkedin.com form supplied verbatim by Kingsley (user-provided source) for the hospital-os-rdf-harness collection; ae.linkedin.com (UAE regional subdomain) observed as the actor-profile href on the live rendered LinkedIn post page during the same task and added as an alias. First registered 2026-08-04 from hospital-os-rdf-harness/entities.ttl."@en ;
+    schema:dateCreated "2026-08-04T00:00:00Z"^^xsd:dateTime .
+
+:stevenSinofsky a schema:Person ;
+    schema:name "Steven Sinofsky"@en ;
+    schema:description "Seed investor and writer; former President of the Windows division at Microsoft. Author of the X post 'Optimism (and courage) is the path to creativity, productivity, and growth.' (2026-08-19) and its linked X Article 'Embracing the AI platform', arguing AI is a platform ingredient, that embracing the platform and tools is key, and that an explosion of apps is next. Runs the Hardcore Software blog at hardcoresoftware.learningbyshipping.com."@en ;
+    owl:sameAs <https://www.linkedin.com/in/sinofsky#this>,
+               <https://linkedin.com/in/sinofsky#this>,
+               <https://x.com/stevesi#this>,
+               <http://hardcoresoftware.learningbyshipping.com#this>,
+               <http://dbpedia.org/resource/Steven_Sinofsky>,
+               <http://www.wikidata.org/entity/Q2098467> ;
+    rdfs:comment "LinkedIn is canonical (kg-generator person-IRI priority ladder). All aliases verified 2026-08-19: LinkedIn URL read from his X bio website field (via fxtwitter API); X handle @stevesi (id 13418072, joined 2008-02-13, 211,023 followers); blog 'Subscribe http://hardcoresoftware.learningbyshipping.com' from his X bio; DBpedia resource Steven_Sinofsky HTTP 200; Wikidata Q2098467 label-match verified. First registered from the Embracing the AI Platform KG collection session 2026-08-19."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime .
+
+:seanBPalmer a schema:Person ;
+    schema:name "Sean B. Palmer"@en ;
+    schema:url <https://sbp.io/> ;
+    owl:sameAs <https://x.com/sbp#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified for this Sean B. Palmer; linkedin.com/in/sean-palmer-27566723 is a different person). Handle @sbp self-stated on inamidst.com/phenny/ ('I'm @sbp on twitter'); https://x.com/sbp HTTP 200 on 2026-08-28. Homepage http://inamidst.com/sbp/ redirects to https://sbp.io/ (HTTP 200). Author of Phenny, the Python IRC bot. First registered 2026-08-28 from the Phenny AI-agent article."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:chimezieOgbuji a schema:Person ;
+    schema:name "Chimezie Ogbuji"@en ;
+    schema:url <https://www.linkedin.com/in/chimezie> ;
+    owl:sameAs <https://www.linkedin.com/in/chimezie#this> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/chimezie verified via live LinkedIn posts 2026-07-30. GitHub github.com/chimezie HTTP 200. No X handle verified in this pass. First registered 2026-08-28 from the Phenny AI-agent article."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:moBitar a schema:Person ;
+    schema:name "Mo Bitar"@en ;
+    schema:alternateName "Mo"@en ;
+    schema:url <https://x.com/atmoio> ;
+    owl:sameAs <https://x.com/atmoio#this> ;
+    rdfs:comment "X is canonical. Handle @atmoio from the 2026-08-25 Grok Bot video post (x.com/atmoio/status/2092286808440676733, HTTP-verified via fxtwitter). Display name on X is Mo; Substack atmoio.substack.com identifies Mo Bitar. First registered 2026-08-28 from the AI-and-software-complexity Situation Analysis."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:patrickCollison a schema:Person ;
+    schema:name "Patrick Collison"@en ;
+    schema:url <https://x.com/patrickc> ;
+    owl:sameAs <https://x.com/patrickc#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in this pass). Handle @patrickc and display name Patrick Collison verified from the parent post x.com/patrickc/status/2093425939669774608 via fxtwitter, 2026-08-28. First registered from the Phenny AI-agent article (402/MPP @bot reply)."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:osaretinVictorAsemota a schema:Person ;
+    schema:name "Osaretin Victor Asemota"@en ;
+    schema:url <https://x.com/asemota> ;
+    owl:sameAs <https://x.com/asemota#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in this pass). Handle @asemota and display name Osaretin Victor Asemota verified via fxtwitter user lookup, 2026-08-28. First registered from the Phenny AI-agent article (cc on the 402/MPP @bot reply)."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:brijKishorePandey a schema:Person ;
+    schema:name "Brij Kishore Pandey"@en ;
+    schema:alternateName "Brij Pandey"@en ;
+    schema:jobTitle "AI Architect"@en ;
+    schema:url <https://www.linkedin.com/in/brijpandeyji> ;
+    owl:sameAs <https://linkedin.com/in/brijpandeyji#this>,
+               <https://www.linkedin.com/in/brijpandeyji#this> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/brijpandeyji verified from live post 2026-08-29 (linkedin.com/posts/brijpandeyji_i-spent-last-evening-reading-a-blog-from-share-7498559237569224704-LKaS) and profile page. About: AI Architect; LinkedIn lists Wells Fargo. No X handle and no Wikidata Q-ID verified in this pass. First registered 2026-08-29 from the to-read list (Oracle agent-memory post); also the named source of The_11_Layer_AI_Agent_Engineering_Stack.pdf in session 2026-07-24."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:michaelTruell a schema:Person ;
+    schema:name "Michael Truell"@en ;
+    schema:jobTitle "CEO"@en ;
+    schema:url <https://www.linkedin.com/in/michael-t-5b1bbb122> ;
+    owl:sameAs <https://linkedin.com/in/michael-t-5b1bbb122#this>,
+               <https://www.linkedin.com/in/michael-t-5b1bbb122#this>,
+               <https://x.com/mntruell#this>,
+               <https://www.wikidata.org/entity/Q136774101> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Slug /in/michael-t-5b1bbb122 HTTP 200 on linkedin.com 2026-08-29; X @mntruell (display name Michael Truell, bio Building @SpaceXAI) verified via fxtwitter; Wikidata Q136774101 label 'Michael Truell' / 'founder of Cursor'. First registered 2026-08-29 from the Grok share https://x.com/i/grok/share/83aada1c30cf491cbce97a3a51db94a2."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:sualehAsif a schema:Person ;
+    schema:name "Sualeh Asif"@en ;
+    schema:jobTitle "CPO"@en ;
+    schema:url <https://www.sualehasif.me/> ;
+    owl:sameAs <https://x.com/sualehasif996#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @sualehasif996 (display name Sualeh Asif, bio Building @SpaceXAI | @cursor_ai founder) verified via fxtwitter 2026-08-29; homepage https://www.sualehasif.me/ HTTP 200. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:amanSanger a schema:Person ;
+    schema:name "Aman Sanger"@en ;
+    schema:url <https://www.linkedin.com/in/aman-sanger-482243171/> ;
+    owl:sameAs <https://linkedin.com/in/aman-sanger-482243171#this>,
+               <https://www.linkedin.com/in/aman-sanger-482243171#this>,
+               <https://x.com/amanrsanger#this>,
+               <https://www.wikidata.org/entity/Q140354583> ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/aman-sanger-482243171 HTTP 200 on linkedin.com 2026-08-29; X @amanrsanger (display name Aman Sanger, bio Building @SpaceXAI | @cursor_ai founder) via fxtwitter; Wikidata Q140354583 label 'Aman Sanger' / 'American entrepreneur'. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:arvidLunnemark a schema:Person ;
+    schema:name "Arvid Lunnemark"@en ;
+    schema:url <https://arvid.xyz/> ;
+    owl:sameAs <https://x.com/ArVID220u#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @ArVID220u (display name Arvid Lunnemark) verified via fxtwitter 2026-08-29; homepage https://arvid.xyz/ HTTP 200. First registered 2026-08-29 from the Grok Bot history share (left Cursor Oct 2025 to found Integrous Research)."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:elonMusk a schema:Person ;
+    schema:name "Elon Musk"@en ;
+    schema:url <https://x.com/elonmusk> ;
+    owl:sameAs <https://x.com/elonmusk#this>,
+               <https://www.wikidata.org/entity/Q317521>,
+               <http://dbpedia.org/resource/Elon_Musk> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @elonmusk HTTP 200 and fxtwitter-verified 2026-08-29; Wikidata Q317521 label-match; DBpedia Elon_Musk HTTP 200. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:aliPartovi a schema:Person ;
+    schema:name "Ali Partovi"@en ;
+    schema:url <https://x.com/apartovi> ;
+    owl:sameAs <https://x.com/apartovi#this>,
+               <https://www.wikidata.org/entity/Q5725655> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @apartovi (display name Ali Partovi, bio Neo CEO) via fxtwitter 2026-08-29; Wikidata Q5725655 label-match. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:natFriedman a schema:Person ;
+    schema:name "Nat Friedman"@en ;
+    schema:url <https://x.com/natfriedman> ;
+    owl:sameAs <https://x.com/natfriedman#this>,
+               <https://www.wikidata.org/entity/Q92955> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @natfriedman verified via fxtwitter 2026-08-29; Wikidata Q92955 label-match. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:arashFerdowsi a schema:Person ;
+    schema:name "Arash Ferdowsi"@en ;
+    schema:url <https://x.com/arashaf> ;
+    owl:sameAs <https://x.com/arashaf#this>,
+               <https://www.wikidata.org/entity/Q4784346> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @arashaf (display name Arash) via fxtwitter 2026-08-29; Wikidata Q4784346 label 'Arash Ferdowsi'. First registered 2026-08-29 from the Grok Bot history share (named there as Dropbox cofounder)."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:jordanTopoleski a schema:Person ;
+    schema:name "Jordan Topoleski"@en ;
+    schema:jobTitle "COO"@en ;
+    schema:url <https://x.com/jordantop> ;
+    owl:sameAs <https://x.com/jordantop#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @jordantop (display name Jordan Topoleski, bio Building @SpaceXAI) via fxtwitter 2026-08-29. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:davidPan a schema:Person ;
+    schema:name "David Pan"@en ;
+    schema:jobTitle "Field CTO"@en ;
+    schema:url <https://x.com/davep> ;
+    owl:sameAs <https://x.com/davep#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @davep (display name David Pan, bio Field CTO @SpaceXAI) via fxtwitter 2026-08-29. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:leeRobinson a schema:Person ;
+    schema:name "Lee Robinson"@en ;
+    schema:url <https://x.com/leerob> ;
+    owl:sameAs <https://x.com/leerob#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @leerob (display name Lee Robinson, bio Model behavior @SpaceXAI) via fxtwitter 2026-08-29. No Wikidata Q-ID verified. First registered 2026-08-29 from the Grok Bot history share (named there as ex-Next.js/Vercel)."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:sarahWang a schema:Person ;
+    schema:name "Sarah Wang"@en ;
+    schema:alternateName "Sarah Ding Wang"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:url <https://a16z.com/author/sarah-wang/> ;
+    owl:sameAs <https://linkedin.com/in/sarah-wang-59b96a7#this>,
+               <https://www.linkedin.com/in/sarah-wang-59b96a7#this>,
+               <https://x.com/sarahdingwang#this> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Display name Sarah Wang; X handle @sarahdingwang (id 1142210344678379520, GP @a16z growth fund) via fxtwitter 2026-08-30. LinkedIn slug /in/sarah-wang-59b96a7 HTTP 200 on linkedin.com and matches a16z.com/author/sarah-wang/ plus live LinkedIn title General Partner at Andreessen Horowitz. No Wikidata Q-ID in this pass. First registered 2026-08-30 from https://x.com/sarahdingwang/status/2092976778164011481 (X article: You are not a model. Don't price per token.)."@en ;
+    schema:dateCreated "2026-08-30T00:00:00Z"^^xsd:dateTime .
+
+:dwarkeshPatel a schema:Person ;
+    schema:name "Dwarkesh Patel"@en ;
+    schema:jobTitle "Host of Dwarkesh Podcast"@en ;
+    schema:url <https://www.dwarkesh.com/> ;
+    owl:sameAs <https://linkedin.com/in/dwarkesh-sp#this>,
+               <https://www.linkedin.com/in/dwarkesh-sp#this>,
+               <https://x.com/dwarkesh_sp#this>,
+               <https://www.wikidata.org/entity/Q137008739> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/dwarkesh-sp HTTP 200 on linkedin.com 2026-08-30; live search shows Host of Dwarkesh Podcast, San Francisco. www.linkedin.com HEAD returned 405 from the box this pass — www alias still included. X handle @dwarkesh_sp (id 1209960539390201864, display name Dwarkesh Patel, website dwarkesh.com, bio Host of @dwarkeshpodcast) via fxtwitter 200 2026-08-30. Wikidata Q137008739 label 'Dwarkesh Patel', description 'podcast host and author', P2002 dwarkesh_sp, sitelink enwiki Dwarkesh Patel; dereferenced via Special:EntityData JSON 2026-08-30. DBpedia https://dbpedia.org/resource/Dwarkesh_Patel returned 503 this pass — not added. First registered 2026-08-30 from to-read item https://www.dwarkesh.com/p/openai-huggingface (essay dated 2026-08-29: The Rise and Fall of Agent Civilizations)."@en ;
+    schema:dateCreated "2026-08-30T00:00:00Z"^^xsd:dateTime .
+
+:melvinCarvalho a schema:Person ;
+    schema:name "Melvin Carvalho"@en ;
+    schema:url <https://melvincarvalho.com/> ;
+    owl:sameAs <https://melvincarvalho.com/#me>,
+               <https://x.com/melvincarvalho#this> ;
+    rdfs:comment "WebID https://melvincarvalho.com/#me dereferenced 2026-08-30 as text/turtle Solid PersonalProfileDocument, foaf:primaryTopic <#me>, foaf:name Melvin Carvalho, cert:key #key1-#key4 present. Historical http://foaf.me/melvincarvalho#me returned 502 this pass and was not added. X handle @melvincarvalho from the profile's twitter account triple (document URL without fragment is schema:url-class; person IRI uses x.com#this). No LinkedIn in the profile. First registered 2026-08-30 from the WebID origin-story pass. Local name :melvinCarvalho is a registry index label only."@en ;
+    schema:dateCreated "2026-08-31T02:08:00Z"^^xsd:dateTime .
+
+:danBrickley a schema:Person ;
+    schema:name "Dan Brickley"@en ;
+    schema:url <https://www.linkedin.com/in/danbri> ;
+    owl:sameAs <https://linkedin.com/in/danbri#this>,
+               <https://www.linkedin.com/in/danbri#this>,
+               <https://x.com/danbri#this>,
+               <https://orcid.org/0000-0002-6450-7041> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/danbri HTTP-verified 2026-08-31 as Dan Brickley, SpyPixel Limited (FOAF co-creator, Schema.org coordinator). X https://x.com/danbri#this is secondary: he is not currently active there; Schema.org about.html still hyperlinks his name to http://twitter.com/danbri (2026-08-31). FOAF Vocabulary Specification Authors line is mailto:danbri@danbri.org only, not a person IRI. Historical homepage/FOAF at danbri.org was not used as canonical this pass (did not reliably dereference). ORCID 0000-0002-6450-7041 from the DCMI Governing Board JSON-LD on https://www.dublincore.org/groups/governing-board/dan_brickley/. First registered 2026-08-31 from the WebID origin-story article. Local name :danBrickley is a registry index label only."@en ;
+    schema:dateCreated "2026-08-31T14:15:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── AfterQuery founders + Forbes reporter + IBPS partner catch-up (2026-09-01) ──
+# ═══════════════════════════════════════════════════════════════════════════════
+
+:spencerMateega a schema:Person ;
+    schema:name "Spencer Mateega"@en ;
+    schema:jobTitle "Co-Founder & CEO"@en ;
+    schema:worksFor <https://linkedin.com/company/afterquery#this> ;
+    schema:url <https://www.linkedin.com/in/spencermateega> ;
+    owl:sameAs <https://linkedin.com/in/spencermateega#this>,
+               <https://www.linkedin.com/in/spencermateega#this>,
+               <https://x.com/spencermateega#this> ;
+    schema:description "Co-founder and CEO of AfterQuery (YC W25); age 23. Wharton B.S. Finance and Statistics and Penn M.S. Computer Science; internships at Meta, Google, Morgan Stanley (technology IB), and Silver Lake (sole global summer analyst). AfterQuery is a San Francisco applied research lab selling expert-curated training data and RL environments to frontier labs."@en ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Slug /in/spencermateega HEAD 200 on linkedin.com 2026-09-01; www.linkedin.com GET 999 this pass — www alias still included. X @spencermateega (id 930959130940059648, display name Spencer Mateega, bio 'ceo @afterquery', website mateega.com HTTP 200) via fxtwitter 2026-09-01. No Wikidata Q-ID (search empty). First registered 2026-09-01 from Grok share https://x.com/i/grok/share/8d914c93f5264fd49cab9075f3587ea1 (GET 200) and Forbes https://www.forbes.com/sites/annatong/2026/09/01/afterquery-becomes-ycs-fastest-unicorn-at-32-billion/ (HEAD 200). Local name :spencerMateega is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:carlosGeorgescu a schema:Person ;
+    schema:name "Carlos Georgescu"@en ;
+    schema:jobTitle "Co-Founder & CTO"@en ;
+    schema:worksFor <https://linkedin.com/company/afterquery#this> ;
+    schema:url <https://x.com/CarlosGeorgescu> ;
+    owl:sameAs <https://x.com/CarlosGeorgescu#this> ;
+    schema:description "Co-founder and CTO of AfterQuery (YC W25); age 22. UBC B.S. Computer Science; internships at Meta, Google, and Citadel Securities (2x); past acquired ed-tech founder. Met Spencer Mateega in high school at a Google summer program and interned with him at Meta."@en ;
+    rdfs:comment "X is canonical. No confirmed public LinkedIn slug — not invented. Handle @CarlosGeorgescu (id 1512590317769269249, display name Carlos Georgescu, bio '@afterquery interested in AI research, quantitative finance & poker') HTTP 200 and fxtwitter-verified 2026-09-01. No Wikidata Q-ID this pass. First registered 2026-09-01 from the AfterQuery Grok share and YC company page https://www.ycombinator.com/companies/afterquery (HEAD 200). Local name :carlosGeorgescu is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:dannyTang a schema:Person ;
+    schema:name "Danny Tang"@en ;
+    schema:jobTitle "Co-Founder"@en ;
+    schema:worksFor <https://linkedin.com/company/afterquery#this> ;
+    schema:description "Third co-founder of AfterQuery (YC W25). Wharton roommate of Spencer Mateega; they met in high school, built and sold a startup, then both attended Wharton. Listed on the YC AfterQuery company page and YC LinkedIn launch post alongside Mateega and Georgescu. High-school public speaking and Microsoft AI competition wins; later real-estate / IPO work per the YC founder bio."@en ;
+    rdfs:comment "LOCAL-IRI EXCEPTION: no confirmed public LinkedIn slug (not invented). X handle @dannytang HTTP 200 / fxtwitter 200 this pass but the profile has an empty bio, 21 followers, and no AfterQuery affiliation — not treated as this person. No DBpedia or Wikidata hit. Canonical remains the registry-local IRI :dannyTang until a verified platform profile exists. First registered 2026-09-01 from the YC AfterQuery company page (named in Our Team / launch credits) and Forbes AfterQuery coverage. Local name :dannyTang is both the registry index label and, under the no-platform-presence exception, the canonical person IRI for this file."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:annaTong a schema:Person ;
+    schema:name "Anna Tong"@en ;
+    schema:jobTitle "Reporter"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Forbes> ;
+    schema:email "atong@forbes.com" ;
+    schema:url <https://www.linkedin.com/in/annatong> ;
+    owl:sameAs <https://linkedin.com/in/annatong#this>,
+               <https://www.linkedin.com/in/annatong#this>,
+               <https://x.com/annatonger#this> ;
+    schema:description "Forbes reporter covering artificial intelligence who broke the 2026-09-01 AfterQuery $3.2B valuation story. Previously Reuters tech correspondent and San Francisco Standard data editor; Harvard graduate."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/annatong HEAD 200 on linkedin.com 2026-09-01; www.linkedin.com GET 999 this pass — www alias still included. X @annatonger (id 15656406, display name Anna Tong, bio '@Forbes reporter covering artificial intelligence and technology') HTTP 200 and fxtwitter-verified 2026-09-01; public X bio lists atong@forbes.com (copied as schema:email). Author page https://www.forbes.com/sites/annatong/ HTTP-verified via the 2026-09-01 article URL HEAD 200. No Wikidata Q-ID (search empty). First registered 2026-09-01 from that Forbes article. Local name :annaTong is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:philippHerzig a schema:Person ;
+    schema:name "Philipp Herzig"@en ;
+    schema:jobTitle "Chief Technology Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/philipp-herzig> ;
+    owl:sameAs <https://linkedin.com/in/philipp-herzig#this>,
+               <https://www.linkedin.com/in/philipp-herzig#this> ;
+    schema:description "SAP Global CTO and member of the SAP SE Extended Board; previously Chief AI Officer and CPO for the Business AI Platform. Leads SAP technology strategy, research, innovation, corporate development, and Business AI."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/philipp-herzig HEAD 200 on linkedin.com 2026-09-01. Live profile title Chief Technology Officer at SAP SE; earlier Chief AI Officer role on the same profile. Named as CTO / Extended Board on architecture.learning.sap.com (AI-native North Star architecture foreword). Wikidata search returned Q102799649 (TU Dresden Dr.-Ing. 2014) without an SAP affiliation in the label — not added as unverified identity match. First registered 2026-09-01 from IBPS partner catch-up. Local name :philippHerzig is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:georgKniese a schema:Person ;
+    schema:name "Georg Kniese"@en ;
+    schema:jobTitle "Chief Corporate Development and Investments Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/georg-kniese-a12519192> ;
+    owl:sameAs <https://linkedin.com/in/georg-kniese-a12519192#this>,
+               <https://www.linkedin.com/in/georg-kniese-a12519192#this> ;
+    schema:description "SAP Chief Corporate Development and Investments Officer (corp-dev / acquire execution); EVP and member of the SAP Global Executive Team; SVP Global Head of Corporate Development M&A."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/georg-kniese-a12519192 HEAD 200 on linkedin.com 2026-09-01. First registered 2026-09-01 from IBPS partner catch-up (SAP acquire-execution contact). Local name :georgKniese is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:walterSun a schema:Person ;
+    schema:name "Walter Sun"@en ;
+    schema:jobTitle "SVP, Global Head of AI"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/sunwalter> ;
+    owl:sameAs <https://linkedin.com/in/sunwalter#this>,
+               <https://www.linkedin.com/in/sunwalter#this> ;
+    schema:description "SAP SVP and Global Head of AI (tech champion for Business AI). Previously Vice President of AI for Business Applications & Platform at Microsoft."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/sunwalter HEAD 200 on linkedin.com 2026-09-01; www.linkedin.com 429 this pass — www alias still included. First registered 2026-09-01 from IBPS partner catch-up. Local name :walterSun is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:karlFahrbach a schema:Person ;
+    schema:name "Karl Fahrbach"@en ;
+    schema:jobTitle "Chief Partner Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/karlfahrbach> ;
+    owl:sameAs <https://linkedin.com/in/karlfahrbach#this>,
+               <https://www.linkedin.com/in/karlfahrbach#this> ;
+    schema:description "SAP Chief Partner Officer; owns PartnerEdge including PartnerEdge Build. Public voice on SAP Build TDD licenses and PartnerEdge leveling. PartnerEdge Build is the wrong door for inbound OEM (IBPS path)."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/karlfahrbach HEAD 200 on linkedin.com 2026-09-01. Named Chief Partner Officer on SAP News Center (2025-08 free SAP Build TDD licenses). First registered 2026-09-01 from IBPS partner catch-up as the PartnerEdge Build contact (wrong door for inbound OEM). Local name :karlFahrbach is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:rayCase a schema:Person ;
+    schema:name "Ray Case"@en ;
+    schema:jobTitle "Director IT Enterprise Architecture and SAP Infrastructure"@en ;
+    schema:worksFor <http://dbpedia.org/resource/O-I_Glass> ;
+    schema:url <https://www.linkedin.com/in/ray-case-07195899> ;
+    owl:sameAs <https://linkedin.com/in/ray-case-07195899#this>,
+               <https://www.linkedin.com/in/ray-case-07195899#this> ;
+    schema:description "O-I Glass (Owens-Illinois) Director of IT Enterprise Architecture and SAP Infrastructure; quoted O-I / SAP-infrastructure customer in IBM Db2 migration case studies."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/ray-case-07195899 HEAD 200 on linkedin.com 2026-09-01. Quoted as Director of SAP Infrastructure and Enterprise Platforms at Owens-Illinois / O-I Glass in IBM case studies (ibm.com/case-studies/owens-illinois-hybrid-cloud and o-i-glass-inc). First registered 2026-09-01 from IBPS partner catch-up (quoted customer). Local name :rayCase is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:elizabethCuratolo a schema:Person ;
+    schema:name "Elizabeth Curatolo"@en ;
+    schema:jobTitle "Technology Partnerships"@en ;
+    schema:worksFor <http://www.wikidata.org/entity/Q120599684> ;
+    schema:url <https://www.linkedin.com/in/elizabeth-curatolo> ;
+    owl:sameAs <https://linkedin.com/in/elizabeth-curatolo#this>,
+               <https://www.linkedin.com/in/elizabeth-curatolo#this> ;
+    schema:description "Technology Partnerships at SpaceXAI; previously Senior Director of Technology Partnerships at Cursor. First SpaceXAI conversation contact in the IBPS partner work."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/elizabeth-curatolo HEAD 200 on linkedin.com 2026-09-01. Live profile title Technology Partnerships at SpaceXAI (LinkedIn company spacexai). schema:worksFor uses the SpaceXAI Wikidata canonical org IRI (Q120599684), not SpaceX parent. First registered 2026-09-01 from IBPS partner catch-up. Local name :elizabethCuratolo is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:irfanKhan a schema:Person ;
+    schema:name "Irfan Khan"@en ;
+    schema:jobTitle "President & Chief Product Officer, SAP Data & Analytics"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/irfan-ak-khan> ;
+    owl:sameAs <https://linkedin.com/in/irfan-ak-khan#this>,
+               <https://www.linkedin.com/in/irfan-ak-khan#this> ;
+    schema:description "SAP President and Chief Product Officer for Data & Analytics (SAP HANA Database & Analytics portfolio, including HANA, Datasphere, Analytics Cloud, Business Data Cloud)."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/irfan-ak-khan previously HTTP 500 / not fully verified; re-checked 2026-09-01: HEAD 200 on linkedin.com/in/irfan-ak-khan. GET from the box this pass returned a LinkedIn recaptcha/challenge page (not 500). Public profile snippet and LinkedIn posts under /posts/irfan-ak-khan_ match President & CPO SAP Data & Analytics / HANA Database & Analytics (ASUG, diginomica). A different slug /in/irfankhan also HEAD-200s — not aliased (unverified as the same person; not invented as a replacement). First registered 2026-09-01 from IBPS partner catch-up. Local name :irfanKhan is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .

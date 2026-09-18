@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/no-infra-port-disclosure.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 278. Published documents narrating a real live deployment must not state the specific network port a connection listener runs on, even when it's true, already used in the actual working commands, and the narrative is otherwise meant to be maximally transparent/verifiable."@en ;
+    schema:dateCreated "2026-09-02T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Omit specific infrastructure ports from published deployment narratives"@en ;
+    schema:description "Distinguishes what's safe to disclose about a real deployment (that it happened, on what software version, via what protocol/mechanism) from what isn't (the specific port a listener runs on)."@en ;
+    schema:step :step-incident, :step-whatToKeep, :step-whatToOmit, :step-scopeNote ;
+    rdfs:seeAlso <../preferences.ttl#step-noInfraPortDisclosure> .
+
+:step-incident a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Incident: a comparison document's 'proof of live deployment' section stated the exact isql SQL-listener port for a real, currently-reachable public instance"@en ;
+    schema:text "2026-09-02: while documenting that an RDF View was actually deployed and verified on demo.openlinksw.com (not just described), the generated prose included '(deployed via isql over its WebID-TLS SQL listener, port 21118, authenticated with the operator's own PKCS#12 credential)' and a second occurrence '(isql port 21118, account kidehen, ...)' — both true, both drawn directly from the actual commands used, both in a document meant to be published/shared publicly. User: 'From a security best practices perspective, don't make statements like [this]. The critical item being the port number.' Fixed by removing the port number from both TTL occurrences and their propagated HTML/MD copies, keeping everything else (that isql was used, the auth mechanism, the account name, the schema-qualifier difference) intact."@en .
+
+:step-whatToKeep a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Safe to state: that a deployment happened, the software/version, the general mechanism, and non-sensitive account/schema facts"@en ;
+    schema:text "Keep: 'deployed via isql', 'authenticated with a PKCS#12 / WebID-TLS credential', the Virtuoso version, the account name if it's not itself sensitive, schema-qualifier differences (DB.DBA vs DB.kidehen) — these support the 'this really happened, here's how' narrative without handing a would-be attacker a working connection target."@en .
+
+:step-whatToOmit a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Omit: specific port numbers, and by extension any other exact connection coordinate for a live, reachable instance"@en ;
+    schema:text "A port number for a real, currently-running, network-reachable service is reconnaissance information — it narrows an attacker's job even though the port alone isn't a credential. The same caution generalizes to other exact connection coordinates for a live target: internal hostnames not otherwise public, non-standard service paths meant to stay obscure, etc. Public HTTP/HTTPS endpoints already advertised as the whole point of the deployment (e.g. the /role/{id} dereferencing URLs) are NOT covered by this — those are meant to be found and clicked; a raw SQL/administrative listener port is not."@en .
+
+:step-scopeNote a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Scope: this applies to PUBLISHED document content, not to private session/operator memory"@en ;
+    schema:text "agent-rdf-memory session logs and internal howto files are the operator's own private operational record, not a published artifact — recording the actual port there (as already done in this session's own session TTL) remains correct and useful for the operator's future reuse. The redaction rule applies specifically to content destined for a public-facing TTL/HTML/MD deliverable."@en .

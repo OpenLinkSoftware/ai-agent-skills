@@ -1,0 +1,42 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/osdi-composite-doc-caching-and-content-gate.ttl"@en ;
+    schema:description "Two gotchas hit while adding nine new template/RDF-driven pricing pages to the OSDI composite-doc (stock-engine) demo on oplussol11.intranet.openlinksw.com, 2026-08-30: a physical-content-file existence gate that applies even to routes whose layout never reads that file, and a compiled-XSLT cache for custom-location skin shims that staleall() cannot reach and that has no working per-file invalidation function on this instance."@en ;
+    schema:dateCreated "2026-08-30T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Debug a new composite-doc route that 404s, or a skin-shim edit that never takes effect"@en ;
+    schema:description "Both symptoms look like the route/data/query is wrong when it usually isn't -- in both cases the underlying SPARQL and routing.ttl/skin.ttl content were already correct, verified by querying the graph directly and by reconstructing the composer's own compiled query by hand."@en ;
+    schema:step :step-contentFileGate, :step-staleXsltShim, :step-scopeMatters .
+
+:step-contentFileGate a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "A template/RDF-driven route 404s even though its route and skin data are correct: the engine still needs a physical content/{page}.html file"@en ;
+    schema:text """Symptom: requesting the new route returns 404, but the response nonetheless carries correct engine-rendered chrome (site nav with the right relative base, correct canonical link) -- proof the request DID reach index.vsp and the route WAS matched via oplsite:slug, ruling out a rewrite-rule or routing.ttl problem. The 404's Location header points at the same not-found search fallback (.../fct/?q=...) documented elsewhere for missing pages.
+
+Root cause: on this stock/composite-doc engine, index.vsp's own top-level dispatch does its OWN "does content/{page}.html physically exist" check BEFORE ever invoking the skin/RDF composer -- and this happens unconditionally, even for a route whose layout is entirely template/RDF-driven and has no data-osdi-content element at all (so the file's CONTENTS are never read or used). The nine existing driver pages already had exactly this: content/drivers/{db}.html files that exist purely to satisfy this gate, sitting completely unused since the "driver" layout composes entirely from RDF via data-osdi-repeat.
+
+Fix: create a placeholder at the exact content path the new route's slug maps to (append .html to the slug, per the engine's extensionless-URL convention) -- `<html><head><title>{slug}</title></head><body></body></html>` is sufficient, matching the existing unused placeholders byte-for-byte in spirit. MKCOL the parent collection first if the route nests deeper than the existing content/ tree (e.g. content/drivers/{db}/pricing.html needs content/drivers/{db}/ created first) -- a PUT to a path whose parent collection doesn't exist yet returns 409, not 404 or 201."""@en .
+
+:step-staleXsltShim a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Editing a custom-location skin shim (e.g. skin-ldp.xslt) has no effect, even after staleall() + config_flush_cache() -- because there is no working per-file cache-invalidation function on this instance"@en ;
+    schema:text """staleall()'s own documented limitation is real: "only invalidates the skins the engine knows about" (the registered collections under /DAV/VAD/inclusion-engine/skin/ and /DAV/VAD/opl-skins/). A shim living elsewhere -- e.g. a site's own /DAV/home/.../sites/openlink/skin-ldp.xslt -- is compiled as XSLT, and staleall() never touches its compiled form regardless of how many times the underlying file's CONTENT is edited and re-uploaded.
+
+What is NOT true, despite circulating as the documented fix: DB.DBA.xslt_stale() and incleng..xslt_stale() are both undefined procedures on this Virtuoso instance (08.03.3335) -- confirmed by direct SQL call, both raising "Undefined procedure". Do not spend time retrying variations of this call; it simply is not there to call.
+
+Verified failure mode: edited skin-ldp.xslt's own $datasetparams variable (a compile-time XSLT constant naming which RDF graphs the composer's per-request document() fetches search) to add nine newly-uploaded document graphs to a 16-graph list. Re-uploaded the file nine separate times, ran staleall() + config_flush_cache() after every single one, and reverified via curl each time -- every single test still showed the OLD, pre-edit 16-graph behavior (queries against the 9 new graphs found nothing), even though a manual reconstruction of the composer's exact runtime query, fetched fresh and run directly against /sparql/, returned correct results immediately. This mismatch between "the data and query are provably correct in isolation" and "the live page still shows the old behavior" is the tell for this exact bug, not a data or query problem.
+
+ACTUAL WORKING FIX: deploy the corrected file under a brand-new filename (skin-ldp-v2.xslt, not a re-upload of skin-ldp.xslt), then repoint the site's xslt_sheet config value at the new filename. This works on the very first try -- Virtuoso compiles a genuinely new resource rather than reusing whatever it had cached under the old URI, and there is no indication this needs repeating on subsequent edits to files already using a "-v2"-style path (only the ORIGINAL file's compiled form was stuck; the same live-editability problem has not yet recurred on the new file, though this has only been observed once and is not yet a settled fact)."""@en .
+
+:step-scopeMatters a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "config_set scope mistake that looks like the fix didn't work: URL scope only affects that one exact URL, not the site"@en ;
+    schema:text "First attempt at repointing xslt_sheet used config_set with the site's homepage URL as the uri parameter (URL scope) rather than null uri + site shortname (site scope). config_get against the SAME url-scoped call correctly showed the new value, but every OTHER page on the site (including the one actually being tested) kept resolving the OLD xslt_sheet, because a URL-scoped override applies to exactly one URL and nothing else. Always use config_set(null, '<site>', 'xslt_sheet', ...) to change a site's default skin binding; reserve URL scope for a genuine single-page override."@en .

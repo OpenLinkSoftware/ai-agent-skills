@@ -7,7 +7,7 @@
     schema:name "Fixed-Background UI Regions: Pin Colors, Never Theme Variables"@en ;
     schema:description "How to style UI regions whose background does not switch with the light/dark theme, so text remains readable in both modes."@en ;
     schema:dateCreated "2026-07-23T00:00:00Z"^^xsd:dateTime ;
-    schema:step :step1-identify, :step2-pin, :step3-audit-both-themes, :step4-scope-overrides ;
+    schema:step :step1-identify, :step2-pin, :step3-audit-both-themes, :step4-scope-overrides, :step5-linkColorVariables ;
     rdfs:seeAlso <../preferences.ttl#step-fixedBackgroundColorPinning>, <ui-ux-expert-persona.ttl>, <openlink-brand-color-scheme.ttl> .
 
 :step1-identify a schema:HowToStep ;
@@ -30,3 +30,8 @@
     schema:position 4 ;
     schema:name "Scope the pinned overrides to the fixed region; leave theme-following areas on variables"@en ;
     schema:text "Add a clearly commented override block scoped to the fixed region's selectors (e.g. '.panel', '.facet-*', 'ul.archive') placed after the theme-variable rules so it wins in the cascade. Content areas whose backgrounds DO switch with the theme must keep using theme variables."@en .
+
+:step5-linkColorVariables a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "The failure mode extends to hyperlink color variables, not just text/muted/border — and a variable that LOOKS accent-like can still be wrong"@en ;
+    schema:text """Found 2026-09-02 on a Neo4j-vs-Virtuoso comparison page: the .hero region has a permanently dark gradient background (--hero-from/--hero-to, never redefined in the dark-theme block — already correctly pinned for its OWN text via --hero-ink/--hero-ink-soft, which are likewise never redefined per theme). But its hyperlinks (.hero .tagline a and .hero-meta a) were left on var(--accent) or the global default var(--primary) instead of a pinned literal. --primary's LIGHT-theme value is a dark navy (#1f4e79, chosen for light backgrounds) — against the hero's fixed dark background this measured 1.35:1 and 2.11:1 contrast (WCAG AA requires 4.5:1), i.e. the links were nearly invisible, but ONLY in light theme, which is why it went unnoticed: --primary's DARK-theme value happens to be a bright cyan that reads fine on a dark background by coincidence, masking the bug whenever previewed in dark theme (the same asymmetric-masking failure as :step3-audit-both-themes, just on link color instead of text color). FIX: pinned both rules to a literal #5fd0ff (the numeric dark-theme --primary/--accent value) rather than any variable, verified via WCAG contrast calculation against both hero gradient stops (7.82-10.42:1) before shipping. GENERALIZE: inside a fixed-background region, audit EVERY color property on EVERY element (including nested <a> tags, which often have no region-specific rule at all and silently inherit the page's theme-variable global default) — not just the region's own directly-styled text/border, since a child element's own CSS may reintroduce a theme-variable dependency the parent's pinning did not cover."""@en .

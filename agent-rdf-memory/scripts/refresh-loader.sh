@@ -18,7 +18,12 @@ python3 "$PY" --store "$STORE" --out "$SQL"
 
 echo
 echo "== run the load with YOUR credentials (password never shown) =="
-echo "    isql 1111 dba <dba-password> -f \"$SQL\""
+# NOTE (2026-09-16): Virtuoso 08.03.3335 isql takes the script as a POSITIONAL argument
+# (usage: isql <HOST>[:<PORT>] <UID> <PWD> file1 file2 ...). "-f <file>" is parsed as a
+# script FILENAME, so the run connects and then aborts at line 0 with
+# 'Cannot open file "-f" for loading' — a syntax failure that looks like a credential
+# failure because the connection itself succeeds. Never re-add -f here.
+echo "    isql 1111 dba <dba-password> \"$SQL\""
 
 if [ "${1:-}" = "--check" ]; then
     echo

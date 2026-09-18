@@ -21,7 +21,8 @@
     schema:workExample :workExample-userKnownValues, :workExample-agentKnownValues,
         :workExample-expectedDelegationTriples, :workExample-remoteUrls ;
     rdfs:seeAlso <../preferences.ttl#step-verifiedWhoami>, <../preferences.ttl#step-verifyRecipDelegation>, <../preferences.ttl#step-verifyDelegationRemote>, <agent-identity.ttl>,
-        <filesystem-path-verification.ttl> .
+        <filesystem-path-verification.ttl>,
+        <webid-identity-selection-gate.ttl>, <../preferences.ttl#step-webidIdentitySelection> .
 
 :verifiedIdentityGate a schema:Thing ;
     schema:name "Verified Identity Gate"@en ;

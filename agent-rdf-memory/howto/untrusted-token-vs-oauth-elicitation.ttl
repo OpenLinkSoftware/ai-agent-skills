@@ -1,0 +1,21 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/untrusted-token-vs-oauth-elicitation.ttl"@en ;
+    schema:description "Standing rule: when a protocol design already specifies a proper token-issuance/OAuth elicitation flow for a bearer credential, use it — never substitute an opaque token of unverified provenance (e.g. a hardcoded default pulled from a downloaded script) and treat a negative test result against it as evidence about the SERVER."@en ;
+    schema:dateCreated "2026-09-03T00:00:00Z"^^xsd:date ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :untrustedTokenGate .
+
+:untrustedTokenGate a schema:Thing ;
+    schema:name "Untrusted-Token-vs-OAuth-Elicitation Gate"@en ;
+    schema:description "Blocking rule requiring a proper credential-issuance flow before using a bearer token to diagnose a server, when one is specified."@en .
+
+:step-elicitProperToken a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Elicit a proper token-issuance flow (OAuth Authorization Code+PKCE, or the deployment's equivalent) for a known identity before diagnosing a bearer-authenticated endpoint — never substitute a downloaded script's hardcoded token"@en ;
+    schema:text "Caught 2026-09-03 on the ucp-client UCP checkout endpoint (ods-qa.openlinksw.com): a bearer token migrated from a downloaded, unknown-provenance script (ucp_curl.zip) was used to test /ucp/checkout-sessions; it returned 401 identically whether real, garbage, or absent, and this was wrongly reported as a CONFIRMED server-side auth-wiring gap. A counter-run using a properly-issued token (opl-shop's own ucp_curl.sh, VAL-authenticated) completed the full checkout lifecycle — identity resolution, checkout create/complete, and a linked order record — proving the endpoint works correctly. The isolation test's logical flaw: three identical 401s for three variants of MY token only prove that token is bad, never that no token could work. RULE: when a design (here, the ucp-client SKILL.md / protocol design doc Section 4.2) already specifies how to obtain a verified credential — an OAuth Authorization Code + PKCE browser flow, or whatever deployment-specific token-issuance mechanism a merchant actually uses (e.g. the 'VAL' scheme referenced by ucp_curl.sh's own comments) — that flow must be elicited and run BEFORE drawing any conclusion about server-side auth wiring. An opaque token pulled from a downloaded file is untrusted by default (see howto/set-webdav-resource-property or the general downloaded-file distrust posture) and testing against it can only produce information about THAT token, never about the endpoint's actual capability. RESOLVED same day: the actual documented issuance mechanism was in acp-client/references/oauth-token-setup.md all along — the OpenLink OAuth Identity Provider Applications page (https://ods-qa.openlinksw.com/oauth/applications.vsp, requires the :5443 mTLS listener for WebID-TLS login, same as resource access). The user's WebID already had a real registered application there ('ki-idehen-netid') with a live API key; using it against /ucp/checkout-sessions returned 422 (missing request-id/idempotency-key/request-signature headers) rather than 401 — independent proof the endpoint's auth wiring works and this token is valid, obtained without relying on the counter-report. Stored as a distinct Keychain item, core.ttl :ucpOdsQaKidehenNetidApiKeyItem. Lesson for next time: check the SAME-ecosystem skill's own reference docs (acp-client, here) before treating a downloaded script's hardcoded value as the only available credential source."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-untrustedTokenVsOAuthElicitation> .

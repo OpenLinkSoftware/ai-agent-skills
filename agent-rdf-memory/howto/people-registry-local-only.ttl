@@ -1,0 +1,45 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "The Live People Registry (entities/people.ttl) Is Local-Only; the Public Repo Carries Only people.example.ttl"@en ;
+    schema:description "entities/people.ttl is the user's private, live schema:Person registry. It is gitignored and must never be committed, staged or pushed to the public ai-agent-skills repo. The repo carries entities/people.example.ttl instead: a sample snapshot with a usage header. The loader, the state table and the full-store gate skip *.example.ttl, so it is never loaded as live registry data. Established 2026-09-18 (commits db0ad46 untrack + bc81b54 sample rename, then renamed back to people.example.ttl the same day at the user's preference); versions of people.ttl committed before then remain in remote history."@en ;
+    schema:dateCreated "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-18T23:59:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-neverCommitPeopleTtl, :step-sampleIsThePublicCopy, :step-bootstrapFromSample, :step-exampleTtlNaming ;
+    rdfs:seeAlso <../preferences.ttl#step-peopleRegistryLocalOnly>,
+        <entity-registry-census-verification.ttl> .
+
+# ── Step 1: never commit the live registry ───────────────────────────────────
+
+:step-neverCommitPeopleTtl a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Never stage, commit or push entities/people.ttl, even when asked to commit everything in agent-rdf-memory"@en ;
+    schema:text """people.ttl is listed in the repo-root .gitignore. Before any commit touching agent-rdf-memory, run 'git status --porcelain -- agent-rdf-memory/entities/' and confirm people.ttl is absent. If it ever shows up as tracked or staged (e.g. after a history rewrite, a merge from a branch that still tracks it, or 'git add -f'), unstage it with 'git restore --staged' or untrack it with 'git rm --cached' (never a plain 'git rm', which deletes the local file) and tell the user. Keep editing people.ttl locally as usual: registering newly resolved person IRIs there is still required."""@en .
+
+# ── Step 2: the sample is the only public copy ──────────────────────────────
+
+:step-sampleIsThePublicCopy a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "entities/people.example.ttl is the only people registry in the public repo; do not refresh it from the live file without explicit approval"@en ;
+    schema:text """Copying live people.ttl content into the example file would publish private data by another route. Any update to the sample needs the user's explicit per-change approval, and should add only entries the user confirms are fine to publish. Keep the .example.ttl suffix: it is what keeps the file out of the loader, so renaming it to any other *.ttl name would load sample data into the live memory graph as a second people registry."""@en .
+
+# ── Step 3: bootstrapping a fresh clone ─────────────────────────────────────
+
+:step-bootstrapFromSample a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "On a fresh clone, create the local registry from the sample"@en ;
+    schema:text """cp agent-rdf-memory/entities/people.example.ttl agent-rdf-memory/entities/people.ttl
+
+The sample's header comment and agent-rdf-memory/README.md (entities/ entry) document this. After a pull that removes the previously tracked people.ttl, collaborators restore their own copy (from a backup, or from the sample)."""@en .
+
+# ── Step 4: template files are named *.example.ttl, and are not loaded ─────
+
+:step-exampleTtlNaming a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Name template and sample files {name}.example.ttl, never {name}.ttl.sample; the loader, state table and full-store gate skip *.example.ttl"@en ;
+    schema:text """Kingsley, 2026-09-18, on finding the orphan graph left by the people.example.ttl -> people.ttl.sample rename: 'the .ttl extension variant is the preferred one', then chose that example files are templates and must not be loaded. Implemented by excluding *.example.ttl in scripts/generate-loader-sql.py (collect_files), load_memory.py (memory_state_table) and scripts/full-store-graph-gate.py (collect_files). The graphs already loaded from entities/people.example.ttl and preferences.private.example.ttl were cleared with the user's approval. The same naming covers preferences.private.example.ttl."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-exampleTtlNaming> .

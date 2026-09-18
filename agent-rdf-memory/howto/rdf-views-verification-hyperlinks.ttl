@@ -1,0 +1,32 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/rdf-views-verification-hyperlinks.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 279. Verification of RDF Views (or any RDF deployment) is only complete when the reply includes clickable sample hyperlinks to entities the RDF Views actually expose — never just row counts and query-result tables."@en ;
+    schema:dateCreated "2026-09-02T17:20:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Reply with sample RDF-View entity hyperlinks on every verification"@en ;
+    schema:description "Turns a bare verification result (row counts, SPARQL tables) into a clickable proof: representative subject IRIs the user can dereference to see a real subject/predicate/object sample."@en ;
+    schema:step :step-rule, :step-whatCounts, :step-example ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewVerificationHyperlinks> .
+
+:step-rule a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Always pair any RDF-View verification with sample entity hyperlinks"@en ;
+    schema:text "The moment a verification reports that RDF Views are deployed and functional (table row counts, triple counts, a SPARQL answer), the same reply must also emit markdown hyperlinks to representative entities produced by the RDF Views. A count of 46 triples or a 'Yusuf Rahman' result row is evidence; a clickable http://demo.openlinksw.com/acmebank/person/100 that dereferences to a real describe page is proof."@en .
+
+:step-whatCounts a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Include at least one entity of each mapped class"@en ;
+    schema:text "Cover every class the RDF Views expose, not just one. For an operating-structure model that means at least one organisation, one role, one person, and the reified assignment (the edge-with-validity entity). Each hyperlink is the entity's own dereferenceable IRI produced by the `create iri class ... \"<template>/%d\"` mapping — not a rewritten search URL."@en .
+
+:step-example a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Worked example: demo.openlinksw.com AcmeBank RDF Views"@en ;
+    schema:text "For the AcmeBank operating-structure RDF Views on demo.openlinksw.com the sample set is: organisation http://demo.openlinksw.com/acmebank/org/1 (AcmeBank), role http://demo.openlinksw.com/acmebank/role/12 (Head of SMB Lending), person http://demo.openlinksw.com/acmebank/person/100 (Yusuf Rahman), and assignment http://demo.openlinksw.com/acmebank/assignment/2 (the open-interval FILLED_BY edge). Each 303-redirects via the deployed rewrite rule to /describe/?uri=...&graph=http://demo.openlinksw.com/acmebank/data."@en .

@@ -22,6 +22,7 @@ agent-rdf-memory/
 ├── sessions/              ← episodic memory (YYYY-MM-DD-{llm}-{env}.ttl)
 ├── projects/              ← project-specific knowledge
 ├── entities/              ← people, organizations, tools, concepts
+│                            (people.ttl is local/gitignored — start from people.example.ttl)
 └── scripts/               ← validation & utility scripts
 ```
 

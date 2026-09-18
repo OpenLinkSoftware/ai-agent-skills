@@ -1,0 +1,41 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/agi-definition.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 287. Kingsley's standing definition of AGI as intellect-augmentation tooling."@en ;
+    schema:dateCreated "2026-09-07T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto ;
+    schema:citation <https://x.com/kidehen/status/2096292164871582204> .
+
+:howto a schema:HowTo ;
+    schema:name "Use Kingsley's standing AGI definition"@en ;
+    schema:description "When defining or discussing AGI in Kingsley's voice, use the efficiency / broad-range / intellect-augmentation framing from his 2026-09-05 X post."@en ;
+    schema:step :step-definition, :step-jobsFraming, :step-contrast, :step-usage ;
+    rdfs:seeAlso <../preferences.ttl#step-agiDefinition>,
+        <https://x.com/kidehen/status/2096292164871582204> .
+
+:step-definition a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Canonical definition text"@en ;
+    schema:text """Highly autonomous systems that are more efficient than humans at performing a broad range of traditionally economically valuable tasks.
+
+Source: https://x.com/kidehen/status/2096292164871582204 (2026-09-05)."""@en .
+
+:step-jobsFraming a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Jobs bicycle / rocket-ship framing"@en ;
+    schema:text """That fits naturally with Steve Jobs' original conception of computers as "bicycles for the mind" which, courtesy of natural language becoming part of the UI/UX stack, are increasingly becoming rocket ships for the mind. Fundamentally, AGI is just another man-made tool for augmenting human intellect."""@en .
+
+:step-contrast a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Contrast with OpenAI charter wording when relevant"@en ;
+    schema:text """OpenAI charter (as quoted in the thread Kingsley replied to): "highly autonomous systems that outperform humans at most economically valuable work." Kingsley's refinement prefers "more efficient" and "a broad range of traditionally economically valuable tasks" over "outperform" / "most," and adds the explicit intellect-augmentation tool framing."""@en .
+
+:step-usage a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "When to apply"@en ;
+    schema:text """Apply whenever AGI is defined, contrasted, or used in Kingsley's product/marketing/newsletter voice. Do not substitute replacement-of-humans or singularity framing unless he explicitly asks for that contrast."""@en .
