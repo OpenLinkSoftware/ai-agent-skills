@@ -3668,10 +3668,10 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
         <../scripts/full-store-graph-gate.py>,
         <../scripts/generate-loader-sql.py> .
 
-# ── Step 300: live people.ttl is local-only; public repo ships people.ttl.sample ──
+# ── Step 300: live people.ttl is local-only; public repo ships people.example.ttl ──
 :step-peopleRegistryLocalOnly a schema:HowToStep ;
     schema:position "300"^^xsd:integer ;
-    schema:name "entities/people.ttl is private and local-only: never commit or push it; the public repo carries only entities/people.ttl.sample (usage header, .sample extension keeps it out of the loader glob)"@en ;
+    schema:name "entities/people.ttl is private and local-only: never commit or push it; the public repo carries only entities/people.example.ttl (usage header; the loader skips *.example.ttl)"@en ;
     schema:text "Kingsley, 2026-09-18, while committing agent-rdf-memory changes: 'I think its safer to have people.ttl.sample in the public repo, with a note about how to use it. The people.ttl remains local going forward.' Implemented as db0ad46 (git rm --cached + .gitignore) and bc81b54 (people.example.ttl renamed to people.ttl.sample with a cp-to-use header; README, .gitignore comment and loader SQL updated). Versions of people.ttl committed before this remain in remote history; purging them would need a history rewrite plus force-push, which was not done. Pre-commit check, sample-refresh approval rule and fresh-clone bootstrap are in the companion howto."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
     rdfs:seeAlso <howto/people-registry-local-only.ttl>,
@@ -3704,3 +3704,12 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
     rdfs:seeAlso <howto/memory-query-inference-pragmas.ttl>,
         <howto/pragma-ab-toggle-variant.ttl>,
         <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/data-twingler#this> .
+
+# ── Step 304: template/sample files are named *.example.ttl and are never loaded ──
+:step-exampleTtlNaming a schema:HowToStep ;
+    schema:position "304"^^xsd:integer ;
+    schema:name "Name template and sample files {name}.example.ttl (never {name}.ttl.sample); the loader, state table and full-store gate skip *.example.ttl, so templates never enter the memory graphs"@en ;
+    schema:text "Kingsley, 2026-09-18: 'the .ttl extension variant is the preferred one', with example files treated as templates that are not loaded."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
+    rdfs:seeAlso <howto/people-registry-local-only.ttl#step-exampleTtlNaming>,
+        <howto/people-registry-local-only.ttl> .

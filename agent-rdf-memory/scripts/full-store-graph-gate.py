@@ -137,7 +137,7 @@ def collect_files(store):
     for root, dirs, fs in os.walk(store):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for f in sorted(fs):
-            if f.endswith(".ttl"):
+            if f.endswith(".ttl") and not f.endswith(".example.ttl"):  # templates are not loaded
                 out.append(os.path.join(root, f))
     return sorted(out)
 

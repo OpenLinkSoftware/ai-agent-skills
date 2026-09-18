@@ -26,7 +26,8 @@ DECL  = re.compile(r'@prefix\s+(\w*):\s*<([^>]+)>\s*\.')
 
 def collect_files(store):
     files = sorted(glob.glob(store + "/**/*.ttl", recursive=True))
-    return [f for f in files if "/scripts/" not in f]
+    # *.example.ttl are templates (people.example.ttl, preferences.private.example.ttl), not memory
+    return [f for f in files if "/scripts/" not in f and not f.endswith(".example.ttl")]
 
 def build_preamble(files):
     by = {}

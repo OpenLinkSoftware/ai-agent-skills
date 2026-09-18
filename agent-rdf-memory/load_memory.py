@@ -314,6 +314,7 @@ def memory_state_table(endpoint):
         os.path.relpath(f, BASE)
         for f in glob.glob(os.path.join(BASE, "**", "*.ttl"), recursive=True)
         if not os.path.relpath(f, BASE).startswith("scripts" + os.sep)
+        and not f.endswith(".example.ttl")  # templates are not loaded
     )
     empty = [rel for rel in files if os.path.getsize(os.path.join(BASE, rel)) == 0]
     files = [rel for rel in files if rel not in empty]  # zero-byte docs yield no graph
