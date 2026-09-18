@@ -1,0 +1,37 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:name "The Live People Registry (entities/people.ttl) Is Local-Only; the Public Repo Carries Only people.ttl.sample"@en ;
+    schema:description "entities/people.ttl is the user's private, live schema:Person registry. It is gitignored and must never be committed, staged or pushed to the public ai-agent-skills repo. The repo carries entities/people.ttl.sample instead: a sample snapshot with a usage header. The .sample extension keeps it out of scripts/generate-loader-sql.py's *.ttl glob, so it is never loaded as live registry data. Established 2026-09-18 (commits db0ad46 untrack + bc81b54 sample rename); versions of people.ttl committed before then remain in remote history."@en ;
+    schema:dateCreated "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-18T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-neverCommitPeopleTtl, :step-sampleIsThePublicCopy, :step-bootstrapFromSample ;
+    rdfs:seeAlso <../preferences.ttl#step-peopleRegistryLocalOnly>,
+        <entity-registry-census-verification.ttl> .
+
+# ── Step 1: never commit the live registry ───────────────────────────────────
+
+:step-neverCommitPeopleTtl a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Never stage, commit or push entities/people.ttl, even when asked to commit everything in agent-rdf-memory"@en ;
+    schema:text """people.ttl is listed in the repo-root .gitignore. Before any commit touching agent-rdf-memory, run 'git status --porcelain -- agent-rdf-memory/entities/' and confirm people.ttl is absent. If it ever shows up as tracked or staged (e.g. after a history rewrite, a merge from a branch that still tracks it, or 'git add -f'), unstage it with 'git restore --staged' or untrack it with 'git rm --cached' (never a plain 'git rm', which deletes the local file) and tell the user. Keep editing people.ttl locally as usual: registering newly resolved person IRIs there is still required."""@en .
+
+# ── Step 2: the sample is the only public copy ──────────────────────────────
+
+:step-sampleIsThePublicCopy a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "entities/people.ttl.sample is the only people registry in the public repo; do not refresh it from the live file without explicit approval"@en ;
+    schema:text """Copying live people.ttl content into the .sample would publish private data by another route. Any update to the sample needs the user's explicit per-change approval, and should add only entries the user confirms are fine to publish. Keep the .sample extension: renaming it to *.ttl would pull it into the loader glob and load sample data into the live memory graph as a second people registry."""@en .
+
+# ── Step 3: bootstrapping a fresh clone ─────────────────────────────────────
+
+:step-bootstrapFromSample a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "On a fresh clone, create the local registry from the sample"@en ;
+    schema:text """cp agent-rdf-memory/entities/people.ttl.sample agent-rdf-memory/entities/people.ttl
+
+The sample's header comment and agent-rdf-memory/README.md (entities/ entry) document this. After a pull that removes the previously tracked people.ttl, collaborators restore their own copy (from a backup, or from the sample)."""@en .
