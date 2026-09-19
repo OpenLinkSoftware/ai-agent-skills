@@ -21,6 +21,12 @@ All configuration lives in the quadstore graph `<urn:com.openlinksw.virtuoso.inc
 | `search_requrl` | 1 → also search the request-URL-as-graph |
 | `search_site_graphs` | 1 → also search all site homepages as graphs |
 | `allow_edit` | DAV user's password to enable in-site editing (leave unset in production) |
+| `skin_manifest` | DAV path to a composite skin's `skin.ttl`. **Setting this switches the scope to composite rendering and overrides `xslt_sheet`** |
+| `site_graph` | Named graph a composite skin's SPARQL bindings are scoped to — what lets one skin dress several sites |
+| `regions_off` | Comma-delimited composite-skin region names to omit for this scope (per-page chrome suppression) |
+| `url_trailing_slash` | 1 (default) canonicalises every request to a trailing slash. **Set 0 for a site presenting `.html` URLs**, or every request 302s |
+| `tidy` | 0 skips the HTML Tidy pass — correct when content is already well-formed XHTML |
+| `inline_html5md` / `inline_rdfa` | >0 embeds HTML-Microdata / RDFa islands. With no statements about a page these emit **visible placeholder prose**; set 0 unless the site graph describes its pages |
 
 ## Functions
 
@@ -41,6 +47,45 @@ incleng..staleall()            -- flush compiled XSLT + cache table
 incleng..config_propagate_index_vsp(user, password)   -- defaults 'dav'
 incleng..config_migrate(in dangerous integer := 0)
 ```
+
+### `?skin=` — the per-impression override
+
+Not a config parameter, but it resolves ahead of every one of them. `?skin=<name>` selects a bundle under `/DAV/VAD/opl-skins/`: a legacy skin if the directory has `xslt/PostProcess.xslt`, a composite one if it has `skin.ttl`. Either **overrides `skin_manifest`**, so a composite site remains previewable under any other skin. See `references/composite-skins.md`.
+
+```sql
+incleng..skin_param_to_xslt(in skin varchar)      -- -> legacy PostProcess.xslt, or null
+incleng..skin_param_to_manifest(in skin varchar)  -- -> composite skin.ttl, or null
+```
+
+## Composite Skin Functions
+
+Defined in `inclusion-engine/common/skin-api.sql`. See `references/composite-skins.md` for the manifest vocabulary these read.
+
+```sql
+-- Parse skin.ttl into urn:osdi:skin:{manifest}. Idempotent (clears first).
+-- RE-RUN AFTER EVERY MANIFEST EDIT — this is the manifest deployment step.
+incleng..osdi_skin_load(in manifest varchar)
+
+-- The three XML trees handed to the generic composer.
+incleng..osdi_skin_theme(in manifest varchar)                   -- <skintheme>
+incleng..osdi_skin_templates(in manifest varchar)               -- <skintemplate>
+incleng..osdi_skin_data(in manifest varchar, in site_graph varchar,
+                        in url varchar, in slug varchar)        -- <skindata>
+
+-- Helpers
+incleng..osdi_skin_layout(inout skindata any, in dflt varchar := 'default')
+incleng..osdi_url_slug(in url varchar, in sitebase varchar)
+incleng..osdi_skin_graph(in manifest varchar)
+incleng..osdi_skin_dir(in manifest varchar)
+```
+
+A manifest edit needs BOTH `osdi_skin_load()` and `staleall()`: the first re-parses the manifest, the second clears Virtuoso's compiled-XSLT cache. `config_flush_cache()` alone is not sufficient for either.
+
+### Site registration caveats
+
+`config_add_site(sname, baseURL, webdavbase)` writes the site into the config graph but has a blanket `exit handler` that returns null on any error, and it **inserts** rather than updates — re-running it on an existing site adds a second `foaf:homepage` triple instead of replacing the first. Delete the old triple before re-registering.
+
+`baseURL` must be the **absolute** public prefix (`http://host:port/path/`), not a bare path: `config_url_to_site` matches it with `fn:starts-with` against the full request URL, and `url_davfile` strips it from the URL to derive the content path. A path-only value silently yields a mangled DAV path.
 
 `config_set` scoping: pass the **request URL** as `uri` for a per-URL override (site may still be passed for context); pass `null` uri + site shortname for site scope; `null`/`null` for global. `config_get` mirrors this in its lookup order, which is what makes a homepage-only skin override safe: every other page falls through to the site/global `xslt_sheet`.
 
