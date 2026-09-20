@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-09-16T20:25:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-20T20:25:00Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -3713,3 +3713,31 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection ;
     rdfs:seeAlso <howto/people-registry-local-only.ttl#step-exampleTtlNaming>,
         <howto/people-registry-local-only.ttl> .
+
+# ── Step 305: LinkedIn newsletter/article — render before post; attribution at end; final approval ──
+:step-linkedinNewsletterArticlePublish a schema:HowToStep ;
+    schema:position "305"^^xsd:integer ;
+    schema:name "LinkedIn newsletters and articles: render Markdown before posting (native hyperlinks only), put attribution/Phenny signoff at the end not the start, and obtain Kingsley's explicit final approval before Publish"@en ;
+    schema:text "Kingsley, 2026-09-20, after Semantic and Context Layers via Open Standards newsletter remediation (pasted Markdown links and front-loaded Account curated by attribution): Going forward, Phenny must render Markdown before posting — only the rendered form enters the LinkedIn editor (native Insert-link hyperlinks; never paste [label](url) or similar markup). Attribution (Account curated by / Phenny curated lines) and the Phenny NetID signoff belong at the end of such activity, not the start. Phenny drafts and stages only; Kingsley must give final approval before any newsletter edition or LinkedIn article goes live."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/linkedin-newsletter-article-publish.ttl> .
+
+# ── Step 306: optional Jev judgment modality on agent-rdf-memory harness (+ elicitation tighten) ──
+:step-jevJudgmentModality a schema:HowToStep ;
+    schema:position "306"^^xsd:integer ;
+    schema:name "Optional System One judgment modality on the agent-rdf-memory harness: judgmentModality none|jev-shadow|jev-active; Jev/Laya/NanoJev score HowTo/step candidates and tighten elicitation (Noul need_user_input / Choice elicit_topic) without becoming a hard dependency"@en ;
+    schema:text """Kingsley, 2026-09-20: after wiring the Codila Grok Bot + Jev usage lab in shadow mode, confirmed Jev should apply to agent-rdf-memory as an optional modality and should tighten prefs elicitation.
+
+Standing contract:
+1. judgmentModality CURRENT: jev-active (set 2026-09-20 by Kingsley). Values: none | jev-shadow | jev-active. jev-shadow logs System One Choice/Noul/Score beside current HowTo decisions; jev-active honors them when confidence/probability ≥ thresholds. Kill switch: "bypass jev" / "no jev" or enabled:false falls back to none for that turn.
+2. Candidates always come from RDF memory (HowTo/HowToStep IRIs + compact session state). Jev routes/scores; it does not author procedures or SPARQL.
+3. Elicitation tighten (with elicit-before-conditional-default.ttl): Noul need_user_input gates ask-vs-act; if standing prefs already resolve a conditional gate and need_user_input is low, do not re-ask; if ambiguity Score is high, elicit once and record the refinement.
+4. Fail open — missing key, API failure, enabled:false, or 'bypass jev' → existing harness path unchanged.
+5. Provider swap: TypeSafe Jev, Laya, or NanoJev behind the same system_one(state, questions) contract.
+
+Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev usage router (shadow first)."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <howto/jev-judgment-modality.ttl>,
+        <howto/elicit-before-conditional-default.ttl>,
+        <howto/session-governance.ttl> .
+

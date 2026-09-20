@@ -1,0 +1,39 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto:   <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/linkedin-newsletter-article-publish.ttl"@en ;
+    schema:description "Standing publish rules for LinkedIn newsletters and LinkedIn articles/Pulse that Phenny drafts or posts for Kingsley: render Markdown before posting, attribution at end, final approval required."@en ;
+    schema:dateCreated "2026-09-20T16:15:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-20T16:15:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "LinkedIn newsletter / article publish rules"@en ;
+    schema:description "Confirmed 2026-09-20 after Semantic and Context Layers newsletter remediation. Phenny drafts and stages only; Kingsley gives final approval before anything goes live. Body content is entered as LinkedIn-native rendered form (hyperlinks, formatting), never as raw Markdown markup. Attribution / Phenny signoff belongs at the end."@en ;
+    schema:step :step-renderBeforePost,
+                :step-attributionAtEnd,
+                :step-finalApprovalRequired ;
+    rdfs:seeAlso <../preferences.ttl#step-linkedinNewsletterArticlePublish> .
+
+:step-renderBeforePost a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Render Markdown before posting — only the rendered form goes into LinkedIn"@en ;
+    schema:text "When composing a LinkedIn newsletter edition or LinkedIn article/Pulse post, convert Markdown to LinkedIn-native formatting in the editor. Hyperlinks must be Insert-link / native LinkedIn hyperlinks with clean visible labels. Never paste raw Markdown such as [label](url), raw HTML link tags, or other markup that would appear verbatim on the published page."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration .
+
+:step-attributionAtEnd a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Attribution and Phenny signoff go at the end, not the start"@en ;
+    schema:text "Account-curated-by / hero attribution lines and the standing Phenny signoff (Posted on my behalf by Phenny with NetID) belong at the end of the newsletter or article body, after Related links and hashtags as appropriate — never as the opening block."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration .
+
+:step-finalApprovalRequired a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Kingsley must give final approval before publish"@en ;
+    schema:text "Phenny may draft, stage, edit, and verify. Phenny must not publish a LinkedIn newsletter edition or LinkedIn article/Pulse post until Kingsley gives explicit final approval for that specific piece. Present the draft (or staged preview) and wait for yes before Publish."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration .
