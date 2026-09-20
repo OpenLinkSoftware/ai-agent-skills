@@ -1,0 +1,89 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix onto:   <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/jev-judgment-modality.ttl"@en ;
+    schema:description "Optional System One (Jev / Laya / NanoJev) judgment modality for the agent-rdf-memory harness: typed Choice/Noul/Score gates over HowTo and session candidates, including calibrated elicit-vs-act decisions. Default remains none; shadow logs advice; active honors thresholds; always fail open to the non-Jev path."@en ;
+    schema:dateCreated "2026-09-20T20:25:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-20T20:25:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto ;
+    rdfs:seeAlso <../preferences.ttl#step-jevJudgmentModality>,
+        <elicit-before-conditional-default.ttl>,
+        <session-governance.ttl> .
+
+:howto a schema:HowTo ;
+    schema:name "Optional Jev judgment modality on the agent-rdf-memory harness"@en ;
+    schema:description "Treat TypeSafe Jev (or Laya/NanoJev stand-ins) as an optional judgment modality beside the existing prefs/HowTo harness — never a hard dependency. Use it to route HowTo/step candidates and to tighten elicitation (ask vs act) with calibrated probabilities."@en ;
+    schema:step :stepModalityFlag,
+                :stepCandidateLoad,
+                :stepTypedQuestions,
+                :stepShadowThenActive,
+                :stepElicitationTighten,
+                :stepFailOpenKillSwitch ;
+    rdfs:seeAlso <elicit-before-conditional-default.ttl> .
+
+:stepModalityFlag a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Select judgment modality: none | jev-shadow | jev-active"@en ;
+    schema:text """Standing config (prefs or session override):
+
+- none — current harness only (LLM/deterministic HowTo pick). Default.
+- jev-shadow — call System One; log Choice/Noul/Score beside the current decision; do not override.
+- jev-active — honor System One when confidence/probability ≥ configured thresholds.
+
+Provider may be TypeSafe Jev (production), Laya (open weights), or NanoJev (lab stub); the harness talks to a single system_one(state, questions) contract."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSessionStart .
+
+:stepCandidateLoad a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Load HowTo / step candidates and session state from RDF memory first"@en ;
+    schema:text "Always resolve candidate HowTo IRIs (and optional HowToStep IRIs) plus compact session state from Turtle/SPARQL before any System One call. Jev does not invent procedures — it only scores/routes candidates the memory graph already exposed. Pass short metadata only (goal, kind, cached_artifact, prior_error, same_error_count, constraints); never credentials or raw secrets."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation .
+
+:stepTypedQuestions a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Ask only typed Choice / Noul / Score questions declared by the HowTo or gate"@en ;
+    schema:text """Typical harness questions (compose per HowTo; keep each atomic):
+
+- Choice next_howto / next_step — which candidate IRI to run
+- Noul safe_side_effect — OK to dual-write, send, publish, pay, delete?
+- Noul good_enough — stop / hand off / continue
+- Noul reuse_cache — reuse fresh session artifact
+- Noul stop_retry — abandon same failing approach
+- Noul need_user_input — must elicit before acting (elicitation tighten)
+- Choice elicit_topic — which standing question to ask if need_user_input
+- Score ambiguity / risk — feeds thresholds for ask vs act
+
+HowTo authors may attach these question templates in the HowTo itself; the modality runner only evaluates what the selected procedure declares."""@en ;
+    onto:hasTrigger onto:triggerSkillInvocation .
+
+:stepShadowThenActive a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Start in jev-shadow; promote to jev-active only after log review"@en ;
+    schema:text "In jev-shadow, execute the non-Jev decision but write Jev's advice + probabilities into the session log (and optionally session Turtle as advisory annotations). Compare disagreements. Flip to jev-active only when Kingsley (or the session operator) accepts the thresholds. Active mode: if P(choice) and confidence meet mins, execute that branch; else fall back to elicit or the non-Jev path."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
+
+:stepElicitationTighten a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Tighten prefs elicitation: ask when calibrated need_user_input is high; skip re-asking when standing prefs already resolve the gate"@en ;
+    schema:text """Complements elicit-before-conditional-default.ttl:
+
+1. If no standing preference exists for a user-conditioned gate clause, prefer elicitation (existing rule).
+2. With Jev modality on, first ask Noul need_user_input over state = {gate_id, clause, known_prefs_summary, task_context}.
+3. If need_user_input ≥ ask_threshold → elicit (short question / AskUserQuestion); optionally Choice elicit_topic to pick the exact question.
+4. If need_user_input is low AND a recorded standing preference already covers the gate → do not re-elicit; apply the preference.
+5. If Score ambiguity is high even when a preference exists → elicit once to confirm edge cases, then record the refinement.
+
+Net: fewer nuisance re-asks, fewer silent assumptions — calibrated ask-vs-act instead of always-ask or never-ask."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
+    rdfs:seeAlso <elicit-before-conditional-default.ttl> .
+
+:stepFailOpenKillSwitch a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Fail open: missing key, API error, or bypass returns to the non-Jev harness path"@en ;
+    schema:text "If TYPESAFE_API_KEY (or stand-in provider) is missing, System One errors/timeouts, modality is none, config enabled is false, or the user/state says 'bypass jev' / 'no jev', skip System One entirely and continue with the existing agent-rdf-memory harness. Never block session progress on Jev availability. Do not log API keys."@en ;
+    onto:hasTrigger onto:triggerSkillInvocation .
