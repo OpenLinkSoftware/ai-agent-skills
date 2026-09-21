@@ -1,10 +1,10 @@
 ---
 name: data-twingler
-description: Execute SQL, SPARQL, SPASQL, SPARQL-FED, and GraphQL queries against live data spaces and knowledge graphs via OpenLink's OpenAPI-compliant web services. Use this skill whenever the user wants to query a database, RDF store, or SPARQL endpoint; explore a knowledge graph or data space; asks "How to ...", "Define the term ...", or poses a question against a known article or graph context; or mentions linkeddata.uriburner.com, Virtuoso, OPAL, or OpenLink services. Full query templates are in references/query-templates.md — load that file before constructing any predefined query.
+description: Execute SQL, SPARQL, SPASQL, SPARQL-FED, and GraphQL queries against live data spaces and knowledge graphs via OpenLink's OpenAPI-compliant web services. Use this skill whenever the user wants to query a database, RDF store, or SPARQL endpoint; explore a knowledge graph or data space; asks "How to ...", "Define the term ...", or poses a question against a known article or graph context; or mentions linkeddata.uriburner.com, Virtuoso, OPAL, or OpenLink services. Full query templates are in references/query-templates.md — load that file before constructing any predefined query. Optional System One (Jev) judgment modality for template/endpoint/protocol routing is in references/jev-judgment-modality.md (default jev-shadow; fail-open).
 license: See LICENSE.txt
 ---
 
-# OpenLink Data Twingler (v2.0.86)
+# OpenLink Data Twingler (v2.0.87)
 
 Enhances LLM responses with RAG by routing user intent to the right query
 language and live endpoint. Covers SQL, SPARQL, SPASQL, SPARQL-FED, and
@@ -34,9 +34,35 @@ GraphQL — all driven by natural language, no imperative programming required.
 | Vector Similarity Threshold (Local) | 0.75 |
 | Vector Candidate Types | `schema:Question`, `schema:DefinedTerm`, `schema:HowTo`, `schema:HowToStep`, `skos:Concept` |
 | Server-Side Vector Similarity Threshold | 0.5 |
+| `judgmentModality` | `jev-shadow` (`none` \| `jev-shadow` \| `jev-active`) — published default; operators may override per session |
+| Jev fail-open | Missing key, timeout, API error, `enabled:false`, or "bypass jev" / "no jev" → non-Jev path |
 
 ---
 
+
+## Judgment Modality (optional System One)
+
+Optional **Jev / Laya / NanoJev** judgment over Data Twingler’s **template + routing**
+catalog — same contract as agent-rdf-memory step 306, different candidates.
+
+| Role | Owner |
+|---|---|
+| Checkable query procedures (SQL / SPARQL / SPASQL / FED / GraphQL templates, protocol ladder) | **This skill** |
+| Decision-grade routing (which family/template/endpoint/rung; stop vs retry) | **System One** when modality ≠ `none` |
+| Authoring new templates, explaining results, open-ended repair | **LLM (System Two)** |
+
+**Published default: `jev-shadow`.** Log System One Choice/Noul/Score beside the
+current router decision without overriding. Set `jev-active` for a session or
+deployment when you want System One to honor thresholds (still **fail open** to
+Execution Routing). Use `none` to disable.
+
+Load `references/jev-judgment-modality.md` before applying shadow or active
+judgment. Honor explicit user protocol/endpoint preferences **before** any Jev
+Choice. Jev never invents query strings.
+
+Sister harness: `agent-rdf-memory/howto/jev-judgment-modality.ttl`.
+
+---
 ## Query Language Routing
 
 ## Execution Routing
@@ -570,6 +596,7 @@ Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semant
 
 ## Rules (Non-Negotiable)
 
+- **Judgment modality:** default `jev-shadow`; never block on Jev availability; never pass secrets into System One state; never let Jev author SPARQL/SQL/GraphQL — only route over templates and rungs documented in this skill.
 1. **UB-first retrieval rule** — For T5, T6, T7, and T8 templates, and for
    KG-mediated "Why", "How", "What", "Define", "Explain", and "Compare"
    prompts, Graph IRI Discovery on URIBurner MUST execute before any local RDF
