@@ -17,8 +17,8 @@ truth. Jev only **selects and gates**.
 | Value | Behavior |
 |---|---|
 | `none` | Existing LLM/deterministic routing only |
-| `jev-shadow` (**default for this enhancement**) | Call System One; log Choice/Noul/Score beside the skill’s current decision; **do not override** |
-| `jev-active` | Honor System One when confidence/probability ≥ configured thresholds; else fall back |
+| `jev-shadow` | Call System One; log Choice/Noul/Score beside the skill’s current decision; **do not override** |
+| `jev-active` (**CURRENT default**) | Honor System One when confidence/probability ≥ configured thresholds; else fall back |
 
 Kill switch (any of these → skip System One, continue as today):
 
@@ -61,11 +61,10 @@ Compose only what the turn needs; keep each atomic.
 
 ## Shadow → active
 
-1. Ship with `jev-shadow`: execute the non-Jev route; append Jev advice +
+1. Default is now `jev-active` (activated 2026-09-20). For validation of new templates, temporarily set `jev-shadow`: execute the non-Jev route; append Jev advice +
    probabilities to the run log (or operator note).
 2. Compare disagreements (wrong language, unnecessary FED, empty-result storms).
-3. Promote to `jev-active` only after review; in active mode, if P(choice) and
-   confidence meet mins, take that branch; else elicit or keep the non-Jev path.
+3. In `jev-active`, if P(choice) and confidence meet mins, take that branch; else elicit or keep the non-Jev path. Drop back to `jev-shadow` anytime for observation-only.
 
 ## Flow
 
