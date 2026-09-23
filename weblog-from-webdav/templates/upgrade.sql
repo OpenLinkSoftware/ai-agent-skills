@@ -3748,6 +3748,14 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
   return sprintf ('{"pre_flight_backup":"%s","deploy":%s}', backup_note, deploy_result);
 }
 ;
+-- Force this CREATE PROCEDURE durably visible before the next statement
+-- compiles a reference to it -- some SQL client/transaction configurations
+-- (verified live 2026-09-23 against a real remote instance) leave a
+-- freshly created object showing up in the catalog (SYS_PROCEDURES/SYS_COLS)
+-- immediately, but not yet actually resolvable/callable by an immediately
+-- following statement without an explicit commit forcing full visibility.
+commit work;
+
 -- Auto-detects WHICH known site this connected Virtuoso instance is, so the
 -- whole file can be run as-is against any of them without hand-editing
 -- placeholders first. Detection signal: which known DAV_COLLECTION already
@@ -3795,6 +3803,9 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
   return DB.DBA.TMP_WEBLOG_UPGRADE_APPLY (coll, '/weblog/', title, tagline, skin, dav_user);
 }
 ;
+-- Same reasoning as the commit work; above this procedure -- force full
+-- visibility before the call below.
+commit work;
 select DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ();
 drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT;
 drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY;
