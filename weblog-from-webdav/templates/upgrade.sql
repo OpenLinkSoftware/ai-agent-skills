@@ -3672,17 +3672,24 @@ SELECT HP_LISTEN_HOST, HP_HOST, HP_LPATH, HP_PPATH, HP_RUN_VSP_AS, HP_OPTIONS FR
 --   DB.DBA.DAV_RES_UPLOAD_STRSES_INT ('<collection>index.vsp', string_to_file (content, null, 0), 'text/html', '111101101R', 'dav', 'dav', null, null, 0);
 -- ============================================================================
 
-create procedure DB.DBA.TMP_WEBLOG_UPGRADE_ENSURE_BACKUP_TABLE ()
-{
-  declare exit handler for sqlstate '*' { return 0; };
-  if ((select count (*) from SYS_COLS where "TABLE" = 'DB.DBA.WEBLOG_UPGRADE_BACKUP') = 0)
-    exec ('create table DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_ID INTEGER IDENTITY, WUB_DAV_COLLECTION VARCHAR, WUB_RES_NAME VARCHAR, WUB_RES_CONTENT LONG VARCHAR, WUB_BACKED_UP_AT DATETIME, PRIMARY KEY (WUB_ID))');
-  return 1;
-}
-;
-select DB.DBA.TMP_WEBLOG_UPGRADE_ENSURE_BACKUP_TABLE ();
-drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_ENSURE_BACKUP_TABLE;
-
+-- Fully self-contained via exec() (dynamic SQL) for every step that touches
+-- DB.DBA.WEBLOG_UPGRADE_BACKUP -- deliberately NOT a static INSERT/SELECT
+-- against that table. A stored procedure body cannot reference a table that
+-- does not exist yet at COMPILE time (Virtuoso resolves table references at
+-- procedure-compile time, not deferred to call time) -- an earlier version
+-- of this file split table-creation into its own helper procedure, called
+-- it, then compiled THIS procedure expecting the table to already be
+-- visible; that worked in repeated local testing but failed against a real
+-- remote instance 2026-09-23 (SQ096: No table ... on the compile of this
+-- very procedure, immediately after the helper reported success) -- most
+-- likely a client/transaction-visibility difference in how that instance's
+-- SQL tool committed between statements. exec()-only sidesteps the whole
+-- class of failure: Virtuoso never needs to statically resolve the table
+-- name at compile time, only at the moment each exec() actually runs, by
+-- which point the CREATE TABLE exec() just above it has already completed
+-- within the SAME statement's execution. Each backup step also gets its own
+-- exit handler so a backup failure can never prevent the deploy itself from
+-- running -- backups are best-effort, the deploy is not.
 create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
   (
     IN dav_collection VARCHAR,
@@ -3702,24 +3709,38 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
   backup_note := '';
   index_path := coll || 'index.vsp';
   dash_path := coll || 'dashboard.html';
+
+  {
+    -- Harmless no-op on every run after the first ("table already exists");
+    -- any OTHER failure here just means backups are skipped, not that the
+    -- deploy below is blocked.
+    declare exit handler for sqlstate '*' { ; };
+    exec ('create table DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_ID INTEGER IDENTITY, WUB_DAV_COLLECTION VARCHAR, WUB_RES_NAME VARCHAR, WUB_RES_CONTENT LONG VARCHAR, WUB_BACKED_UP_AT DATETIME, PRIMARY KEY (WUB_ID))');
+  }
   {
     declare _cc any;
     for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = index_path) do
     {
       _cc := _c;
-      insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT)
-        values (coll, 'index.vsp', _cc, now ());
-      backup_note := backup_note || 'index.vsp ';
+      {
+        declare exit handler for sqlstate '*' { ; };
+        exec ('insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT) values (?, ?, ?, now ())',
+          null, null, vector (coll, 'index.vsp', _cc));
+        backup_note := backup_note || 'index.vsp ';
+      }
     }
     for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = dash_path) do
     {
       _cc := _c;
-      insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT)
-        values (coll, 'dashboard.html', _cc, now ());
-      backup_note := backup_note || 'dashboard.html ';
+      {
+        declare exit handler for sqlstate '*' { ; };
+        exec ('insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT) values (?, ?, ?, now ())',
+          null, null, vector (coll, 'dashboard.html', _cc));
+        backup_note := backup_note || 'dashboard.html ';
+      }
     }
   }
-  if (backup_note = '') backup_note := '(nothing existed yet to back up -- first-ever deploy)';
+  if (backup_note = '') backup_note := '(nothing existed yet to back up, or backup failed -- see comments above; the deploy below still runs)';
 
   deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, public_route, weblog_title, weblog_tagline, default_skin, dav_user);
   return sprintf ('{"pre_flight_backup":"%s","deploy":%s}', backup_note, deploy_result);
