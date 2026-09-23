@@ -266,6 +266,33 @@ Skill definitions are the build contract — not launch instructions. Drift happ
 
 Any time a skill defines numbered requirements, checklists, or named contracts (e.g., "Harness Mode," "Compliance Self-Audit," "Post-Generation Checklist"), re-read that section before writing the corresponding output. These are not reference material — they are the build specification.
 
+
+## RDF + Reader-Facing Collection Blocking Gate
+
+This gate applies to every task that creates an RDF knowledge graph together with HTML, Markdown, an infographic, or another reader-facing companion. Calling the output a “collection,” “guide,” or “article summary” does not reduce the RDF/companion contract.
+
+### Before the First Deliverable Write
+
+Do not create, overwrite, move, or publish collection deliverables until each applicable prerequisite is resolved:
+
+1. **Load the operative contract.** Classify the request and read the current `kg-generator` and `rdf-infographic-skill` contracts, plus every relevant `agent-rdf-memory/preferences.ttl` how-to they reference. Re-read the specific sections before authoring the corresponding artifact components. Do not rely on a truncated bulk read or recollection.
+2. **Resolve model and destination.** Identify the active model from the system prompt, resolve its canonical artifact root through the artifact-routing preference, and state the exact RDF and companion paths. Honor a specific user destination only when it is compatible with higher-priority runtime routing requirements.
+3. **Establish source evidence.** Inspect the named primary source and required linked material. Record available author/date/publisher metadata and the source-supported claims, entities, recommendations, and relationships. If the source cannot be read, seek an authoritative or faithful full-text alternative. Clearly separate source-backed statements from supplementary context. If material gaps prevent a faithful extraction, stop before writing and ask how to proceed.
+4. **Present a build plan.** Give a compact, reviewable plan covering the deliverables and paths, source coverage and limitations, selected skills/template or authoring mode, RDF model, HTML narrative/reader journey, semantic parity, and required validation gates. Wait for approval only when the selected workflow explicitly requires approval; never infer an approval requirement from the mere existence of this gate.
+5. **Prepare the checklist.** Track source coverage, RDF provenance, HTML/RDF parity, required FAQ/glossary/HowTo content, resolver links, accessibility/responsiveness, and the applicable validators. Do not begin artifact writes until required choices and approvals are satisfied.
+
+### Before Calling the Collection Complete
+
+Require evidence for each applicable gate:
+
+- RDF parses and passes `validate-kg-compliance.sh` or the validator named by the active skill.
+- The HTML passes `validate-harness-contract.py` with zero failures when the infographic contract applies.
+- HTML narrative and any FAQ, glossary, HowTo, graph, or query content match the companion RDF.
+- Resolver and external links, relative companion links, and final output paths are verified.
+- Required browser, viewport, accessibility, and interaction checks from the active skill are complete.
+
+Fix failures before delivery where possible. If a required check cannot run or remains failing, report the exact gate and mark the collection incomplete; never imply an unrun or failed check passed. A direct user instruction not to run validation takes precedence, but the final report must say validation was not performed and must not claim verified completion.
+
 ## Critical Context
 
 - **Navigation panel spec**: "movable, resizable, collapsible, visible in a closed compact header-bar state by default"
