@@ -3857,6 +3857,14 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
     site_found := 1;
     coll := '/DAV/demos/daas/';
     title := 'URIBurner DaaS Weblog';
+    -- UB's actual privileged SQL/DAV account is kidehen, not dba (confirmed
+    -- live 2026-09-23) -- WEBLOG_DAV_DEPLOY_SKINNED resolves dav_user's
+    -- password hash via pwd_magic_calc to set weblog:publicRoute and
+    -- weblog:adminActionToken; that whole step silently no-ops if dav_user
+    -- doesn't resolve, which is exactly what happened when this was 'dba'
+    -- here (adminActionToken never got set, dashboard reported admin
+    -- actions unavailable).
+    dav_user := 'kidehen';
   }
   else if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/www2.openlinksw.com/data/html/index.vsp') > 0)
   {
