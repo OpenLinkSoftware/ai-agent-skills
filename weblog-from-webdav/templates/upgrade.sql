@@ -3641,24 +3641,26 @@ next_row: ;
 SELECT HP_LISTEN_HOST, HP_HOST, HP_LPATH, HP_PPATH, HP_RUN_VSP_AS, HP_OPTIONS FROM DB.DBA.HTTP_PATH WHERE HP_PPATH LIKE '%weblog-test%';
 
 -- ============================================================================
--- PRE-FLIGHT BACKUP 2 of 2 + REDEPLOY -- edit the 6 arguments in the CALL
--- near the bottom of this block for the target collection, then run this
--- whole block (safe to re-run on its own afterward too -- see the file
--- header). Before overwriting index.vsp/dashboard.html, this automatically
--- snapshots whatever is currently there (if anything) into
--- DB.DBA.WEBLOG_UPGRADE_BACKUP (created on first use, never dropped by a
--- reinstall -- every prior run's snapshots stay available).
+-- PRE-FLIGHT BACKUP 2 of 2 + REDEPLOY -- no editing needed for the three
+-- sites already registered below (demo.openlinksw.com, UB, www.openlinksw.com):
+-- this block AUTO-DETECTS which one you're connected to and redeploys it,
+-- so the file can be run as-is (see TMP_WEBLOG_UPGRADE_AUTODETECT below for
+-- how, and DAV_COLLECTION/PUBLIC_ROUTE/etc. for what it deploys with).
+-- Before overwriting index.vsp/dashboard.html, this automatically snapshots
+-- whatever is currently there (if anything) into DB.DBA.WEBLOG_UPGRADE_BACKUP
+-- (created on first use, never dropped by a reinstall -- every prior run's
+-- snapshots stay available).
 --
---   DAV_COLLECTION : the WebDAV collection backing the blog (trailing slash)
---   PUBLIC_ROUTE   : the public URL path the blog is served at (trailing slash)
---   WEBLOG_TITLE   : <title> shown in the page and feeds
---   WEBLOG_TAGLINE : subtitle shown under the title
---   DEFAULT_SKIN   : 'classic' or 'editorial' -- fallback ONLY; if a
---                    weblog:skin property is already set on the collection,
---                    this argument is ignored and the existing choice wins
---   DAV_USER       : the DAV/WebDAV owner account for uploaded resources
+-- ADDING A NEW SITE: add an "else if" branch to
+-- TMP_WEBLOG_UPGRADE_AUTODETECT's detection logic below, or bypass
+-- auto-detection entirely by calling TMP_WEBLOG_UPGRADE_APPLY directly with
+-- explicit arguments (DAV_COLLECTION, PUBLIC_ROUTE, WEBLOG_TITLE,
+-- WEBLOG_TAGLINE, DEFAULT_SKIN, DAV_USER -- same six DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
+-- takes) before the DROP PROCEDURE statements remove it -- required for a
+-- first-ever install, since auto-detection has nothing to find yet on a
+-- site with no prior deployment.
 --
--- Quick reference for the sites discussed 2026-09-23 (fill in ONE per run):
+-- Sites registered as of 2026-09-23:
 --   demo.openlinksw.com : '/DAV/home/demo/Public/fifa-kg/', '/weblog/'
 --   UB                  : '/DAV/demos/daas/',               '/weblog/'
 --   www.openlinksw.com  : '/DAV/www2.openlinksw.com/data/html/', '/weblog/'
@@ -3746,12 +3748,53 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
   return sprintf ('{"pre_flight_backup":"%s","deploy":%s}', backup_note, deploy_result);
 }
 ;
-select DB.DBA.TMP_WEBLOG_UPGRADE_APPLY (
-  '__DAV_COLLECTION__',
-  '__PUBLIC_ROUTE__',
-  '__WEBLOG_TITLE__',
-  '__WEBLOG_TAGLINE__',
-  '__DEFAULT_SKIN__',
-  '__DAV_USER__'
-);
+-- Auto-detects WHICH known site this connected Virtuoso instance is, so the
+-- whole file can be run as-is against any of them without hand-editing
+-- placeholders first. Detection signal: which known DAV_COLLECTION already
+-- has an index.vsp deployed on THIS instance -- each Virtuoso instance has
+-- its own siloed DAV tree, so finding a known path's index.vsp here
+-- unambiguously identifies which site this session is connected to (no
+-- reliance on any config value like URIQA DefaultHost, which may not be
+-- customized per-instance). Never guesses: an instance matching none of the
+-- known paths (a genuinely new site, a typo below, or a first-ever install
+-- with nothing deployed yet) gets a clear diagnostic instead of a deploy --
+-- add a new "else if" branch here for a new site, or call
+-- DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED directly with explicit parameters for a
+-- first-ever install this can't detect.
+create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
+{
+  declare coll, title, tagline, skin, dav_user varchar;
+  declare site_found int;
+  site_found := 0;
+  tagline := 'A configurable, skinnable weblog view of a WebDAV folder.';
+  skin := 'classic';
+  dav_user := 'dba';
+
+  if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/home/demo/Public/fifa-kg/index.vsp') > 0)
+  {
+    site_found := 1;
+    coll := '/DAV/home/demo/Public/fifa-kg/';
+    title := 'FIFA Knowledge Graph Weblog';
+  }
+  else if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/demos/daas/index.vsp') > 0)
+  {
+    site_found := 1;
+    coll := '/DAV/demos/daas/';
+    title := 'URIBurner DaaS Weblog';
+  }
+  else if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/www2.openlinksw.com/data/html/index.vsp') > 0)
+  {
+    site_found := 1;
+    coll := '/DAV/www2.openlinksw.com/data/html/';
+    title := 'OpenLink Software Weblog';
+  }
+
+  if (site_found = 0)
+    return '{"ok":false,"reason":"No known site detected on this instance -- checked /DAV/home/demo/Public/fifa-kg/, /DAV/demos/daas/, and /DAV/www2.openlinksw.com/data/html/ for an existing index.vsp and found none. This is either a first-ever install (nothing deployed yet, so there is nothing to auto-detect from) or a site not yet registered in this procedure -- add an else-if branch above for a new site, or call DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED directly with explicit parameters."}';
+
+  return DB.DBA.TMP_WEBLOG_UPGRADE_APPLY (coll, '/weblog/', title, tagline, skin, dav_user);
+}
+;
+select DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ();
+drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT;
 drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY;
