@@ -3641,6 +3641,74 @@ next_row: ;
 SELECT HP_LISTEN_HOST, HP_HOST, HP_LPATH, HP_PPATH, HP_RUN_VSP_AS, HP_OPTIONS FROM DB.DBA.HTTP_PATH WHERE HP_PPATH LIKE '%weblog-test%';
 
 -- ============================================================================
+-- OPERATOR ROLE -- lets designated non-dba users (e.g. a WebID-TLS session
+-- mapped to a specific SQL account) call the procedures this skill installs,
+-- without granting them dba/superuser rights. Verified live 2026-09-23: a
+-- WebID-TLS session that isn't dba and isn't the object owner gets
+-- "SR186:SECURITY: No permission to execute procedure" calling any DB.DBA.WEBLOG_*
+-- procedure by default -- Virtuoso does not auto-grant execute on a new
+-- object to anyone but its owner/dba. Fully idempotent and safe to re-run:
+-- the role is created once and reused, every DB.DBA.WEBLOG_% procedure
+-- (the permanent library this skill installs -- newsletter, dashboard,
+-- deploy, etc.) gets (re-)granted every run, so a procedure added by a
+-- future template change is automatically covered on the next reinstall,
+-- not just the ones that existed when the role was first created. Re-
+-- granting membership to an already-member user is a harmless no-op. Runs
+-- BEFORE the REDEPLOY block's own TMP_WEBLOG_UPGRADE_* helper procedures are
+-- created below on purpose -- those are ephemeral (created, called, and
+-- dropped within this same script run by the SAME privileged session that
+-- is running this file), never called independently by a different,
+-- less-privileged session the way the permanent WEBLOG_* library is, so
+-- they have no standing need for a role grant.
+--
+-- ADDING ANOTHER DESIGNATED USER (besides kidehen): run, once, as dba:
+--   grant WEBLOG_OPERATOR to <username>;
+-- REMOVING ONE:
+--   revoke WEBLOG_OPERATOR from <username>;
+create procedure DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE ()
+{
+  declare grant_note varchar;
+  grant_note := '';
+  {
+    declare exit handler for sqlstate '*' { ; };
+    exec ('create role WEBLOG_OPERATOR');
+  }
+  {
+    declare pname varchar;
+    for (select P_NAME as _p from DB.DBA.SYS_PROCEDURES where P_NAME like 'DB.DBA.WEBLOG\_%' escape '\\') do
+    {
+      pname := _p;
+      {
+        declare exit handler for sqlstate '*' { ; };
+        exec (sprintf ('grant execute on %s to WEBLOG_OPERATOR', pname));
+      }
+    }
+  }
+  {
+    -- GRANT <role> TO <user> is NOT idempotent (verified live 2026-09-23):
+    -- re-granting a role a user already holds errors with U0013 rather than
+    -- silently succeeding, unlike GRANT EXECUTE ON <object> above. __SQL_MESSAGE
+    -- distinguishes that harmless case from a real failure (most likely
+    -- 'kidehen' not existing as a SQL account on this particular instance,
+    -- which the role/procedure grants above are unaffected by either way).
+    declare exit handler for sqlstate '*'
+    {
+      if (__SQL_MESSAGE like '%already has role%')
+        grant_note := 'WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure; kidehen was already a member.';
+      else
+        grant_note := sprintf ('(WEBLOG_OPERATOR role/procedure grants applied; granting membership to kidehen failed -- %s -- add the right account manually per the comment above)', __SQL_MESSAGE);
+    };
+    exec ('grant WEBLOG_OPERATOR to kidehen');
+  }
+  if (grant_note = '') grant_note := 'WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure, kidehen added as a member.';
+  return grant_note;
+}
+;
+commit work;
+select DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE ();
+drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE;
+
+-- ============================================================================
 -- PRE-FLIGHT BACKUP 2 of 2 + REDEPLOY -- no editing needed for the three
 -- sites already registered below (demo.openlinksw.com, UB, www.openlinksw.com):
 -- this block AUTO-DETECTS which one you're connected to and redeploys it,
