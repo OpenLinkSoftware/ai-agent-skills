@@ -59,7 +59,10 @@ def main() -> int:
         ("Atom handling", re.search(r"atom", index_text, re.I) is not None),
         ("AtomPub handling", re.search(r"atompub|atomsvc", index_text, re.I) is not None),
         ("deploy uses string_output", "string_output" in deploy_text),
-        ("deploy populates stream with http()", "http (vsp_content, vsp_stream)" in deploy_text or "http(vsp_content, vsp_stream)" in deploy_text),
+        (
+            "deploy populates stream with http()",
+            re.search(r"http\s*\(\s*\w+\s*,\s*\w+_stream\s*\)", deploy_text) is not None,
+        ),
         ("deploy uses DAV_RES_UPLOAD_STRSES_INT", "DAV_RES_UPLOAD_STRSES_INT" in deploy_text),
         ("deploy uploads index.vsp", "index.vsp" in deploy_text and "DAV_RES_UPLOAD" in deploy_text),
         ("route setup present", "VHOST_DEFINE" in all_text or route is not None),

@@ -1,0 +1,1740 @@
+-- Deploy a parameterized, multi-skin weblog index.vsp (with a built-in
+-- ?nl_action= newsletter subscribe/confirm/unsubscribe dispatcher) for an
+-- arbitrary WebDAV collection.
+-- Run as: isql 1111 dba <password> deploy-weblog-skinned.sql
+--
+-- Unlike deploy-weblog-opl-site.sql / deploy-weblog-opl-site-facet.sql (which
+-- are fixed, single-site OpenLink-themed deploys), this template takes the
+-- DAV collection, public route, title, tagline and default skin as runtime
+-- parameters to DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED, so it can be pointed at any
+-- collection without hand-editing the SQL.
+--
+-- Look-and-feel ("skin") and the newsletter feature are both configuration
+-- modalities resolved AT REQUEST TIME by the deployed index.vsp, not baked in
+-- at deploy time, so changing either needs no redeploy:
+--   weblog:skin               'classic' (default) | 'editorial'
+--                              per-request override: ?skin=<name>
+--   weblog:newsletterEnabled  'true' | 'false' (default false)
+-- Both are read via DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (defined below,
+-- persistent -- also used by templates/register-weblog-newsletter.sql),
+-- which reads a custom WebDAV property set on the COLLECTION resource itself
+-- with DB.DBA.DAV_PROP_SET, the same property mechanism already used for the
+-- per-post schema:category / schema:position facet metadata.
+--
+-- See references/skin-authoring-contract.md for what a skin must supply.
+
+CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (IN _lh varchar, IN _vh varchar, IN _lp varchar)
+{
+  declare exit handler for sqlstate '*' { ; };
+  DB.DBA.VHOST_REMOVE (lhost=>_lh, vhost=>_vh, lpath=>_lp);
+}
+;
+
+CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_DEFAULT_PIN (IN _coll varchar, IN _dav_user varchar)
+{
+  declare _pwd, _target varchar;
+  declare _existing, _rc int;
+  declare exit handler for sqlstate '*' { ; };
+
+  if (_coll is null or _coll = '') return 0;
+  if (subseq (_coll, length (_coll) - 1) <> '/') _coll := _coll || '/';
+  _existing := 0;
+  _target := null;
+
+  select count(*) into _existing
+    from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+   where (R.RES_FULL_PATH like _coll || '%.html'
+       or R.RES_FULL_PATH like _coll || '%.md')
+     and R.RES_NAME not like '._%'
+     and R.RES_NAME not in ('index.vsp', 'newsletter.vsp')
+     and P.PROP_PARENT_ID = R.RES_ID
+     and P.PROP_TYPE = 'R'
+     and P.PROP_NAME = 'schema:position'
+     and trim (cast (P.PROP_VALUE as varchar)) <> ''
+     and trim (cast (P.PROP_VALUE as varchar)) <> '0';
+
+  if (_existing > 0) return 0;
+
+  for (select top 1 RES_FULL_PATH as _path
+         from WS.WS.SYS_DAV_RES
+        where (RES_FULL_PATH like _coll || '%.html'
+            or RES_FULL_PATH like _coll || '%.md')
+          and RES_NAME not like '._%'
+          and RES_NAME not in ('index.vsp', 'newsletter.vsp')
+        order by RES_MOD_TIME desc, RES_NAME desc) do
+  {
+    _target := _path;
+  }
+
+  if (_target is null) return 0;
+
+  select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into _pwd
+    from DB.DBA.SYS_USERS
+   where U_NAME = _dav_user;
+
+  if (_pwd is null) return 0;
+
+  _rc := DB.DBA.DAV_PROP_SET (_target, 'schema:position', '1', _dav_user, _pwd, 1);
+  return _rc;
+}
+;
+
+-- Shared, persistent helper: read a custom WebDAV property set on a
+-- COLLECTION resource (not a post), the config mechanism for weblog:skin,
+-- weblog:newsletterEnabled and friends. Falls back to default_val when the
+-- collection resource or the property is missing/blank.
+CREATE PROCEDURE DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (IN dav_collection VARCHAR, IN in_prop_name VARCHAR, IN default_val VARCHAR)
+{
+  declare coll VARCHAR;
+  declare v ANY;
+
+  coll := trim (dav_collection);
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  v := null;
+  -- A collection is a row in WS.WS.SYS_DAV_COL (COL_ID / PROP_TYPE='C'),
+  -- NOT in WS.WS.SYS_DAV_RES (RES_ID / PROP_TYPE='R', which only holds
+  -- files) -- do not copy the per-post schema:category/position lookup
+  -- pattern here, it silently matches zero rows against a collection path.
+  for (select P.PROP_VALUE as _v
+         from WS.WS.SYS_DAV_COL C, WS.WS.SYS_DAV_PROP P
+        where C.COL_FULL_PATH = coll
+          and P.PROP_PARENT_ID = C.COL_ID
+          and P.PROP_TYPE = 'C'
+          and P.PROP_NAME = in_prop_name) do
+  {
+    v := _v;
+  }
+  if (v is null or not isstring (v) or trim (cast (v as varchar)) = '')
+    return default_val;
+  return trim (cast (v as varchar));
+}
+;
+
+CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
+  (
+    IN dav_collection VARCHAR,
+    IN public_route VARCHAR,
+    IN weblog_title VARCHAR := 'WebDAV Weblog',
+    IN weblog_tagline VARCHAR := 'A configurable, skinnable weblog view of a WebDAV folder.',
+    IN default_skin VARCHAR := 'classic',
+    IN dav_user VARCHAR := 'dba'
+  )
+{
+  declare rc any;
+  declare coll, route, index_path, admin_route VARCHAR;
+  declare index_content VARCHAR;
+  declare index_stream any;
+
+  coll := trim (dav_collection);
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  route := trim (public_route);
+  if (subseq (route, length (route) - 1) <> '/') route := route || '/';
+  if (default_skin <> 'editorial') default_skin := 'classic';
+
+  index_path := coll || 'index.vsp';
+  -- Admin route: is_dav=1, is_brws=0, def_page='dashboard.html' (a STATIC
+  -- file, refreshed periodically by DB.DBA.WEBLOG_DASHBOARD_REFRESH -- a
+  -- live .vsp def_page does NOT get gated this way: verified that a def_page
+  -- resource with restrictive permissions IS auth-challenged correctly by
+  -- Virtuoso's native Digest auth, but only for static content; a .vsp
+  -- def_page under the same restrictive permissions serves its raw,
+  -- uncompiled source instead of executing it). Verified live, three cases:
+  -- no credentials -> 401, wrong password -> 401, correct password -> 200
+  -- with real content -- this is what gates the subscriber dashboard, not
+  -- any password-handling code in this template.
+  admin_route := concat (subseq (route, 0, length (route) - 1), '-admin/');
+
+  index_content := '<?vsp
+  -- Weblog-style index of {{DAV_COLLECTION}} -- multi-skin, config-driven.
+  declare all_rows, pinned_posts, posts, html_stems, category_seen, category_keys, facet_key, facet_value any;
+  declare n, idx, i, has_categories, filter_active, post_selected, all_count, ck, facet_count int;
+  declare sel, q, ft_q, from_date, to_date, selected_category, category_cloud, facet_category, facet_active varchar;
+  declare q_param, from_param, to_param, category_param, skin_param any;
+  declare months any;
+  declare feed_param any;
+  declare feed_type, skin, newsletter_enabled, site_base varchar;
+
+  months := vector (''January'',''February'',''March'',''April'',''May'',''June'',
+                    ''July'',''August'',''September'',''October'',''November'',''December'');
+  q := '''';
+  ft_q := '''';
+  from_date := '''';
+  to_date := '''';
+  selected_category := '''';
+  feed_type := '''';
+  q_param := http_param (''q'');
+  from_param := http_param (''from'');
+  to_param := http_param (''to'');
+  category_param := http_param (''category'');
+  feed_param := http_param (''feed'');
+  skin_param := http_param (''skin'');
+  if (not isstring (feed_param)) feed_param := http_param (''a'');
+  if (isstring (q_param)) q := trim (q_param);
+  if (isstring (from_param)) from_date := trim (from_param);
+  if (isstring (to_param)) to_date := trim (to_param);
+  if (isstring (category_param)) selected_category := trim (category_param);
+  if (isstring (feed_param)) feed_type := lower (trim (feed_param));
+  if (q <> '''') ft_q := concat (''"'', replace (q, ''"'', '' ''), ''"'');
+  filter_active := 0;
+  if (q <> '''' or from_date <> '''' or to_date <> '''' or selected_category <> '''') filter_active := 1;
+  category_seen := dict_new (101);
+  category_cloud := '''';
+  has_categories := 0;
+  all_count := 0;
+
+  -- Skin resolution: ?skin= override, else weblog:skin collection property, else the deploy default.
+  skin := '''';
+  if (isstring (skin_param)) skin := lower (trim (skin_param));
+  if (skin <> ''classic'' and skin <> ''editorial'')
+    skin := lower (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:skin'', ''{{DEFAULT_SKIN}}''));
+  if (skin <> ''classic'' and skin <> ''editorial'')
+    skin := ''{{DEFAULT_SKIN}}'';
+
+  -- Newsletter footer band: only rendered when explicitly enabled.
+  newsletter_enabled := lower (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:newsletterEnabled'', ''false''));
+
+  -- Best-effort absolute site base (scheme://host) for feed <link>/<guid> values.
+  -- Falls back to the public route alone (relative) if request headers are unavailable.
+  site_base := '''';
+  {
+    declare exit handler for sqlstate ''*'' { site_base := ''''; };
+    declare req_lines any;
+    declare req_host varchar;
+    req_lines := http_request_header ();
+    req_host := http_request_header (req_lines, ''Host'', '''', '''');
+    if (isstring (req_host) and req_host <> '''')
+      site_base := concat (''http://'', req_host);
+  }
+
+  -- Serve a sibling resource''s raw content via ?raw=<filename>. This has to
+  -- be a query param, not the request PATH: this VHOST has def_page=index.vsp,
+  -- and Virtuoso''s def_page dispatch overrides EVERY path under the route
+  -- regardless of is_brws or whether the path names a real file (confirmed
+  -- live: http_path() reports ".../<anything>/index.vsp" for every request,
+  -- and a sibling VHOST without def_page 401s even world-readable files) --
+  -- there is no way to reach an individual DAV resource by its own path
+  -- under this route. Binary-safe: passes the BLOB straight to http(), no
+  -- blob_to_string(). When the requested file is HTML, its own sibling
+  -- asset references (a <video src="clip.mp4">, <img src="pic.jpg">, plain
+  -- relative URLs a post author wrote with no knowledge of this routing
+  -- constraint) are rewritten to go through this same ?raw= mechanism,
+  -- since those requests would otherwise hit the same def_page catch-all.
+  {
+    declare raw_param any;
+    declare raw_name, raw_ext, raw_ctype varchar;
+    declare raw_content any;
+    declare raw_found int;
+
+    raw_param := http_param (''raw'');
+    if (isstring (raw_param) and trim (raw_param) <> '''')
+    {
+      raw_name := trim (raw_param);
+      raw_found := 0;
+      raw_content := null;
+      if (strchr (raw_name, ''/'') is null and raw_name not like ''._%'' and raw_name <> ''index.vsp'' and raw_name <> ''newsletter.vsp'')
+      {
+        for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = concat (''{{DAV_COLLECTION}}'', raw_name)) do
+        {
+          raw_found := 1;
+          raw_content := _c;
+        }
+      }
+      if (raw_found = 0)
+      {
+        http_header (''Status: 404 Not Found\r\nContent-Type: text/plain; charset=UTF-8\r\n'');
+        http (''Not found.'');
+        return;
+      }
+      raw_ext := lower (subseq (raw_name, strrchr (raw_name, ''.'') + 1));
+      raw_ctype := case raw_ext
+        when ''html'' then ''text/html; charset=UTF-8''
+        when ''htm''  then ''text/html; charset=UTF-8''
+        when ''md''   then ''text/plain; charset=UTF-8''
+        when ''txt''  then ''text/plain; charset=UTF-8''
+        when ''css''  then ''text/css''
+        when ''js''   then ''application/javascript''
+        when ''json'' then ''application/json''
+        when ''mp4''  then ''video/mp4''
+        when ''webm'' then ''video/webm''
+        when ''mov''  then ''video/quicktime''
+        when ''mp3''  then ''audio/mpeg''
+        when ''wav''  then ''audio/wav''
+        when ''jpg''  then ''image/jpeg''
+        when ''jpeg'' then ''image/jpeg''
+        when ''png''  then ''image/png''
+        when ''gif''  then ''image/gif''
+        when ''svg''  then ''image/svg+xml''
+        when ''webp'' then ''image/webp''
+        when ''pdf''  then ''application/pdf''
+        else ''application/octet-stream''
+      end;
+      http_header (sprintf (''Content-Type: %s\r\n'', raw_ctype));
+      if (raw_ext = ''html'' or raw_ext = ''htm'')
+      {
+        declare html_text varchar;
+        declare sib_name varchar;
+        html_text := blob_to_string (raw_content);
+        for (select RES_NAME as _sib
+               from WS.WS.SYS_DAV_RES
+              where RES_FULL_PATH like ''{{DAV_COLLECTION}}%''
+                and RES_NAME <> raw_name
+                and RES_NAME <> ''index.vsp''
+                and RES_NAME <> ''newsletter.vsp''
+                and RES_NAME not like ''._%'') do
+        {
+          sib_name := _sib;
+          html_text := replace (html_text, sprintf (''"%s"'', sib_name), sprintf (''"{{PUBLIC_ROUTE}}?raw=%s"'', sib_name));
+        }
+        http (html_text);
+      }
+      else
+      {
+        http (raw_content);
+      }
+      return;
+    }
+  }
+
+  -- Admin actions (send digest now, change the digest interval), gated by a
+  -- random per-collection token rather than a password: this route has no
+  -- native auth (unlike the admin_route dashboard, which does, but cannot
+  -- execute .vsp -- see deploy notes below), so a real credential check
+  -- here would mean hand-verifying a password inside VSP, which was already
+  -- ruled out as unsafe this session. The token is generated once at first
+  -- deploy, never displayed anywhere except embedded in the Digest-auth-
+  -- gated dashboard.html''s own action forms -- reaching it at all already
+  -- requires passing that native auth gate once.
+  {
+    declare admin_action any;
+    admin_action := http_param (''admin_action'');
+    if (isstring (admin_action) and trim (admin_action) <> '''')
+    {
+      declare admin_token, given_token, admin_result varchar;
+      admin_action := trim (admin_action);
+      admin_token := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:adminActionToken'', '''');
+      given_token := http_param (''admin_token'');
+      if (not isstring (given_token)) given_token := '''';
+      given_token := trim (given_token);
+
+      if (admin_token = '''' or given_token = '''' or given_token <> admin_token)
+      {
+        http_header (''Status: 403 Forbidden\r\nContent-Type: text/plain; charset=UTF-8\r\n'');
+        http (''Forbidden: missing or invalid admin token.'');
+        return;
+      }
+
+      admin_result := ''Unknown admin action.'';
+      {
+        declare exit handler for sqlstate ''*''
+        {
+          admin_result := ''Something went wrong processing that action. Please try again in a moment.'';
+        };
+        if (admin_action = ''send_digest_now'')
+        {
+          if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST'') > 0)
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (''{{DAV_COLLECTION}}'');
+          else
+            admin_result := ''The newsletter feature is not installed yet.'';
+        }
+        else if (admin_action = ''set_digest_interval'')
+        {
+          declare minutes_param any;
+          declare minutes_val int;
+          minutes_param := http_param (''minutes'');
+          minutes_val := 0;
+          if (isstring (minutes_param)) minutes_val := atoi (trim (minutes_param));
+          if (minutes_val < 1)
+          {
+            admin_result := ''Please provide a positive number of minutes.'';
+          }
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST'') > 0)
+          {
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST (sprintf (''weblog-newsletter-digest:%s'', ''{{DAV_COLLECTION}}''), ''{{DAV_COLLECTION}}'', minutes_val);
+          }
+          else
+          {
+            admin_result := ''The newsletter feature is not installed yet.'';
+          }
+        }
+        else if (admin_action = ''set_digest_mode'')
+        {
+          declare mode_param varchar;
+          declare deploy_pwd2 varchar;
+          mode_param := http_param (''mode'');
+          if (not isstring (mode_param)) mode_param := '''';
+          mode_param := lower (trim (mode_param));
+          if (mode_param <> ''digest'' and mode_param <> ''immediate'')
+          {
+            admin_result := ''Mode must be either "digest" or "immediate".'';
+          }
+          else
+          {
+            -- USER is whichever account this VSP is executing as (the
+            -- route''s own vsp_user), not necessarily literally dba.
+            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd2 from DB.DBA.SYS_USERS where U_NAME = USER;
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterMode'', mode_param, USER, deploy_pwd2, 1);
+            admin_result := sprintf (''Newsletter mode set to "%s".'', mode_param);
+          }
+        }
+        else if (admin_action = ''set_content_mode'')
+        {
+          declare content_mode_param varchar;
+          declare deploy_pwd3 varchar;
+          content_mode_param := http_param (''content_mode'');
+          if (not isstring (content_mode_param)) content_mode_param := '''';
+          content_mode_param := lower (trim (content_mode_param));
+          if (content_mode_param <> ''auto'' and content_mode_param <> ''snippet'' and content_mode_param <> ''full'')
+          {
+            admin_result := ''Content mode must be "auto", "snippet", or "full".'';
+          }
+          else
+          {
+            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd3 from DB.DBA.SYS_USERS where U_NAME = USER;
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterContentMode'', content_mode_param, USER, deploy_pwd3, 1);
+            admin_result := sprintf (''Email content mode set to "%s".'', content_mode_param);
+          }
+        }
+        else if (admin_action = ''set_skin'')
+        {
+          declare skin_param varchar;
+          declare deploy_pwd4 varchar;
+          skin_param := http_param (''skin_choice'');
+          if (not isstring (skin_param)) skin_param := '''';
+          skin_param := lower (trim (skin_param));
+          if (skin_param <> ''classic'' and skin_param <> ''editorial'')
+          {
+            admin_result := ''Skin must be either "classic" or "editorial".'';
+          }
+          else
+          {
+            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd4 from DB.DBA.SYS_USERS where U_NAME = USER;
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:skin'', skin_param, USER, deploy_pwd4, 1);
+            admin_result := sprintf (''Skin set to "%s".'', skin_param);
+          }
+        }
+        else if (admin_action = ''set_email_config'')
+        {
+          declare fn_param, fa_param, smtp_param, base_param, admin_email_param varchar;
+          declare deploy_pwd5 varchar;
+          fn_param := http_param (''from_name'');
+          fa_param := http_param (''from_address'');
+          smtp_param := http_param (''smtp_server'');
+          base_param := http_param (''confirm_base_url'');
+          admin_email_param := http_param (''admin_email'');
+          if (not isstring (fn_param)) fn_param := '''';
+          if (not isstring (fa_param)) fa_param := '''';
+          if (not isstring (smtp_param)) smtp_param := '''';
+          if (not isstring (base_param)) base_param := '''';
+          if (not isstring (admin_email_param)) admin_email_param := '''';
+          fn_param := trim (fn_param);
+          fa_param := trim (fa_param);
+          smtp_param := trim (smtp_param);
+          base_param := trim (base_param);
+          admin_email_param := trim (admin_email_param);
+          if (fn_param = '''' or fa_param = '''')
+          {
+            admin_result := ''From name and from address are required.'';
+          }
+          else if (admin_email_param <> '''' and (strchr (admin_email_param, ''@'') is null or strchr (admin_email_param, ''.'') is null))
+          {
+            admin_result := ''Admin email looks invalid -- leave it blank to clear it, or provide a valid address.'';
+          }
+          else
+          {
+            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd5 from DB.DBA.SYS_USERS where U_NAME = USER;
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterFromName'', fn_param, USER, deploy_pwd5, 1);
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterFromAddress'', fa_param, USER, deploy_pwd5, 1);
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterSmtpServer'', smtp_param, USER, deploy_pwd5, 1);
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterConfirmBaseUrl'', base_param, USER, deploy_pwd5, 1);
+            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:adminEmail'', admin_email_param, USER, deploy_pwd5, 1);
+            admin_result := ''Email server configuration saved.'';
+          }
+        }
+        else if (admin_action = ''set_digest_schedule'')
+        {
+          declare digest_enabled_param, minutes_param2 varchar;
+          declare minutes_val2 int;
+          digest_enabled_param := http_param (''digest_enabled'');
+          minutes_param2 := http_param (''minutes'');
+          if (not isstring (digest_enabled_param)) digest_enabled_param := ''1'';
+          minutes_val2 := 0;
+          if (isstring (minutes_param2)) minutes_val2 := atoi (trim (minutes_param2));
+          if (digest_enabled_param = ''0'')
+          {
+            if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_UNSCHEDULE_DIGEST'') > 0)
+            {
+              DB.DBA.WEBLOG_NEWSLETTER_UNSCHEDULE_DIGEST (sprintf (''weblog-newsletter-digest:%s'', ''{{DAV_COLLECTION}}''));
+              admin_result := ''Newsletter digest schedule turned off.'';
+            }
+            else
+              admin_result := ''The newsletter feature is not installed yet.'';
+          }
+          else if (minutes_val2 < 1)
+          {
+            admin_result := ''Please provide a positive number of minutes.'';
+          }
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST'') > 0)
+          {
+            DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST (sprintf (''weblog-newsletter-digest:%s'', ''{{DAV_COLLECTION}}''), ''{{DAV_COLLECTION}}'', minutes_val2);
+            admin_result := sprintf (''Newsletter digest schedule set to every %d minutes.'', minutes_val2);
+          }
+          else
+          {
+            admin_result := ''The newsletter feature is not installed yet.'';
+          }
+        }
+        else if (admin_action = ''set_dashboard_schedule'')
+        {
+          declare dash_enabled_param, dash_minutes_param varchar;
+          declare dash_minutes_val int;
+          dash_enabled_param := http_param (''dash_enabled'');
+          dash_minutes_param := http_param (''dash_minutes'');
+          if (not isstring (dash_enabled_param)) dash_enabled_param := ''1'';
+          dash_minutes_val := 0;
+          if (isstring (dash_minutes_param)) dash_minutes_val := atoi (trim (dash_minutes_param));
+          if (dash_enabled_param = ''0'')
+          {
+            if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_DASHBOARD_UNSCHEDULE_REFRESH'') > 0)
+            {
+              DB.DBA.WEBLOG_DASHBOARD_UNSCHEDULE_REFRESH (sprintf (''weblog-dashboard-refresh:%s'', ''{{DAV_COLLECTION}}''));
+              admin_result := ''Dashboard auto-refresh turned off.'';
+            }
+            else
+              admin_result := ''The newsletter feature is not installed yet.'';
+          }
+          else if (dash_minutes_val < 1)
+          {
+            admin_result := ''Please provide a positive number of minutes.'';
+          }
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_DASHBOARD_SCHEDULE_REFRESH'') > 0)
+          {
+            DB.DBA.WEBLOG_DASHBOARD_SCHEDULE_REFRESH (sprintf (''weblog-dashboard-refresh:%s'', ''{{DAV_COLLECTION}}''), ''{{DAV_COLLECTION}}'', dash_minutes_val);
+            admin_result := sprintf (''Dashboard auto-refresh set to every %d minutes.'', dash_minutes_val);
+          }
+          else
+          {
+            admin_result := ''The newsletter feature is not installed yet.'';
+          }
+        }
+        else if (admin_action = ''set_post_category'')
+        {
+          -- Dedicated, single-purpose: touches ONLY schema:category, never
+          -- schema:position. A blank submission clears the tag -- this form
+          -- has no other field competing for "blank means what?", unlike
+          -- the earlier combined tag+pin form it replaces.
+          declare post_name_param, category_param varchar;
+          declare deploy_pwd6 varchar;
+          post_name_param := http_param (''post_name'');
+          category_param := http_param (''category'');
+          if (not isstring (post_name_param)) post_name_param := '''';
+          if (not isstring (category_param)) category_param := '''';
+          post_name_param := trim (post_name_param);
+          category_param := trim (category_param);
+          if (post_name_param = '''')
+          {
+            admin_result := ''Please choose a post.'';
+          }
+          else if (post_name_param like ''._%'')
+          {
+            admin_result := ''Refusing to tag a macOS sidecar resource.'';
+          }
+          else
+          {
+            declare post_target varchar;
+            post_target := ''{{DAV_COLLECTION}}'' || post_name_param;
+            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd6 from DB.DBA.SYS_USERS where U_NAME = USER;
+            {
+              declare exit handler for sqlstate ''*''
+              {
+                admin_result := sprintf (''Could not update the category for "%s".'', post_name_param);
+              };
+              DB.DBA.DAV_PROP_SET (post_target, ''schema:category'', category_param, USER, deploy_pwd6, 1);
+              admin_result := case when category_param = '''' then sprintf (''Category cleared for "%s".'', post_name_param) else sprintf (''"%s" tagged "%s".'', post_name_param, category_param) end;
+            }
+          }
+        }
+        else if (admin_action = ''set_post_pin'')
+        {
+          -- Dedicated, single-purpose: touches ONLY schema:position, never
+          -- schema:category -- a one-click Pin/Unpin button next to a post
+          -- can never accidentally wipe that post''s tag as a side effect.
+          declare pin_post_param, pin_value_param varchar;
+          pin_post_param := http_param (''post_name'');
+          pin_value_param := http_param (''pinned'');
+          if (not isstring (pin_post_param)) pin_post_param := '''';
+          if (not isstring (pin_value_param)) pin_value_param := ''1'';
+          pin_post_param := trim (pin_post_param);
+          pin_value_param := trim (pin_value_param);
+          if (pin_post_param = '''')
+          {
+            admin_result := ''Please choose a post.'';
+          }
+          else if (pin_post_param like ''._%'')
+          {
+            admin_result := ''Refusing to pin a macOS sidecar resource.'';
+          }
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_DAV_SET_PIN'') > 0)
+          {
+            DB.DBA.WEBLOG_DAV_SET_PIN (''{{DAV_COLLECTION}}'', pin_post_param, atoi (pin_value_param), USER);
+            admin_result := sprintf (''"%s" %s.'', pin_post_param, case when pin_value_param = ''1'' then ''pinned'' else ''unpinned'' end);
+          }
+          else
+          {
+            admin_result := ''Pinning needs templates/register-weblog-pinning-tool.sql installed.'';
+          }
+        }
+        else if (admin_action = ''admin_unsubscribe'')
+        {
+          -- Runs the exact same code path a subscriber''s own unsubscribe
+          -- link runs (RDF-mirror retraction included) -- an admin-
+          -- triggered manual unsubscribe, not a separate mechanism to keep
+          -- in sync with that one.
+          declare sub_token_param varchar;
+          sub_token_param := http_param (''sub_token'');
+          if (not isstring (sub_token_param)) sub_token_param := '''';
+          sub_token_param := trim (sub_token_param);
+          if (sub_token_param = '''')
+          {
+            admin_result := ''Missing subscriber token.'';
+          }
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_UNSUBSCRIBE'') > 0)
+          {
+            -- notify=1: the subscriber has no on-screen confirmation of
+            -- this (the admin is the one looking at the dashboard), so
+            -- send them a final email confirming they''ve been removed.
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_UNSUBSCRIBE (sub_token_param, 1);
+          }
+          else
+          {
+            admin_result := ''The newsletter feature is not installed yet.'';
+          }
+        }
+        else if (admin_action = ''import_subscribers_csv'')
+        {
+          declare import_file any;
+          import_file := http_param (''importfile'');
+          if (import_file is null)
+            admin_result := ''Please choose a CSV file to upload.'';
+          else if (not isstring (import_file))
+            admin_result := sprintf (''Unexpected upload type (not a string): %s'', case when isarray (import_file) then ''ARRAY'' else ''OTHER'' end);
+          else if (trim (import_file) = '''')
+            admin_result := ''The uploaded CSV file appears to be empty.'';
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV'') > 0)
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (''{{DAV_COLLECTION}}'', import_file);
+          else
+            admin_result := ''The newsletter feature is not installed yet.'';
+        }
+        else if (admin_action = ''import_subscribers_rdf'')
+        {
+          declare import_file any;
+          declare rdf_format_param varchar;
+          import_file := http_param (''importfile'');
+          rdf_format_param := http_param (''rdf_format'');
+          if (not isstring (rdf_format_param)) rdf_format_param := ''turtle'';
+          if (import_file is null)
+            admin_result := ''Please choose an RDF file to upload.'';
+          else if (not isstring (import_file))
+            admin_result := sprintf (''Unexpected upload type (not a string): %s'', case when isarray (import_file) then ''ARRAY'' else ''OTHER'' end);
+          else if (trim (import_file) = '''')
+            admin_result := ''The uploaded RDF file appears to be empty.'';
+          else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF'') > 0)
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (''{{DAV_COLLECTION}}'', import_file, rdf_format_param);
+          else
+            admin_result := ''The newsletter feature is not installed yet.'';
+        }
+        else if (admin_action = ''import_subscribers_manual'')
+        {
+          declare mi, total_rows, imported, skipped INTEGER;
+          declare has_procs INTEGER;
+          has_procs := (select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE'');
+          total_rows := 0;
+          imported := 0;
+          skipped := 0;
+          if (has_procs > 0)
+          {
+            for (mi := 1; mi <= 5; mi := mi + 1)
+            {
+              declare nm, em varchar;
+              nm := http_param (sprintf (''name%d'', mi));
+              em := http_param (sprintf (''email%d'', mi));
+              if (not isstring (nm)) nm := '''';
+              if (not isstring (em)) em := '''';
+              em := trim (em);
+              if (em <> '''')
+              {
+                total_rows := total_rows + 1;
+                if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm)) = 1)
+                  imported := imported + 1;
+                else
+                  skipped := skipped + 1;
+              }
+            }
+          }
+          if (has_procs = 0)
+            admin_result := ''The newsletter feature is not installed yet.'';
+          else if (total_rows = 0)
+            admin_result := ''Please fill in at least one email address.'';
+          else
+            admin_result := sprintf (''Manual entry: %d row(s) processed, %d added, %d skipped (already confirmed or invalid).'', total_rows, imported, skipped);
+        }
+      }
+
+      -- Regenerate the dashboard snapshot BEFORE sending the admin back to
+      -- it, so the page they land on already reflects this action (the
+      -- earlier stale-cache confusion this session -- "still shows
+      -- pending" right after confirming -- was exactly this gap). Then
+      -- return to the dashboard itself with the result in the query
+      -- string, instead of a separate "here''s what happened, click Back"
+      -- page: a custom Status: header does not reliably change the actual
+      -- wire-level response code on this VHOST route (confirmed live
+      -- 2026-09-23 -- a 403 case still came back as a literal 200 OK), so
+      -- a real Location-header redirect can''t be relied on either; a
+      -- meta-refresh plus an immediate JS location.replace() both act at
+      -- the HTML/DOM level and don''t depend on that, so either one alone
+      -- is enough, and together they''re a reliable fallback pair. The
+      -- dashboard''s own page-load script (WEBLOG_DASHBOARD_REFRESH) reads
+      -- admin_msg from the query string and shows it as a dismissible
+      -- banner, then strips it from the URL.
+      {
+        declare exit handler for sqlstate ''*'' { ; };
+        if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_DASHBOARD_REFRESH'') > 0)
+          DB.DBA.WEBLOG_DASHBOARD_REFRESH (''{{DAV_COLLECTION}}'');
+      }
+      -- Encode the message exactly once via the same %U conversion already
+      -- trusted everywhere else in this file for building links, then
+      -- reuse that one value verbatim in all three destinations below --
+      -- it contains only URL-safe characters, so embedding it inside a JS
+      -- string literal needs no separate JS-escaping step (and doing that
+      -- escaping ad hoc, e.g. with encodeURIComponent() around the RAW
+      -- unencoded message, would have been unsafe: an admin_result
+      -- containing a literal double-quote -- plausible, filenames and
+      -- category text both flow into it -- breaks out of the JS string).
+      {
+        declare admin_msg_enc varchar;
+        admin_msg_enc := sprintf (''%U'', admin_result);
+        http_header (''Content-Type: text/html; charset=UTF-8\r\n'');
+        http (sprintf (''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta http-equiv="refresh" content="0;url={{ADMIN_ROUTE}}?admin_msg=%s"/><title>Admin Action</title></head><body><script>location.replace("{{ADMIN_ROUTE}}?admin_msg=%s");</script><noscript><a href="{{ADMIN_ROUTE}}?admin_msg=%s">Continue to the dashboard</a></noscript></body></html>'',
+          admin_msg_enc, admin_msg_enc, admin_msg_enc));
+      }
+      return;
+    }
+  }
+
+  -- Newsletter subscribe/confirm/unsubscribe dispatch. This has to live in
+  -- index.vsp itself (a dedicated newsletter.vsp file does NOT work: the
+  -- VSP-only VHOST route redirects any nested path -- including a POST to
+  -- newsletter.vsp -- by appending a trailing slash, which turns the POST
+  -- into a GET and loses the form body; the query-param approach below
+  -- avoids that entirely). Works whether or not register-weblog-newsletter.sql
+  -- has been installed yet -- it reports a clear message instead of a raw
+  -- VSP fault if the newsletter procedures are missing.
+  {
+    declare nl_action, nl_email, nl_country, nl_token, nl_result, nl_site_base varchar;
+    declare nl_has_procs, nl_is_post, nl_needs_confirm_post int;
+    declare nl_confirm_label varchar;
+    nl_action := http_param (''nl_action'');
+    if (not isstring (nl_action)) nl_action := '''';
+    nl_action := lower (trim (nl_action));
+    if (nl_action <> '''')
+    {
+      -- RFC 8058 / basic CSRF hygiene: ''confirm'' and ''unsubscribe'' change
+      -- state from a link an unauthenticated party controls (it''s in an
+      -- email). Mail-security gateways routinely PREFETCH every link in a
+      -- message with a plain GET to scan for phishing -- if a GET here
+      -- executed the action, that prefetch silently confirms/unsubscribes
+      -- the real subscriber before they ever open the email (confirmed live
+      -- 2026-09-23: a List-Unsubscribe header addition caused exactly this).
+      -- A GET must only ever render a confirmation page with a same-URL POST
+      -- form; only an actual POST (a human''s click-through, or a mail
+      -- client''s List-Unsubscribe-Post one-click) performs the change.
+      nl_is_post := 0;
+      {
+        declare exit handler for sqlstate ''*'' { ; };
+        declare req_lines any;
+        req_lines := http_request_header ();
+        if (length (req_lines) > 0 and cast (aref (req_lines, 0) as varchar) like ''POST %'')
+          nl_is_post := 1;
+      }
+      nl_email := http_param (''email'');
+      nl_country := http_param (''country'');
+      nl_token := http_param (''token'');
+      nl_result := ''Unknown or missing action.'';
+      nl_needs_confirm_post := 0;
+      nl_confirm_label := '''';
+      nl_has_procs := 0;
+      {
+        declare exit handler for sqlstate ''*'' { nl_has_procs := 0; };
+        if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE'') > 0)
+          nl_has_procs := 1;
+      }
+      if (nl_has_procs = 0)
+      {
+        nl_result := ''The newsletter feature is not installed on this server yet -- ask the site operator to run templates/register-weblog-newsletter.sql.'';
+      }
+      else if ((nl_action = ''confirm'' or nl_action = ''unsubscribe'') and nl_is_post = 0 and isstring (nl_token) and trim (nl_token) <> '''')
+      {
+        nl_needs_confirm_post := 1;
+        nl_confirm_label := case when nl_action = ''confirm'' then ''confirm your subscription'' else ''unsubscribe from this newsletter'' end;
+      }
+      else
+      {
+        -- Defense in depth for a public, unauthenticated form endpoint: an
+        -- unexpected failure in any of these procedures must still render
+        -- the friendly result page below, never a raw SQL error page.
+        declare exit handler for sqlstate ''*''
+        {
+          nl_result := ''Something went wrong processing that request. Please try again in a moment.'';
+        };
+        if (nl_action = ''subscribe'')
+        {
+          nl_site_base := site_base;
+          if (isstring (nl_email) and trim (nl_email) <> '''')
+            nl_result := DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (''{{DAV_COLLECTION}}'', trim (nl_email), nl_country, nl_site_base);
+          else
+            nl_result := ''Please provide a valid email address.'';
+        }
+        else if (nl_action = ''confirm'' and isstring (nl_token) and trim (nl_token) <> '''')
+        {
+          nl_result := DB.DBA.WEBLOG_NEWSLETTER_CONFIRM (trim (nl_token));
+        }
+        else if (nl_action = ''unsubscribe'' and isstring (nl_token) and trim (nl_token) <> '''')
+        {
+          nl_result := DB.DBA.WEBLOG_NEWSLETTER_UNSUBSCRIBE (trim (nl_token));
+        }
+      }
+      http_header (''Content-Type: text/html; charset=UTF-8\r\n'');
+      if (nl_needs_confirm_post = 1)
+      {
+        http (sprintf (''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>%V Newsletter</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f5f8fb;color:#172838;}main{max-width:30rem;margin:2rem;padding:2rem 2.25rem;border:1px solid #d5e3ec;border-radius:8px;background:#fff;box-shadow:0 14px 34px rgba(7,19,29,0.10);text-align:center;}h1{font-size:1.3rem;margin:0 0 1rem;}p{line-height:1.55;}button{font:inherit;font-size:.92rem;font-weight:600;padding:.6rem 1.3rem;border-radius:6px;border:1px solid #1599d3;cursor:pointer;background:#1599d3;color:#fff;}a{color:#1599d3;}</style></head><body><main><h1>%V Newsletter</h1><p>Click below to %V.</p><form method="post" action="{{PUBLIC_ROUTE}}"><input type="hidden" name="nl_action" value="%V"/><input type="hidden" name="token" value="%V"/><button type="submit">Confirm</button></form><p><a href="{{PUBLIC_ROUTE}}">&larr; Back to the weblog</a></p></main></body></html>'',
+          ''{{WEBLOG_TITLE}}'', ''{{WEBLOG_TITLE}}'', nl_confirm_label, nl_action, trim (nl_token)));
+      }
+      else
+      {
+        http (sprintf (''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>%V Newsletter</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f5f8fb;color:#172838;}main{max-width:30rem;margin:2rem;padding:2rem 2.25rem;border:1px solid #d5e3ec;border-radius:8px;background:#fff;box-shadow:0 14px 34px rgba(7,19,29,0.10);text-align:center;}h1{font-size:1.3rem;margin:0 0 1rem;}p{line-height:1.55;}a{color:#1599d3;}</style></head><body><main><h1>%V Newsletter</h1><p>%V</p><p><a href="{{PUBLIC_ROUTE}}">&larr; Back to the weblog</a></p></main></body></html>'', ''{{WEBLOG_TITLE}}'', ''{{WEBLOG_TITLE}}'', nl_result));
+      }
+      return;
+    }
+  }
+
+  -- Pass 1: collect .html and .md resources; note stems that have an HTML rendition
+  all_rows := vector ();
+  html_stems := dict_new (61);
+  if (q = '''')
+  {
+    for (select RES_NAME as _name, RES_MOD_TIME as _mod, RES_CONTENT as _cont
+           from WS.WS.SYS_DAV_RES
+          where (RES_FULL_PATH like ''{{DAV_COLLECTION}}%.html''
+              or RES_FULL_PATH like ''{{DAV_COLLECTION}}%.md'')
+            and RES_NAME not like ''._%''
+            and RES_NAME not in (''index.vsp'', ''newsletter.vsp'')
+          order by RES_MOD_TIME desc, RES_NAME desc) do
+    {
+    declare s, ext, stem varchar;
+    declare dpos int;
+    dpos := strrchr (_name, ''.'');
+    stem := subseq (_name, 0, dpos);
+    ext  := lower (subseq (_name, dpos + 1));
+    if (ext = ''html'')
+      dict_put (html_stems, stem, 1);
+    s := subseq (blob_to_string (_cont), 0, 8000);
+    all_rows := vector_concat (all_rows, vector (vector (_name, _mod, s, ext, stem)));
+    }
+  }
+  else
+  {
+    for (select RES_NAME as _name, RES_MOD_TIME as _mod, RES_CONTENT as _cont
+           from WS.WS.SYS_DAV_RES
+          where (RES_FULL_PATH like ''{{DAV_COLLECTION}}%.html''
+              or RES_FULL_PATH like ''{{DAV_COLLECTION}}%.md'')
+            and RES_NAME not like ''._%''
+            and RES_NAME not in (''index.vsp'', ''newsletter.vsp'')
+            and contains (RES_CONTENT, ft_q)
+          order by RES_MOD_TIME desc, RES_NAME desc) do
+    {
+    declare s, ext, stem varchar;
+    declare dpos int;
+    dpos := strrchr (_name, ''.'');
+    stem := subseq (_name, 0, dpos);
+    ext  := lower (subseq (_name, dpos + 1));
+    if (ext = ''html'')
+      dict_put (html_stems, stem, 1);
+    s := subseq (blob_to_string (_cont), 0, 8000);
+    all_rows := vector_concat (all_rows, vector (vector (_name, _mod, s, ext, stem)));
+    }
+  }
+
+  -- Pass 2: keep every .html; keep a .md only when no .html counterpart shares its stem
+  pinned_posts := vector ();
+  posts := vector ();
+  for (i := 0; i < length (all_rows); i := i + 1)
+  {
+    declare r any;
+    declare s, t, ext, stem, dav_path, category_val, item_date varchar;
+    declare raw_category, raw_pin any;
+    declare category_match, semi_pos, cat_count, pin_val int;
+    declare one_category, rest_category varchar;
+    r    := aref (all_rows, i);
+    s    := aref (r, 2);
+    ext  := aref (r, 3);
+    stem := aref (r, 4);
+    if (ext = ''md'' and dict_get (html_stems, stem, null) is not null)
+      goto next_row;
+    if (ext = ''html'')
+    {
+      t := regexp_match (''<title>[^<]+</title>'', s);
+      if (t is not null)
+      {
+        t := replace (t, ''<title>'', '''');
+        t := replace (t, ''</title>'', '''');
+        t := trim (t);
+        t := replace (t, ''&amp;'', ''&'');
+        t := replace (t, ''&quot;'', chr(34));
+        t := replace (t, ''&#39;'', chr(39));
+        t := replace (t, ''&apos;'', chr(39));
+        t := replace (t, ''&ndash;'', ''-'');
+        t := replace (t, ''&mdash;'', ''-'');
+      }
+    }
+    else
+    {
+      t := stem;
+    }
+    if (t is null or t = '''')
+      t := aref (r, 0);
+    item_date := sprintf (''%04d-%02d-%02d'', year (aref (r, 1)), month (aref (r, 1)), dayofmonth (aref (r, 1)));
+    if (from_date <> '''' and item_date < from_date)
+      goto next_row;
+    if (to_date <> '''' and item_date > to_date)
+      goto next_row;
+    dav_path := sprintf (''{{DAV_COLLECTION}}%s'', aref (r, 0));
+    raw_pin := null;
+    for (select P.PROP_VALUE as _pin
+           from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+          where R.RES_FULL_PATH = dav_path
+            and P.PROP_PARENT_ID = R.RES_ID
+            and P.PROP_TYPE = ''R''
+            and P.PROP_NAME = ''schema:position'') do
+    {
+      raw_pin := _pin;
+    }
+    pin_val := 0;
+    if (raw_pin is not null and isstring (raw_pin) and trim (cast (raw_pin as varchar)) <> '''' and trim (cast (raw_pin as varchar)) <> ''0'')
+      pin_val := 1;
+    raw_category := null;
+    for (select P.PROP_VALUE as _cat
+           from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+          where R.RES_FULL_PATH = dav_path
+            and P.PROP_PARENT_ID = R.RES_ID
+            and P.PROP_TYPE = ''R''
+            and P.PROP_NAME = ''schema:category'') do
+    {
+      raw_category := _cat;
+    }
+    category_val := '''';
+    if (raw_category is not null and isstring (raw_category))
+      category_val := trim (cast (raw_category as varchar));
+    category_match := 0;
+    if (selected_category = '''')
+      category_match := 1;
+    if (category_val <> '''')
+    {
+      rest_category := category_val;
+      while (rest_category <> '''')
+      {
+        semi_pos := strchr (rest_category, '';'');
+        if (semi_pos is null)
+        {
+          one_category := trim (rest_category);
+          rest_category := '''';
+        }
+        else
+        {
+          one_category := trim (subseq (rest_category, 0, semi_pos));
+          rest_category := trim (subseq (rest_category, semi_pos + 1));
+        }
+        if (one_category <> '''' and length (one_category) > 2)
+        {
+          has_categories := 1;
+          if (one_category = selected_category)
+            category_match := 1;
+          cat_count := cast (dict_get (category_seen, one_category, 0) as int) + 1;
+          dict_put (category_seen, one_category, cat_count);
+        }
+      }
+    }
+    all_count := all_count + 1;
+    if (selected_category <> '''' and category_match = 0)
+      goto next_row;
+    if (pin_val)
+      pinned_posts := vector_concat (pinned_posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, category_val, item_date, pin_val)));
+    else
+      posts := vector_concat (posts, vector (vector (aref (r, 0), aref (r, 1), t, ext, category_val, item_date, pin_val)));
+next_row: ;
+  }
+  posts := vector_concat (pinned_posts, posts);
+
+  if (has_categories)
+  {
+    dict_iter_rewind (category_seen);
+    while (dict_iter_next (category_seen, facet_key, facet_value))
+    {
+      facet_category := cast (facet_key as varchar);
+      facet_count := cast (facet_value as int);
+      facet_active := '''';
+      if (facet_category = selected_category)
+        facet_active := '' is-active'';
+      category_cloud := concat (category_cloud, sprintf (''<a class="facet-option%V" href="{{PUBLIC_ROUTE}}?category=%U&amp;q=%U&amp;from=%U&amp;to=%U"><span class="facet-name">%V</span><span class="facet-count">%d</span></a>'', facet_active, facet_category, q, from_date, to_date, facet_category, facet_count));
+    }
+  }
+
+  n := length (posts);
+  idx := 0;
+  post_selected := 0;
+  sel := http_param (''post'');
+  if (isstring (sel))
+  {
+    for (i := 0; i < n; i := i + 1)
+    {
+      if (aref (aref (posts, i), 0) = sel)
+      {
+        idx := i;
+        post_selected := 1;
+      }
+    }
+  }
+
+  if (feed_type = ''rss'')
+  {
+    http_header (''Content-Type: application/rss+xml; charset=UTF-8
+'');
+    http (''<?xml version="1.0" encoding="UTF-8"?>
+'');
+    http (''<rss version="2.0"><channel>
+'');
+    http (sprintf (''<title>%V</title>
+'', ''{{WEBLOG_TITLE}}''));
+    http (sprintf (''<link>%s{{PUBLIC_ROUTE}}</link>
+'', site_base));
+    http (''<description>{{WEBLOG_TAGLINE}}</description>
+'');
+    http (''<generator>Virtuoso Server Pages over WebDAV</generator>
+'');
+    for (i := 0; i < n; i := i + 1)
+    {
+      declare fname, ftitle varchar;
+      fname := aref (aref (posts, i), 0);
+      ftitle := aref (aref (posts, i), 2);
+      http (''<item>
+'');
+      http (sprintf (''<title>%V</title>
+'', ftitle));
+      http (sprintf (''<link>%s{{PUBLIC_ROUTE}}?post=%U</link>
+'', site_base, fname));
+      http (sprintf (''<guid isPermaLink="true">%s{{PUBLIC_ROUTE}}?post=%U</guid>
+'', site_base, fname));
+      http (sprintf (''<description>%V</description>
+'', ftitle));
+      http (''</item>
+'');
+    }
+    http (''</channel></rss>
+'');
+    return;
+  }
+  if (feed_type = ''atom'')
+  {
+    http_header (''Content-Type: application/atom+xml; charset=UTF-8
+'');
+    http (''<?xml version="1.0" encoding="UTF-8"?>
+'');
+    http (''<feed xmlns="http://www.w3.org/2005/Atom">
+'');
+    http (sprintf (''<title>%V</title>
+'', ''{{WEBLOG_TITLE}}''));
+    http (sprintf (''<id>%s{{PUBLIC_ROUTE}}</id>
+'', site_base));
+    http (sprintf (''<link href="%s{{PUBLIC_ROUTE}}"/>
+'', site_base));
+    http (sprintf (''<link rel="self" type="application/atom+xml" href="%s{{PUBLIC_ROUTE}}?feed=atom"/>
+'', site_base));
+    if (n > 0)
+    {
+      declare umod datetime;
+      umod := aref (aref (posts, 0), 1);
+      http (sprintf (''<updated>%04d-%02d-%02dT00:00:00Z</updated>
+'', year (umod), month (umod), dayofmonth (umod)));
+    }
+    else
+      http (''<updated>2026-01-01T00:00:00Z</updated>
+'');
+    for (i := 0; i < n; i := i + 1)
+    {
+      declare fname, ftitle varchar;
+      declare fmod datetime;
+      fname := aref (aref (posts, i), 0);
+      fmod := aref (aref (posts, i), 1);
+      ftitle := aref (aref (posts, i), 2);
+      http (''<entry>
+'');
+      http (sprintf (''<title>%V</title>
+'', ftitle));
+      http (sprintf (''<id>%s{{PUBLIC_ROUTE}}?post=%U</id>
+'', site_base, fname));
+      http (sprintf (''<link href="%s{{PUBLIC_ROUTE}}?post=%U"/>
+'', site_base, fname));
+      http (sprintf (''<updated>%04d-%02d-%02dT00:00:00Z</updated>
+'', year (fmod), month (fmod), dayofmonth (fmod)));
+      http (sprintf (''<summary>%V</summary>
+'', ftitle));
+      http (''</entry>
+'');
+    }
+    http (''</feed>
+'');
+    return;
+  }
+  if (feed_type = ''atompub'' or feed_type = ''atomPub'')
+  {
+    http_header (''Content-Type: application/atomsvc+xml; charset=UTF-8
+'');
+    http (''<?xml version="1.0" encoding="UTF-8"?>
+'');
+    http (sprintf (''<service xmlns="http://www.w3.org/2007/app" xmlns:atom="http://www.w3.org/2005/Atom"><workspace><atom:title>%V</atom:title><collection href="%s{{PUBLIC_ROUTE}}"><atom:title>WebDAV Folder</atom:title></collection></workspace></service>
+'', ''{{WEBLOG_TITLE}}'', site_base));
+    return;
+  }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><?= ''{{WEBLOG_TITLE}}'' ?></title>
+  <meta name="description" content="{{WEBLOG_TAGLINE}}" />
+  <link rel="alternate" type="application/rss+xml"  title="<?= ''{{WEBLOG_TITLE}}'' ?> (RSS 2.0)"  href="{{PUBLIC_ROUTE}}?feed=rss" />
+  <link rel="alternate" type="application/atom+xml" title="<?= ''{{WEBLOG_TITLE}}'' ?> (Atom 1.0)" href="{{PUBLIC_ROUTE}}?feed=atom" />
+  <link rel="service"   type="application/atomsvc+xml" title="AtomPub Service" href="{{PUBLIC_ROUTE}}?feed=atomPub" />
+  <style>
+    /* Shared, skin-agnostic base -- reset, theme-toggle chrome, feed buttons, newsletter band, footer. */
+    * { box-sizing: border-box; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .feed-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2rem; height: 2rem; border: 1px solid var(--border); border-radius: 4px;
+      background: var(--accent-soft); color: var(--text); cursor: pointer;
+    }
+    .theme-toggle:hover { background: var(--accent-quiet); }
+    .theme-toggle svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .theme-toggle .sun { display: none; }
+    html[data-theme="light"] .theme-toggle .moon { display: none; }
+    html[data-theme="light"] .theme-toggle .sun { display: block; }
+    .feed-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+      min-height: 2rem; font-size: 0.78rem; font-weight: 700;
+      padding: 0.38rem 0.72rem; border-radius: 4px;
+      color: #fff !important; text-decoration: none !important; white-space: nowrap;
+    }
+    .feed-btn.rss  { background: var(--rss); }
+    .feed-btn.atom { background: var(--accent); }
+    .feed-btn svg { width: 12px; height: 12px; fill: currentColor; flex: 0 0 auto; }
+    .post-frame { display: block; width: 100%; height: calc(100vh - 7.5rem); min-height: 420px; border: 0; background: #fff; }
+    .a-category { display: none; }
+    .newsletter-band {
+      max-width: 1380px; margin: 2rem auto 0; padding: 1.75rem 1.5rem;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--panel);
+      text-align: center; box-shadow: var(--shadow);
+    }
+    .newsletter-band h2 { margin: 0 0 0.4rem; font-size: 1.35rem; }
+    .newsletter-band p.nl-sub { margin: 0 0 1.1rem; color: var(--muted); }
+    .nl-form { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; align-items: flex-end; }
+    .nl-field { display: grid; gap: 0.25rem; text-align: left; }
+    .nl-field label { font-size: 0.78rem; color: var(--muted); }
+    .nl-field input {
+      min-height: 2.3rem; min-width: 15rem; border: 1px solid var(--border); border-radius: 4px;
+      padding: 0.45rem 0.6rem; font: inherit; font-size: 0.9rem; background: #fff; color: #172838;
+    }
+    .nl-field.nl-country input { min-width: 9rem; }
+    .nl-submit {
+      min-height: 2.3rem; padding: 0.45rem 1.1rem; border: 0; border-radius: 4px;
+      background: var(--accent); color: #fff; font-weight: 700; cursor: pointer;
+    }
+    .nl-consent { margin: 0.85rem auto 0; max-width: 34rem; font-size: 0.72rem; color: var(--muted); }
+    footer.colophon { max-width: 1380px; margin: 0 auto 1.75rem; padding: 0 1.25rem; color: var(--muted); font-size: 0.8rem; }
+    .footer-inner { border-top: 1px solid var(--border); padding-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; justify-content: space-between; align-items: center; }
+    .footer-copy { display: grid; gap: 0.28rem; max-width: 880px; line-height: 1.45; }
+    .footer-primary { color: var(--text); font-weight: 650; }
+    .footer-provenance { color: var(--muted); }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 0.45rem 0.75rem; align-items: center; }
+    .footer-links a { font-weight: 650; }
+    .virtuoso-badge {
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.06rem;
+      padding: 0.55rem 1.35rem; border: 2px solid var(--accent); border-radius: 50%;
+      background: var(--panel); box-shadow: 0 4px 14px rgba(0,0,0,0.14); text-decoration: none !important;
+      line-height: 1.05; white-space: nowrap;
+    }
+    .virtuoso-badge:hover { transform: translateY(-1px); text-decoration: none; }
+    .virtuoso-badge .vb-powered { font-size: 0.56rem; font-weight: 650; letter-spacing: 0.14em; text-transform: lowercase; color: var(--muted); }
+    .virtuoso-badge .vb-name { font-size: 0.95rem; font-weight: 850; letter-spacing: 0.02em; color: var(--accent); }
+  </style>
+<?vsp if (skin = ''editorial'') { ?>
+  <style>
+    /* editorial skin -- single-column magazine layout, serif headlines. */
+    :root {
+      --accent: #1f4e79; --accent-soft: rgba(31, 78, 121, 0.10); --accent-quiet: rgba(31, 78, 121, 0.22);
+      --paper: #faf7f2; --ink: #1c1c1a; --panel: #ffffff; --text: #1c1c1a; --muted: #6b6b64;
+      --border: #e7e1d6; --rss: #f26522; --shadow: 0 10px 28px rgba(28, 28, 26, 0.07);
+      --headline: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+      --body-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --accent: #00b4ff; --accent-soft: rgba(0, 180, 255, 0.12); --accent-quiet: rgba(0, 180, 255, 0.28);
+        --paper: #0f1720; --ink: #f1f5f9; --panel: #16212c; --text: #f1f5f9; --muted: #92a3b3;
+        --border: rgba(0, 180, 255, 0.20); --shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+      }
+    }
+    html[data-theme="dark"] {
+      --accent: #00b4ff; --accent-soft: rgba(0, 180, 255, 0.12); --accent-quiet: rgba(0, 180, 255, 0.28);
+      --paper: #0f1720; --ink: #f1f5f9; --panel: #16212c; --text: #f1f5f9; --muted: #92a3b3;
+      --border: rgba(0, 180, 255, 0.20); --shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+    }
+    html[data-theme="light"] {
+      --accent: #1f4e79; --accent-soft: rgba(31, 78, 121, 0.10); --accent-quiet: rgba(31, 78, 121, 0.22);
+      --paper: #faf7f2; --ink: #1c1c1a; --panel: #ffffff; --text: #1c1c1a; --muted: #6b6b64;
+      --border: #e7e1d6; --shadow: 0 10px 28px rgba(28, 28, 26, 0.07);
+    }
+    body { margin: 0; font-family: var(--body-font); background: var(--paper); color: var(--text); line-height: 1.55; }
+    header.masthead {
+      position: sticky; top: 0; z-index: 20; background: var(--paper);
+      border-bottom: 1px solid var(--border); padding: 0.9rem max(1.25rem, calc((100vw - 1080px) / 2));
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem;
+    }
+    header.masthead h1 { margin: 0; font-family: var(--headline); font-size: 1.3rem; font-weight: 700; }
+    header.masthead h1 a { color: var(--ink); }
+    .util-row {
+      max-width: 1080px; margin: 0 auto; padding: 0.9rem 1.25rem 0; display: flex; flex-wrap: wrap;
+      gap: 0.6rem 0.85rem; align-items: center;
+    }
+    .util-row form { display: flex; gap: 0.5rem; flex: 1 1 260px; }
+    .util-row input[type="search"], .util-row input[type="date"] {
+      min-height: 2.15rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.4rem 0.9rem;
+      font: inherit; font-size: 0.86rem; background: var(--panel); color: var(--text); flex: 1 1 auto;
+    }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid var(--border); border-radius: 999px;
+      padding: 0.28rem 0.75rem; font-size: 0.76rem; font-weight: 650; color: var(--text); background: var(--panel);
+    }
+    .chip.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .chip .facet-count { color: var(--muted); font-weight: 500; }
+    main.editorial-main { max-width: 1080px; margin: 1.75rem auto 0; padding: 0 1.25rem; }
+    .hero { border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 2rem; }
+    .hero-kicker {
+      display: inline-flex; align-items: center; font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem;
+    }
+    .hero h2 { font-family: var(--headline); font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem); line-height: 1.15; margin: 0 0 0.6rem; }
+    .hero .post-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.1rem; }
+    .hero .post-frame { border-radius: 6px; box-shadow: var(--shadow); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.1rem; margin-bottom: 2.25rem; }
+    .card {
+      border: 1px solid var(--border); border-radius: 6px; background: var(--panel); padding: 1.1rem 1.2rem;
+      display: flex; flex-direction: column; gap: 0.4rem; box-shadow: var(--shadow);
+    }
+    .card.current { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .card-kicker { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .card h3 { margin: 0; font-family: var(--headline); font-size: 1.1rem; line-height: 1.3; }
+    .card h3 a { color: var(--ink); }
+    .results-panel .results-list { list-style: none; margin: 0; padding: 0; }
+    .results-panel .results-list li { padding: 0.9rem 0; border-bottom: 1px solid var(--border); }
+    .results-panel .results-list a { font-family: var(--headline); font-size: 1.05rem; font-weight: 700; }
+    .results-meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; }
+    .newsletter-band { background: var(--panel); }
+    .nl-field input { background: var(--paper); color: var(--text); }
+  </style>
+<?vsp } else { ?>
+  <style>
+    /* classic skin -- OpenLink-style two-column layout, sans throughout. */
+    :root {
+      --accent: #1599d3; --accent-soft: rgba(21, 153, 211, 0.13); --accent-quiet: rgba(92, 201, 232, 0.28);
+      --bg: #f5f8fb; --panel: rgba(255, 255, 255, 0.94); --text: #172838; --muted: #637486;
+      --border: #d5e3ec; --rss: #f26522; --shadow: 0 14px 34px rgba(7, 19, 29, 0.10);
+    }
+    html[data-theme="dark"] {
+      --accent: #5cc9e8; --accent-soft: rgba(92, 201, 232, 0.13); --accent-quiet: rgba(92, 201, 232, 0.25);
+      --bg: #07131d; --panel: rgba(12, 29, 43, 0.92); --text: #f1f7fb; --muted: #a8bac8;
+      --border: rgba(92, 201, 232, 0.18); --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --accent: #5cc9e8; --accent-soft: rgba(92, 201, 232, 0.13); --accent-quiet: rgba(92, 201, 232, 0.25);
+        --bg: #07131d; --panel: rgba(12, 29, 43, 0.92); --text: #f1f7fb; --muted: #a8bac8;
+        --border: rgba(92, 201, 232, 0.18); --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
+      }
+    }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    header.masthead {
+      position: sticky; top: 0; z-index: 20; background: var(--panel); border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08); padding: 1rem max(1.25rem, calc((100vw - 1380px) / 2));
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem;
+    }
+    header.masthead h1 { margin: 0; font-size: 1.35rem; line-height: 1.15; }
+    header.masthead h1 a { color: var(--text); }
+    header.masthead .tagline { color: var(--muted); font-size: 0.9rem; flex: 1 1 420px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 1.25rem; max-width: 1380px; margin: 1.5rem auto 1.25rem; padding: 0 1.25rem; align-items: start; }
+    @media (max-width: 900px) {
+      header.masthead { align-items: flex-start; }
+      .layout { grid-template-columns: 1fr; margin-top: 1rem; }
+      .feed-buttons { width: 100%; }
+      aside.sidebar { position: static; max-height: none; }
+      aside.sidebar .panel { max-height: 55vh; }
+    }
+    article.post { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); position: relative; }
+    article.post.embedded { background: transparent; }
+    .post-head { padding: 1.2rem 1.4rem 1rem; border-bottom: 1px solid var(--border); }
+    .post-kicker { display: inline-flex; align-items: center; min-height: 1.45rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent-quiet); border-radius: 3px; padding: 0.18rem 0.5rem; margin-bottom: 0.6rem; }
+    .post-head h2 { margin: 0 0 0.45rem; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.7rem); line-height: 1.25; }
+    .pin-badge { position: relative; display: inline-block; width: 0.66rem; height: 0.66rem; margin-right: 0.34rem; transform: rotate(-22deg); vertical-align: -0.06rem; flex: 0 0 auto; }
+    .pin-badge::before { content: ""; position: absolute; width: 0.42rem; height: 0.42rem; left: 0.12rem; top: 0.02rem; border-radius: 50%; background: #ef4444; border: 1px solid rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(239,68,68,0.38); }
+    .pin-badge::after { content: ""; position: absolute; width: 0.1rem; height: 0.48rem; left: 0.31rem; top: 0.35rem; border-radius: 999px; background: linear-gradient(180deg, #f7d7c4, #805139); }
+    .post-status { display: flex; align-items: center; gap: 0.08rem; min-height: 2.15rem; padding: 0.46rem 0.72rem; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, rgba(239,68,68,0.11), rgba(92,201,232,0.06) 62%, transparent); color: var(--muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    article.post.embedded.pinned { background: var(--panel); }
+    .post-kicker .pin-badge, .post-status .pin-badge { margin-right: 0.28rem; }
+    .post-meta { color: var(--muted); font-size: 0.86rem; }
+    .post-meta a { font-weight: 650; }
+    .post-body { background: #fff; }
+    aside.sidebar { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 5.25rem; max-height: calc(100vh - 6.5rem); min-height: 0; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; box-shadow: var(--shadow); min-height: 0; color: var(--text); }
+    aside.sidebar .panel { overflow: auto; scrollbar-width: thin; }
+    .panel h3 { margin: 0 0 0.75rem; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 0.55rem; }
+    ul.archive { list-style: none; margin: 0; padding: 0; }
+    ul.archive li { padding: 0.62rem 0; border-bottom: 1px solid var(--border); }
+    ul.archive li:last-child { border-bottom: 0; }
+    ul.archive .a-date { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.16rem; }
+    ul.archive li.current { border-left: 3px solid var(--accent); padding-left: 0.65rem; margin-left: -0.65rem; background: var(--accent-soft); }
+    ul.archive li.current a { font-weight: 700; }
+    ul.archive li.pinned:not(.current) { border-left: 3px solid rgba(239,68,68,0.46); padding-left: 0.65rem; margin-left: -0.65rem; }
+    .filter-form { display: grid; gap: 0.55rem; margin-bottom: 0.95rem; }
+    .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+    .filter-label { display: grid; gap: 0.18rem; color: var(--muted); font-size: 0.72rem; }
+    .filter-input, .filter-select { width: 100%; min-height: 2.1rem; border: 1px solid var(--border); border-radius: 4px; background: #fff; color: #172838; padding: 0.42rem 0.55rem; font: inherit; font-size: 0.84rem; }
+    html[data-theme="dark"] .filter-input, html[data-theme="dark"] .filter-select { background: rgba(7,19,29,0.92); color: #f1f7fb; }
+    .filter-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+    .filter-submit, .filter-reset { border: 1px solid var(--accent-quiet); border-radius: 4px; padding: 0.34rem 0.55rem; font-weight: 700; cursor: pointer; }
+    .filter-submit { background: var(--accent); color: #fff; }
+    .filter-reset { background: var(--accent-soft); color: var(--accent); }
+    .filter-note { color: var(--muted); font-size: 0.74rem; }
+    .facet-box { display: grid; gap: 0.55rem; border-top: 1px solid var(--border); padding-top: 0.75rem; }
+    .facet-head { display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
+    .facet-title { color: var(--muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .facet-clear { color: var(--accent); font-size: 0.72rem; font-weight: 750; }
+    .facet-list { display: grid; gap: 0.34rem; max-height: 13.5rem; overflow: auto; padding-right: 0.15rem; scrollbar-width: thin; }
+    .facet-option { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.55rem; min-height: 2rem; border: 1px solid var(--border); border-radius: 4px; background: var(--accent-soft); color: var(--text); padding: 0.34rem 0.45rem 0.34rem 0.55rem; text-decoration: none; }
+    .facet-option:hover { border-color: var(--accent-quiet); text-decoration: none; }
+    .facet-option.is-active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+    .facet-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.76rem; font-weight: 700; }
+    .facet-count { min-width: 1.8rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 0.68rem; font-weight: 850; text-align: center; padding: 0.12rem 0.34rem; }
+    .facet-option.is-active .facet-count { background: var(--accent); color: #fff; }
+    .results-panel { padding: 1.2rem 1.4rem 1.35rem; }
+    .results-list { list-style: none; margin: 0; padding: 0; }
+    .results-list li { padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
+    .results-list a { font-weight: 750; }
+    .results-meta { color: var(--muted); font-size: 0.78rem; margin-top: 0.2rem; }
+  </style>
+<?vsp } ?>
+  <script>
+  (function () {
+    try {
+      var stored = window.localStorage.getItem(''weblog-theme'');
+      if (stored === ''dark'' || stored === ''light'') document.documentElement.setAttribute(''data-theme'', stored);
+    } catch (e) {}
+  })();
+  </script>
+</head>
+<body>
+<?vsp
+  http (''<header class="masthead">'');
+  http (sprintf (''<h1><a href="{{PUBLIC_ROUTE}}">%V</a></h1>'', ''{{WEBLOG_TITLE}}''));
+  if (skin <> ''editorial'')
+    http (sprintf (''<span class="tagline">%V</span>'', ''{{WEBLOG_TAGLINE}}''));
+  http (''<nav class="feed-buttons">'');
+  http (''<a class="feed-btn rss" href="{{PUBLIC_ROUTE}}?feed=rss" type="application/rss+xml" title="Subscribe via RSS 2.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>RSS</a>'');
+  http (''<a class="feed-btn atom" href="{{PUBLIC_ROUTE}}?feed=atom" type="application/atom+xml" title="Subscribe via Atom 1.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>Atom</a>'');
+  http (''<button class="theme-toggle" type="button" aria-label="Toggle light and dark theme" title="Toggle theme" data-theme-toggle><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.8 8.8 0 1 1 11.2 3 6.8 6.8 0 0 0 21 12.8z"/></svg><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>'');
+  http (''</nav></header>'');
+?>
+<?vsp if (skin = ''editorial'') { ?>
+  <div class="util-row">
+    <form method="get" action="{{PUBLIC_ROUTE}}" aria-label="Search and filter posts">
+      <input type="search" name="q" value="<?= q ?>" placeholder="Search this DAV collection" aria-label="Search this DAV collection" />
+      <input type="date" name="from" value="<?= from_date ?>" title="From date" />
+      <input type="date" name="to" value="<?= to_date ?>" title="To date" />
+    </form>
+<?vsp if (has_categories) { ?>
+    <div class="chip-row" aria-label="Filter posts by category">
+<?vsp http (replace (replace (category_cloud, ''facet-option'', ''chip''), ''facet-name'', ''chip-name'')); ?>
+      <a class="chip" href="{{PUBLIC_ROUTE}}?q=<?= q ?>&amp;from=<?= from_date ?>&amp;to=<?= to_date ?>">All <?= all_count ?></a>
+    </div>
+<?vsp } ?>
+  </div>
+  <main class="editorial-main">
+<?vsp
+  if (n = 0)
+  {
+    if (filter_active)
+      http (''<div class="hero"><h2>No matching posts</h2><p class="post-meta">Adjust the search terms, date range, or category filter.</p></div>'');
+    else
+      http (''<div class="hero"><h2>No posts yet</h2></div>'');
+  }
+  else if (filter_active and post_selected = 0)
+  {
+    http (''<div class="results-panel"><div class="hero-kicker">Search Results</div>'');
+    http (sprintf (''<h2 style="font-family:var(--headline);font-size:1.6rem;">%d matching posts</h2>'', n));
+    http (''<ul class="results-list">'');
+    for (i := 0; i < n; i := i + 1)
+    {
+      declare rname, rtitle, rdate varchar;
+      declare rmod datetime;
+      rname := aref (aref (posts, i), 0);
+      rmod := aref (aref (posts, i), 1);
+      rtitle := aref (aref (posts, i), 2);
+      rdate := sprintf (''%s %d, %d'', aref (months, month (rmod) - 1), dayofmonth (rmod), year (rmod));
+      http (sprintf (''<li><a href="{{PUBLIC_ROUTE}}?post=%U">%V</a><div class="results-meta">%V</div></li>'', rname, rtitle, rdate));
+    }
+    http (''</ul></div>'');
+  }
+  else
+  {
+    declare cname, ctitle, cext varchar;
+    declare cmod datetime;
+    declare cdate varchar;
+    declare cpin int;
+    cname  := aref (aref (posts, idx), 0);
+    cmod   := aref (aref (posts, idx), 1);
+    ctitle := aref (aref (posts, idx), 2);
+    cext   := aref (aref (posts, idx), 3);
+    cdate  := sprintf (''%s %d, %d'', aref (months, month (cmod) - 1), dayofmonth (cmod), year (cmod));
+    cpin := cast (aref (aref (posts, idx), 6) as int);
+    http (''<div class="hero">'');
+    if (cpin)
+      http (sprintf (''<div class="hero-kicker">Pinned &mdash; %V</div>'', cdate));
+    else if (idx = 0)
+      http (sprintf (''<div class="hero-kicker">Latest Post &mdash; %V</div>'', cdate));
+    else
+      http (sprintf (''<div class="hero-kicker">From the Archive &mdash; %V</div>'', cdate));
+    http (sprintf (''<h2>%V</h2>'', ctitle));
+    http (sprintf (''<div class="post-meta">Published %V</div>'', cdate));
+    if (cext = ''html'')
+      http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, ctitle));
+    else
+      http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, ctitle));
+    http (''</div>'');
+  }
+  if (n > 0)
+  {
+    http (''<div class="grid">'');
+    for (i := 0; i < n; i := i + 1)
+    {
+      declare aname, atitle, adate varchar;
+      declare amod datetime;
+      declare apin int;
+      declare cardcls varchar;
+      aname  := aref (aref (posts, i), 0);
+      amod   := aref (aref (posts, i), 1);
+      atitle := aref (aref (posts, i), 2);
+      apin := cast (aref (aref (posts, i), 6) as int);
+      adate  := sprintf (''%s %d, %d'', aref (months, month (amod) - 1), dayofmonth (amod), year (amod));
+      cardcls := ''card'';
+      if (i = idx and post_selected) cardcls := ''card current'';
+      http (sprintf (''<article class="%s">'', cardcls));
+      if (apin)
+        http (sprintf (''<span class="card-kicker">Pinned &middot; %V</span>'', adate));
+      else
+        http (sprintf (''<span class="card-kicker">%V</span>'', adate));
+      http (sprintf (''<h3><a href="{{PUBLIC_ROUTE}}?post=%U">%V</a></h3>'', aname, atitle));
+      http (''</article>'');
+    }
+    http (''</div>'');
+  }
+?>
+  </main>
+<?vsp } else { ?>
+  <div class="layout">
+<?vsp
+  if (n = 0)
+  {
+    if (filter_active)
+      http (''<article class="post"><div class="post-head"><h2>No matching posts</h2><div class="post-meta">Adjust the search terms, date range, or category filter.</div></div></article>'');
+    else
+      http (''<article class="post"><div class="post-head"><h2>No posts yet</h2></div></article>'');
+  }
+  else if (filter_active and post_selected = 0)
+  {
+    http (''<article class="post"><div class="post-head"><span class="post-kicker">Search Results</span>'');
+    http (sprintf (''<h2>%d matching posts</h2>'', n));
+    http (''<div class="post-meta">Results are scoped to this WebDAV collection.</div></div><div class="results-panel"><ul class="results-list">'');
+    for (i := 0; i < n; i := i + 1)
+    {
+      declare rname, rtitle, rdate, rcat varchar;
+      declare rmod datetime;
+      rname := aref (aref (posts, i), 0);
+      rmod := aref (aref (posts, i), 1);
+      rtitle := aref (aref (posts, i), 2);
+      rcat := aref (aref (posts, i), 4);
+      rdate := sprintf (''%s %d, %d'', aref (months, month (rmod) - 1), dayofmonth (rmod), year (rmod));
+      http (''<li>'');
+      http (sprintf (''<a href="{{PUBLIC_ROUTE}}?post=%U">%V</a>'', rname, rtitle));
+      if (rcat <> '''') http (sprintf (''<span class="a-category">%V</span>'', rcat));
+      http (sprintf (''<div class="results-meta">%V</div>'', rdate));
+      http (''</li>'');
+    }
+    http (''</ul></div></article>'');
+  }
+  else
+  {
+    declare cname, ctitle, cext varchar;
+    declare cmod datetime;
+    declare cdate varchar;
+    declare cpin int;
+    cname  := aref (aref (posts, idx), 0);
+    cmod   := aref (aref (posts, idx), 1);
+    ctitle := aref (aref (posts, idx), 2);
+    cext   := aref (aref (posts, idx), 3);
+    cdate  := sprintf (''%s %d, %d'', aref (months, month (cmod) - 1), dayofmonth (cmod), year (cmod));
+    cpin := cast (aref (aref (posts, idx), 6) as int);
+    if (cpin)
+      http (''<article class="post embedded pinned"><div class="post-status" aria-label="Pinned post"><span class="pin-badge" aria-hidden="true"></span><span>Pinned post</span></div>'');
+    else
+      http (''<article class="post embedded">'');
+    http (sprintf (''<div class="post-body"><iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe></div>'', cname, ctitle));
+    http (''</article>'');
+  }
+?>
+    <aside class="sidebar">
+      <div class="panel">
+        <h3>Recent Posts (<?= n ?> posts)</h3>
+        <form class="filter-form" method="get" action="{{PUBLIC_ROUTE}}" aria-label="Search and filter posts">
+          <input class="filter-input" type="search" name="q" value="<?= q ?>" placeholder="Search this DAV collection" aria-label="Search this DAV collection" />
+          <div class="filter-row">
+            <label class="filter-label">From <input class="filter-input" type="date" name="from" value="<?= from_date ?>" /></label>
+            <label class="filter-label">To <input class="filter-input" type="date" name="to" value="<?= to_date ?>" /></label>
+          </div>
+<?vsp if (has_categories) { ?>
+          <div class="facet-box" aria-label="Filter posts by category">
+            <div class="facet-head">
+              <span class="facet-title">Categories</span>
+              <a class="facet-clear" href="{{PUBLIC_ROUTE}}?q=<?= q ?>&amp;from=<?= from_date ?>&amp;to=<?= to_date ?>">All <?= all_count ?></a>
+            </div>
+            <div class="facet-list">
+<?vsp http (category_cloud); ?>
+            </div>
+          </div>
+<?vsp } ?>
+          <div class="filter-actions">
+            <button class="filter-submit" type="submit">Apply</button>
+            <a class="filter-reset" href="{{PUBLIC_ROUTE}}">Reset</a>
+          </div>
+          <div class="filter-note">Search uses Virtuoso full-text search over this DAV collection.</div>
+        </form>
+        <ul class="archive">
+<?vsp
+  for (i := 0; i < n; i := i + 1)
+  {
+    declare aname, atitle, adate, acategory varchar;
+    declare amod datetime;
+    declare apin int;
+    declare cls varchar;
+    aname  := aref (aref (posts, i), 0);
+    amod   := aref (aref (posts, i), 1);
+    atitle := aref (aref (posts, i), 2);
+    acategory := aref (aref (posts, i), 4);
+    apin := cast (aref (aref (posts, i), 6) as int);
+    adate  := sprintf (''%s %d, %d'', aref (months, month (amod) - 1), dayofmonth (amod), year (amod));
+    cls := '''';
+    if (i = idx and apin)
+      cls := '' class="current pinned"'';
+    else if (i = idx)
+      cls := '' class="current"'';
+    else if (apin)
+      cls := '' class="pinned"'';
+    http (sprintf (''<li%s>'', cls));
+    if (apin)
+      http (sprintf (''<span class="a-date"><span class="pin-badge" aria-hidden="true"></span>%V</span>'', adate));
+    else
+      http (sprintf (''<span class="a-date">%V</span>'', adate));
+    http (sprintf (''<a href="{{PUBLIC_ROUTE}}?post=%U">%V</a>'', aname, atitle));
+    if (acategory <> '''')
+      http (sprintf (''<span class="a-category">%V</span>'', acategory));
+    http (''</li>'');
+  }
+?>
+        </ul>
+      </div>
+    </aside>
+  </div>
+<?vsp } ?>
+<?vsp if (newsletter_enabled = ''true'') { ?>
+  <section class="newsletter-band" aria-label="Newsletter subscription">
+    <h2>Get the latest posts in your inbox</h2>
+    <p class="nl-sub">Subscribe to this weblog and get new posts delivered to your inbox.</p>
+    <form class="nl-form" method="post" action="{{PUBLIC_ROUTE}}">
+      <input type="hidden" name="nl_action" value="subscribe" />
+      <div class="nl-field">
+        <label for="nl-email">Email <span aria-hidden="true">*</span></label>
+        <input id="nl-email" type="email" name="email" required="required" placeholder="you@example.com" />
+      </div>
+      <div class="nl-field nl-country">
+        <label for="nl-country">Country (optional)</label>
+        <input id="nl-country" type="text" name="country" placeholder="Country" />
+      </div>
+      <button class="nl-submit" type="submit">Subscribe</button>
+    </form>
+    <p class="nl-consent">By clicking &ldquo;Subscribe&rdquo; you agree to receive email updates about new posts on this weblog. You can unsubscribe at any time via the link in every email.</p>
+  </section>
+<?vsp } ?>
+
+  <footer class="colophon" aria-label="Weblog metadata">
+    <div class="footer-inner">
+      <div class="footer-copy">
+        <span class="footer-primary">Published from <a href="{{PUBLIC_ROUTE}}" target="_top" rel="noopener noreferrer">this WebDAV Folder</a> using <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Virtuoso</a> Server Pages over Virtuoso WebDAV.</span>
+        <span class="footer-provenance">Weblog engine by <a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/weblog-from-webdav" target="_blank" rel="noopener noreferrer">weblog-from-webdav</a>, operated by <a href="https://www.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Software</a>.</span>
+      </div>
+      <a class="virtuoso-badge" href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer" title="Powered by OpenLink Virtuoso" aria-label="Powered by OpenLink Virtuoso">
+        <span class="vb-powered">powered by</span>
+        <span class="vb-name">Virtuoso</span>
+      </a>
+      <nav class="footer-links" aria-label="Subscription links">
+        <a href="{{PUBLIC_ROUTE}}?feed=rss">RSS</a>
+        <a href="{{PUBLIC_ROUTE}}?feed=atom">Atom</a>
+        <a href="{{PUBLIC_ROUTE}}?feed=atomPub">AtomPub</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    var button = document.querySelector(''[data-theme-toggle]'');
+    if (!button) return;
+    function currentTheme () {
+      var explicitTheme = document.documentElement.getAttribute(''data-theme'');
+      if (explicitTheme === ''dark'' || explicitTheme === ''light'') return explicitTheme;
+      return window.matchMedia && window.matchMedia(''(prefers-color-scheme: dark)'').matches ? ''dark'' : ''light'';
+    }
+    button.addEventListener(''click'', function () {
+      var next = currentTheme() === ''dark'' ? ''light'' : ''dark'';
+      document.documentElement.setAttribute(''data-theme'', next);
+      try { window.localStorage.setItem(''weblog-theme'', next); } catch (e) {}
+    });
+  })();
+  </script>
+</body>
+</html>
+';
+
+  index_content := replace (index_content, '{{DAV_COLLECTION}}', coll);
+  index_content := replace (index_content, '{{PUBLIC_ROUTE}}', route);
+  index_content := replace (index_content, '{{ADMIN_ROUTE}}', admin_route);
+  index_content := replace (index_content, '{{WEBLOG_TITLE}}', weblog_title);
+  index_content := replace (index_content, '{{WEBLOG_TAGLINE}}', weblog_tagline);
+  index_content := replace (index_content, '{{DEFAULT_SKIN}}', default_skin);
+
+  index_stream := string_output ();
+  http (index_content, index_stream);
+
+  DB.DBA.DAV_DELETE_INT (index_path, 1, null, null, 0);
+  -- Owner/group MUST be 'dav' (RES_OWNER=2) for Virtuoso to execute a .vsp
+  -- resource rather than serve it as raw static source -- see
+  -- agent-rdf-memory/howto/osdi-vsp-execution-registration.ttl. This is
+  -- independent of dav_user, which only controls VHOST vsp_user (the SQL
+  -- identity the script runs AS) and the pin-seeding DAV_PROP_SET call.
+  rc := DB.DBA.DAV_RES_UPLOAD_STRSES_INT (index_path, index_stream, 'text/html', '111101101R', 'dav', 'dav', null, null, 0);
+  if (rc < 0)
+    signal ('42000', sprintf ('DAV upload failed for %s, rc=%d', index_path, rc));
+
+  -- Seed the default pin when no explicit schema:position pin exists yet.
+  DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_DEFAULT_PIN (coll, dav_user);
+
+  -- Record the public route as a collection property so code with no HTTP
+  -- request context (the newsletter digest scheduler) can still build
+  -- correct public links back into this weblog.
+  {
+    declare deploy_pwd VARCHAR;
+    select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd from DB.DBA.SYS_USERS where U_NAME = dav_user;
+    if (deploy_pwd is not null)
+    {
+      DB.DBA.DAV_PROP_SET (coll, 'weblog:publicRoute', route, dav_user, deploy_pwd, 1);
+
+      -- Generate the admin-action token once and keep it stable across
+      -- redeploys (regenerating it on every deploy would silently break
+      -- any dashboard.html snapshot still cached in a browser).
+      if (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminActionToken', '') = '')
+      {
+        declare fresh_token VARCHAR;
+        fresh_token := md5 (concat (coll, cast (now () as varchar), cast (rnd (1000000000) as varchar), cast (rnd (1000000000) as varchar)));
+        DB.DBA.DAV_PROP_SET (coll, 'weblog:adminActionToken', fresh_token, dav_user, deploy_pwd, 1);
+      }
+    }
+  }
+
+  -- Map public_route as a VSP-enabled DAV directory serving this collection.
+  for (select distinct HP_LISTEN_HOST as _lh, HP_HOST as _vh
+         from DB.DBA.HTTP_PATH where HP_LPATH in ('/DAV', '/public_home')) do
+  {
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, route);
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, subseq (route, 0, length (route) - 1));
+    DB.DBA.VHOST_DEFINE (lhost=>_lh, vhost=>_vh, lpath=>route,
+                         ppath=>coll,
+                         is_dav=>1,
+                         is_brws=>0,
+                         def_page=>'index.vsp',
+                         vsp_user=>dav_user,
+                         ses_vars=>0,
+                         opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
+                         is_default_host=>0);
+
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, admin_route);
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, subseq (admin_route, 0, length (admin_route) - 1));
+    DB.DBA.VHOST_DEFINE (lhost=>_lh, vhost=>_vh, lpath=>admin_route,
+                         ppath=>coll,
+                         is_dav=>1,
+                         is_brws=>0,
+                         def_page=>'dashboard.html',
+                         vsp_user=>dav_user,
+                         ses_vars=>0,
+                         opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
+                         is_default_host=>0);
+  }
+
+  -- Seed dashboard.html immediately so the admin route isn't empty before
+  -- the first scheduled refresh, and make sure the digest actually has a
+  -- schedule (defaulting to weekly) so it is not silently unscheduled after
+  -- a deploy. Both guarded: register-weblog-newsletter.sql is an optional
+  -- add-on and may not be installed yet. Only schedules the digest if no
+  -- event by this deterministic name exists yet -- never clobbers an
+  -- interval the operator already changed from the dashboard.
+  {
+    declare exit handler for sqlstate '*' { ; };
+    if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_DASHBOARD_REFRESH') > 0)
+      DB.DBA.WEBLOG_DASHBOARD_REFRESH (coll);
+    if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST') > 0
+        and (select count (*) from DB.DBA.SYS_SCHEDULED_EVENT where SE_NAME = sprintf ('weblog-newsletter-digest:%s', coll)) = 0)
+      DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST (sprintf ('weblog-newsletter-digest:%s', coll), coll, 10080);
+  }
+
+  return sprintf ('{"ok":true,"dav_collection":"%V","public_route":"%V","skin":"%V","dashboard_route":"%Vdashboard.html","admin_action_token":"%V"}', coll, route, default_skin, admin_route, DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminActionToken', ''));
+}
+;
+
+-- Usage: deploy against an arbitrary local collection.
+-- SELECT DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED ('/DAV/home/dba/weblog-test/', '/weblog-test/', 'My Test Weblog', 'A configurable, skinnable weblog view of a WebDAV folder.', 'classic', 'dba');
+--
+-- Switch the live skin without redeploying (per-request override also works via ?skin=editorial):
+-- SELECT DB.DBA.DAV_PROP_SET ('/DAV/home/dba/weblog-test/', 'weblog:skin', 'editorial', 'dba', (SELECT pwd_magic_calc (U_NAME, U_PASSWORD, 1) FROM DB.DBA.SYS_USERS WHERE U_NAME = 'dba'), 1);
+--
+-- Turn on the newsletter footer band:
+-- SELECT DB.DBA.DAV_PROP_SET ('/DAV/home/dba/weblog-test/', 'weblog:newsletterEnabled', 'true', 'dba', (SELECT pwd_magic_calc (U_NAME, U_PASSWORD, 1) FROM DB.DBA.SYS_USERS WHERE U_NAME = 'dba'), 1);
+
+-- Verification
+SELECT HP_LISTEN_HOST, HP_HOST, HP_LPATH, HP_PPATH, HP_RUN_VSP_AS, HP_OPTIONS FROM DB.DBA.HTTP_PATH WHERE HP_PPATH LIKE '%weblog-test%';
