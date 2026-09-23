@@ -3813,6 +3813,28 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
   if (backup_note = '') backup_note := '(nothing existed yet to back up, or backup failed -- see comments above; the deploy below still runs)';
 
   deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, public_route, weblog_title, weblog_tagline, default_skin, dav_user);
+
+  -- weblog:adminDavUser (default 'dba', read by WEBLOG_DASHBOARD_REFRESH to
+  -- set dashboard.html's RES_GROUP -- the actual Digest-gate check) is a
+  -- SEPARATE property WEBLOG_DAV_DEPLOY_SKINNED never touches -- confirmed
+  -- live 2026-09-23 that leaving it at its 'dba' default while deploying as
+  -- a different dav_user (kidehen on UB) is inconsistent: whoever deploys
+  -- and whoever the dashboard's permission group is set to should match by
+  -- default, so set it here too. Soft-fails like every other property write
+  -- in this file if dav_user's password hash doesn't resolve.
+  {
+    declare exit handler for sqlstate '*' { ; };
+    declare admin_pwd varchar;
+    select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into admin_pwd from DB.DBA.SYS_USERS where U_NAME = dav_user;
+    if (admin_pwd is not null)
+      DB.DBA.DAV_PROP_SET (coll, 'weblog:adminDavUser', dav_user, dav_user, admin_pwd, 1);
+  }
+  {
+    declare exit handler for sqlstate '*' { ; };
+    if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_DASHBOARD_REFRESH') > 0)
+      DB.DBA.WEBLOG_DASHBOARD_REFRESH (coll);
+  }
+
   return sprintf ('{"pre_flight_backup":"%s","deploy":%s}', backup_note, deploy_result);
 }
 ;
