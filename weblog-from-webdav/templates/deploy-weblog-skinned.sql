@@ -68,14 +68,74 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_DEFAULT_PIN (IN _coll varchar,
 
   if (_target is null) return 0;
 
-  select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into _pwd
-    from DB.DBA.SYS_USERS
-   where U_NAME = _dav_user;
-
-  if (_pwd is null) return 0;
-
-  _rc := DB.DBA.DAV_PROP_SET (_target, 'schema:position', '1', _dav_user, _pwd, 1);
+  -- DAV_PROP_SET_INT, not DAV_PROP_SET as _dav_user -- see the comment on
+  -- the admin_action property writes below for why.
+  _rc := DB.DBA.DAV_PROP_SET_INT (_target, 'schema:position', '1', null, null, 0, 0, 1);
   return _rc;
+}
+;
+
+-- Native HTTP Digest auth_fn for the admin-action VHOST (see admin_route/
+-- action_route below) -- verified live 2026-09-23 against a real remote
+-- instance and locally: three cases confirmed correct (unauthenticated ->
+-- 401; authenticated as the collection's configured weblog:adminDavUser ->
+-- allowed; authenticated as a DIFFERENT genuinely-valid SQL account that is
+-- NOT this collection's admin -> denied). Wraps the native
+-- DB.DBA.HP_AUTH_SQL_USER builtin (which does the real Digest verification
+-- against Virtuoso's own SYS_USERS credential store -- no hand-rolled
+-- crypto here) with a per-collection authorization check on top, since
+-- HP_AUTH_SQL_USER alone would accept ANY valid SQL login on the whole
+-- instance, not just the one designated as this collection's admin.
+--
+-- realm is deploy-time-baked as ''WeblogAdmin:<dav_collection>'' (see
+-- action_route setup below) specifically so this ONE shared auth_fn can
+-- serve every weblog collection deployed on the same instance, each
+-- checking against its own weblog:adminDavUser -- auth_fn''s only
+-- documented parameter is realm, so encoding the collection identity into
+-- that string is the only way to make it collection-aware.
+--
+-- This REPLACES the old admin_action_token scheme (a shared secret
+-- embedded in every dashboard form and thus only as safe as dashboard.html's
+-- own DAV-permission gate, which does not reliably enforce on every
+-- instance -- confirmed live on a real remote instance: the token was
+-- fully readable by an anonymous request). Real Digest credentials checked
+-- at the point of action execution have no equivalent single point of
+-- failure.
+CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_AUTH_FN (IN realm VARCHAR)
+{
+  declare ok int;
+  declare lines any;
+  declare auth any;
+  declare uname, coll, expected_admin varchar;
+  declare sep_pos, member_count int;
+  declare exit handler for sqlstate '*' { return 0; };
+
+  sep_pos := strchr (realm, ':');
+  if (sep_pos is null) return 0;
+  coll := subseq (realm, sep_pos + 1, length (realm));
+
+  ok := DB.DBA.HP_AUTH_SQL_USER (realm);
+  if (ok = 0) return 0;
+
+  lines := http_request_header ();
+  auth := DB.DBA.vsp_auth_vec (lines);
+  uname := get_keyword ('username', auth, '');
+
+  -- dba (the Virtuoso superuser) is always authorized, the same way it
+  -- already bypasses ordinary DAV/SQL grants everywhere else.
+  if (lower (trim (uname)) = 'dba') return 1;
+
+  expected_admin := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminDavUser', 'dba');
+  if (lower (trim (uname)) = lower (trim (expected_admin))) return 1;
+
+  -- Members of WEBLOG_OPERATOR can read the admin collection's dashboard,
+  -- so they must also be able to submit its forms.
+  member_count := (select count (*) from DB.DBA.SYS_ROLE_GRANTS G, DB.DBA.SYS_USERS U, DB.DBA.SYS_USERS R
+                    where U.U_NAME = trim (uname) and R.U_NAME = 'WEBLOG_OPERATOR' and R.U_IS_ROLE = 1
+                      and G.GI_SUPER = U.U_ID and G.GI_SUB = R.U_ID);
+  if (member_count > 0) return 1;
+
+  return 0;
 }
 ;
 
@@ -117,11 +177,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     IN weblog_title VARCHAR := 'WebDAV Weblog',
     IN weblog_tagline VARCHAR := 'A configurable, skinnable weblog view of a WebDAV folder.',
     IN default_skin VARCHAR := 'classic',
-    IN dav_user VARCHAR := 'dba'
+    IN dav_user VARCHAR := 'dba',
+    IN admin_collection VARCHAR := null,
+    IN admin_host VARCHAR := null,
+    IN admin_listener VARCHAR := null
   )
 {
   declare rc any;
-  declare coll, route, index_path, admin_route VARCHAR;
+  declare coll, route, index_path, admin_route, action_route, action_realm VARCHAR;
+  declare admin_coll, admin_lpath, admin_lhost, uriqa_host, ssl_port VARCHAR;
+  declare operator_gid, owner_uid, admin_col_id int;
+  declare dashboard_status VARCHAR;
+  declare val_present int;
+  declare action_opts any;
   declare index_content VARCHAR;
   declare index_stream any;
 
@@ -132,17 +200,115 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
   if (default_skin <> 'editorial') default_skin := 'classic';
 
   index_path := coll || 'index.vsp';
-  -- Admin route: is_dav=1, is_brws=0, def_page='dashboard.html' (a STATIC
-  -- file, refreshed periodically by DB.DBA.WEBLOG_DASHBOARD_REFRESH -- a
-  -- live .vsp def_page does NOT get gated this way: verified that a def_page
-  -- resource with restrictive permissions IS auth-challenged correctly by
-  -- Virtuoso's native Digest auth, but only for static content; a .vsp
-  -- def_page under the same restrictive permissions serves its raw,
-  -- uncompiled source instead of executing it). Verified live, three cases:
-  -- no credentials -> 401, wrong password -> 401, correct password -> 200
-  -- with real content -- this is what gates the subscriber dashboard, not
-  -- any password-handling code in this template.
+  -- Admin route: serves the STATIC dashboard.html (refreshed by
+  -- DB.DBA.WEBLOG_DASHBOARD_REFRESH) from a SEPARATE admin collection, never
+  -- from the public blog collection -- anything inside the public
+  -- collection inherits whatever makes it public (on UB an ACL on the blog
+  -- collection overrode the file's own 000 world bits, leaving subscriber
+  -- PII anonymously readable at /DAV/.../dashboard.html). The admin
+  -- collection is owned by dav_user, grouped to the WEBLOG_OPERATOR role,
+  -- with no world bits, so the raw DAV path and the admin route both
+  -- require Digest auth as the owner or a role member.
   admin_route := concat (subseq (route, 0, length (route) - 1), '-admin/');
+  admin_lpath := subseq (admin_route, 0, length (admin_route) - 1);
+
+  -- Admin collection resolution: explicit argument, else the location
+  -- recorded by a previous deploy, else the suggested default -- an
+  -- aunt/uncle of the blog collection (sibling of its parent), so it sits
+  -- outside the public parent's subtree too:
+  --   /DAV/demos/daas/  ->  /DAV/demos-daas-admin/
+  admin_coll := trim (coalesce (admin_collection, ''));
+  if (admin_coll = '')
+    admin_coll := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminCollection', ''));
+  if (admin_coll = '')
+  {
+    declare trimmed, blog_name, parent_path, parent_name, grand_path VARCHAR;
+    declare p1, p2 int;
+    trimmed := subseq (coll, 0, length (coll) - 1);
+    p1 := strrchr (trimmed, '/');
+    parent_path := subseq (trimmed, 0, p1);
+    blog_name := subseq (trimmed, p1 + 1);
+    p2 := strrchr (parent_path, '/');
+    grand_path := subseq (parent_path, 0, p2 + 1);
+    parent_name := subseq (parent_path, p2 + 1);
+    if (p2 is null or grand_path not like '/DAV/%')
+      signal ('22023', sprintf ('Cannot derive a default admin collection for %s (it has no grandparent under /DAV/) -- pass admin_collection explicitly.', coll));
+    admin_coll := concat (grand_path, parent_name, '-', blog_name, '-admin/');
+  }
+  if (subseq (admin_coll, length (admin_coll) - 1) <> '/') admin_coll := admin_coll || '/';
+  if (admin_coll not like '/DAV/%')
+    signal ('22023', sprintf ('Admin collection %s must be a DAV path under /DAV/.', admin_coll));
+  if (admin_coll = coll or admin_coll like concat (coll, '%'))
+    signal ('22023', sprintf ('Admin collection %s must be outside the public blog collection %s.', admin_coll, coll));
+
+  -- The admin route is defined only on a TLS listener, with sec=>'SSL' --
+  -- never on plain HTTP.
+  -- Host: admin_host (the host of the blog's own public URL -- pass it when
+  -- deploying from a prompt that names the blog URL), else [URIQA]
+  -- DefaultHost. Any :port suffix is dropped.
+  uriqa_host := trim (coalesce (admin_host, ''));
+  if (uriqa_host = '')
+  {
+    uriqa_host := cfg_item_value (virtuoso_ini_path (), 'URIQA', 'DefaultHost');
+    if (not isstring (uriqa_host)) uriqa_host := '';
+    uriqa_host := trim (uriqa_host);
+  }
+  if (strrchr (uriqa_host, ':') is not null) uriqa_host := subseq (uriqa_host, 0, strrchr (uriqa_host, ':'));
+  -- TLS listener: admin_listener (e.g. ':443'), else the ini's
+  -- [HTTPServer] SSLPort, else an existing ':443' listener. Instances whose
+  -- TLS listener is defined in Conductor rather than in virtuoso.ini (UB)
+  -- have no SSLPort, so the ini alone is not enough.
+  ssl_port := trim (coalesce (admin_listener, ''));
+  if (ssl_port = '')
+  {
+    ssl_port := cfg_item_value (virtuoso_ini_path (), 'HTTPServer', 'SSLPort');
+    if (not isstring (ssl_port)) ssl_port := '';
+    ssl_port := trim (ssl_port);
+  }
+  if (ssl_port = '' and (select count (*) from DB.DBA.HTTP_PATH where HP_LISTEN_HOST = ':443') > 0)
+    ssl_port := '443';
+  if (strrchr (ssl_port, ':') is not null) ssl_port := subseq (ssl_port, strrchr (ssl_port, ':') + 1);
+  if (uriqa_host = '')
+    signal ('42000', 'Cannot determine the admin route host: pass admin_host (the blog URL''s host) or set [URIQA] DefaultHost.');
+  if (ssl_port = '')
+    signal ('42000', 'Cannot find a TLS listener for the admin route: pass admin_listener (e.g. '':443''), set [HTTPServer] SSLPort, or define a :443 listener.');
+  admin_lhost := concat (':', ssl_port);
+
+  -- Action route: a SEPARATE VHOST pointing at the SAME collection, SAME
+  -- def_page='index.vsp' file as the public route -- multiple VHOSTs can
+  -- share one physical DAV resource, so this reuses the existing
+  -- admin_action dispatcher code unchanged, just reached through a
+  -- DIFFERENT URL with native HTTP Digest required in front of it (see
+  -- DB.DBA.WEBLOG_ADMIN_AUTH_FN above). Verified live 2026-09-23: unlike
+  -- the admin_route/dashboard.html case, gating index.vsp this way does NOT
+  -- hit the "restrictive permissions break VSP execution" problem, because
+  -- the gate is VHOST-level auth_fn, not a resource permission bit -- the
+  -- underlying index.vsp resource keeps its normal, permissive permissions
+  -- (it must stay world-executable for the public route to keep serving
+  -- the blog) and executes completely normally once auth_fn allows the
+  -- request through.
+  action_route := concat (subseq (route, 0, length (route) - 1), '-action/');
+  action_realm := concat ('WeblogAdmin:', coll);
+
+  -- VAL (a full ACL/OAuth/session VAD package -- confirmed present on some
+  -- but not all target instances) gets an optional, nicer login experience
+  -- layered on TOP of the real auth_fn gate above, never instead of it:
+  -- when detected, 401/403 responses on the action route redirect to VAL's
+  -- own login dialog (/val/authenticate.vsp) instead of a bare browser
+  -- Digest popup. auth_fn + sec=''digest'' remains the actual security
+  -- boundary either way -- VAL''s own login page was found live 2026-09-23
+  -- to not reliably complete an anonymous login flow on every instance, so
+  -- it is never relied on as the sole gate.
+  val_present := 0;
+  {
+    declare exit handler for sqlstate '*' { val_present := 0; };
+    if ((select count (*) from DB.DBA.HTTP_PATH where HP_LPATH = '/val') > 0)
+      val_present := 1;
+  }
+  if (val_present = 1)
+    action_opts := vector ('browse_sheet', '', 'noinherit', 'yes', '401_page', '/val/authenticate.vsp', '403_page', '/val/authenticate.vsp');
+  else
+    action_opts := vector ('browse_sheet', '', 'noinherit', 'yes');
 
   index_content := '<?vsp
   -- Weblog-style index of {{DAV_COLLECTION}} -- multi-skin, config-driven.
@@ -295,31 +461,47 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     }
   }
 
-  -- Admin actions (send digest now, change the digest interval), gated by a
-  -- random per-collection token rather than a password: this route has no
-  -- native auth (unlike the admin_route dashboard, which does, but cannot
-  -- execute .vsp -- see deploy notes below), so a real credential check
-  -- here would mean hand-verifying a password inside VSP, which was already
-  -- ruled out as unsafe this session. The token is generated once at first
-  -- deploy, never displayed anywhere except embedded in the Digest-auth-
-  -- gated dashboard.html''s own action forms -- reaching it at all already
-  -- requires passing that native auth gate once.
+  -- Admin actions (send digest now, change the digest interval), gated by
+  -- REAL native HTTP Digest authentication -- checked at the ACTION ROUTE''s
+  -- VHOST level (is_dav=1, def_page=index.vsp -- the SAME physical file as
+  -- the public route, reached through a DIFFERENT, auth_fn-protected URL)
+  -- via DB.DBA.WEBLOG_ADMIN_AUTH_FN, which verifies genuine SQL credentials
+  -- against Virtuoso''s own credential store AND that the authenticated
+  -- account matches this collection''s configured weblog:adminDavUser --
+  -- see that procedure''s own comments for the full verification history.
+  -- This REPLACES a previous design (a shared admin_action_token embedded
+  -- in every dashboard form) that was found live to be readable by an
+  -- anonymous request whenever the admin dashboard''s own DAV-permission
+  -- gate failed to enforce -- which happened on a real remote instance.
+  --
+  -- Because the public route and the action route both execute this SAME
+  -- index.vsp file, a request MUST be explicitly confirmed to have arrived
+  -- via the action route''s URL before any admin_action is processed --
+  -- otherwise the public route (which has no auth_fn at all, by design, so
+  -- the blog itself stays anonymously readable) would let anyone reach this
+  -- same code with no authentication challenge ever having been issued.
   {
     declare admin_action any;
     admin_action := http_param (''admin_action'');
     if (isstring (admin_action) and trim (admin_action) <> '''')
     {
-      declare admin_token, given_token, admin_result varchar;
+      declare admin_result varchar;
+      declare req_lines any;
+      declare on_action_route int;
       admin_action := trim (admin_action);
-      admin_token := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:adminActionToken'', '''');
-      given_token := http_param (''admin_token'');
-      if (not isstring (given_token)) given_token := '''';
-      given_token := trim (given_token);
 
-      if (admin_token = '''' or given_token = '''' or given_token <> admin_token)
+      on_action_route := 0;
+      {
+        declare exit handler for sqlstate ''*'' { ; };
+        req_lines := http_request_header ();
+        if (length (req_lines) > 0 and strstr (cast (aref (req_lines, 0) as varchar), ''{{ACTION_ROUTE}}'') is not null)
+          on_action_route := 1;
+      }
+
+      if (on_action_route = 0)
       {
         http_header (''Status: 403 Forbidden\r\nContent-Type: text/plain; charset=UTF-8\r\n'');
-        http (''Forbidden: missing or invalid admin token.'');
+        http (''Forbidden: admin actions must be submitted via the action route, which requires real Digest authentication.'');
         return;
       }
 
@@ -359,7 +541,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         else if (admin_action = ''set_digest_mode'')
         {
           declare mode_param varchar;
-          declare deploy_pwd2 varchar;
+          declare deploy_pwd2 any;
           mode_param := http_param (''mode'');
           if (not isstring (mode_param)) mode_param := '''';
           mode_param := lower (trim (mode_param));
@@ -369,17 +551,24 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           }
           else
           {
-            -- USER is whichever account this VSP is executing as (the
-            -- route''s own vsp_user), not necessarily literally dba.
-            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd2 from DB.DBA.SYS_USERS where U_NAME = USER;
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterMode'', mode_param, USER, deploy_pwd2, 1);
-            admin_result := sprintf (''Newsletter mode set to "%s".'', mode_param);
+            -- DAV_PROP_SET_INT, not DAV_PROP_SET as USER (whichever account
+            -- this VSP executes as, the route''s vsp_user) -- the latter
+            -- needs USER''s SQL password hash via pwd_magic_calc and
+            -- silently writes nothing when that account''s SQL login is
+            -- disabled or the hash otherwise fails to resolve (confirmed
+            -- live on a real instance where vsp_user was SQL-disabled: every
+            -- admin_action save appeared to succeed but changed nothing).
+            deploy_pwd2 := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', ''weblog:newsletterMode'', mode_param, null, null, 0, 0, 1);
+            if (not isinteger (deploy_pwd2) or deploy_pwd2 < 0)
+              admin_result := sprintf (''Could not save the newsletter mode (DAV error %s).'', cast (deploy_pwd2 as varchar));
+            else
+              admin_result := sprintf (''Newsletter mode set to "%s".'', mode_param);
           }
         }
         else if (admin_action = ''set_content_mode'')
         {
           declare content_mode_param varchar;
-          declare deploy_pwd3 varchar;
+          declare deploy_pwd3 any;
           content_mode_param := http_param (''content_mode'');
           if (not isstring (content_mode_param)) content_mode_param := '''';
           content_mode_param := lower (trim (content_mode_param));
@@ -389,15 +578,17 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           }
           else
           {
-            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd3 from DB.DBA.SYS_USERS where U_NAME = USER;
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterContentMode'', content_mode_param, USER, deploy_pwd3, 1);
-            admin_result := sprintf (''Email content mode set to "%s".'', content_mode_param);
+            deploy_pwd3 := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', ''weblog:newsletterContentMode'', content_mode_param, null, null, 0, 0, 1);
+            if (not isinteger (deploy_pwd3) or deploy_pwd3 < 0)
+              admin_result := sprintf (''Could not save the email content mode (DAV error %s).'', cast (deploy_pwd3 as varchar));
+            else
+              admin_result := sprintf (''Email content mode set to "%s".'', content_mode_param);
           }
         }
         else if (admin_action = ''set_skin'')
         {
           declare skin_param varchar;
-          declare deploy_pwd4 varchar;
+          declare deploy_pwd4 any;
           skin_param := http_param (''skin_choice'');
           if (not isstring (skin_param)) skin_param := '''';
           skin_param := lower (trim (skin_param));
@@ -407,15 +598,17 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           }
           else
           {
-            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd4 from DB.DBA.SYS_USERS where U_NAME = USER;
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:skin'', skin_param, USER, deploy_pwd4, 1);
-            admin_result := sprintf (''Skin set to "%s".'', skin_param);
+            deploy_pwd4 := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', ''weblog:skin'', skin_param, null, null, 0, 0, 1);
+            if (not isinteger (deploy_pwd4) or deploy_pwd4 < 0)
+              admin_result := sprintf (''Could not save the skin (DAV error %s).'', cast (deploy_pwd4 as varchar));
+            else
+              admin_result := sprintf (''Skin set to "%s".'', skin_param);
           }
         }
         else if (admin_action = ''set_email_config'')
         {
           declare fn_param, fa_param, smtp_param, base_param, admin_email_param varchar;
-          declare deploy_pwd5 varchar;
+          declare deploy_pwd5 any;
           fn_param := http_param (''from_name'');
           fa_param := http_param (''from_address'');
           smtp_param := http_param (''smtp_server'');
@@ -441,13 +634,25 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           }
           else
           {
-            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd5 from DB.DBA.SYS_USERS where U_NAME = USER;
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterFromName'', fn_param, USER, deploy_pwd5, 1);
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterFromAddress'', fa_param, USER, deploy_pwd5, 1);
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterSmtpServer'', smtp_param, USER, deploy_pwd5, 1);
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:newsletterConfirmBaseUrl'', base_param, USER, deploy_pwd5, 1);
-            DB.DBA.DAV_PROP_SET (''{{DAV_COLLECTION}}'', ''weblog:adminEmail'', admin_email_param, USER, deploy_pwd5, 1);
-            admin_result := ''Email server configuration saved.'';
+            declare email_props any;
+            declare email_pi int;
+            declare email_fail varchar;
+            email_fail := '''';
+            email_props := vector (''weblog:newsletterFromName'', fn_param,
+                                   ''weblog:newsletterFromAddress'', fa_param,
+                                   ''weblog:newsletterSmtpServer'', smtp_param,
+                                   ''weblog:newsletterConfirmBaseUrl'', base_param,
+                                   ''weblog:adminEmail'', admin_email_param);
+            for (email_pi := 0; email_pi < length (email_props); email_pi := email_pi + 2)
+            {
+              deploy_pwd5 := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', email_props[email_pi], email_props[email_pi + 1], null, null, 0, 0, 1);
+              if (not isinteger (deploy_pwd5) or deploy_pwd5 < 0)
+                email_fail := email_fail || sprintf (''%s (DAV error %s); '', email_props[email_pi], cast (deploy_pwd5 as varchar));
+            }
+            if (email_fail <> '''')
+              admin_result := sprintf (''Could not save: %s'', email_fail);
+            else
+              admin_result := ''Email server configuration saved.'';
           }
         }
         else if (admin_action = ''set_digest_schedule'')
@@ -523,7 +728,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           -- has no other field competing for "blank means what?", unlike
           -- the earlier combined tag+pin form it replaces.
           declare post_name_param, category_param varchar;
-          declare deploy_pwd6 varchar;
+          declare deploy_pwd6 any;
           post_name_param := http_param (''post_name'');
           category_param := http_param (''category'');
           if (not isstring (post_name_param)) post_name_param := '''';
@@ -542,15 +747,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           {
             declare post_target varchar;
             post_target := ''{{DAV_COLLECTION}}'' || post_name_param;
-            select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd6 from DB.DBA.SYS_USERS where U_NAME = USER;
-            {
-              declare exit handler for sqlstate ''*''
-              {
-                admin_result := sprintf (''Could not update the category for "%s".'', post_name_param);
-              };
-              DB.DBA.DAV_PROP_SET (post_target, ''schema:category'', category_param, USER, deploy_pwd6, 1);
+            deploy_pwd6 := DB.DBA.DAV_PROP_SET_INT (post_target, ''schema:category'', category_param, null, null, 0, 0, 1);
+            if (not isinteger (deploy_pwd6) or deploy_pwd6 < 0)
+              admin_result := sprintf (''Could not update the category for "%s" (DAV error %s).'', post_name_param, cast (deploy_pwd6 as varchar));
+            else
               admin_result := case when category_param = '''' then sprintf (''Category cleared for "%s".'', post_name_param) else sprintf (''"%s" tagged "%s".'', post_name_param, category_param) end;
-            }
           }
         }
         else if (admin_action = ''set_post_pin'')
@@ -644,12 +845,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         }
         else if (admin_action = ''import_subscribers_manual'')
         {
-          declare mi, total_rows, imported, skipped INTEGER;
+          declare mi, total_rows, imported INTEGER;
           declare has_procs INTEGER;
+          declare fail_list varchar;
           has_procs := (select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE'');
           total_rows := 0;
           imported := 0;
-          skipped := 0;
+          fail_list := '''';
           if (has_procs > 0)
           {
             for (mi := 1; mi <= 5; mi := mi + 1)
@@ -659,14 +861,31 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
               em := http_param (sprintf (''email%d'', mi));
               if (not isstring (nm)) nm := '''';
               if (not isstring (em)) em := '''';
-              em := trim (em);
+              -- Lowercased, not just trimmed -- WEBLOG_SUBSCRIBER_UQ''s
+              -- unique index compares the literal string, so this keeps
+              -- "John@x.com" and "john@x.com" from being treated as
+              -- different addresses; every other write path (subscribe,
+              -- CSV/RDF import) canonicalizes the same way.
+              em := lower (trim (em));
               if (em <> '''')
               {
                 total_rows := total_rows + 1;
-                if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm)) = 1)
-                  imported := imported + 1;
+                if (strchr (em, ''@'') is null or strchr (em, ''.'') is null)
+                  fail_list := fail_list || sprintf (''%s (invalid address); '', em);
                 else
-                  skipped := skipped + 1;
+                {
+                  declare dup_status varchar;
+                  dup_status := null;
+                  for (select WS_STATUS as _s from DB.DBA.WEBLOG_SUBSCRIBER
+                        where WS_DAV_COLLECTION = ''{{DAV_COLLECTION}}'' and WS_EMAIL = em) do
+                    dup_status := _s;
+                  if (dup_status = ''confirmed'')
+                    fail_list := fail_list || sprintf (''%s (already a confirmed subscriber); '', em);
+                  else if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm)) = 1)
+                    imported := imported + 1;
+                  else
+                    fail_list := fail_list || sprintf (''%s (could not be added); '', em);
+                }
               }
             }
           }
@@ -674,8 +893,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
             admin_result := ''The newsletter feature is not installed yet.'';
           else if (total_rows = 0)
             admin_result := ''Please fill in at least one email address.'';
+          else if (fail_list <> '''' and imported = 0)
+            admin_result := sprintf (''Manual entry failed for: %s'', fail_list);
+          else if (fail_list <> '''')
+            admin_result := sprintf (''Manual entry: %d row(s) processed, %d added. Failed for: %s'', total_rows, imported, fail_list);
           else
-            admin_result := sprintf (''Manual entry: %d row(s) processed, %d added, %d skipped (already confirmed or invalid).'', total_rows, imported, skipped);
+            admin_result := sprintf (''Manual entry: %d row(s) processed, %d added.'', total_rows, imported);
         }
       }
 
@@ -1636,6 +1859,7 @@ next_row: ;
   index_content := replace (index_content, '{{DAV_COLLECTION}}', coll);
   index_content := replace (index_content, '{{PUBLIC_ROUTE}}', route);
   index_content := replace (index_content, '{{ADMIN_ROUTE}}', admin_route);
+  index_content := replace (index_content, '{{ACTION_ROUTE}}', action_route);
   index_content := replace (index_content, '{{WEBLOG_TITLE}}', weblog_title);
   index_content := replace (index_content, '{{WEBLOG_TAGLINE}}', weblog_tagline);
   index_content := replace (index_content, '{{DEFAULT_SKIN}}', default_skin);
@@ -1652,6 +1876,19 @@ next_row: ;
   rc := DB.DBA.DAV_RES_UPLOAD_STRSES_INT (index_path, index_stream, 'text/html', '111101101R', 'dav', 'dav', null, null, 0);
   if (rc < 0)
     signal ('42000', sprintf ('DAV upload failed for %s, rc=%d', index_path, rc));
+  -- Re-assert RES_PERMS explicitly: confirmed live on a real instance that
+  -- the perms argument above did NOT take effect (RES_OWNER/RES_GROUP were
+  -- applied correctly as 'dav', but RES_PERMS came back as a plain default
+  -- '110100100' -- rw-r--r--, no world-execute -- instead of the requested
+  -- '111101101' -- rwxr-xr-x). World lost execute, so every request that
+  -- Digest-authenticated on the action route (falling into the "world"
+  -- permission bucket, since it matches neither RES_OWNER nor RES_GROUP)
+  -- got served index.vsp's raw, uncompiled source instead of having it
+  -- execute -- identical symptom to the documented restrictive-permissions
+  -- constraint, but caused by this silent reset rather than a deliberately
+  -- restrictive upload. This UPDATE is the actual word on RES_PERMS
+  -- regardless of what upload the resource went through.
+  update WS.WS.SYS_DAV_RES set RES_PERMS = '111101101R' where RES_FULL_PATH = index_path;
 
   -- Seed the default pin when no explicit schema:position pin exists yet.
   DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_DEFAULT_PIN (coll, dav_user);
@@ -1660,27 +1897,60 @@ next_row: ;
   -- request context (the newsletter digest scheduler) can still build
   -- correct public links back into this weblog.
   {
-    declare deploy_pwd VARCHAR;
-    select pwd_magic_calc (U_NAME, U_PASSWORD, 1) into deploy_pwd from DB.DBA.SYS_USERS where U_NAME = dav_user;
-    if (deploy_pwd is not null)
+    -- Written with DAV_PROP_SET_INT (no per-user auth) rather than
+    -- DAV_PROP_SET as dav_user: the latter needs dav_user's SQL password
+    -- hash and silently writes nothing when that doesn't resolve or is
+    -- rejected -- on UB weblog:adminCollection was never recorded that way,
+    -- so the dashboard refresh then refused to run. Any error code fails
+    -- the deploy instead of being ignored.
+    -- weblog:adminDavUser is kept in sync with dav_user: WEBLOG_ADMIN_AUTH_FN
+    -- reads it to decide who may authenticate as this collection's admin.
+    declare props any;
+    declare pi, prc int;
+    props := vector ('weblog:publicRoute', route,
+                     'weblog:actionRoute', action_route,
+                     'weblog:adminDavUser', dav_user,
+                     'weblog:adminCollection', admin_coll);
+    for (pi := 0; pi < length (props); pi := pi + 2)
     {
-      DB.DBA.DAV_PROP_SET (coll, 'weblog:publicRoute', route, dav_user, deploy_pwd, 1);
-
-      -- Generate the admin-action token once and keep it stable across
-      -- redeploys (regenerating it on every deploy would silently break
-      -- any dashboard.html snapshot still cached in a browser).
-      if (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminActionToken', '') = '')
-      {
-        declare fresh_token VARCHAR;
-        fresh_token := md5 (concat (coll, cast (now () as varchar), cast (rnd (1000000000) as varchar), cast (rnd (1000000000) as varchar)));
-        DB.DBA.DAV_PROP_SET (coll, 'weblog:adminActionToken', fresh_token, dav_user, deploy_pwd, 1);
-      }
+      prc := DB.DBA.DAV_PROP_SET_INT (coll, props[pi], props[pi + 1], null, null, 0, 0, 1);
+      if (not isinteger (prc) or prc < 0)
+        signal ('42000', sprintf ('Could not record %s on %s (DAV error %s).', props[pi], coll, cast (prc as varchar)));
     }
   }
 
+  -- Admin collection: owner dav_user, group WEBLOG_OPERATOR, no world bits.
+  -- DAV owner/group arguments must be numeric U_IDs for a role: passing the
+  -- role NAME silently stores COL_GROUP/RES_GROUP = -12 (verified live).
+  -- Permissions are re-applied on every deploy so a hand-loosened
+  -- collection is put back.
+  {
+    declare exit handler for sqlstate '*' { ; };
+    exec ('create role WEBLOG_OPERATOR');
+  }
+  operator_gid := (select U_ID from DB.DBA.SYS_USERS where U_NAME = 'WEBLOG_OPERATOR' and U_IS_ROLE = 1);
+  owner_uid := (select U_ID from DB.DBA.SYS_USERS where U_NAME = dav_user);
+  if (operator_gid is null or owner_uid is null)
+    signal ('42000', sprintf ('Cannot resolve owner %s or role WEBLOG_OPERATOR for the admin collection.', dav_user));
+  admin_col_id := DB.DBA.DAV_SEARCH_ID (admin_coll, 'C');
+  if (not isinteger (admin_col_id) or admin_col_id < 0)
+  {
+    admin_col_id := DB.DBA.DAV_COL_CREATE_INT (admin_coll, '111111000N', owner_uid, operator_gid, null, null, 0, 0, 0);
+    if (not isinteger (admin_col_id) or admin_col_id < 0)
+      signal ('42000', sprintf ('Could not create admin collection %s (rc=%s) -- does its parent collection exist?', admin_coll, cast (admin_col_id as varchar)));
+  }
+  update WS.WS.SYS_DAV_COL set COL_OWNER = owner_uid, COL_GROUP = operator_gid, COL_PERMS = '111111000N' where COL_ID = admin_col_id;
+
+  -- A dashboard.html left in the public collection by an earlier deploy is
+  -- publicly readable (and holds subscriber names/emails) -- remove it.
+  DB.DBA.DAV_DELETE_INT (coll || 'dashboard.html', 1, null, null, 0);
+
   -- Map public_route as a VSP-enabled DAV directory serving this collection.
   for (select distinct HP_LISTEN_HOST as _lh, HP_HOST as _vh
-         from DB.DBA.HTTP_PATH where HP_LPATH in ('/DAV', '/public_home')) do
+         from DB.DBA.HTTP_PATH where HP_LPATH in ('/DAV', '/public_home') and HP_LISTEN_HOST <> '') do
+  -- Listener-less ('' lhost) rows are skipped: VHOST_REMOVE cannot delete a
+  -- row with an empty lhost/vhost (verified live), so redefining a route
+  -- there on redeploy always fails with SR197 Non unique primary key.
   {
     DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, route);
     DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, subseq (route, 0, length (route) - 1));
@@ -1694,18 +1964,41 @@ next_row: ;
                          opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
                          is_default_host=>0);
 
+    -- Clear any older admin-route definition on every host pair (earlier
+    -- versions defined it everywhere, pointing at the public collection);
+    -- it is redefined once, TLS-only, after this loop.
     DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, admin_route);
-    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, subseq (admin_route, 0, length (admin_route) - 1));
-    DB.DBA.VHOST_DEFINE (lhost=>_lh, vhost=>_vh, lpath=>admin_route,
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, admin_lpath);
+
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, action_route);
+    DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, subseq (action_route, 0, length (action_route) - 1));
+    DB.DBA.VHOST_DEFINE (lhost=>_lh, vhost=>_vh, lpath=>action_route,
                          ppath=>coll,
                          is_dav=>1,
                          is_brws=>0,
-                         def_page=>'dashboard.html',
+                         def_page=>'index.vsp',
                          vsp_user=>dav_user,
+                         realm=>action_realm,
+                         auth_fn=>'DB.DBA.WEBLOG_ADMIN_AUTH_FN',
+                         sec=>'digest',
                          ses_vars=>0,
-                         opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
+                         opts=>action_opts,
                          is_default_host=>0);
   }
+
+  DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (admin_lhost, uriqa_host, admin_route);
+  DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (admin_lhost, uriqa_host, admin_lpath);
+  DB.DBA.VHOST_DEFINE (lhost=>admin_lhost,
+                       vhost=>uriqa_host,
+                       lpath=>admin_lpath,
+                       ppath=>admin_coll,
+                       is_dav=>1,
+                       is_brws=>0,
+                       def_page=>'dashboard.html',
+                       ses_vars=>0,
+                       sec=>'SSL',
+                       opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
+                       is_default_host=>0);
 
   -- Seed dashboard.html immediately so the admin route isn't empty before
   -- the first scheduled refresh, and make sure the digest actually has a
@@ -1714,16 +2007,24 @@ next_row: ;
   -- add-on and may not be installed yet. Only schedules the digest if no
   -- event by this deterministic name exists yet -- never clobbers an
   -- interval the operator already changed from the dashboard.
+  -- A failed dashboard refresh is reported in the result, not swallowed --
+  -- an empty admin route with a "successful" deploy is what hid the UB
+  -- failure.
+  dashboard_status := 'newsletter add-on not installed';
+  if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_DASHBOARD_REFRESH') > 0)
+  {
+    declare exit handler for sqlstate '*' { dashboard_status := concat ('FAILED: ', __SQL_MESSAGE); };
+    DB.DBA.WEBLOG_DASHBOARD_REFRESH (coll);
+    dashboard_status := 'refreshed';
+  }
   {
     declare exit handler for sqlstate '*' { ; };
-    if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_DASHBOARD_REFRESH') > 0)
-      DB.DBA.WEBLOG_DASHBOARD_REFRESH (coll);
     if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST') > 0
         and (select count (*) from DB.DBA.SYS_SCHEDULED_EVENT where SE_NAME = sprintf ('weblog-newsletter-digest:%s', coll)) = 0)
       DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST (sprintf ('weblog-newsletter-digest:%s', coll), coll, 10080);
   }
 
-  return sprintf ('{"ok":true,"dav_collection":"%V","public_route":"%V","skin":"%V","dashboard_route":"%Vdashboard.html","admin_action_token":"%V"}', coll, route, default_skin, admin_route, DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminActionToken', ''));
+  return sprintf ('{"ok":true,"dav_collection":"%V","public_route":"%V","skin":"%V","admin_collection":"%V","dashboard_url":"https://%V%V%V","action_route":"%V","admin_dav_user":"%V","dashboard":"%V"}', coll, route, default_skin, admin_coll, uriqa_host, case when ssl_port = '443' then '' else concat (':', ssl_port) end, admin_route, action_route, dav_user, dashboard_status);
 }
 ;
 

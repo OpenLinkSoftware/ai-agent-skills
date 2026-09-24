@@ -206,7 +206,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   if (email is null) email := '';
-  email := trim (email);
+  -- Lowercased, not just trimmed: WEBLOG_SUBSCRIBER_UQ's unique index is on
+  -- the literal (WS_DAV_COLLECTION, WS_EMAIL) VARCHAR pair, so without this
+  -- "John@x.com" and "john@x.com" would pass it as two distinct rows for
+  -- what is the same real address -- duplicate prevention belongs in the
+  -- key structure, not a runtime check, so every write path canonicalizes
+  -- to the same case the index actually compares.
+  email := lower (trim (email));
   if (email = '' or strchr (email, '@') is null or strchr (email, '.') is null)
     return 'Please provide a valid email address.';
 
@@ -480,7 +486,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR,
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   if (email is null) return 0;
-  email := trim (email);
+  -- Lowercased -- see WEBLOG_NEWSLETTER_SUBSCRIBE's comment on the same
+  -- line for why.
+  email := lower (trim (email));
   if (email = '' or strchr (email, '@') is null or strchr (email, '.') is null)
     return 0;
   if (name is not null and trim (name) = '') name := null;
@@ -1380,11 +1388,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_UNSCHEDULE_DIGEST (IN event_name VARCH
 -- account sharing its DAV group) can retrieve the page.
 CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
 {
-  declare coll, admin_user, dash_rows, html VARCHAR;
+  declare coll, admin_user, admin_coll, dash_rows, html VARCHAR;
+  declare operator_gid INTEGER;
   declare dash_total, dash_pending, dash_confirmed, dash_unsubscribed INTEGER;
   declare stream any;
   declare rc any;
-  declare admin_token, public_route, current_mode, current_content_mode, current_skin, controls_html, import_html VARCHAR;
+  declare admin_token, public_route, action_route, current_mode, current_content_mode, current_skin, controls_html, import_html VARCHAR;
   declare current_interval INTEGER;
   declare current_from_name, current_from_addr, current_smtp_override, current_base_url, current_admin_email, resolved_smtp, email_config_html VARCHAR;
   declare digest_scheduled, dash_scheduled INTEGER;
@@ -1394,8 +1403,25 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   admin_user := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminDavUser', 'dba');
+  -- The dashboard lists subscriber names/emails, so it is only ever written
+  -- to the separate, non-public admin collection -- never back into the
+  -- public blog collection, even if the location is missing.
+  admin_coll := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminCollection', ''));
+  if (admin_coll = '')
+    signal ('42000', sprintf ('weblog:adminCollection is not set on %s -- redeploy with DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED to create the admin collection.', coll));
+  if (subseq (admin_coll, length (admin_coll) - 1) <> '/') admin_coll := admin_coll || '/';
+  operator_gid := (select U_ID from DB.DBA.SYS_USERS where U_NAME = 'WEBLOG_OPERATOR' and U_IS_ROLE = 1);
+  if (operator_gid is null)
+    signal ('42000', 'Role WEBLOG_OPERATOR does not exist -- redeploy with DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED.');
+  -- admin_token is now vestigial: it is still read (and still emitted as a
+  -- harmless, unused hidden form field below) purely so every existing
+  -- sprintf argument list keeps its exact placeholder count -- the actual
+  -- security boundary is action_route's real HTTP Digest auth_fn gate, not
+  -- this value, which nothing generates or checks anymore. See
+  -- DB.DBA.WEBLOG_ADMIN_AUTH_FN in deploy-weblog-skinned.sql for why.
   admin_token := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminActionToken', '');
   public_route := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:publicRoute', coll);
+  action_route := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:actionRoute', '');
   current_mode := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterMode', 'digest');
   current_content_mode := lower (trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterContentMode', 'auto')));
   if (current_content_mode <> 'snippet' and current_content_mode <> 'full') current_content_mode := 'auto';
@@ -1460,12 +1486,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     -- subscriber's own unsubscribe link runs, RDF-mirror retraction
     -- included) -- an admin-triggered manual unsubscribe, not a separate
     -- mechanism to keep in sync with that one.
-    if (_s = 'unsubscribed' or admin_token = '')
+    if (_s = 'unsubscribed' or action_route = '')
       action_cell := '--';
     else
       action_cell := sprintf (
         '<form method="post" action="%s" class="row-action"><input type="hidden" name="admin_action" value="admin_unsubscribe"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="sub_token" value="%s"/><button type="submit" class="secondary">Unsubscribe</button></form>',
-        public_route, admin_token, _tok);
+        action_route, admin_token, _tok);
     dash_rows := concat (dash_rows, sprintf (
       '<tr><td>%V</td><td>%V</td><td><span class="badge %s">%V</span></td><td>%V</td><td>%V</td><td>%V</td><td>%s</td></tr>',
       coalesce (_n, '--'), _e, _s, _s, cast (_sub as varchar), coalesce (cast (_conf as varchar), '--'), coalesce (cast (_sent as varchar), '--'), action_cell));
@@ -1475,9 +1501,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   -- one thing on this static, Digest-gated page that is NOT static): the
   -- token embedded here is only ever visible to someone who already passed
   -- native Digest auth to load this very page.
-  if (admin_token = '')
+  if (action_route = '')
   {
-    controls_html := '<section class="panel"><p class="admin-note">Admin actions are unavailable: weblog:adminActionToken is not set on this collection yet (it should be generated automatically on the next deploy).</p></section>';
+    controls_html := '<section class="panel"><p class="admin-note">Admin actions are unavailable: weblog:actionRoute is not set on this collection yet (it should be generated automatically on the next deploy -- redeploy via WEBLOG_DAV_DEPLOY_SKINNED to enable).</p></section>';
   }
   else
   {
@@ -1488,10 +1514,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '<div class="setting-row"><div class="setting-label">Email content <span class="badge">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_content_mode"/><input type="hidden" name="admin_token" value="%s"/><select name="content_mode"><option value="auto"%s>Auto</option><option value="snippet"%s>Always snippet</option><option value="full"%s>Always full post</option></select><button type="submit">Save</button></form></div></div>' ||
       '<div class="setting-row"><div class="setting-label">Skin <span class="badge">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_skin"/><input type="hidden" name="admin_token" value="%s"/><select name="skin_choice"><option value="classic"%s>Classic</option><option value="editorial"%s>Editorial</option></select><button type="submit">Save</button></form><span class="hint">Preview: ?skin=classic or ?skin=editorial</span></div></div>' ||
       '</section>',
-      public_route, admin_token,
-      current_mode, public_route, admin_token, case when current_mode = 'digest' then ' selected="selected"' else '' end, case when current_mode = 'immediate' then ' selected="selected"' else '' end,
-      current_content_mode, public_route, admin_token, case when current_content_mode = 'auto' then ' selected="selected"' else '' end, case when current_content_mode = 'snippet' then ' selected="selected"' else '' end, case when current_content_mode = 'full' then ' selected="selected"' else '' end,
-      current_skin, public_route, admin_token, case when current_skin = 'classic' then ' selected="selected"' else '' end, case when current_skin = 'editorial' then ' selected="selected"' else '' end);
+      action_route, admin_token,
+      current_mode, action_route, admin_token, case when current_mode = 'digest' then ' selected="selected"' else '' end, case when current_mode = 'immediate' then ' selected="selected"' else '' end,
+      current_content_mode, action_route, admin_token, case when current_content_mode = 'auto' then ' selected="selected"' else '' end, case when current_content_mode = 'snippet' then ' selected="selected"' else '' end, case when current_content_mode = 'full' then ' selected="selected"' else '' end,
+      current_skin, action_route, admin_token, case when current_skin = 'classic' then ' selected="selected"' else '' end, case when current_skin = 'editorial' then ' selected="selected"' else '' end);
   }
 
   -- Sender identity, SMTP relay override, and the base URL used to build
@@ -1499,7 +1525,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   -- DAV_PROP_SET call. resolved_smtp shows what WEBLOG_NEWSLETTER_RESOLVE_SMTP
   -- actually picks when the override is blank, so the admin isn't guessing.
   email_config_html := '';
-  if (admin_token <> '')
+  if (action_route <> '')
   {
     email_config_html := sprintf (
       '<section class="panel"><h2>Email Server Config</h2><p class="panel-desc">Sender identity, SMTP relay override, and the base URL used to build absolute links in every email.</p>' ||
@@ -1514,7 +1540,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '<button type="submit">Save</button>' ||
       '<p class="hint">Currently resolved SMTP relay: <strong>%V</strong>. Base URL is required for any email link (post, unsubscribe) to work. Admin email is used as Reply-To on outgoing newsletter mail and receives operational alerts (new confirmed subscribers, failed digest sends) -- leave it blank to disable both.</p>' ||
       '</form></section>',
-      public_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_smtp_override, current_base_url, resolved_smtp);
+      action_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_smtp_override, current_base_url, resolved_smtp);
   }
 
   -- Admin-only bulk onboarding: imported rows land 'confirmed' immediately
@@ -1524,7 +1550,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   -- (a format selector for RDF) and mixing file inputs of different
   -- purposes into one multipart form invites uploading the wrong kind.
   import_html := '';
-  if (admin_token <> '')
+  if (action_route <> '')
   {
     declare manual_rows_html VARCHAR;
     declare mi INTEGER;
@@ -1543,9 +1569,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><button type="submit">Import RDF</button></form></div>' ||
       '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><button type="submit">Add Subscribers</button></form></div>' ||
       '</div></section>',
-      public_route, admin_token,
-      public_route, admin_token,
-      public_route, admin_token, manual_rows_html);
+      action_route, admin_token,
+      action_route, admin_token,
+      action_route, admin_token, manual_rows_html);
   }
 
   -- Per-post schema:category (tag) / schema:position (pin) metadata --
@@ -1561,7 +1587,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   -- instead of only the newsletter digest's interval being editable and
   -- the dashboard's own auto-refresh having no admin control at all.
   tag_schedule_html := '';
-  if (admin_token <> '')
+  if (action_route <> '')
   {
     declare posts_rows, categories_datalist VARCHAR;
     declare digest_status_class, digest_status_text, dash_status_class, dash_status_text VARCHAR;
@@ -1617,8 +1643,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
         '<td><form method="post" action="%s" class="row-action row-tag"><input type="hidden" name="admin_action" value="set_post_category"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="post_name" value="%V"/><input type="text" name="category" list="category-options" value="%V" placeholder="Uncategorized"/><button type="submit" class="secondary">Save</button></form></td>' ||
         '<td><form method="post" action="%s" class="row-action"><input type="hidden" name="admin_action" value="set_post_pin"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="post_name" value="%V"/><input type="hidden" name="pinned" value="%s"/><button type="submit" class="secondary">%s</button></form></td></tr>',
         _rname, _pin_badge,
-        public_route, admin_token, _rname, coalesce (_cat, ''),
-        public_route, admin_token, _rname, _pin_target, _pin_label));
+        action_route, admin_token, _rname, coalesce (_cat, ''),
+        action_route, admin_token, _rname, _pin_target, _pin_label));
     }
 
     digest_status_class := case when digest_scheduled = 1 then 'confirmed' else 'unsubscribed' end;
@@ -1636,8 +1662,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '</section>',
       categories_datalist,
       posts_rows,
-      digest_status_class, digest_status_text, public_route, admin_token, case when digest_scheduled = 1 then ' selected="selected"' else '' end, case when digest_scheduled = 0 then ' selected="selected"' else '' end, current_interval,
-      dash_status_class, dash_status_text, public_route, admin_token, case when dash_scheduled = 1 then ' selected="selected"' else '' end, case when dash_scheduled = 0 then ' selected="selected"' else '' end, dash_interval);
+      digest_status_class, digest_status_text, action_route, admin_token, case when digest_scheduled = 1 then ' selected="selected"' else '' end, case when digest_scheduled = 0 then ' selected="selected"' else '' end, current_interval,
+      dash_status_class, dash_status_text, action_route, admin_token, case when dash_scheduled = 1 then ' selected="selected"' else '' end, case when dash_scheduled = 0 then ' selected="selected"' else '' end, dash_interval);
   }
 
   html := sprintf (
@@ -1729,13 +1755,26 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   stream := string_output ();
   http (html, stream);
   DB.DBA.DAV_DELETE_INT (coll || 'dashboard.html', 1, null, null, 0);
-  -- Owner stays 'dav' for consistency with every other upload in this skill;
-  -- group is the admin account itself, verified live to resolve RES_GROUP
-  -- to that account's own U_GROUP -- this is what the 401/200 Digest gate
-  -- actually checks against, not RES_OWNER.
-  rc := DB.DBA.DAV_RES_UPLOAD_STRSES_INT (coll || 'dashboard.html', stream, 'text/html', '111100000R', 'dav', admin_user, null, null, 0);
+  DB.DBA.DAV_DELETE_INT (admin_coll || 'dashboard.html', 1, null, null, 0);
+  -- Owner = the collection's admin, group = WEBLOG_OPERATOR (by numeric
+  -- U_ID -- a role NAME here silently stores RES_GROUP = -12), no world
+  -- bits: owner and role members can read/write, anonymous gets 401.
+  rc := DB.DBA.DAV_RES_UPLOAD_STRSES_INT (admin_coll || 'dashboard.html', stream, 'text/html', '110110000N', admin_user, operator_gid, null, null, 0);
   if (rc < 0)
     signal ('42000', sprintf ('DAV upload failed for dashboard.html, rc=%d', rc));
+  -- Re-assert owner/group/perms explicitly: confirmed live on a real
+  -- instance that the perms argument above did NOT take effect (RES_PERMS
+  -- came back as a plain default '110100100' -- rw-r--r--, WORLD-READABLE --
+  -- instead of the requested '110110000' -- no world access at all). Unlike
+  -- index.vsp (where the same silent reset broke execution), a reset here
+  -- is a direct exposure of subscriber names/emails, so it is re-applied
+  -- unconditionally rather than only fixed after the fact.
+  {
+    declare admin_owner_uid int;
+    admin_owner_uid := (select U_ID from DB.DBA.SYS_USERS where U_NAME = admin_user);
+    if (admin_owner_uid is not null)
+      update WS.WS.SYS_DAV_RES set RES_OWNER = admin_owner_uid, RES_GROUP = operator_gid, RES_PERMS = '110110000N' where RES_FULL_PATH = admin_coll || 'dashboard.html';
+  }
   return sprintf ('{"ok":true,"total":%d,"pending":%d,"confirmed":%d,"unsubscribed":%d}', dash_total, dash_pending, dash_confirmed, dash_unsubscribed);
 }
 ;
@@ -1791,6 +1830,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_UNSCHEDULE_REFRESH (IN event_name VARCH
 -- SELECT DB.DBA.WEBLOG_DASHBOARD_UNSCHEDULE_REFRESH ('weblog-test dashboard refresh');
 --
 -- Usage: designate a different Virtuoso account as the dashboard admin
--- (default 'dba'); only requests that Digest-authenticate as this account
--- can read the admin route.
+-- (default 'dba'; redeploys reset it to the deploying dav_user). That
+-- account owns the admin collection's dashboard.html; members of the
+-- WEBLOG_OPERATOR role can read it too:  grant WEBLOG_OPERATOR to <user>;
 -- SELECT DB.DBA.DAV_PROP_SET ('/DAV/home/dba/weblog-test/', 'weblog:adminDavUser', 'dba', 'dba', (SELECT pwd_magic_calc (U_NAME, U_PASSWORD, 1) FROM DB.DBA.SYS_USERS WHERE U_NAME = 'dba'), 1);

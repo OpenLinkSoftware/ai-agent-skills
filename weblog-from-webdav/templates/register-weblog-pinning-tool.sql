@@ -87,12 +87,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
   IF (pinned <> 0)
     pin_value := '1';
 
-  SELECT pwd_magic_calc(U_NAME, U_PASSWORD, 1) INTO pwd
-    FROM DB.DBA.SYS_USERS
-   WHERE U_NAME = dav_user;
-
-  IF (pwd IS NULL)
-    SIGNAL ('22023', sprintf('DAV user not found: %s', dav_user));
+  -- DAV_PROP_SET_INT, not DAV_PROP_SET(..., dav_user, pwd, ...) -- the
+  -- latter authenticates as dav_user via its SQL password hash and fails
+  -- (rc < 0, correctly signaled below) when that account's SQL login is
+  -- disabled, even with a valid pwd_magic_calc hash.
 
   IF (pinned <> 0)
   {
@@ -104,11 +102,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
             and RES_NAME <> 'index.vsp') do
     {
       IF (_other_path <> dav_path)
-        clear_rc := DB.DBA.DAV_PROP_SET(_other_path, 'schema:position', '0', dav_user, pwd, 1);
+        clear_rc := DB.DBA.DAV_PROP_SET_INT(_other_path, 'schema:position', '0', null, null, 0, 0, 1);
     }
   }
 
-  rc := DB.DBA.DAV_PROP_SET(dav_path, 'schema:position', pin_value, dav_user, pwd, 1);
+  rc := DB.DBA.DAV_PROP_SET_INT(dav_path, 'schema:position', pin_value, null, null, 0, 0, 1);
   IF (rc < 0)
     SIGNAL ('42000', sprintf('DAV_PROP_SET failed for %s, rc=%d', dav_path, rc));
 
