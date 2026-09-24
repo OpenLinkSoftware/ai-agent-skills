@@ -2080,6 +2080,57 @@ CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_AUTH_FN (IN realm VARCHAR)
 }
 ;
 
+-- Shared, persistent helper: repair "double-encoded UTF-8" corruption in
+-- post titles (verified live against a real post: "AI For Creativity —
+-- RDF Knowledge Graph" was stored, and served, as "AI For Creativity \xC3
+-- \xA2\xC2\x80\xC2\x94 RDF Knowledge Graph" -- the original em dash's UTF-8
+-- bytes E2 80 94 had each been read once as Latin-1 and re-encoded as
+-- UTF-8). blob_to_string() does not decode UTF-8 at all -- confirmed live
+-- it returns raw bytes as a narrow string, one byte per character
+-- position, and the browser is what interprets them as UTF-8 given this
+-- template's <meta charset="utf-8">. A genuinely correct title's raw bytes
+-- therefore look byte-for-byte identical to one "layer" of the corruption
+-- wherever it happens to contain a multi-byte UTF-8 character at all --
+-- there is no way to tell "raw bytes for one correctly-encoded character"
+-- from "raw bytes left over after correctly decoding one layer of double
+-- encoding" from the bytes alone. Confirmed live that decoding via
+-- charset_recode (s, 'UTF-8', '_WIDE_') -- correct in isolation, verified
+-- byte-by-byte -- corrupts an ALREADY-correct title into "?" once the
+-- resulting wide string is concatenated into HTML output alongside plain
+-- narrow strings and re-serialized; that is not an acceptable trade-off
+-- for one known-corrupted title. This instead does a plain byte-sequence
+-- replace of specific KNOWN double-encoded "smart punctuation" sequences
+-- (the common Word/Google-Docs-paste corruption set: dashes, curly
+-- quotes, ellipsis, bullet, trademark, nbsp, copyright, registered) for
+-- their correct single-encoded bytes, staying entirely within the same
+-- raw-byte narrow-string representation the rest of this template already
+-- passes straight through to the browser -- verified live this fixes the
+-- corrupted title and leaves an already-correct title's bytes untouched.
+CREATE PROCEDURE DB.DBA.WEBLOG_FIX_MOJIBAKE (IN s VARCHAR)
+{
+  declare pairs any;
+  declare i int;
+  if (s is null or s = '') return s;
+  pairs := vector (
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(148)), concat (chr(226),chr(128),chr(148))), -- em dash —
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(147)), concat (chr(226),chr(128),chr(147))), -- en dash –
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(152)), concat (chr(226),chr(128),chr(152))), -- left single quote '
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(153)), concat (chr(226),chr(128),chr(153))), -- right single quote '
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(156)), concat (chr(226),chr(128),chr(156))), -- left double quote "
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(157)), concat (chr(226),chr(128),chr(157))), -- right double quote "
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(166)), concat (chr(226),chr(128),chr(166))), -- ellipsis …
+    vector (concat (chr(195),chr(162),chr(194),chr(128),chr(194),chr(162)), concat (chr(226),chr(128),chr(162))), -- bullet •
+    vector (concat (chr(195),chr(162),chr(194),chr(132),chr(194),chr(162)), concat (chr(226),chr(132),chr(162))), -- trademark ™
+    vector (concat (chr(195),chr(130),chr(194),chr(160)), concat (chr(194),chr(160))), -- non-breaking space
+    vector (concat (chr(195),chr(130),chr(194),chr(169)), concat (chr(194),chr(169))), -- copyright ©
+    vector (concat (chr(195),chr(130),chr(194),chr(174)), concat (chr(194),chr(174)))  -- registered ®
+  );
+  for (i := 0; i < length (pairs); i := i + 1)
+    s := replace (s, pairs[i][0], pairs[i][1]);
+  return s;
+}
+;
+
 -- Shared, persistent helper: read a custom WebDAV property set on a
 -- COLLECTION resource (not a post), the config mechanism for weblog:skin,
 -- weblog:newsletterEnabled and friends. Falls back to default_val when the
@@ -2121,7 +2172,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     IN dav_user VARCHAR := 'dba',
     IN admin_collection VARCHAR := null,
     IN admin_host VARCHAR := null,
-    IN admin_listener VARCHAR := null
+    IN admin_listener VARCHAR := null,
+    IN tagline_link_url VARCHAR := null,
+    IN tagline_link_text VARCHAR := null,
+    IN allow_template_overwrite INTEGER := 0
   )
 {
   declare rc any;
@@ -2139,6 +2193,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
   route := trim (public_route);
   if (subseq (route, length (route) - 1) <> '/') route := route || '/';
   if (default_skin <> 'editorial') default_skin := 'classic';
+
+  -- Optional real hyperlink appended after the plain tagline in the
+  -- VISIBLE masthead span only -- RSS <description> and <meta
+  -- name="description"> keep using weblog_tagline as plain text
+  -- unchanged. weblog_tagline itself is HTML-escaped at request time via
+  -- sprintf('%V', ...), so embedding a raw <a> tag directly in it would
+  -- show up as literal escaped text there, not a link (confirmed live);
+  -- this builds the link separately and safely instead.
+  declare tagline_link_html VARCHAR;
+  tagline_link_html := '';
+  if (tagline_link_url is not null and trim (tagline_link_url) <> ''
+      and tagline_link_text is not null and trim (tagline_link_text) <> '')
+    tagline_link_html := sprintf (' <a href="%V" target="_top" rel="noopener noreferrer">%V</a>', trim (tagline_link_url), trim (tagline_link_text));
 
   index_path := coll || 'index.vsp';
   -- Admin route: serves the STATIC dashboard.html (refreshed by
@@ -2300,17 +2367,39 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
   -- Newsletter footer band: only rendered when explicitly enabled.
   newsletter_enabled := lower (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:newsletterEnabled'', ''false''));
 
-  -- Best-effort absolute site base (scheme://host) for feed <link>/<guid> values.
-  -- Falls back to the public route alone (relative) if request headers are unavailable.
+  -- Best-effort absolute site base (scheme://host) for feed <link>/<guid>
+  -- values and the WebDAV permalink. Falls back to the public route alone
+  -- (relative) if request headers are unavailable.
+  -- Confirmed live this was silently broken: http_request_header(req_lines,
+  -- ''Host'', '''', '''') -- a 4-arg keyword-lookup call -- returns empty even
+  -- though the Host header genuinely is present at req_lines[1] (verified
+  -- with a standalone probe page); scanning the raw lines for a literal
+  -- ''Host:'' prefix instead works. Scheme was also always hardcoded to
+  -- ''http://'' regardless of the actual request -- is_https_ctx() (the
+  -- same native builtin OAUTH2.DBA.check_https_ctx wraps) correctly
+  -- reports 0/1 for a real HTTP vs HTTPS request, verified live both ways.
   site_base := '''';
   {
     declare exit handler for sqlstate ''*'' { site_base := ''''; };
     declare req_lines any;
-    declare req_host varchar;
+    declare req_host, scheme varchar;
+    declare li int;
     req_lines := http_request_header ();
-    req_host := http_request_header (req_lines, ''Host'', '''', '''');
-    if (isstring (req_host) and req_host <> '''')
-      site_base := concat (''http://'', req_host);
+    req_host := '''';
+    for (li := 0; li < length (req_lines); li := li + 1)
+    {
+      declare line varchar;
+      line := cast (aref (req_lines, li) as varchar);
+      if (line like ''Host:%'')
+        -- trim() only strips spaces, not the carriage-return/linefeed each
+        -- raw header line ends with (confirmed live: the extracted host
+        -- otherwise ends with a literal newline, breaking every URL built
+        -- from site_base with a line break between host and path).
+        req_host := trim (replace (replace (subseq (line, 5, length (line)), chr (13), ''''), chr (10), ''''));
+    }
+    scheme := case when is_https_ctx () then ''https://'' else ''http://'' end;
+    if (req_host <> '''')
+      site_base := concat (scheme, req_host);
   }
 
   -- Serve a sibling resource''s raw content via ?raw=<filename>. This has to
@@ -3057,6 +3146,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         t := replace (t, ''&apos;'', chr(39));
         t := replace (t, ''&ndash;'', ''-'');
         t := replace (t, ''&mdash;'', ''-'');
+        t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
       }
     }
     else
@@ -3302,6 +3392,8 @@ next_row: ;
     }
     .feed-btn.rss  { background: var(--rss); }
     .feed-btn.atom { background: var(--accent); }
+    .feed-btn.subscribe { background: var(--subscribe); }
+    button.feed-btn { border: 0; font: inherit; cursor: pointer; }
     .feed-btn svg { width: 12px; height: 12px; fill: currentColor; flex: 0 0 auto; }
     .post-frame { display: block; width: 100%; height: calc(100vh - 7.5rem); min-height: 420px; border: 0; background: #fff; }
     .a-category { display: none; }
@@ -3310,6 +3402,18 @@ next_row: ;
       border: 1px solid var(--border); border-radius: 8px; background: var(--panel);
       text-align: center; box-shadow: var(--shadow);
     }
+    dialog.newsletter-band {
+      max-width: 26rem; width: calc(100% - 2.5rem); margin: auto; padding: 2rem 1.5rem 1.5rem;
+      border-radius: 12px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28); color: var(--text);
+      position: relative;
+    }
+    dialog.newsletter-band::backdrop { background: rgba(10, 14, 20, 0.55); }
+    .nl-close {
+      position: absolute; top: 0.5rem; right: 0.6rem; width: 2rem; height: 2rem;
+      border: 0; border-radius: 50%; background: transparent; color: var(--muted);
+      font-size: 1.3rem; line-height: 1; cursor: pointer;
+    }
+    .nl-close:hover { color: var(--text); background: var(--accent-soft); }
     .newsletter-band h2 { margin: 0 0 0.4rem; font-size: 1.35rem; }
     .newsletter-band p.nl-sub { margin: 0 0 1.1rem; color: var(--muted); }
     .nl-form { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; align-items: flex-end; }
@@ -3348,7 +3452,7 @@ next_row: ;
     :root {
       --accent: #1f4e79; --accent-soft: rgba(31, 78, 121, 0.10); --accent-quiet: rgba(31, 78, 121, 0.22);
       --paper: #faf7f2; --ink: #1c1c1a; --panel: #ffffff; --text: #1c1c1a; --muted: #6b6b64;
-      --border: #e7e1d6; --rss: #f26522; --shadow: 0 10px 28px rgba(28, 28, 26, 0.07);
+      --border: #e7e1d6; --rss: #f26522; --subscribe: #2e7d32; --shadow: 0 10px 28px rgba(28, 28, 26, 0.07);
       --headline: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
       --body-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
@@ -3401,6 +3505,7 @@ next_row: ;
     }
     .hero h2 { font-family: var(--headline); font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem); line-height: 1.15; margin: 0 0 0.6rem; }
     .hero .post-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.1rem; }
+    .hero .post-meta a { color: var(--accent); font-weight: 650; }
     .hero .post-frame { border-radius: 6px; box-shadow: var(--shadow); }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.1rem; margin-bottom: 2.25rem; }
     .card {
@@ -3424,7 +3529,7 @@ next_row: ;
     :root {
       --accent: #1599d3; --accent-soft: rgba(21, 153, 211, 0.13); --accent-quiet: rgba(92, 201, 232, 0.28);
       --bg: #f5f8fb; --panel: rgba(255, 255, 255, 0.94); --text: #172838; --muted: #637486;
-      --border: #d5e3ec; --rss: #f26522; --shadow: 0 14px 34px rgba(7, 19, 29, 0.10);
+      --border: #d5e3ec; --rss: #f26522; --subscribe: #2e7d32; --shadow: 0 14px 34px rgba(7, 19, 29, 0.10);
     }
     html[data-theme="dark"] {
       --accent: #5cc9e8; --accent-soft: rgba(92, 201, 232, 0.13); --accent-quiet: rgba(92, 201, 232, 0.25);
@@ -3467,7 +3572,7 @@ next_row: ;
     article.post.embedded.pinned { background: var(--panel); }
     .post-kicker .pin-badge, .post-status .pin-badge { margin-right: 0.28rem; }
     .post-meta { color: var(--muted); font-size: 0.86rem; }
-    .post-meta a { font-weight: 650; }
+    .post-meta a { font-weight: 650; color: var(--accent); }
     .post-body { background: #fff; }
     aside.sidebar { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 5.25rem; max-height: calc(100vh - 6.5rem); min-height: 0; }
     .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; box-shadow: var(--shadow); min-height: 0; color: var(--text); }
@@ -3522,10 +3627,12 @@ next_row: ;
   http (''<header class="masthead">'');
   http (sprintf (''<h1><a href="{{PUBLIC_ROUTE}}">%V</a></h1>'', ''{{WEBLOG_TITLE}}''));
   if (skin <> ''editorial'')
-    http (sprintf (''<span class="tagline">%V</span>'', ''{{WEBLOG_TAGLINE}}''));
+    http (sprintf (''<span class="tagline">%V{{TAGLINE_LINK_HTML}}</span>'', ''{{WEBLOG_TAGLINE}}''));
   http (''<nav class="feed-buttons">'');
   http (''<a class="feed-btn rss" href="{{PUBLIC_ROUTE}}?feed=rss" type="application/rss+xml" title="Subscribe via RSS 2.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>RSS</a>'');
   http (''<a class="feed-btn atom" href="{{PUBLIC_ROUTE}}?feed=atom" type="application/atom+xml" title="Subscribe via Atom 1.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>Atom</a>'');
+  if (newsletter_enabled = ''true'')
+    http (''<button type="button" class="feed-btn subscribe" onclick="document.getElementById(&apos;newsletter&apos;).showModal()" title="Subscribe by email"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Subscribe</button>'');
   http (''<button class="theme-toggle" type="button" aria-label="Toggle light and dark theme" title="Toggle theme" data-theme-toggle><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.8 8.8 0 1 1 11.2 3 6.8 6.8 0 0 0 21 12.8z"/></svg><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>'');
   http (''</nav></header>'');
 ?>
@@ -3589,7 +3696,11 @@ next_row: ;
     else
       http (sprintf (''<div class="hero-kicker">From the Archive &mdash; %V</div>'', cdate));
     http (sprintf (''<h2>%V</h2>'', ctitle));
-    http (sprintf (''<div class="post-meta">Published %V</div>'', cdate));
+    {
+      declare permalink_url varchar;
+      permalink_url := sprintf (''%s{{DAV_COLLECTION}}%U'', site_base, cname);
+      http (sprintf (''<div class="post-meta">Published %V &middot; <a class="post-permalink" href="%V" target="_top" rel="noopener noreferrer">WebDAV Permalink</a></div>'', cdate, permalink_url));
+    }
     if (cext = ''html'')
       http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, ctitle));
     else
@@ -3672,6 +3783,11 @@ next_row: ;
       http (''<article class="post embedded pinned"><div class="post-status" aria-label="Pinned post"><span class="pin-badge" aria-hidden="true"></span><span>Pinned post</span></div>'');
     else
       http (''<article class="post embedded">'');
+    {
+      declare permalink_url varchar;
+      permalink_url := sprintf (''%s{{DAV_COLLECTION}}%U'', site_base, cname);
+      http (sprintf (''<div class="post-meta">Published %V &middot; <a class="post-permalink" href="%V" target="_top" rel="noopener noreferrer">WebDAV Permalink</a></div>'', cdate, permalink_url));
+    }
     http (sprintf (''<div class="post-body"><iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe></div>'', cname, ctitle));
     http (''</article>'');
   }
@@ -3740,7 +3856,8 @@ next_row: ;
   </div>
 <?vsp } ?>
 <?vsp if (newsletter_enabled = ''true'') { ?>
-  <section class="newsletter-band" aria-label="Newsletter subscription">
+  <dialog id="newsletter" class="newsletter-band" aria-label="Newsletter subscription">
+    <button type="button" class="nl-close" aria-label="Close" onclick="document.getElementById(''newsletter'').close()">&times;</button>
     <h2>Get the latest posts in your inbox</h2>
     <p class="nl-sub">Subscribe to this weblog and get new posts delivered to your inbox.</p>
     <form class="nl-form" method="post" action="{{PUBLIC_ROUTE}}">
@@ -3756,7 +3873,7 @@ next_row: ;
       <button class="nl-submit" type="submit">Subscribe</button>
     </form>
     <p class="nl-consent">By clicking &ldquo;Subscribe&rdquo; you agree to receive email updates about new posts on this weblog. You can unsubscribe at any time via the link in every email.</p>
-  </section>
+  </dialog>
 <?vsp } ?>
 
   <footer class="colophon" aria-label="Weblog metadata">
@@ -3803,10 +3920,40 @@ next_row: ;
   index_content := replace (index_content, '{{ACTION_ROUTE}}', action_route);
   index_content := replace (index_content, '{{WEBLOG_TITLE}}', weblog_title);
   index_content := replace (index_content, '{{WEBLOG_TAGLINE}}', weblog_tagline);
+  index_content := replace (index_content, '{{TAGLINE_LINK_HTML}}', tagline_link_html);
   index_content := replace (index_content, '{{DEFAULT_SKIN}}', default_skin);
 
   index_stream := string_output ();
   http (index_content, index_stream);
+
+  -- Upgrades must not be destructive: an existing index.vsp that was NOT
+  -- generated by this template (e.g. the hand-authored, single-site
+  -- deploy-weblog-opl-site.sql/deploy-weblog-opl-site-facet.sql templates)
+  -- must never be silently overwritten by a redeploy/upgrade call -- that
+  -- would replace real, deliberately different site content with the
+  -- generic one. Every index.vsp this template has ever generated contains
+  -- this exact literal comment (grep-checked, not modified by any
+  -- {{TOKEN}} substitution). If existing content doesn't contain it, this
+  -- collection is either running a different template or something
+  -- unrecognized -- refuse rather than guess, unless the caller explicitly
+  -- opts in with allow_template_overwrite=1. Skin changes on an existing,
+  -- already-deployed-by-this-template collection never need a redeploy at
+  -- all: they go through weblog:skin (the admin dashboard's Skin setting),
+  -- resolved at request time.
+  {
+    declare existing_content varchar;
+    declare existing_count int;
+    existing_content := null;
+    existing_count := 0;
+    for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = index_path) do
+    {
+      existing_count := existing_count + 1;
+      existing_content := blob_to_string (_c);
+    }
+    if (existing_count > 0 and allow_template_overwrite = 0
+        and (existing_content is null or strstr (existing_content, 'multi-skin, config-driven') is null))
+      signal ('42000', sprintf ('Refusing to overwrite %s -- its existing content does not look like a deploy-weblog-skinned.sql deployment (no matching signature found), so it is likely a different, hand-authored template. To change the skin on an already-deployed collection, use weblog:skin (the admin dashboard''s Skin setting) instead of redeploying -- no redeploy needed. If you are certain you want to replace this collection''s index.vsp with the generic template, call this procedure again with allow_template_overwrite=>1.', index_path));
+  }
 
   DB.DBA.DAV_DELETE_INT (index_path, 1, null, null, 0);
   -- Owner/group MUST be 'dav' (RES_OWNER=2) for Virtuoso to execute a .vsp
@@ -4074,6 +4221,18 @@ drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE;
 --   UB                  : '/DAV/demos/daas/',               '/weblog/'
 --   www.openlinksw.com  : '/DAV/www2.openlinksw.com/data/html/', '/weblog/'
 --
+-- CAUTION -- demo.openlinksw.com and www.openlinksw.com: verified live
+-- 2026-09-24 that these two currently serve a DIFFERENT, hand-authored
+-- template (deploy-weblog-opl-site.sql / deploy-weblog-opl-site-facet.sql,
+-- with their own custom tagline/markup), not this file's generic
+-- deploy-weblog-skinned.sql -- their branches below have not been
+-- exercised against a real deploy and would silently REPLACE that custom
+-- template's index.vsp/dashboard.html with the generic one if their
+-- index.vsp happens to be found at the path checked. Only UB has actually
+-- been run through this file to date. Confirm which template a site is
+-- really running (compare its live tagline/markup against both templates)
+-- before running this file against demo or www for the first time.
+--
 -- ADMIN DASHBOARD LOCATION: each site's admin_coll below is left null, which
 -- means "reuse the location a previous deploy recorded in
 -- weblog:adminCollection, else the suggested aunt/uncle default" --
@@ -4121,7 +4280,9 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
     IN default_skin VARCHAR,
     IN dav_user VARCHAR,
     IN admin_collection VARCHAR := null,
-    IN admin_host VARCHAR := null
+    IN admin_host VARCHAR := null,
+    IN tagline_link_url VARCHAR := null,
+    IN tagline_link_text VARCHAR := null
   )
 {
   declare coll, index_path, dash_path, backup_note varchar;
@@ -4166,7 +4327,7 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
   }
   if (backup_note = '') backup_note := '(nothing existed yet to back up, or backup failed -- see comments above; the deploy below still runs)';
 
-  deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, public_route, weblog_title, weblog_tagline, default_skin, dav_user, admin_collection, admin_host);
+  deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, public_route, weblog_title, weblog_tagline, default_skin, dav_user, admin_collection, admin_host, null, tagline_link_url, tagline_link_text);
 
   -- WEBLOG_DAV_DEPLOY_SKINNED records weblog:adminDavUser and the other
   -- weblog:* properties itself, refreshes dashboard.html, and reports the
@@ -4198,6 +4359,7 @@ commit work;
 create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
 {
   declare coll, title, tagline, skin, dav_user, admin_coll, host varchar;
+  declare tagline_link_url, tagline_link_text varchar;
   declare site_found int;
   site_found := 0;
   tagline := 'A configurable, skinnable weblog view of a WebDAV folder.';
@@ -4206,6 +4368,10 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
   -- null = recorded weblog:adminCollection, else aunt/uncle default (see
   -- ADMIN DASHBOARD LOCATION above); set per site below to override.
   admin_coll := null;
+  -- null = no extra link appended to the visible tagline; set per site
+  -- below for a site that wants one (see TAGLINE LINK above).
+  tagline_link_url := null;
+  tagline_link_text := null;
 
   if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/home/demo/Public/fifa-kg/index.vsp') > 0)
   {
@@ -4226,6 +4392,8 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
     -- properties (publicRoute, actionRoute, adminCollection, ...); that step
     -- silently no-ops if dav_user doesn't resolve.
     dav_user := 'kidehen';
+    tagline_link_url := coll;
+    tagline_link_text := 'WebDAV folder';
   }
   else if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/www2.openlinksw.com/data/html/index.vsp') > 0)
   {
@@ -4238,7 +4406,7 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
   if (site_found = 0)
     return '{"ok":false,"reason":"No known site detected on this instance -- checked /DAV/home/demo/Public/fifa-kg/, /DAV/demos/daas/, and /DAV/www2.openlinksw.com/data/html/ for an existing index.vsp and found none. This is either a first-ever install (nothing deployed yet, so there is nothing to auto-detect from) or a site not yet registered in this procedure -- add an else-if branch above for a new site, or call DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED directly with explicit parameters."}';
 
-  return DB.DBA.TMP_WEBLOG_UPGRADE_APPLY (coll, '/weblog/', title, tagline, skin, dav_user, admin_coll, host);
+  return DB.DBA.TMP_WEBLOG_UPGRADE_APPLY (coll, '/weblog/', title, tagline, skin, dav_user, admin_coll, host, tagline_link_url, tagline_link_text);
 }
 ;
 -- Same reasoning as the commit work; above this procedure -- force full
