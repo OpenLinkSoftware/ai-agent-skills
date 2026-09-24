@@ -374,8 +374,8 @@ else
 fi
 unset OUT_DIR MOD_REF EXP_REF
 
-# Step 6: WebID Delegation Consistency Gate
-echo "=== Step 6: WebID Delegation Consistency Gate ==="
+# Step 6: WebID Delegation & Cert:Key Consistency Gate
+echo "=== Step 6: WebID Delegation & Cert:Key Consistency Gate ==="
 read -r -d '' PY_DEL_GATE << 'PYEOF' || true
 import json, sys, os
 from html.parser import HTMLParser
@@ -389,6 +389,24 @@ OPLON = 'http://www.openlinksw.com/schemas/cert#onBehalfOf'
 # Collect delegation triples from each file
 results = {}
 
+CERTKEY = 'http://www.w3.org/ns/auth/cert#key'
+CERTMOD = 'http://www.w3.org/ns/auth/cert#modulus'
+# Per-file: {delegate_webid: modulus_or_True} — True means a cert:key triple
+# exists for that delegate but the modulus couldn't be resolved (e.g. an
+# external file reference); a real modulus string means it was inlined.
+certkey_results = {}
+raw_content = {}  # stashed for reuse below (embedded Turtle/JSON-LD/RDFa blocks)
+
+def _ttl_certkeys(g):
+    """Return {subject_webid: modulus_or_True} for cert:key assertions in an rdflib graph."""
+    out = {}
+    for s, p, o in g.triples((None, rdflib.URIRef(CERTKEY), None)):
+        mod = None
+        for _, _, m in g.triples((o, rdflib.URIRef(CERTMOD), None)):
+            mod = str(m).upper()
+        out[str(s)] = mod if mod else True
+    return out
+
 # --- profile.ttl ---
 import rdflib
 ttl_delegates = set()
@@ -400,22 +418,44 @@ if os.path.exists(os.path.join(out_dir, 'profile.ttl')):
         ttl_delegates.add(str(o))
     for s, p, o in g.triples((None, rdflib.URIRef(OPLON), None)):
         ttl_behalfof.add(str(o))
+    certkey_results['profile.ttl'] = _ttl_certkeys(g)
 results['profile.ttl'] = (ttl_delegates, ttl_behalfof)
 
 # --- profile.jsonld ---
 jld_delegates = set()
 jld_behalfof = set()
 jsonld_path = os.path.join(out_dir, 'profile.jsonld')
+
+def _jsonld_certkeys(graph_items):
+    """Return {subject_webid: modulus_or_True} for cert:key assertions in a JSON-LD @graph list."""
+    # First pass: subject -> key node @id ; also key_node_id -> modulus (if inlined in the same graph)
+    key_ref = {}
+    key_modulus = {}
+    for item in graph_items:
+        iid = item.get('@id')
+        if 'cert:key' in item and iid:
+            v = item['cert:key']
+            key_ref[iid] = v['@id'] if isinstance(v, dict) else v
+        if item.get('@type') == 'cert:RSAPublicKey' and 'cert:modulus' in item and iid:
+            m = item['cert:modulus']
+            key_modulus[iid] = (m['@value'] if isinstance(m, dict) else m).upper()
+    out = {}
+    for subj, key_id in key_ref.items():
+        out[subj] = key_modulus.get(key_id, True)
+    return out
+
 if os.path.exists(jsonld_path):
     with open(jsonld_path) as f:
         jld = json.load(f)
-    for item in jld.get('@graph', []):
+    graph_items = jld.get('@graph', [])
+    for item in graph_items:
         if 'oplcert:hasIdentityDelegate' in item:
             v = item['oplcert:hasIdentityDelegate']
             jld_delegates.add(v['@id'] if isinstance(v, dict) else v)
         if 'oplcert:onBehalfOf' in item:
             v = item['oplcert:onBehalfOf']
             jld_behalfof.add(v['@id'] if isinstance(v, dict) else v)
+    certkey_results['profile.jsonld'] = _jsonld_certkeys(graph_items)
 results['profile.jsonld'] = (jld_delegates, jld_behalfof)
 
 # --- profile_rdfa.html ---
@@ -458,6 +498,40 @@ if os.path.exists(rdfa_path):
     dp.feed(content)
     rdfa_delegates.update(dp.delegates)
     rdfa_behalfof.update(dp.behalfof)
+    raw_content['profile_rdfa.html'] = content
+
+    # cert:key — embedded JSON-LD (same blocks scanned above)
+    rdfa_certkeys = {}
+    for match in _re.finditer(r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', content, _re.DOTALL):
+        try:
+            block = json.loads(match.group(1))
+            rdfa_certkeys.update(_jsonld_certkeys(block.get('@graph', [])))
+        except json.JSONDecodeError:
+            pass
+    # cert:key — raw RDFa: <div about="{subj}"><div rel="cert:key" resource="#X"></div></div>
+    # and <div typeof="cert:RSAPublicKey" about="#X"><div property="cert:modulus" content="..."></div></div>
+    class RdfaKeyParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.key_ref = {}      # subject about= -> key resource=
+            self.key_modulus = {}  # key about= -> modulus content=
+            self._last_about = None
+            self._in_rsa_key = False
+        def handle_starttag(self, tag, attrs):
+            d = dict(attrs)
+            about = d.get('about')
+            if about:
+                self._last_about = about
+                self._in_rsa_key = (d.get('typeof') == 'cert:RSAPublicKey')
+            if d.get('rel') == 'cert:key' and self._last_about and d.get('resource'):
+                self.key_ref[self._last_about] = d.get('resource')
+            if self._in_rsa_key and d.get('property') == 'cert:modulus' and d.get('content'):
+                self.key_modulus[self._last_about] = d.get('content').upper()
+    rkp = RdfaKeyParser()
+    rkp.feed(content)
+    for subj, key_id in rkp.key_ref.items():
+        rdfa_certkeys[subj] = rkp.key_modulus.get(key_id, rdfa_certkeys.get(subj, True))
+    certkey_results['profile_rdfa.html'] = rdfa_certkeys
 results['profile_rdfa.html'] = (rdfa_delegates, rdfa_behalfof)
 
 # --- index.html ---
@@ -503,6 +577,27 @@ if os.path.exists(idx_path):
     ip.feed(content)
     idx_delegates.update(ip.delegates)
     idx_behalfof.update(ip.behalfof)
+    raw_content['index.html'] = content
+
+    # cert:key — embedded JSON-LD
+    idx_certkeys = {}
+    for match in _re.finditer(r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', content, _re.DOTALL):
+        try:
+            block = json.loads(match.group(1))
+            idx_certkeys.update(_jsonld_certkeys(block.get('@graph', [])))
+        except json.JSONDecodeError:
+            pass
+    # cert:key — embedded Turtle (index.html carries a <script type="text/turtle"> block
+    # alongside the JSON-LD one; a fragment-only subject like <#AgentPublicKey> needs a
+    # base IRI to parse standalone, so use the document's own URL as a placeholder base)
+    for match in _re.finditer(r'<script[^>]*type="text/turtle"[^>]*>(.*?)</script>', content, _re.DOTALL):
+        try:
+            tg = rdflib.Graph()
+            tg.parse(data=match.group(1), format='turtle', publicID='urn:youid:index-html-base')
+            idx_certkeys.update(_ttl_certkeys(tg))
+        except Exception:
+            pass
+    certkey_results['index.html'] = idx_certkeys
 results['index.html'] = (idx_delegates, idx_behalfof)
 
 # Check if delegation is present at all
@@ -547,6 +642,37 @@ if all_behalfof:
     if not fail:
         print(f"  ✓ onBehalfOf consistent across all files → {', '.join(sorted(all_behalfof))}")
 
+# cert:key cross-publication consistency — this is the actual mechanism a standard
+# WebID-TLS verifier checks; the hasIdentityDelegate/onBehalfOf triples above only
+# document the relationship's intent and are NOT independently verified by a
+# resource server's own authorization logic (confirmed empirically, see
+# agent-rdf-memory/howto/webid-tls-on-behalf-of-delegation-no-effect-incident-report).
+# Every delegate named in hasIdentityDelegate MUST have its own cert:key
+# (RSA modulus+exponent) republished under the delegator's documents, consistently
+# across all four representations — not just the relation triple.
+if all_delegates:
+    print("  Checking cert:key cross-publication for each delegate...")
+    for delegate in sorted(all_delegates):
+        for fname in results:
+            got = certkey_results.get(fname, {}).get(delegate)
+            if got is None:
+                print(f"  ✗ {fname}: missing cert:key for delegate {delegate}")
+                print(f"    fix: republish this delegate's own RSA public key (modulus+exponent) "
+                      f"under this document, alongside its existing hasIdentityDelegate triple")
+                fail = 1
+        # Cross-check modulus values agree where inlined (skip files that only carry
+        # an external reference, i.e. got is `True` rather than a modulus string)
+        moduli = {fname: certkey_results.get(fname, {}).get(delegate)
+                  for fname in results
+                  if isinstance(certkey_results.get(fname, {}).get(delegate), str)}
+        if len(set(moduli.values())) > 1:
+            print(f"  ✗ modulus mismatch for delegate {delegate} across files:")
+            for fname, mod in moduli.items():
+                print(f"    {fname}: {mod[:24]}...")
+            fail = 1
+    if not fail:
+        print(f"  ✓ cert:key present and consistent for every delegate across all files")
+
 sys.exit(fail)
 PYEOF
 
@@ -554,7 +680,7 @@ export OUT_DIR
 if python3 -c "$PY_DEL_GATE"; then
     echo "  Delegation Consistency Test: PASS"
 else
-    echo "  Delegation Consistency Test: FAIL — Delegation triples inconsistent across files!"
+    echo "  Delegation Consistency Test: FAIL — Delegation triples or delegate cert:key inconsistent/missing across files!"
     GATE_FAILED=1
 fi
 

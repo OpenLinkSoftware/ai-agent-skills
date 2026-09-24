@@ -7,10 +7,21 @@
 #   3. Deployment summary with curl examples
 #
 # Usage:
-#   ./generate_delegation.sh -d <delegator-webid> -e <delegate-webid> -r <role> [-o <output-dir>]
+#   ./generate_delegation.sh -d <delegator-webid> -e <delegate-webid> -r <role> [-k <delegate-cert.pem>] [-o <output-dir>]
 #
 # Role: identify | inform | consult | authority
 #
+# IMPORTANT (fixed 2026-09-13): the SPARQL patch below republishes the
+# delegate's own cert:key (RSA modulus+exponent) under the delegator's
+# profile, not just the hasIdentityDelegate/onBehalfOf relation triples.
+# Confirmed live that those relation triples alone are NOT independently
+# verified by any tested resource-server authorization path (WAC/ACL, MPP
+# entitlement, or a remote WebID-TLS verification service) — a standard
+# verifier checks cert:key, so a delegation patch that only asserts the
+# relationship silently does nothing for actual delegated access. See
+# agent-rdf-memory/howto/webid-tls-on-behalf-of-delegation-no-effect-incident-report
+# and generate_identity.sh's Step 6 gate, which now enforces this same
+# requirement at identity-generation time.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -19,15 +30,17 @@ YOUID_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 DELEGATOR=""
 DELEGATE=""
 ROLE=""
+DELEGATE_CERT=""
 OUT_DIR="$(pwd)/delegation-output"
 
-while getopts "d:e:r:o:h" opt; do
+while getopts "d:e:r:k:o:h" opt; do
     case $opt in
         d) DELEGATOR="$OPTARG" ;;
         e) DELEGATE="$OPTARG" ;;
         r) ROLE="$OPTARG" ;;
+        k) DELEGATE_CERT="$OPTARG" ;;
         o) OUT_DIR="$OPTARG" ;;
-        h) echo "Usage: $0 -d <delegator-webid> -e <delegate-webid> -r <role> [-o <output-dir>]"
+        h) echo "Usage: $0 -d <delegator-webid> -e <delegate-webid> -r <role> [-k <delegate-cert.pem>] [-o <output-dir>]"
            echo ""
            echo "Required:"
            echo "  -d  Delegator WebID/NetID (the entity granting authority)"
@@ -35,6 +48,12 @@ while getopts "d:e:r:o:h" opt; do
            echo "  -r  Delegation role: identify | inform | consult | authority"
            echo ""
            echo "Optional:"
+           echo "  -k  Delegate's PEM certificate (or path readable by openssl) — its RSA"
+           echo "      public key is extracted and republished under the delegator's profile."
+           echo "      Without this, the script attempts to dereference the delegate's own"
+           echo "      WebID and reuse its already-published cert:key; if that also fails,"
+           echo "      the generated patch omits cert:key and prints a loud warning, since"
+           echo "      a delegation patch without it will not actually grant delegated access."
            echo "  -o  Output directory (default: ./delegation-output)"
            echo ""
            echo "Role definitions:"
@@ -66,9 +85,67 @@ echo "  Delegator: $DELEGATOR"
 echo "  Delegate:  $DELEGATE"
 echo "  Role:      $ROLE"
 
+# Step 0: Resolve the delegate's RSA public key (modulus + exponent).
+# This is what actually makes delegation work for a standard WebID-TLS
+# verifier — the hasIdentityDelegate/onBehalfOf triples alone are not
+# independently checked by any tested resource-server authorization path.
+echo "=== Step 0: Resolve Delegate's Public Key ==="
+KEY_MODULUS=""
+KEY_EXPONENT="65537"
+if [ -n "$DELEGATE_CERT" ]; then
+    if [ -f "$DELEGATE_CERT" ]; then
+        KEY_MODULUS="$(openssl x509 -noout -modulus -in "$DELEGATE_CERT" 2>/dev/null | sed 's/Modulus=//')"
+        if [ -n "$KEY_MODULUS" ]; then
+            echo "  Extracted modulus from -k $DELEGATE_CERT (${KEY_MODULUS:0:24}...)"
+        else
+            echo "  WARNING: could not extract a modulus from $DELEGATE_CERT — is it a valid PEM cert?"
+        fi
+    else
+        echo "  WARNING: -k $DELEGATE_CERT not found on disk"
+    fi
+else
+    echo "  No -k given — attempting to dereference the delegate's own WebID for its published cert:key..."
+    DELEGATE_PROFILE_URL="${DELEGATE%%#*}"
+    KEY_MODULUS="$(curl -sS -L "$DELEGATE_PROFILE_URL" 2>/dev/null \
+        | grep -o 'cert:modulus[^;.]*' | grep -o '"[A-Fa-f0-9]*"' | head -1 | tr -d '"')"
+    if [ -n "$KEY_MODULUS" ]; then
+        echo "  Found published cert:modulus at $DELEGATE_PROFILE_URL (${KEY_MODULUS:0:24}...)"
+    else
+        echo "  Could not resolve a cert:modulus from $DELEGATE_PROFILE_URL either."
+    fi
+fi
+if [ -z "$KEY_MODULUS" ]; then
+    echo ""
+    echo "  *** WARNING: no delegate public key resolved. The generated SPARQL patch will"
+    echo "  *** only assert hasIdentityDelegate/onBehalfOf — confirmed live that this alone"
+    echo "  *** does NOT grant delegated resource access on any tested server. Supply -k"
+    echo "  *** with the delegate's cert.pem, or publish the delegate's own WebID profile"
+    echo "  *** first, then re-run this script."
+    echo ""
+fi
+KEY_MODULUS="$(echo "$KEY_MODULUS" | tr '[:lower:]' '[:upper:]')"
+
 # Step 1: Generate SPARQL UPDATE patch
 echo "=== Step 1: SPARQL UPDATE Patch ==="
 SPARQL_FILE="$OUT_DIR/delegation.sparql"
+
+if [ -n "$KEY_MODULUS" ]; then
+    DELEGATE_KEY_IRI="${DELEGATE%%#*}#DelegateKey-$(date -u +%Y%m%d)"
+    KEY_BLOCK="
+  # Delegate's public key, republished under the delegator's own profile so a
+  # standard WebID-TLS verifier that checks THIS graph recognizes the delegate's cert
+  <${DELEGATE}>
+      cert:key <${DELEGATE_KEY_IRI}> .
+  <${DELEGATE_KEY_IRI}>
+      a cert:RSAPublicKey ;
+      cert:modulus \"${KEY_MODULUS}\"^^xsd:hexBinary ;
+      cert:exponent \"${KEY_EXPONENT}\"^^xsd:int ."
+else
+    KEY_BLOCK="
+  # WARNING: no delegate public key was resolved — see Step 0 output above.
+  # Delegation asserted below is relationship-only and will NOT grant
+  # delegated resource access until cert:key is added separately."
+fi
 
 cat > "$SPARQL_FILE" <<SPARQL
 # YouID Delegation — SPARQL UPDATE Patch
@@ -84,6 +161,7 @@ cat > "$SPARQL_FILE" <<SPARQL
 
 PREFIX foaf:     <http://xmlns.com/foaf/0.1/>
 PREFIX oplcert:  <http://www.openlinksw.com/schemas/cert#>
+PREFIX cert:     <http://www.w3.org/ns/auth/cert#>
 PREFIX schema:   <http://schema.org/>
 PREFIX xsd:      <http://www.w3.org/2001/XMLSchema#>
 
@@ -102,6 +180,7 @@ INSERT DATA {
       schema:additionalType "Delegate" ;
       schema:description "Assigned ${ROLE_UPPER} role for <${DELEGATOR}>"^^xsd:string ;
       oplcert:onBehalfOf <${DELEGATOR}> .
+${KEY_BLOCK}
 }
 SPARQL
 echo "  → ${SPARQL_FILE}"

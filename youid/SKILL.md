@@ -129,7 +129,7 @@ Before delivering any output to the user, the following MUST pass:
 - `owl:sameAs` has no self-references
 - All artifact files exist in the output directory
 - **Basic WebID Test (Public Key Consistency Gate):** RSA public key (modulus + exponent) from `cert.p12` matches `index.html`, `profile.ttl`, and `profile.jsonld` — automated in Step 5 of `generate_identity.sh`, blocks generation on failure
-- **Delegation Consistency Gate:** If any output file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf` triples, they MUST match identically across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (all 4 representations: POSH, embedded JSON-LD, embedded Turtle, hidden RDFa) — automated in Step 6 of `generate_identity.sh`, blocks generation on failure
+- **Delegation & Cert:Key Consistency Gate:** If any output file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf` triples, they MUST match identically across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (all 4 representations: POSH, embedded JSON-LD, embedded Turtle, hidden RDFa) — automated in Step 6 of `generate_identity.sh`, blocks generation on failure. **As of 2026-09-13, the gate also requires every delegate named in `hasIdentityDelegate` to have its own `cert:key` (RSA modulus+exponent) republished under the delegator's documents, consistently across all four representations, with matching modulus values wherever inlined.** This closes a real gap found live: the relation triples alone were correctly generated and consistent, but the delegate's actual public key — which is what a standard WebID-TLS verifier checks, not the relation vocabulary — was present in only one of the four files, silently defeating delegation for any resource-access check that relies on the standard key-lookup mechanism. See `agent-rdf-memory/howto/webid-tls-on-behalf-of-delegation-no-effect-incident-report...` and `preferences.ttl` for the live-verified finding this gate now prevents from recurring.
 
 ## Execution Routing
 
@@ -321,6 +321,17 @@ Verification SPARQL queries are in `references/verification-queries.md`.
    | `index.html` | Embedded Turtle | `oplcert:hasIdentityDelegate <delegate-webid> .` on the `#netid` entity |
    | `index.html` | Hidden RDFa | `<div typeof="foaf:Agent" about="<delegator-webid>"><div property="schema:additionalType" content="Delegator"></div><div rel="oplcert:hasIdentityDelegate" resource="<delegate-webid>"></div></div>` |
 
+6b. **REQUIRED, not optional — republish the delegate's `cert:key` under the delegator's same local profile files.** Fixed 2026-09-13: the `hasIdentityDelegate`/`onBehalfOf` triples above only document the relationship's *intent* — confirmed live that no tested resource-server authorization path (WAC/ACL, MPP payment-entitlement, or a remote WebID-TLS verification service) independently checks them. A standard WebID-TLS verifier checks `cert:key`, so skipping this step means the delegation silently does nothing for actual access. Extract the delegate's RSA modulus + exponent from its own `cert.pem`/`cert.p12` (or dereference its live WebID profile if no local file is available — see `scripts/generate_delegation.sh -k`), then add to **every** file alongside the table in step 6:
+
+   | File | Representation | What to add |
+   |------|---------------|-------------|
+   | `profile.ttl` | Turtle | `<delegate-webid> cert:key <key-node> .` plus a `cert:RSAPublicKey` node with `cert:modulus`/`cert:exponent` (inline, or an indirection to a `public_key.ttl`-style file — match whichever pattern the delegator's OWN key already uses in this file) |
+   | `profile.jsonld` | JSON-LD | Same shape as `profile.ttl`, in `@graph` |
+   | `profile_rdfa.html` | RDFa | `<div about="<delegate-webid>"><div rel="cert:key" resource="#X"></div></div>` plus `<div typeof="cert:RSAPublicKey" about="#X">` with `cert:modulus`/`cert:exponent` properties |
+   | `index.html` | Embedded JSON-LD AND embedded Turtle (both — index.html carries both blocks) | Same shape as above, local fragment (e.g. `#DelegatePublicKey`) is fine since it only needs to resolve within this document |
+
+   `generate_identity.sh`'s Step 6 gate now enforces this automatically — it fails generation if any delegate lacks a `cert:key` in any of the four files, or if the modulus disagrees across files that inline it. Do not treat a gate pass on `hasIdentityDelegate`/`onBehalfOf` consistency alone as sufficient; the gate checks both, but if you're applying this by hand outside the generator, verify both yourself.
+
 7. **If delegate directory provided**, add `oplcert:onBehalfOf` to the delegate's local profile files using the same index.html coverage:
 
    | File | Representation | What to add |
@@ -480,7 +491,7 @@ Before delivering any generated identity to the user:
 - [ ] **Platform icons use proper logos**: no icon uses `p_none.png` unless a platform-specific icon was not discoverable after searching the platform's brand page
 - [ ] **No external framework**: no `bootstrap`, `jquery`, or other framework imports in the HTML body
 - [x] **Basic WebID Test PASS** — **AUTO-GATED** in Step 5 of `generate_identity.sh`. The orchestrator extracts modulus + exponent from `cert.p12` and cross-references `profile.ttl`, `profile.jsonld`, and `index.html` (RDFa) using `rdflib` and `HTMLParser`. Generation is blocked with exit code 1 on any mismatch. Manual check no longer required.
-- [x] **Delegation Consistency Test PASS** — **AUTO-GATED** in Step 6 of `generate_identity.sh`. If any file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf`, the gate verifies identical triples across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (embedded JSON-LD + RDFa rel/property attrs). Skips cleanly if no delegation triples are present. Blocks generation on failure.
+- [x] **Delegation & Cert:Key Consistency Test PASS** — **AUTO-GATED** in Step 6 of `generate_identity.sh`. If any file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf`, the gate verifies identical triples across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (embedded JSON-LD + RDFa rel/property attrs), AND that every named delegate has its own `cert:key` (modulus+exponent) republished consistently across the same four files, with matching modulus values wherever inlined. Skips cleanly if no delegation triples are present. Blocks generation on failure.
 - [ ] **Hero badges rendered**: "✓ Verified WebID", subject name, email, org all visible
 - [ ] **Social `owl:sameAs` present**: `profile.ttl` and `profile.jsonld` contain `owl:sameAs` entries for each social platform URL collected from the user (not just profile-document equivalences)
 - [ ] **`<link rel="me">` in head**: `index.html` has `<link rel="me">` tags for each social platform URL

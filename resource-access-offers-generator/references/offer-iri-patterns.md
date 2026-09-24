@@ -25,3 +25,5 @@ Canonical, pre-existing `opllic:Duration` resources — reference by IRI only, n
 | Billing Period | opllic:hasDuration IRI |
 |---|---|
 | Monthly (recurring "per month" price) | http://data.openlinksw.com/oplweb/license/License-Duration#ongoing-subscription |
+| Annual (recurring "per year" price) | http://data.openlinksw.com/oplweb/license/License-Duration#annual |
+| One-time (perpetual, non-recurring price) | http://data.openlinksw.com/oplweb/license/License-Duration#perpetual |
