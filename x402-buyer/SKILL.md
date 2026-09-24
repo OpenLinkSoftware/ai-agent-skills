@@ -138,6 +138,21 @@ Probe before paying. This is a plain unauthenticated GET; it moves no money:
 curl -sS -o /dev/null -D - -k "<target-url>"
 ```
 
+If this first GET returns `401`, immediately make a second, unauthenticated
+`OPTIONS` request to the same target URL before choosing an authentication
+protocol or stopping:
+
+```bash
+curl -sS -X OPTIONS -D - -k "<target-url>"
+```
+
+Inspect the response headers and body for `Allow`, `Link` relations, and
+merchant/store or offer discovery metadata. Use any advertised links or
+resource relations to reorient discovery toward the associated offer catalog
+or store, then continue with the applicable protocol. An `OPTIONS` response
+may itself be protected; record that result and use only information actually
+returned. This probe does not authenticate, pay, or authorize another request.
+
 Read the response:
 
 | Observed | Meaning | Action |

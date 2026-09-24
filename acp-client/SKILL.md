@@ -220,6 +220,23 @@ and returns the resource with a receipt; Route B is **human-centric shop flow**
 purchase subset to the resource server, and the user then accesses the resource
 authenticated.
 
+### Reorient after an initial 401
+
+If the first interaction with a protected resource returns `401`, immediately
+send an unauthenticated HTTP `OPTIONS` request to that same target URL before
+selecting an authentication protocol:
+
+```bash
+curl -sS -X OPTIONS -D - "{resource-url}"
+```
+
+Inspect the response for `Allow`, `Link` relations, and offer/store discovery
+metadata. Follow relevant advertised relations to find the associated offer
+catalog or shop, then continue the appropriate ACP/MPP flow. If OPTIONS also
+returns `401`, use only metadata actually exposed and continue to the auth
+protocol selection below. This is a discovery probe; it does not authenticate,
+make a purchase, or authorize a retry.
+
 ### Auth Protocol Selection (Elicitation)
 
 Pick the authentication protocol before acting. Ask the user if not inferable
