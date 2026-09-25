@@ -1562,6 +1562,355 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_UNSCHEDULE_DIGEST (IN event_name VARCH
 -- names the Virtuoso account whose own DAV group is granted read access;
 -- only requests that Digest-authenticate as that account (or another
 -- account sharing its DAV group) can retrieve the page.
+-- ==========================================================================
+-- Dashboard "Trends & Analytics" panel (step 1: data already on hand).
+-- Everything here is derived from WEBLOG_SUBSCRIBER timestamps and the
+-- collection's posts (RES_MOD_TIME + schema:category) -- no new tables, no
+-- view/open/click tracking. Charts are inline SVG styled by the dashboard's
+-- own theme tokens (--accent, --border, --muted), so light/dark and the
+-- manual theme switch apply to them with no extra code; each chart has
+-- one series on one axis, a per-week hover tooltip (<title>), and the same
+-- numbers are available as a table under "Weekly data".
+-- ==========================================================================
+
+-- HTML-escape a string while keeping its raw UTF-8 bytes. Used instead
+-- of sprintf('%V', ...) here because %V's handling of non-ASCII depends on
+-- the calling context (verified 2026-09-25): outside an HTTP request it
+-- passes narrow UTF-8 through but writes a WIDE string's U+0080-U+00FF as
+-- single Latin-1 bytes; inside one (the admin action route) it does the
+-- reverse and re-encodes narrow bytes. The dashboard is refreshed from
+-- both, so its labels are escaped here and emitted with %s.
+CREATE PROCEDURE DB.DBA.WEBLOG_HTML_ESC_BYTES (IN s ANY)
+{
+  if (s is null) return '';
+  if (iswidestring (s)) s := charset_recode (s, '_WIDE_', 'UTF-8');
+  if (not isstring (s)) s := cast (s as varchar);
+  s := replace (s, '&', '&amp;');
+  s := replace (s, '<', '&lt;');
+  s := replace (s, '>', '&gt;');
+  s := replace (s, '"', '&quot;');
+  s := replace (s, '''', '&#39;');
+  return s;
+}
+;
+
+-- One bar with 4px rounded top corners and a flat baseline end.
+CREATE PROCEDURE DB.DBA.WEBLOG_SVG_BAR_PATH (IN x DOUBLE PRECISION, IN y DOUBLE PRECISION, IN w DOUBLE PRECISION, IN h DOUBLE PRECISION)
+{
+  declare r DOUBLE PRECISION;
+  r := 4.0;
+  if (r > w / 2) r := w / 2;
+  if (r > h) r := h;
+  return sprintf ('M%.1f,%.1f V%.1f Q%.1f,%.1f %.1f,%.1f H%.1f Q%.1f,%.1f %.1f,%.1f V%.1f Z',
+    x, y + h, y + r, x, y, x + r, y, x + w - r, x + w, y, x + w, y + r, y + h);
+}
+;
+
+-- A single-series weekly chart: kind = 'bar' or 'line'. vals and
+-- week_starts are equal-length vectors; unit is the tooltip noun.
+CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_CHART (IN kind VARCHAR, IN vals ANY, IN week_starts ANY, IN title VARCHAR, IN unit VARCHAR)
+{
+  declare n, i, v, maxv, ymax, g int;
+  declare x0, y0, ph, pw, slot, bw, x, y, h, cx, cy DOUBLE PRECISION;
+  declare svg, pts, months, ws any;
+  months := vector ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+  n := length (vals);
+  maxv := 0;
+  for (i := 0; i < n; i := i + 1)
+    if (vals[i] > maxv) maxv := vals[i];
+  -- Even ceiling so the midline tick is a whole number.
+  ymax := maxv;
+  if (ymax < 2) ymax := 2;
+  if (mod (ymax, 2) = 1) ymax := ymax + 1;
+  x0 := 34.0;
+  y0 := 170.0;
+  ph := 150.0;
+  pw := 598.0;
+  slot := pw / n;
+
+  svg := sprintf ('<svg class="chart" viewBox="0 0 640 196" role="img" aria-label="%V">', title);
+  for (g := 0; g <= 2; g := g + 1)
+  {
+    y := y0 - ph * g / 2;
+    svg := concat (svg, sprintf ('<line class="grid" x1="%.1f" x2="632" y1="%.1f" y2="%.1f"/><text class="tick" x="%.1f" y="%.1f" text-anchor="end">%d</text>',
+      x0, y, y, x0 - 6, y + 4, ymax * g / 2));
+  }
+
+  if (kind = 'line')
+  {
+    pts := '';
+    for (i := 0; i < n; i := i + 1)
+    {
+      cx := x0 + slot * i + slot / 2;
+      cy := y0 - ph * vals[i] / ymax;
+      pts := concat (pts, sprintf ('%.1f,%.1f ', cx, cy));
+    }
+    svg := concat (svg, sprintf ('<polyline class="line" points="%s"/>', trim (pts)));
+  }
+
+  for (i := 0; i < n; i := i + 1)
+  {
+    v := vals[i];
+    ws := week_starts[i];
+    svg := concat (svg, sprintf ('<g class="m"><title>Week of %s %d, %d: %d %s</title><rect class="hit" x="%.1f" y="%.1f" width="%.1f" height="%.1f"/>',
+      months[month (ws) - 1], dayofmonth (ws), year (ws), v, unit, x0 + slot * i, y0 - ph, slot, ph));
+    if (kind = 'bar')
+    {
+      bw := slot - 2;
+      if (bw > 28) bw := 28;
+      if (bw < 1) bw := 1;
+      h := ph * v / ymax;
+      if (v > 0)
+        svg := concat (svg, sprintf ('<path class="bar" d="%s"/>',
+          DB.DBA.WEBLOG_SVG_BAR_PATH (x0 + slot * i + (slot - bw) / 2, y0 - h, bw, h)));
+    }
+    else
+    {
+      svg := concat (svg, sprintf ('<circle class="hover-dot" cx="%.1f" cy="%.1f" r="4"/>',
+        x0 + slot * i + slot / 2, y0 - ph * v / ymax));
+    }
+    svg := concat (svg, '</g>');
+    -- Every 4th week gets an x label, counted back from the latest week.
+    if (mod (n - 1 - i, 4) = 0)
+      svg := concat (svg, sprintf ('<text class="xl" x="%.1f" y="188" text-anchor="middle">%s %d</text>',
+        x0 + slot * i + slot / 2, months[month (ws) - 1], dayofmonth (ws)));
+  }
+
+  -- Selective direct label: only the latest value, on the line chart.
+  if (kind = 'line' and n > 0)
+  {
+    cx := x0 + slot * (n - 1) + slot / 2;
+    cy := y0 - ph * vals[n - 1] / ymax;
+    svg := concat (svg, sprintf ('<circle class="dot" cx="%.1f" cy="%.1f" r="4"/><text class="val" x="%.1f" y="%.1f" text-anchor="end">%d</text>',
+      cx, cy, cx - 7, cy - 8, vals[n - 1]));
+  }
+  return concat (svg, '</svg>');
+}
+;
+
+-- Top-N rows of a {label -> count} dictionary, as <tr> HTML, highest first.
+CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (IN counts ANY, IN top_n INTEGER)
+{
+  declare kv, used any;
+  declare i, j, best_i, best_v, total int;
+  declare rows_html VARCHAR;
+  kv := dict_to_vector (counts, 0);
+  used := make_array (length (kv) / 2, 'any');
+  for (i := 0; i < length (kv) / 2; i := i + 1)
+    aset (used, i, 0);
+  rows_html := '';
+  total := 0;
+  for (j := 0; j < top_n; j := j + 1)
+  {
+    best_i := -1;
+    best_v := -1;
+    for (i := 0; i < length (kv) / 2; i := i + 1)
+      if (used[i] = 0 and kv[2 * i + 1] > best_v)
+      {
+        best_i := i;
+        best_v := kv[2 * i + 1];
+      }
+    if (best_i < 0)
+      goto done;
+    aset (used, best_i, 1);
+    rows_html := concat (rows_html, sprintf ('<tr><td>%s</td><td class="num">%d</td></tr>',
+      DB.DBA.WEBLOG_HTML_ESC_BYTES (kv[2 * best_i]), best_v));
+  }
+done:
+  if (rows_html = '')
+    rows_html := '<tr><td colspan="2" class="hint">No data yet</td></tr>';
+  return rows_html;
+}
+;
+
+CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_ANALYTICS_HTML (IN dav_collection VARCHAR)
+{
+  declare coll, kpis, charts, tables, weekly_rows, rate_txt, confirm_txt VARCHAR;
+  declare n, i, d, total_sub, total_conf, total_unsub, conf_n, signups_30, confirmed_30, posts_30, total_posts, base_confirmed int;
+  declare conf_minutes integer;
+  declare today, start_d any;
+  declare signups, confirms, cumul, posts, week_starts, countries, categories, html_stems, post_rows, months any;
+
+  coll := trim (dav_collection);
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  months := vector ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+
+  -- 26 whole weeks, Monday-based, ending with the current week.
+  n := 26;
+  today := cast (now () as date);
+  start_d := dateadd ('day', - mod (dayofweek (today) + 5, 7) - 7 * (n - 1), today);
+  signups := make_array (n, 'any');
+  confirms := make_array (n, 'any');
+  cumul := make_array (n, 'any');
+  posts := make_array (n, 'any');
+  week_starts := make_array (n, 'any');
+  for (i := 0; i < n; i := i + 1)
+  {
+    aset (signups, i, 0);
+    aset (confirms, i, 0);
+    aset (cumul, i, 0);
+    aset (posts, i, 0);
+    aset (week_starts, i, dateadd ('day', 7 * i, start_d));
+  }
+
+  total_sub := 0; total_conf := 0; total_unsub := 0; conf_n := 0; conf_minutes := 0;
+  signups_30 := 0; confirmed_30 := 0; base_confirmed := 0;
+  countries := dict_new (31);
+  for (select WS_SUBSCRIBED_AT as _sub, WS_CONFIRMED_AT as _conf, WS_STATUS as _s, WS_COUNTRY as _c
+         from DB.DBA.WEBLOG_SUBSCRIBER
+        where WS_DAV_COLLECTION = coll) do
+  {
+    total_sub := total_sub + 1;
+    if (_s = 'unsubscribed') total_unsub := total_unsub + 1;
+    if (_sub is not null)
+    {
+      d := datediff ('day', start_d, _sub);
+      if (d >= 0 and d / 7 < n) aset (signups, d / 7, signups[d / 7] + 1);
+      if (datediff ('day', _sub, now ()) < 30) signups_30 := signups_30 + 1;
+    }
+    if (_conf is not null)
+    {
+      total_conf := total_conf + 1;
+      if (_sub is not null and _conf >= _sub)
+      {
+        conf_minutes := conf_minutes + datediff ('minute', _sub, _conf);
+        conf_n := conf_n + 1;
+      }
+      d := datediff ('day', start_d, _conf);
+      if (d < 0)
+        base_confirmed := base_confirmed + 1;
+      else if (d / 7 < n)
+        aset (confirms, d / 7, confirms[d / 7] + 1);
+      if (datediff ('day', _conf, now ()) < 30) confirmed_30 := confirmed_30 + 1;
+    }
+    if (_s = 'confirmed')
+    {
+      declare ckey VARCHAR;
+      ckey := trim (coalesce (cast (_c as varchar), ''));
+      if (ckey = '') ckey := 'Unknown';
+      dict_put (countries, ckey, coalesce (dict_get (countries, ckey, 0), 0) + 1);
+    }
+  }
+  d := base_confirmed;
+  for (i := 0; i < n; i := i + 1)
+  {
+    d := d + confirms[i];
+    aset (cumul, i, d);
+  }
+
+  -- Posts: same selection rule as the public index.vsp -- every .html, and
+  -- a .md only when no .html shares its stem. RES_MOD_TIME is the date the
+  -- weblog itself shows for a post.
+  html_stems := dict_new (61);
+  post_rows := vector ();
+  for (select RES_NAME as _name, RES_MOD_TIME as _mod, RES_ID as _id
+         from WS.WS.SYS_DAV_RES
+        where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
+          and RES_NAME not like '._%'
+          and RES_NAME not in ('index.vsp', 'newsletter.vsp', 'dashboard.html')) do
+  {
+    declare dpos int;
+    declare stem, ext VARCHAR;
+    dpos := strrchr (_name, '.');
+    stem := subseq (_name, 0, dpos);
+    ext := lower (subseq (_name, dpos + 1));
+    if (ext = 'html') dict_put (html_stems, stem, 1);
+    post_rows := vector_concat (post_rows, vector (vector (_mod, _id, ext, stem)));
+  }
+  categories := dict_new (61);
+  total_posts := 0;
+  posts_30 := 0;
+  for (i := 0; i < length (post_rows); i := i + 1)
+  {
+    declare r, parts any;
+    declare j int;
+    r := post_rows[i];
+    if (r[2] = 'md' and dict_get (html_stems, r[3], null) is not null)
+      goto next_post;
+    total_posts := total_posts + 1;
+    d := datediff ('day', start_d, r[0]);
+    if (d >= 0 and d / 7 < n) aset (posts, d / 7, posts[d / 7] + 1);
+    if (datediff ('day', r[0], now ()) < 30) posts_30 := posts_30 + 1;
+    for (select P.PROP_VALUE as _cat from WS.WS.SYS_DAV_PROP P
+          where P.PROP_PARENT_ID = r[1] and P.PROP_TYPE = 'R' and P.PROP_NAME = 'schema:category') do
+    {
+      if (_cat is not null and isstring (_cat))
+      {
+        parts := split_and_decode (cast (_cat as varchar), 0, '\0\0;');
+        for (j := 0; j < length (parts); j := j + 1)
+        {
+          declare one VARCHAR;
+          one := trim (parts[j]);
+          if (one <> '')
+            dict_put (categories, one, coalesce (dict_get (categories, one, 0), 0) + 1);
+        }
+      }
+    }
+  next_post: ;
+  }
+
+  if (total_sub = 0)
+    rate_txt := '--';
+  else
+    rate_txt := sprintf ('%d%%', (total_conf * 100) / total_sub);
+  if (conf_n = 0)
+    confirm_txt := '--';
+  else if (conf_minutes / conf_n < 120)
+    confirm_txt := sprintf ('%d min', conf_minutes / conf_n);
+  else
+    confirm_txt := sprintf ('%d h', conf_minutes / conf_n / 60);
+
+  kpis := sprintf (
+    '<div class="stats">' ||
+    '<div class="stat"><div class="n">%d</div><div class="l">Sign-ups, 30 days</div></div>' ||
+    '<div class="stat confirmed"><div class="n">%d</div><div class="l">Confirmed, 30 days</div></div>' ||
+    '<div class="stat"><div class="n">%s</div><div class="l">Confirmation rate</div></div>' ||
+    '<div class="stat"><div class="n">%s</div><div class="l">Avg. time to confirm</div></div>' ||
+    '<div class="stat"><div class="n">%d</div><div class="l">Posts, 30 days</div></div>' ||
+    '</div>',
+    signups_30, confirmed_30, rate_txt, confirm_txt, posts_30);
+
+  charts := concat (
+    '<div class="chart-grid">',
+    '<figure class="chart-card"><figcaption><h3>Confirmed subscribers</h3><p class="hint">',
+    sprintf ('Running total of confirmations. Unsubscribes aren&#39;t dated yet, so the %d who later unsubscribed are still counted here.', total_unsub),
+    '</p></figcaption>',
+    DB.DBA.WEBLOG_DASHBOARD_CHART ('line', cumul, week_starts, 'Confirmed subscribers, running total, last 26 weeks', 'confirmed in total'),
+    '</figure>',
+    '<figure class="chart-card"><figcaption><h3>New sign-ups per week</h3><p class="hint">Every sign-up, confirmed or not.</p></figcaption>',
+    DB.DBA.WEBLOG_DASHBOARD_CHART ('bar', signups, week_starts, 'New sign-ups per week, last 26 weeks', 'sign-ups'),
+    '</figure>',
+    '<figure class="chart-card"><figcaption><h3>Posts published per week</h3><p class="hint">By each post&#39;s date on the weblog.</p></figcaption>',
+    DB.DBA.WEBLOG_DASHBOARD_CHART ('bar', posts, week_starts, 'Posts published per week, last 26 weeks', 'posts'),
+    '</figure>',
+    '</div>');
+
+  tables := concat (
+    '<div class="import-grid">',
+    '<div class="import-card"><h3>Confirmed subscribers by country</h3><table class="subscribers compact"><thead><tr><th>Country</th><th class="num">Subscribers</th></tr></thead><tbody>',
+    DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (countries, 10),
+    '</tbody></table></div>',
+    sprintf ('<div class="import-card"><h3>Posts by category</h3><p class="hint">Top 10 across all %d posts. A post can carry several categories.</p><table class="subscribers compact"><thead><tr><th>Category</th><th class="num">Posts</th></tr></thead><tbody>', total_posts),
+    DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (categories, 10),
+    '</tbody></table></div>',
+    '</div>');
+
+  weekly_rows := '';
+  for (i := n - 1; i >= 0; i := i - 1)
+    weekly_rows := concat (weekly_rows, sprintf ('<tr><td>%s %d, %d</td><td class="num">%d</td><td class="num">%d</td><td class="num">%d</td></tr>',
+      months[month (week_starts[i]) - 1], dayofmonth (week_starts[i]), year (week_starts[i]), signups[i], cumul[i], posts[i]));
+
+  return concat (
+    '<section class="panel"><details class="collapsible" open><summary class="panel-h2">Trends &amp; Analytics</summary>',
+    '<p class="panel-desc">The last 26 weeks, from subscriber sign-up/confirmation times and post dates. Post views, email opens and clicks aren&#39;t recorded yet.</p>',
+    kpis, charts, tables,
+    '<details class="collapsible"><summary class="panel-h3">Weekly data</summary><table class="subscribers compact"><thead><tr><th>Week of</th><th class="num">Sign-ups</th><th class="num">Confirmed (total)</th><th class="num">Posts</th></tr></thead><tbody>',
+    weekly_rows,
+    '</tbody></table></details>',
+    '</details></section>');
+}
+;
+
 CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
 {
   declare coll, admin_user, admin_coll, dash_rows, html VARCHAR;
@@ -1576,6 +1925,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   declare dash_interval INTEGER;
   declare tag_schedule_html VARCHAR;
   declare email_templates_html VARCHAR;
+  declare analytics_html VARCHAR;
 
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
@@ -1672,6 +2022,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     dash_rows := concat (dash_rows, sprintf (
       '<tr><td>%V</td><td>%V</td><td><span class="badge %s">%V</span></td><td>%V</td><td>%V</td><td>%V</td><td>%s</td></tr>',
       coalesce (_n, '--'), _e, _s, _s, cast (_sub as varchar), coalesce (cast (_conf as varchar), '--'), coalesce (cast (_sent as varchar), '--'), action_cell));
+  }
+
+  -- Trends & Analytics panel. Isolated so a failure in it (e.g. an odd
+  -- property value) degrades to a note instead of breaking the whole
+  -- dashboard refresh.
+  analytics_html := '<section class="panel"><p class="admin-note">Trends &amp; Analytics could not be generated on this refresh.</p></section>';
+  {
+    declare exit handler for sqlstate '*' { ; };
+    analytics_html := DB.DBA.WEBLOG_DASHBOARD_ANALYTICS_HTML (coll);
   }
 
   -- Action forms post to the PUBLIC route's ?admin_action= dispatcher (the
@@ -1969,6 +2328,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     'table.manual-add{width:100%%;margin-bottom:.2rem;}table.manual-add input{width:100%%;}' ||
     'table.subscribers{width:100%%;border-collapse:collapse;}table.subscribers th,table.subscribers td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--border);font-size:.84rem;}' ||
     'table.subscribers th{text-transform:uppercase;font-size:.68rem;letter-spacing:.06em;color:var(--muted);}table.subscribers tbody tr:hover{background:var(--accent-soft);}' ||
+    '.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem;margin:0 0 1.25rem;}' ||
+    'figure.chart-card{margin:0;border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;min-width:0;}figure.chart-card h3{margin:0;font-size:.88rem;}figure.chart-card .hint{margin:.15rem 0 .6rem;}' ||
+    'svg.chart{display:block;width:100%%;height:auto;}svg.chart .grid{stroke:var(--border);stroke-width:1;}svg.chart .tick,svg.chart .xl{fill:var(--muted);font-size:11px;}svg.chart .val{fill:var(--text);font-size:11px;font-weight:600;}' ||
+    'svg.chart .bar{fill:var(--accent);}svg.chart .line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}svg.chart .dot{fill:var(--accent);stroke:var(--surface);stroke-width:2;}' ||
+    'svg.chart .hit{fill:var(--accent-soft);fill-opacity:0;}svg.chart g.m:hover .hit{fill-opacity:.7;}svg.chart .hover-dot{fill:var(--accent);stroke:var(--surface);stroke-width:2;opacity:0;}svg.chart g.m:hover .hover-dot{opacity:1;}' ||
+    'table.compact th,table.compact td{padding:.4rem .6rem;}table.subscribers .num{text-align:right;font-variant-numeric:tabular-nums;}' ||
     '.hint{color:var(--muted);font-size:.78rem;}.refreshed{color:var(--muted);font-size:.78rem;margin-top:1.5rem;}.admin-note{color:var(--danger);}' ||
     '.admin-banner{display:flex;justify-content:space-between;align-items:center;gap:1rem;background:var(--accent-soft);border:1px solid var(--accent);color:var(--text);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.86rem;}' ||
     '.admin-banner button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:0;text-decoration:underline;}' ||
@@ -1985,7 +2350,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     '<div class="page-head"><div><h1>Subscriber Dashboard</h1><p>Newsletter subscribers, delivery settings, and onboarding tools for this weblog.</p></div><button class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Toggle light and dark theme" title="Toggle theme" data-theme-toggle><span class="theme-switch-track"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.8 8.8 0 1 1 11.2 3 6.8 6.8 0 0 0 21 12.8z"/></svg><span class="theme-switch-thumb"></span></span></button></div>' ||
     '<div id="admin-banner-slot"></div>' ||
     '<div class="stats"><div class="stat"><div class="n">%d</div><div class="l">Total</div></div><div class="stat pending"><div class="n">%d</div><div class="l">Pending</div></div><div class="stat confirmed"><div class="n">%d</div><div class="l">Confirmed</div></div><div class="stat unsubscribed"><div class="n">%d</div><div class="l">Unsubscribed</div></div></div>' ||
-    '%s%s%s%s%s' ||
+    '%s%s%s%s%s%s' ||
     '<section class="panel"><details class="collapsible"><summary class="panel-h2">Subscribers <span class="count-badge">(%d)</span></summary><table class="subscribers"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Subscribed</th><th>Confirmed</th><th>Last Digest Sent</th><th>Actions</th></tr></thead><tbody>%s</tbody></table></details></section>' ||
     '<p class="refreshed">Refreshed %s</p>' ||
     '</main>' ||
@@ -1998,7 +2363,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     '<script>(function(){var m=new URLSearchParams(location.search).get("admin_msg");if(!m)return;var slot=document.getElementById("admin-banner-slot");if(!slot)return;var b=document.createElement("div");b.className="admin-banner";var t=document.createElement("span");t.textContent=m;var x=document.createElement("button");x.type="button";x.textContent="Dismiss";x.addEventListener("click",function(){b.remove();});b.appendChild(t);b.appendChild(x);slot.appendChild(b);try{history.replaceState(null,"",location.pathname);}catch(e){}})();</script>' ||
     '<script>(function(){var b=document.querySelector("[data-theme-toggle]");if(!b)return;function cur(){var e=document.documentElement.getAttribute("data-theme");if(e==="dark"||e==="light")return e;return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}b.setAttribute("aria-checked",cur()==="dark"?"true":"false");b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);b.setAttribute("aria-checked",n==="dark"?"true":"false");try{window.localStorage.setItem("weblog-dashboard-theme",n);}catch(e){}});})();</script>' ||
     '</body></html>',
-    dash_total, dash_pending, dash_confirmed, dash_unsubscribed, controls_html, email_config_html, email_templates_html, import_html, tag_schedule_html, dash_total, dash_rows, cast (now () as varchar));
+    dash_total, dash_pending, dash_confirmed, dash_unsubscribed, analytics_html, controls_html, email_config_html, email_templates_html, import_html, tag_schedule_html, dash_total, dash_rows, cast (now () as varchar));
 
   stream := string_output ();
   http (html, stream);
