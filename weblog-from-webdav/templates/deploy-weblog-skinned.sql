@@ -190,6 +190,29 @@ CREATE PROCEDURE DB.DBA.WEBLOG_FIX_MOJIBAKE (IN s VARCHAR)
 }
 ;
 
+-- Shared, persistent helper: decode a post title/category/snippet from the
+-- raw UTF-8 bytes blob_to_string() returns into a WIDE string, for use as a
+-- sprintf('%V', ...) argument. Verified live 2026-09-25: sprintf's %V
+-- treats a NARROW string as ISO-8859-1 and re-encodes every byte above 127
+-- as UTF-8, so a correct em dash (E2 80 94) was emitted as C3 A2 C2 80 C2 94
+-- in every title in the sidebar, post list, hero, and feeds. %V on
+-- the decoded WIDE string emits the correct UTF-8 bytes, and sprintf's
+-- result is itself a plain narrow string, so nothing downstream ever has to
+-- mix wide and narrow values. charset_recode() returns 0 (not a string) on
+-- input that is not valid UTF-8 -- in that case fall back to the original
+-- string, which %V then correctly treats as Latin-1.
+CREATE PROCEDURE DB.DBA.WEBLOG_UTF8_DECODE (IN s ANY)
+{
+  declare w any;
+  if (s is null) return '';
+  if (iswidestring (s)) return s;
+  if (not isstring (s)) return cast (s as varchar);
+  w := charset_recode (s, 'UTF-8', '_WIDE_');
+  if (iswidestring (w)) return w;
+  return s;
+}
+;
+
 -- Shared, persistent helper: read a custom WebDAV property set on a
 -- COLLECTION resource (not a post), the config mechanism for weblog:skin,
 -- weblog:newsletterEnabled and friends. Falls back to default_val when the
@@ -1296,7 +1319,7 @@ next_row: ;
       facet_active := '''';
       if (facet_category = selected_category)
         facet_active := '' is-active'';
-      category_cloud := concat (category_cloud, sprintf (''<a class="facet-option%V" href="{{PUBLIC_ROUTE}}?category=%U&amp;q=%U&amp;from=%U&amp;to=%U"><span class="facet-name">%V</span><span class="facet-count">%d</span></a>'', facet_active, facet_category, q, from_date, to_date, facet_category, facet_count));
+      category_cloud := concat (category_cloud, sprintf (''<a class="facet-option%V" href="{{PUBLIC_ROUTE}}?category=%U&amp;q=%U&amp;from=%U&amp;to=%U"><span class="facet-name">%V</span><span class="facet-count">%d</span></a>'', facet_active, facet_category, q, from_date, to_date, DB.DBA.WEBLOG_UTF8_DECODE (facet_category), facet_count));
     }
   }
 
@@ -1340,13 +1363,13 @@ next_row: ;
       http (''<item>
 '');
       http (sprintf (''<title>%V</title>
-'', ftitle));
+'', DB.DBA.WEBLOG_UTF8_DECODE (ftitle)));
       http (sprintf (''<link>%s{{PUBLIC_ROUTE}}?post=%U</link>
 '', site_base, fname));
       http (sprintf (''<guid isPermaLink="true">%s{{PUBLIC_ROUTE}}?post=%U</guid>
 '', site_base, fname));
       http (sprintf (''<description>%V</description>
-'', ftitle));
+'', DB.DBA.WEBLOG_UTF8_DECODE (ftitle)));
       http (''</item>
 '');
     }
@@ -1390,7 +1413,7 @@ next_row: ;
       http (''<entry>
 '');
       http (sprintf (''<title>%V</title>
-'', ftitle));
+'', DB.DBA.WEBLOG_UTF8_DECODE (ftitle)));
       http (sprintf (''<id>%s{{PUBLIC_ROUTE}}?post=%U</id>
 '', site_base, fname));
       http (sprintf (''<link href="%s{{PUBLIC_ROUTE}}?post=%U"/>
@@ -1398,7 +1421,7 @@ next_row: ;
       http (sprintf (''<updated>%04d-%02d-%02dT00:00:00Z</updated>
 '', year (fmod), month (fmod), dayofmonth (fmod)));
       http (sprintf (''<summary>%V</summary>
-'', ftitle));
+'', DB.DBA.WEBLOG_UTF8_DECODE (ftitle)));
       http (''</entry>
 '');
     }
@@ -1731,7 +1754,7 @@ next_row: ;
       rmod := aref (aref (posts, i), 1);
       rtitle := aref (aref (posts, i), 2);
       rdate := sprintf (''%s %d, %d'', aref (months, month (rmod) - 1), dayofmonth (rmod), year (rmod));
-      http (sprintf (''<li><a href="{{PUBLIC_ROUTE}}?post=%U">%V</a><div class="results-meta">%V</div></li>'', rname, rtitle, rdate));
+      http (sprintf (''<li><a href="{{PUBLIC_ROUTE}}?post=%U">%V</a><div class="results-meta">%V</div></li>'', rname, DB.DBA.WEBLOG_UTF8_DECODE (rtitle), rdate));
     }
     http (''</ul></div>'');
   }
@@ -1754,16 +1777,16 @@ next_row: ;
       http (sprintf (''<div class="hero-kicker">Latest Post &mdash; %V</div>'', cdate));
     else
       http (sprintf (''<div class="hero-kicker">From the Archive &mdash; %V</div>'', cdate));
-    http (sprintf (''<h2>%V</h2>'', ctitle));
+    http (sprintf (''<h2>%V</h2>'', DB.DBA.WEBLOG_UTF8_DECODE (ctitle)));
     {
       declare permalink_url varchar;
       permalink_url := sprintf (''%s{{DAV_COLLECTION}}%U'', site_base, cname);
       http (sprintf (''<div class="post-meta">Published %V &middot; <a class="post-permalink" href="%V" target="_top" rel="noopener noreferrer">WebDAV Permalink</a></div>'', cdate, permalink_url));
     }
     if (cext = ''html'')
-      http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, ctitle));
+      http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, DB.DBA.WEBLOG_UTF8_DECODE (ctitle)));
     else
-      http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, ctitle));
+      http (sprintf (''<iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>'', cname, DB.DBA.WEBLOG_UTF8_DECODE (ctitle)));
     http (''</div>'');
   }
   if (n > 0)
@@ -1787,7 +1810,7 @@ next_row: ;
         http (sprintf (''<span class="card-kicker">Pinned &middot; %V</span>'', adate));
       else
         http (sprintf (''<span class="card-kicker">%V</span>'', adate));
-      http (sprintf (''<h3><a href="{{PUBLIC_ROUTE}}?post=%U">%V</a></h3>'', aname, atitle));
+      http (sprintf (''<h3><a href="{{PUBLIC_ROUTE}}?post=%U">%V</a></h3>'', aname, DB.DBA.WEBLOG_UTF8_DECODE (atitle)));
       http (''</article>'');
     }
     http (''</div>'');
@@ -1819,8 +1842,8 @@ next_row: ;
       rcat := aref (aref (posts, i), 4);
       rdate := sprintf (''%s %d, %d'', aref (months, month (rmod) - 1), dayofmonth (rmod), year (rmod));
       http (''<li>'');
-      http (sprintf (''<a href="{{PUBLIC_ROUTE}}?post=%U">%V</a>'', rname, rtitle));
-      if (rcat <> '''') http (sprintf (''<span class="a-category">%V</span>'', rcat));
+      http (sprintf (''<a href="{{PUBLIC_ROUTE}}?post=%U">%V</a>'', rname, DB.DBA.WEBLOG_UTF8_DECODE (rtitle)));
+      if (rcat <> '''') http (sprintf (''<span class="a-category">%V</span>'', DB.DBA.WEBLOG_UTF8_DECODE (rcat)));
       http (sprintf (''<div class="results-meta">%V</div>'', rdate));
       http (''</li>'');
     }
@@ -1847,7 +1870,7 @@ next_row: ;
       permalink_url := sprintf (''%s{{DAV_COLLECTION}}%U'', site_base, cname);
       http (sprintf (''<div class="post-meta">Published %V &middot; <a class="post-permalink" href="%V" target="_top" rel="noopener noreferrer">WebDAV Permalink</a></div>'', cdate, permalink_url));
     }
-    http (sprintf (''<div class="post-body"><iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe></div>'', cname, ctitle));
+    http (sprintf (''<div class="post-body"><iframe class="post-frame" src="{{PUBLIC_ROUTE}}?raw=%U" title="%V" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe></div>'', cname, DB.DBA.WEBLOG_UTF8_DECODE (ctitle)));
     http (''</article>'');
   }
 ?>
@@ -1903,9 +1926,9 @@ next_row: ;
       http (sprintf (''<span class="a-date"><span class="pin-badge" aria-hidden="true"></span>%V</span>'', adate));
     else
       http (sprintf (''<span class="a-date">%V</span>'', adate));
-    http (sprintf (''<a href="{{PUBLIC_ROUTE}}?post=%U">%V</a>'', aname, atitle));
+    http (sprintf (''<a href="{{PUBLIC_ROUTE}}?post=%U">%V</a>'', aname, DB.DBA.WEBLOG_UTF8_DECODE (atitle)));
     if (acategory <> '''')
-      http (sprintf (''<span class="a-category">%V</span>'', acategory));
+      http (sprintf (''<span class="a-category">%V</span>'', DB.DBA.WEBLOG_UTF8_DECODE (acategory)));
     http (''</li>'');
   }
 ?>
