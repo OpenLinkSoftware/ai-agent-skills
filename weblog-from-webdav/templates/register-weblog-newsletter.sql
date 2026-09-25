@@ -756,7 +756,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
     unsub_url := sprintf ('%s%s?nl_action=unsubscribe&token=%s', confirm_base, public_route, tok);
     bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
     smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email,
-      sprintf ('Date: %s\r\nSubject: %s\r\n%sContent-Type: text/plain; charset=UTF-8\r\n\r\n%s', date_rfc1123 (now ()), subj, bulk_hdrs, body));
+      DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, body,
+        DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
+          DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('Confirm your subscription', body,
+            sprintf ('%s%s?nl_action=confirm&token=%s', confirm_base, public_route, tok), 'Confirm subscription'),
+          from_name, unsub_url, '', sprintf ('One click to confirm your subscription to %s.', from_name),
+          concat (confirm_base, public_route),
+          DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''))));
   }
 
   return 'Almost there -- check your inbox and click the confirmation link.';
@@ -902,7 +908,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
     '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
     vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{RESUBSCRIBE_URL}}', public_route));
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
-  msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sContent-Type: text/plain; charset=UTF-8\r\n\r\n%s', date_rfc1123 (now ()), subj, bulk_hdrs, body);
+  msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, body,
+    DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('You have been unsubscribed', body, null, null),
+      from_name, null, '', sprintf ('You will not receive further emails from %s.', from_name),
+      null, DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -951,7 +961,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
     '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
     vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{UNSUBSCRIBE_URL}}', unsub_url));
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
-  msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sContent-Type: text/plain; charset=UTF-8\r\n\r\n%s', date_rfc1123 (now ()), subj, bulk_hdrs, body);
+  msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, body,
+    DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (concat ('Welcome to ', from_name), body,
+        concat (base_url, public_route), 'Visit the weblog'),
+      from_name, unsub_url, '', sprintf ('You have been added to the %s mailing list.', from_name),
+      concat (base_url, public_route),
+      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -1380,12 +1396,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_TITLE (IN dav_collection VARCHAR,
   t := replace (t, '<title>', '');
   t := replace (t, '</title>', '');
   t := trim (t);
-  t := replace (t, '&amp;', '&');
-  t := replace (t, '&quot;', chr (34));
-  t := replace (t, '&#39;', chr (39));
-  t := replace (t, '&apos;', chr (39));
-  t := replace (t, '&ndash;', '-');
-  t := replace (t, '&mdash;', '-');
+  -- Plain text, every character reference decoded (&#x27; included):
+  -- the card HTML-escapes it and the Subject header RFC 2047-encodes it.
+  t := DB.DBA.WEBLOG_HTML_UNESCAPE (t);
+  -- Same stored-title repair the weblog itself applies (deploy-weblog-skinned.sql).
+  t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
   if (t = '') return filename;
   return t;
 }
@@ -1589,81 +1604,355 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_EXCERPT (IN dav_collection VARCHA
     else
       frag := subseq (frag, 0, max_len);
     frag := concat (frag, '&hellip;');
+    frag := DB.DBA.WEBLOG_NEWSLETTER_CLOSE_OPEN_TAGS (frag);
   }
 
   return vector (frag, extra_css);
 }
 ;
 
--- Render one post as a Substack-style card: the title IS the hyperlink to
--- the post (grounded in the blog's own public domain, never a relative
--- path -- relative links don't resolve inside a mail client), the post's
--- own content inlined below it, then a plain-text-style "read more" link
--- for the (possibly truncated) rest.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (IN title_html VARCHAR, IN url VARCHAR, IN excerpt_html VARCHAR)
+-- ==========================================================================
+-- Email rendering: a newsletter layout in the style Substack sends, built
+-- for mail clients rather than browsers -- a centered 600px table layout,
+-- inline styles on every element (the post's own stylesheet can't
+-- override them), a hidden preview line (preheader), a masthead, title /
+-- subtitle / byline, table-based buttons that render in Outlook, and a
+-- footer with unsubscribe + optional postal address.
+--
+-- Every message is multipart/alternative (plain text + HTML), with each
+-- part base64-encoded: SMTP limits lines to 998 bytes, and an inlined post
+-- body easily exceeds that on a single line.
+-- ==========================================================================
+
+-- RFC 2047 encoded-word for a header value containing non-ASCII bytes
+-- (e.g. an em dash or accented letter in a post title used as Subject).
+CREATE PROCEDURE DB.DBA.WEBLOG_MIME_HEADER_TEXT (IN s VARCHAR)
 {
-  return sprintf (
-    '<div style="margin:0 0 36px 0">' ||
-    '<h2 style="margin:0 0 14px 0;font-size:24px;line-height:1.3;font-family:Georgia,serif"><a href="%s" style="color:#1f4e79;text-decoration:none">%s</a></h2>' ||
-    '<div style="font-size:16px;line-height:1.7;color:#222">%s</div>' ||
-    '<p style="margin:14px 0 0 0"><a href="%s" style="color:#1f4e79;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:bold">Read the full post &rarr;</a></p>' ||
-    '</div>',
-    url, title_html, excerpt_html, url);
+  declare i int;
+  if (s is null) return '';
+  for (i := 0; i < length (s); i := i + 1)
+    if (s[i] > 127)
+      return sprintf ('=?UTF-8?B?%s?=', replace (replace (encode_base64 (s), '\r', ''), '\n', ''));
+  return s;
 }
 ;
 
--- Wrap one or more post cards in the shared email chrome (kicker line,
--- white card on a light background, unsubscribe footer). Shared by both
--- digest modalities so a single visual identity covers "one post now" and
--- "several posts this week".
--- extra_css (default '') is the carried-along stylesheet from one or more
--- posts' own <head> -- see WEBLOG_NEWSLETTER_POST_EXCERPT's 'full' mode.
--- It is embedded AFTER this shell's own <style> so that, on any selector
--- collision (unlikely: every element this shell itself renders carries an
--- inline style="...", which always wins over an embedded stylesheet
--- regardless of order or specificity), the source CSS -- not this shell's
--- chrome -- is what loses. This replaces an earlier approach of stripping
--- every post's <style> and hand-authoring substitute CSS one widget class
--- at a time (comparison matrix, then a synopsis panel, then a chip row --
--- the same root cause resurfacing three separate times): the post's own
--- stylesheet already gets every one of its own widgets right, including
--- the :root custom properties those rules depend on, which no
--- hand-authored substitute could keep pace with as this generator grows
--- new components.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body_html VARCHAR, IN from_name VARCHAR, IN unsub_url VARCHAR, IN extra_css VARCHAR := '')
+-- Base64 body with CRLF line breaks every 76 characters (RFC 2045).
+CREATE PROCEDURE DB.DBA.WEBLOG_MIME_BASE64 (IN s VARCHAR)
 {
-  return sprintf (
-    '<!DOCTYPE html><html><head><meta charset="UTF-8">' ||
-    '<style>%s</style>' ||
+  declare b64 VARCHAR;
+  declare ses any;
+  declare i, n int;
+  b64 := replace (replace (encode_base64 (coalesce (s, '')), '\r', ''), '\n', '');
+  ses := string_output ();
+  n := length (b64);
+  for (i := 0; i < n; i := i + 76)
+  {
+    http (subseq (b64, i, case when i + 76 < n then i + 76 else n end), ses);
+    http ('\r\n', ses);
+  }
+  return string_output_string (ses);
+}
+;
+
+-- A complete message: Date, Subject, the caller's bulk headers
+-- (Message-ID, List-*, Reply-To ...), then a multipart/alternative body.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (IN subj VARCHAR, IN bulk_hdrs VARCHAR, IN text_body VARCHAR, IN html_body VARCHAR)
+{
+  declare boundary VARCHAR;
+  boundary := sprintf ('=_weblog_%s', md5 (concat (cast (now () as varchar), cast (rnd (1000000000) as varchar))));
+  return concat (
+    sprintf ('Date: %s\r\nSubject: %s\r\n', date_rfc1123 (now ()), DB.DBA.WEBLOG_MIME_HEADER_TEXT (subj)),
+    coalesce (bulk_hdrs, ''),
+    'MIME-Version: 1.0\r\n',
+    sprintf ('Content-Type: multipart/alternative; boundary="%s"\r\n\r\n', boundary),
+    'This is a multi-part message in MIME format.\r\n\r\n',
+    sprintf ('--%s\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n', boundary),
+    DB.DBA.WEBLOG_MIME_BASE64 (text_body),
+    sprintf ('\r\n--%s\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n', boundary),
+    DB.DBA.WEBLOG_MIME_BASE64 (html_body),
+    sprintf ('\r\n--%s--\r\n', boundary));
+}
+;
+
+-- Table-based ("bulletproof") button: renders as a filled button in
+-- Outlook, Gmail and Apple Mail alike. url and label are escaped here.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_BUTTON (IN url VARCHAR, IN label VARCHAR)
+{
+  return concat (
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px auto 8px auto"><tr>',
+    '<td align="center" bgcolor="#1f4e79" style="border-radius:6px;background:#1f4e79">',
+    '<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (url), '" target="_blank" style="display:inline-block;padding:13px 28px;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:6px">',
+    DB.DBA.WEBLOG_HTML_ESC_BYTES (label), '</a></td></tr></table>');
+}
+;
+
+-- HTML body for a short transactional message (confirm / activation /
+-- unsubscribe notice) from its admin-editable plain-text template: the
+-- text is escaped, blank lines become paragraphs, and the line holding the
+-- primary link becomes a button (the link stays visible below it as text,
+-- for clients that block buttons or readers who want to copy it).
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (IN heading VARCHAR, IN txt VARCHAR, IN button_url VARCHAR, IN button_label VARCHAR)
+{
+  declare paras any;
+  declare out_html, p, esc_url VARCHAR;
+  declare i, button_done int;
+  button_done := 0;
+  txt := replace (coalesce (txt, ''), '\r\n', '\n');
+  paras := split_and_decode (txt, 0, '\0\0\n');
+  out_html := concat ('<h1 style="margin:0 0 18px 0;font-family:Georgia,''Times New Roman'',serif;font-size:26px;line-height:1.25;font-weight:bold;color:#111111">',
+    DB.DBA.WEBLOG_HTML_ESC_BYTES (heading), '</h1>');
+  esc_url := case when button_url is null then null else DB.DBA.WEBLOG_HTML_ESC_BYTES (button_url) end;
+  p := '';
+  -- Group consecutive non-blank lines into one paragraph.
+  for (i := 0; i <= length (paras); i := i + 1)
+  {
+    declare line VARCHAR;
+    line := case when i < length (paras) then trim (paras[i]) else '' end;
+    if (line <> '')
+    {
+      if (button_url is not null and line = button_url)
+      {
+        if (p <> '')
+          out_html := concat (out_html, '<p style="margin:0 0 16px 0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#333333">', p, '</p>');
+        p := '';
+        out_html := concat (out_html, DB.DBA.WEBLOG_NEWSLETTER_BUTTON (button_url, button_label),
+          '<p style="margin:0 0 20px 0;text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#8a8a8a;word-break:break-all">',
+          'Or open this link: <a href="', esc_url, '" style="color:#8a8a8a">', esc_url, '</a></p>');
+        button_done := 1;
+      }
+      else if ((line like 'http://%' or line like 'https://%') and strchr (line, ' ') is null)
+        -- Any other bare URL line (e.g. an unsubscribe link) becomes a link.
+        p := concat (p, case when p = '' then '' else '<br>' end, '<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (line),
+          '" style="color:#1f4e79;word-break:break-all">', DB.DBA.WEBLOG_HTML_ESC_BYTES (line), '</a>');
+      else
+        p := concat (p, case when p = '' then '' else '<br>' end, DB.DBA.WEBLOG_HTML_ESC_BYTES (line));
+    }
+    else if (p <> '')
+    {
+      out_html := concat (out_html, '<p style="margin:0 0 16px 0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#333333">', p, '</p>');
+      p := '';
+    }
+  }
+  -- An admin-edited template may not put the link on a line of its own;
+  -- the button still goes at the end so the action is never missing.
+  if (button_url is not null and button_done = 0)
+    out_html := concat (out_html, DB.DBA.WEBLOG_NEWSLETTER_BUTTON (button_url, button_label));
+  return out_html;
+}
+;
+
+-- Close every element a truncated HTML fragment leaves open. The digest
+-- cuts each post body at a length limit (on a tag boundary), which can
+-- leave e.g. a display:none container open -- and then everything after
+-- it in the email (later posts, the footer with Unsubscribe) is hidden
+-- too (caught locally 2026-09-25 with a comparison-table view). Also
+-- terminates an unclosed comment and drops a trailing partial tag.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_CLOSE_OPEN_TAGS (IN frag VARCHAR)
+{
+  declare lc, tag, tname, closing VARCHAR;
+  declare stack, voids any;
+  declare i, p, gt, e, k, guard int;
+  if (frag is null or frag = '') return frag;
+  voids := vector ('area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr');
+  stack := vector ();
+  lc := lower (frag);
+  i := 0;
+  guard := 0;
+  while (guard < 100000)
+  {
+    guard := guard + 1;
+    p := strstr (subseq (lc, i), '<');
+    if (p is null) goto done;
+    p := p + i;
+    if (subseq (lc, p, case when p + 4 < length (lc) then p + 4 else length (lc) end) = '<!--')
+    {
+      e := strstr (subseq (lc, p + 4), '-->');
+      if (e is null)
+      {
+        frag := concat (frag, '-->');
+        goto done;
+      }
+      i := p + 4 + e + 3;
+    }
+    else
+    {
+      gt := strstr (subseq (lc, p), '>');
+      if (gt is null)
+      {
+        -- A tag cut in half: drop it.
+        frag := subseq (frag, 0, p);
+        goto done;
+      }
+      tag := subseq (lc, p + 1, p + gt);
+      if (subseq (tag, 0, 1) = '/')
+      {
+        tname := regexp_substr ('^[a-z0-9]+', subseq (tag, 1), 0);
+        -- Pop back to the matching open element, if there is one.
+        for (k := length (stack) - 1; k >= 0; k := k - 1)
+          if (stack[k] = tname)
+          {
+            stack := subseq (stack, 0, k);
+            k := -1;
+          }
+      }
+      else if (subseq (tag, 0, 1) <> '!' and subseq (tag, 0, 1) <> '?')
+      {
+        tname := regexp_substr ('^[a-z0-9]+', tag, 0);
+        if (tname is not null and position (tname, voids) = 0 and subseq (trim (tag), length (trim (tag)) - 1) <> '/')
+          stack := vector_concat (stack, vector (tname));
+      }
+      i := p + gt + 1;
+    }
+  }
+done:
+  closing := '';
+  for (k := length (stack) - 1; k >= 0; k := k - 1)
+    closing := concat (closing, '</', stack[k], '>');
+  return concat (frag, closing);
+}
+;
+
+-- Subtitle and reading time for one post. The subtitle is the page's own
+-- <meta name="description"> (or og:description), returned both as safe
+-- HTML and as plain text; reading time is visible words / 230, min 1.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_META (IN dav_collection VARCHAR, IN filename VARCHAR)
+{
+  declare coll, content, lc, head, tag, val, txt VARCHAR;
+  declare p, s, e, c, words int;
+  declare exit handler for sqlstate '*' { return vector ('', '', 0); };
+  coll := trim (dav_collection);
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  content := '';
+  for (select blob_to_string (RES_CONTENT) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
+  {
+    content := _c;
+  }
+  if (content is null or content = '') return vector ('', '', 0);
+  lc := lower (content);
+  val := '';
+  p := strstr (lc, 'name="description"');
+  if (p is null) p := strstr (lc, 'property="og:description"');
+  if (p is not null)
+  {
+    s := strrchr (subseq (lc, 0, p), '<');
+    e := strstr (subseq (lc, p), '>');
+    if (s is not null and e is not null)
+    {
+      tag := subseq (content, s, p + e);
+      c := strstr (lower (tag), 'content="');
+      if (c is not null)
+      {
+        e := strstr (subseq (tag, c + 9), '"');
+        if (e is not null) val := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (subseq (tag, c + 9, c + 9 + e)));
+      }
+    }
+  }
+  -- Reading time from the visible text only.
+  txt := content;
+  p := strstr (lc, '<body');
+  if (p is not null) txt := subseq (content, p);
+  txt := DB.DBA.WEBLOG_NEWSLETTER_STRIP_BLOCK (txt, '<script', '</script>');
+  txt := DB.DBA.WEBLOG_NEWSLETTER_STRIP_BLOCK (txt, '<style', '</style>');
+  txt := regexp_replace (txt, '<[^>]*>', ' ', 1, null);
+  txt := regexp_replace (txt, '[ \t\r\n]+', ' ', 1, null);
+  words := length (txt) - length (replace (txt, ' ', ''));
+  return vector (DB.DBA.WEBLOG_HTML_ESC_BYTES (val), val, case when words < 230 then 1 else words / 230 end);
+}
+;
+
+-- One post, laid out like a Substack issue: linked title, subtitle, a
+-- byline row (publication, date, reading time) between hairlines, a
+-- "Read online" link, the post body, then a button to the full post.
+-- title_html / subtitle_html must already be HTML-safe; byline is plain
+-- text and is escaped here.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (IN title_html VARCHAR, IN url VARCHAR, IN excerpt_html VARCHAR, IN subtitle_html VARCHAR := '', IN byline VARCHAR := '')
+{
+  declare esc_url VARCHAR;
+  esc_url := DB.DBA.WEBLOG_HTML_ESC_BYTES (url);
+  return concat (
+    '<div style="margin:0 0 8px 0">',
+    '<h1 class="wl-title" style="margin:0 0 10px 0;font-family:Georgia,''Times New Roman'',serif;font-size:32px;line-height:1.2;font-weight:bold;color:#111111">',
+    '<a href="', esc_url, '" target="_blank" style="color:#111111;text-decoration:none">', title_html, '</a></h1>',
+    case when coalesce (subtitle_html, '') = '' then '' else concat (
+      '<p style="margin:0 0 20px 0;font-family:Helvetica,Arial,sans-serif;font-size:18px;line-height:1.45;color:#6b6b6b">', subtitle_html, '</p>') end,
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6;margin:0 0 26px 0"><tr>',
+    '<td style="padding:11px 0;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;color:#6b6b6b">', DB.DBA.WEBLOG_HTML_ESC_BYTES (coalesce (byline, '')), '</td>',
+    '<td align="right" style="padding:11px 0;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;white-space:nowrap">',
+    '<a href="', esc_url, '" target="_blank" style="color:#1f4e79;text-decoration:none;font-weight:bold">Read online</a></td>',
+    '</tr></table>',
+    '<div class="wl-body" style="font-family:Georgia,''Times New Roman'',serif;font-size:17px;line-height:1.7;color:#222222">',
+    -- In full-content mode the post body starts with its own <h1>, which
+    -- would repeat the title directly above it.
+    DB.DBA.WEBLOG_NEWSLETTER_STRIP_ELEMENT (coalesce (excerpt_html, ''), '<h1', 'h1'), '</div>',
+    DB.DBA.WEBLOG_NEWSLETTER_BUTTON (url, 'Read the full post'),
+    '</div>');
+}
+;
+
+-- Divider between posts in a digest.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER ()
+{
+  return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:30px 0 34px 0"><tr><td style="border-top:1px solid #e6e6e6;font-size:0;line-height:0">&nbsp;</td></tr></table>';
+}
+;
+
+-- The outer email document. kicker is the <title> and the preview-line
+-- fallback; from_name is the masthead (linked to site_url when given);
+-- extra_css is a post's own stylesheet (full-content mode), which inline
+-- styles here always outrank. unsub_url / postal_address are optional.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body_html VARCHAR, IN from_name VARCHAR, IN unsub_url VARCHAR, IN extra_css VARCHAR := '', IN preheader VARCHAR := '', IN site_url VARCHAR := null, IN postal_address VARCHAR := null)
+{
+  declare pub, masthead, footer_links VARCHAR;
+  pub := DB.DBA.WEBLOG_HTML_ESC_BYTES (coalesce (from_name, ''));
+  if (site_url is not null and trim (site_url) <> '')
+    masthead := concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="color:#111111;text-decoration:none">', pub, '</a>');
+  else
+    masthead := pub;
+  footer_links := '';
+  if (unsub_url is not null and trim (unsub_url) <> '')
+    footer_links := concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (unsub_url), '" target="_blank" style="color:#8a8a8a;text-decoration:underline">Unsubscribe</a>');
+  if (site_url is not null and trim (site_url) <> '')
+    footer_links := concat (footer_links, case when footer_links = '' then '' else ' &nbsp;&middot;&nbsp; ' end,
+      '<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="color:#8a8a8a;text-decoration:underline">Visit the weblog</a>');
+  if (coalesce (preheader, '') = '') preheader := coalesce (kicker, '');
+  return concat (
+    '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">',
+    '<meta name="viewport" content="width=device-width,initial-scale=1">',
+    '<meta name="x-apple-disable-message-reformatting">',
+    '<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">',
+    '<title>', DB.DBA.WEBLOG_HTML_ESC_BYTES (coalesce (kicker, '')), '</title>',
+    '<style>', coalesce (extra_css, ''), '</style>',
     -- This generator family uses a scroll-triggered reveal-on-scroll
     -- pattern (an IntersectionObserver flips a "visible" class) for the
     -- synopsis deck, HowTo steps, FAQ items, and some whole sections --
     -- CSS classes like .anim-fade / .fade-in start at opacity:0 and rely
     -- on that JS to ever reach opacity:1. Email has no JS, so carrying the
     -- stylesheet along verbatim left entire sections permanently invisible
-    -- (caught live 2026-09-22: the whole synopsis section rendered as a
-    -- blank white gap, confirmed via getComputedStyle -- correct DOM,
-    -- correct colors, opacity:0). This unconditionally forces the
-    -- post-reveal end state; !important since a scoped source selector
-    -- could otherwise out-specificity a same-name override.
-    '<style>.anim-fade,.fade-in{opacity:1 !important;transform:none !important}</style>' ||
-    -- This generator marks up inline technical identifiers (table names,
-    -- graph URIs, IRIs) with plain <code>, but none of its own stylesheets
-    -- give bare <code> any visual treatment at all (confirmed across this
-    -- whole corpus, not just one post) -- so a dense technical sentence
-    -- renders as an undifferentiated wall of text, code and prose blurred
-    -- together (flagged live 2026-09-23). A small monospace chip is enough
-    -- to make each identifier scannable against the surrounding prose.
-    '<style>code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:0.9em;background:#f4f4f4;border:1px solid #e2e2e2;border-radius:4px;padding:1px 5px}</style>' ||
-    '</head>' ||
-    '<body style="margin:0;padding:0;background:#f4f4f4;font-family:Helvetica,Arial,sans-serif;color:#222">' ||
-    '<div style="max-width:640px;margin:0 auto;background:#ffffff;padding:32px 28px">' ||
-    '<p style="margin:0 0 22px 0;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#888">%s</p>' ||
-    '%s' ||
-    '<hr style="border:none;border-top:1px solid #e2e2e2;margin:8px 0 20px 0">' ||
-    '<p style="font-size:12px;color:#999;margin:0">You are receiving this because you subscribed to %s.<br><a href="%s" style="color:#999">Unsubscribe</a></p>' ||
-    '</div></body></html>',
-    coalesce (extra_css, ''), kicker, body_html, from_name, unsub_url);
+    -- (caught live 2026-09-22). This forces the post-reveal end state.
+    '<style>.anim-fade,.fade-in{opacity:1 !important;transform:none !important}</style>',
+    -- Bare <code> gets no styling from the generator's own stylesheets,
+    -- so a dense technical sentence reads as one wall of text (flagged
+    -- live 2026-09-23); a small monospace chip makes identifiers scannable.
+    '<style>code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:0.88em;background:#f4f4f4;border:1px solid #e2e2e2;border-radius:4px;padding:1px 5px}',
+    '.wl-body{overflow-wrap:anywhere;word-break:break-word}.wl-body img,.wl-body svg,.wl-body table,.wl-body video{max-width:100% !important;height:auto !important}.wl-body pre{white-space:pre-wrap !important}',
+    '@media (max-width:620px){.wl-card{padding:28px 20px !important}.wl-title{font-size:26px !important}.wl-body{font-size:16px !important}}</style>',
+    '</head>',
+    '<body style="margin:0;padding:0;background:#f5f5f3;-webkit-text-size-adjust:100%">',
+    -- Preview line shown next to the subject in the inbox; the trailing
+    -- zero-width filler keeps body text from spilling into the preview.
+    '<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#f5f5f3;opacity:0">',
+    DB.DBA.WEBLOG_HTML_ESC_BYTES (preheader), repeat ('&#8199;&#65279;&#847; ', 60), '</div>',
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f3" style="background:#f5f5f3"><tr><td align="center" style="padding:28px 12px 36px 12px">',
+    '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;table-layout:fixed">',
+    '<tr><td align="center" style="padding:0 0 18px 0;font-family:Georgia,''Times New Roman'',serif;font-size:19px;line-height:1.3;font-weight:bold;color:#111111">', masthead, '</td></tr>',
+    '<tr><td class="wl-card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e8e8e4;border-radius:8px;padding:40px 44px">', coalesce (body_html, ''), '</td></tr>',
+    '<tr><td align="center" style="padding:26px 24px 0 24px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8a8a">',
+    'You&#39;re receiving this because you subscribed to ', pub, '.',
+    case when footer_links = '' then '' else concat ('<br>', footer_links) end,
+    case when coalesce (trim (postal_address), '') = '' then '' else concat ('<br>', DB.DBA.WEBLOG_HTML_ESC_BYTES (trim (postal_address))) end,
+    '</td></tr>',
+    '</table></td></tr></table></body></html>');
 }
 ;
 
@@ -1693,6 +1982,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   declare posts, post_cards any;
   declare digest_body_html, digest_extra_css VARCHAR;
   declare i INTEGER;
+  declare digest_text, digest_preheader, site_url, postal_address, sep VARCHAR;
+  declare months any;
 
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
@@ -1749,6 +2040,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   -- Render every post's card ONCE (title, absolute URL, inlined content),
   -- outside the subscriber loop -- the post content itself doesn't vary by
   -- subscriber, only the per-subscriber unsubscribe link does.
+  site_url := concat (base_url, public_route);
+  postal_address := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '');
+  months := vector ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+  sep := concat (' ', chr (194), chr (183), ' ');
   post_cards := vector ();
   -- Optional intro paragraph before the post cards -- empty by default
   -- (weblog:emailIntroDigest unset), so an un-customized digest looks
@@ -1758,11 +2053,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   digest_body_html := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailIntroDigest', '',
     vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_COUNT}}', cast (item_count as varchar)));
   digest_extra_css := '';
+  digest_text := trim (regexp_replace (digest_body_html, '<[^>]*>', '', 1, null));
+  if (digest_text <> '') digest_text := concat (digest_text, '\r\n\r\n');
+  digest_preheader := '';
   for (i := 0; i < length (posts); i := i + 1)
   {
-    declare pname, title, url, excerpt, card, post_css VARCHAR;
-    declare excerpt_result any;
+    declare pname, title, url, excerpt, card, post_css, byline, txt_part VARCHAR;
+    declare excerpt_result, meta, pmod any;
     pname := aref (aref (posts, i), 0);
+    pmod := aref (aref (posts, i), 1);
     title := DB.DBA.WEBLOG_NEWSLETTER_POST_TITLE (coll, pname);
     url := sprintf ('%s%s?post=%U', base_url, public_route, pname);
     -- Immediate mode sends one post per email, so it can afford a longer
@@ -1770,9 +2069,24 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     excerpt_result := DB.DBA.WEBLOG_NEWSLETTER_POST_EXCERPT (coll, pname, case when mode = 'immediate' then 20000 else 8000 end, content_mode);
     excerpt := aref (excerpt_result, 0);
     post_css := aref (excerpt_result, 1);
-    card := DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (title, url, excerpt);
-    post_cards := vector_concat (post_cards, vector (vector (title, card, post_css)));
+    -- Subtitle (the page's meta description) and reading time.
+    meta := DB.DBA.WEBLOG_NEWSLETTER_POST_META (coll, pname);
+    byline := concat (from_name, sep, sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
+      sep, sprintf ('%d min read', meta[2]));
+    card := DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (DB.DBA.WEBLOG_HTML_ESC_BYTES (title), url, excerpt, meta[0], byline);
+    -- Plain-text alternative for this post.
+    txt_part := concat (title, '\r\n', case when meta[1] <> '' then concat (meta[1], '\r\n') else '' end,
+      byline, '\r\n\r\nRead it online: ', url, '\r\n');
+    post_cards := vector_concat (post_cards, vector (vector (title, card, post_css, txt_part, meta[1])));
+    if (i > 0)
+    {
+      digest_body_html := concat (digest_body_html, DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER ());
+      digest_text := concat (digest_text, '\r\n----------\r\n\r\n');
+      digest_preheader := concat (digest_preheader, sep);
+    }
     digest_body_html := concat (digest_body_html, card);
+    digest_text := concat (digest_text, txt_part);
+    digest_preheader := concat (digest_preheader, title);
     digest_extra_css := concat (digest_extra_css, post_css);
   }
 
@@ -1782,24 +2096,29 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
         where WS_DAV_COLLECTION = coll and WS_STATUS = 'confirmed') do
   {
     declare subscriber_ok int;
-    declare unsub_url VARCHAR;
+    declare unsub_url, text_footer VARCHAR;
     unsub_url := sprintf ('%s%s?nl_action=unsubscribe&token=%s', base_url, public_route, _tok);
+    text_footer := concat ('\r\n--\r\nYou''re receiving this because you subscribed to ', from_name, '.\r\n',
+      'Unsubscribe: ', unsub_url, '\r\n',
+      case when trim (postal_address) = '' then '' else concat (trim (postal_address), '\r\n') end);
     subscriber_ok := 1;
 
     if (mode = 'immediate')
     {
       for (i := 0; i < length (post_cards) and subscriber_ok = 1; i := i + 1)
       {
-        declare title, card, post_css, body_html, subj, msg, bulk_hdrs VARCHAR;
+        declare title, card, post_css, body_html, subj, msg, bulk_hdrs, preheader VARCHAR;
         title := aref (aref (post_cards, i), 0);
         card := aref (aref (post_cards, i), 1);
         post_css := aref (aref (post_cards, i), 2);
-        body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL ('New post', card, from_name, unsub_url, post_css);
+        preheader := aref (aref (post_cards, i), 4);
+        if (preheader = '') preheader := title;
+        body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (title, card, from_name, unsub_url, post_css, preheader, site_url, postal_address);
         subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectImmediate',
           '{{WEBLOG_TITLE}}: {{POST_TITLE}}', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_TITLE}}', title));
         bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
-        msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s',
-          date_rfc1123 (now ()), subj, bulk_hdrs, body_html);
+        msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs,
+          concat (aref (aref (post_cards, i), 3), text_footer), body_html);
         {
           -- One post''s send failing must not silently mark the others as
           -- delivered -- treat the whole per-subscriber batch as retryable.
@@ -1813,10 +2132,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
       declare body_html, subj, msg, bulk_hdrs VARCHAR;
       subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectDigest',
         '{{WEBLOG_TITLE}}: new posts this week', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_COUNT}}', cast (item_count as varchar)));
-      body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL ('New posts', digest_body_html, from_name, unsub_url, digest_extra_css);
+      body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj, digest_body_html, from_name, unsub_url, digest_extra_css, digest_preheader, site_url, postal_address);
       bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
-      msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s',
-        date_rfc1123 (now ()), subj, bulk_hdrs, body_html);
+      msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, concat (digest_text, text_footer), body_html);
       {
         declare exit handler for sqlstate '*' { subscriber_ok := 0; };
         smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), _email, msg);
