@@ -1667,11 +1667,11 @@ next_row: ;
     .nl-form { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; align-items: flex-end; }
     .nl-field { display: grid; gap: 0.25rem; text-align: left; }
     .nl-field label { font-size: 0.78rem; color: var(--muted); }
-    .nl-field input {
+    .nl-field input, .nl-field select {
       min-height: 2.3rem; min-width: 15rem; border: 1px solid var(--border); border-radius: 4px;
       padding: 0.45rem 0.6rem; font: inherit; font-size: 0.9rem; background: #fff; color: #172838;
     }
-    .nl-field.nl-country input { min-width: 9rem; }
+    .nl-field.nl-country select { width: 15rem; min-width: 15rem; max-width: 100%; }
     .nl-submit {
       min-height: 2.3rem; padding: 0.45rem 1.1rem; border: 0; border-radius: 4px;
       background: var(--accent); color: #fff; font-weight: 700; cursor: pointer;
@@ -1769,7 +1769,7 @@ next_row: ;
     .results-panel .results-list a { font-family: var(--headline); font-size: 1.05rem; font-weight: 700; }
     .results-meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; }
     .newsletter-band { background: var(--panel); }
-    .nl-field input { background: var(--paper); color: var(--text); }
+    .nl-field input, .nl-field select { background: var(--paper); color: var(--text); }
   </style>
 <?vsp } else { ?>
   <style>
@@ -2116,7 +2116,20 @@ next_row: ;
       </div>
       <div class="nl-field nl-country">
         <label for="nl-country">Country (optional)</label>
-        <input id="nl-country" type="text" name="country" placeholder="Country" />
+        <select id="nl-country" name="country">
+          <option value="">Prefer not to say</option>
+<?vsp
+  -- ISO 3166-1 list from DB.DBA.WEBLOG_COUNTRY_LIST (register-weblog-newsletter.sql):
+  -- the value posted is the 2-letter code, so WS_COUNTRY never holds free text.
+  {
+    declare country_list any;
+    declare ci int;
+    country_list := DB.DBA.WEBLOG_COUNTRY_LIST ();
+    for (ci := 0; ci < length (country_list); ci := ci + 2)
+      http (sprintf (''<option value="%s">%s</option>'', country_list[ci], country_list[ci + 1]));
+  }
+?>
+        </select>
       </div>
       <button class="nl-submit" type="submit">Subscribe</button>
     </form>

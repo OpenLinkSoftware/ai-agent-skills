@@ -256,6 +256,422 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (IN dav_collecti
 }
 ;
 
+-- ==========================================================================
+-- Country list for the subscribe form and for normalizing stored/imported
+-- countries. WS_COUNTRY holds an ISO 3166-1 alpha-2 code (the value
+-- schema:addressCountry expects), never free text. Generated from the tz
+-- database's iso3166.tab (249 entries), with a few names changed to
+-- their more familiar form (GB, BQ, KP, KR, UM). Names are HTML-escaped and
+-- ASCII-only (&#244; etc.), so they can be emitted with %s from any context
+-- -- see WEBLOG_HTML_ESC_BYTES for why %V is avoided for non-ASCII here.
+-- ==========================================================================
+
+-- vector (code, name_html, code, name_html, ...), sorted by name.
+CREATE PROCEDURE DB.DBA.WEBLOG_COUNTRY_LIST ()
+{
+  return vector (
+    'AF', 'Afghanistan',
+    'AX', '&#197;land Islands',
+    'AL', 'Albania',
+    'DZ', 'Algeria',
+    'AD', 'Andorra',
+    'AO', 'Angola',
+    'AI', 'Anguilla',
+    'AQ', 'Antarctica',
+    'AG', 'Antigua &amp; Barbuda',
+    'AR', 'Argentina',
+    'AM', 'Armenia',
+    'AW', 'Aruba',
+    'AU', 'Australia',
+    'AT', 'Austria',
+    'AZ', 'Azerbaijan',
+    'BS', 'Bahamas',
+    'BH', 'Bahrain',
+    'BD', 'Bangladesh',
+    'BB', 'Barbados',
+    'BY', 'Belarus',
+    'BE', 'Belgium',
+    'BZ', 'Belize',
+    'BJ', 'Benin',
+    'BM', 'Bermuda',
+    'BT', 'Bhutan',
+    'BO', 'Bolivia',
+    'BA', 'Bosnia &amp; Herzegovina',
+    'BW', 'Botswana',
+    'BV', 'Bouvet Island',
+    'BR', 'Brazil',
+    'IO', 'British Indian Ocean Territory',
+    'BN', 'Brunei',
+    'BG', 'Bulgaria',
+    'BF', 'Burkina Faso',
+    'BI', 'Burundi',
+    'KH', 'Cambodia',
+    'CM', 'Cameroon',
+    'CA', 'Canada',
+    'CV', 'Cape Verde',
+    'BQ', 'Caribbean Netherlands',
+    'KY', 'Cayman Islands',
+    'CF', 'Central African Rep.',
+    'TD', 'Chad',
+    'CL', 'Chile',
+    'CN', 'China',
+    'CX', 'Christmas Island',
+    'CC', 'Cocos (Keeling) Islands',
+    'CO', 'Colombia',
+    'KM', 'Comoros',
+    'CD', 'Congo (Dem. Rep.)',
+    'CG', 'Congo (Rep.)',
+    'CK', 'Cook Islands',
+    'CR', 'Costa Rica',
+    'CI', 'C&#244;te d&#8217;Ivoire',
+    'HR', 'Croatia',
+    'CU', 'Cuba',
+    'CW', 'Cura&#231;ao',
+    'CY', 'Cyprus',
+    'CZ', 'Czech Republic',
+    'DK', 'Denmark',
+    'DJ', 'Djibouti',
+    'DM', 'Dominica',
+    'DO', 'Dominican Republic',
+    'TL', 'East Timor',
+    'EC', 'Ecuador',
+    'EG', 'Egypt',
+    'SV', 'El Salvador',
+    'GQ', 'Equatorial Guinea',
+    'ER', 'Eritrea',
+    'EE', 'Estonia',
+    'SZ', 'Eswatini (Swaziland)',
+    'ET', 'Ethiopia',
+    'FK', 'Falkland Islands',
+    'FO', 'Faroe Islands',
+    'FJ', 'Fiji',
+    'FI', 'Finland',
+    'FR', 'France',
+    'GF', 'French Guiana',
+    'PF', 'French Polynesia',
+    'TF', 'French S. Terr.',
+    'GA', 'Gabon',
+    'GM', 'Gambia',
+    'GE', 'Georgia',
+    'DE', 'Germany',
+    'GH', 'Ghana',
+    'GI', 'Gibraltar',
+    'GR', 'Greece',
+    'GL', 'Greenland',
+    'GD', 'Grenada',
+    'GP', 'Guadeloupe',
+    'GU', 'Guam',
+    'GT', 'Guatemala',
+    'GG', 'Guernsey',
+    'GN', 'Guinea',
+    'GW', 'Guinea-Bissau',
+    'GY', 'Guyana',
+    'HT', 'Haiti',
+    'HM', 'Heard Island &amp; McDonald Islands',
+    'HN', 'Honduras',
+    'HK', 'Hong Kong',
+    'HU', 'Hungary',
+    'IS', 'Iceland',
+    'IN', 'India',
+    'ID', 'Indonesia',
+    'IR', 'Iran',
+    'IQ', 'Iraq',
+    'IE', 'Ireland',
+    'IM', 'Isle of Man',
+    'IL', 'Israel',
+    'IT', 'Italy',
+    'JM', 'Jamaica',
+    'JP', 'Japan',
+    'JE', 'Jersey',
+    'JO', 'Jordan',
+    'KZ', 'Kazakhstan',
+    'KE', 'Kenya',
+    'KI', 'Kiribati',
+    'KW', 'Kuwait',
+    'KG', 'Kyrgyzstan',
+    'LA', 'Laos',
+    'LV', 'Latvia',
+    'LB', 'Lebanon',
+    'LS', 'Lesotho',
+    'LR', 'Liberia',
+    'LY', 'Libya',
+    'LI', 'Liechtenstein',
+    'LT', 'Lithuania',
+    'LU', 'Luxembourg',
+    'MO', 'Macau',
+    'MG', 'Madagascar',
+    'MW', 'Malawi',
+    'MY', 'Malaysia',
+    'MV', 'Maldives',
+    'ML', 'Mali',
+    'MT', 'Malta',
+    'MH', 'Marshall Islands',
+    'MQ', 'Martinique',
+    'MR', 'Mauritania',
+    'MU', 'Mauritius',
+    'YT', 'Mayotte',
+    'MX', 'Mexico',
+    'FM', 'Micronesia',
+    'MD', 'Moldova',
+    'MC', 'Monaco',
+    'MN', 'Mongolia',
+    'ME', 'Montenegro',
+    'MS', 'Montserrat',
+    'MA', 'Morocco',
+    'MZ', 'Mozambique',
+    'MM', 'Myanmar (Burma)',
+    'NA', 'Namibia',
+    'NR', 'Nauru',
+    'NP', 'Nepal',
+    'NL', 'Netherlands',
+    'NC', 'New Caledonia',
+    'NZ', 'New Zealand',
+    'NI', 'Nicaragua',
+    'NE', 'Niger',
+    'NG', 'Nigeria',
+    'NU', 'Niue',
+    'NF', 'Norfolk Island',
+    'KP', 'North Korea',
+    'MK', 'North Macedonia',
+    'MP', 'Northern Mariana Islands',
+    'NO', 'Norway',
+    'OM', 'Oman',
+    'PK', 'Pakistan',
+    'PW', 'Palau',
+    'PS', 'Palestine',
+    'PA', 'Panama',
+    'PG', 'Papua New Guinea',
+    'PY', 'Paraguay',
+    'PE', 'Peru',
+    'PH', 'Philippines',
+    'PN', 'Pitcairn',
+    'PL', 'Poland',
+    'PT', 'Portugal',
+    'PR', 'Puerto Rico',
+    'QA', 'Qatar',
+    'RE', 'R&#233;union',
+    'RO', 'Romania',
+    'RU', 'Russia',
+    'RW', 'Rwanda',
+    'AS', 'Samoa (American)',
+    'WS', 'Samoa (western)',
+    'SM', 'San Marino',
+    'ST', 'Sao Tome &amp; Principe',
+    'SA', 'Saudi Arabia',
+    'SN', 'Senegal',
+    'RS', 'Serbia',
+    'SC', 'Seychelles',
+    'SL', 'Sierra Leone',
+    'SG', 'Singapore',
+    'SK', 'Slovakia',
+    'SI', 'Slovenia',
+    'SB', 'Solomon Islands',
+    'SO', 'Somalia',
+    'ZA', 'South Africa',
+    'GS', 'South Georgia &amp; the South Sandwich Islands',
+    'KR', 'South Korea',
+    'SS', 'South Sudan',
+    'ES', 'Spain',
+    'LK', 'Sri Lanka',
+    'BL', 'St Barthelemy',
+    'SH', 'St Helena',
+    'KN', 'St Kitts &amp; Nevis',
+    'LC', 'St Lucia',
+    'SX', 'St Maarten (Dutch)',
+    'MF', 'St Martin (French)',
+    'PM', 'St Pierre &amp; Miquelon',
+    'VC', 'St Vincent',
+    'SD', 'Sudan',
+    'SR', 'Suriname',
+    'SJ', 'Svalbard &amp; Jan Mayen',
+    'SE', 'Sweden',
+    'CH', 'Switzerland',
+    'SY', 'Syria',
+    'TW', 'Taiwan',
+    'TJ', 'Tajikistan',
+    'TZ', 'Tanzania',
+    'TH', 'Thailand',
+    'TG', 'Togo',
+    'TK', 'Tokelau',
+    'TO', 'Tonga',
+    'TT', 'Trinidad &amp; Tobago',
+    'TN', 'Tunisia',
+    'TR', 'Turkey',
+    'TM', 'Turkmenistan',
+    'TC', 'Turks &amp; Caicos Is',
+    'TV', 'Tuvalu',
+    'UM', 'U.S. Minor Outlying Islands',
+    'UG', 'Uganda',
+    'UA', 'Ukraine',
+    'AE', 'United Arab Emirates',
+    'GB', 'United Kingdom',
+    'US', 'United States',
+    'UY', 'Uruguay',
+    'UZ', 'Uzbekistan',
+    'VU', 'Vanuatu',
+    'VA', 'Vatican City',
+    'VE', 'Venezuela',
+    'VN', 'Vietnam',
+    'VG', 'Virgin Islands (UK)',
+    'VI', 'Virgin Islands (US)',
+    'WF', 'Wallis &amp; Futuna',
+    'EH', 'Western Sahara',
+    'YE', 'Yemen',
+    'ZM', 'Zambia',
+    'ZW', 'Zimbabwe');
+}
+;
+
+-- Display name (HTML-escaped) for a code, or null if it isn't one.
+CREATE PROCEDURE DB.DBA.WEBLOG_COUNTRY_NAME_HTML (IN code ANY)
+{
+  declare cl any;
+  declare i int;
+  if (code is null or not isstring (code) or length (code) <> 2) return null;
+  code := upper (code);
+  cl := DB.DBA.WEBLOG_COUNTRY_LIST ();
+  for (i := 0; i < length (cl); i := i + 2)
+    if (cl[i] = code) return cl[i + 1];
+  return null;
+}
+;
+
+-- Map a submitted or imported country value to its ISO code: accepts the
+-- code itself (any case), the listed name, or a common alternative
+-- ("UK", "USA", "Ivory Coast", accent-free spellings, ...). Returns null
+-- for blank or unrecognized input, so free text is never stored.
+CREATE PROCEDURE DB.DBA.WEBLOG_COUNTRY_NORMALIZE (IN val ANY)
+{
+  declare cl, aliases any;
+  declare lkey VARCHAR;
+  declare i int;
+  if (val is null) return null;
+  if (iswidestring (val)) val := charset_recode (val, '_WIDE_', 'UTF-8');
+  if (not isstring (val)) return null;
+  -- Typographic and straight apostrophes compare equal ("Cote d'Ivoire").
+  lkey := replace (lower (trim (val)), concat (chr (226), chr (128), chr (153)), chr (39));
+  if (lkey = '') return null;
+  cl := DB.DBA.WEBLOG_COUNTRY_LIST ();
+  -- Codes first: the cheap, common case (every value once normalized).
+  if (length (lkey) = 2)
+    for (i := 0; i < length (cl); i := i + 2)
+      if (lower (cl[i]) = lkey) return cl[i];
+  for (i := 0; i < length (cl); i := i + 2)
+    if (replace (lower (DB.DBA.WEBLOG_HTML_UNESCAPE (cl[i + 1])), concat (chr (226), chr (128), chr (153)), chr (39)) = lkey)
+      return cl[i];
+  aliases := vector (
+    'aland islands', 'AX',
+    'america', 'US',
+    'antigua and barbuda', 'AG',
+    'bosnia and herzegovina', 'BA',
+    'britain', 'GB',
+    'britain (uk)', 'GB',
+    'burma', 'MM',
+    'cabo verde', 'CV',
+    'caribbean nl', 'BQ',
+    'cote d''ivoire', 'CI',
+    'curacao', 'CW',
+    'czechia', 'CZ',
+    'democratic republic of the congo', 'CD',
+    'dprk', 'KP',
+    'dr congo', 'CD',
+    'drc', 'CD',
+    'eire', 'IE',
+    'england', 'GB',
+    'great britain', 'GB',
+    'heard island and mcdonald islands', 'HM',
+    'holland', 'NL',
+    'holy see', 'VA',
+    'hong kong sar', 'HK',
+    'ivory coast', 'CI',
+    'korea', 'KR',
+    'korea (north)', 'KP',
+    'korea (south)', 'KR',
+    'macao', 'MO',
+    'macau sar', 'MO',
+    'mainland china', 'CN',
+    'northern ireland', 'GB',
+    'palestinian territories', 'PS',
+    'prc', 'CN',
+    'republic of china', 'TW',
+    'republic of ireland', 'IE',
+    'republic of korea', 'KR',
+    'republic of the congo', 'CG',
+    'reunion', 'RE',
+    'russian federation', 'RU',
+    'saint barthelemy', 'BL',
+    'saint helena', 'SH',
+    'saint kitts & nevis', 'KN',
+    'saint lucia', 'LC',
+    'saint maarten (dutch)', 'SX',
+    'saint martin (french)', 'MF',
+    'saint pierre & miquelon', 'PM',
+    'saint vincent', 'VC',
+    'sao tome and principe', 'ST',
+    'scotland', 'GB',
+    'south georgia and the south sandwich islands', 'GS',
+    'st kitts and nevis', 'KN',
+    'st pierre and miquelon', 'PM',
+    'svalbard and jan mayen', 'SJ',
+    'swaziland', 'SZ',
+    'the netherlands', 'NL',
+    'timor-leste', 'TL',
+    'trinidad and tobago', 'TT',
+    'turkiye', 'TR',
+    'turks and caicos is', 'TC',
+    'u.k.', 'GB',
+    'u.s.', 'US',
+    'u.s.a.', 'US',
+    'uae', 'AE',
+    'uk', 'GB',
+    'united states of america', 'US',
+    'us minor outlying islands', 'UM',
+    'usa', 'US',
+    'viet nam', 'VN',
+    'wales', 'GB',
+    'wallis and futuna', 'WF');
+  for (i := 0; i < length (aliases); i := i + 2)
+    if (aliases[i] = lkey) return aliases[i + 1];
+  return null;
+}
+;
+
+-- One-time cleanup of free-text countries stored before the drop-down:
+-- rewrites every value WEBLOG_COUNTRY_NORMALIZE recognizes to its code,
+-- clears blanks, and leaves anything unrecognized untouched (the dashboard
+-- shows it as-is) rather than discarding it. Idempotent.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_NORMALIZE_COUNTRIES (IN dav_collection VARCHAR)
+{
+  declare coll, code VARCHAR;
+  declare changed, unrecognized int;
+  coll := trim (dav_collection);
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  changed := 0;
+  unrecognized := 0;
+  for (select WS_ID as _id, WS_COUNTRY as _c from DB.DBA.WEBLOG_SUBSCRIBER
+        where WS_DAV_COLLECTION = coll and WS_COUNTRY is not null) do
+  {
+    code := DB.DBA.WEBLOG_COUNTRY_NORMALIZE (_c);
+    if (code is null)
+    {
+      if (trim (cast (_c as varchar)) = '')
+      {
+        update DB.DBA.WEBLOG_SUBSCRIBER set WS_COUNTRY = null where WS_ID = _id;
+        changed := changed + 1;
+      }
+      else
+        unrecognized := unrecognized + 1;
+    }
+    else if (code <> cast (_c as varchar))
+    {
+      update DB.DBA.WEBLOG_SUBSCRIBER set WS_COUNTRY = code where WS_ID = _id;
+      changed := changed + 1;
+    }
+  }
+  return sprintf ('{"changed":%d,"unrecognized":%d}', changed, unrecognized);
+}
+;
+
 CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, IN email VARCHAR, IN country VARCHAR, IN confirm_base_url VARCHAR)
 {
   declare coll, tok, from_addr, from_name, confirm_base, public_route, smtp_server, subj, body, existing_status VARCHAR;
@@ -264,6 +680,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   if (email is null) email := '';
+  -- ISO code or null: the form posts a code, but this is also the
+  -- boundary for any hand-crafted POST, so free text is never stored.
+  country := DB.DBA.WEBLOG_COUNTRY_NORMALIZE (country);
   -- Lowercased, not just trimmed: WEBLOG_SUBSCRIBER_UQ's unique index is on
   -- the literal (WS_DAV_COLLECTION, WS_EMAIL) VARCHAR pair, so without this
   -- "John@x.com" and "john@x.com" would pass it as two distinct rows for
@@ -554,6 +973,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR,
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   if (email is null) return 0;
+  -- CSV/RDF imports may carry a code or a name; store the ISO code or null.
+  country := DB.DBA.WEBLOG_COUNTRY_NORMALIZE (country);
   -- Lowercased -- see WEBLOG_NEWSLETTER_SUBSCRIBE's comment on the same
   -- line for why.
   email := lower (trim (email));
@@ -1589,7 +2010,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_CHART (IN kind VARCHAR, IN vals ANY, IN
 ;
 
 -- Top-N rows of a {label -> count} dictionary, as <tr> HTML, highest first.
-CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (IN counts ANY, IN top_n INTEGER)
+CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (IN counts ANY, IN top_n INTEGER, IN is_country INTEGER := 0)
 {
   declare kv, used any;
   declare i, j, best_i, best_v, total int;
@@ -1614,7 +2035,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (IN counts ANY, IN top_n INTEG
       goto done;
     aset (used, best_i, 1);
     rows_html := concat (rows_html, sprintf ('<tr><td>%s</td><td class="num">%d</td></tr>',
-      DB.DBA.WEBLOG_HTML_ESC_BYTES (kv[2 * best_i]), best_v));
+      coalesce (case when is_country = 1 then DB.DBA.WEBLOG_COUNTRY_NAME_HTML (kv[2 * best_i]) else null end,
+        DB.DBA.WEBLOG_HTML_ESC_BYTES (kv[2 * best_i])), best_v));
   }
 done:
   if (rows_html = '')
@@ -1686,7 +2108,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_ANALYTICS_HTML (IN dav_collection VARCH
     if (_s = 'confirmed')
     {
       declare ckey VARCHAR;
-      ckey := trim (coalesce (cast (_c as varchar), ''));
+      -- Legacy free-text values merge with their ISO code where recognized.
+      ckey := DB.DBA.WEBLOG_COUNTRY_NORMALIZE (_c);
+      if (ckey is null) ckey := trim (coalesce (cast (_c as varchar), ''));
       if (ckey = '') ckey := 'Unknown';
       dict_put (countries, ckey, coalesce (dict_get (countries, ckey, 0), 0) + 1);
     }
@@ -1788,7 +2212,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_ANALYTICS_HTML (IN dav_collection VARCH
   tables := concat (
     '<div class="import-grid">',
     '<div class="import-card"><h3>Confirmed subscribers by country</h3><table class="subscribers compact"><thead><tr><th>Country</th><th class="num">Subscribers</th></tr></thead><tbody>',
-    DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (countries, 10),
+    DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (countries, 10, 1),
     '</tbody></table></div>',
     sprintf ('<div class="import-card"><h3>Posts by category</h3><p class="hint">Top 10 across all %d posts. A post can carry several categories.</p><table class="subscribers compact"><thead><tr><th>Category</th><th class="num">Posts</th></tr></thead><tbody>', total_posts),
     DB.DBA.WEBLOG_DASHBOARD_TOP_ROWS (categories, 10),
@@ -2059,7 +2483,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     import_html := sprintf (
       '<section class="panel"><details class="collapsible"><summary class="panel-h2">Import Subscribers</summary><p class="panel-desc">Admin-only onboarding: added subscribers are marked confirmed immediately and sent an activation notice with an unsubscribe link -- no confirm-click required, but they can opt out.</p>' ||
       '<div class="import-grid">' ||
-      '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><button type="submit">Import CSV</button></form></div>' ||
+      '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns. Country may be an ISO code ("US") or a name; anything unrecognized is left blank.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><button type="submit">Import CSV</button></form></div>' ||
       '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><button type="submit">Import RDF</button></form></div>' ||
       '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><button type="submit">Add Subscribers</button></form></div>' ||
       '</div></details></section>',
