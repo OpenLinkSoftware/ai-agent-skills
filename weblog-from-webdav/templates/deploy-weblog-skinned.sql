@@ -791,6 +791,103 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
               admin_result := sprintf (''Skin set to "%s".'', skin_param);
           }
         }
+        else if (admin_action = ''set_email_template'')
+        {
+          -- Each outbound email type maps to one subject property and (for
+          -- types whose body is admin-editable free text, not generated
+          -- content like the digest''s post cards) one body property.
+          -- required lists the {{TOKEN}}s that MUST survive in the saved
+          -- body -- e.g. a confirm email with no {{CONFIRM_URL}} would have
+          -- no way to actually confirm, so that save is rejected outright
+          -- rather than silently shipping a broken email later.
+          declare et_type, et_subject, et_body, et_reset varchar;
+          declare et_subject_prop, et_body_prop, et_check, et_fail varchar;
+          declare et_required any;
+          declare et_rc any;
+          et_type := http_param (''template_type'');
+          et_subject := http_param (''subject'');
+          et_body := http_param (''body'');
+          et_reset := http_param (''reset'');
+          if (not isstring (et_type)) et_type := '''';
+          if (not isstring (et_subject)) et_subject := '''';
+          if (not isstring (et_body)) et_body := '''';
+          if (not isstring (et_reset)) et_reset := '''';
+          et_type := trim (et_type);
+          et_subject := trim (et_subject);
+
+          et_subject_prop := null;
+          et_body_prop := null;
+          et_required := vector ();
+          if (et_type = ''confirm'')
+          {
+            et_subject_prop := ''weblog:emailSubjectConfirm''; et_body_prop := ''weblog:emailBodyConfirm'';
+            et_required := vector (''{{CONFIRM_URL}}'');
+          }
+          else if (et_type = ''digest'')
+          {
+            et_subject_prop := ''weblog:emailSubjectDigest''; et_body_prop := ''weblog:emailIntroDigest'';
+          }
+          else if (et_type = ''immediate'')
+          {
+            et_subject_prop := ''weblog:emailSubjectImmediate'';
+          }
+          else if (et_type = ''activation'')
+          {
+            et_subject_prop := ''weblog:emailSubjectActivation''; et_body_prop := ''weblog:emailBodyActivation'';
+            et_required := vector (''{{UNSUBSCRIBE_URL}}'');
+          }
+          else if (et_type = ''unsubscribe_notice'')
+          {
+            et_subject_prop := ''weblog:emailSubjectUnsubscribeNotice''; et_body_prop := ''weblog:emailBodyUnsubscribeNotice'';
+            et_required := vector (''{{RESUBSCRIBE_URL}}'');
+          }
+          else if (et_type = ''admin_alert'')
+          {
+            et_subject_prop := ''weblog:emailSubjectAdminAlert'';
+          }
+
+          if (et_subject_prop is null)
+          {
+            admin_result := ''Unknown email template type.'';
+          }
+          else if (et_reset = ''1'')
+          {
+            declare exit handler for sqlstate ''*'' { ; };
+            DB.DBA.DAV_PROP_REMOVE_INT (''{{DAV_COLLECTION}}'', et_subject_prop, null, null, 0, 0);
+            if (et_body_prop is not null)
+              DB.DBA.DAV_PROP_REMOVE_INT (''{{DAV_COLLECTION}}'', et_body_prop, null, null, 0, 0);
+            admin_result := ''Email template reset to the default.'';
+          }
+          else if (et_subject = '''')
+          {
+            admin_result := ''Subject is required.'';
+          }
+          else
+          {
+            et_check := '''';
+            if (et_body_prop is not null and length (et_required) > 0)
+              et_check := DB.DBA.WEBLOG_CHECK_EMAIL_TEMPLATE_TOKENS (et_body, et_required);
+            if (et_check <> '''')
+            {
+              admin_result := sprintf (''Could not save: %s.'', et_check);
+            }
+            else
+            {
+              et_fail := '''';
+              et_rc := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', et_subject_prop, et_subject, null, null, 0, 0, 1);
+              if (not isinteger (et_rc) or et_rc < 0) et_fail := ''subject'';
+              if (et_body_prop is not null)
+              {
+                et_rc := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', et_body_prop, et_body, null, null, 0, 0, 1);
+                if (not isinteger (et_rc) or et_rc < 0) et_fail := et_fail || '' body'';
+              }
+              if (et_fail <> '''')
+                admin_result := sprintf (''Could not save the %s.'', trim (et_fail));
+              else
+                admin_result := ''Email template saved.'';
+            }
+          }
+        }
         else if (admin_action = ''set_email_config'')
         {
           declare fn_param, fa_param, smtp_param, base_param, admin_email_param varchar;

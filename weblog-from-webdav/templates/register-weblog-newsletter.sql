@@ -106,6 +106,46 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_RESOLVE_SMTP (IN dav_collection VARCHA
 }
 ;
 
+-- Shared template renderer for every editable outbound-email subject/body.
+-- Reads a weblog:* property (falling back to default_text when unset --
+-- every email keeps working exactly as before until an admin explicitly
+-- customizes it), then substitutes each {{TOKEN}} in replacements
+-- (a flat vector: token, value, token, value, ...) via plain string
+-- replace(). No markdown/HTML interpretation -- a template used in a
+-- text/plain body stays plain text, one used in an HTML body can contain
+-- real HTML exactly as the surrounding code already does.
+CREATE PROCEDURE DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (IN dav_collection VARCHAR, IN prop_name VARCHAR, IN default_text VARCHAR, IN replacements ANY)
+{
+  declare coll, text_out VARCHAR;
+  declare i INTEGER;
+  coll := trim (dav_collection);
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  text_out := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, prop_name, default_text);
+  if (text_out is null or text_out = '') text_out := default_text;
+  for (i := 0; i < length (replacements); i := i + 2)
+    text_out := replace (text_out, replacements[i], cast (replacements[i + 1] as varchar));
+  return text_out;
+}
+;
+
+-- Every template that references a placeholder marked required below must
+-- actually contain it, or the resulting email would be missing something
+-- essential (a confirm link with no link is not a confirmation email).
+-- Returns '' when valid, else a message naming the missing token(s) --
+-- checked before ANY weblog:emailSubject*/emailBody* property is written.
+CREATE PROCEDURE DB.DBA.WEBLOG_CHECK_EMAIL_TEMPLATE_TOKENS (IN text_in VARCHAR, IN required_tokens ANY)
+{
+  declare i INTEGER;
+  declare missing VARCHAR;
+  missing := '';
+  for (i := 0; i < length (required_tokens); i := i + 1)
+    if (strstr (text_in, required_tokens[i]) is null)
+      missing := missing || required_tokens[i] || ' ';
+  if (missing = '') return '';
+  return sprintf ('missing required placeholder(s): %s', trim (missing));
+}
+;
+
 -- Shared bulk-mail headers (Message-ID, List-Id, Precedence, and -- when a
 -- per-recipient unsubscribe link is available -- List-Unsubscribe /
 -- List-Unsubscribe-Post) for every outbound newsletter message. Returns an
@@ -190,11 +230,29 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_NOTIFY_ADMIN (IN dav_collection VARCHA
   smtp_server := DB.DBA.WEBLOG_NEWSLETTER_RESOLVE_SMTP (coll);
   if (smtp_server is null or trim (smtp_server) = '') return 0;
 
-  subj := sprintf ('%s admin: %s', from_name, subject_suffix);
+  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectAdminAlert',
+    '{{WEBLOG_TITLE}} admin: {{SUBJECT_SUFFIX}}', vector ('{{WEBLOG_TITLE}}', from_name, '{{SUBJECT_SUFFIX}}', subject_suffix));
   msg := sprintf ('Date: %s\r\nSubject: %s\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n%s\r\n', date_rfc1123 (now ()), subj, body_text);
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), admin_email, msg);
   return 1;
+}
+;
+
+-- Best-effort dashboard refresh: subscribe/confirm/unsubscribe all change
+-- what the admin dashboard shows, but happen from the PUBLIC route with no
+-- admin present to trigger one -- unlike every admin_action, which already
+-- refreshes the dashboard on its way back. Without this, a real confirmed
+-- subscriber can sit invisible on a dashboard.html snapshot from whenever
+-- it was last regenerated (confirmed live: a subscriber confirmed hours
+-- earlier, with no scheduled auto-refresh configured, still showed as 0
+-- subscribers on the dashboard). Never blocks the subscriber-facing action
+-- itself if the refresh fails or the dashboard proc isn't installed.
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
+{
+  declare exit handler for sqlstate '*' { ; };
+  if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_DASHBOARD_REFRESH') > 0)
+    DB.DBA.WEBLOG_DASHBOARD_REFRESH (dav_collection);
 }
 ;
 
@@ -241,6 +299,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
     insert into DB.DBA.WEBLOG_SUBSCRIBER (WS_DAV_COLLECTION, WS_EMAIL, WS_COUNTRY, WS_STATUS, WS_TOKEN, WS_SUBSCRIBED_AT)
       values (coll, email, country, 'pending', tok, now ());
   }
+  DB.DBA.WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (coll);
 
   from_name := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterFromName', 'Weblog Newsletter');
   from_addr := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterFromAddress', 'noreply@localhost');
@@ -256,10 +315,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
   if (smtp_server is null or trim (smtp_server) = '')
     return 'Subscribed -- but no mail server is configured yet. Ask the site operator to set weblog:newsletterSmtpServer or the server DefaultMailServer, then subscribe again to get a confirmation link.';
 
-  subj := concat (from_name, ': confirm your subscription');
-  body := sprintf (
-    'Please confirm your subscription by opening this link:\r\n\r\n%s%s?nl_action=confirm&token=%s\r\n\r\nIf you did not request this, ignore this message -- you will not be subscribed unless you click the link above.\r\n',
-    confirm_base, public_route, tok);
+  {
+    declare confirm_url VARCHAR;
+    confirm_url := sprintf ('%s%s?nl_action=confirm&token=%s', confirm_base, public_route, tok);
+    subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectConfirm',
+      '{{WEBLOG_TITLE}}: confirm your subscription', vector ('{{WEBLOG_TITLE}}', from_name));
+    body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyConfirm',
+      'Please confirm your subscription by opening this link:\r\n\r\n{{CONFIRM_URL}}\r\n\r\nIf you did not request this, ignore this message -- you will not be subscribed unless you click the link above.\r\n',
+      vector ('{{WEBLOG_TITLE}}', from_name, '{{CONFIRM_URL}}', confirm_url));
+  }
 
   {
     declare unsub_url, bulk_hdrs VARCHAR;
@@ -335,6 +399,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_CONFIRM (IN token VARCHAR)
     return 'This confirmation link is invalid or has already been used.';
 
   update DB.DBA.WEBLOG_SUBSCRIBER set WS_STATUS = 'confirmed', WS_CONFIRMED_AT = now () where WS_TOKEN = trim (token);
+  DB.DBA.WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (coll);
 
   mirror_rdf := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterMirrorRdf', 'true');
   if (lower (mirror_rdf) = 'true')
@@ -374,6 +439,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_UNSUBSCRIBE (IN token VARCHAR, IN noti
     return 'This unsubscribe link is invalid or has already been used.';
 
   update DB.DBA.WEBLOG_SUBSCRIBER set WS_STATUS = 'unsubscribed' where WS_TOKEN = trim (token);
+  DB.DBA.WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (coll);
   DB.DBA.WEBLOG_NEWSLETTER_MIRROR_RDF (coll, email, 0, uname);
 
   if (notify = 1)
@@ -411,10 +477,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
     unsub_url := sprintf ('%s?nl_action=unsubscribe&token=%s', public_route, trim (token));
 
   greeting := case when name is not null and trim (name) <> '' then sprintf ('Hi %s,\r\n\r\n', trim (name)) else '' end;
-  subj := concat (from_name, ': you have been unsubscribed');
-  body := sprintf (
-    '%sYou have been removed from the %s mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n%s\r\n',
-    greeting, from_name, public_route);
+  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectUnsubscribeNotice',
+    '{{WEBLOG_TITLE}}: you have been unsubscribed', vector ('{{WEBLOG_TITLE}}', from_name));
+  body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyUnsubscribeNotice',
+    '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
+    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{RESUBSCRIBE_URL}}', public_route));
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
   msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sContent-Type: text/plain; charset=UTF-8\r\n\r\n%s', date_rfc1123 (now ()), subj, bulk_hdrs, body);
 
@@ -458,11 +525,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
   if (smtp_server is null or trim (smtp_server) = '') return 0;
 
   greeting := case when name is not null and trim (name) <> '' then sprintf ('Hi %s,\r\n\r\n', trim (name)) else '' end;
-  subj := concat (from_name, ': you have been added to our mailing list');
   unsub_url := sprintf ('%s%s?nl_action=unsubscribe&token=%s', base_url, public_route, token);
-  body := sprintf (
-    '%sYou have been added to the %s mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n%s\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
-    greeting, from_name, unsub_url);
+  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectActivation',
+    '{{WEBLOG_TITLE}}: you have been added to our mailing list', vector ('{{WEBLOG_TITLE}}', from_name));
+  body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyActivation',
+    '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
+    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{UNSUBSCRIBE_URL}}', unsub_url));
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
   msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sContent-Type: text/plain; charset=UTF-8\r\n\r\n%s', date_rfc1123 (now ()), subj, bulk_hdrs, body);
 
@@ -1261,7 +1329,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   -- outside the subscriber loop -- the post content itself doesn't vary by
   -- subscriber, only the per-subscriber unsubscribe link does.
   post_cards := vector ();
-  digest_body_html := '';
+  -- Optional intro paragraph before the post cards -- empty by default
+  -- (weblog:emailIntroDigest unset), so an un-customized digest looks
+  -- exactly as it always has. The per-post cards themselves are generated
+  -- code, not template-editable -- too complex/fragile to safely expose as
+  -- admin-editable text without risking a malformed digest.
+  digest_body_html := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailIntroDigest', '',
+    vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_COUNT}}', cast (item_count as varchar)));
   digest_extra_css := '';
   for (i := 0; i < length (posts); i := i + 1)
   {
@@ -1300,7 +1374,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
         card := aref (aref (post_cards, i), 1);
         post_css := aref (aref (post_cards, i), 2);
         body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL ('New post', card, from_name, unsub_url, post_css);
-        subj := sprintf ('%s: %s', from_name, title);
+        subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectImmediate',
+          '{{WEBLOG_TITLE}}: {{POST_TITLE}}', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_TITLE}}', title));
         bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
         msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s',
           date_rfc1123 (now ()), subj, bulk_hdrs, body_html);
@@ -1315,7 +1390,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     else
     {
       declare body_html, subj, msg, bulk_hdrs VARCHAR;
-      subj := concat (from_name, ': new posts this week');
+      subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectDigest',
+        '{{WEBLOG_TITLE}}: new posts this week', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_COUNT}}', cast (item_count as varchar)));
       body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL ('New posts', digest_body_html, from_name, unsub_url, digest_extra_css);
       bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
       msg := sprintf ('Date: %s\r\nSubject: %s\r\n%sMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s',
@@ -1399,6 +1475,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   declare digest_scheduled, dash_scheduled INTEGER;
   declare dash_interval INTEGER;
   declare tag_schedule_html VARCHAR;
+  declare email_templates_html VARCHAR;
 
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
@@ -1508,16 +1585,74 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   else
   {
     controls_html := sprintf (
-      '<section class="panel"><h2>Delivery Settings</h2><p class="panel-desc">Configure when and how new-post notifications go out.</p>' ||
+      '<section class="panel"><details class="collapsible"><summary class="panel-h2">Delivery Settings</summary><p class="panel-desc">Configure when and how new-post notifications go out.</p>' ||
       '<div class="setting-row"><div class="setting-label">Send new-post notifications now</div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="send_digest_now"/><input type="hidden" name="admin_token" value="%s"/><button type="submit" class="secondary">Send now</button></form></div></div>' ||
       '<div class="setting-row"><div class="setting-label">Delivery mode <span class="badge">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_digest_mode"/><input type="hidden" name="admin_token" value="%s"/><select name="mode"><option value="digest"%s>Digest (bundle new posts)</option><option value="immediate"%s>Immediate (one email per post)</option></select><button type="submit">Save</button></form></div></div>' ||
       '<div class="setting-row"><div class="setting-label">Email content <span class="badge">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_content_mode"/><input type="hidden" name="admin_token" value="%s"/><select name="content_mode"><option value="auto"%s>Auto</option><option value="snippet"%s>Always snippet</option><option value="full"%s>Always full post</option></select><button type="submit">Save</button></form></div></div>' ||
       '<div class="setting-row"><div class="setting-label">Skin <span class="badge">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_skin"/><input type="hidden" name="admin_token" value="%s"/><select name="skin_choice"><option value="classic"%s>Classic</option><option value="editorial"%s>Editorial</option></select><button type="submit">Save</button></form><span class="hint">Preview: ?skin=classic or ?skin=editorial</span></div></div>' ||
-      '</section>',
+      '</details></section>',
       action_route, admin_token,
       current_mode, action_route, admin_token, case when current_mode = 'digest' then ' selected="selected"' else '' end, case when current_mode = 'immediate' then ' selected="selected"' else '' end,
       current_content_mode, action_route, admin_token, case when current_content_mode = 'auto' then ' selected="selected"' else '' end, case when current_content_mode = 'snippet' then ' selected="selected"' else '' end, case when current_content_mode = 'full' then ' selected="selected"' else '' end,
       current_skin, action_route, admin_token, case when current_skin = 'classic' then ' selected="selected"' else '' end, case when current_skin = 'editorial' then ' selected="selected"' else '' end);
+  }
+
+  -- Every outbound email''s subject (and, for the ones with genuinely
+  -- free-text bodies rather than generated content like the digest''s post
+  -- cards) body, editable from one uniform loop instead of six near-
+  -- identical hand-written blocks. Each entry: [type key, display label,
+  -- subject property, subject default, body property ('''' = no editable
+  -- body for this type), body default, placeholder-token hint]. Defaults
+  -- here MUST match the defaults each WEBLOG_NEWSLETTER_* send procedure
+  -- passes to WEBLOG_RENDER_EMAIL_TEMPLATE, so an unset property shows the
+  -- admin exactly what is actually being sent.
+  email_templates_html := '';
+  if (action_route <> '')
+  {
+    declare et_types any;
+    declare et_i INTEGER;
+    et_types := vector (
+      vector ('confirm', 'Confirmation Email', 'weblog:emailSubjectConfirm', '{{WEBLOG_TITLE}}: confirm your subscription',
+        'weblog:emailBodyConfirm', 'Please confirm your subscription by opening this link:\r\n\r\n{{CONFIRM_URL}}\r\n\r\nIf you did not request this, ignore this message -- you will not be subscribed unless you click the link above.\r\n',
+        'Tokens: {{WEBLOG_TITLE}}, {{CONFIRM_URL}} (required).'),
+      vector ('digest', 'Digest Email', 'weblog:emailSubjectDigest', '{{WEBLOG_TITLE}}: new posts this week',
+        'weblog:emailIntroDigest', '',
+        'Subject tokens: {{WEBLOG_TITLE}}, {{POST_COUNT}}. Body is an optional intro paragraph shown above the post cards -- leave blank for none.'),
+      vector ('immediate', 'Immediate-Mode Email', 'weblog:emailSubjectImmediate', '{{WEBLOG_TITLE}}: {{POST_TITLE}}',
+        '', '',
+        'Tokens: {{WEBLOG_TITLE}}, {{POST_TITLE}}. Subject only -- the body is the post itself (immediate mode sends one email per post).'),
+      vector ('activation', 'Admin-Import Activation Notice', 'weblog:emailSubjectActivation', '{{WEBLOG_TITLE}}: you have been added to our mailing list',
+        'weblog:emailBodyActivation', '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
+        'Tokens: {{WEBLOG_TITLE}}, {{GREETING}} (blank, or "Hi Name," when a name was given), {{UNSUBSCRIBE_URL}} (required).'),
+      vector ('unsubscribe_notice', 'Admin-Unsubscribe Notice', 'weblog:emailSubjectUnsubscribeNotice', '{{WEBLOG_TITLE}}: you have been unsubscribed',
+        'weblog:emailBodyUnsubscribeNotice', '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
+        'Tokens: {{WEBLOG_TITLE}}, {{GREETING}}, {{RESUBSCRIBE_URL}} (required).'),
+      vector ('admin_alert', 'Admin Operational Alerts', 'weblog:emailSubjectAdminAlert', '{{WEBLOG_TITLE}} admin: {{SUBJECT_SUFFIX}}',
+        '', '',
+        'Tokens: {{WEBLOG_TITLE}}, {{SUBJECT_SUFFIX}}. Subject only -- sent to weblog:adminEmail for a new confirmed subscriber or a failed digest batch; body content is generated per alert.')
+    );
+    email_templates_html := '<section class="panel"><details class="collapsible"><summary class="panel-h2">Email Templates</summary><p class="panel-desc">Customize the subject (and, where shown, body) of every outbound email. Unmodified fields show exactly what is sent today.</p>';
+    for (et_i := 0; et_i < length (et_types); et_i := et_i + 1)
+    {
+      declare et_key, et_label, et_subj_prop, et_subj_default, et_body_prop, et_body_default, et_hint VARCHAR;
+      declare et_cur_subj, et_cur_body VARCHAR;
+      et_key := et_types[et_i][0]; et_label := et_types[et_i][1];
+      et_subj_prop := et_types[et_i][2]; et_subj_default := et_types[et_i][3];
+      et_body_prop := et_types[et_i][4]; et_body_default := et_types[et_i][5];
+      et_hint := et_types[et_i][6];
+      et_cur_subj := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, et_subj_prop, et_subj_default);
+      et_cur_body := case when et_body_prop = '' then null else DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, et_body_prop, et_body_default) end;
+      email_templates_html := concat (email_templates_html, sprintf (
+        '<details class="collapsible"><summary class="panel-h3">%V</summary><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_email_template"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="template_type" value="%s"/><div class="nl-field"><label>Subject</label><input type="text" name="subject" value="%V"/></div>',
+        et_label, action_route, admin_token, et_key, et_cur_subj));
+      if (et_cur_body is not null)
+        email_templates_html := concat (email_templates_html, sprintf ('<div class="nl-field"><label>Body</label><textarea name="body" rows="5" style="width:100%%;">%V</textarea></div>', et_cur_body));
+      email_templates_html := concat (email_templates_html, sprintf (
+        '<p class="hint">%V</p><button type="submit">Save</button></form>' ||
+        '<form method="post" action="%s"><input type="hidden" name="admin_action" value="set_email_template"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="template_type" value="%s"/><input type="hidden" name="reset" value="1"/><button type="submit" class="secondary">Reset to Default</button></form></details>',
+        et_hint, action_route, admin_token, et_key));
+    }
+    email_templates_html := concat (email_templates_html, '</details></section>');
   }
 
   -- Sender identity, SMTP relay override, and the base URL used to build
@@ -1528,7 +1663,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   if (action_route <> '')
   {
     email_config_html := sprintf (
-      '<section class="panel"><h2>Email Server Config</h2><p class="panel-desc">Sender identity, SMTP relay override, and the base URL used to build absolute links in every email.</p>' ||
+      '<section class="panel"><details class="collapsible"><summary class="panel-h2">Email Server Config</summary><p class="panel-desc">Sender identity, SMTP relay override, and the base URL used to build absolute links in every email.</p>' ||
       '<form method="post" action="%s" class="manual-add-form"><input type="hidden" name="admin_action" value="set_email_config"/><input type="hidden" name="admin_token" value="%s"/>' ||
       '<table class="manual-add"><tbody>' ||
       '<tr><td>From name</td><td><input type="text" name="from_name" value="%V"/></td></tr>' ||
@@ -1539,7 +1674,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '</tbody></table>' ||
       '<button type="submit">Save</button>' ||
       '<p class="hint">Currently resolved SMTP relay: <strong>%V</strong>. Base URL is required for any email link (post, unsubscribe) to work. Admin email is used as Reply-To on outgoing newsletter mail and receives operational alerts (new confirmed subscribers, failed digest sends) -- leave it blank to disable both.</p>' ||
-      '</form></section>',
+      '</form></details></section>',
       action_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_smtp_override, current_base_url, resolved_smtp);
   }
 
@@ -1563,12 +1698,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     }
 
     import_html := sprintf (
-      '<section class="panel"><h2>Import Subscribers</h2><p class="panel-desc">Admin-only onboarding: added subscribers are marked confirmed immediately and sent an activation notice with an unsubscribe link -- no confirm-click required, but they can opt out.</p>' ||
+      '<section class="panel"><details class="collapsible"><summary class="panel-h2">Import Subscribers</summary><p class="panel-desc">Admin-only onboarding: added subscribers are marked confirmed immediately and sent an activation notice with an unsubscribe link -- no confirm-click required, but they can opt out.</p>' ||
       '<div class="import-grid">' ||
       '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><button type="submit">Import CSV</button></form></div>' ||
       '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><button type="submit">Import RDF</button></form></div>' ||
       '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><button type="submit">Add Subscribers</button></form></div>' ||
-      '</div></section>',
+      '</div></details></section>',
       action_route, admin_token,
       action_route, admin_token,
       action_route, admin_token, manual_rows_html);
@@ -1653,13 +1788,14 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     dash_status_text := case when dash_scheduled = 1 then 'Scheduled' else 'Off' end;
 
     tag_schedule_html := sprintf (
-      '<section class="panel"><h2>Tagging &amp; Scheduling</h2><p class="panel-desc">Per-post category/pin metadata, and this collection''s background jobs.</p>' ||
+      '<section class="panel"><details class="collapsible"><summary class="panel-h2">Tagging &amp; Scheduling</summary><p class="panel-desc">Per-post category/pin metadata, and this collection''s background jobs.</p>' ||
       '<datalist id="category-options">%s</datalist>' ||
-      '<h3>Post Tags &amp; Pinning</h3><table class="subscribers"><thead><tr><th>Post</th><th>Category</th><th>Pinned</th></tr></thead><tbody>%s</tbody></table>' ||
-      '<h3>Scheduled Jobs</h3>' ||
+      '<details class="collapsible"><summary class="panel-h3">Post Tags &amp; Pinning</summary><table class="subscribers"><thead><tr><th>Post</th><th>Category</th><th>Pinned</th></tr></thead><tbody>%s</tbody></table></details>' ||
+      '<details class="collapsible"><summary class="panel-h3">Scheduled Jobs</summary>' ||
       '<div class="setting-row"><div class="setting-label">Newsletter digest check <span class="badge %s">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_digest_schedule"/><input type="hidden" name="admin_token" value="%s"/><select name="digest_enabled"><option value="1"%s>On</option><option value="0"%s>Off</option></select><input type="number" name="minutes" min="1" value="%d"/><button type="submit">Save</button></form></div></div>' ||
       '<div class="setting-row"><div class="setting-label">Dashboard auto-refresh <span class="badge %s">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_dashboard_schedule"/><input type="hidden" name="admin_token" value="%s"/><select name="dash_enabled"><option value="1"%s>On</option><option value="0"%s>Off</option></select><input type="number" name="dash_minutes" min="1" value="%d"/><button type="submit">Save</button></form></div></div>' ||
-      '</section>',
+      '</details>' ||
+      '</details></section>',
       categories_datalist,
       posts_rows,
       digest_status_class, digest_status_text, action_route, admin_token, case when digest_scheduled = 1 then ' selected="selected"' else '' end, case when digest_scheduled = 0 then ' selected="selected"' else '' end, current_interval,
@@ -1707,6 +1843,18 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     '.stat .n{font-size:1.7rem;font-weight:700;line-height:1.1;}.stat .l{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;margin-top:.25rem;}' ||
     'section.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.4rem 1.5rem;margin-bottom:1.5rem;}' ||
     'section.panel h2{font-size:1rem;margin:0 0 .2rem;}section.panel h3{font-size:.88rem;margin:0 0 .3rem;}section.panel .panel-desc{color:var(--muted);font-size:.82rem;margin:0 0 1.1rem;}' ||
+    -- Collapsed by default (no open attribute) -- Subscribers, Post Tags &
+    -- Pinning, and Scheduled Jobs can all get long, and a freshly opened
+    -- dashboard shouldn''t force scrolling past all of them to reach
+    -- Delivery Settings/Email Server Config. Native <details>, no JS.
+    'details.collapsible{margin:1rem 0;}details.collapsible:first-of-type{margin-top:0;}' ||
+    'details.collapsible>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.45rem;}' ||
+    'details.collapsible>summary::-webkit-details-marker{display:none;}' ||
+    'details.collapsible>summary::before{content:"\\25B6";font-size:.65rem;color:var(--muted);transition:transform .15s ease;display:inline-block;}' ||
+    'details.collapsible[open]>summary::before{transform:rotate(90deg);}' ||
+    'summary.panel-h2{font-size:1rem;font-weight:700;margin:0 0 .2rem;}summary.panel-h3{font-size:.88rem;font-weight:600;margin:0 0 .3rem;}' ||
+    'details.collapsible>summary .count-badge{color:var(--muted);font-weight:500;font-size:.82rem;}' ||
+    'details.collapsible[open]>summary{margin-bottom:.9rem;}' ||
     '.setting-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}.setting-row:last-of-type{border-bottom:none;padding-bottom:0;}' ||
     '.setting-label{font-weight:600;font-size:.88rem;white-space:nowrap;}.setting-control{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}' ||
     '.setting-control form{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}' ||
@@ -1737,8 +1885,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     '<div class="page-head"><div><h1>Subscriber Dashboard</h1><p>Newsletter subscribers, delivery settings, and onboarding tools for this weblog.</p></div><button class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Toggle light and dark theme" title="Toggle theme" data-theme-toggle><span class="theme-switch-track"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.8 8.8 0 1 1 11.2 3 6.8 6.8 0 0 0 21 12.8z"/></svg><span class="theme-switch-thumb"></span></span></button></div>' ||
     '<div id="admin-banner-slot"></div>' ||
     '<div class="stats"><div class="stat"><div class="n">%d</div><div class="l">Total</div></div><div class="stat pending"><div class="n">%d</div><div class="l">Pending</div></div><div class="stat confirmed"><div class="n">%d</div><div class="l">Confirmed</div></div><div class="stat unsubscribed"><div class="n">%d</div><div class="l">Unsubscribed</div></div></div>' ||
-    '%s%s%s%s' ||
-    '<section class="panel"><h2>Subscribers</h2><table class="subscribers"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Subscribed</th><th>Confirmed</th><th>Last Digest Sent</th><th>Actions</th></tr></thead><tbody>%s</tbody></table></section>' ||
+    '%s%s%s%s%s' ||
+    '<section class="panel"><details class="collapsible"><summary class="panel-h2">Subscribers <span class="count-badge">(%d)</span></summary><table class="subscribers"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Subscribed</th><th>Confirmed</th><th>Last Digest Sent</th><th>Actions</th></tr></thead><tbody>%s</tbody></table></details></section>' ||
     '<p class="refreshed">Refreshed %s</p>' ||
     '</main>' ||
     -- Every admin action now redirects back here (HTML/JS-level, not a
@@ -1750,7 +1898,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     '<script>(function(){var m=new URLSearchParams(location.search).get("admin_msg");if(!m)return;var slot=document.getElementById("admin-banner-slot");if(!slot)return;var b=document.createElement("div");b.className="admin-banner";var t=document.createElement("span");t.textContent=m;var x=document.createElement("button");x.type="button";x.textContent="Dismiss";x.addEventListener("click",function(){b.remove();});b.appendChild(t);b.appendChild(x);slot.appendChild(b);try{history.replaceState(null,"",location.pathname);}catch(e){}})();</script>' ||
     '<script>(function(){var b=document.querySelector("[data-theme-toggle]");if(!b)return;function cur(){var e=document.documentElement.getAttribute("data-theme");if(e==="dark"||e==="light")return e;return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}b.setAttribute("aria-checked",cur()==="dark"?"true":"false");b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);b.setAttribute("aria-checked",n==="dark"?"true":"false");try{window.localStorage.setItem("weblog-dashboard-theme",n);}catch(e){}});})();</script>' ||
     '</body></html>',
-    dash_total, dash_pending, dash_confirmed, dash_unsubscribed, controls_html, email_config_html, import_html, tag_schedule_html, dash_rows, cast (now () as varchar));
+    dash_total, dash_pending, dash_confirmed, dash_unsubscribed, controls_html, email_config_html, email_templates_html, import_html, tag_schedule_html, dash_total, dash_rows, cast (now () as varchar));
 
   stream := string_output ();
   http (html, stream);
