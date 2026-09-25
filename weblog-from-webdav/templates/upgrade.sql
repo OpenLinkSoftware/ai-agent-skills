@@ -2154,6 +2154,80 @@ CREATE PROCEDURE DB.DBA.WEBLOG_UTF8_DECODE (IN s ANY)
 }
 ;
 
+-- Shared, persistent helper: decode the HTML character references found in
+-- a post's <title> so the raw title text can be re-escaped exactly once by
+-- sprintf('%V', ...). Handles every numeric reference (&#39; &#x27; &#8212;
+-- &#x2014; ...), encoded here as raw UTF-8 bytes to match the rest of the
+-- title, plus the common named ones. A malformed or out-of-range numeric
+-- reference is left as literal text. &amp; is decoded LAST so that
+-- "&amp;#x27;" (literal text "&#x27;") is not decoded twice.
+CREATE PROCEDURE DB.DBA.WEBLOG_HTML_UNESCAPE (IN s VARCHAR)
+{
+  declare ent, digits, enc, alphabet varchar;
+  declare cp, i, d, ok, base, guard int;
+  if (s is null or not isstring (s) or strchr (s, '&') is null) return s;
+  guard := 0;
+  ent := regexp_substr ('&#[xX]?[0-9a-fA-F]+;', s, 0);
+  while (ent is not null and guard < 500)
+  {
+    guard := guard + 1;
+    digits := lower (subseq (ent, 2, length (ent) - 1));
+    base := 10;
+    alphabet := '0123456789';
+    if (subseq (digits, 0, 1) = 'x')
+    {
+      base := 16;
+      alphabet := '0123456789abcdef';
+      digits := subseq (digits, 1);
+    }
+    ok := 1;
+    cp := 0;
+    if (length (digits) = 0 or length (digits) > 7)
+      ok := 0;
+    for (i := 0; ok and i < length (digits); i := i + 1)
+    {
+      d := locate (subseq (digits, i, i + 1), alphabet) - 1;
+      if (d < 0)
+        ok := 0;
+      else
+        cp := cp * base + d;
+    }
+    if (cp = 0 or cp > 1114111 or (cp >= 55296 and cp <= 57343))
+      ok := 0;
+    if (ok)
+    {
+      if (cp < 128)
+        enc := chr (cp);
+      else if (cp < 2048)
+        enc := concat (chr (192 + bit_shift (cp, -6)), chr (128 + bit_and (cp, 63)));
+      else if (cp < 65536)
+        enc := concat (chr (224 + bit_shift (cp, -12)), chr (128 + bit_and (bit_shift (cp, -6), 63)), chr (128 + bit_and (cp, 63)));
+      else
+        enc := concat (chr (240 + bit_shift (cp, -18)), chr (128 + bit_and (bit_shift (cp, -12), 63)), chr (128 + bit_and (bit_shift (cp, -6), 63)), chr (128 + bit_and (cp, 63)));
+      s := replace (s, ent, enc);
+    }
+    else
+      s := replace (s, ent, concat ('&amp;', subseq (ent, 1)));
+    ent := regexp_substr ('&#[xX]?[0-9a-fA-F]+;', s, 0);
+  }
+  s := replace (s, '&quot;', chr (34));
+  s := replace (s, '&apos;', chr (39));
+  s := replace (s, '&lt;', '<');
+  s := replace (s, '&gt;', '>');
+  s := replace (s, '&nbsp;', concat (chr (194), chr (160)));
+  s := replace (s, '&middot;', concat (chr (194), chr (183)));
+  s := replace (s, '&ndash;', concat (chr (226), chr (128), chr (147)));
+  s := replace (s, '&mdash;', concat (chr (226), chr (128), chr (148)));
+  s := replace (s, '&lsquo;', concat (chr (226), chr (128), chr (152)));
+  s := replace (s, '&rsquo;', concat (chr (226), chr (128), chr (153)));
+  s := replace (s, '&ldquo;', concat (chr (226), chr (128), chr (156)));
+  s := replace (s, '&rdquo;', concat (chr (226), chr (128), chr (157)));
+  s := replace (s, '&hellip;', concat (chr (226), chr (128), chr (166)));
+  s := replace (s, '&amp;', '&');
+  return s;
+}
+;
+
 -- Shared, persistent helper: read a custom WebDAV property set on a
 -- COLLECTION resource (not a post), the config mechanism for weblog:skin,
 -- weblog:newsletterEnabled and friends. Falls back to default_val when the
@@ -3163,12 +3237,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         t := replace (t, ''<title>'', '''');
         t := replace (t, ''</title>'', '''');
         t := trim (t);
-        t := replace (t, ''&amp;'', ''&'');
-        t := replace (t, ''&quot;'', chr(34));
-        t := replace (t, ''&#39;'', chr(39));
-        t := replace (t, ''&apos;'', chr(39));
-        t := replace (t, ''&ndash;'', ''-'');
-        t := replace (t, ''&mdash;'', ''-'');
+        t := DB.DBA.WEBLOG_HTML_UNESCAPE (t);
         t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
       }
     }
