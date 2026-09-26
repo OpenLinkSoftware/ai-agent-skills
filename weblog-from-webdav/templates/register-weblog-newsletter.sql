@@ -885,6 +885,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_UNSUBSCRIBE (IN token VARCHAR, IN noti
 CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collection VARCHAR, IN email VARCHAR, IN name VARCHAR := null, IN token VARCHAR := null)
 {
   declare coll, from_addr, from_name, public_route, smtp_server, subj, greeting, body, msg, unsub_url, bulk_hdrs VARCHAR;
+  declare base_url, blog_url, body_html VARCHAR;
   declare exit handler for sqlstate '*' { return 0; };
 
   coll := trim (dav_collection);
@@ -897,22 +898,36 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
   smtp_server := DB.DBA.WEBLOG_NEWSLETTER_RESOLVE_SMTP (coll);
   if (smtp_server is null or trim (smtp_server) = '') return 0;
 
+  -- Absolute links: a bare route like "/weblog/" means nothing inside a
+  -- mail client (and a relative List-Unsubscribe header is unusable).
+  -- Falls back to the route only if no base URL is configured.
+  base_url := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterConfirmBaseUrl', ''));
+  if (base_url <> '' and subseq (base_url, length (base_url) - 1) = '/') base_url := subseq (base_url, 0, length (base_url) - 1);
+  blog_url := concat (base_url, public_route);
+
   unsub_url := null;
   if (token is not null and trim (token) <> '')
-    unsub_url := sprintf ('%s?nl_action=unsubscribe&token=%s', public_route, trim (token));
+    unsub_url := sprintf ('%s?nl_action=unsubscribe&token=%s', blog_url, trim (token));
 
   greeting := case when name is not null and trim (name) <> '' then sprintf ('Hi %s,\r\n\r\n', trim (name)) else '' end;
   subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectUnsubscribeNotice',
     '{{WEBLOG_TITLE}}: you have been unsubscribed', vector ('{{WEBLOG_TITLE}}', from_name));
+  -- {{RESUBSCRIBE_URL}} is the weblog's name linked to its URL: in the
+  -- HTML part a real link labelled with the name, in the plain-text part
+  -- "Name <URL>" (plain text can't carry link text).
   body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyUnsubscribeNotice',
     '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
-    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{RESUBSCRIBE_URL}}', public_route));
+    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{RESUBSCRIBE_URL}}', sprintf ('%s <%s>', from_name, blog_url)));
+  body_html := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyUnsubscribeNotice',
+    '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
+    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{RESUBSCRIBE_URL}}', blog_url));
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
   msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, body,
     DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
-      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('You have been unsubscribed', body, null, null),
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('You have been unsubscribed', body_html, null, null, blog_url, from_name),
       from_name, null, '', sprintf ('You will not receive further emails from %s.', from_name),
-      null, DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
+      case when base_url = '' then null else blog_url end,
+      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -1692,7 +1707,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_BUTTON (IN url VARCHAR, IN label VARCH
 -- text is escaped, blank lines become paragraphs, and the line holding the
 -- primary link becomes a button (the link stays visible below it as text,
 -- for clients that block buttons or readers who want to copy it).
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (IN heading VARCHAR, IN txt VARCHAR, IN button_url VARCHAR, IN button_label VARCHAR)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (IN heading VARCHAR, IN txt VARCHAR, IN button_url VARCHAR, IN button_label VARCHAR, IN link_url VARCHAR := null, IN link_label VARCHAR := null)
 {
   declare paras any;
   declare out_html, p, esc_url VARCHAR;
@@ -1721,6 +1736,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (IN heading VARCHAR, IN t
           'Or open this link: <a href="', esc_url, '" style="color:#8a8a8a">', esc_url, '</a></p>');
         button_done := 1;
       }
+      else if (link_url is not null and strstr (line, link_url) is not null)
+        -- A named link (e.g. the weblog URL in the unsubscribe notice) shows
+        -- its label, wherever the template puts it in the line.
+        p := concat (p, case when p = '' then '' else '<br>' end,
+          replace (DB.DBA.WEBLOG_HTML_ESC_BYTES (line), DB.DBA.WEBLOG_HTML_ESC_BYTES (link_url),
+            concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (link_url), '" target="_blank" style="color:#1f4e79;font-weight:bold;text-decoration:underline">',
+              DB.DBA.WEBLOG_HTML_ESC_BYTES (coalesce (link_label, link_url)), '</a>')));
       else if ((line like 'http://%' or line like 'https://%') and strchr (line, ' ') is null)
         -- Any other bare URL line (e.g. an unsubscribe link) becomes a link.
         p := concat (p, case when p = '' then '' else '<br>' end, '<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (line),
