@@ -791,6 +791,103 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
               admin_result := sprintf (''Skin set to "%s".'', skin_param);
           }
         }
+        else if (admin_action = ''set_email_template'')
+        {
+          -- Each outbound email type maps to one subject property and (for
+          -- types whose body is admin-editable free text, not generated
+          -- content like the digest''s post cards) one body property.
+          -- required lists the {{TOKEN}}s that MUST survive in the saved
+          -- body -- e.g. a confirm email with no {{CONFIRM_URL}} would have
+          -- no way to actually confirm, so that save is rejected outright
+          -- rather than silently shipping a broken email later.
+          declare et_type, et_subject, et_body, et_reset varchar;
+          declare et_subject_prop, et_body_prop, et_check, et_fail varchar;
+          declare et_required any;
+          declare et_rc any;
+          et_type := http_param (''template_type'');
+          et_subject := http_param (''subject'');
+          et_body := http_param (''body'');
+          et_reset := http_param (''reset'');
+          if (not isstring (et_type)) et_type := '''';
+          if (not isstring (et_subject)) et_subject := '''';
+          if (not isstring (et_body)) et_body := '''';
+          if (not isstring (et_reset)) et_reset := '''';
+          et_type := trim (et_type);
+          et_subject := trim (et_subject);
+
+          et_subject_prop := null;
+          et_body_prop := null;
+          et_required := vector ();
+          if (et_type = ''confirm'')
+          {
+            et_subject_prop := ''weblog:emailSubjectConfirm''; et_body_prop := ''weblog:emailBodyConfirm'';
+            et_required := vector (''{{CONFIRM_URL}}'');
+          }
+          else if (et_type = ''digest'')
+          {
+            et_subject_prop := ''weblog:emailSubjectDigest''; et_body_prop := ''weblog:emailIntroDigest'';
+          }
+          else if (et_type = ''immediate'')
+          {
+            et_subject_prop := ''weblog:emailSubjectImmediate'';
+          }
+          else if (et_type = ''activation'')
+          {
+            et_subject_prop := ''weblog:emailSubjectActivation''; et_body_prop := ''weblog:emailBodyActivation'';
+            et_required := vector (''{{UNSUBSCRIBE_URL}}'');
+          }
+          else if (et_type = ''unsubscribe_notice'')
+          {
+            et_subject_prop := ''weblog:emailSubjectUnsubscribeNotice''; et_body_prop := ''weblog:emailBodyUnsubscribeNotice'';
+            et_required := vector (''{{RESUBSCRIBE_URL}}'');
+          }
+          else if (et_type = ''admin_alert'')
+          {
+            et_subject_prop := ''weblog:emailSubjectAdminAlert'';
+          }
+
+          if (et_subject_prop is null)
+          {
+            admin_result := ''Unknown email template type.'';
+          }
+          else if (et_reset = ''1'')
+          {
+            declare exit handler for sqlstate ''*'' { ; };
+            DB.DBA.DAV_PROP_REMOVE_INT (''{{DAV_COLLECTION}}'', et_subject_prop, null, null, 0, 0);
+            if (et_body_prop is not null)
+              DB.DBA.DAV_PROP_REMOVE_INT (''{{DAV_COLLECTION}}'', et_body_prop, null, null, 0, 0);
+            admin_result := ''Email template reset to the default.'';
+          }
+          else if (et_subject = '''')
+          {
+            admin_result := ''Subject is required.'';
+          }
+          else
+          {
+            et_check := '''';
+            if (et_body_prop is not null and length (et_required) > 0)
+              et_check := DB.DBA.WEBLOG_CHECK_EMAIL_TEMPLATE_TOKENS (et_body, et_required);
+            if (et_check <> '''')
+            {
+              admin_result := sprintf (''Could not save: %s.'', et_check);
+            }
+            else
+            {
+              et_fail := '''';
+              et_rc := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', et_subject_prop, et_subject, null, null, 0, 0, 1);
+              if (not isinteger (et_rc) or et_rc < 0) et_fail := ''subject'';
+              if (et_body_prop is not null)
+              {
+                et_rc := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', et_body_prop, et_body, null, null, 0, 0, 1);
+                if (not isinteger (et_rc) or et_rc < 0) et_fail := et_fail || '' body'';
+              }
+              if (et_fail <> '''')
+                admin_result := sprintf (''Could not save the %s.'', trim (et_fail));
+              else
+                admin_result := ''Email template saved.'';
+            }
+          }
+        }
         else if (admin_action = ''set_email_config'')
         {
           declare fn_param, fa_param, smtp_param, base_param, admin_email_param varchar;
@@ -1570,11 +1667,11 @@ next_row: ;
     .nl-form { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; align-items: flex-end; }
     .nl-field { display: grid; gap: 0.25rem; text-align: left; }
     .nl-field label { font-size: 0.78rem; color: var(--muted); }
-    .nl-field input {
+    .nl-field input, .nl-field select {
       min-height: 2.3rem; min-width: 15rem; border: 1px solid var(--border); border-radius: 4px;
       padding: 0.45rem 0.6rem; font: inherit; font-size: 0.9rem; background: #fff; color: #172838;
     }
-    .nl-field.nl-country input { min-width: 9rem; }
+    .nl-field.nl-country select { width: 15rem; min-width: 15rem; max-width: 100%; }
     .nl-submit {
       min-height: 2.3rem; padding: 0.45rem 1.1rem; border: 0; border-radius: 4px;
       background: var(--accent); color: #fff; font-weight: 700; cursor: pointer;
@@ -1672,7 +1769,7 @@ next_row: ;
     .results-panel .results-list a { font-family: var(--headline); font-size: 1.05rem; font-weight: 700; }
     .results-meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; }
     .newsletter-band { background: var(--panel); }
-    .nl-field input { background: var(--paper); color: var(--text); }
+    .nl-field input, .nl-field select { background: var(--paper); color: var(--text); }
   </style>
 <?vsp } else { ?>
   <style>
@@ -2019,7 +2116,20 @@ next_row: ;
       </div>
       <div class="nl-field nl-country">
         <label for="nl-country">Country (optional)</label>
-        <input id="nl-country" type="text" name="country" placeholder="Country" />
+        <select id="nl-country" name="country">
+          <option value="">Prefer not to say</option>
+<?vsp
+  -- ISO 3166-1 list from DB.DBA.WEBLOG_COUNTRY_LIST (register-weblog-newsletter.sql):
+  -- the value posted is the 2-letter code, so WS_COUNTRY never holds free text.
+  {
+    declare country_list any;
+    declare ci int;
+    country_list := DB.DBA.WEBLOG_COUNTRY_LIST ();
+    for (ci := 0; ci < length (country_list); ci := ci + 2)
+      http (sprintf (''<option value="%s">%s</option>'', country_list[ci], country_list[ci + 1]));
+  }
+?>
+        </select>
       </div>
       <button class="nl-submit" type="submit">Subscribe</button>
     </form>
