@@ -23,6 +23,10 @@ AGENT-prior.md
 CLAUDE-prior.md
 agent-rdf-memory/projects/
 agent-rdf-memory/preferences.private.ttl
+# Private howto documents (host names, credential-retrieval chains). The
+# *.private.ttl suffix is the durable marker; the secret values themselves are
+# never written to memory — only the resolution chain.
+agent-rdf-memory/howto/*.private.ttl
 agent-rdf-memory/sessions/*
 !agent-rdf-memory/sessions/2026-06-15-deepseek_v4pro-claude_code.ttl
 !agent-rdf-memory/sessions/2026-06-15-gpt5_chat-codex.ttl
