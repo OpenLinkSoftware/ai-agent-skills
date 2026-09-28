@@ -1013,7 +1013,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
   msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, text_body,
     DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
-      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (concat ('Welcome to ', from_name), body,
+      -- Just "Welcome": the masthead right above already names the weblog.
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('Welcome', body,
         concat (base_url, public_route), 'Visit the weblog'),
       from_name, unsub_url, '', sprintf ('You have been added to the %s mailing list.', from_name),
       concat (base_url, public_route),
@@ -2034,7 +2035,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body
     '<tr><td align="center" style="padding:0 0 18px 0;font-family:Georgia,''Times New Roman'',serif;font-size:19px;line-height:1.3;font-weight:bold;color:#111111">', masthead, '</td></tr>',
     '<tr><td class="wl-card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e8e8e4;border-radius:8px;padding:40px 44px">', coalesce (body_html, ''), '</td></tr>',
     '<tr><td align="center" style="padding:26px 24px 0 24px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8a8a">',
-    'You&#39;re receiving this because you subscribed to ', pub, '.',
+    -- The masthead names the weblog once; the footer does not repeat it.
+    'You&#39;re receiving this because you subscribed to this weblog.',
     case when footer_links = '' then '' else concat ('<br>', footer_links) end,
     case when coalesce (trim (postal_address), '') = '' then '' else concat ('<br>', DB.DBA.WEBLOG_HTML_ESC_BYTES (trim (postal_address))) end,
     '</td></tr>',
@@ -2157,7 +2159,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     post_css := aref (excerpt_result, 1);
     -- Subtitle (the page's meta description) and reading time.
     meta := DB.DBA.WEBLOG_NEWSLETTER_POST_META (coll, pname);
-    byline := concat (from_name, sep, sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
+    -- Date and reading time only: the masthead names the weblog once, not
+    -- again on every post in a digest.
+    byline := concat (sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
       sep, sprintf ('%d min read', meta[2]));
     card := DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (DB.DBA.WEBLOG_HTML_ESC_BYTES (title), url, excerpt, meta[0], byline);
     -- Plain-text alternative for this post.

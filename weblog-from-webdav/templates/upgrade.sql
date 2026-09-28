@@ -1,5 +1,6 @@
 -- ============================================================================
--- upgrade.sql -- single-file setup/upgrade for a weblog-from-webdav
+-- upgrade.sql -- THE single file for a fresh install AND every upgrade of a
+-- weblog-from-webdav
 -- deployment (templates/deploy-weblog-skinned.sql), for manual application
 -- via your own working isql session.
 --
@@ -47,7 +48,8 @@
 -- ============================================================================
 
 -- ============================================================================
--- TARGET -- the only thing to edit. Three values:
+-- TARGET -- the only thing to edit, for a FRESH INSTALL or an UPGRADE.
+-- Three values are required:
 --   1. the weblog's DAV collection
 --   2. the host of its public URL
 --   3. the path of its public URL
@@ -75,12 +77,23 @@
 create procedure DB.DBA.TMP_WEBLOG_UPGRADE_TARGET ()
 {
   return vector (
-    '',       -- DAV collection, e.g. '/DAV/demos/daas/'
+    -- Required: where the weblog lives and where it is served.
+    '',       -- DAV collection, e.g. '/DAV/demos/daas/'  (created if missing)
     '',       -- public host,    e.g. 'linkeddata.uriburner.com'
     '',       -- public path,    e.g. '/weblog/'
-    0,        -- allow_template_overwrite
-    0,        -- dry_run
-    '');      -- admin_collection ('' = recorded / default)
+    0,        -- allow_template_overwrite (1 only to replace a hand-built index.vsp)
+    0,        -- dry_run (1 = print the plan, change nothing)
+    '',       -- admin_collection ('' = recorded / default)
+    -- Optional masthead -- fill in for a FRESH INSTALL, or to change it.
+    -- Blank = keep what the weblog has (recorded, or read from its page);
+    -- a brand-new weblog with these blank gets "WebDAV Weblog" and a
+    -- generic tagline.
+    '',       -- title,             e.g. 'OpenLink Software Weblog'
+    '',       -- tagline
+    '',       -- tagline link URL,  e.g. the DAV collection path
+    '',       -- tagline link text, e.g. 'WebDAV Folder'
+    '',       -- help-tooltip term, e.g. 'Data Spaces'
+    '');      -- help-tooltip text
 }
 ;
 
@@ -1149,7 +1162,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
   msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, text_body,
     DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
-      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (concat ('Welcome to ', from_name), body,
+      -- Just "Welcome": the masthead right above already names the weblog.
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('Welcome', body,
         concat (base_url, public_route), 'Visit the weblog'),
       from_name, unsub_url, '', sprintf ('You have been added to the %s mailing list.', from_name),
       concat (base_url, public_route),
@@ -2170,7 +2184,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body
     '<tr><td align="center" style="padding:0 0 18px 0;font-family:Georgia,''Times New Roman'',serif;font-size:19px;line-height:1.3;font-weight:bold;color:#111111">', masthead, '</td></tr>',
     '<tr><td class="wl-card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e8e8e4;border-radius:8px;padding:40px 44px">', coalesce (body_html, ''), '</td></tr>',
     '<tr><td align="center" style="padding:26px 24px 0 24px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8a8a">',
-    'You&#39;re receiving this because you subscribed to ', pub, '.',
+    -- The masthead names the weblog once; the footer does not repeat it.
+    'You&#39;re receiving this because you subscribed to this weblog.',
     case when footer_links = '' then '' else concat ('<br>', footer_links) end,
     case when coalesce (trim (postal_address), '') = '' then '' else concat ('<br>', DB.DBA.WEBLOG_HTML_ESC_BYTES (trim (postal_address))) end,
     '</td></tr>',
@@ -2293,7 +2308,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     post_css := aref (excerpt_result, 1);
     -- Subtitle (the page's meta description) and reading time.
     meta := DB.DBA.WEBLOG_NEWSLETTER_POST_META (coll, pname);
-    byline := concat (from_name, sep, sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
+    -- Date and reading time only: the masthead names the weblog once, not
+    -- again on every post in a digest.
+    byline := concat (sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
       sep, sprintf ('%d min read', meta[2]));
     card := DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (DB.DBA.WEBLOG_HTML_ESC_BYTES (title), url, excerpt, meta[0], byline);
     -- Plain-text alternative for this post.
@@ -5787,8 +5804,11 @@ next_row: ;
 ;
 
 -- ==========================================================================
--- One upgrade entry point for any weblog: needs only the DAV collection and
--- the weblog's public URL.
+-- One entry point for any weblog -- fresh install or upgrade: needs only the
+-- DAV collection and the weblog's public URL. A fresh install can also give
+-- its masthead (weblog_title, weblog_tagline, tagline link and help
+-- tooltip); a value given here always wins, blank means recorded / current
+-- page / default. A collection that does not exist yet is created.
 --
 --   select DB.DBA.WEBLOG_UPGRADE ('/DAV/demos/daas/', 'https://linkeddata.uriburner.com/weblog/');
 --
@@ -5997,12 +6017,18 @@ CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
     IN public_url VARCHAR,
     IN allow_template_overwrite INTEGER := 0,
     IN dry_run INTEGER := 0,
-    IN admin_collection VARCHAR := null
+    IN admin_collection VARCHAR := null,
+    IN weblog_title VARCHAR := null,
+    IN weblog_tagline VARCHAR := null,
+    IN tagline_link_url VARCHAR := null,
+    IN tagline_link_text VARCHAR := null,
+    IN tagline_help_term VARCHAR := null,
+    IN tagline_help_text VARCHAR := null
   )
 {
   declare coll, url, rest, host, route, idx, dash, dav_user, admin_coll, admin_host, skin, backup_note VARCHAR;
-  declare recorded_route, is_template VARCHAR;
-  declare scan, vals, srcs, names, props, defaults any;
+  declare recorded_route, is_template, coll_note VARCHAR;
+  declare scan, vals, srcs, names, props, defaults, given any;
   declare p, i int;
   declare deploy_result any;
 
@@ -6010,8 +6036,22 @@ CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
   if (coll = '')
     signal ('22023', 'WEBLOG_UPGRADE: dav_collection is required (e.g. /DAV/demos/daas/).');
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  -- Fresh install: a collection that does not exist yet is created (its
+  -- parent must exist) -- on a dry run it is only reported.
+  coll_note := 'existing';
   if (DB.DBA.DAV_SEARCH_ID (coll, 'C') <= 0)
-    signal ('22023', sprintf ('WEBLOG_UPGRADE: DAV collection %s does not exist.', coll));
+  {
+    coll_note := 'created';
+    if (dry_run = 0)
+    {
+      declare crc any;
+      crc := DB.DBA.DAV_COL_CREATE_INT (coll, '110100100R', 'dba', 'administrators', null, null, 0, 0, 0);
+      if (not isinteger (crc) or crc < 0)
+        signal ('22023', sprintf ('WEBLOG_UPGRADE: DAV collection %s does not exist and could not be created (DAV error %s) -- does its parent collection exist?', coll, cast (crc as varchar)));
+    }
+    else
+      coll_note := 'will be created';
+  }
 
   -- Route and host from the public URL (scheme optional).
   url := trim (coalesce (public_url, ''));
@@ -6040,11 +6080,17 @@ CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
   -- Recorded property first, then the current index.vsp, then a default.
   names := vector ('title', 'tagline', 'taglineLinkUrl', 'taglineLinkText', 'taglineHelpTerm', 'taglineHelpText');
   defaults := vector ('WebDAV Weblog', 'A configurable, skinnable weblog view of a WebDAV folder.', null, null, null, null);
+  given := vector (weblog_title, weblog_tagline, tagline_link_url, tagline_link_text, tagline_help_term, tagline_help_text);
   vals := make_array (6, 'any');
   srcs := make_array (6, 'any');
   for (i := 0; i < 6; i := i + 1)
   {
-    declare rec VARCHAR;
+    declare rec, giv VARCHAR;
+    -- A value given to this call wins (a fresh install's masthead, or a
+    -- deliberate change); single-line text only, like every source.
+    giv := trim (coalesce (cast (given[i] as varchar), ''));
+    if (giv <> '' and (strchr (giv, chr (10)) is not null or strchr (giv, chr (13)) is not null or length (giv) > 500))
+      giv := '';
     rec := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, concat ('weblog:', names[i]), '');
     -- Masthead values are single-line text; anything else is discarded
     -- (e.g. the code fragment a faulty scan recorded as weblog:title on
@@ -6053,7 +6099,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
       rec := '';
     if (scan[i] is not null and (strchr (scan[i], chr (10)) is not null or strchr (scan[i], chr (13)) is not null or length (scan[i]) > 500))
       aset (scan, i, null);
-    if (rec <> '')
+    if (giv <> '')
+    {
+      aset (vals, i, giv);
+      aset (srcs, i, 'given');
+    }
+    else if (rec <> '')
     {
       aset (vals, i, rec);
       aset (srcs, i, 'recorded');
@@ -6105,6 +6156,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
 
   return concat ('{"dry_run":', case when dry_run = 0 then 'false' else 'true' end,
     ',"dav_collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (coll),
+    ',"collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (coll_note),
     ',"public_route":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (route),
     case when recorded_route <> '' and recorded_route <> route
       then concat (',"note":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (sprintf ('route changes from the recorded %s', recorded_route))) else '' end,
@@ -6267,7 +6319,8 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_RUN ()
   if (trim (t[0]) = '' or trim (t[1]) = '' or trim (t[2]) = '')
     return '{"ok":false,"reason":"Set the TARGET at the top of upgrade.sql (DAV collection, public host, public path) and run it again. The procedures were (re)installed; nothing was deployed."}';
   return DB.DBA.WEBLOG_UPGRADE (t[0], concat ('https:', '//', trim (t[1]), trim (t[2])), t[3], t[4],
-    case when trim (t[5]) = '' then null else trim (t[5]) end);
+    case when trim (t[5]) = '' then null else trim (t[5]) end,
+    t[6], t[7], t[8], t[9], t[10], t[11]);
 }
 ;
 commit work;
