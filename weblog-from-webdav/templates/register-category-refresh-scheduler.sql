@@ -167,7 +167,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
     scanned := scanned + 1;
     existing := DB.DBA.DAV_PROP_GET (_path, 'schema:category', dav_user, pwd);
     existing_text := '';
-    IF (existing IS NOT NULL)
+    -- DAV_PROP_GET returns a negative error code (-11) -- not null -- when the
+    -- property does not exist. Only a string is an existing category: casting
+    -- the code to '-11' made every uncategorized post look categorized, so it
+    -- was skipped forever (found 2026-09-27 on the openlinksw.com weblog).
+    IF (existing IS NOT NULL AND isstring (existing))
       existing_text := trim (cast (existing AS VARCHAR));
 
     IF (update_all = 0 AND existing_text <> '' AND existing_text <> '0')
