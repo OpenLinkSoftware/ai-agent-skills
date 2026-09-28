@@ -1,0 +1,35 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/tabulated-items-hyperlinked.ttl"@en ;
+    schema:description "When the user asks for something in tabulated form, the items in the table are hyperlinked, not rendered as bare text or bare URLs. Stated by the user 2026-09-25 as standard practice, after a table of site root URLs presented one of its columns as plain unlinked text."@en ;
+    schema:dateCreated "2026-09-25T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Hyperlink the items in a tabulated presentation"@en ;
+    schema:description "A request for tabular presentation is a request for a navigable table. Anything in it that has an address -- a URL, a repo file, a PR or issue, an entity with a resolver IRI -- is rendered as a hyperlink on the item itself, so the table can be used rather than only read."@en ;
+    schema:step :step-linkEveryAddressableItem, :step-brokenTargetIsNotAnExemption,
+        :step-labelNotRawUrl .
+
+:step-linkEveryAddressableItem a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Every addressable item in the table carries its own link"@en ;
+    schema:text "If an item has an address, the item text is the anchor. This covers live URLs, files in a repo (path, optionally with a :line suffix), pull requests and issues, and entities with a resolver IRI. A table whose cells name things the reader will want to open, but leaves them unlinked, has to be re-presented -- so link them the first time."@en ;
+    rdfs:seeAlso <entity-href-companion-ttl.ttl> .
+
+:step-brokenTargetIsNotAnExemption a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "A known-broken or caveated target is still hyperlinked; state the caveat alongside"@en ;
+    schema:text "The incident that prompted this rule, 2026-09-25: a table of four HTTPS site roots on oplussol11 was deliberately left UNLINKED because that host's TLS certificate is expired and carries the wrong CN, on the reasoning that handing over links which throw a browser warning was unhelpful. The user's correction was to hyperlink them anyway. Withholding a link does not protect the reader, it only makes the table unusable and hides the address; link the item, put the caveat in a note or an adjacent column, and leave the decision to the reader."@en .
+
+:step-labelNotRawUrl a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Anchor the meaningful label, not a bare URL, and never fabricate the target"@en ;
+    schema:text "Prefer the item's own name or path as the link text over pasting a raw URL into the cell. Every target still has to satisfy the no-fabricated-URLs rule -- verbatim from the user, tool-computed, or a fully verified pattern -- so verify each one before tabulating, and omit it and ask if it cannot be verified."@en ;
+    rdfs:seeAlso <dav-public-url-default.ttl> .

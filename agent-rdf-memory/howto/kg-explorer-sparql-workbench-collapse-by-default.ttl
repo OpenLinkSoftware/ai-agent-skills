@@ -1,0 +1,45 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "HowTo: KG Explorer / SPARQL Workbench Collapse-By-Default — Step 307 Supersedes Step 194"@en ;
+    schema:description "preferences.ttl Step 194 (2026-08-12) made #kg-explorer and #sparql-explorer always-visible sections, reversing Step 185's closed-by-default section-level <details> accordion. On 2026-09-24 the user re-confirmed the opposite as a standing preference ('Collapse by default is standing pref'), so Step 307 supersedes Step 194: both sections are again collapsible containers CLOSED BY DEFAULT. Step 185 is the historical precedent; Step 307 is the current standing rule."@en ;
+    schema:dateCreated "2026-09-24T17:53:09Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :collapseByDefault ;
+    rdfs:seeAlso <../preferences.ttl#step-kgSparqlCollapseByDefault>,
+        <../preferences.ttl#step-kgSparqlAccordionRemoved>,
+        <../preferences.ttl#step-sparqlSectionsClosedAccordion>,
+        <kg-explorer-sparql-workbench-accordion-removed.ttl>,
+        <accordion-summary-heading-inheritance-gap.ttl>,
+        <footer-sparql-explorer-gate.ttl> .
+
+:collapseByDefault a schema:HowTo ;
+    schema:name "KG Explorer and SPARQL Workbench are collapsible sections closed by default"@en ;
+    schema:description "The standing presentation rule for the two heavyweight interactive sections, as re-confirmed 2026-09-24."@en ;
+    schema:step :step-whatChanged, :step-implementation, :step-validatorNote, :step-history .
+
+:step-whatChanged a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "What changed: #kg-explorer and #sparql-workbench are again section-level collapsible containers, CLOSED BY DEFAULT"@en ;
+    schema:text "Kingsley, 2026-09-24, reviewing the Katzenberg 'AI For Creativity' competition collection: 'Collapse by default is standing pref.' This reverses Step 194 (2026-08-12 'always-visible sections') and re-establishes Step 185's collapsed-by-default treatment as the standing rule. Both #kg-explorer and #sparql-workbench (or their equivalent IDs) are wrapped in an outer <details class=\"section-accordion\"> with a styled <summary> header (section number + title + subtitle + a rotating ▼ chevron). On load the section shows only that header bar; clicking expands the full content with a fade-in."@en .
+
+:step-implementation a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Implementation: keep the section id on an inner wrapper; auto-expand on nav; leave per-query accordions alone"@en ;
+    schema:text "Four concrete requirements: (1) put id=\"kg-explorer\" / id=\"sparql-workbench\" on an inner .section-body wrapper INSIDE the <details> (not on the details itself) so presence and section-order checks continue to pass; the details carries its own id (kg-explorer-accordion / sparql-explorer-accordion). (2) The <summary> must restate the heading typography explicitly — tag-selector h1..h4 CSS never applies to a <summary> (see accordion-summary-heading-inheritance-gap.ttl, Step 188). (3) Add a nav-link handler that auto-opens any closed <details class=\"section-accordion\"> ancestor of a same-page anchor target, so floating-nav links do not land on a shut box. (4) Per-query <details class=\"sparql-card\"> accordions inside the workbench are unchanged and remain closed-by-default (never part of this rule)."@en .
+
+:step-validatorNote a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Validator note: the two 'must NOT be wrapped in a section-level accordion' forbid gates now fail INTENTIONALLY"@en ;
+    schema:text "validate-harness-contract.py forbids <details class=\"section-accordion\" id=\"kg-explorer-accordion\"> and <details class=\"section-accordion\" id=\"sparql-explorer-accordion\"> (added by Step 194). Artifacts built to Step 307 will report exactly those two FAILs. Treat them as expected when the current standing preference is collapsed-by-default — the direct, current user instruction takes precedence over that prior self-recorded gate — but every OTHER harness check must still pass (0 console errors, 0 failed requests, 0 orphan nodes, resolver links, section order, etc.)."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .
+
+:step-history a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "History: Step 185 (closed-by-default) → Step 194 (always-visible) → Step 307 (closed-by-default again)"@en ;
+    schema:text "Step 185 (2026-08-11) introduced the closed-by-default section accordion. Step 194 (2026-08-12) removed it on the instruction 'Remove the accordion aspect of the KG Explorer and SPARQL workbench cards.' Step 307 (2026-09-24) reinstates closed-by-default on 'Collapse by default is standing pref.' Net effect: the default is collapsed; the reader opts in to the heavy interactive surfaces. If revisited again, resolve by the newest explicit instruction, never by re-litigating the older rationale."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .

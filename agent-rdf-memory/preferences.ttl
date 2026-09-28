@@ -10,7 +10,7 @@
 <> a schema:CreativeWork ;
     schema:name "preferences.ttl"@en ;
     schema:description "Configuration for agent RDF memory management and semantic memory skill usage." ;
-    schema:dateModified "2026-09-20T20:25:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-24T17:53:09Z"^^xsd:dateTime ;
     schema:dateCreated "2026-05-29T17:22:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :agentBehaviorGuide .
@@ -2464,6 +2464,7 @@ When HTML includes a head-to-head / multi-column comparison of two or more named
 4. Every comparison aspect MUST be a described TTL **instance** (schema:name+description) typed with a proper ontology class: reuse shared or corpus-canonical classes (e.g. cdx:ComparisonDimension) when they exist; only mint a new class under a distinct owl:Ontology entity when no shared/corpus term fits (ontology-discovery + cross-reference gates). The first column of each table body row (and matching card row labels) MUST resolver-link to that **instance** IRI — never plain-text aspect labels.
 5. Overflow-safe cells (min-width:0; overflow-wrap:anywhere); dark-mode via two separate selector blocks.
 6. Verify both viewports before delivery (table block at desktop; cards block at ~390px phone width).
+7. TRIGGER IS STRUCTURAL, NOT EDITORIAL (recurrence 2026-09-20): grep the companion TTL for cdx:ComparisonDimension before writing any comparison HTML. Any hit means this contract applies — including a TWO-entity vendor-vs-Virtuoso meshup, the most common genre in this corpus, which is 'head-to-head' by definition. Per-dimension accordions are NOT the cards view and ship no table at any width. A PASS from validate-harness-contract.py does not cover this contract and must never be read as covering it. See howto/responsive-comparison-presentation.ttl#step-accordionIsNotDualPresentation.
 
 Do not ship a multi-column matrix that only horizontal-scrolls on phones. See howto/responsive-comparison-presentation.ttl."""@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
@@ -3740,4 +3741,24 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/jev-judgment-modality.ttl>,
         <howto/elicit-before-conditional-default.ttl>,
         <howto/session-governance.ttl> .
+
+# ── Step 307: KG Explorer / SPARQL Workbench are collapsible sections CLOSED BY DEFAULT — reverses Step 194 ──
+:step-kgSparqlCollapseByDefault a schema:HowToStep ;
+    schema:position "307"^^xsd:integer ;
+    schema:name "KG Explorer and SPARQL Workbench are collapsible sections CLOSED BY DEFAULT — wrap #kg-explorer and #sparql-workbench in a section-level <details class=\"section-accordion\"> with a styled <summary> header; this reverses Step 194 and re-establishes Step 185's collapsed-by-default treatment"@en ;
+    schema:text "Kingsley, 2026-09-24, reviewing the Katzenberg 'AI For Creativity' competition collection: 'Collapse by default is standing pref.' Both #kg-explorer and #sparql-workbench are wrapped in an outer <details class=\"section-accordion\"> with a <summary> header (section number + title + subtitle + rotating ▼ chevron), CLOSED on load, expanding with a fade-in on click. Keep id=\"kg-explorer\"/id=\"sparql-workbench\" on an inner .section-body wrapper so presence and section-order checks still pass; the details carries its own id (kg-explorer-accordion / sparql-explorer-accordion). Add a nav-link handler that auto-opens the target details on navigation. Per-query .sparql-card accordions inside the workbench stay closed-by-default as before. Note: validate-harness-contract.py's two forbid_regex() 'must NOT be wrapped in a section-level accordion' gates now intentionally FAIL for artifacts built to this preference — the direct, current user instruction takes precedence over that prior self-recorded gate; every other harness check must still pass."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/kg-explorer-sparql-workbench-collapse-by-default.ttl>,
+        :step-kgSparqlAccordionRemoved,
+        :step-sparqlSectionsClosedAccordion .
+
+# ── Step 308: items in a tabulated presentation are hyperlinked ──────────────
+:step-tabulatedItemsHyperlinked a schema:HowToStep ;
+    schema:position "308"^^xsd:integer ;
+    schema:name "When asked for tabulated form, hyperlink the items in the table — including ones whose target is known-broken, with the caveat stated alongside"@en ;
+    schema:text "Render every addressable item in a table as a hyperlink on the item itself, so the table can be used rather than only read."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/tabulated-items-hyperlinked.ttl>,
+        <howto/tabulated-items-hyperlinked.ttl#step-brokenTargetIsNotAnExemption>,
+        <howto/entity-href-companion-ttl.ttl> .
 
