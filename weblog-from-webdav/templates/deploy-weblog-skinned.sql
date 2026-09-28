@@ -331,7 +331,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     IN admin_listener VARCHAR := null,
     IN tagline_link_url VARCHAR := null,
     IN tagline_link_text VARCHAR := null,
-    IN allow_template_overwrite INTEGER := 0
+    IN allow_template_overwrite INTEGER := 0,
+    IN tagline_help_term VARCHAR := null,
+    IN tagline_help_text VARCHAR := null
   )
 {
   declare rc any;
@@ -350,18 +352,45 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
   if (subseq (route, length (route) - 1) <> '/') route := route || '/';
   if (default_skin <> 'editorial') default_skin := 'classic';
 
-  -- Optional real hyperlink appended after the plain tagline in the
-  -- VISIBLE masthead span only -- RSS <description> and <meta
-  -- name="description"> keep using weblog_tagline as plain text
-  -- unchanged. weblog_tagline itself is HTML-escaped at request time via
-  -- sprintf('%V', ...), so embedding a raw <a> tag directly in it would
-  -- show up as literal escaped text there, not a link (confirmed live);
-  -- this builds the link separately and safely instead.
-  declare tagline_link_html VARCHAR;
+  -- The visible masthead tagline is built HERE, at deploy time, as
+  -- finished HTML, and index.vsp emits it verbatim. It is escaped by
+  -- plain replace() so its raw UTF-8 bytes (e.g. an em dash) pass
+  -- through unchanged: sprintf('%V', ...) at request time re-encodes a
+  -- narrow UTF-8 string as if it were Latin-1 (the same double-encoding
+  -- that garbled post titles), and an embedded raw <a> would be escaped
+  -- into literal text. Optional extras: a trailing link
+  -- (tagline_link_url/_text) and a help tooltip on one phrase
+  -- (tagline_help_term/_text, e.g. "Data Spaces"). RSS <description>
+  -- and <meta name="description"> keep using weblog_tagline as plain text.
+  declare tagline_link_html, tagline_html VARCHAR;
   tagline_link_html := '';
   if (tagline_link_url is not null and trim (tagline_link_url) <> ''
       and tagline_link_text is not null and trim (tagline_link_text) <> '')
-    tagline_link_html := sprintf (' <a href="%V" target="_top" rel="noopener noreferrer">%V</a>', trim (tagline_link_url), trim (tagline_link_text));
+    tagline_link_html := concat (' <a href="',
+      replace (replace (replace (replace (replace (trim (tagline_link_url), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'),
+      '" target="_top" rel="noopener noreferrer">',
+      replace (replace (replace (replace (replace (trim (tagline_link_text), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'),
+      '</a>');
+  -- Backslash is escaped too: the result is spliced into a quoted
+  -- string literal in index.vsp's own source.
+  tagline_html := replace (replace (replace (replace (replace (replace (coalesce (weblog_tagline, ''),
+    '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;');
+  if (tagline_help_term is not null and trim (tagline_help_term) <> ''
+      and tagline_help_text is not null and trim (tagline_help_text) <> '')
+  {
+    declare term_esc, help_esc VARCHAR;
+    declare term_pos int;
+    term_esc := replace (replace (replace (replace (replace (replace (trim (tagline_help_term),
+      '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;');
+    help_esc := replace (replace (replace (replace (replace (replace (trim (tagline_help_text),
+      '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;');
+    term_pos := strstr (tagline_html, term_esc);
+    if (term_pos is not null)
+      tagline_html := concat (subseq (tagline_html, 0, term_pos),
+        '<span class="term-help" title="', help_esc, '">', term_esc, '</span>',
+        subseq (tagline_html, term_pos + length (term_esc)));
+  }
+  tagline_html := concat (tagline_html, tagline_link_html);
 
   index_path := coll || 'index.vsp';
   -- Admin route: serves the STATIC dashboard.html (refreshed by
@@ -834,7 +863,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           else if (et_type = ''activation'')
           {
             et_subject_prop := ''weblog:emailSubjectActivation''; et_body_prop := ''weblog:emailBodyActivation'';
-            et_required := vector (''{{UNSUBSCRIBE_URL}}'');
+            -- No required placeholder: the unsubscribe link is always added
+            -- (HTML footer, List-Unsubscribe header, plain-text part).
           }
           else if (et_type = ''unsubscribe_notice'')
           {
@@ -890,13 +920,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         }
         else if (admin_action = ''set_email_config'')
         {
-          declare fn_param, fa_param, smtp_param, base_param, admin_email_param varchar;
+          declare fn_param, fa_param, smtp_param, base_param, admin_email_param, admin_name_param, logo_param varchar;
           declare deploy_pwd5 any;
           fn_param := http_param (''from_name'');
           fa_param := http_param (''from_address'');
           smtp_param := http_param (''smtp_server'');
           base_param := http_param (''confirm_base_url'');
           admin_email_param := http_param (''admin_email'');
+          admin_name_param := http_param (''admin_name'');
+          if (not isstring (admin_name_param)) admin_name_param := '''';
+          admin_name_param := trim (admin_name_param);
+          logo_param := http_param (''logo_url'');
+          if (not isstring (logo_param)) logo_param := '''';
+          logo_param := trim (logo_param);
           if (not isstring (fn_param)) fn_param := '''';
           if (not isstring (fa_param)) fa_param := '''';
           if (not isstring (smtp_param)) smtp_param := '''';
@@ -910,6 +946,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           if (fn_param = '''' or fa_param = '''')
           {
             admin_result := ''From name and from address are required.'';
+          }
+          else if (logo_param <> '''' and lower (logo_param) <> ''none'' and logo_param not like ''http://%'' and logo_param not like ''https://%'')
+          {
+            admin_result := ''Logo image URL must be an http(s) URL -- or blank for the OpenLink logo, or none for no logo.'';
           }
           else if (admin_email_param <> '''' and (strchr (admin_email_param, ''@'') is null or strchr (admin_email_param, ''.'') is null))
           {
@@ -925,7 +965,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
                                    ''weblog:newsletterFromAddress'', fa_param,
                                    ''weblog:newsletterSmtpServer'', smtp_param,
                                    ''weblog:newsletterConfirmBaseUrl'', base_param,
-                                   ''weblog:adminEmail'', admin_email_param);
+                                   ''weblog:adminEmail'', admin_email_param,
+                                   ''weblog:adminName'', admin_name_param,
+                                   ''weblog:emailLogoUrl'', logo_param);
             for (email_pi := 0; email_pi < length (email_props); email_pi := email_pi + 2)
             {
               deploy_pwd5 := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', email_props[email_pi], email_props[email_pi + 1], null, null, 0, 0, 1);
@@ -1096,6 +1138,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         else if (admin_action = ''import_subscribers_csv'')
         {
           declare import_file any;
+          declare welcome_subject_p, welcome_body_p varchar;
+          welcome_subject_p := http_param (''welcome_subject'');
+          welcome_body_p := http_param (''welcome_body'');
+          if (not isstring (welcome_subject_p)) welcome_subject_p := '''';
+          if (not isstring (welcome_body_p)) welcome_body_p := '''';
           import_file := http_param (''importfile'');
           if (import_file is null)
             admin_result := ''Please choose a CSV file to upload.'';
@@ -1104,13 +1151,18 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           else if (trim (import_file) = '''')
             admin_result := ''The uploaded CSV file appears to be empty.'';
           else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV'') > 0)
-            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (''{{DAV_COLLECTION}}'', import_file);
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (''{{DAV_COLLECTION}}'', import_file, welcome_subject_p, welcome_body_p);
           else
             admin_result := ''The newsletter feature is not installed yet.'';
         }
         else if (admin_action = ''import_subscribers_rdf'')
         {
           declare import_file any;
+          declare welcome_subject_p, welcome_body_p varchar;
+          welcome_subject_p := http_param (''welcome_subject'');
+          welcome_body_p := http_param (''welcome_body'');
+          if (not isstring (welcome_subject_p)) welcome_subject_p := '''';
+          if (not isstring (welcome_body_p)) welcome_body_p := '''';
           declare rdf_format_param varchar;
           import_file := http_param (''importfile'');
           rdf_format_param := http_param (''rdf_format'');
@@ -1122,7 +1174,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           else if (trim (import_file) = '''')
             admin_result := ''The uploaded RDF file appears to be empty.'';
           else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF'') > 0)
-            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (''{{DAV_COLLECTION}}'', import_file, rdf_format_param);
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (''{{DAV_COLLECTION}}'', import_file, rdf_format_param, welcome_subject_p, welcome_body_p);
           else
             admin_result := ''The newsletter feature is not installed yet.'';
         }
@@ -1131,6 +1183,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           declare mi, total_rows, imported INTEGER;
           declare has_procs INTEGER;
           declare fail_list varchar;
+          declare welcome_subject_p, welcome_body_p varchar;
+          welcome_subject_p := http_param (''welcome_subject'');
+          welcome_body_p := http_param (''welcome_body'');
+          if (not isstring (welcome_subject_p)) welcome_subject_p := '''';
+          if (not isstring (welcome_body_p)) welcome_body_p := '''';
           has_procs := (select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE'');
           total_rows := 0;
           imported := 0;
@@ -1164,7 +1221,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
                     dup_status := _s;
                   if (dup_status = ''confirmed'')
                     fail_list := fail_list || sprintf (''%s (already a confirmed subscriber); '', em);
-                  else if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm)) = 1)
+                  else if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm), welcome_subject_p, welcome_body_p) = 1)
                     imported := imported + 1;
                   else
                     fail_list := fail_list || sprintf (''%s (could not be added); '', em);
@@ -1800,6 +1857,7 @@ next_row: ;
     header.masthead h1 { margin: 0; font-size: 1.35rem; line-height: 1.15; }
     header.masthead h1 a { color: var(--text); }
     header.masthead .tagline { color: var(--muted); font-size: 0.9rem; flex: 1 1 420px; }
+    header.masthead .tagline .term-help { border-bottom: 1px dotted currentColor; cursor: help; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 1.25rem; max-width: 1380px; margin: 1.5rem auto 1.25rem; padding: 0 1.25rem; align-items: start; }
     @media (max-width: 900px) {
       header.masthead { align-items: flex-start; }
@@ -1875,7 +1933,7 @@ next_row: ;
   http (''<header class="masthead">'');
   http (sprintf (''<h1><a href="{{PUBLIC_ROUTE}}">%V</a></h1>'', ''{{WEBLOG_TITLE}}''));
   if (skin <> ''editorial'')
-    http (sprintf (''<span class="tagline">%V{{TAGLINE_LINK_HTML}}</span>'', ''{{WEBLOG_TAGLINE}}''));
+    http (''<span class="tagline">{{TAGLINE_HTML}}</span>'');
   http (''<nav class="feed-buttons">'');
   http (''<a class="feed-btn rss" href="{{PUBLIC_ROUTE}}?feed=rss" type="application/rss+xml" title="Subscribe via RSS 2.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>RSS</a>'');
   http (''<a class="feed-btn atom" href="{{PUBLIC_ROUTE}}?feed=atom" type="application/atom+xml" title="Subscribe via Atom 1.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>Atom</a>'');
@@ -2179,9 +2237,21 @@ next_row: ;
   index_content := replace (index_content, '{{PUBLIC_ROUTE}}', route);
   index_content := replace (index_content, '{{ADMIN_ROUTE}}', admin_route);
   index_content := replace (index_content, '{{ACTION_ROUTE}}', action_route);
-  index_content := replace (index_content, '{{WEBLOG_TITLE}}', weblog_title);
-  index_content := replace (index_content, '{{WEBLOG_TAGLINE}}', weblog_tagline);
-  index_content := replace (index_content, '{{TAGLINE_LINK_HTML}}', tagline_link_html);
+  -- The title and tagline are spliced into quoted string literals in
+  -- index.vsp's own code (the tagline also into an HTML attribute), so a
+  -- quote or line break in either breaks the page's compilation -- which
+  -- is how a bad title took the openlinksw.com weblog down on 2026-09-27
+  -- ("SQ074: syntax error at ';'"). Both are made single-line; the title's
+  -- quotes and backslashes are doubled for the literal (%V HTML-escapes it
+  -- at request time); the tagline is HTML-escaped, so no raw quote
+  -- survives and it is valid in both the attribute and the RSS feed.
+  index_content := replace (index_content, '{{WEBLOG_TITLE}}',
+    replace (replace (replace (replace (coalesce (weblog_title, ''), chr (13), ' '), chr (10), ' '),
+      chr (92), concat (chr (92), chr (92))), '''', ''''''));
+  index_content := replace (index_content, '{{WEBLOG_TAGLINE}}',
+    replace (replace (replace (replace (replace (replace (replace (replace (coalesce (weblog_tagline, ''),
+      chr (13), ' '), chr (10), ' '), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;'));
+  index_content := replace (index_content, '{{TAGLINE_HTML}}', tagline_html);
   index_content := replace (index_content, '{{DEFAULT_SKIN}}', default_skin);
 
   index_stream := string_output ();
@@ -2265,6 +2335,22 @@ next_row: ;
       prc := DB.DBA.DAV_PROP_SET_INT (coll, props[pi], props[pi + 1], null, null, 0, 0, 1);
       if (not isinteger (prc) or prc < 0)
         signal ('42000', sprintf ('Could not record %s on %s (DAV error %s).', props[pi], coll, cast (prc as varchar)));
+    }
+    -- The masthead settings too, so a later DB.DBA.WEBLOG_UPGRADE needs only
+    -- the collection and the public URL. Best effort: a failure here must
+    -- not fail the deploy (WEBLOG_UPGRADE falls back to reading them from
+    -- index.vsp).
+    props := vector ('weblog:title', coalesce (weblog_title, ''),
+                     'weblog:tagline', coalesce (weblog_tagline, ''),
+                     'weblog:taglineLinkUrl', coalesce (tagline_link_url, ''),
+                     'weblog:taglineLinkText', coalesce (tagline_link_text, ''),
+                     'weblog:taglineHelpTerm', coalesce (tagline_help_term, ''),
+                     'weblog:taglineHelpText', coalesce (tagline_help_text, ''),
+                     'weblog:adminHost', coalesce (uriqa_host, ''));
+    for (pi := 0; pi < length (props); pi := pi + 2)
+    {
+      declare exit handler for sqlstate '*' { ; };
+      DB.DBA.DAV_PROP_SET_INT (coll, props[pi], props[pi + 1], null, null, 0, 0, 1);
     }
   }
 
@@ -2376,6 +2462,379 @@ next_row: ;
   return sprintf ('{"ok":true,"dav_collection":"%V","public_route":"%V","skin":"%V","admin_collection":"%V","dashboard_url":"https://%V%V%V","action_route":"%V","admin_dav_user":"%V","dashboard":"%V"}', coll, route, default_skin, admin_coll, uriqa_host, case when ssl_port = '443' then '' else concat (':', ssl_port) end, admin_route, action_route, dav_user, dashboard_status);
 }
 ;
+
+-- ==========================================================================
+-- One entry point for any weblog -- fresh install or upgrade: needs only the
+-- DAV collection and the weblog's public URL. A fresh install can also give
+-- its masthead (weblog_title, weblog_tagline, tagline link and help
+-- tooltip); a value given here always wins, blank means recorded / current
+-- page / default. A collection that does not exist yet is created.
+--
+--   select DB.DBA.WEBLOG_UPGRADE ('/DAV/demos/daas/', 'https://linkeddata.uriburner.com/weblog/');
+--
+-- Everything else is looked up rather than supplied:
+--   route, host          -> parsed from public_url
+--   title, tagline, tagline link, tagline help tooltip, admin host
+--                        -> the weblog:* properties every deploy now records
+--                           on the collection; for a collection deployed
+--                           before they were recorded (or by a hand-built
+--                           template), read from its current index.vsp
+--   admin user, admin collection, skin
+--                        -> weblog:adminDavUser / weblog:adminCollection /
+--                           weblog:skin, recorded by earlier deploys; else
+--                           'dba', the deploy's own default location, and
+--                           'classic'
+-- The current index.vsp and dashboard.html are backed up into
+-- DB.DBA.WEBLOG_UPGRADE_BACKUP first.
+--
+-- allow_template_overwrite: the one deliberate yes. An index.vsp not
+-- generated by this template (e.g. deploy-weblog-opl-site-facet.sql) is
+-- never replaced without it.
+-- dry_run => 1 returns the resolved plan without changing anything.
+-- admin_collection overrides where the admin dashboard lives (only needed
+-- the first time; later upgrades reuse the recorded location).
+-- ==========================================================================
+
+-- JSON string escaping for the plan / result report.
+CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE_JSON_STR (IN s ANY)
+{
+  if (s is null) return 'null';
+  s := cast (s as varchar);
+  s := replace (s, chr (92), concat (chr (92), chr (92)));
+  s := replace (s, '"', concat (chr (92), '"'));
+  s := replace (s, chr (10), ' ');
+  s := replace (s, chr (13), ' ');
+  return concat ('"', s, '"');
+}
+;
+
+-- Read title / tagline / link / help tooltip from an existing index.vsp.
+-- Returns vector (title, tagline, link_url, link_text, help_term,
+-- help_text); any element is null when not found. Handles both this
+-- template's output (current and older) and the hand-built
+-- deploy-weblog-opl-site*.sql pages.
+CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE_SCAN_INDEX (IN idx VARCHAR)
+{
+  declare title, tagline, link_url, link_text, help_term, help_text, inner_html, html_only VARCHAR;
+  declare p, q, s, depth, pos, next_open, next_close, guard int;
+  title := null; tagline := null; link_url := null; link_text := null; help_term := null; help_text := null;
+  if (idx is null or idx = '') return vector (null, null, null, null, null, null);
+
+  -- Title. This template writes <title><?= 'Title' ?></title> (quotes
+  -- doubled inside); a hand-built page has a literal <title>. Feed and
+  -- post-title code also contains <title> (e.g. <title>%V</title>), so take
+  -- the first literal one that is plain text.
+  p := strstr (idx, '<title><?= ''');
+  if (p is not null)
+  {
+    q := strstr (subseq (idx, p + 12), ''' ?></title>');
+    if (q is not null)
+      title := replace (subseq (idx, p + 12, p + 12 + q), '''''', '''');
+  }
+  if (title is null)
+  {
+    -- Only the page's own markup: drop every <?vsp ... ?> / <?= ... ?>
+    -- block first. VSP code is full of <title> strings that are not the
+    -- page title -- feed output, and post-title extraction such as
+    -- replace (t, '<title>', '') -- and taking one of those as the title
+    -- broke the openlinksw.com weblog on 2026-09-27.
+    html_only := idx;
+    guard := 0;
+    while (guard < 5000)
+    {
+      guard := guard + 1;
+      p := strstr (html_only, '<?');
+      if (p is null) goto code_stripped;
+      q := strstr (subseq (html_only, p + 2), '?>');
+      if (q is null)
+      {
+        html_only := subseq (html_only, 0, p);
+        goto code_stripped;
+      }
+      html_only := concat (subseq (html_only, 0, p), subseq (html_only, p + 2 + q + 2));
+    }
+code_stripped:
+    pos := 0;
+    guard := 0;
+    while (title is null and guard < 200)
+    {
+      guard := guard + 1;
+      p := strstr (subseq (html_only, pos), '<title>');
+      if (p is null) goto title_done;
+      p := p + pos + 7;
+      q := strstr (subseq (html_only, p), '</title>');
+      if (q is null) goto title_done;
+      s := p + q;
+      if (q > 0 and strchr (subseq (html_only, p, s), '<') is null and strstr (subseq (html_only, p, s), '%') is null
+          and strstr (subseq (html_only, p, s), '{{') is null and strchr (subseq (html_only, p, s), chr (10)) is null
+          and strchr (subseq (html_only, p, s), '''') is null)
+        title := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (subseq (html_only, p, s)));
+      pos := s;
+    }
+  }
+title_done:
+
+  -- Tagline span, matched with nesting (it may contain a help-tooltip span).
+  p := strstr (idx, '<span class="tagline">');
+  if (p is not null)
+  {
+    p := p + 22;
+    pos := p;
+    depth := 1;
+    guard := 0;
+    while (depth > 0 and guard < 200)
+    {
+      guard := guard + 1;
+      next_open := strstr (subseq (idx, pos), '<span');
+      next_close := strstr (subseq (idx, pos), '</span>');
+      if (next_close is null) goto span_done;
+      if (next_open is not null and next_open < next_close)
+      {
+        depth := depth + 1;
+        pos := pos + next_open + 5;
+      }
+      else
+      {
+        depth := depth - 1;
+        pos := pos + next_close + 7;
+      }
+    }
+    inner_html := subseq (idx, p, pos - 7);
+    -- Help tooltip: <span class="term-help" title="...">term</span>
+    s := strstr (inner_html, '<span class="term-help" title="');
+    if (s is not null)
+    {
+      q := strstr (subseq (inner_html, s + 31), '"');
+      if (q is not null)
+      {
+        help_text := DB.DBA.WEBLOG_HTML_UNESCAPE (subseq (inner_html, s + 31, s + 31 + q));
+        p := strstr (subseq (inner_html, s), '>');
+        next_close := strstr (subseq (inner_html, s), '</span>');
+        if (p is not null and next_close is not null and next_close > p)
+        {
+          help_term := DB.DBA.WEBLOG_HTML_UNESCAPE (subseq (inner_html, s + p + 1, s + next_close));
+          inner_html := concat (subseq (inner_html, 0, s), subseq (inner_html, s + p + 1, s + next_close),
+            subseq (inner_html, s + next_close + 7));
+        }
+      }
+    }
+    -- Trailing link: the last <a href="...">text</a> in the span.
+    s := null;
+    pos := 0;
+    guard := 0;
+    while (guard < 50)
+    {
+      guard := guard + 1;
+      p := strstr (subseq (inner_html, pos), '<a ');
+      if (p is null) goto last_a_done;
+      s := pos + p;
+      pos := s + 3;
+    }
+last_a_done:
+    if (s is not null)
+    {
+      p := strstr (subseq (inner_html, s), 'href="');
+      next_close := strstr (subseq (inner_html, s), '</a>');
+      if (p is not null and next_close is not null and p < next_close)
+      {
+        q := strstr (subseq (inner_html, s + p + 6), '"');
+        link_url := DB.DBA.WEBLOG_HTML_UNESCAPE (subseq (inner_html, s + p + 6, s + p + 6 + q));
+        q := strstr (subseq (inner_html, s), '>');
+        link_text := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (regexp_replace (subseq (inner_html, s + q + 1, s + next_close), '<[^>]*>', '', 1, null)));
+        inner_html := concat (subseq (inner_html, 0, s), subseq (inner_html, s + next_close + 4));
+      }
+    }
+    -- An older deploy of this template wrote the tagline through %V, so the
+    -- span source holds a placeholder, not the text; the meta description
+    -- below has it verbatim instead.
+    if (strstr (inner_html, '%V') is null and strstr (inner_html, '{{') is null)
+    {
+      tagline := regexp_replace (inner_html, '<[^>]*>', '', 1, null);
+      tagline := trim (regexp_replace (DB.DBA.WEBLOG_HTML_UNESCAPE (tagline), '[ \t\r\n]+', ' ', 1, null));
+      if (tagline = '') tagline := null;
+    }
+  }
+span_done:
+  if (tagline is null)
+  {
+    p := strstr (idx, '<meta name="description" content="');
+    if (p is not null)
+    {
+      q := strstr (subseq (idx, p + 34), '"');
+      if (q is not null and q > 0 and strstr (subseq (idx, p + 34, p + 34 + q), '{{') is null)
+        tagline := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (subseq (idx, p + 34, p + 34 + q)));
+    }
+  }
+  if (link_url = '') link_url := null;
+  if (link_text = '') link_text := null;
+  return vector (title, tagline, link_url, link_text, help_term, help_text);
+}
+;
+
+CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
+  (
+    IN dav_collection VARCHAR,
+    IN public_url VARCHAR,
+    IN allow_template_overwrite INTEGER := 0,
+    IN dry_run INTEGER := 0,
+    IN admin_collection VARCHAR := null,
+    IN weblog_title VARCHAR := null,
+    IN weblog_tagline VARCHAR := null,
+    IN tagline_link_url VARCHAR := null,
+    IN tagline_link_text VARCHAR := null,
+    IN tagline_help_term VARCHAR := null,
+    IN tagline_help_text VARCHAR := null
+  )
+{
+  declare coll, url, rest, host, route, idx, dash, dav_user, admin_coll, admin_host, skin, backup_note VARCHAR;
+  declare recorded_route, is_template, coll_note VARCHAR;
+  declare scan, vals, srcs, names, props, defaults, given any;
+  declare p, i int;
+  declare deploy_result any;
+
+  coll := trim (coalesce (dav_collection, ''));
+  if (coll = '')
+    signal ('22023', 'WEBLOG_UPGRADE: dav_collection is required (e.g. /DAV/demos/daas/).');
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  -- Fresh install: a collection that does not exist yet is created (its
+  -- parent must exist) -- on a dry run it is only reported.
+  coll_note := 'existing';
+  if (DB.DBA.DAV_SEARCH_ID (coll, 'C') <= 0)
+  {
+    coll_note := 'created';
+    if (dry_run = 0)
+    {
+      declare crc any;
+      crc := DB.DBA.DAV_COL_CREATE_INT (coll, '110100100R', 'dba', 'administrators', null, null, 0, 0, 0);
+      if (not isinteger (crc) or crc < 0)
+        signal ('22023', sprintf ('WEBLOG_UPGRADE: DAV collection %s does not exist and could not be created (DAV error %s) -- does its parent collection exist?', coll, cast (crc as varchar)));
+    }
+    else
+      coll_note := 'will be created';
+  }
+
+  -- Route and host from the public URL (scheme optional).
+  url := trim (coalesce (public_url, ''));
+  p := strstr (url, '://');
+  rest := case when p is null then url else subseq (url, p + 3) end;
+  p := strchr (rest, '?'); if (p is not null) rest := subseq (rest, 0, p);
+  p := strchr (rest, '#'); if (p is not null) rest := subseq (rest, 0, p);
+  p := strchr (rest, '/');
+  if (p is null or p = 0)
+    signal ('22023', sprintf ('WEBLOG_UPGRADE: public_url "%s" needs a host and the weblog path, e.g. https://example.org/weblog/.', url));
+  host := subseq (rest, 0, p);
+  route := subseq (rest, p);
+  if (subseq (route, length (route) - 1) <> '/') route := route || '/';
+  if (route = '/')
+    signal ('22023', 'WEBLOG_UPGRADE: the weblog must live under a path (e.g. /weblog/), not the site root.');
+  if (strchr (host, ':') is not null) host := subseq (host, 0, strchr (host, ':'));
+
+  idx := null;
+  for (select blob_to_string (RES_CONTENT) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || 'index.vsp') do
+  {
+    idx := _c;
+  }
+  is_template := case when idx is null then 'none' when strstr (idx, 'multi-skin, config-driven') is not null then 'yes' else 'no' end;
+  scan := DB.DBA.WEBLOG_UPGRADE_SCAN_INDEX (idx);
+
+  -- Recorded property first, then the current index.vsp, then a default.
+  names := vector ('title', 'tagline', 'taglineLinkUrl', 'taglineLinkText', 'taglineHelpTerm', 'taglineHelpText');
+  defaults := vector ('WebDAV Weblog', 'A configurable, skinnable weblog view of a WebDAV folder.', null, null, null, null);
+  given := vector (weblog_title, weblog_tagline, tagline_link_url, tagline_link_text, tagline_help_term, tagline_help_text);
+  vals := make_array (6, 'any');
+  srcs := make_array (6, 'any');
+  for (i := 0; i < 6; i := i + 1)
+  {
+    declare rec, giv VARCHAR;
+    -- A value given to this call wins (a fresh install's masthead, or a
+    -- deliberate change); single-line text only, like every source.
+    giv := trim (coalesce (cast (given[i] as varchar), ''));
+    if (giv <> '' and (strchr (giv, chr (10)) is not null or strchr (giv, chr (13)) is not null or length (giv) > 500))
+      giv := '';
+    rec := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, concat ('weblog:', names[i]), '');
+    -- Masthead values are single-line text; anything else is discarded
+    -- (e.g. the code fragment a faulty scan recorded as weblog:title on
+    -- openlinksw.com, 2026-09-27) and the next source is used instead.
+    if (rec <> '' and (strchr (rec, chr (10)) is not null or strchr (rec, chr (13)) is not null or length (rec) > 500))
+      rec := '';
+    if (scan[i] is not null and (strchr (scan[i], chr (10)) is not null or strchr (scan[i], chr (13)) is not null or length (scan[i]) > 500))
+      aset (scan, i, null);
+    if (giv <> '')
+    {
+      aset (vals, i, giv);
+      aset (srcs, i, 'given');
+    }
+    else if (rec <> '')
+    {
+      aset (vals, i, rec);
+      aset (srcs, i, 'recorded');
+    }
+    else if (scan[i] is not null)
+    {
+      aset (vals, i, scan[i]);
+      aset (srcs, i, 'current index.vsp');
+    }
+    else
+    {
+      aset (vals, i, defaults[i]);
+      aset (srcs, i, case when defaults[i] is null then 'none' else 'default' end);
+    }
+  }
+  dav_user := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminDavUser', 'dba');
+  admin_coll := trim (coalesce (admin_collection, ''));
+  if (admin_coll = '') admin_coll := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminCollection', '');
+  admin_host := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminHost', host);
+  skin := lower (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:skin', 'classic'));
+  if (skin <> 'editorial') skin := 'classic';
+  recorded_route := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:publicRoute', '');
+
+  if (dry_run = 0 and is_template = 'no' and allow_template_overwrite = 0)
+    signal ('42000', sprintf ('WEBLOG_UPGRADE: %sindex.vsp was not generated by this template (hand-built, e.g. deploy-weblog-opl-site-facet.sql). Review the plan with dry_run=>1, then rerun with allow_template_overwrite=>1 to replace it -- it is backed up first, and posts, categories and pins are kept.', coll));
+
+  if (dry_run = 0)
+  {
+    -- Back up what this run replaces.
+    {
+      declare exit handler for sqlstate '*' { ; };
+      exec ('create table DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_ID INTEGER IDENTITY, WUB_DAV_COLLECTION VARCHAR, WUB_RES_NAME VARCHAR, WUB_RES_CONTENT LONG VARCHAR, WUB_BACKED_UP_AT DATETIME, PRIMARY KEY (WUB_ID))');
+    }
+    backup_note := '';
+    for (select RES_NAME as _n, RES_CONTENT as _c from WS.WS.SYS_DAV_RES
+          where RES_FULL_PATH = coll || 'index.vsp'
+             or (admin_coll <> '' and RES_FULL_PATH = admin_coll || 'dashboard.html')) do
+    {
+      exec ('insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT) values (?, ?, ?, now ())',
+        null, null, vector (coll, _n, _c));
+      backup_note := concat (backup_note, case when backup_note = '' then '' else ', ' end, _n);
+    }
+    if (backup_note = '') backup_note := 'nothing to back up';
+
+    deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, route, vals[0], vals[1], skin, dav_user,
+      case when admin_coll = '' then null else admin_coll end, admin_host, null,
+      vals[2], vals[3], allow_template_overwrite, vals[4], vals[5]);
+  }
+
+  return concat ('{"dry_run":', case when dry_run = 0 then 'false' else 'true' end,
+    ',"dav_collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (coll),
+    ',"collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (coll_note),
+    ',"public_route":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (route),
+    case when recorded_route <> '' and recorded_route <> route
+      then concat (',"note":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (sprintf ('route changes from the recorded %s', recorded_route))) else '' end,
+    ',"host":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (host),
+    ',"current_index_vsp":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (case is_template when 'yes' then 'this template' when 'no' then 'hand-built (replaced only with allow_template_overwrite)' else 'none' end),
+    ',"title":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[0]), ',"title_from":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (srcs[0]),
+    ',"tagline":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[1]), ',"tagline_from":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (srcs[1]),
+    ',"tagline_link":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[2]), ',"tagline_link_text":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[3]),
+    ',"tagline_help":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (case when vals[4] is null then null else concat (vals[4], ' = ', vals[5]) end),
+    ',"skin":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (skin),
+    ',"admin_user":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (dav_user),
+    ',"admin_collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (case when admin_coll = '' then '(deploy default)' else admin_coll end),
+    ',"admin_host":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (admin_host),
+    case when dry_run = 0 then concat (',"backup":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (backup_note), ',"deploy":', deploy_result) else '' end,
+    '}');
+}
+;
+
 
 -- Usage: deploy against an arbitrary local collection.
 -- SELECT DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED ('/DAV/home/dba/weblog-test/', '/weblog-test/', 'My Test Weblog', 'A configurable, skinnable weblog view of a WebDAV folder.', 'classic', 'dba');

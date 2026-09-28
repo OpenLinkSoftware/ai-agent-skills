@@ -1,5 +1,6 @@
 -- ============================================================================
--- upgrade.sql -- single-file setup/upgrade for a weblog-from-webdav
+-- upgrade.sql -- THE single file for a fresh install AND every upgrade of a
+-- weblog-from-webdav
 -- deployment (templates/deploy-weblog-skinned.sql), for manual application
 -- via your own working isql session.
 --
@@ -27,7 +28,7 @@
 --      contents (if any) are copied into a fresh, timestamped
 --      WEBLOG_SUBSCRIBER_BACKUP_<timestamp> table -- never overwritten by a
 --      later run.
---   2. Before the REDEPLOY block overwrites index.vsp/dashboard.html, their
+--   2. Before the UPGRADE step overwrites index.vsp/dashboard.html, their
 --      current content (if any) is copied into DB.DBA.WEBLOG_UPGRADE_BACKUP
 --      (created on first use, never dropped by a reinstall).
 --   These make "can I revert if this fails" true by default -- but they
@@ -35,18 +36,66 @@
 --   own backup of anything else on the target instance.
 --
 -- HOW TO RUN
---   isql <host>:<port> <user> <password> upgrade.sql
---   (plain SQL login, or WebID-TLS with -X <cert.p12> -T <CA bundle> --
---    whatever already works for isql against this target)
+--   1. Set the TARGET just below: DAV collection, public host, public path.
+--   2. isql <host>:<port> <user> <password> upgrade.sql
+--      (plain SQL login, or WebID-TLS with -X <cert.p12> -T <CA bundle> --
+--       whatever already works for isql against this target; as dba)
+--   The last statement prints a JSON report: every value used and where it
+--   came from (recorded / current index.vsp / default), the backup taken,
+--   and the deploy result. Set dry_run to 1 first to see the plan only.
 --
--- AFTER RUNNING SECTIONS 1-2
---   Edit the DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED call arguments in the
---   REDEPLOY block at the very end of this file for your target
---   collection/route before running it (or run that block on its own,
---   separately, any time afterward -- it is safe and idempotent to re-run).
---
--- Generated from weblog-from-webdav templates as of 2026-09-23.
+-- Generated from weblog-from-webdav templates as of 2026-09-27.
 -- ============================================================================
+
+-- ============================================================================
+-- TARGET -- the only thing to edit, for a FRESH INSTALL or an UPGRADE.
+-- Three values are required:
+--   1. the weblog's DAV collection
+--   2. the host of its public URL
+--   3. the path of its public URL
+-- Everything else (title, tagline, admin user and dashboard location, skin,
+-- newsletter settings ...) is looked up: from what earlier deploys recorded
+-- on the collection, or, the first time, from its current index.vsp. See
+-- DB.DBA.WEBLOG_UPGRADE in Section 2.
+--
+-- The public URL is given as host + path rather than one literal URL:
+-- a literal like https://host/path in a file isql loads can trigger isql's
+-- macro substitution.
+--
+-- allow_template_overwrite: set to 1 ONLY to replace an index.vsp this
+-- template did not generate (a hand-built site such as the one
+-- deploy-weblog-opl-site-facet.sql produced). It is backed up first.
+-- dry_run: set to 1 to print the resolved plan and change nothing -- the
+-- procedures are still (re)installed.
+-- admin_collection: '' to keep the recorded location (or the default on a
+-- first deploy); a /DAV/... path to choose where the admin dashboard lives.
+--
+-- Examples:
+--   '/DAV/demos/daas/',                    'linkeddata.uriburner.com', '/weblog/'
+--   '/DAV/www2.openlinksw.com/data/html/', 'www.openlinksw.com',       '/weblog/'
+-- ============================================================================
+create procedure DB.DBA.TMP_WEBLOG_UPGRADE_TARGET ()
+{
+  return vector (
+    -- Required: where the weblog lives and where it is served.
+    '',       -- DAV collection, e.g. '/DAV/demos/daas/'  (created if missing)
+    '',       -- public host,    e.g. 'linkeddata.uriburner.com'
+    '',       -- public path,    e.g. '/weblog/'
+    0,        -- allow_template_overwrite (1 only to replace a hand-built index.vsp)
+    0,        -- dry_run (1 = print the plan, change nothing)
+    '',       -- admin_collection ('' = recorded / default)
+    -- Optional masthead -- fill in for a FRESH INSTALL, or to change it.
+    -- Blank = keep what the weblog has (recorded, or read from its page);
+    -- a brand-new weblog with these blank gets "WebDAV Weblog" and a
+    -- generic tagline.
+    '',       -- title,             e.g. 'OpenLink Software Weblog'
+    '',       -- tagline
+    '',       -- tagline link URL,  e.g. the DAV collection path
+    '',       -- tagline link text, e.g. 'WebDAV Folder'
+    '',       -- help-tooltip term, e.g. 'Data Spaces'
+    '');      -- help-tooltip text
+}
+;
 
 -- ============================================================================
 -- PRE-FLIGHT BACKUP 1 of 2 -- WEBLOG_SUBSCRIBER, before Section 1 drops and
@@ -191,6 +240,11 @@ CREATE TABLE DB.DBA.WEBLOG_SUBSCRIBER
 ;
 
 CREATE UNIQUE INDEX WEBLOG_SUBSCRIBER_UQ ON DB.DBA.WEBLOG_SUBSCRIBER (WS_DAV_COLLECTION, WS_EMAIL);
+-- Commit before the procedures below compile against the table: a client
+-- that runs the whole script as one transaction (Conductor's Interactive
+-- SQL) otherwise leaves it invisible to them -- "SQ200: No table
+-- DB.DBA.WEBLOG_SUBSCRIBER", seen live 2026-09-27. Harmless under isql.
+commit work;
 
 -- Resolve the SMTP relay the same way DB.DBA.WA_SEND_MAIL does, honoring a
 -- per-collection override first.
@@ -862,7 +916,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
             sprintf ('%s%s?nl_action=confirm&token=%s', confirm_base, public_route, tok), 'Confirm subscription'),
           from_name, unsub_url, '', sprintf ('One click to confirm your subscription to %s.', from_name),
           concat (confirm_base, public_route),
-          DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''))));
+          DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''), coll)));
   }
 
   return 'Almost there -- check your inbox and click the confirmation link.';
@@ -1027,7 +1081,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
       DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('You have been unsubscribed', body_html, null, null, blog_url, from_name),
       from_name, null, '', sprintf ('You will not receive further emails from %s.', from_name),
       case when base_url = '' then null else blog_url end,
-      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
+      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''), coll));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -1050,9 +1104,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
 -- email (there is nothing to click to "activate" -- they already are).
 -- Silent no-op (returns 0) if no mail server is configured, matching the
 -- rest of this file's soft-fail-on-missing-SMTP convention.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VARCHAR, IN email VARCHAR, IN token VARCHAR, IN name VARCHAR := null)
+-- subject_override / body_override: a welcome message given on the import
+-- form for this batch only; blank = the saved weblog:emailSubjectActivation /
+-- weblog:emailBodyActivation template (or the built-in default).
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VARCHAR, IN email VARCHAR, IN token VARCHAR, IN name VARCHAR := null,
+  IN subject_override VARCHAR := null, IN body_override VARCHAR := null)
 {
   declare coll, from_addr, from_name, base_url, public_route, smtp_server, subj, greeting, body, msg, unsub_url, bulk_hdrs VARCHAR;
+  declare blog_url, person, first_name, admin_name, text_body, subj_src, body_src VARCHAR;
+  declare tokens any;
   declare exit handler for sqlstate '*' { return 0; };
 
   coll := trim (dav_collection);
@@ -1070,19 +1130,44 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
 
   greeting := case when name is not null and trim (name) <> '' then sprintf ('Hi %s,\r\n\r\n', trim (name)) else '' end;
   unsub_url := sprintf ('%s%s?nl_action=unsubscribe&token=%s', base_url, public_route, token);
-  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectActivation',
-    '{{WEBLOG_TITLE}}: you have been added to our mailing list', vector ('{{WEBLOG_TITLE}}', from_name));
-  body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyActivation',
-    '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
-    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{UNSUBSCRIBE_URL}}', unsub_url));
+  blog_url := concat (base_url, public_route);
+  -- Personalization placeholders. {{NAME}} / {{FIRST_NAME}} fall back to
+  -- "Subscriber" when the import carried no name, so "Dear {{NAME}}," never
+  -- renders as "Dear ,". {{ADMIN_NAME}} signs the message: weblog:adminName
+  -- (Email Server Config), else the sender name.
+  person := trim (coalesce (name, ''));
+  if (person = '') person := 'Subscriber';
+  first_name := person;
+  if (strchr (first_name, ' ') is not null) first_name := subseq (first_name, 0, strchr (first_name, ' '));
+  admin_name := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminName', ''));
+  if (admin_name = '') admin_name := from_name;
+  tokens := vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{UNSUBSCRIBE_URL}}', unsub_url,
+    '{{NAME}}', person, '{{FIRST_NAME}}', first_name, '{{EMAIL}}', email,
+    '{{ADMIN_NAME}}', admin_name, '{{WEBLOG_URL}}', blog_url);
+  -- A per-import message wins over the saved template: an empty property
+  -- name makes WEBLOG_RENDER_EMAIL_TEMPLATE use the given text as-is.
+  subj_src := case when trim (coalesce (subject_override, '')) <> '' then '' else 'weblog:emailSubjectActivation' end;
+  body_src := case when trim (coalesce (body_override, '')) <> '' then '' else 'weblog:emailBodyActivation' end;
+  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, subj_src,
+    case when subj_src = '' then trim (subject_override) else '{{WEBLOG_TITLE}}: you have been added to our mailing list' end, tokens);
+  body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, body_src,
+    case when body_src = '' then body_override else '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n' end,
+    tokens);
+  -- {{UNSUBSCRIBE_URL}} is optional in the message: the HTML footer and the
+  -- List-Unsubscribe header always carry the link; the plain-text part gets
+  -- it appended when the message itself leaves it out.
+  text_body := body;
+  if (strstr (body, unsub_url) is null)
+    text_body := concat (body, '\r\n--\r\nTo unsubscribe: ', unsub_url, '\r\n');
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
-  msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, body,
+  msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, text_body,
     DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
-      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (concat ('Welcome to ', from_name), body,
+      -- Just "Welcome": the masthead right above already names the weblog.
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('Welcome', body,
         concat (base_url, public_route), 'Visit the weblog'),
       from_name, unsub_url, '', sprintf ('You have been added to the %s mailing list.', from_name),
       concat (base_url, public_route),
-      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
+      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''), coll));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -1094,7 +1179,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
 -- Returns 1 if a row was inserted/reactivated, 0 if skipped (blank/invalid
 -- email, or already 'confirmed' -- re-importing an existing confirmed
 -- subscriber is a harmless no-op, not a re-notify).
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR, IN email VARCHAR, IN country VARCHAR, IN name VARCHAR := null)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR, IN email VARCHAR, IN country VARCHAR, IN name VARCHAR := null,
+  IN welcome_subject VARCHAR := null, IN welcome_body VARCHAR := null)
 {
   declare coll, tok, mirror_rdf VARCHAR;
   declare existing_count INTEGER;
@@ -1141,7 +1227,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR,
   if (lower (mirror_rdf) = 'true')
     DB.DBA.WEBLOG_NEWSLETTER_MIRROR_RDF (coll, email, 1, name);
 
-  DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (coll, email, tok, name);
+  DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (coll, email, tok, name, welcome_subject, welcome_body);
   return 1;
 }
 ;
@@ -1152,7 +1238,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR,
 -- unrecognized columns are ignored. Naive comma-split (no quoted-field
 -- support) -- adequate for a two-column email/country export, not a
 -- general CSV parser.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR, IN csv_text VARCHAR)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR, IN csv_text VARCHAR,
+  IN welcome_subject VARCHAR := null, IN welcome_body VARCHAR := null)
 {
   declare coll VARCHAR;
   declare lines, cols any;
@@ -1201,7 +1288,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR,
       row_email := case when email_col < length (row_cols) then trim (aref (row_cols, email_col)) else '' end;
       row_country := case when country_col >= 0 and country_col < length (row_cols) then trim (aref (row_cols, country_col)) else null end;
       row_name := case when name_col >= 0 and name_col < length (row_cols) then trim (aref (row_cols, name_col)) else null end;
-      if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name) = 1)
+      if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name, welcome_subject, welcome_body) = 1)
         imported := imported + 1;
       else
         skipped := skipped + 1;
@@ -1233,7 +1320,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR,
 --     subscriber list, but does not do general JSON-LD context expansion.
 --     Country is intentionally NOT extracted for JSON-LD imports (out of
 --     scope rather than guessing at a nearby-key heuristic).
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR, IN rdf_text VARCHAR, IN rdf_format VARCHAR)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR, IN rdf_text VARCHAR, IN rdf_format VARCHAR,
+  IN welcome_subject VARCHAR := null, IN welcome_body VARCHAR := null)
 {
   declare coll, fmt, graph_iri VARCHAR;
   declare imported, skipped, total_rows INTEGER;
@@ -1283,7 +1371,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR,
             {
               found_email := trim (subseq (rdf_text, val_start, val_start + qend));
               total_rows := total_rows + 1;
-              if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, found_email, null) = 1)
+              if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, found_email, null, null, welcome_subject, welcome_body) = 1)
                 imported := imported + 1;
               else
                 skipped := skipped + 1;
@@ -1323,7 +1411,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR,
         row_country := case when aref (aref (rows, ri), 1) is null then null else cast (aref (aref (rows, ri), 1) as varchar) end;
         row_name := case when aref (aref (rows, ri), 2) is null then null else cast (aref (aref (rows, ri), 2) as varchar) end;
         total_rows := total_rows + 1;
-        if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name) = 1)
+        if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name, welcome_subject, welcome_body) = 1)
           imported := imported + 1;
         else
           skipped := skipped + 1;
@@ -2023,9 +2111,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER ()
 -- fallback; from_name is the masthead (linked to site_url when given);
 -- extra_css is a post's own stylesheet (full-content mode), which inline
 -- styles here always outrank. unsub_url / postal_address are optional.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body_html VARCHAR, IN from_name VARCHAR, IN unsub_url VARCHAR, IN extra_css VARCHAR := '', IN preheader VARCHAR := '', IN site_url VARCHAR := null, IN postal_address VARCHAR := null)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body_html VARCHAR, IN from_name VARCHAR, IN unsub_url VARCHAR, IN extra_css VARCHAR := '', IN preheader VARCHAR := '', IN site_url VARCHAR := null, IN postal_address VARCHAR := null, IN coll VARCHAR := null)
 {
-  declare pub, masthead, footer_links VARCHAR;
+  declare pub, masthead, footer_links, logo_url, logo_html VARCHAR;
   pub := DB.DBA.WEBLOG_HTML_ESC_BYTES (coalesce (from_name, ''));
   if (site_url is not null and trim (site_url) <> '')
     masthead := concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="color:#111111;text-decoration:none">', pub, '</a>');
@@ -2038,6 +2126,31 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body
     footer_links := concat (footer_links, case when footer_links = '' then '' else ' &nbsp;&middot;&nbsp; ' end,
       '<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="color:#8a8a8a;text-decoration:underline">Visit the weblog</a>');
   if (coalesce (preheader, '') = '') preheader := coalesce (kicker, '');
+  -- Logo above the masthead, on every email. weblog:emailLogoUrl (Email
+  -- Server Config > Logo image URL): blank = OpenLink's logo, 'none' = no
+  -- logo, else that image. A raster image (PNG/JPEG/GIF): Gmail and
+  -- Outlook do not render SVG in email, which is why the default is the
+  -- PNG openlinksw.com itself publishes (200x80, transparent background,
+  -- verified 2026-09-28), not its SVG header logo. Built from parts: a
+  -- literal https://host path in a file isql loads can trigger its macro
+  -- substitution.
+  logo_url := concat ('https:', '//', 'www.openlinksw.com/images/oplogo_std_200x80.png');
+  if (coll is not null)
+  {
+    declare configured VARCHAR;
+    configured := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:emailLogoUrl', ''));
+    if (lower (configured) = 'none') logo_url := '';
+    else if (configured <> '') logo_url := configured;
+  }
+  logo_html := '';
+  if (logo_url <> '')
+  {
+    logo_html := concat ('<img src="', DB.DBA.WEBLOG_HTML_ESC_BYTES (logo_url), '" width="160" alt="', pub,
+      '" style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;width:160px;max-width:160px;height:auto">');
+    if (site_url is not null and trim (site_url) <> '')
+      logo_html := concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="text-decoration:none">', logo_html, '</a>');
+    logo_html := concat ('<tr><td align="center" style="padding:0 0 12px 0">', logo_html, '</td></tr>');
+  }
   return concat (
     '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
@@ -2067,10 +2180,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body
     DB.DBA.WEBLOG_HTML_ESC_BYTES (preheader), repeat ('&#8199;&#65279;&#847; ', 60), '</div>',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f3" style="background:#f5f5f3"><tr><td align="center" style="padding:28px 12px 36px 12px">',
     '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;table-layout:fixed">',
+    logo_html,
     '<tr><td align="center" style="padding:0 0 18px 0;font-family:Georgia,''Times New Roman'',serif;font-size:19px;line-height:1.3;font-weight:bold;color:#111111">', masthead, '</td></tr>',
     '<tr><td class="wl-card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e8e8e4;border-radius:8px;padding:40px 44px">', coalesce (body_html, ''), '</td></tr>',
     '<tr><td align="center" style="padding:26px 24px 0 24px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8a8a">',
-    'You&#39;re receiving this because you subscribed to ', pub, '.',
+    -- The masthead names the weblog once; the footer does not repeat it.
+    'You&#39;re receiving this because you subscribed to this weblog.',
     case when footer_links = '' then '' else concat ('<br>', footer_links) end,
     case when coalesce (trim (postal_address), '') = '' then '' else concat ('<br>', DB.DBA.WEBLOG_HTML_ESC_BYTES (trim (postal_address))) end,
     '</td></tr>',
@@ -2193,7 +2308,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     post_css := aref (excerpt_result, 1);
     -- Subtitle (the page's meta description) and reading time.
     meta := DB.DBA.WEBLOG_NEWSLETTER_POST_META (coll, pname);
-    byline := concat (from_name, sep, sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
+    -- Date and reading time only: the masthead names the weblog once, not
+    -- again on every post in a digest.
+    byline := concat (sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
       sep, sprintf ('%d min read', meta[2]));
     card := DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (DB.DBA.WEBLOG_HTML_ESC_BYTES (title), url, excerpt, meta[0], byline);
     -- Plain-text alternative for this post.
@@ -2235,7 +2352,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
         post_css := aref (aref (post_cards, i), 2);
         preheader := aref (aref (post_cards, i), 4);
         if (preheader = '') preheader := title;
-        body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (title, card, from_name, unsub_url, post_css, preheader, site_url, postal_address);
+        body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (title, card, from_name, unsub_url, post_css, preheader, site_url, postal_address, coll);
         subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectImmediate',
           '{{WEBLOG_TITLE}}: {{POST_TITLE}}', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_TITLE}}', title));
         bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
@@ -2254,7 +2371,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
       declare body_html, subj, msg, bulk_hdrs VARCHAR;
       subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectDigest',
         '{{WEBLOG_TITLE}}: new posts this week', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_COUNT}}', cast (item_count as varchar)));
-      body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj, digest_body_html, from_name, unsub_url, digest_extra_css, digest_preheader, site_url, postal_address);
+      body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj, digest_body_html, from_name, unsub_url, digest_extra_css, digest_preheader, site_url, postal_address, coll);
       bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
       msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, concat (digest_text, text_footer), body_html);
       {
@@ -2685,6 +2802,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   declare admin_token, public_route, action_route, current_mode, current_content_mode, current_skin, controls_html, import_html VARCHAR;
   declare current_interval INTEGER;
   declare current_from_name, current_from_addr, current_smtp_override, current_base_url, current_admin_email, resolved_smtp, email_config_html VARCHAR;
+  declare current_admin_name, current_logo_url VARCHAR;
   declare digest_scheduled, dash_scheduled INTEGER;
   declare dash_interval INTEGER;
   declare tag_schedule_html VARCHAR;
@@ -2744,6 +2862,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   current_smtp_override := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterSmtpServer', '');
   current_base_url := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterConfirmBaseUrl', '');
   current_admin_email := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminEmail', '');
+  current_admin_name := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminName', '');
+  current_logo_url := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:emailLogoUrl', '');
   resolved_smtp := '(none configured)';
   {
     declare exit handler for sqlstate '*' { ; };
@@ -2844,9 +2964,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       vector ('immediate', 'Immediate-Mode Email', 'weblog:emailSubjectImmediate', '{{WEBLOG_TITLE}}: {{POST_TITLE}}',
         '', '',
         'Tokens: {{WEBLOG_TITLE}}, {{POST_TITLE}}. Subject only -- the body is the post itself (immediate mode sends one email per post).'),
-      vector ('activation', 'Admin-Import Activation Notice', 'weblog:emailSubjectActivation', '{{WEBLOG_TITLE}}: you have been added to our mailing list',
+      vector ('activation', 'Welcome Email (imported subscribers)', 'weblog:emailSubjectActivation', '{{WEBLOG_TITLE}}: you have been added to our mailing list',
         'weblog:emailBodyActivation', '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
-        'Tokens: {{WEBLOG_TITLE}}, {{GREETING}} (blank, or "Hi Name," when a name was given), {{UNSUBSCRIBE_URL}} (required).'),
+        'Sent to every subscriber added by CSV, RDF or manual import (each import form can also give its own message for that batch). Placeholders: {{NAME}} and {{FIRST_NAME}} ("Subscriber" when none was imported), {{EMAIL}}, {{ADMIN_NAME}} (Email Server Config > Admin name, else the sender name), {{WEBLOG_TITLE}}, {{WEBLOG_URL}}, {{GREETING}} (blank, or "Hi Name,"), {{UNSUBSCRIBE_URL}} (optional -- every email carries an unsubscribe link anyway).'),
       vector ('unsubscribe_notice', 'Admin-Unsubscribe Notice', 'weblog:emailSubjectUnsubscribeNotice', '{{WEBLOG_TITLE}}: you have been unsubscribed',
         'weblog:emailBodyUnsubscribeNotice', '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
         'Tokens: {{WEBLOG_TITLE}}, {{GREETING}}, {{RESUBSCRIBE_URL}} (required).'),
@@ -2892,13 +3012,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '<tr><td>From name</td><td><input type="text" name="from_name" value="%V"/></td></tr>' ||
       '<tr><td>From address</td><td><input type="email" name="from_address" value="%V"/></td></tr>' ||
       '<tr><td>Admin email</td><td><input type="email" name="admin_email" value="%V" placeholder="you@example.org"/></td></tr>' ||
+      '<tr><td>Admin name</td><td><input type="text" name="admin_name" value="%V" placeholder="Signs emails as {{ADMIN_NAME}}"/></td></tr>' ||
+      '<tr><td>Logo image URL</td><td><input type="text" name="logo_url" value="%V" placeholder="blank = OpenLink logo; none = no logo; or a PNG/JPEG URL"/></td></tr>' ||
       '<tr><td>SMTP server override</td><td><input type="text" name="smtp_server" value="%V" placeholder="blank = use server default"/></td></tr>' ||
       '<tr><td>Base URL</td><td><input type="text" name="confirm_base_url" value="%V" placeholder="https://example.org"/></td></tr>' ||
       '</tbody></table>' ||
       '<button type="submit">Save</button>' ||
       '<p class="hint">Currently resolved SMTP relay: <strong>%V</strong>. Base URL is required for any email link (post, unsubscribe) to work. Admin email is used as Reply-To on outgoing newsletter mail and receives operational alerts (new confirmed subscribers, failed digest sends) -- leave it blank to disable both.</p>' ||
       '</form></details></section>',
-      action_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_smtp_override, current_base_url, resolved_smtp);
+      action_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_admin_name, current_logo_url, current_smtp_override, current_base_url, resolved_smtp);
   }
 
   -- Admin-only bulk onboarding: imported rows land 'confirmed' immediately
@@ -2923,9 +3045,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     import_html := sprintf (
       '<section class="panel"><details class="collapsible"><summary class="panel-h2">Import Subscribers</summary><p class="panel-desc">Admin-only onboarding: added subscribers are marked confirmed immediately and sent an activation notice with an unsubscribe link -- no confirm-click required, but they can opt out.</p>' ||
       '<div class="import-grid">' ||
-      '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns. Country may be an ISO code ("US") or a name; anything unrecognized is left blank.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><button type="submit">Import CSV</button></form></div>' ||
-      '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><button type="submit">Import RDF</button></form></div>' ||
-      '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><button type="submit">Add Subscribers</button></form></div>' ||
+      '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns. Country may be an ISO code ("US") or a name; anything unrecognized is left blank.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><details class="collapsible"><summary class="panel-h3">Welcome email for this import (optional)</summary><div class="nl-field"><label>Subject</label><input type="text" name="welcome_subject" placeholder="Blank = the saved Welcome Email template"/></div><div class="nl-field"><label>Message</label><textarea name="welcome_body" rows="8" style="width:100%%;" placeholder="Dear {{NAME}},&#10;&#10;...&#10;&#10;Regards,&#10;{{ADMIN_NAME}}"></textarea></div><p class="hint">Used for this import only; leave blank for the saved Welcome Email. Placeholders: {{NAME}}, {{FIRST_NAME}}, {{EMAIL}}, {{ADMIN_NAME}}, {{WEBLOG_TITLE}}, {{WEBLOG_URL}}. An unsubscribe link is always included.</p></details><button type="submit">Import CSV</button></form></div>' ||
+      '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><details class="collapsible"><summary class="panel-h3">Welcome email for this import (optional)</summary><div class="nl-field"><label>Subject</label><input type="text" name="welcome_subject" placeholder="Blank = the saved Welcome Email template"/></div><div class="nl-field"><label>Message</label><textarea name="welcome_body" rows="8" style="width:100%%;" placeholder="Dear {{NAME}},&#10;&#10;...&#10;&#10;Regards,&#10;{{ADMIN_NAME}}"></textarea></div><p class="hint">Used for this import only; leave blank for the saved Welcome Email. Placeholders: {{NAME}}, {{FIRST_NAME}}, {{EMAIL}}, {{ADMIN_NAME}}, {{WEBLOG_TITLE}}, {{WEBLOG_URL}}. An unsubscribe link is always included.</p></details><button type="submit">Import RDF</button></form></div>' ||
+      '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><details class="collapsible"><summary class="panel-h3">Welcome email for this import (optional)</summary><div class="nl-field"><label>Subject</label><input type="text" name="welcome_subject" placeholder="Blank = the saved Welcome Email template"/></div><div class="nl-field"><label>Message</label><textarea name="welcome_body" rows="8" style="width:100%%;" placeholder="Dear {{NAME}},&#10;&#10;...&#10;&#10;Regards,&#10;{{ADMIN_NAME}}"></textarea></div><p class="hint">Used for this import only; leave blank for the saved Welcome Email. Placeholders: {{NAME}}, {{FIRST_NAME}}, {{EMAIL}}, {{ADMIN_NAME}}, {{WEBLOG_TITLE}}, {{WEBLOG_URL}}. An unsubscribe link is always included.</p></details><button type="submit">Add Subscribers</button></form></div>' ||
       '</div></details></section>',
       action_route, admin_token,
       action_route, admin_token,
@@ -3549,7 +3671,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     IN admin_listener VARCHAR := null,
     IN tagline_link_url VARCHAR := null,
     IN tagline_link_text VARCHAR := null,
-    IN allow_template_overwrite INTEGER := 0
+    IN allow_template_overwrite INTEGER := 0,
+    IN tagline_help_term VARCHAR := null,
+    IN tagline_help_text VARCHAR := null
   )
 {
   declare rc any;
@@ -3568,18 +3692,45 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
   if (subseq (route, length (route) - 1) <> '/') route := route || '/';
   if (default_skin <> 'editorial') default_skin := 'classic';
 
-  -- Optional real hyperlink appended after the plain tagline in the
-  -- VISIBLE masthead span only -- RSS <description> and <meta
-  -- name="description"> keep using weblog_tagline as plain text
-  -- unchanged. weblog_tagline itself is HTML-escaped at request time via
-  -- sprintf('%V', ...), so embedding a raw <a> tag directly in it would
-  -- show up as literal escaped text there, not a link (confirmed live);
-  -- this builds the link separately and safely instead.
-  declare tagline_link_html VARCHAR;
+  -- The visible masthead tagline is built HERE, at deploy time, as
+  -- finished HTML, and index.vsp emits it verbatim. It is escaped by
+  -- plain replace() so its raw UTF-8 bytes (e.g. an em dash) pass
+  -- through unchanged: sprintf('%V', ...) at request time re-encodes a
+  -- narrow UTF-8 string as if it were Latin-1 (the same double-encoding
+  -- that garbled post titles), and an embedded raw <a> would be escaped
+  -- into literal text. Optional extras: a trailing link
+  -- (tagline_link_url/_text) and a help tooltip on one phrase
+  -- (tagline_help_term/_text, e.g. "Data Spaces"). RSS <description>
+  -- and <meta name="description"> keep using weblog_tagline as plain text.
+  declare tagline_link_html, tagline_html VARCHAR;
   tagline_link_html := '';
   if (tagline_link_url is not null and trim (tagline_link_url) <> ''
       and tagline_link_text is not null and trim (tagline_link_text) <> '')
-    tagline_link_html := sprintf (' <a href="%V" target="_top" rel="noopener noreferrer">%V</a>', trim (tagline_link_url), trim (tagline_link_text));
+    tagline_link_html := concat (' <a href="',
+      replace (replace (replace (replace (replace (trim (tagline_link_url), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'),
+      '" target="_top" rel="noopener noreferrer">',
+      replace (replace (replace (replace (replace (trim (tagline_link_text), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'),
+      '</a>');
+  -- Backslash is escaped too: the result is spliced into a quoted
+  -- string literal in index.vsp's own source.
+  tagline_html := replace (replace (replace (replace (replace (replace (coalesce (weblog_tagline, ''),
+    '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;');
+  if (tagline_help_term is not null and trim (tagline_help_term) <> ''
+      and tagline_help_text is not null and trim (tagline_help_text) <> '')
+  {
+    declare term_esc, help_esc VARCHAR;
+    declare term_pos int;
+    term_esc := replace (replace (replace (replace (replace (replace (trim (tagline_help_term),
+      '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;');
+    help_esc := replace (replace (replace (replace (replace (replace (trim (tagline_help_text),
+      '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;');
+    term_pos := strstr (tagline_html, term_esc);
+    if (term_pos is not null)
+      tagline_html := concat (subseq (tagline_html, 0, term_pos),
+        '<span class="term-help" title="', help_esc, '">', term_esc, '</span>',
+        subseq (tagline_html, term_pos + length (term_esc)));
+  }
+  tagline_html := concat (tagline_html, tagline_link_html);
 
   index_path := coll || 'index.vsp';
   -- Admin route: serves the STATIC dashboard.html (refreshed by
@@ -4052,7 +4203,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           else if (et_type = ''activation'')
           {
             et_subject_prop := ''weblog:emailSubjectActivation''; et_body_prop := ''weblog:emailBodyActivation'';
-            et_required := vector (''{{UNSUBSCRIBE_URL}}'');
+            -- No required placeholder: the unsubscribe link is always added
+            -- (HTML footer, List-Unsubscribe header, plain-text part).
           }
           else if (et_type = ''unsubscribe_notice'')
           {
@@ -4108,13 +4260,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         }
         else if (admin_action = ''set_email_config'')
         {
-          declare fn_param, fa_param, smtp_param, base_param, admin_email_param varchar;
+          declare fn_param, fa_param, smtp_param, base_param, admin_email_param, admin_name_param, logo_param varchar;
           declare deploy_pwd5 any;
           fn_param := http_param (''from_name'');
           fa_param := http_param (''from_address'');
           smtp_param := http_param (''smtp_server'');
           base_param := http_param (''confirm_base_url'');
           admin_email_param := http_param (''admin_email'');
+          admin_name_param := http_param (''admin_name'');
+          if (not isstring (admin_name_param)) admin_name_param := '''';
+          admin_name_param := trim (admin_name_param);
+          logo_param := http_param (''logo_url'');
+          if (not isstring (logo_param)) logo_param := '''';
+          logo_param := trim (logo_param);
           if (not isstring (fn_param)) fn_param := '''';
           if (not isstring (fa_param)) fa_param := '''';
           if (not isstring (smtp_param)) smtp_param := '''';
@@ -4128,6 +4286,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           if (fn_param = '''' or fa_param = '''')
           {
             admin_result := ''From name and from address are required.'';
+          }
+          else if (logo_param <> '''' and lower (logo_param) <> ''none'' and logo_param not like ''http://%'' and logo_param not like ''https://%'')
+          {
+            admin_result := ''Logo image URL must be an http(s) URL -- or blank for the OpenLink logo, or none for no logo.'';
           }
           else if (admin_email_param <> '''' and (strchr (admin_email_param, ''@'') is null or strchr (admin_email_param, ''.'') is null))
           {
@@ -4143,7 +4305,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
                                    ''weblog:newsletterFromAddress'', fa_param,
                                    ''weblog:newsletterSmtpServer'', smtp_param,
                                    ''weblog:newsletterConfirmBaseUrl'', base_param,
-                                   ''weblog:adminEmail'', admin_email_param);
+                                   ''weblog:adminEmail'', admin_email_param,
+                                   ''weblog:adminName'', admin_name_param,
+                                   ''weblog:emailLogoUrl'', logo_param);
             for (email_pi := 0; email_pi < length (email_props); email_pi := email_pi + 2)
             {
               deploy_pwd5 := DB.DBA.DAV_PROP_SET_INT (''{{DAV_COLLECTION}}'', email_props[email_pi], email_props[email_pi + 1], null, null, 0, 0, 1);
@@ -4314,6 +4478,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         else if (admin_action = ''import_subscribers_csv'')
         {
           declare import_file any;
+          declare welcome_subject_p, welcome_body_p varchar;
+          welcome_subject_p := http_param (''welcome_subject'');
+          welcome_body_p := http_param (''welcome_body'');
+          if (not isstring (welcome_subject_p)) welcome_subject_p := '''';
+          if (not isstring (welcome_body_p)) welcome_body_p := '''';
           import_file := http_param (''importfile'');
           if (import_file is null)
             admin_result := ''Please choose a CSV file to upload.'';
@@ -4322,13 +4491,18 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           else if (trim (import_file) = '''')
             admin_result := ''The uploaded CSV file appears to be empty.'';
           else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV'') > 0)
-            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (''{{DAV_COLLECTION}}'', import_file);
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (''{{DAV_COLLECTION}}'', import_file, welcome_subject_p, welcome_body_p);
           else
             admin_result := ''The newsletter feature is not installed yet.'';
         }
         else if (admin_action = ''import_subscribers_rdf'')
         {
           declare import_file any;
+          declare welcome_subject_p, welcome_body_p varchar;
+          welcome_subject_p := http_param (''welcome_subject'');
+          welcome_body_p := http_param (''welcome_body'');
+          if (not isstring (welcome_subject_p)) welcome_subject_p := '''';
+          if (not isstring (welcome_body_p)) welcome_body_p := '''';
           declare rdf_format_param varchar;
           import_file := http_param (''importfile'');
           rdf_format_param := http_param (''rdf_format'');
@@ -4340,7 +4514,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           else if (trim (import_file) = '''')
             admin_result := ''The uploaded RDF file appears to be empty.'';
           else if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF'') > 0)
-            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (''{{DAV_COLLECTION}}'', import_file, rdf_format_param);
+            admin_result := DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (''{{DAV_COLLECTION}}'', import_file, rdf_format_param, welcome_subject_p, welcome_body_p);
           else
             admin_result := ''The newsletter feature is not installed yet.'';
         }
@@ -4349,6 +4523,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
           declare mi, total_rows, imported INTEGER;
           declare has_procs INTEGER;
           declare fail_list varchar;
+          declare welcome_subject_p, welcome_body_p varchar;
+          welcome_subject_p := http_param (''welcome_subject'');
+          welcome_body_p := http_param (''welcome_body'');
+          if (not isstring (welcome_subject_p)) welcome_subject_p := '''';
+          if (not isstring (welcome_body_p)) welcome_body_p := '''';
           has_procs := (select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = ''DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE'');
           total_rows := 0;
           imported := 0;
@@ -4382,7 +4561,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
                     dup_status := _s;
                   if (dup_status = ''confirmed'')
                     fail_list := fail_list || sprintf (''%s (already a confirmed subscriber); '', em);
-                  else if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm)) = 1)
+                  else if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (''{{DAV_COLLECTION}}'', em, null, trim (nm), welcome_subject_p, welcome_body_p) = 1)
                     imported := imported + 1;
                   else
                     fail_list := fail_list || sprintf (''%s (could not be added); '', em);
@@ -5018,6 +5197,7 @@ next_row: ;
     header.masthead h1 { margin: 0; font-size: 1.35rem; line-height: 1.15; }
     header.masthead h1 a { color: var(--text); }
     header.masthead .tagline { color: var(--muted); font-size: 0.9rem; flex: 1 1 420px; }
+    header.masthead .tagline .term-help { border-bottom: 1px dotted currentColor; cursor: help; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 1.25rem; max-width: 1380px; margin: 1.5rem auto 1.25rem; padding: 0 1.25rem; align-items: start; }
     @media (max-width: 900px) {
       header.masthead { align-items: flex-start; }
@@ -5093,7 +5273,7 @@ next_row: ;
   http (''<header class="masthead">'');
   http (sprintf (''<h1><a href="{{PUBLIC_ROUTE}}">%V</a></h1>'', ''{{WEBLOG_TITLE}}''));
   if (skin <> ''editorial'')
-    http (sprintf (''<span class="tagline">%V{{TAGLINE_LINK_HTML}}</span>'', ''{{WEBLOG_TAGLINE}}''));
+    http (''<span class="tagline">{{TAGLINE_HTML}}</span>'');
   http (''<nav class="feed-buttons">'');
   http (''<a class="feed-btn rss" href="{{PUBLIC_ROUTE}}?feed=rss" type="application/rss+xml" title="Subscribe via RSS 2.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>RSS</a>'');
   http (''<a class="feed-btn atom" href="{{PUBLIC_ROUTE}}?feed=atom" type="application/atom+xml" title="Subscribe via Atom 1.0"><svg viewBox="0 0 24 24"><path d="M6.18 17.82a2.18 2.18 0 1 1-4.36 0 2.18 2.18 0 0 1 4.36 0zM1.82 8.73v3.27c5.02 0 9.09 4.07 9.09 9.09h3.27c0-6.83-5.53-12.36-12.36-12.36zM1.82 2.18v3.27c8.03 0 14.55 6.52 14.55 14.55h3.27C19.64 10.16 11.66 2.18 1.82 2.18z"/></svg>Atom</a>'');
@@ -5397,9 +5577,21 @@ next_row: ;
   index_content := replace (index_content, '{{PUBLIC_ROUTE}}', route);
   index_content := replace (index_content, '{{ADMIN_ROUTE}}', admin_route);
   index_content := replace (index_content, '{{ACTION_ROUTE}}', action_route);
-  index_content := replace (index_content, '{{WEBLOG_TITLE}}', weblog_title);
-  index_content := replace (index_content, '{{WEBLOG_TAGLINE}}', weblog_tagline);
-  index_content := replace (index_content, '{{TAGLINE_LINK_HTML}}', tagline_link_html);
+  -- The title and tagline are spliced into quoted string literals in
+  -- index.vsp's own code (the tagline also into an HTML attribute), so a
+  -- quote or line break in either breaks the page's compilation -- which
+  -- is how a bad title took the openlinksw.com weblog down on 2026-09-27
+  -- ("SQ074: syntax error at ';'"). Both are made single-line; the title's
+  -- quotes and backslashes are doubled for the literal (%V HTML-escapes it
+  -- at request time); the tagline is HTML-escaped, so no raw quote
+  -- survives and it is valid in both the attribute and the RSS feed.
+  index_content := replace (index_content, '{{WEBLOG_TITLE}}',
+    replace (replace (replace (replace (coalesce (weblog_title, ''), chr (13), ' '), chr (10), ' '),
+      chr (92), concat (chr (92), chr (92))), '''', ''''''));
+  index_content := replace (index_content, '{{WEBLOG_TAGLINE}}',
+    replace (replace (replace (replace (replace (replace (replace (replace (coalesce (weblog_tagline, ''),
+      chr (13), ' '), chr (10), ' '), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;'), '''', '&#39;'), chr (92), '&#92;'));
+  index_content := replace (index_content, '{{TAGLINE_HTML}}', tagline_html);
   index_content := replace (index_content, '{{DEFAULT_SKIN}}', default_skin);
 
   index_stream := string_output ();
@@ -5483,6 +5675,22 @@ next_row: ;
       prc := DB.DBA.DAV_PROP_SET_INT (coll, props[pi], props[pi + 1], null, null, 0, 0, 1);
       if (not isinteger (prc) or prc < 0)
         signal ('42000', sprintf ('Could not record %s on %s (DAV error %s).', props[pi], coll, cast (prc as varchar)));
+    }
+    -- The masthead settings too, so a later DB.DBA.WEBLOG_UPGRADE needs only
+    -- the collection and the public URL. Best effort: a failure here must
+    -- not fail the deploy (WEBLOG_UPGRADE falls back to reading them from
+    -- index.vsp).
+    props := vector ('weblog:title', coalesce (weblog_title, ''),
+                     'weblog:tagline', coalesce (weblog_tagline, ''),
+                     'weblog:taglineLinkUrl', coalesce (tagline_link_url, ''),
+                     'weblog:taglineLinkText', coalesce (tagline_link_text, ''),
+                     'weblog:taglineHelpTerm', coalesce (tagline_help_term, ''),
+                     'weblog:taglineHelpText', coalesce (tagline_help_text, ''),
+                     'weblog:adminHost', coalesce (uriqa_host, ''));
+    for (pi := 0; pi < length (props); pi := pi + 2)
+    {
+      declare exit handler for sqlstate '*' { ; };
+      DB.DBA.DAV_PROP_SET_INT (coll, props[pi], props[pi + 1], null, null, 0, 0, 1);
     }
   }
 
@@ -5595,6 +5803,379 @@ next_row: ;
 }
 ;
 
+-- ==========================================================================
+-- One entry point for any weblog -- fresh install or upgrade: needs only the
+-- DAV collection and the weblog's public URL. A fresh install can also give
+-- its masthead (weblog_title, weblog_tagline, tagline link and help
+-- tooltip); a value given here always wins, blank means recorded / current
+-- page / default. A collection that does not exist yet is created.
+--
+--   select DB.DBA.WEBLOG_UPGRADE ('/DAV/demos/daas/', 'https://linkeddata.uriburner.com/weblog/');
+--
+-- Everything else is looked up rather than supplied:
+--   route, host          -> parsed from public_url
+--   title, tagline, tagline link, tagline help tooltip, admin host
+--                        -> the weblog:* properties every deploy now records
+--                           on the collection; for a collection deployed
+--                           before they were recorded (or by a hand-built
+--                           template), read from its current index.vsp
+--   admin user, admin collection, skin
+--                        -> weblog:adminDavUser / weblog:adminCollection /
+--                           weblog:skin, recorded by earlier deploys; else
+--                           'dba', the deploy's own default location, and
+--                           'classic'
+-- The current index.vsp and dashboard.html are backed up into
+-- DB.DBA.WEBLOG_UPGRADE_BACKUP first.
+--
+-- allow_template_overwrite: the one deliberate yes. An index.vsp not
+-- generated by this template (e.g. deploy-weblog-opl-site-facet.sql) is
+-- never replaced without it.
+-- dry_run => 1 returns the resolved plan without changing anything.
+-- admin_collection overrides where the admin dashboard lives (only needed
+-- the first time; later upgrades reuse the recorded location).
+-- ==========================================================================
+
+-- JSON string escaping for the plan / result report.
+CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE_JSON_STR (IN s ANY)
+{
+  if (s is null) return 'null';
+  s := cast (s as varchar);
+  s := replace (s, chr (92), concat (chr (92), chr (92)));
+  s := replace (s, '"', concat (chr (92), '"'));
+  s := replace (s, chr (10), ' ');
+  s := replace (s, chr (13), ' ');
+  return concat ('"', s, '"');
+}
+;
+
+-- Read title / tagline / link / help tooltip from an existing index.vsp.
+-- Returns vector (title, tagline, link_url, link_text, help_term,
+-- help_text); any element is null when not found. Handles both this
+-- template's output (current and older) and the hand-built
+-- deploy-weblog-opl-site*.sql pages.
+CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE_SCAN_INDEX (IN idx VARCHAR)
+{
+  declare title, tagline, link_url, link_text, help_term, help_text, inner_html, html_only VARCHAR;
+  declare p, q, s, depth, pos, next_open, next_close, guard int;
+  title := null; tagline := null; link_url := null; link_text := null; help_term := null; help_text := null;
+  if (idx is null or idx = '') return vector (null, null, null, null, null, null);
+
+  -- Title. This template writes <title><?= 'Title' ?></title> (quotes
+  -- doubled inside); a hand-built page has a literal <title>. Feed and
+  -- post-title code also contains <title> (e.g. <title>%V</title>), so take
+  -- the first literal one that is plain text.
+  p := strstr (idx, '<title><?= ''');
+  if (p is not null)
+  {
+    q := strstr (subseq (idx, p + 12), ''' ?></title>');
+    if (q is not null)
+      title := replace (subseq (idx, p + 12, p + 12 + q), '''''', '''');
+  }
+  if (title is null)
+  {
+    -- Only the page's own markup: drop every <?vsp ... ?> / <?= ... ?>
+    -- block first. VSP code is full of <title> strings that are not the
+    -- page title -- feed output, and post-title extraction such as
+    -- replace (t, '<title>', '') -- and taking one of those as the title
+    -- broke the openlinksw.com weblog on 2026-09-27.
+    html_only := idx;
+    guard := 0;
+    while (guard < 5000)
+    {
+      guard := guard + 1;
+      p := strstr (html_only, '<?');
+      if (p is null) goto code_stripped;
+      q := strstr (subseq (html_only, p + 2), '?>');
+      if (q is null)
+      {
+        html_only := subseq (html_only, 0, p);
+        goto code_stripped;
+      }
+      html_only := concat (subseq (html_only, 0, p), subseq (html_only, p + 2 + q + 2));
+    }
+code_stripped:
+    pos := 0;
+    guard := 0;
+    while (title is null and guard < 200)
+    {
+      guard := guard + 1;
+      p := strstr (subseq (html_only, pos), '<title>');
+      if (p is null) goto title_done;
+      p := p + pos + 7;
+      q := strstr (subseq (html_only, p), '</title>');
+      if (q is null) goto title_done;
+      s := p + q;
+      if (q > 0 and strchr (subseq (html_only, p, s), '<') is null and strstr (subseq (html_only, p, s), '%') is null
+          and strstr (subseq (html_only, p, s), '{{') is null and strchr (subseq (html_only, p, s), chr (10)) is null
+          and strchr (subseq (html_only, p, s), '''') is null)
+        title := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (subseq (html_only, p, s)));
+      pos := s;
+    }
+  }
+title_done:
+
+  -- Tagline span, matched with nesting (it may contain a help-tooltip span).
+  p := strstr (idx, '<span class="tagline">');
+  if (p is not null)
+  {
+    p := p + 22;
+    pos := p;
+    depth := 1;
+    guard := 0;
+    while (depth > 0 and guard < 200)
+    {
+      guard := guard + 1;
+      next_open := strstr (subseq (idx, pos), '<span');
+      next_close := strstr (subseq (idx, pos), '</span>');
+      if (next_close is null) goto span_done;
+      if (next_open is not null and next_open < next_close)
+      {
+        depth := depth + 1;
+        pos := pos + next_open + 5;
+      }
+      else
+      {
+        depth := depth - 1;
+        pos := pos + next_close + 7;
+      }
+    }
+    inner_html := subseq (idx, p, pos - 7);
+    -- Help tooltip: <span class="term-help" title="...">term</span>
+    s := strstr (inner_html, '<span class="term-help" title="');
+    if (s is not null)
+    {
+      q := strstr (subseq (inner_html, s + 31), '"');
+      if (q is not null)
+      {
+        help_text := DB.DBA.WEBLOG_HTML_UNESCAPE (subseq (inner_html, s + 31, s + 31 + q));
+        p := strstr (subseq (inner_html, s), '>');
+        next_close := strstr (subseq (inner_html, s), '</span>');
+        if (p is not null and next_close is not null and next_close > p)
+        {
+          help_term := DB.DBA.WEBLOG_HTML_UNESCAPE (subseq (inner_html, s + p + 1, s + next_close));
+          inner_html := concat (subseq (inner_html, 0, s), subseq (inner_html, s + p + 1, s + next_close),
+            subseq (inner_html, s + next_close + 7));
+        }
+      }
+    }
+    -- Trailing link: the last <a href="...">text</a> in the span.
+    s := null;
+    pos := 0;
+    guard := 0;
+    while (guard < 50)
+    {
+      guard := guard + 1;
+      p := strstr (subseq (inner_html, pos), '<a ');
+      if (p is null) goto last_a_done;
+      s := pos + p;
+      pos := s + 3;
+    }
+last_a_done:
+    if (s is not null)
+    {
+      p := strstr (subseq (inner_html, s), 'href="');
+      next_close := strstr (subseq (inner_html, s), '</a>');
+      if (p is not null and next_close is not null and p < next_close)
+      {
+        q := strstr (subseq (inner_html, s + p + 6), '"');
+        link_url := DB.DBA.WEBLOG_HTML_UNESCAPE (subseq (inner_html, s + p + 6, s + p + 6 + q));
+        q := strstr (subseq (inner_html, s), '>');
+        link_text := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (regexp_replace (subseq (inner_html, s + q + 1, s + next_close), '<[^>]*>', '', 1, null)));
+        inner_html := concat (subseq (inner_html, 0, s), subseq (inner_html, s + next_close + 4));
+      }
+    }
+    -- An older deploy of this template wrote the tagline through %V, so the
+    -- span source holds a placeholder, not the text; the meta description
+    -- below has it verbatim instead.
+    if (strstr (inner_html, '%V') is null and strstr (inner_html, '{{') is null)
+    {
+      tagline := regexp_replace (inner_html, '<[^>]*>', '', 1, null);
+      tagline := trim (regexp_replace (DB.DBA.WEBLOG_HTML_UNESCAPE (tagline), '[ \t\r\n]+', ' ', 1, null));
+      if (tagline = '') tagline := null;
+    }
+  }
+span_done:
+  if (tagline is null)
+  {
+    p := strstr (idx, '<meta name="description" content="');
+    if (p is not null)
+    {
+      q := strstr (subseq (idx, p + 34), '"');
+      if (q is not null and q > 0 and strstr (subseq (idx, p + 34, p + 34 + q), '{{') is null)
+        tagline := DB.DBA.WEBLOG_HTML_UNESCAPE (trim (subseq (idx, p + 34, p + 34 + q)));
+    }
+  }
+  if (link_url = '') link_url := null;
+  if (link_text = '') link_text := null;
+  return vector (title, tagline, link_url, link_text, help_term, help_text);
+}
+;
+
+CREATE PROCEDURE DB.DBA.WEBLOG_UPGRADE
+  (
+    IN dav_collection VARCHAR,
+    IN public_url VARCHAR,
+    IN allow_template_overwrite INTEGER := 0,
+    IN dry_run INTEGER := 0,
+    IN admin_collection VARCHAR := null,
+    IN weblog_title VARCHAR := null,
+    IN weblog_tagline VARCHAR := null,
+    IN tagline_link_url VARCHAR := null,
+    IN tagline_link_text VARCHAR := null,
+    IN tagline_help_term VARCHAR := null,
+    IN tagline_help_text VARCHAR := null
+  )
+{
+  declare coll, url, rest, host, route, idx, dash, dav_user, admin_coll, admin_host, skin, backup_note VARCHAR;
+  declare recorded_route, is_template, coll_note VARCHAR;
+  declare scan, vals, srcs, names, props, defaults, given any;
+  declare p, i int;
+  declare deploy_result any;
+
+  coll := trim (coalesce (dav_collection, ''));
+  if (coll = '')
+    signal ('22023', 'WEBLOG_UPGRADE: dav_collection is required (e.g. /DAV/demos/daas/).');
+  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
+  -- Fresh install: a collection that does not exist yet is created (its
+  -- parent must exist) -- on a dry run it is only reported.
+  coll_note := 'existing';
+  if (DB.DBA.DAV_SEARCH_ID (coll, 'C') <= 0)
+  {
+    coll_note := 'created';
+    if (dry_run = 0)
+    {
+      declare crc any;
+      crc := DB.DBA.DAV_COL_CREATE_INT (coll, '110100100R', 'dba', 'administrators', null, null, 0, 0, 0);
+      if (not isinteger (crc) or crc < 0)
+        signal ('22023', sprintf ('WEBLOG_UPGRADE: DAV collection %s does not exist and could not be created (DAV error %s) -- does its parent collection exist?', coll, cast (crc as varchar)));
+    }
+    else
+      coll_note := 'will be created';
+  }
+
+  -- Route and host from the public URL (scheme optional).
+  url := trim (coalesce (public_url, ''));
+  p := strstr (url, '://');
+  rest := case when p is null then url else subseq (url, p + 3) end;
+  p := strchr (rest, '?'); if (p is not null) rest := subseq (rest, 0, p);
+  p := strchr (rest, '#'); if (p is not null) rest := subseq (rest, 0, p);
+  p := strchr (rest, '/');
+  if (p is null or p = 0)
+    signal ('22023', sprintf ('WEBLOG_UPGRADE: public_url "%s" needs a host and the weblog path, e.g. https://example.org/weblog/.', url));
+  host := subseq (rest, 0, p);
+  route := subseq (rest, p);
+  if (subseq (route, length (route) - 1) <> '/') route := route || '/';
+  if (route = '/')
+    signal ('22023', 'WEBLOG_UPGRADE: the weblog must live under a path (e.g. /weblog/), not the site root.');
+  if (strchr (host, ':') is not null) host := subseq (host, 0, strchr (host, ':'));
+
+  idx := null;
+  for (select blob_to_string (RES_CONTENT) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || 'index.vsp') do
+  {
+    idx := _c;
+  }
+  is_template := case when idx is null then 'none' when strstr (idx, 'multi-skin, config-driven') is not null then 'yes' else 'no' end;
+  scan := DB.DBA.WEBLOG_UPGRADE_SCAN_INDEX (idx);
+
+  -- Recorded property first, then the current index.vsp, then a default.
+  names := vector ('title', 'tagline', 'taglineLinkUrl', 'taglineLinkText', 'taglineHelpTerm', 'taglineHelpText');
+  defaults := vector ('WebDAV Weblog', 'A configurable, skinnable weblog view of a WebDAV folder.', null, null, null, null);
+  given := vector (weblog_title, weblog_tagline, tagline_link_url, tagline_link_text, tagline_help_term, tagline_help_text);
+  vals := make_array (6, 'any');
+  srcs := make_array (6, 'any');
+  for (i := 0; i < 6; i := i + 1)
+  {
+    declare rec, giv VARCHAR;
+    -- A value given to this call wins (a fresh install's masthead, or a
+    -- deliberate change); single-line text only, like every source.
+    giv := trim (coalesce (cast (given[i] as varchar), ''));
+    if (giv <> '' and (strchr (giv, chr (10)) is not null or strchr (giv, chr (13)) is not null or length (giv) > 500))
+      giv := '';
+    rec := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, concat ('weblog:', names[i]), '');
+    -- Masthead values are single-line text; anything else is discarded
+    -- (e.g. the code fragment a faulty scan recorded as weblog:title on
+    -- openlinksw.com, 2026-09-27) and the next source is used instead.
+    if (rec <> '' and (strchr (rec, chr (10)) is not null or strchr (rec, chr (13)) is not null or length (rec) > 500))
+      rec := '';
+    if (scan[i] is not null and (strchr (scan[i], chr (10)) is not null or strchr (scan[i], chr (13)) is not null or length (scan[i]) > 500))
+      aset (scan, i, null);
+    if (giv <> '')
+    {
+      aset (vals, i, giv);
+      aset (srcs, i, 'given');
+    }
+    else if (rec <> '')
+    {
+      aset (vals, i, rec);
+      aset (srcs, i, 'recorded');
+    }
+    else if (scan[i] is not null)
+    {
+      aset (vals, i, scan[i]);
+      aset (srcs, i, 'current index.vsp');
+    }
+    else
+    {
+      aset (vals, i, defaults[i]);
+      aset (srcs, i, case when defaults[i] is null then 'none' else 'default' end);
+    }
+  }
+  dav_user := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminDavUser', 'dba');
+  admin_coll := trim (coalesce (admin_collection, ''));
+  if (admin_coll = '') admin_coll := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminCollection', '');
+  admin_host := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminHost', host);
+  skin := lower (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:skin', 'classic'));
+  if (skin <> 'editorial') skin := 'classic';
+  recorded_route := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:publicRoute', '');
+
+  if (dry_run = 0 and is_template = 'no' and allow_template_overwrite = 0)
+    signal ('42000', sprintf ('WEBLOG_UPGRADE: %sindex.vsp was not generated by this template (hand-built, e.g. deploy-weblog-opl-site-facet.sql). Review the plan with dry_run=>1, then rerun with allow_template_overwrite=>1 to replace it -- it is backed up first, and posts, categories and pins are kept.', coll));
+
+  if (dry_run = 0)
+  {
+    -- Back up what this run replaces.
+    {
+      declare exit handler for sqlstate '*' { ; };
+      exec ('create table DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_ID INTEGER IDENTITY, WUB_DAV_COLLECTION VARCHAR, WUB_RES_NAME VARCHAR, WUB_RES_CONTENT LONG VARCHAR, WUB_BACKED_UP_AT DATETIME, PRIMARY KEY (WUB_ID))');
+    }
+    backup_note := '';
+    for (select RES_NAME as _n, RES_CONTENT as _c from WS.WS.SYS_DAV_RES
+          where RES_FULL_PATH = coll || 'index.vsp'
+             or (admin_coll <> '' and RES_FULL_PATH = admin_coll || 'dashboard.html')) do
+    {
+      exec ('insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT) values (?, ?, ?, now ())',
+        null, null, vector (coll, _n, _c));
+      backup_note := concat (backup_note, case when backup_note = '' then '' else ', ' end, _n);
+    }
+    if (backup_note = '') backup_note := 'nothing to back up';
+
+    deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, route, vals[0], vals[1], skin, dav_user,
+      case when admin_coll = '' then null else admin_coll end, admin_host, null,
+      vals[2], vals[3], allow_template_overwrite, vals[4], vals[5]);
+  }
+
+  return concat ('{"dry_run":', case when dry_run = 0 then 'false' else 'true' end,
+    ',"dav_collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (coll),
+    ',"collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (coll_note),
+    ',"public_route":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (route),
+    case when recorded_route <> '' and recorded_route <> route
+      then concat (',"note":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (sprintf ('route changes from the recorded %s', recorded_route))) else '' end,
+    ',"host":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (host),
+    ',"current_index_vsp":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (case is_template when 'yes' then 'this template' when 'no' then 'hand-built (replaced only with allow_template_overwrite)' else 'none' end),
+    ',"title":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[0]), ',"title_from":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (srcs[0]),
+    ',"tagline":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[1]), ',"tagline_from":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (srcs[1]),
+    ',"tagline_link":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[2]), ',"tagline_link_text":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (vals[3]),
+    ',"tagline_help":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (case when vals[4] is null then null else concat (vals[4], ' = ', vals[5]) end),
+    ',"skin":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (skin),
+    ',"admin_user":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (dav_user),
+    ',"admin_collection":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (case when admin_coll = '' then '(deploy default)' else admin_coll end),
+    ',"admin_host":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (admin_host),
+    case when dry_run = 0 then concat (',"backup":', DB.DBA.WEBLOG_UPGRADE_JSON_STR (backup_note), ',"deploy":', deploy_result) else '' end,
+    '}');
+}
+;
+
+
 -- Usage: deploy against an arbitrary local collection.
 -- SELECT DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED ('/DAV/home/dba/weblog-test/', '/weblog-test/', 'My Test Weblog', 'A configurable, skinnable weblog view of a WebDAV folder.', 'classic', 'dba');
 --
@@ -5682,22 +6263,47 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE ()
     }
   }
   {
-    -- GRANT <role> TO <user> is NOT idempotent (verified live 2026-09-23):
-    -- re-granting a role a user already holds errors with U0013 rather than
-    -- silently succeeding, unlike GRANT EXECUTE ON <object> above. __SQL_MESSAGE
-    -- distinguishes that harmless case from a real failure (most likely
-    -- 'kidehen' not existing as a SQL account on this particular instance,
-    -- which the role/procedure grants above are unaffected by either way).
+    -- The weblog's own admin user (weblog:adminDavUser, recorded by earlier
+    -- deploys) joins the role, so a non-dba session -- e.g. a WebID-TLS login
+    -- mapped to that account -- can run these procedures. Nothing to do for
+    -- dba or on a first deploy. GRANT <role> TO <user> is NOT idempotent
+    -- (verified live 2026-09-23): re-granting errors with "already has
+    -- role", which __SQL_MESSAGE tells apart from a real failure.
+    declare grant_user varchar;
+    grant_user := '';
+    {
+      declare exit handler for sqlstate '*' { ; };
+      grant_user := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (aref (DB.DBA.TMP_WEBLOG_UPGRADE_TARGET (), 0), 'weblog:adminDavUser', ''));
+    }
+    if (grant_user = '' or lower (grant_user) = 'dba')
+      grant_note := 'WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure (no non-dba admin user recorded for the target to add).';
+    else
+    {
+      declare exit handler for sqlstate '*'
+      {
+        if (__SQL_MESSAGE like '%already has role%')
+          grant_note := sprintf ('WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure; %s was already a member.', grant_user);
+        else
+          grant_note := sprintf ('(WEBLOG_OPERATOR role/procedure grants applied; adding %s failed -- %s -- run: grant WEBLOG_OPERATOR to <user>;)', grant_user, __SQL_MESSAGE);
+      };
+      exec (sprintf ('grant WEBLOG_OPERATOR to "%s"', grant_user));
+      grant_note := sprintf ('WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure, %s added as a member.', grant_user);
+    }
+  }
+  {
+    -- dba joins the role too. dba is the SQL superuser, but DAV enforces the
+    -- dashboard file's owner/group/world bits for whoever logs in over HTTP,
+    -- dba included: with the dashboard owned by another admin (on UB,
+    -- kidehen) dba got 403 until it was a WEBLOG_OPERATOR member (verified
+    -- locally 2026-09-28: 403 -> 200 -> 403 on grant/revoke).
     declare exit handler for sqlstate '*'
     {
-      if (__SQL_MESSAGE like '%already has role%')
-        grant_note := 'WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure; kidehen was already a member.';
-      else
-        grant_note := sprintf ('(WEBLOG_OPERATOR role/procedure grants applied; granting membership to kidehen failed -- %s -- add the right account manually per the comment above)', __SQL_MESSAGE);
+      if (__SQL_MESSAGE not like '%already has role%')
+        grant_note := concat (grant_note, sprintf (' (adding dba failed -- %s)', __SQL_MESSAGE));
     };
-    exec ('grant WEBLOG_OPERATOR to kidehen');
+    exec ('grant WEBLOG_OPERATOR to dba');
+    grant_note := concat (grant_note, ' dba added as a member.');
   }
-  if (grant_note = '') grant_note := 'WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure, kidehen added as a member.';
   return grant_note;
 }
 ;
@@ -5706,231 +6312,36 @@ select DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE ();
 drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE;
 
 -- ============================================================================
--- PRE-FLIGHT BACKUP 2 of 2 + REDEPLOY -- no editing needed for the three
--- sites already registered below (demo.openlinksw.com, UB, www.openlinksw.com):
--- this block AUTO-DETECTS which one you're connected to and redeploys it,
--- so the file can be run as-is (see TMP_WEBLOG_UPGRADE_AUTODETECT below for
--- how, and DAV_COLLECTION/PUBLIC_ROUTE/etc. for what it deploys with).
--- Before overwriting index.vsp/dashboard.html, this automatically snapshots
--- whatever is currently there (if anything) into DB.DBA.WEBLOG_UPGRADE_BACKUP
--- (created on first use, never dropped by a reinstall -- every prior run's
--- snapshots stay available).
---
--- ADDING A NEW SITE: add an "else if" branch to
--- TMP_WEBLOG_UPGRADE_AUTODETECT's detection logic below, or bypass
--- auto-detection entirely by calling TMP_WEBLOG_UPGRADE_APPLY directly with
--- explicit arguments (DAV_COLLECTION, PUBLIC_ROUTE, WEBLOG_TITLE,
--- WEBLOG_TAGLINE, DEFAULT_SKIN, DAV_USER -- same six DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
--- takes) before the DROP PROCEDURE statements remove it -- required for a
--- first-ever install, since auto-detection has nothing to find yet on a
--- site with no prior deployment.
---
--- Sites registered as of 2026-09-23:
---   demo.openlinksw.com : '/DAV/home/demo/Public/fifa-kg/', '/weblog/'
---   UB                  : '/DAV/demos/daas/',               '/weblog/'
---   www.openlinksw.com  : '/DAV/www2.openlinksw.com/data/html/', '/weblog/'
---
--- CAUTION -- demo.openlinksw.com and www.openlinksw.com: verified live
--- 2026-09-24 that these two currently serve a DIFFERENT, hand-authored
--- template (deploy-weblog-opl-site.sql / deploy-weblog-opl-site-facet.sql,
--- with their own custom tagline/markup), not this file's generic
--- deploy-weblog-skinned.sql -- their branches below have not been
--- exercised against a real deploy and would silently REPLACE that custom
--- template's index.vsp/dashboard.html with the generic one if their
--- index.vsp happens to be found at the path checked. Only UB has actually
--- been run through this file to date. Confirm which template a site is
--- really running (compare its live tagline/markup against both templates)
--- before running this file against demo or www for the first time.
---
--- ADMIN DASHBOARD LOCATION: each site's admin_coll below is left null, which
--- means "reuse the location a previous deploy recorded in
--- weblog:adminCollection, else the suggested aunt/uncle default" --
---   demo : /DAV/home/demo/Public-fifa-kg-admin/
---   UB   : /DAV/demos-daas-admin/
---   www  : /DAV/www2.openlinksw.com/data-html-admin/
--- Set admin_coll to an explicit /DAV/... path to choose a different one; it
--- must be outside the public blog collection. The admin route is published
--- TLS-only, on each site's own public host (set per site below), at the
--- ini's SSLPort or else an existing :443 listener.
+-- UPGRADE -- (re)deploys the TARGET set at the top of this file through
+-- DB.DBA.WEBLOG_UPGRADE, which backs up the current index.vsp and
+-- dashboard.html into DB.DBA.WEBLOG_UPGRADE_BACKUP (created on first use,
+-- never dropped) before replacing them, and returns a JSON report of every
+-- value it used and where each came from.
 --
 -- TO RESTORE index.vsp or dashboard.html from a WEBLOG_UPGRADE_BACKUP row
 -- (find the row first -- select WUB_ID, WUB_RES_NAME, WUB_BACKED_UP_AT from
 -- DB.DBA.WEBLOG_UPGRADE_BACKUP where WUB_DAV_COLLECTION = '<collection>'
--- order by WUB_BACKED_UP_AT desc):
---   declare content varchar;
---   select WUB_RES_CONTENT into content from DB.DBA.WEBLOG_UPGRADE_BACKUP where WUB_ID = <id>;
---   DB.DBA.DAV_RES_UPLOAD_STRSES_INT ('<collection>index.vsp', string_to_file (content, null, 0), 'text/html', '111101101R', 'dav', 'dav', null, null, 0);
+-- order by WUB_BACKED_UP_AT desc), upload its content back with
+-- DB.DBA.DAV_RES_UPLOAD_STRSES_INT ('<collection>index.vsp', <string_output
+-- holding WUB_RES_CONTENT>, 'text/html', '111101101R', 'dav', 'dav', null,
+-- null, 0) -- owner/group 'dav', or the .vsp is served as raw source.
 -- ============================================================================
-
--- Fully self-contained via exec() (dynamic SQL) for every step that touches
--- DB.DBA.WEBLOG_UPGRADE_BACKUP -- deliberately NOT a static INSERT/SELECT
--- against that table. A stored procedure body cannot reference a table that
--- does not exist yet at COMPILE time (Virtuoso resolves table references at
--- procedure-compile time, not deferred to call time) -- an earlier version
--- of this file split table-creation into its own helper procedure, called
--- it, then compiled THIS procedure expecting the table to already be
--- visible; that worked in repeated local testing but failed against a real
--- remote instance 2026-09-23 (SQ096: No table ... on the compile of this
--- very procedure, immediately after the helper reported success) -- most
--- likely a client/transaction-visibility difference in how that instance's
--- SQL tool committed between statements. exec()-only sidesteps the whole
--- class of failure: Virtuoso never needs to statically resolve the table
--- name at compile time, only at the moment each exec() actually runs, by
--- which point the CREATE TABLE exec() just above it has already completed
--- within the SAME statement's execution. Each backup step also gets its own
--- exit handler so a backup failure can never prevent the deploy itself from
--- running -- backups are best-effort, the deploy is not.
-create procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY
-  (
-    IN dav_collection VARCHAR,
-    IN public_route VARCHAR,
-    IN weblog_title VARCHAR,
-    IN weblog_tagline VARCHAR,
-    IN default_skin VARCHAR,
-    IN dav_user VARCHAR,
-    IN admin_collection VARCHAR := null,
-    IN admin_host VARCHAR := null,
-    IN tagline_link_url VARCHAR := null,
-    IN tagline_link_text VARCHAR := null
-  )
+create procedure DB.DBA.TMP_WEBLOG_UPGRADE_RUN ()
 {
-  declare coll, index_path, dash_path, backup_note varchar;
-  declare deploy_result any;
-  declare country_result varchar;
-
-  coll := trim (dav_collection);
-  if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
-
-  backup_note := '';
-  index_path := coll || 'index.vsp';
-  dash_path := coll || 'dashboard.html';
-
-  {
-    -- Harmless no-op on every run after the first ("table already exists");
-    -- any OTHER failure here just means backups are skipped, not that the
-    -- deploy below is blocked.
-    declare exit handler for sqlstate '*' { ; };
-    exec ('create table DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_ID INTEGER IDENTITY, WUB_DAV_COLLECTION VARCHAR, WUB_RES_NAME VARCHAR, WUB_RES_CONTENT LONG VARCHAR, WUB_BACKED_UP_AT DATETIME, PRIMARY KEY (WUB_ID))');
-  }
-  {
-    declare _cc any;
-    for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = index_path) do
-    {
-      _cc := _c;
-      {
-        declare exit handler for sqlstate '*' { ; };
-        exec ('insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT) values (?, ?, ?, now ())',
-          null, null, vector (coll, 'index.vsp', _cc));
-        backup_note := backup_note || 'index.vsp ';
-      }
-    }
-    for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = dash_path) do
-    {
-      _cc := _c;
-      {
-        declare exit handler for sqlstate '*' { ; };
-        exec ('insert into DB.DBA.WEBLOG_UPGRADE_BACKUP (WUB_DAV_COLLECTION, WUB_RES_NAME, WUB_RES_CONTENT, WUB_BACKED_UP_AT) values (?, ?, ?, now ())',
-          null, null, vector (coll, 'dashboard.html', _cc));
-        backup_note := backup_note || 'dashboard.html ';
-      }
-    }
-  }
-  if (backup_note = '') backup_note := '(nothing existed yet to back up, or backup failed -- see comments above; the deploy below still runs)';
-
-  deploy_result := DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED (coll, public_route, weblog_title, weblog_tagline, default_skin, dav_user, admin_collection, admin_host, null, tagline_link_url, tagline_link_text);
-
-  -- Rewrite free-text countries stored before the drop-down to ISO codes.
-  -- Only recognized values change; the subscriber table was already copied
-  -- by PRE-FLIGHT BACKUP 1. A failure here must not fail the upgrade.
-  country_result := '"not run"';
-  {
-    declare exit handler for sqlstate '*' { ; };
-    country_result := DB.DBA.WEBLOG_NEWSLETTER_NORMALIZE_COUNTRIES (coll);
-  }
-
-  -- WEBLOG_DAV_DEPLOY_SKINNED records weblog:adminDavUser and the other
-  -- weblog:* properties itself, refreshes dashboard.html, and reports the
-  -- refresh outcome in its "dashboard" field -- nothing to repeat here.
-  return sprintf ('{"pre_flight_backup":"%s","deploy":%s,"countries":%s}', backup_note, deploy_result, country_result);
+  declare t any;
+  t := DB.DBA.TMP_WEBLOG_UPGRADE_TARGET ();
+  if (trim (t[0]) = '' or trim (t[1]) = '' or trim (t[2]) = '')
+    return '{"ok":false,"reason":"Set the TARGET at the top of upgrade.sql (DAV collection, public host, public path) and run it again. The procedures were (re)installed; nothing was deployed."}';
+  return DB.DBA.WEBLOG_UPGRADE (t[0], concat ('https:', '//', trim (t[1]), trim (t[2])), t[3], t[4],
+    case when trim (t[5]) = '' then null else trim (t[5]) end,
+    t[6], t[7], t[8], t[9], t[10], t[11]);
 }
 ;
--- Force this CREATE PROCEDURE durably visible before the next statement
--- compiles a reference to it -- some SQL client/transaction configurations
--- (verified live 2026-09-23 against a real remote instance) leave a
--- freshly created object showing up in the catalog (SYS_PROCEDURES/SYS_COLS)
--- immediately, but not yet actually resolvable/callable by an immediately
--- following statement without an explicit commit forcing full visibility.
 commit work;
-
--- Auto-detects WHICH known site this connected Virtuoso instance is, so the
--- whole file can be run as-is against any of them without hand-editing
--- placeholders first. Detection signal: which known DAV_COLLECTION already
--- has an index.vsp deployed on THIS instance -- each Virtuoso instance has
--- its own siloed DAV tree, so finding a known path's index.vsp here
--- unambiguously identifies which site this session is connected to (no
--- reliance on any config value like URIQA DefaultHost, which may not be
--- customized per-instance). Never guesses: an instance matching none of the
--- known paths (a genuinely new site, a typo below, or a first-ever install
--- with nothing deployed yet) gets a clear diagnostic instead of a deploy --
--- add a new "else if" branch here for a new site, or call
--- DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED directly with explicit parameters for a
--- first-ever install this can't detect.
-create procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ()
-{
-  declare coll, title, tagline, skin, dav_user, admin_coll, host varchar;
-  declare tagline_link_url, tagline_link_text varchar;
-  declare site_found int;
-  site_found := 0;
-  tagline := 'A configurable, skinnable weblog view of a WebDAV folder.';
-  skin := 'classic';
-  dav_user := 'dba';
-  -- null = recorded weblog:adminCollection, else aunt/uncle default (see
-  -- ADMIN DASHBOARD LOCATION above); set per site below to override.
-  admin_coll := null;
-  -- null = no extra link appended to the visible tagline; set per site
-  -- below for a site that wants one (see TAGLINE LINK above).
-  tagline_link_url := null;
-  tagline_link_text := null;
-
-  if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/home/demo/Public/fifa-kg/index.vsp') > 0)
-  {
-    site_found := 1;
-    coll := '/DAV/home/demo/Public/fifa-kg/';
-    title := 'FIFA Knowledge Graph Weblog';
-    host := 'demo.openlinksw.com';
-  }
-  else if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/demos/daas/index.vsp') > 0)
-  {
-    site_found := 1;
-    coll := '/DAV/demos/daas/';
-    title := 'URIBurner DaaS Weblog';
-    host := 'linkeddata.uriburner.com';
-    -- UB's actual privileged SQL/DAV account is kidehen, not dba (confirmed
-    -- live 2026-09-23) -- WEBLOG_DAV_DEPLOY_SKINNED resolves dav_user's
-    -- password hash via pwd_magic_calc to record the weblog:* collection
-    -- properties (publicRoute, actionRoute, adminCollection, ...); that step
-    -- silently no-ops if dav_user doesn't resolve.
-    dav_user := 'kidehen';
-    tagline_link_url := coll;
-    tagline_link_text := 'WebDAV folder';
-  }
-  else if ((select count (*) from WS.WS.SYS_DAV_RES where RES_FULL_PATH = '/DAV/www2.openlinksw.com/data/html/index.vsp') > 0)
-  {
-    site_found := 1;
-    coll := '/DAV/www2.openlinksw.com/data/html/';
-    title := 'OpenLink Software Weblog';
-    host := 'www.openlinksw.com';
-  }
-
-  if (site_found = 0)
-    return '{"ok":false,"reason":"No known site detected on this instance -- checked /DAV/home/demo/Public/fifa-kg/, /DAV/demos/daas/, and /DAV/www2.openlinksw.com/data/html/ for an existing index.vsp and found none. This is either a first-ever install (nothing deployed yet, so there is nothing to auto-detect from) or a site not yet registered in this procedure -- add an else-if branch above for a new site, or call DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED directly with explicit parameters."}';
-
-  return DB.DBA.TMP_WEBLOG_UPGRADE_APPLY (coll, '/weblog/', title, tagline, skin, dav_user, admin_coll, host, tagline_link_url, tagline_link_text);
-}
-;
--- Same reasoning as the commit work; above this procedure -- force full
--- visibility before the call below.
-commit work;
-select DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT ();
-drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_AUTODETECT;
-drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_APPLY;
+-- The report can exceed isql's default display width; print it in full.
+-- (isql only: Conductor's Interactive SQL answers "SR077: Bad option for
+-- SET" here -- harmless, it shows the full report anyway.)
+set blobs on;
+select DB.DBA.TMP_WEBLOG_UPGRADE_RUN ();
+drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_RUN;
+drop procedure DB.DBA.TMP_WEBLOG_UPGRADE_TARGET;

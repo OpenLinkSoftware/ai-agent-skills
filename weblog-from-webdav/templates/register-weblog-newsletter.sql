@@ -91,6 +91,11 @@ CREATE TABLE DB.DBA.WEBLOG_SUBSCRIBER
 ;
 
 CREATE UNIQUE INDEX WEBLOG_SUBSCRIBER_UQ ON DB.DBA.WEBLOG_SUBSCRIBER (WS_DAV_COLLECTION, WS_EMAIL);
+-- Commit before the procedures below compile against the table: a client
+-- that runs the whole script as one transaction (Conductor's Interactive
+-- SQL) otherwise leaves it invisible to them -- "SQ200: No table
+-- DB.DBA.WEBLOG_SUBSCRIBER", seen live 2026-09-27. Harmless under isql.
+commit work;
 
 -- Resolve the SMTP relay the same way DB.DBA.WA_SEND_MAIL does, honoring a
 -- per-collection override first.
@@ -762,7 +767,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SUBSCRIBE (IN dav_collection VARCHAR, 
             sprintf ('%s%s?nl_action=confirm&token=%s', confirm_base, public_route, tok), 'Confirm subscription'),
           from_name, unsub_url, '', sprintf ('One click to confirm your subscription to %s.', from_name),
           concat (confirm_base, public_route),
-          DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''))));
+          DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''), coll)));
   }
 
   return 'Almost there -- check your inbox and click the confirmation link.';
@@ -927,7 +932,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
       DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('You have been unsubscribed', body_html, null, null, blog_url, from_name),
       from_name, null, '', sprintf ('You will not receive further emails from %s.', from_name),
       case when base_url = '' then null else blog_url end,
-      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
+      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''), coll));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -950,9 +955,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_UNSUBSCRIBE_NOTICE (IN dav_collec
 -- email (there is nothing to click to "activate" -- they already are).
 -- Silent no-op (returns 0) if no mail server is configured, matching the
 -- rest of this file's soft-fail-on-missing-SMTP convention.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VARCHAR, IN email VARCHAR, IN token VARCHAR, IN name VARCHAR := null)
+-- subject_override / body_override: a welcome message given on the import
+-- form for this batch only; blank = the saved weblog:emailSubjectActivation /
+-- weblog:emailBodyActivation template (or the built-in default).
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VARCHAR, IN email VARCHAR, IN token VARCHAR, IN name VARCHAR := null,
+  IN subject_override VARCHAR := null, IN body_override VARCHAR := null)
 {
   declare coll, from_addr, from_name, base_url, public_route, smtp_server, subj, greeting, body, msg, unsub_url, bulk_hdrs VARCHAR;
+  declare blog_url, person, first_name, admin_name, text_body, subj_src, body_src VARCHAR;
+  declare tokens any;
   declare exit handler for sqlstate '*' { return 0; };
 
   coll := trim (dav_collection);
@@ -970,19 +981,44 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
 
   greeting := case when name is not null and trim (name) <> '' then sprintf ('Hi %s,\r\n\r\n', trim (name)) else '' end;
   unsub_url := sprintf ('%s%s?nl_action=unsubscribe&token=%s', base_url, public_route, token);
-  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectActivation',
-    '{{WEBLOG_TITLE}}: you have been added to our mailing list', vector ('{{WEBLOG_TITLE}}', from_name));
-  body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailBodyActivation',
-    '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
-    vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{UNSUBSCRIBE_URL}}', unsub_url));
+  blog_url := concat (base_url, public_route);
+  -- Personalization placeholders. {{NAME}} / {{FIRST_NAME}} fall back to
+  -- "Subscriber" when the import carried no name, so "Dear {{NAME}}," never
+  -- renders as "Dear ,". {{ADMIN_NAME}} signs the message: weblog:adminName
+  -- (Email Server Config), else the sender name.
+  person := trim (coalesce (name, ''));
+  if (person = '') person := 'Subscriber';
+  first_name := person;
+  if (strchr (first_name, ' ') is not null) first_name := subseq (first_name, 0, strchr (first_name, ' '));
+  admin_name := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminName', ''));
+  if (admin_name = '') admin_name := from_name;
+  tokens := vector ('{{WEBLOG_TITLE}}', from_name, '{{GREETING}}', greeting, '{{UNSUBSCRIBE_URL}}', unsub_url,
+    '{{NAME}}', person, '{{FIRST_NAME}}', first_name, '{{EMAIL}}', email,
+    '{{ADMIN_NAME}}', admin_name, '{{WEBLOG_URL}}', blog_url);
+  -- A per-import message wins over the saved template: an empty property
+  -- name makes WEBLOG_RENDER_EMAIL_TEMPLATE use the given text as-is.
+  subj_src := case when trim (coalesce (subject_override, '')) <> '' then '' else 'weblog:emailSubjectActivation' end;
+  body_src := case when trim (coalesce (body_override, '')) <> '' then '' else 'weblog:emailBodyActivation' end;
+  subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, subj_src,
+    case when subj_src = '' then trim (subject_override) else '{{WEBLOG_TITLE}}: you have been added to our mailing list' end, tokens);
+  body := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, body_src,
+    case when body_src = '' then body_override else '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n' end,
+    tokens);
+  -- {{UNSUBSCRIBE_URL}} is optional in the message: the HTML footer and the
+  -- List-Unsubscribe header always carry the link; the plain-text part gets
+  -- it appended when the message itself leaves it out.
+  text_body := body;
+  if (strstr (body, unsub_url) is null)
+    text_body := concat (body, '\r\n--\r\nTo unsubscribe: ', unsub_url, '\r\n');
   bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, email, unsub_url);
-  msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, body,
+  msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, text_body,
     DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj,
-      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML (concat ('Welcome to ', from_name), body,
+      -- Just "Welcome": the masthead right above already names the weblog.
+      DB.DBA.WEBLOG_NEWSLETTER_TEXT_TO_HTML ('Welcome', body,
         concat (base_url, public_route), 'Visit the weblog'),
       from_name, unsub_url, '', sprintf ('You have been added to the %s mailing list.', from_name),
       concat (base_url, public_route),
-      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', '')));
+      DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterPostalAddress', ''), coll));
 
   smtp_send (smtp_server, sprintf ('%s <%s>', from_name, from_addr), email, msg);
   return 1;
@@ -994,7 +1030,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (IN dav_collection VAR
 -- Returns 1 if a row was inserted/reactivated, 0 if skipped (blank/invalid
 -- email, or already 'confirmed' -- re-importing an existing confirmed
 -- subscriber is a harmless no-op, not a re-notify).
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR, IN email VARCHAR, IN country VARCHAR, IN name VARCHAR := null)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR, IN email VARCHAR, IN country VARCHAR, IN name VARCHAR := null,
+  IN welcome_subject VARCHAR := null, IN welcome_body VARCHAR := null)
 {
   declare coll, tok, mirror_rdf VARCHAR;
   declare existing_count INTEGER;
@@ -1041,7 +1078,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR,
   if (lower (mirror_rdf) = 'true')
     DB.DBA.WEBLOG_NEWSLETTER_MIRROR_RDF (coll, email, 1, name);
 
-  DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (coll, email, tok, name);
+  DB.DBA.WEBLOG_NEWSLETTER_SEND_ACTIVATION (coll, email, tok, name, welcome_subject, welcome_body);
   return 1;
 }
 ;
@@ -1052,7 +1089,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (IN dav_collection VARCHAR,
 -- unrecognized columns are ignored. Naive comma-split (no quoted-field
 -- support) -- adequate for a two-column email/country export, not a
 -- general CSV parser.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR, IN csv_text VARCHAR)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR, IN csv_text VARCHAR,
+  IN welcome_subject VARCHAR := null, IN welcome_body VARCHAR := null)
 {
   declare coll VARCHAR;
   declare lines, cols any;
@@ -1101,7 +1139,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR,
       row_email := case when email_col < length (row_cols) then trim (aref (row_cols, email_col)) else '' end;
       row_country := case when country_col >= 0 and country_col < length (row_cols) then trim (aref (row_cols, country_col)) else null end;
       row_name := case when name_col >= 0 and name_col < length (row_cols) then trim (aref (row_cols, name_col)) else null end;
-      if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name) = 1)
+      if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name, welcome_subject, welcome_body) = 1)
         imported := imported + 1;
       else
         skipped := skipped + 1;
@@ -1133,7 +1171,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_CSV (IN dav_collection VARCHAR,
 --     subscriber list, but does not do general JSON-LD context expansion.
 --     Country is intentionally NOT extracted for JSON-LD imports (out of
 --     scope rather than guessing at a nearby-key heuristic).
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR, IN rdf_text VARCHAR, IN rdf_format VARCHAR)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR, IN rdf_text VARCHAR, IN rdf_format VARCHAR,
+  IN welcome_subject VARCHAR := null, IN welcome_body VARCHAR := null)
 {
   declare coll, fmt, graph_iri VARCHAR;
   declare imported, skipped, total_rows INTEGER;
@@ -1183,7 +1222,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR,
             {
               found_email := trim (subseq (rdf_text, val_start, val_start + qend));
               total_rows := total_rows + 1;
-              if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, found_email, null) = 1)
+              if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, found_email, null, null, welcome_subject, welcome_body) = 1)
                 imported := imported + 1;
               else
                 skipped := skipped + 1;
@@ -1223,7 +1262,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IMPORT_RDF (IN dav_collection VARCHAR,
         row_country := case when aref (aref (rows, ri), 1) is null then null else cast (aref (aref (rows, ri), 1) as varchar) end;
         row_name := case when aref (aref (rows, ri), 2) is null then null else cast (aref (aref (rows, ri), 2) as varchar) end;
         total_rows := total_rows + 1;
-        if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name) = 1)
+        if (DB.DBA.WEBLOG_NEWSLETTER_IMPORT_ONE (coll, row_email, row_country, row_name, welcome_subject, welcome_body) = 1)
           imported := imported + 1;
         else
           skipped := skipped + 1;
@@ -1923,9 +1962,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER ()
 -- fallback; from_name is the masthead (linked to site_url when given);
 -- extra_css is a post's own stylesheet (full-content mode), which inline
 -- styles here always outrank. unsub_url / postal_address are optional.
-CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body_html VARCHAR, IN from_name VARCHAR, IN unsub_url VARCHAR, IN extra_css VARCHAR := '', IN preheader VARCHAR := '', IN site_url VARCHAR := null, IN postal_address VARCHAR := null)
+CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body_html VARCHAR, IN from_name VARCHAR, IN unsub_url VARCHAR, IN extra_css VARCHAR := '', IN preheader VARCHAR := '', IN site_url VARCHAR := null, IN postal_address VARCHAR := null, IN coll VARCHAR := null)
 {
-  declare pub, masthead, footer_links VARCHAR;
+  declare pub, masthead, footer_links, logo_url, logo_html VARCHAR;
   pub := DB.DBA.WEBLOG_HTML_ESC_BYTES (coalesce (from_name, ''));
   if (site_url is not null and trim (site_url) <> '')
     masthead := concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="color:#111111;text-decoration:none">', pub, '</a>');
@@ -1938,6 +1977,31 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body
     footer_links := concat (footer_links, case when footer_links = '' then '' else ' &nbsp;&middot;&nbsp; ' end,
       '<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="color:#8a8a8a;text-decoration:underline">Visit the weblog</a>');
   if (coalesce (preheader, '') = '') preheader := coalesce (kicker, '');
+  -- Logo above the masthead, on every email. weblog:emailLogoUrl (Email
+  -- Server Config > Logo image URL): blank = OpenLink's logo, 'none' = no
+  -- logo, else that image. A raster image (PNG/JPEG/GIF): Gmail and
+  -- Outlook do not render SVG in email, which is why the default is the
+  -- PNG openlinksw.com itself publishes (200x80, transparent background,
+  -- verified 2026-09-28), not its SVG header logo. Built from parts: a
+  -- literal https://host path in a file isql loads can trigger its macro
+  -- substitution.
+  logo_url := concat ('https:', '//', 'www.openlinksw.com/images/oplogo_std_200x80.png');
+  if (coll is not null)
+  {
+    declare configured VARCHAR;
+    configured := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:emailLogoUrl', ''));
+    if (lower (configured) = 'none') logo_url := '';
+    else if (configured <> '') logo_url := configured;
+  }
+  logo_html := '';
+  if (logo_url <> '')
+  {
+    logo_html := concat ('<img src="', DB.DBA.WEBLOG_HTML_ESC_BYTES (logo_url), '" width="160" alt="', pub,
+      '" style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;width:160px;max-width:160px;height:auto">');
+    if (site_url is not null and trim (site_url) <> '')
+      logo_html := concat ('<a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url), '" target="_blank" style="text-decoration:none">', logo_html, '</a>');
+    logo_html := concat ('<tr><td align="center" style="padding:0 0 12px 0">', logo_html, '</td></tr>');
+  }
   return concat (
     '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
@@ -1967,10 +2031,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (IN kicker VARCHAR, IN body
     DB.DBA.WEBLOG_HTML_ESC_BYTES (preheader), repeat ('&#8199;&#65279;&#847; ', 60), '</div>',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f3" style="background:#f5f5f3"><tr><td align="center" style="padding:28px 12px 36px 12px">',
     '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;table-layout:fixed">',
+    logo_html,
     '<tr><td align="center" style="padding:0 0 18px 0;font-family:Georgia,''Times New Roman'',serif;font-size:19px;line-height:1.3;font-weight:bold;color:#111111">', masthead, '</td></tr>',
     '<tr><td class="wl-card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e8e8e4;border-radius:8px;padding:40px 44px">', coalesce (body_html, ''), '</td></tr>',
     '<tr><td align="center" style="padding:26px 24px 0 24px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8a8a">',
-    'You&#39;re receiving this because you subscribed to ', pub, '.',
+    -- The masthead names the weblog once; the footer does not repeat it.
+    'You&#39;re receiving this because you subscribed to this weblog.',
     case when footer_links = '' then '' else concat ('<br>', footer_links) end,
     case when coalesce (trim (postal_address), '') = '' then '' else concat ('<br>', DB.DBA.WEBLOG_HTML_ESC_BYTES (trim (postal_address))) end,
     '</td></tr>',
@@ -2093,7 +2159,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     post_css := aref (excerpt_result, 1);
     -- Subtitle (the page's meta description) and reading time.
     meta := DB.DBA.WEBLOG_NEWSLETTER_POST_META (coll, pname);
-    byline := concat (from_name, sep, sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
+    -- Date and reading time only: the masthead names the weblog once, not
+    -- again on every post in a digest.
+    byline := concat (sprintf ('%s %d, %d', months[month (pmod) - 1], dayofmonth (pmod), year (pmod)),
       sep, sprintf ('%d min read', meta[2]));
     card := DB.DBA.WEBLOG_NEWSLETTER_POST_CARD (DB.DBA.WEBLOG_HTML_ESC_BYTES (title), url, excerpt, meta[0], byline);
     -- Plain-text alternative for this post.
@@ -2135,7 +2203,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
         post_css := aref (aref (post_cards, i), 2);
         preheader := aref (aref (post_cards, i), 4);
         if (preheader = '') preheader := title;
-        body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (title, card, from_name, unsub_url, post_css, preheader, site_url, postal_address);
+        body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (title, card, from_name, unsub_url, post_css, preheader, site_url, postal_address, coll);
         subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectImmediate',
           '{{WEBLOG_TITLE}}: {{POST_TITLE}}', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_TITLE}}', title));
         bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
@@ -2154,7 +2222,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
       declare body_html, subj, msg, bulk_hdrs VARCHAR;
       subj := DB.DBA.WEBLOG_RENDER_EMAIL_TEMPLATE (coll, 'weblog:emailSubjectDigest',
         '{{WEBLOG_TITLE}}: new posts this week', vector ('{{WEBLOG_TITLE}}', from_name, '{{POST_COUNT}}', cast (item_count as varchar)));
-      body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj, digest_body_html, from_name, unsub_url, digest_extra_css, digest_preheader, site_url, postal_address);
+      body_html := DB.DBA.WEBLOG_NEWSLETTER_HTML_SHELL (subj, digest_body_html, from_name, unsub_url, digest_extra_css, digest_preheader, site_url, postal_address, coll);
       bulk_hdrs := DB.DBA.WEBLOG_NEWSLETTER_BULK_HEADERS (coll, from_addr, from_name, _email, unsub_url);
       msg := DB.DBA.WEBLOG_NEWSLETTER_MIME_MESSAGE (subj, bulk_hdrs, concat (digest_text, text_footer), body_html);
       {
@@ -2585,6 +2653,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   declare admin_token, public_route, action_route, current_mode, current_content_mode, current_skin, controls_html, import_html VARCHAR;
   declare current_interval INTEGER;
   declare current_from_name, current_from_addr, current_smtp_override, current_base_url, current_admin_email, resolved_smtp, email_config_html VARCHAR;
+  declare current_admin_name, current_logo_url VARCHAR;
   declare digest_scheduled, dash_scheduled INTEGER;
   declare dash_interval INTEGER;
   declare tag_schedule_html VARCHAR;
@@ -2644,6 +2713,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
   current_smtp_override := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterSmtpServer', '');
   current_base_url := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterConfirmBaseUrl', '');
   current_admin_email := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminEmail', '');
+  current_admin_name := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminName', '');
+  current_logo_url := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:emailLogoUrl', '');
   resolved_smtp := '(none configured)';
   {
     declare exit handler for sqlstate '*' { ; };
@@ -2744,9 +2815,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       vector ('immediate', 'Immediate-Mode Email', 'weblog:emailSubjectImmediate', '{{WEBLOG_TITLE}}: {{POST_TITLE}}',
         '', '',
         'Tokens: {{WEBLOG_TITLE}}, {{POST_TITLE}}. Subject only -- the body is the post itself (immediate mode sends one email per post).'),
-      vector ('activation', 'Admin-Import Activation Notice', 'weblog:emailSubjectActivation', '{{WEBLOG_TITLE}}: you have been added to our mailing list',
+      vector ('activation', 'Welcome Email (imported subscribers)', 'weblog:emailSubjectActivation', '{{WEBLOG_TITLE}}: you have been added to our mailing list',
         'weblog:emailBodyActivation', '{{GREETING}}You have been added to the {{WEBLOG_TITLE}} mailing list by the site administrator.\r\n\r\nIf you would rather not receive it, you can unsubscribe at any time:\r\n\r\n{{UNSUBSCRIBE_URL}}\r\n\r\nNo action is needed if you would like to stay on the list.\r\n',
-        'Tokens: {{WEBLOG_TITLE}}, {{GREETING}} (blank, or "Hi Name," when a name was given), {{UNSUBSCRIBE_URL}} (required).'),
+        'Sent to every subscriber added by CSV, RDF or manual import (each import form can also give its own message for that batch). Placeholders: {{NAME}} and {{FIRST_NAME}} ("Subscriber" when none was imported), {{EMAIL}}, {{ADMIN_NAME}} (Email Server Config > Admin name, else the sender name), {{WEBLOG_TITLE}}, {{WEBLOG_URL}}, {{GREETING}} (blank, or "Hi Name,"), {{UNSUBSCRIBE_URL}} (optional -- every email carries an unsubscribe link anyway).'),
       vector ('unsubscribe_notice', 'Admin-Unsubscribe Notice', 'weblog:emailSubjectUnsubscribeNotice', '{{WEBLOG_TITLE}}: you have been unsubscribed',
         'weblog:emailBodyUnsubscribeNotice', '{{GREETING}}You have been removed from the {{WEBLOG_TITLE}} mailing list by the site administrator. You will not receive any further digest emails at this address.\r\n\r\nIf this was a mistake, you can subscribe again at any time:\r\n\r\n{{RESUBSCRIBE_URL}}\r\n',
         'Tokens: {{WEBLOG_TITLE}}, {{GREETING}}, {{RESUBSCRIBE_URL}} (required).'),
@@ -2792,13 +2863,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       '<tr><td>From name</td><td><input type="text" name="from_name" value="%V"/></td></tr>' ||
       '<tr><td>From address</td><td><input type="email" name="from_address" value="%V"/></td></tr>' ||
       '<tr><td>Admin email</td><td><input type="email" name="admin_email" value="%V" placeholder="you@example.org"/></td></tr>' ||
+      '<tr><td>Admin name</td><td><input type="text" name="admin_name" value="%V" placeholder="Signs emails as {{ADMIN_NAME}}"/></td></tr>' ||
+      '<tr><td>Logo image URL</td><td><input type="text" name="logo_url" value="%V" placeholder="blank = OpenLink logo; none = no logo; or a PNG/JPEG URL"/></td></tr>' ||
       '<tr><td>SMTP server override</td><td><input type="text" name="smtp_server" value="%V" placeholder="blank = use server default"/></td></tr>' ||
       '<tr><td>Base URL</td><td><input type="text" name="confirm_base_url" value="%V" placeholder="https://example.org"/></td></tr>' ||
       '</tbody></table>' ||
       '<button type="submit">Save</button>' ||
       '<p class="hint">Currently resolved SMTP relay: <strong>%V</strong>. Base URL is required for any email link (post, unsubscribe) to work. Admin email is used as Reply-To on outgoing newsletter mail and receives operational alerts (new confirmed subscribers, failed digest sends) -- leave it blank to disable both.</p>' ||
       '</form></details></section>',
-      action_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_smtp_override, current_base_url, resolved_smtp);
+      action_route, admin_token, current_from_name, current_from_addr, current_admin_email, current_admin_name, current_logo_url, current_smtp_override, current_base_url, resolved_smtp);
   }
 
   -- Admin-only bulk onboarding: imported rows land 'confirmed' immediately
@@ -2823,9 +2896,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     import_html := sprintf (
       '<section class="panel"><details class="collapsible"><summary class="panel-h2">Import Subscribers</summary><p class="panel-desc">Admin-only onboarding: added subscribers are marked confirmed immediately and sent an activation notice with an unsubscribe link -- no confirm-click required, but they can opt out.</p>' ||
       '<div class="import-grid">' ||
-      '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns. Country may be an ISO code ("US") or a name; anything unrecognized is left blank.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><button type="submit">Import CSV</button></form></div>' ||
-      '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><button type="submit">Import RDF</button></form></div>' ||
-      '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><button type="submit">Add Subscribers</button></form></div>' ||
+      '<div class="import-card"><h3>CSV Upload</h3><p class="hint">Header row with "email" (required) and optional "name" / "country" columns. Country may be an ISO code ("US") or a name; anything unrecognized is left blank.</p><form method="post" action="%s" enctype="multipart/form-data"><input type="hidden" name="admin_action" value="import_subscribers_csv"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".csv,text/csv" required/><details class="collapsible"><summary class="panel-h3">Welcome email for this import (optional)</summary><div class="nl-field"><label>Subject</label><input type="text" name="welcome_subject" placeholder="Blank = the saved Welcome Email template"/></div><div class="nl-field"><label>Message</label><textarea name="welcome_body" rows="8" style="width:100%%;" placeholder="Dear {{NAME}},&#10;&#10;...&#10;&#10;Regards,&#10;{{ADMIN_NAME}}"></textarea></div><p class="hint">Used for this import only; leave blank for the saved Welcome Email. Placeholders: {{NAME}}, {{FIRST_NAME}}, {{EMAIL}}, {{ADMIN_NAME}}, {{WEBLOG_TITLE}}, {{WEBLOG_URL}}. An unsubscribe link is always included.</p></details><button type="submit">Import CSV</button></form></div>' ||
+      '<div class="import-card"><h3>RDF Upload</h3><p class="hint">Looks for schema:Person / schema:email (+ optional schema:name / schema:addressCountry; name and country not extracted for JSON-LD).</p><form method="post" action="%s" enctype="multipart/form-data"><select name="rdf_format"><option value="turtle">Turtle</option><option value="jsonld">JSON-LD</option><option value="ntriples">N-Triples</option><option value="nquads">N-Quads</option><option value="trig">TriG</option></select><input type="hidden" name="admin_action" value="import_subscribers_rdf"/><input type="hidden" name="admin_token" value="%s"/><input type="file" name="importfile" accept=".ttl,.jsonld,.json,.nt,.nq,.trig,.n3" required/><details class="collapsible"><summary class="panel-h3">Welcome email for this import (optional)</summary><div class="nl-field"><label>Subject</label><input type="text" name="welcome_subject" placeholder="Blank = the saved Welcome Email template"/></div><div class="nl-field"><label>Message</label><textarea name="welcome_body" rows="8" style="width:100%%;" placeholder="Dear {{NAME}},&#10;&#10;...&#10;&#10;Regards,&#10;{{ADMIN_NAME}}"></textarea></div><p class="hint">Used for this import only; leave blank for the saved Welcome Email. Placeholders: {{NAME}}, {{FIRST_NAME}}, {{EMAIL}}, {{ADMIN_NAME}}, {{WEBLOG_TITLE}}, {{WEBLOG_URL}}. An unsubscribe link is always included.</p></details><button type="submit">Import RDF</button></form></div>' ||
+      '<div class="import-card"><h3>Manual Entry</h3><p class="hint">Fill in one or more rows -- blank email rows are ignored.</p><form method="post" action="%s"><input type="hidden" name="admin_action" value="import_subscribers_manual"/><input type="hidden" name="admin_token" value="%s"/><table class="manual-add"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>%s</tbody></table><details class="collapsible"><summary class="panel-h3">Welcome email for this import (optional)</summary><div class="nl-field"><label>Subject</label><input type="text" name="welcome_subject" placeholder="Blank = the saved Welcome Email template"/></div><div class="nl-field"><label>Message</label><textarea name="welcome_body" rows="8" style="width:100%%;" placeholder="Dear {{NAME}},&#10;&#10;...&#10;&#10;Regards,&#10;{{ADMIN_NAME}}"></textarea></div><p class="hint">Used for this import only; leave blank for the saved Welcome Email. Placeholders: {{NAME}}, {{FIRST_NAME}}, {{EMAIL}}, {{ADMIN_NAME}}, {{WEBLOG_TITLE}}, {{WEBLOG_URL}}. An unsubscribe link is always included.</p></details><button type="submit">Add Subscribers</button></form></div>' ||
       '</div></details></section>',
       action_route, admin_token,
       action_route, admin_token,
