@@ -6290,6 +6290,20 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_GRANT_ROLE ()
       grant_note := sprintf ('WEBLOG_OPERATOR role ready, granted on every WEBLOG_* procedure, %s added as a member.', grant_user);
     }
   }
+  {
+    -- dba joins the role too. dba is the SQL superuser, but DAV enforces the
+    -- dashboard file's owner/group/world bits for whoever logs in over HTTP,
+    -- dba included: with the dashboard owned by another admin (on UB,
+    -- kidehen) dba got 403 until it was a WEBLOG_OPERATOR member (verified
+    -- locally 2026-09-28: 403 -> 200 -> 403 on grant/revoke).
+    declare exit handler for sqlstate '*'
+    {
+      if (__SQL_MESSAGE not like '%already has role%')
+        grant_note := concat (grant_note, sprintf (' (adding dba failed -- %s)', __SQL_MESSAGE));
+    };
+    exec ('grant WEBLOG_OPERATOR to dba');
+    grant_note := concat (grant_note, ' dba added as a member.');
+  }
   return grant_note;
 }
 ;
