@@ -57,7 +57,9 @@ A separate, non-public collection (never inside the public blog folder, so it ne
 - **Delivery settings, Email Server Config, Email Templates** — see **Email messages** below.
 - **Tagging & Scheduling** — per-post category and pin, digest and dashboard-refresh schedules.
 
-Access is native HTTP Digest authentication against real Virtuoso accounts — the weblog's recorded admin user, members of the `WEBLOG_OPERATOR` role, and `dba` (which `upgrade.sql` adds to that role) — no shared secrets, no tokens embedded in a page.
+Who can get in: the weblog's recorded admin user, members of the `WEBLOG_OPERATOR` role, `dba` (which `upgrade.sql` adds to that role), and — where VAL is installed — any identity a VAL ACL rule grants `oplacl:Write` on `urn:virtuoso:access:weblog:{DAV collection}` (a WebID, an OpenID Connect or OAuth account, a group). No shared secrets.
+
+How they sign in: where VAL (the Virtuoso Authentication Layer) is installed, a browser is sent to VAL's own login page, with whatever methods that instance offers (SQL login, WebID-TLS, OpenID Connect, OAuth, ...), and comes back to the dashboard with a "Signed in as … · Sign out" bar. Scripts, and instances without VAL, use HTTP Digest against the Virtuoso accounts.
 
 ### Newsletter
 
@@ -130,7 +132,8 @@ weblog-from-webdav/
 
 ## Limitations
 
-- One admin identity model per collection: the account in `weblog:adminDavUser`, plus members of the `WEBLOG_OPERATOR` role, plus `dba`.
+- Admin rights are per collection: the account in `weblog:adminDavUser`, members of the `WEBLOG_OPERATOR` role (which spans every weblog on the instance), `dba`, and VAL ACL grants on that collection's resource.
+- WebID-TLS sign-in needs a TLS listener that asks for a client certificate.
 - The newsletter's "immediate" and "digest" send modes cover most cases, but there is no per-subscriber send-time customization.
 - Unsubscribes aren't timestamped, so the dashboard's subscriber trend can't subtract them.
 - Feed and search results are scoped to the single WebDAV collection being served — this is not a multi-collection aggregator.
