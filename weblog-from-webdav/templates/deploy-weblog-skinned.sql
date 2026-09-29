@@ -75,7 +75,224 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_DEFAULT_PIN (IN _coll varchar,
 }
 ;
 
--- Native HTTP Digest auth_fn for the admin-action VHOST (see admin_route/
+-- VAL (Virtuoso Authentication Layer) sign-in for the admin dashboard and
+-- the action route. VAL is the instance's own login layer: one call,
+-- VAL.DBA.get_authentication_details_for_connection, reports who is signed
+-- in whatever protocol they used -- a VAL session cookie (password, OpenID
+-- Connect, OAuth, ...), a WebID-TLS / client certificate, or HTTP auth --
+-- so the weblog never handles passwords itself. Optional: every procedure
+-- below falls back to the Digest gate when VAL is not installed.
+-- Pattern: https://vos.openlinksw.com/owiki/wiki/VOS/VAL_AuthenticateVspTutorial
+CREATE PROCEDURE DB.DBA.WEBLOG_VAL_PRESENT ()
+{
+  if ((select count (*) from DB.DBA.SYS_PROCEDURES
+        where P_NAME = 'VAL.DBA.get_authentication_details_for_connection') > 0)
+    return 1;
+  return 0;
+}
+;
+
+-- The ACL resource that stands for "administer this weblog". A VAL ACL
+-- rule granting oplacl:Write on it (scope urn:virtuoso:val:scopes:weblog)
+-- lets any identity VAL can authenticate -- a WebID, an OpenID Connect or
+-- OAuth account, a group -- administer the weblog without a SQL account.
+CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_RESOURCE (IN coll VARCHAR)
+{
+  return concat ('urn:virtuoso:access:weblog:', coll);
+}
+;
+
+-- SQL accounts that administer coll: dba, the recorded weblog:adminDavUser,
+-- and members of the WEBLOG_OPERATOR role.
+CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_IS_OPERATOR (IN coll VARCHAR, IN uname VARCHAR)
+{
+  if (not isstring (uname) or trim (uname) = '') return 0;
+  uname := trim (uname);
+  if (lower (uname) = 'dba') return 1;
+  if (lower (uname) = lower (trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminDavUser', 'dba'))))
+    return 1;
+  if (exists (select 1 from DB.DBA.SYS_ROLE_GRANTS G, DB.DBA.SYS_USERS U, DB.DBA.SYS_USERS R
+               where U.U_NAME = uname and R.U_NAME = 'WEBLOG_OPERATOR' and R.U_IS_ROLE = 1
+                 and G.GI_SUPER = U.U_ID and G.GI_SUB = R.U_ID))
+    return 1;
+  return 0;
+}
+;
+
+-- Who VAL says is signed in, and whether they may administer coll.
+-- Returns vector (status, serviceId, uname, method):
+--   status 1 = allowed, 0 = nobody signed in (or VAL absent),
+--   -1 = signed in but not allowed;
+--   method = VAL's code (1 session, 2 WebID/client cert, 3 HTTP, 4 OAuth).
+-- Allowed: a real SQL account that WEBLOG_ADMIN_IS_OPERATOR accepts or VAL
+-- counts as an instance administrator, or any identity granted oplacl:Write
+-- on WEBLOG_ADMIN_RESOURCE by a VAL ACL rule. The scope's enabled/disabled
+-- state is not honored (honorScopeState 0): a disabled scope would fall
+-- back to default access, and admin access must never be a default.
+CREATE PROCEDURE DB.DBA.WEBLOG_VAL_ADMIN_CHECK (IN coll VARCHAR)
+{
+  declare sid, service_id, uname, realm varchar;
+  declare is_real, rc int;
+  declare cert any;
+  if (DB.DBA.WEBLOG_VAL_PRESENT () = 0) return vector (0, null, null, 0);
+  realm := null;
+  cert := null;
+  is_real := 0;
+  rc := 0;
+  {
+    declare exit handler for sqlstate '*' { return vector (0, null, null, 0); };
+    rc := VAL.DBA.get_authentication_details_for_connection (
+            sid=>sid, serviceId=>service_id, uname=>uname, isRealUser=>is_real,
+            realm=>realm, cert=>cert);
+  }
+  if (service_id is null and uname is null) return vector (0, null, null, rc);
+  if (is_real = 1 and isstring (uname))
+  {
+    if (DB.DBA.WEBLOG_ADMIN_IS_OPERATOR (coll, uname) = 1) return vector (1, service_id, uname, rc);
+    if (VAL.DBA.is_admin_user (uname) = 1) return vector (1, service_id, uname, rc);
+  }
+  if (service_id is not null)
+  {
+    declare exit handler for sqlstate '*' { return vector (-1, service_id, uname, rc); };
+    if (VAL.DBA.check_access_mode_for_resource (
+          serviceId=>service_id,
+          resource=>DB.DBA.WEBLOG_ADMIN_RESOURCE (coll),
+          realm=>realm,
+          mode=>VAL.DBA.oplacl_iri ('Write'),
+          scope=>'urn:virtuoso:val:scopes:weblog',
+          certificate=>cert,
+          honorScopeState=>0) = 1)
+      return vector (1, service_id, uname, rc);
+  }
+  return vector (-1, service_id, uname, rc);
+}
+;
+
+-- Form token for VAL-authenticated admin actions. A session cookie and a
+-- client certificate are both sent by the browser automatically, so a
+-- form on another site could otherwise submit an admin action as the
+-- signed-in admin. The dashboard page puts this token in every form's
+-- admin_token field; the action route rejects a VAL-authenticated action
+-- without it. The secret is server-side only (registry), never in DAV.
+CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_CSRF (IN coll VARCHAR, IN who VARCHAR)
+{
+  declare secret any;
+  secret := registry_get ('weblog_admin_csrf_secret');
+  if (not isstring (secret) or length (secret) < 32)
+  {
+    secret := md5 (concat (uuid (), cast (now () as varchar), cast (rnd (2147483647) as varchar)));
+    registry_set ('weblog_admin_csrf_secret', secret);
+  }
+  return md5 (concat (secret, '|', coll, '|', coalesce (who, '')));
+}
+;
+
+-- The admin dashboard, served by the admin route's dashboard.vsp. The
+-- generated dashboard.html stays locked in the admin collection (no world
+-- bits); this procedure reads it only for an administrator:
+--   * VAL sign-in (when VAL is installed and no Authorization header was
+--     sent) -- a browser that is not signed in, or signed in as someone
+--     who is not allowed, is sent to VAL's own login page, which comes
+--     back here afterwards;
+--   * otherwise HTTP Digest against the SQL accounts, as before (scripts,
+--     and instances without VAL).
+CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_DASHBOARD_PAGE (IN coll VARCHAR)
+{
+  declare lines, chk, content any;
+  declare admin_coll, realm, uname, who, page, old_tok, returnto, login_url, title, bar, logout_to varchar;
+  declare ok, method, pos, gt int;
+
+  lines := http_request_header ();
+  realm := concat ('WeblogAdmin:', coll);
+  who := null;
+  method := 0;
+
+  if (DB.DBA.WEBLOG_VAL_PRESENT () = 1 and http_request_header (lines, 'Authorization', null, null) is null)
+  {
+    chk := DB.DBA.WEBLOG_VAL_ADMIN_CHECK (coll);
+    if (chk[0] = 1)
+    {
+      who := coalesce (chk[1], chk[2]);
+      method := chk[3];
+    }
+    else if (chk[0] = -1 or strstr (http_request_header (lines, 'Accept', null, ''), 'text/html') is not null)
+    {
+      -- Browsers go to VAL's login page; with deniedServiceId it offers to
+      -- sign in as someone else instead of bouncing straight back here.
+      returnto := null;
+      {
+        declare exit handler for sqlstate '*' { returnto := null; };
+        returnto := VAL.DBA.get_full_normalized_requested_url ();
+      }
+      if (returnto is null) returnto := http_path ();
+      title := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:title', '');
+      if (title = '') title := 'Weblog';
+      login_url := sprintf ('/val/authenticate.vsp?returnto=%U&res=%U&reslabel=%U',
+                            returnto, DB.DBA.WEBLOG_ADMIN_RESOURCE (coll), concat (title, ' administration'));
+      if (chk[0] = -1 and chk[1] is not null)
+        login_url := concat (login_url, sprintf ('&deniedServiceId=%U', chk[1]));
+      http_request_status ('HTTP/1.1 302 Found');
+      http_header (sprintf ('Location: %s\r\nCache-Control: no-store\r\n', login_url));
+      return;
+    }
+  }
+
+  if (who is null)
+  {
+    -- Digest: HTTP_AUTH_CHECK_USER answers 401 with the challenge itself.
+    ok := DB.DBA.HTTP_AUTH_CHECK_USER (realm, 1, 1, null, 'digest');
+    if (ok <> 1) return;
+    uname := get_keyword ('username', DB.DBA.vsp_auth_vec (lines), '');
+    if (DB.DBA.WEBLOG_ADMIN_IS_OPERATOR (coll, uname) = 0)
+    {
+      http_request_status ('HTTP/1.1 403 Forbidden');
+      http_header ('Content-Type: text/plain; charset=UTF-8\r\nCache-Control: no-store\r\n');
+      http ('Forbidden: this account does not administer this weblog.');
+      return;
+    }
+    who := uname;
+  }
+
+  admin_coll := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminCollection', '');
+  if (admin_coll <> '' and subseq (admin_coll, length (admin_coll) - 1) <> '/') admin_coll := admin_coll || '/';
+  content := null;
+  for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = concat (admin_coll, 'dashboard.html')) do
+    content := _c;
+  if (content is null)
+  {
+    http_request_status ('HTTP/1.1 404 Not Found');
+    http_header ('Content-Type: text/plain; charset=UTF-8\r\nCache-Control: no-store\r\n');
+    http ('The dashboard has not been generated yet -- run DB.DBA.WEBLOG_DASHBOARD_REFRESH or upgrade.sql.');
+    return;
+  }
+  page := blob_to_string (content);
+
+  if (method > 0)
+  {
+    -- VAL sign-in: stamp the form token and show who is signed in.
+    old_tok := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminActionToken', '');
+    page := replace (page, concat ('name="admin_token" value="', old_tok, '"'),
+                     concat ('name="admin_token" value="', DB.DBA.WEBLOG_ADMIN_CSRF (coll, who), '"'));
+    logout_to := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:publicRoute', '/');
+    bar := sprintf ('<div style="font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;padding:6px 16px;background:#1f4e79;color:#fff;text-align:right">Signed in as <strong>%V</strong>', who);
+    if (method = 1)
+      bar := concat (bar, sprintf (' &middot; <a style="color:#fff" href="/val/logout.vsp?returnto=%U">Sign out</a>', logout_to));
+    bar := concat (bar, '</div>');
+    pos := strstr (page, '<body');
+    if (pos is not null)
+    {
+      gt := strchr (subseq (page, pos), '>');
+      if (gt is not null)
+        page := concat (subseq (page, 0, pos + gt + 1), bar, subseq (page, pos + gt + 1));
+    }
+  }
+  http_header ('Content-Type: text/html; charset=UTF-8\r\nCache-Control: no-store\r\n');
+  http (page);
+}
+;
+
+-- auth_fn for the admin-action VHOST: VAL sign-in first (see
+-- WEBLOG_VAL_ADMIN_CHECK above), else native HTTP Digest (see admin_route/
 -- action_route below) -- verified live 2026-09-23 against a real remote
 -- instance and locally: three cases confirmed correct (unauthenticated ->
 -- 401; authenticated as the collection's configured weblog:adminDavUser ->
@@ -103,39 +320,46 @@ CREATE PROCEDURE DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_DEFAULT_PIN (IN _coll varchar,
 -- failure.
 CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_AUTH_FN (IN realm VARCHAR)
 {
-  declare ok int;
-  declare lines any;
-  declare auth any;
-  declare uname, coll, expected_admin varchar;
-  declare sep_pos, member_count int;
+  declare ok, sep_pos int;
+  declare lines, chk any;
+  declare uname, coll varchar;
   declare exit handler for sqlstate '*' { return 0; };
 
   sep_pos := strchr (realm, ':');
   if (sep_pos is null) return 0;
   coll := subseq (realm, sep_pos + 1, length (realm));
-
-  ok := DB.DBA.HP_AUTH_SQL_USER (realm);
-  if (ok = 0) return 0;
-
+  connection_set ('weblog_admin_csrf', null);
   lines := http_request_header ();
-  auth := DB.DBA.vsp_auth_vec (lines);
-  uname := get_keyword ('username', auth, '');
 
-  -- dba (the Virtuoso superuser) is always authorized, the same way it
-  -- already bypasses ordinary DAV/SQL grants everywhere else.
-  if (lower (trim (uname)) = 'dba') return 1;
+  -- VAL sign-in (session cookie, WebID-TLS, ...) when VAL is installed and
+  -- the request carries no Authorization header. Such an action must also
+  -- carry the dashboard's form token (see WEBLOG_ADMIN_CSRF); index.vsp
+  -- checks it against the value set here.
+  if (DB.DBA.WEBLOG_VAL_PRESENT () = 1 and http_request_header (lines, 'Authorization', null, null) is null)
+  {
+    chk := DB.DBA.WEBLOG_VAL_ADMIN_CHECK (coll);
+    if (chk[0] = 1)
+    {
+      connection_set ('weblog_admin_csrf', DB.DBA.WEBLOG_ADMIN_CSRF (coll, coalesce (chk[1], chk[2])));
+      return 1;
+    }
+    if (chk[0] = -1)
+    {
+      connection_set ('__val_denied_service_id__', chk[1]);
+      http_request_status ('HTTP/1.1 403 Forbidden');
+      return 0;
+    }
+  }
 
-  expected_admin := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminDavUser', 'dba');
-  if (lower (trim (uname)) = lower (trim (expected_admin))) return 1;
+  -- Digest required explicitly: HP_AUTH_SQL_USER takes the scheme from
+  -- the route's security level, and on a TLS listener the action route
+  -- is sec=>'SSL' (see WEBLOG_LISTENER_TLS_OPTS), which would also
+  -- accept Basic.
+  ok := DB.DBA.HTTP_AUTH_CHECK_USER (realm, 1, 1, null, 'digest');
+  if (ok <> 1) return 0;
 
-  -- Members of WEBLOG_OPERATOR can read the admin collection's dashboard,
-  -- so they must also be able to submit its forms.
-  member_count := (select count (*) from DB.DBA.SYS_ROLE_GRANTS G, DB.DBA.SYS_USERS U, DB.DBA.SYS_USERS R
-                    where U.U_NAME = trim (uname) and R.U_NAME = 'WEBLOG_OPERATOR' and R.U_IS_ROLE = 1
-                      and G.GI_SUPER = U.U_ID and G.GI_SUB = R.U_ID);
-  if (member_count > 0) return 1;
-
-  return 0;
+  uname := get_keyword ('username', DB.DBA.vsp_auth_vec (lines), '');
+  return DB.DBA.WEBLOG_ADMIN_IS_OPERATOR (coll, uname);
 }
 ;
 
@@ -315,6 +539,45 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (IN dav_collection VARCHA
   if (v is null or not isstring (v) or trim (cast (v as varchar)) = '')
     return default_val;
   return trim (cast (v as varchar));
+}
+;
+
+-- TLS options of a listener that is defined in the database (e.g. a :443
+-- listener set up in Conductor), read from one of its own SSL rows; null for
+-- the ini-defined listeners ('*ini*', '*sslini*') and for plain-HTTP ones.
+-- Every route defined on such a listener must itself be sec=>'SSL' AND carry
+-- these options: at startup DB.DBA.VHOST_UPGRADE logs "Wrong record in
+-- virtual hosts config, operator attention required." for any :443 row that
+-- is not SSL or has no https_key -- which the weblog routes triggered on
+-- www.openlinksw.com (2026-09-29): /weblog-action was sec=>'digest' there.
+CREATE PROCEDURE DB.DBA.WEBLOG_LISTENER_TLS_OPTS (IN lh VARCHAR)
+{
+  declare keys, o, res any;
+  declare i int;
+  if (lh is null or lh = '' or lh = '*ini*' or lh = '*sslini*') return null;
+  -- Only a listener Virtuoso itself records as SSL (HL_TYPE 1) qualifies. A
+  -- plain listener can still carry a route that was marked SSL with TLS
+  -- options copied in (www.openlinksw.com's data.openlinksw.com :80 did);
+  -- trusting such a row made the deploy try to turn :80 into an SSL
+  -- listener, which failed with SR197 halfway through (2026-09-29).
+  if (not exists (select 1 from DB.DBA.SYS_HTTP_LISTENERS where HL_INTERFACE = lh and HL_TYPE = 1)) return null;
+  keys := vector ('https_key', 'https_cert', 'https_cv', 'https_protocols', 'https_cipher_list', 'https_dhparam',
+                  'https_ecdh_curve', 'https_extra_chain_certificates', 'https_verify', 'https_cv_depth');
+  for (select HP_AUTH_OPTIONS as _o from DB.DBA.HTTP_PATH
+        where HP_LISTEN_HOST = lh and upper (HP_SECURITY) = 'SSL'
+        order by case when HP_LPATH = '/' then 0 else 1 end) do
+  {
+    o := deserialize (_o);
+    if (isvector (o) and get_keyword ('https_key', o) is not null)
+    {
+      res := vector ();
+      for (i := 0; i < length (keys); i := i + 1)
+        if (get_keyword (keys[i], o) is not null)
+          res := vector_concat (res, vector (keys[i], get_keyword (keys[i], o)));
+      return res;
+    }
+  }
+  return null;
 }
 ;
 
@@ -502,6 +765,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     action_opts := vector ('browse_sheet', '', 'noinherit', 'yes', '401_page', '/val/authenticate.vsp', '403_page', '/val/authenticate.vsp');
   else
     action_opts := vector ('browse_sheet', '', 'noinherit', 'yes');
+
+  -- VAL ACL scope for weblog administration (see WEBLOG_VAL_ADMIN_CHECK):
+  -- rules in it grant oplacl:Write on DB.DBA.WEBLOG_ADMIN_RESOURCE (coll).
+  -- No default access.
+  if (val_present = 1)
+  {
+    declare exit handler for sqlstate '*' { ; };
+    exec ('sparql prefix oplacl: <http://www.openlinksw.com/ontology/acl#> prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> insert into <urn:virtuoso:val:acl:schema> { <urn:virtuoso:val:scopes:weblog> a oplacl:Scope ; rdfs:label "Weblog administration" ; rdfs:comment "ACL rules granting oplacl:Write on urn:virtuoso:access:weblog:{DAV collection} let that identity administer the weblog." ; oplacl:hasApplicableAccess oplacl:Write . }');
+  }
 
   index_content := '<?vsp
   -- Weblog-style index of {{DAV_COLLECTION}} -- multi-skin, config-driven.
@@ -716,8 +988,26 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
       if (on_action_route = 0)
       {
         http_header (''Status: 403 Forbidden\r\nContent-Type: text/plain; charset=UTF-8\r\n'');
-        http (''Forbidden: admin actions must be submitted via the action route, which requires real Digest authentication.'');
+        http (''Forbidden: admin actions must be submitted via the action route, which requires signing in.'');
         return;
+      }
+
+      -- A VAL-authenticated action (cookie or client certificate, both sent
+      -- by the browser automatically) must carry the dashboard''s form
+      -- token; DB.DBA.WEBLOG_ADMIN_AUTH_FN set the expected value. 400,
+      -- not 403: the route''s 403 page is VAL''s login page, which would
+      -- just send an already signed-in admin back again.
+      {
+        declare need_tok, got_tok any;
+        need_tok := connection_get (''weblog_admin_csrf'');
+        got_tok := http_param (''admin_token'');
+        if (isstring (need_tok) and need_tok <> '''' and (not isstring (got_tok) or got_tok <> need_tok))
+        {
+          http_request_status (''HTTP/1.1 400 Bad Request'');
+          http_header (''Content-Type: text/plain; charset=UTF-8\r\n'');
+          http (''Rejected: this admin action did not come from the dashboard (missing or out-of-date form token). Reload the dashboard and try again.'');
+          return;
+        }
       }
 
       admin_result := ''Unknown admin action.'';
@@ -2376,6 +2666,25 @@ next_row: ;
   }
   update WS.WS.SYS_DAV_COL set COL_OWNER = owner_uid, COL_GROUP = operator_gid, COL_PERMS = '111111000N' where COL_ID = admin_col_id;
 
+  -- dashboard.vsp: the admin route's page. It only calls
+  -- DB.DBA.WEBLOG_ADMIN_DASHBOARD_PAGE, which does the sign-in check and
+  -- then reads the locked dashboard.html, so the page itself holds nothing
+  -- secret and is world-executable like index.vsp. Owned by dav, like
+  -- index.vsp: DAV serves a .vsp owned by another account as raw source.
+  {
+    declare dash_vsp any;
+    dash_vsp := string_output ();
+    http (sprintf ('<?vsp DB.DBA.WEBLOG_ADMIN_DASHBOARD_PAGE (''%s''); ?>', replace (coll, '''', '''''')), dash_vsp);
+    rc := DB.DBA.DAV_RES_UPLOAD_STRSES_INT (concat (admin_coll, 'dashboard.vsp'), dash_vsp, 'text/html', '111101101N', 'dav', 'dav', null, null, 0);
+    if (not isinteger (rc) or rc < 0)
+      signal ('42000', sprintf ('Could not write %sdashboard.vsp (rc=%s).', admin_coll, cast (rc as varchar)));
+    if (dav_user <> 'dba')
+    {
+      declare exit handler for sqlstate '*' { ; };
+      exec (sprintf ('grant execute on DB.DBA.WEBLOG_ADMIN_DASHBOARD_PAGE to "%I"', dav_user));
+    }
+  }
+
   -- A dashboard.html left in the public collection by an earlier deploy is
   -- publicly readable (and holds subscriber names/emails) -- remove it.
   DB.DBA.DAV_DELETE_INT (coll || 'dashboard.html', 1, null, null, 0);
@@ -2387,6 +2696,10 @@ next_row: ;
   -- row with an empty lhost/vhost (verified live), so redefining a route
   -- there on redeploy always fails with SR197 Non unique primary key.
   {
+    declare tls any;
+    -- On a database-defined TLS listener (e.g. Conductor's :443) every
+    -- route must be SSL and carry the listener's TLS options.
+    tls := DB.DBA.WEBLOG_LISTENER_TLS_OPTS (_lh);
     DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, route);
     DB.DBA.TMP_DEPLOY_WEBLOG_SKINNED_VHOST_REMOVE (_lh, _vh, subseq (route, 0, length (route) - 1));
     DB.DBA.VHOST_DEFINE (lhost=>_lh, vhost=>_vh, lpath=>route,
@@ -2396,6 +2709,8 @@ next_row: ;
                          def_page=>'index.vsp',
                          vsp_user=>dav_user,
                          ses_vars=>0,
+                         sec=>case when tls is null then null else 'SSL' end,
+                         auth_opts=>tls,
                          opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
                          is_default_host=>0);
 
@@ -2415,7 +2730,8 @@ next_row: ;
                          vsp_user=>dav_user,
                          realm=>action_realm,
                          auth_fn=>'DB.DBA.WEBLOG_ADMIN_AUTH_FN',
-                         sec=>'digest',
+                         sec=>case when tls is null then 'digest' else 'SSL' end,
+                         auth_opts=>tls,
                          ses_vars=>0,
                          opts=>action_opts,
                          is_default_host=>0);
@@ -2429,9 +2745,11 @@ next_row: ;
                        ppath=>admin_coll,
                        is_dav=>1,
                        is_brws=>0,
-                       def_page=>'dashboard.html',
+                       def_page=>'dashboard.vsp',
+                       vsp_user=>dav_user,
                        ses_vars=>0,
                        sec=>'SSL',
+                       auth_opts=>DB.DBA.WEBLOG_LISTENER_TLS_OPTS (admin_lhost),
                        opts=>vector ('browse_sheet', '', 'noinherit', 'yes'),
                        is_default_host=>0);
 
