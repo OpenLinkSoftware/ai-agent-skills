@@ -76,6 +76,8 @@ Set the sender (From name and address), the SMTP relay, and the base URL for ema
 
 Every email — confirmation, welcome (for imported subscribers), unsubscribe notice, digest, and immediate per-post — uses one newsletter layout: a logo, the weblog's name once in the masthead, then the message or posts (serif title, subtitle, date and reading time, a "Read the full post" button), and a footer with an unsubscribe link. Each is sent as plain text plus HTML, built to render in Gmail, Outlook and Apple Mail.
 
+A digest carries at most the 10 newest unsent posts (a weblog that has never mailed anyone would otherwise send its whole archive in one message), shows a "N older posts" link for the rest, and stops adding posts before Gmail's roughly 102 KB clip point. Only a single-post email carries that post's own stylesheet.
+
 - **Templates.** The dashboard's **Email Templates** panel edits every email's subject, and the body of the confirmation, welcome and unsubscribe-notice emails (plus an optional digest intro). **Reset to Default** restores the built-in text. Separate paragraphs with a blank line; a line containing only a URL becomes a link.
 - **Placeholders** in the welcome email: `{{NAME}}` and `{{FIRST_NAME}}` ("Subscriber" when no name was imported), `{{EMAIL}}`, `{{ADMIN_NAME}}` (the **Admin name** setting, else the sender name), `{{WEBLOG_TITLE}}`, `{{WEBLOG_URL}}`. `{{UNSUBSCRIBE_URL}}` is optional — every email carries an unsubscribe link anyway.
 - **Per-import message.** Each import form (CSV, RDF, manual entry) has an optional "Welcome email for this import" subject and message, used for that batch only.

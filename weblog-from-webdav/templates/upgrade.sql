@@ -2218,7 +2218,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   declare sent_count, failed_count, item_count INTEGER;
   declare posts, post_cards any;
   declare digest_body_html, digest_extra_css VARCHAR;
-  declare i INTEGER;
+  declare i, stop_at, max_posts, omitted INTEGER;
   declare digest_text, digest_preheader, site_url, postal_address, sep VARCHAR;
   declare months any;
 
@@ -2254,6 +2254,21 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
 
   if (item_count = 0)
     return 'No new posts since the last check -- nothing sent.';
+
+  -- A digest must stay a digest. With no earlier send on record (a fresh
+  -- install, or subscribers who have never been mailed) since_ts is the year
+  -- 2000 and EVERY post in the collection is "new" -- one real run packed 359
+  -- posts into a 2.8 MB message that no mail client could render. Keep the
+  -- newest max_posts only; the rest are summarised as a count plus a link,
+  -- and WS_LAST_SENT_AT then moves past them so they are not re-sent.
+  max_posts := 10;
+  omitted := 0;
+  if (length (posts) > max_posts)
+  {
+    omitted := length (posts) - max_posts;
+    posts := subseq (posts, omitted);
+    item_count := length (posts);
+  }
 
   from_name := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterFromName', 'Weblog Newsletter');
   from_addr := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:newsletterFromAddress', 'noreply@localhost');
@@ -2293,7 +2308,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   digest_text := trim (regexp_replace (digest_body_html, '<[^>]*>', '', 1, null));
   if (digest_text <> '') digest_text := concat (digest_text, '\r\n\r\n');
   digest_preheader := '';
-  for (i := 0; i < length (posts); i := i + 1)
+  stop_at := length (posts);
+  for (i := 0; i < stop_at; i := i + 1)
   {
     declare pname, title, url, excerpt, card, post_css, byline, txt_part VARCHAR;
     declare excerpt_result, meta, pmod any;
@@ -2316,17 +2332,41 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     -- Plain-text alternative for this post.
     txt_part := concat (title, '\r\n', case when meta[1] <> '' then concat (meta[1], '\r\n') else '' end,
       byline, '\r\n\r\nRead it online: ', url, '\r\n');
-    post_cards := vector_concat (post_cards, vector (vector (title, card, post_css, txt_part, meta[1])));
-    if (i > 0)
+    -- Gmail clips a message past about 102 KB and hides everything after the
+    -- cut, including the unsubscribe link -- stop adding cards well before that.
+    if (mode <> 'immediate' and i > 0 and length (digest_body_html) + length (card) > 85000)
     {
-      digest_body_html := concat (digest_body_html, DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER ());
-      digest_text := concat (digest_text, '\r\n----------\r\n\r\n');
-      digest_preheader := concat (digest_preheader, sep);
+      omitted := omitted + (stop_at - i);
+      stop_at := i;
+      item_count := i;
     }
-    digest_body_html := concat (digest_body_html, card);
-    digest_text := concat (digest_text, txt_part);
-    digest_preheader := concat (digest_preheader, title);
-    digest_extra_css := concat (digest_extra_css, post_css);
+    else
+    {
+      post_cards := vector_concat (post_cards, vector (vector (title, card, post_css, txt_part, meta[1])));
+      if (i > 0)
+      {
+        digest_body_html := concat (digest_body_html, DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER ());
+        digest_text := concat (digest_text, '\r\n----------\r\n\r\n');
+        digest_preheader := concat (digest_preheader, sep);
+      }
+      digest_body_html := concat (digest_body_html, card);
+      digest_text := concat (digest_text, txt_part);
+      digest_preheader := concat (digest_preheader, title);
+      -- One post's stylesheet (its body/*/:root rules) would restyle the whole
+      -- message and every other post in it, so only a single-post digest
+      -- carries it.
+      if (length (posts) = 1)
+        digest_extra_css := concat (digest_extra_css, post_css);
+    }
+  }
+  if (omitted > 0)
+  {
+    digest_body_html := concat (digest_body_html, DB.DBA.WEBLOG_NEWSLETTER_POST_DIVIDER (),
+      '<p style="margin:0;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#555555">',
+      cast (omitted as varchar), ' older post(s) are not shown here. <a href="', DB.DBA.WEBLOG_HTML_ESC_BYTES (site_url),
+      '" target="_blank" style="color:#1f4e79">Browse them on the weblog</a>.</p>');
+    digest_text := concat (digest_text, '\r\n----------\r\n\r\n', cast (omitted as varchar),
+      ' older post(s) are not shown here: ', site_url, '\r\n');
   }
 
   sent_count := 0;
@@ -2396,7 +2436,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
     DB.DBA.WEBLOG_NEWSLETTER_NOTIFY_ADMIN (coll, 'digest send had failures',
       sprintf ('%d of %d confirmed subscriber(s) could not be sent this batch (covering %d new post(s)); they will be retried on the next scheduled run.', failed_count, sent_count + failed_count, item_count));
 
-  return sprintf ('%s: sent to %d confirmed subscriber(s) (%d failed, will retry next run) covering %d new post(s).', mode, sent_count, failed_count, item_count);
+  return sprintf ('%s: sent to %d confirmed subscriber(s) (%d failed, will retry next run) covering %d new post(s)%s.', mode, sent_count, failed_count, item_count,
+    case when omitted > 0 then sprintf (' plus %d older one(s) summarised as a link', omitted) else '' end);
 }
 ;
 
