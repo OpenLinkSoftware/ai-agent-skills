@@ -219,6 +219,9 @@ CHECKS = {
         "operator_gid",
         "admin_owner_uid",
         "email := lower (trim (email))",
+        "max_posts := 10",
+        "older post(s) are not shown here",
+        "> 85000",
     ],
     "references/skin-authoring-contract.md": [
         "Resolution order",
@@ -243,6 +246,8 @@ CHECKS = {
         "WEBLOG_UPGRADE_BACKUP",
         "TO RESTORE",
         "TMP_WEBLOG_UPGRADE_RESTORE_SUBSCRIBERS",
+        "max_posts := 10",
+        "> 85000",
     ],
 }
 
