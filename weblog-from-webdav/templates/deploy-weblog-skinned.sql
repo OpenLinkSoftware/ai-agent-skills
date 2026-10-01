@@ -1963,6 +1963,15 @@ next_row: ;
   <link rel="alternate" type="application/rss+xml"  title="<?= ''{{WEBLOG_TITLE}}'' ?> (RSS 2.0)"  href="{{PUBLIC_ROUTE}}?feed=rss" />
   <link rel="alternate" type="application/atom+xml" title="<?= ''{{WEBLOG_TITLE}}'' ?> (Atom 1.0)" href="{{PUBLIC_ROUTE}}?feed=atom" />
   <link rel="service"   type="application/atomsvc+xml" title="AtomPub Service" href="{{PUBLIC_ROUTE}}?feed=atomPub" />
+  <?vsp
+    declare fav_url varchar;
+    fav_url := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:faviconUrl'', ''''));
+    if (lower (fav_url) <> ''none'')
+    {
+      if (fav_url = '''') fav_url := concat (''https:'', ''//'', ''www.openlinksw.com/images/favicon.ico'');
+      http (sprintf (''<link rel="icon" href="%V" />'', fav_url));
+    }
+  ?>
   <style>
     /* Shared, skin-agnostic base -- reset, theme-toggle chrome, feed buttons, newsletter band, footer. */
     * { box-sizing: border-box; }

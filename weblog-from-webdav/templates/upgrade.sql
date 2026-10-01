@@ -5344,6 +5344,15 @@ next_row: ;
   <link rel="alternate" type="application/rss+xml"  title="<?= ''{{WEBLOG_TITLE}}'' ?> (RSS 2.0)"  href="{{PUBLIC_ROUTE}}?feed=rss" />
   <link rel="alternate" type="application/atom+xml" title="<?= ''{{WEBLOG_TITLE}}'' ?> (Atom 1.0)" href="{{PUBLIC_ROUTE}}?feed=atom" />
   <link rel="service"   type="application/atomsvc+xml" title="AtomPub Service" href="{{PUBLIC_ROUTE}}?feed=atomPub" />
+  <?vsp
+    declare fav_url varchar;
+    fav_url := trim (DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (''{{DAV_COLLECTION}}'', ''weblog:faviconUrl'', ''''));
+    if (lower (fav_url) <> ''none'')
+    {
+      if (fav_url = '''') fav_url := concat (''https:'', ''//'', ''www.openlinksw.com/images/favicon.ico'');
+      http (sprintf (''<link rel="icon" href="%V" />'', fav_url));
+    }
+  ?>
   <style>
     /* Shared, skin-agnostic base -- reset, theme-toggle chrome, feed buttons, newsletter band, footer. */
     * { box-sizing: border-box; }
@@ -6565,6 +6574,10 @@ create procedure DB.DBA.TMP_WEBLOG_UPGRADE_RESTORE_SUBSCRIBERS ()
 {
   declare backup_table_name varchar;
   declare exit handler for sqlstate '*' { return 'Subscriber restore skipped (see comment above for why this is non-fatal).'; };
+  -- Re-running only the second half of this file (a client that cuts the file off at
+  -- WEBLOG_UPGRADE) must never put backup rows back on top of live ones.
+  if (exists (select 1 from DB.DBA.WEBLOG_SUBSCRIBER))
+    return 'Subscriber restore skipped: the live table already has subscribers.';
   backup_table_name := null;
   for (select top 1 "TABLE" as _t from SYS_COLS where "TABLE" like 'DB.DBA.WEBLOG_SUBSCRIBER_BACKUP_%' order by "TABLE" desc) do
     backup_table_name := _t;
