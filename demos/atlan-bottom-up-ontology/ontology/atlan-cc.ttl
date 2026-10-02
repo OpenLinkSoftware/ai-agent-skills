@@ -1,0 +1,184 @@
+@base <http://localhost:8890/schemas/atlan-cc/> .
+@prefix :      <http://localhost:8890/schemas/atlan-cc/> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+
+##############################################################################
+# atlan-cc.ttl — Inherited form for the Atlan bottom-up ontology showcase
+#
+# Article lesson: "Discover meaning locally. Do not reinvent how meaning
+# is represented." This ontology REUSES SKOS (labels), PROV (derivation),
+# Dublin Core / schema.org (dates), OWL/RDFS (classes & properties).
+#
+# Instance graph:  http://localhost:8890/atlan-cc#
+# Instance IRIs:   http://localhost:8890/atlan-cc/{type}/{id}#this
+##############################################################################
+
+<http://localhost:8890/schemas/atlan-cc/>
+  a owl:Ontology ;
+  rdfs:label "Atlan Context & Chaos — Bottom-Up Ontology Showcase"@en ;
+  dct:title "Atlan CC Showcase Ontology" ;
+  dct:description "Inherited representation (OWL/RDFS + SKOS + PROV) for mined claims with validity intervals. Local meaning comes from DB.kidehen tables; form is not reinvented."@en ;
+  dct:creator "Virtuoso showcase for Kingsley Idehen / OpenLink" ;
+  dct:source <https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/> ;
+  owl:versionInfo "1.0.0" ;
+  rdfs:seeAlso <https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/> ,
+               <http://www.w3.org/2004/02/skos/core> ,
+               <http://www.w3.org/ns/prov#> ,
+               <http://www.w3.org/2002/07/owl#> .
+
+##############################################################################
+# Classes
+##############################################################################
+
+:Claim a owl:Class ;
+  rdfs:label "Claim"@en ;
+  rdfs:comment "A mined assertion about meaning (entity, metric, property, relationship, or definition). Reifies local business meaning with source, confidence, and validity interval — the RDF-star / reification pattern the article arrived at without using the standard."@en ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:seeAlso skos:Concept .
+
+:Source a owl:Class ;
+  rdfs:label "Source"@en ;
+  rdfs:comment "System from which claims were mined: warehouse, CRM, BI, or catalog."@en ;
+  rdfs:subClassOf prov:Agent .
+
+:Entity a owl:Class ;
+  rdfs:label "Business Entity"@en ;
+  rdfs:comment "Canonical business concept with preferred and alternate labels (authority control)."@en ;
+  rdfs:subClassOf skos:Concept .
+
+:Metric a owl:Class ;
+  rdfs:label "Metric"@en ;
+  rdfs:comment "Measurable quantity associated with an entity (e.g. Win Rate on Opportunity)."@en ;
+  rdfs:subClassOf skos:Concept .
+
+:Property a owl:Class ;
+  rdfs:label "Property"@en ;
+  rdfs:comment "Attribute of an entity mined from schemas or catalogs."@en ;
+  rdfs:subClassOf rdf:Property .
+
+:Relationship a owl:Class ;
+  rdfs:label "Relationship"@en ;
+  rdfs:comment "Typed link between two business entities."@en ;
+  rdfs:subClassOf owl:ObjectProperty .
+
+:Opportunity a owl:Class ;
+  rdfs:label "Opportunity"@en ;
+  rdfs:comment "CRM-ish pipeline fact used to compute competing win-rate formulas."@en ;
+  rdfs:subClassOf schema:Offer .
+
+##############################################################################
+# Datatype / object properties — inherited patterns
+##############################################################################
+
+:confidence a owl:DatatypeProperty ;
+  rdfs:label "confidence"@en ;
+  rdfs:comment "Evidence strength in [0,1] attached to a Claim."@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:decimal .
+
+:validFrom a owl:DatatypeProperty ;
+  rdfs:label "valid from"@en ;
+  rdfs:comment "Start of the interval during which the claim held. Aligns with schema:validFrom / Dublin Core date practice — the missing dimension in the article."@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:date ;
+  owl:equivalentProperty schema:validFrom .
+
+:validTo a owl:DatatypeProperty ;
+  rdfs:label "valid to"@en ;
+  rdfs:comment "End of validity; unbound/NULL means still current."@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:date ;
+  owl:equivalentProperty schema:validThrough .
+
+:derivedFrom a owl:ObjectProperty ;
+  rdfs:label "derived from"@en ;
+  rdfs:comment "Source system that produced the claim."@en ;
+  rdfs:domain :Claim ;
+  rdfs:range :Source ;
+  rdfs:subPropertyOf prov:wasDerivedFrom .
+
+:preferredLabel a owl:DatatypeProperty ;
+  rdfs:label "preferred label"@en ;
+  rdfs:comment "Canonical name — reuse SKOS, do not invent a parallel label property."@en ;
+  rdfs:subPropertyOf skos:prefLabel ;
+  owl:equivalentProperty skos:prefLabel .
+
+:altLabel a owl:DatatypeProperty ;
+  rdfs:label "alternate label"@en ;
+  rdfs:comment "Variant name for authority control — SKOS altLabel."@en ;
+  rdfs:subPropertyOf skos:altLabel ;
+  owl:equivalentProperty skos:altLabel .
+
+:claimKind a owl:DatatypeProperty ;
+  rdfs:label "claim kind"@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string .
+
+:subjectRef a owl:DatatypeProperty ;
+  rdfs:label "subject reference"@en ;
+  rdfs:comment "Logical subject key, e.g. metric:win_rate."@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string .
+
+:definitionText a owl:DatatypeProperty ;
+  rdfs:label "definition text"@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string .
+
+:status a owl:DatatypeProperty ;
+  rdfs:label "review status"@en ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string .
+
+:systemType a owl:DatatypeProperty ;
+  rdfs:label "system type"@en ;
+  rdfs:domain :Source ;
+  rdfs:range xsd:string .
+
+:forEntity a owl:ObjectProperty ;
+  rdfs:label "for entity"@en ;
+  rdfs:domain :Metric ;
+  rdfs:range :Entity .
+
+:fromEntity a owl:ObjectProperty ;
+  rdfs:label "from entity"@en ;
+  rdfs:domain :Relationship ;
+  rdfs:range :Entity .
+
+:toEntity a owl:ObjectProperty ;
+  rdfs:label "to entity"@en ;
+  rdfs:domain :Relationship ;
+  rdfs:range :Entity .
+
+:accountName a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:string .
+:stage a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:string .
+:amount a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:decimal .
+:createdAt a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:date .
+:closedAt a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:date .
+:isNewBusiness a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:boolean .
+:reachedQualification a owl:DatatypeProperty ; rdfs:domain :Opportunity ; rdfs:range xsd:boolean .
+
+##############################################################################
+# Named individuals (illustrative metric concept)
+##############################################################################
+
+:WinRate a :Metric , skos:Concept ;
+  skos:prefLabel "Win Rate"@en ;
+  skos:altLabel "Winrate"@en ;
+  skos:definition "Contested sales metric; competing local definitions must surface disagreement."@en ;
+  :forEntity :OpportunityConcept .
+
+:OpportunityConcept a :Entity , skos:Concept ;
+  skos:prefLabel "Opportunity"@en ;
+  skos:altLabel "Deal"@en , "Opp"@en .
+
+:AccountConcept a :Entity , skos:Concept ;
+  skos:prefLabel "Account"@en ;
+  skos:altLabel "Customer"@en , "Company"@en .

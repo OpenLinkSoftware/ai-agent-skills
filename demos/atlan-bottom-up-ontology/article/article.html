@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI Ontology: Bottom-Up Doesn't Mean Starting From Scratch — Virtuoso Infographic</title>
+<meta name="description" content="Interactive RDF narrative of Emily Winks / Atlan Context & Chaos (2026-09-04) and how Virtuoso closes the validity-interval gap."/>
+<link rel="canonical" href="https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/"/>
+<style>
+:root{
+  --accent:#5b4bff;
+  --accent2:#00c2a8;
+  --accent3:#ff6b4a;
+  --bg:#0b0f1a;
+  --card:#141a2b;
+  --text:#e8ecf7;
+  --muted:#9aa3b8;
+  --border:#243049;
+  --radius:16px;
+  --shadow:0 12px 40px rgba(0,0,0,.35);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#1a2150 0%,var(--bg) 55%);color:var(--text);line-height:1.55}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(11,15,26,.82);border-bottom:1px solid var(--border);display:flex;gap:.75rem;flex-wrap:wrap;padding:.75rem 1.25rem;align-items:center}
+.nav a{color:var(--text);font-size:.85rem;padding:.35rem .7rem;border-radius:999px;border:1px solid transparent}
+.nav a:hover{border-color:var(--accent);background:rgba(91,75,255,.15);text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+header.hero{padding:2.5rem 0 1rem}
+.kicker{color:var(--accent2);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:.75rem}
+h1{font-size:clamp(1.6rem,3.5vw,2.6rem);line-height:1.15;margin:.4rem 0 1rem}
+.lede{font-size:1.15rem;color:var(--muted);max-width:48rem}
+.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:1.5rem 0}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem 1.2rem;box-shadow:var(--shadow)}
+.card h3{margin:.2rem 0 .6rem;font-size:1.05rem}
+.card p,.card li{color:var(--muted);font-size:.95rem}
+.stat{font-size:2rem;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.badge{display:inline-block;font-size:.7rem;padding:.2rem .55rem;border-radius:999px;border:1px solid var(--border);color:var(--muted);margin-right:.35rem}
+.section{margin:2.75rem 0}
+.section h2{font-size:1.45rem;margin:0 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.quote{border-left:4px solid var(--accent3);padding:.2rem 0 .2rem 1rem;margin:1.25rem 0;font-size:1.2rem;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border-bottom:1px solid var(--border);padding:.65rem .5rem;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.pill{display:inline-block;padding:.15rem .5rem;border-radius:6px;background:rgba(0,194,168,.12);color:var(--accent2);font-size:.8rem}
+.callout{border:1px solid var(--accent);background:rgba(91,75,255,.12);border-radius:var(--radius);padding:1.25rem 1.4rem;margin-top:1rem}
+.callout h3{margin-top:0;color:#cfc8ff}
+.timeline{display:grid;gap:.75rem}
+.titem{display:grid;grid-template-columns:120px 1fr;gap:1rem;align-items:start}
+.titem .when{color:var(--accent3);font-weight:600;font-size:.85rem}
+footer{margin-top:3rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);padding-top:1rem}
+@media(max-width:640px){.titem{grid-template-columns:1fr}}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "@id": "https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/#article",
+  "headline": "AI Ontology: Bottom-Up Doesn't Mean Starting From Scratch",
+  "url": "https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/",
+  "datePublished": "2026-09-04",
+  "description": "We mined 32,237 claims into a business ontology. Every claim carried a source and a confidence score. Not one could say when it stopped being true.",
+  "author": {"@type":"Person","name":"Emily Winks","url":"https://atlan.com/authors/emily-winks/"},
+  "publisher": {"@type":"Organization","name":"Atlan","url":"https://atlan.com/"},
+  "about": [
+    {"@type":"DefinedTerm","name":"Ontology","sameAs":"http://dbpedia.org/resource/Ontology_(information_science)"},
+    {"@type":"DefinedTerm","name":"SKOS"},
+    {"@type":"DefinedTerm","name":"OWL"},
+    {"@type":"DefinedTerm","name":"SHACL"},
+    {"@type":"DefinedTerm","name":"Validity interval"},
+    {"@type":"DefinedTerm","name":"Win rate"}
+  ],
+  "isBasedOn": "https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/"
+}
+</script>
+</head>
+<body>
+<nav class="nav" aria-label="Section navigation">
+  <a href="#thesis">Thesis</a>
+  <a href="#failure">Win rate</a>
+  <a href="#experiment">Experiment</a>
+  <a href="#arguments">Old arguments</a>
+  <a href="#time">Time</a>
+  <a href="#ontology">Ontology?</a>
+  <a href="#inherit">Inherit</a>
+  <a href="#virtuoso">Virtuoso</a>
+  <a href="../index.html">Demo home</a>
+</nav>
+<div class="wrap">
+<header class="hero" id="top">
+  <div class="kicker">Context &amp; Chaos · Atlan · 2026-09-04 · Virtuoso showcase</div>
+  <h1>AI Ontology: Bottom-Up Doesn't Mean Starting From Scratch</h1>
+  <p class="lede">
+    <a href="https://atlan.com/authors/emily-winks/" target="_blank" rel="noopener">Emily Winks</a>
+    mined local meaning from real systems — then noticed the over-correction:
+    inherited representation standards were skipped, and <strong>validity intervals</strong> never made it onto the claim.
+    This page is the RDF narrative; the demo shows how <strong>Virtuoso</strong> keeps bottom-up evidence and inherited form together.
+  </p>
+  <p>
+    <a class="pill" href="https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/" target="_blank" rel="noopener">Canonical article</a>
+    <a class="pill" href="article.ttl">article.ttl</a>
+    <a class="pill" href="article.md">article.md</a>
+  </p>
+</header>
+
+<section class="section" id="thesis">
+  <h2>Thesis</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="badge">Right</span>
+      <h3>Bottom-up mining</h3>
+      <p>Discover local meaning from warehouse, CRM, BI, and catalog — not from a hand-authored enterprise model nobody can reconcile with tables.</p>
+    </div>
+    <div class="card">
+      <span class="badge">Over-correction</span>
+      <h3>Skipped inherited form</h3>
+      <p><a href="http://dbpedia.org/resource/Simple_Knowledge_Organization_System" target="_blank" rel="noopener">SKOS</a>,
+         RDF-star/reification, named graphs,
+         <a href="http://dbpedia.org/resource/Web_Ontology_Language" target="_blank" rel="noopener">OWL</a>/<a href="http://dbpedia.org/resource/SHACL" target="_blank" rel="noopener">SHACL</a>,
+         Dublin Core dates — standards for <em>how</em> meaning is represented.</p>
+    </div>
+    <div class="card">
+      <span class="badge">Lesson</span>
+      <h3>Two different questions</h3>
+      <p>Where definitions come from ≠ how they should be represented. Answer the first bottom-up; inherit the second.</p>
+    </div>
+  </div>
+  <blockquote class="quote">Discover meaning locally. Do not reinvent how meaning is represented.</blockquote>
+</section>
+
+<section class="section" id="failure">
+  <h2>Failure mode — competing win-rate definitions</h2>
+  <p>Ask an agent for last quarter's win rate and it returns one confident answer. Inside the company there is no single definition:</p>
+  <div class="card" style="overflow-x:auto">
+  <table>
+    <thead><tr><th>Claim</th><th>Definition</th><th>Source</th><th>Conf.</th><th>Validity (demo)</th></tr></thead>
+    <tbody>
+      <tr><td><code>#claim-winrate-closed-won</code></td><td>closed-won / all closed</td><td>Warehouse</td><td>0.82</td><td>2024-01-01 → 2025-06-30</td></tr>
+      <tr><td><code>#claim-winrate-exclude-unqualified</code></td><td>exclude never-qualified</td><td>CRM</td><td>0.91</td><td>2024-07-01 → 2026-03-31</td></tr>
+      <tr><td><code>#claim-winrate-new-business</code></td><td>new-business only</td><td>BI</td><td>0.74</td><td>2025-01-01 → open</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin-top:1rem">Competing definitions should <strong>surface disagreement</strong>, not silently reconcile.</p>
+</section>
+
+<section class="section" id="experiment">
+  <h2>Experiment numbers</h2>
+  <div class="grid">
+    <div class="card"><div class="stat">32,237</div><h3>Claims</h3><p>Mined from four systems.</p></div>
+    <div class="card"><div class="stat">14</div><h3>Entities</h3><p>Reconciled concepts.</p></div>
+    <div class="card"><div class="stat">79</div><h3>Metrics</h3><p>Including contested Win Rate.</p></div>
+    <div class="card"><div class="stat">61</div><h3>Properties</h3><p>Schema / catalog attributes.</p></div>
+    <div class="card"><div class="stat">35</div><h3>Relationships</h3><p>Typed entity links.</p></div>
+  </div>
+</section>
+
+<section class="section" id="arguments">
+  <h2>Three old arguments (already in the design)</h2>
+  <div class="grid">
+    <div class="card"><h3>1. Open / closed world</h3><p>Keep competing claims during discovery; govern which definition an agent may use after human review.</p></div>
+    <div class="card"><h3>2. Reification</h3><p>Treat the claim as an entity. RDF 1.2 / RDF-star attaches source, confidence, and a timestamp — the article took the first two.</p></div>
+    <div class="card"><h3>3. Partitioning</h3><p>Named graphs give addressable boundaries for authority, access, and provenance — partially resembled, not fully used.</p></div>
+  </div>
+</section>
+
+<section class="section" id="time">
+  <h2>The missing dimension was time</h2>
+  <div class="card">
+    <p>Every claim carried a <strong>source</strong> and a <strong>confidence</strong>. None carried a <strong>validity interval</strong>.</p>
+    <p>Detecting that a source changed is not the same as describing the period before the change. Without <code>validFrom</code> / <code>validTo</code>, “last quarter” silently assumes today’s definition also held then.</p>
+    <p>Fix: two dates and a rule for who sets them — inherited form, not a new invention.</p>
+  </div>
+  <div class="timeline" style="margin-top:1rem">
+    <div class="titem"><div class="when">2024 H1</div><div class="card">Warehouse formula dominates (claim A).</div></div>
+    <div class="titem"><div class="when">2024 H2+</div><div class="card">CRM deal-desk formula overlaps (claim B) — disagreement visible.</div></div>
+    <div class="titem"><div class="when">2025+</div><div class="card">BI new-business-only (claim C) enters — still open-ended.</div></div>
+  </div>
+</section>
+
+<section class="section" id="ontology">
+  <h2>Did we build an ontology?</h2>
+  <div class="grid">
+    <div class="card"><h3>Authority control (partial)</h3><p>Preferred + alternate labels resemble SKOS — provenance/date of establishment still thin.</p></div>
+    <div class="card"><h3>Missing axioms</h3><p>Without OWL constraints and SHACL shapes, the honest claim may be “a careful account of tables, joins, and metrics.”</p></div>
+  </div>
+</section>
+
+<section class="section" id="inherit">
+  <h2>Inheritance lesson</h2>
+  <p>No inherited ontology will tell you how <em>this</em> deal desk computes win rate. That meaning is local.
+     The error is reinventing labels, reification, partitions, and time instead of reusing SKOS, RDF-star, named graphs, OWL/SHACL, and Dublin Core dates.</p>
+</section>
+
+<section class="section" id="virtuoso">
+  <h2>How Virtuoso closes the gap</h2>
+  <div class="callout">
+    <h3>Same truth · three languages · inherited form</h3>
+    <ol>
+      <li><strong>Bottom-up evidence</strong> in <code>DB.kidehen</code> tables — claims with source, confidence, <em>and</em> <code>valid_from</code>/<code>valid_to</code> (<a href="../sql/01_ddl.sql">DDL</a>, <a href="../sql/02_sample_data.sql">sample data</a>).</li>
+      <li><strong>Inherited ontology</strong> — OWL/RDFS + SKOS + PROV (<a href="../ontology/atlan-cc.ttl">atlan-cc.ttl</a>) at <code>http://localhost:8890/schemas/atlan-cc/</code>.</li>
+      <li><strong>RDF Views</strong> bridge SQL → graph <code>http://localhost:8890/atlan-cc#</code> (<a href="../rdfviews/03_ontology_from_tables.sql">IRI classes</a>, <a href="../rdfviews/04_rdfview_data_rules.sql">QuadMap</a>).</li>
+      <li><strong>Query one truth</strong> via SQL, SPASQL, and SPARQL — with <a href="../queries/spasqlqb-links.md">spasqlqb permalinks</a> on <a href="http://localhost:8890/spasqlqb/" target="_blank" rel="noopener">localhost:8890/spasqlqb</a>.</li>
+    </ol>
+    <p><a href="../index.html">← Collection landing page</a> · SQL :1111 · HTTP :8890</p>
+  </div>
+</section>
+
+<footer>
+  Infographic companion for the Virtuoso showcase demo. Article © Atlan / Emily Winks.
+  Demo artifacts for Kingsley Idehen / OpenLink Software. JSON-LD mirrors <a href="article.ttl">article.ttl</a>.
+</footer>
+</div>
+</body>
+</html>
