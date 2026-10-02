@@ -1,0 +1,2012 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+
+<> a schema:CreativeWork ;
+    schema:name "Entity Registry: People"@en ;
+    schema:description "Canonical schema:Person entity IRIs for individuals recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a person entity, and MUST register newly resolved person IRIs here rather than only in session files. Populated 2026-07-14 from a SPARQL census of schema:Person instances across all DAV named graphs (1,271 instances, 1,150 distinct IRIs, 499 owl:sameAs/name-merged clusters, 41 recurring in >= 3 documents)."@en ;
+    rdfs:comment "The local names below (:kingsleyIdehen, :tonySeale, etc.) are registry-internal index labels for lookup within THIS file only — they are not entity IRIs and must never be copied into generated/delivered RDF documents. In any generated document (an infographic's companion entities.ttl, a KG collection, etc.), the canonical platform IRI itself (the owl:sameAs target, e.g. <https://linkedin.com/in/kidehen#this>) must be used as the sole subject directly — per howto/canonical-entity-iri-denotation.ttl Step 7 (:step-localIriProhibition), which explicitly prohibits document-local IRIs when a canonical platform IRI is available. Caught 2026-08-04: this registry's own local-name convention was mistakenly copied into hospital-os-rdf-harness/entities.ttl as :brianDeFrancesca/:kingsleyIdehen local IRIs with owl:sameAs to canonical — exactly the anti-pattern in that howto's own worked example."@en ;
+    schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-22T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :kingsleyIdehen, :tonySeale, :satyaNadella, :jayaGupta, :alexKarp,
+        :aaronLevie, :jessicaTalisman, :robertScoble, :adedejiOlowe, :veronikaHeimsbakk,
+        :abhiYadav, :irenaCronin, :scottBrinker, :richardMacManus, :ngoziDozie,
+        :prukalpaSankar, :fransRiemersma, :robertSanderson, :timBernersLee, :jkRowling,
+        :reidHoffman, :omMalik, :juanSequeda, :aakashGupta, :guyDebord, :mohamedSalah,
+        :joostDeValk, :gauravMalhotra, :samAltman, :stuartMichaelEdelenbos, :saanyaOjha,
+        :danielAtherton, :popeLeoXIV, :florianWirtz, :jonathanJaffe, :virgilVanDijk,
+        :nickZervoudis, :vivianVoss, :dennisJuarez, :naomiXia, :tomaszTunguz,
+        :andrejKarpathy, :henryYin, :carlosPerez, :peterSteinberger, :brianDeFrancesca,
+        :stevenSinofsky, :seanBPalmer, :chimezieOgbuji, :moBitar,
+        :patrickCollison, :osaretinVictorAsemota, :brijKishorePandey,
+        :michaelTruell, :sualehAsif, :amanSanger, :arvidLunnemark, :elonMusk,
+        :aliPartovi, :natFriedman, :arashFerdowsi, :jordanTopoleski, :davidPan,
+        :leeRobinson, :sarahWang, :dwarkeshPatel, :melvinCarvalho, :danBrickley,
+        :spencerMateega, :carlosGeorgescu, :dannyTang, :annaTong, :philippHerzig, :georgKniese, :walterSun, :karlFahrbach, :rayCase, :elizabethCuratolo, :irfanKhan,
+        :sanjayBrahmawar, :amitSharma, :gordonFleming, :lorenShumate, :parkerZanios, :domTramontana, :kevinSamuelson, :brandyAlderman, :kirstenAllegriWilliams, :jeanneRunyonNewberry, :salenaButler, :julieBaltes, :somaSomasundaram, :paulRamakers, :dannyBonthuis, :sophieWildeboer, :wiegertDeVos, :jeroenVanDerHeijden, :joepHoeks, :philippePlantive, :xavierBossis, :stephaneDelhommeau, :valerieDurand, :mathildeBourgault, :scottGlinski, :rayAckerlund, :michellePryzbylski, :tomKing, :davidIlkka, :frankDiassi, :richardCangemi, :edGettings, :calMcGrath, :christianSpoerl, :paulZugay, :tomJackson, :ronGatti, :traciCurran, :davidHill, :caitlinODonnell, :jonathanCowan, :barryVandevier, :anitaSalihi, :alexandreBoury, :robertBrown, :brianDrumm, :abiYogarajah, :richardWerner, :tvnReddy, :stephenHay, :jennyPeng, :yamaHabibzai, :jeremyWardell, :karaMcClain, :megganLeong, :joshWeiss, :brentHeavican, :jasonNiemi, :maryAmbrose, :henryGerman, :jasonBolstad, :michaelLimas, :calGerman, :ericVerniaut, :bjoernGoerke, :otmarZewald, :michaelFinkler, :michaelWintergerst, :thomasFodermeyer, :joergLeidecker, :steveMurphy, :vaibhavVohra, :grahamRigby, :daveGetty, :caraPingel, :michaelLovelace, :danKaminstein, :erikaMargerum, :benHalverson, :brendaNobleza, :arturoBuzzalino, :danHoudek, :danielCharvoz, :kerrieJordan, :rajeshBansal, :timothyShoemaker, :billHart, :billWilson, :patrickSalyer, :thordurArnason, :larryCheng, :seanCantwell, :rogerHurwitz, :jimFerry, :tomyHan, :chipHazard, :jeffBussgang, :jesseMiddleton, :lilyLyman, :chrisGardner, :brianDevaney, :jamieGoldstein, :sarahHodges, :tonyKulesa, :thomasDeVlaam, :parkerMcKee, :rudinaSeseri, :rickGrinnell, :vladSejnoha, :micahRosenbloom, :amandaHerson, :davidFrankel,
+        :bradGerstner, :sunnyMadra, :chaseLochmiller, :aliGhodsi, :sachinKatti,
+        :yashPatil, :tuhinSrivastava, :guillermoRauch, :ericKaudererAbrams, :joshuaMeier ;
+    rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
+        <../howto/canonical-entity-iri-denotation.ttl>,
+        <../howto/entity-iri-denotation-mechanics.ttl>,
+        <../howto/external-iri-verification.ttl>,
+        <../howto/cross-document-local-term-reuse.ttl> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Correction note (2026-07-14) ────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Three entries added earlier the same session (Jaya Gupta, Alex Karp, Aaron
+# Levie) carried unverified/incorrect canonical IRIs, caught by cross-checking
+# against corpus documents already read this session:
+#   - :jayaGupta was <...linkedin.com/in/jayagupta#this> — WRONG. Verified form
+#     (ai-value-capture-response-claude_sonnet_5-1.ttl) is jayagupta10.
+#   - :aaronLevie was <...linkedin.com/in/aaron-levie#this> — WRONG. Verified
+#     form (aaron-levie-enterprise-ai-agent-issues-...ttl) is boxaaron.
+#   - :alexKarp was <...linkedin.com/in/alexkarp#this> — UNVERIFIED/fabricated.
+#     No document in this corpus ever asserts a personal LinkedIn IRI for Karp;
+#     only dbr:Alex_Karp (DBpedia) appears. Corrected to DBpedia canonical per
+#     the no-fabricated-URLs rule.
+# Lesson: a registry entry must be checked against already-read source
+# documents, not asserted from model recall of a plausible-looking slug.
+
+:kingsleyIdehen a schema:Person ;
+    schema:name "Kingsley Uyi Idehen"@en ;
+    schema:email "kidehen@openlinksw.com" ;
+    schema:jobTitle "Founder & CEO"@en ;
+    schema:worksFor <http://dbpedia.org/resource/OpenLink_Software> ;
+    owl:sameAs <https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid>,
+               <https://id.myopenlink.net/dataspace/person/kidehen>,
+               <https://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com>,
+               <http://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com>,
+               <https://linkedin.com/in/kidehen#this>,
+               <https://www.linkedin.com/in/kidehen#this>,
+               <https://x.com/kidehen#this>,
+               <https://substack.com/@kidehen#this> ;
+    rdfs:comment "Current YouID/NetID https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid is the protocol credential (cert-modulus verified in this Grok Bot session). Older ODS WebID https://id.myopenlink.net/dataspace/person/kidehen 303s (2026-08-30) to /dataspace/raw/person/kidehen/sioc.jsonld (application/ld+json); graph id is the hashless person URI, type Person, foaf:name Kingsley Uyi Idehen, cert:key present. ODS shop WebID http://my.openlinksw.com/dataspace/person/kidehen@openlinksw.com 303s (2026-08-30) to /dataspace/raw/person/kidehen@openlinksw.com/sioc.jsonld; JSON-LD id is the https hashless person URI, type Person, cert:key present. Literal @ in the path is RFC 3986 pchar-legal; the percent-encoded %40 form 303s to empty JSON and was not added. A foaf:OnlineAccount in that graph also cites http://id.myopenlink.net/dataspace/person/kidehen#this as the webid account homepage; the content-negotiated person id is hashless. Linkedin.com (non-www) remains the registry canonical platform IRI per the person-IRI ladder. First resolved in agent-rdf-memory/core.ttl (:user entity). Census 2026-07-14: 37 documents."@en ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime .
+
+:tonySeale a schema:Person ;
+    schema:name "Tony Seale"@en ;
+    owl:sameAs <https://www.linkedin.com/in/tonyseale#this>,
+               <https://uk.linkedin.com/in/tonyseale#this>,
+               <https://www.linkedin.com/in/tonyseale/#this> ;
+    rdfs:comment "Canonical entity IRI. www.linkedin.com is the canonical form; uk.linkedin.com and trailing-slash variant are aliases. Census 2026-07-14: 7 documents."@en ;
+    schema:dateCreated "2026-06-12T00:00:00Z"^^xsd:dateTime .
+
+:satyaNadella a schema:Person ;
+    schema:name "Satya Nadella"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Microsoft> ;
+    owl:sameAs <https://www.linkedin.com/in/satyanadella#this>,
+               <https://linkedin.com/in/satyanadella#this>,
+               <https://x.com/satyanadella#this> ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jayaGupta a schema:Person ;
+    schema:name "Jaya Gupta"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Foundation_Capital> ;
+    owl:sameAs <https://www.linkedin.com/in/jayagupta10#this>,
+               <https://linkedin.com/in/jayagupta10#this>,
+               <https://x.com/JayaGup10#this> ;
+    rdfs:comment "CORRECTED 2026-07-14: verified against ai-value-capture-response-claude_sonnet_5-1.ttl — canonical slug is jayagupta10, not jayagupta. Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:alexKarp a schema:Person ;
+    schema:name "Alex Karp"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Palantir_Technologies> ;
+    owl:sameAs <http://dbpedia.org/resource/Alex_Karp> ;
+    rdfs:comment "CORRECTED 2026-07-14: the prior entry's LinkedIn IRI (alexkarp) was never verified against any source document in this corpus and has been removed as unconfirmed. Only dbr:Alex_Karp is asserted anywhere in the corpus (ai-value-capture-response, reverse-information-paradox). Use DBpedia as canonical until a verified personal LinkedIn is found."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:aaronLevie a schema:Person ;
+    schema:name "Aaron Levie"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Box_(company)> ;
+    owl:sameAs <https://www.linkedin.com/in/boxaaron#this>,
+               <https://x.com/levie#this>,
+               <http://dbpedia.org/resource/Aaron_Levie> ;
+    rdfs:comment "CORRECTED 2026-07-14: verified against aaron-levie-enterprise-ai-agent-issues-semantic-web-virtuoso-claude_sonnet_5-1.ttl — canonical slug is boxaaron, not aaron-levie. Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jessicaTalisman a schema:Person ;
+    schema:name "Jessica Talisman"@en ;
+    owl:sameAs <https://www.linkedin.com/in/jmtalisman#this>,
+               <https://substack.com/@jessicatalisman#this> ;
+    rdfs:comment "Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Corpus-Distilled People (SPARQL census over DAV named graphs, 2026-07-14) ──
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Every person below recurred across >= 3 independently generated documents.
+# Canonical IRI selection follows the priority ladder in
+# canonical-entity-iri-denotation.ttl: LinkedIn -> X/Twitter -> Substack ->
+# other owned platform -> DBpedia (for public figures without an owned
+# professional profile in the corpus) -> document-local hash IRI fallback.
+
+:robertScoble a schema:Person ;
+    schema:name "Robert Scoble"@en ;
+    owl:sameAs <https://linkedin.com/in/scobleizer#this>,
+               <https://www.linkedin.com/in/scobleizer#this>,
+               <https://www.linkedin.com/in/robertscoble#this>,
+               <https://x.com/Scobleizer#this>,
+               <http://dbpedia.org/resource/Robert_Scoble> ;
+    rdfs:comment "Two distinct LinkedIn slugs found in corpus (scobleizer, robertscoble) — both aliased; scobleizer is more frequent and canonical. Census 2026-07-14: 11 documents, 19 IRI variants — highest non-Kingsley recurrence."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:adedejiOlowe a schema:Person ;
+    schema:name "Adedeji Olowe"@en ;
+    owl:sameAs <https://www.linkedin.com/in/adedejiolowe#this>,
+               <https://x.com/dejiolowe#this> ;
+    rdfs:comment "Census 2026-07-14: 7 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:veronikaHeimsbakk a schema:Person ;
+    schema:name "Veronika Heimsbakk"@en ;
+    owl:sameAs <https://www.linkedin.com/in/vheimsbakk#this>,
+               <https://no.linkedin.com/in/vheimsbakk#this>,
+               <https://substack.com/@veronahe#this> ;
+    rdfs:comment "Census 2026-07-14: 7 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:abhiYadav a schema:Person ;
+    schema:name "Abhi Yadav"@en ;
+    owl:sameAs <https://x.com/abhiyadav#this>,
+               <https://x.com/abhishekyd#this> ;
+    rdfs:comment "DATA QUALITY FINDING (2026-07-14): one source document incorrectly asserted owl:sameAs between this person's IRI and dbr:Graph_(discrete_mathematics) — an entity-resolution error (article title 'What Is an Audience Interest Graph' likely triggered a keyword-matched wrong DBpedia link). That erroneous link is excluded here. No verified LinkedIn found; X is canonical. Census 2026-07-14: 6 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:irenaCronin a schema:Person ;
+    schema:name "Irena Cronin"@en ;
+    owl:sameAs <https://linkedin.com/in/irenacronin#this>,
+               <https://www.linkedin.com/in/irenacronin#this> ;
+    rdfs:comment "Census 2026-07-14: 6 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:scottBrinker a schema:Person ;
+    schema:name "Scott Brinker"@en ;
+    owl:sameAs <https://www.linkedin.com/in/scottbrinker#this>,
+               <https://x.com/chiefmartec#this> ;
+    rdfs:comment "Census 2026-07-14: 5 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:richardMacManus a schema:Person ;
+    schema:name "Richard MacManus"@en ;
+    owl:sameAs <https://www.linkedin.com/in/ricmac#this>,
+               <https://x.com/ricmac#this> ;
+    rdfs:comment "DATA QUALITY FINDING (2026-07-14): one source document ('What is the Agentic Web') incorrectly asserted owl:sameAs between this person's IRI and dbr:Agent_(artificial_intelligence) — an entity-resolution error, excluded here. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:ngoziDozie a schema:Person ;
+    schema:name "Ngozi Dozie"@en ;
+    owl:sameAs <https://www.linkedin.com/in/ngozidozie#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:prukalpaSankar a schema:Person ;
+    schema:name "Prukalpa Sankar"@en ;
+    owl:sameAs <https://www.linkedin.com/in/prukalpa#this>,
+               <https://x.com/prukalpa#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:fransRiemersma a schema:Person ;
+    schema:name "Frans Riemersma"@en ;
+    owl:sameAs <https://www.linkedin.com/in/fransriemersma#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:robertSanderson a schema:Person ;
+    schema:name "Robert Sanderson"@en ;
+    owl:sameAs <https://www.linkedin.com/in/robert-sanderson#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:timBernersLee a schema:Person ;
+    schema:name "Tim Berners-Lee"@en ;
+    owl:sameAs <https://www.w3.org/People/Berners-Lee/card#i>,
+               <https://www.linkedin.com/in/timbernerslee#this>,
+               <https://x.com/timberners_lee#this>,
+               <http://dbpedia.org/resource/Tim_Berners-Lee> ;
+    rdfs:comment "WebID https://www.w3.org/People/Berners-Lee/card#i dereferenced 2026-08-30 as text/turtle PersonalProfileDocument, foaf:primaryTopic <#i>, cert:key present. LinkedIn/X/DBpedia retained as platform aliases. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jkRowling a schema:Person ;
+    schema:name "J. K. Rowling"@en ;
+    owl:sameAs <https://x.com/jk_rowling#this>,
+               <http://dbpedia.org/resource/J._K._Rowling> ;
+    rdfs:comment "No owned professional LinkedIn found in corpus; DBpedia is canonical for this public figure. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:reidHoffman a schema:Person ;
+    schema:name "Reid Hoffman"@en ;
+    owl:sameAs <https://www.linkedin.com/in/reidhoffman#this>,
+               <https://x.com/reidhoffman#this>,
+               <http://dbpedia.org/resource/Reid_Hoffman> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:omMalik a schema:Person ;
+    schema:name "Om Malik"@en ;
+    owl:sameAs <https://www.linkedin.com/in/ommalik#this>,
+               <https://x.com/om#this>,
+               <http://dbpedia.org/resource/Om_Malik> ;
+    rdfs:comment "Census 2026-07-14: 4 documents. Personal blog om.co also present in corpus but LinkedIn is canonical per priority ladder."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:juanSequeda a schema:Person ;
+    schema:name "Juan Sequeda"@en ;
+    owl:sameAs <https://www.linkedin.com/in/juansequeda#this>,
+               <https://substack.com/@juansequeda#this> ;
+    rdfs:comment "Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:aakashGupta a schema:Person ;
+    schema:name "Aakash Gupta"@en ;
+    owl:sameAs <https://x.com/aakashgupta#this>,
+               <https://x.com/aakashg0#this> ;
+    rdfs:comment "No verified LinkedIn found in corpus; X is canonical. Two distinct X handles found (aakashgupta, aakashg0) — both aliased. Census 2026-07-14: 4 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:guyDebord a schema:Person ;
+    schema:name "Guy Debord"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Guy_Debord>,
+               <http://www.wikidata.org/entity/Q191984> ;
+    rdfs:comment "Deceased public figure (philosopher); DBpedia is canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:mohamedSalah a schema:Person ;
+    schema:name "Mohamed Salah"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Mohamed_Salah>,
+               <http://www.wikidata.org/entity/Q1354960> ;
+    rdfs:comment "Public figure (footballer), no owned professional profile in corpus; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:joostDeValk a schema:Person ;
+    schema:name "Joost de Valk"@en ;
+    owl:sameAs <https://www.linkedin.com/in/joostdevalk#this>,
+               <https://x.com/jdevalk#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:gauravMalhotra a schema:Person ;
+    schema:name "Gaurav Malhotra"@en ;
+    owl:sameAs <https://www.linkedin.com/in/tech-nirvana#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:samAltman a schema:Person ;
+    schema:name "Sam Altman"@en ;
+    owl:sameAs <https://www.linkedin.com/in/samaltman#this>,
+               <https://x.com/sama#this>,
+               <http://dbpedia.org/resource/Sam_Altman> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:stuartMichaelEdelenbos a schema:Person ;
+    schema:name "Stuart Michael Edelenbos"@en ;
+    owl:sameAs <https://www.linkedin.com/in/stuart-michael-edelenbos#this>,
+               <https://www.linkedin.com/in/stuart-edelenbos#this> ;
+    rdfs:comment "Two LinkedIn slug variants found (stuart-michael-edelenbos, stuart-edelenbos) — both aliased, former is canonical (fuller form). Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:saanyaOjha a schema:Person ;
+    schema:name "Saanya Ojha"@en ;
+    owl:sameAs <https://x.com/saanyaojha#this>,
+               <https://saanyaojha.substack.com/#this> ;
+    rdfs:comment "No verified LinkedIn found in corpus; X is canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:danielAtherton a schema:Person ;
+    schema:name "Daniel Atherton"@en ;
+    owl:sameAs <https://incidentdatabase.ai/blog/incident-report-2026-february-march-april/#danielAtherton> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical (only one form ever asserted — no disambiguation needed, but registered to prevent future re-minting under a different local name). Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:popeLeoXIV a schema:Person ;
+    schema:name "Pope Leo XIV"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Pope_Leo_XIV>,
+               <http://www.wikidata.org/entity/Q113600054> ;
+    rdfs:comment "Public figure; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:florianWirtz a schema:Person ;
+    schema:name "Florian Wirtz"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Florian_Wirtz>,
+               <http://www.wikidata.org/entity/Q94699949> ;
+    rdfs:comment "Public figure (footballer), no owned professional profile in corpus; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:jonathanJaffe a schema:Person ;
+    schema:name "Jonathan Jaffe"@en ;
+    owl:sameAs <https://tomtunguz.com/jonathan-jaffe-office-hours-post-event#jonathanJaffe> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:virgilVanDijk a schema:Person ;
+    schema:name "Virgil van Dijk"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Virgil_van_Dijk>,
+               <http://www.wikidata.org/entity/Q133903> ;
+    rdfs:comment "Public figure (footballer), no owned professional profile in corpus; DBpedia canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:nickZervoudis a schema:Person ;
+    schema:name "Nick Zervoudis"@en ;
+    owl:sameAs <https://x.com/nickzervoudis#this>,
+               <https://substack.com/@nickzervoudis#this> ;
+    rdfs:comment "No verified LinkedIn found in corpus; X is canonical. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:vivianVoss a schema:Person ;
+    schema:name "Vivian Voss"@en ;
+    owl:sameAs <https://www.linkedin.com/in/vvoss#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:dennisJuarez a schema:Person ;
+    schema:name "Dennis Juarez"@en ;
+    owl:sameAs <https://www.linkedin.com/in/dennisjuarez#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:naomiXia a schema:Person ;
+    schema:name "Naomi Xia"@en ;
+    owl:sameAs <https://moe-capital.com/blog-home/the-model-that-dreams-the-world#naomiXia> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:tomaszTunguz a schema:Person ;
+    schema:name "Tomasz Tunguz"@en ;
+    owl:sameAs <https://linkedin.com/in/tomasztunguz#this>,
+               <https://twitter.com/ttunguz#this> ;
+    rdfs:comment "Census 2026-07-14: 3 documents. Note: distinct from Jonathan Jaffe's interview host site tomtunguz.com/jonathan-jaffe-* — same person, blog domain differs from LinkedIn slug spelling (tomasztunguz vs tomtunguz)."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:andrejKarpathy a schema:Person ;
+    schema:name "Andrej Karpathy"@en ;
+    owl:sameAs <https://x.com/karpathy#this>,
+               <http://dbpedia.org/resource/Andrej_Karpathy> ;
+    rdfs:comment "X is canonical (no LinkedIn found in corpus); popularized the 'LLM wiki' agent-memory pattern referenced across Vault-LD/YAML-LD discussions. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:henryYin a schema:Person ;
+    schema:name "Henry Yin"@en ;
+    owl:sameAs <https://moe-capital.com/blog-home/the-model-that-dreams-the-world#henryYin> ;
+    rdfs:comment "No LinkedIn/X/other owned-platform profile found in corpus; document-local hash IRI is canonical fallback. Census 2026-07-14: 3 documents."@en ;
+    schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime .
+
+:carlosPerez a schema:Person ;
+    schema:name "Carlos E. Perez"@en ;
+    schema:url <https://intuitionmachine.gumroad.com> ;
+    owl:sameAs <https://x.com/IntuitMachine#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in corpus). Author of X Article 'From Loop Engineering to Graph Engineering?' (2026-07-18). Verified against the read article page x.com/IntuitMachine/status/2078419526354378975; bio URL copied verbatim from profile. First registered from the loops-to-graphs meshup session 2026-07-18."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime .
+
+:peterSteinberger a schema:Person ;
+    schema:name "Peter Steinberger"@en ;
+    owl:sameAs <https://x.com/steipete#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in corpus). Author of the nine-word loops-vs-graphs post (x.com/steipete/status/2078277297791189132) cited by Carlos E. Perez's essay; handle verified verbatim from the read article. First registered from the loops-to-graphs meshup session 2026-07-18."@en ;
+    schema:dateCreated "2026-07-18T00:00:00Z"^^xsd:dateTime .
+
+:brianDeFrancesca a schema:Person ;
+    schema:name "Brian de Francesca"@en ;
+    schema:description "Author of the LinkedIn thesis 'Most hospitals were never fully designed' and its forthcoming paper 'The Hospital That Was Never Fully Designed,' arguing hospital operating architecture (pathways, workflows, decision rights, terminology) must be designed before the physical building."@en ;
+    owl:sameAs <https://www.linkedin.com/in/brian-de-francesca#this>,
+               <https://ae.linkedin.com/in/brian-de-francesca#this> ;
+    rdfs:comment "www.linkedin.com form supplied verbatim by Kingsley (user-provided source) for the hospital-os-rdf-harness collection; ae.linkedin.com (UAE regional subdomain) observed as the actor-profile href on the live rendered LinkedIn post page during the same task and added as an alias. First registered 2026-08-04 from hospital-os-rdf-harness/entities.ttl."@en ;
+    schema:dateCreated "2026-08-04T00:00:00Z"^^xsd:dateTime .
+
+:stevenSinofsky a schema:Person ;
+    schema:name "Steven Sinofsky"@en ;
+    schema:description "Seed investor and writer; former President of the Windows division at Microsoft. Author of the X post 'Optimism (and courage) is the path to creativity, productivity, and growth.' (2026-08-19) and its linked X Article 'Embracing the AI platform', arguing AI is a platform ingredient, that embracing the platform and tools is key, and that an explosion of apps is next. Runs the Hardcore Software blog at hardcoresoftware.learningbyshipping.com."@en ;
+    owl:sameAs <https://www.linkedin.com/in/sinofsky#this>,
+               <https://linkedin.com/in/sinofsky#this>,
+               <https://x.com/stevesi#this>,
+               <http://hardcoresoftware.learningbyshipping.com#this>,
+               <http://dbpedia.org/resource/Steven_Sinofsky>,
+               <http://www.wikidata.org/entity/Q2098467> ;
+    rdfs:comment "LinkedIn is canonical (kg-generator person-IRI priority ladder). All aliases verified 2026-08-19: LinkedIn URL read from his X bio website field (via fxtwitter API); X handle @stevesi (id 13418072, joined 2008-02-13, 211,023 followers); blog 'Subscribe http://hardcoresoftware.learningbyshipping.com' from his X bio; DBpedia resource Steven_Sinofsky HTTP 200; Wikidata Q2098467 label-match verified. First registered from the Embracing the AI Platform KG collection session 2026-08-19."@en ;
+    schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime .
+
+:seanBPalmer a schema:Person ;
+    schema:name "Sean B. Palmer"@en ;
+    schema:url <https://sbp.io/> ;
+    owl:sameAs <https://x.com/sbp#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified for this Sean B. Palmer; linkedin.com/in/sean-palmer-27566723 is a different person). Handle @sbp self-stated on inamidst.com/phenny/ ('I'm @sbp on twitter'); https://x.com/sbp HTTP 200 on 2026-08-28. Homepage http://inamidst.com/sbp/ redirects to https://sbp.io/ (HTTP 200). Author of Phenny, the Python IRC bot. First registered 2026-08-28 from the Phenny AI-agent article."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:chimezieOgbuji a schema:Person ;
+    schema:name "Chimezie Ogbuji"@en ;
+    schema:url <https://www.linkedin.com/in/chimezie> ;
+    owl:sameAs <https://www.linkedin.com/in/chimezie#this> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/chimezie verified via live LinkedIn posts 2026-07-30. GitHub github.com/chimezie HTTP 200. No X handle verified in this pass. First registered 2026-08-28 from the Phenny AI-agent article."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:moBitar a schema:Person ;
+    schema:name "Mo Bitar"@en ;
+    schema:alternateName "Mo"@en ;
+    schema:url <https://x.com/atmoio> ;
+    owl:sameAs <https://x.com/atmoio#this> ;
+    rdfs:comment "X is canonical. Handle @atmoio from the 2026-08-25 Grok Bot video post (x.com/atmoio/status/2092286808440676733, HTTP-verified via fxtwitter). Display name on X is Mo; Substack atmoio.substack.com identifies Mo Bitar. First registered 2026-08-28 from the AI-and-software-complexity Situation Analysis."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:patrickCollison a schema:Person ;
+    schema:name "Patrick Collison"@en ;
+    schema:url <https://x.com/patrickc> ;
+    owl:sameAs <https://x.com/patrickc#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in this pass). Handle @patrickc and display name Patrick Collison verified from the parent post x.com/patrickc/status/2093425939669774608 via fxtwitter, 2026-08-28. First registered from the Phenny AI-agent article (402/MPP @bot reply)."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:osaretinVictorAsemota a schema:Person ;
+    schema:name "Osaretin Victor Asemota"@en ;
+    schema:url <https://x.com/asemota> ;
+    owl:sameAs <https://x.com/asemota#this> ;
+    rdfs:comment "X is canonical (no LinkedIn verified in this pass). Handle @asemota and display name Osaretin Victor Asemota verified via fxtwitter user lookup, 2026-08-28. First registered from the Phenny AI-agent article (cc on the 402/MPP @bot reply)."@en ;
+    schema:dateCreated "2026-08-28T00:00:00Z"^^xsd:dateTime .
+
+:brijKishorePandey a schema:Person ;
+    schema:name "Brij Kishore Pandey"@en ;
+    schema:alternateName "Brij Pandey"@en ;
+    schema:jobTitle "AI Architect"@en ;
+    schema:url <https://www.linkedin.com/in/brijpandeyji> ;
+    owl:sameAs <https://linkedin.com/in/brijpandeyji#this>,
+               <https://www.linkedin.com/in/brijpandeyji#this> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/brijpandeyji verified from live post 2026-08-29 (linkedin.com/posts/brijpandeyji_i-spent-last-evening-reading-a-blog-from-share-7498559237569224704-LKaS) and profile page. About: AI Architect; LinkedIn lists Wells Fargo. No X handle and no Wikidata Q-ID verified in this pass. First registered 2026-08-29 from the to-read list (Oracle agent-memory post); also the named source of The_11_Layer_AI_Agent_Engineering_Stack.pdf in session 2026-07-24."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:michaelTruell a schema:Person ;
+    schema:name "Michael Truell"@en ;
+    schema:jobTitle "CEO"@en ;
+    schema:url <https://www.linkedin.com/in/michael-t-5b1bbb122> ;
+    owl:sameAs <https://linkedin.com/in/michael-t-5b1bbb122#this>,
+               <https://www.linkedin.com/in/michael-t-5b1bbb122#this>,
+               <https://x.com/mntruell#this>,
+               <https://www.wikidata.org/entity/Q136774101> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Slug /in/michael-t-5b1bbb122 HTTP 200 on linkedin.com 2026-08-29; X @mntruell (display name Michael Truell, bio Building @SpaceXAI) verified via fxtwitter; Wikidata Q136774101 label 'Michael Truell' / 'founder of Cursor'. First registered 2026-08-29 from the Grok share https://x.com/i/grok/share/83aada1c30cf491cbce97a3a51db94a2."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:sualehAsif a schema:Person ;
+    schema:name "Sualeh Asif"@en ;
+    schema:jobTitle "CPO"@en ;
+    schema:url <https://www.sualehasif.me/> ;
+    owl:sameAs <https://x.com/sualehasif996#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @sualehasif996 (display name Sualeh Asif, bio Building @SpaceXAI | @cursor_ai founder) verified via fxtwitter 2026-08-29; homepage https://www.sualehasif.me/ HTTP 200. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:amanSanger a schema:Person ;
+    schema:name "Aman Sanger"@en ;
+    schema:url <https://www.linkedin.com/in/aman-sanger-482243171/> ;
+    owl:sameAs <https://linkedin.com/in/aman-sanger-482243171#this>,
+               <https://www.linkedin.com/in/aman-sanger-482243171#this>,
+               <https://x.com/amanrsanger#this>,
+               <https://www.wikidata.org/entity/Q140354583> ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/aman-sanger-482243171 HTTP 200 on linkedin.com 2026-08-29; X @amanrsanger (display name Aman Sanger, bio Building @SpaceXAI | @cursor_ai founder) via fxtwitter; Wikidata Q140354583 label 'Aman Sanger' / 'American entrepreneur'. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:arvidLunnemark a schema:Person ;
+    schema:name "Arvid Lunnemark"@en ;
+    schema:url <https://arvid.xyz/> ;
+    owl:sameAs <https://x.com/ArVID220u#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @ArVID220u (display name Arvid Lunnemark) verified via fxtwitter 2026-08-29; homepage https://arvid.xyz/ HTTP 200. First registered 2026-08-29 from the Grok Bot history share (left Cursor Oct 2025 to found Integrous Research)."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:elonMusk a schema:Person ;
+    schema:name "Elon Musk"@en ;
+    schema:url <https://x.com/elonmusk> ;
+    owl:sameAs <https://x.com/elonmusk#this>,
+               <https://www.wikidata.org/entity/Q317521>,
+               <http://dbpedia.org/resource/Elon_Musk> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @elonmusk HTTP 200 and fxtwitter-verified 2026-08-29; Wikidata Q317521 label-match; DBpedia Elon_Musk HTTP 200. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:aliPartovi a schema:Person ;
+    schema:name "Ali Partovi"@en ;
+    schema:url <https://x.com/apartovi> ;
+    owl:sameAs <https://x.com/apartovi#this>,
+               <https://www.wikidata.org/entity/Q5725655> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @apartovi (display name Ali Partovi, bio Neo CEO) via fxtwitter 2026-08-29; Wikidata Q5725655 label-match. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:natFriedman a schema:Person ;
+    schema:name "Nat Friedman"@en ;
+    schema:url <https://x.com/natfriedman> ;
+    owl:sameAs <https://x.com/natfriedman#this>,
+               <https://www.wikidata.org/entity/Q92955> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @natfriedman verified via fxtwitter 2026-08-29; Wikidata Q92955 label-match. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:arashFerdowsi a schema:Person ;
+    schema:name "Arash Ferdowsi"@en ;
+    schema:url <https://x.com/arashaf> ;
+    owl:sameAs <https://x.com/arashaf#this>,
+               <https://www.wikidata.org/entity/Q4784346> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @arashaf (display name Arash) via fxtwitter 2026-08-29; Wikidata Q4784346 label 'Arash Ferdowsi'. First registered 2026-08-29 from the Grok Bot history share (named there as Dropbox cofounder)."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:jordanTopoleski a schema:Person ;
+    schema:name "Jordan Topoleski"@en ;
+    schema:jobTitle "COO"@en ;
+    schema:url <https://x.com/jordantop> ;
+    owl:sameAs <https://x.com/jordantop#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @jordantop (display name Jordan Topoleski, bio Building @SpaceXAI) via fxtwitter 2026-08-29. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:davidPan a schema:Person ;
+    schema:name "David Pan"@en ;
+    schema:jobTitle "Field CTO"@en ;
+    schema:url <https://x.com/davep> ;
+    owl:sameAs <https://x.com/davep#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @davep (display name David Pan, bio Field CTO @SpaceXAI) via fxtwitter 2026-08-29. First registered 2026-08-29 from the Grok Bot history share."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:leeRobinson a schema:Person ;
+    schema:name "Lee Robinson"@en ;
+    schema:url <https://x.com/leerob> ;
+    owl:sameAs <https://x.com/leerob#this> ;
+    rdfs:comment "X is canonical (no LinkedIn URL on the source page). Handle @leerob (display name Lee Robinson, bio Model behavior @SpaceXAI) via fxtwitter 2026-08-29. No Wikidata Q-ID verified. First registered 2026-08-29 from the Grok Bot history share (named there as ex-Next.js/Vercel)."@en ;
+    schema:dateCreated "2026-08-29T00:00:00Z"^^xsd:dateTime .
+
+:sarahWang a schema:Person ;
+    schema:name "Sarah Wang"@en ;
+    schema:alternateName "Sarah Ding Wang"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:url <https://a16z.com/author/sarah-wang/> ;
+    owl:sameAs <https://linkedin.com/in/sarah-wang-59b96a7#this>,
+               <https://www.linkedin.com/in/sarah-wang-59b96a7#this>,
+               <https://x.com/sarahdingwang#this> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Display name Sarah Wang; X handle @sarahdingwang (id 1142210344678379520, GP @a16z growth fund) via fxtwitter 2026-08-30. LinkedIn slug /in/sarah-wang-59b96a7 HTTP 200 on linkedin.com and matches a16z.com/author/sarah-wang/ plus live LinkedIn title General Partner at Andreessen Horowitz. No Wikidata Q-ID in this pass. First registered 2026-08-30 from https://x.com/sarahdingwang/status/2092976778164011481 (X article: You are not a model. Don't price per token.)."@en ;
+    schema:dateCreated "2026-08-30T00:00:00Z"^^xsd:dateTime .
+
+:dwarkeshPatel a schema:Person ;
+    schema:name "Dwarkesh Patel"@en ;
+    schema:jobTitle "Host of Dwarkesh Podcast"@en ;
+    schema:url <https://www.dwarkesh.com/> ;
+    owl:sameAs <https://linkedin.com/in/dwarkesh-sp#this>,
+               <https://www.linkedin.com/in/dwarkesh-sp#this>,
+               <https://x.com/dwarkesh_sp#this>,
+               <https://www.wikidata.org/entity/Q137008739> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/dwarkesh-sp HTTP 200 on linkedin.com 2026-08-30; live search shows Host of Dwarkesh Podcast, San Francisco. www.linkedin.com HEAD returned 405 from the box this pass — www alias still included. X handle @dwarkesh_sp (id 1209960539390201864, display name Dwarkesh Patel, website dwarkesh.com, bio Host of @dwarkeshpodcast) via fxtwitter 200 2026-08-30. Wikidata Q137008739 label 'Dwarkesh Patel', description 'podcast host and author', P2002 dwarkesh_sp, sitelink enwiki Dwarkesh Patel; dereferenced via Special:EntityData JSON 2026-08-30. DBpedia https://dbpedia.org/resource/Dwarkesh_Patel returned 503 this pass — not added. First registered 2026-08-30 from to-read item https://www.dwarkesh.com/p/openai-huggingface (essay dated 2026-08-29: The Rise and Fall of Agent Civilizations)."@en ;
+    schema:dateCreated "2026-08-30T00:00:00Z"^^xsd:dateTime .
+
+:melvinCarvalho a schema:Person ;
+    schema:name "Melvin Carvalho"@en ;
+    schema:url <https://melvincarvalho.com/> ;
+    owl:sameAs <https://melvincarvalho.com/#me>,
+               <https://x.com/melvincarvalho#this> ;
+    rdfs:comment "WebID https://melvincarvalho.com/#me dereferenced 2026-08-30 as text/turtle Solid PersonalProfileDocument, foaf:primaryTopic <#me>, foaf:name Melvin Carvalho, cert:key #key1-#key4 present. Historical http://foaf.me/melvincarvalho#me returned 502 this pass and was not added. X handle @melvincarvalho from the profile's twitter account triple (document URL without fragment is schema:url-class; person IRI uses x.com#this). No LinkedIn in the profile. First registered 2026-08-30 from the WebID origin-story pass. Local name :melvinCarvalho is a registry index label only."@en ;
+    schema:dateCreated "2026-08-31T02:08:00Z"^^xsd:dateTime .
+
+:danBrickley a schema:Person ;
+    schema:name "Dan Brickley"@en ;
+    schema:url <https://www.linkedin.com/in/danbri> ;
+    owl:sameAs <https://linkedin.com/in/danbri#this>,
+               <https://www.linkedin.com/in/danbri#this>,
+               <https://x.com/danbri#this>,
+               <https://orcid.org/0000-0002-6450-7041> ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Profile slug /in/danbri HTTP-verified 2026-08-31 as Dan Brickley, SpyPixel Limited (FOAF co-creator, Schema.org coordinator). X https://x.com/danbri#this is secondary: he is not currently active there; Schema.org about.html still hyperlinks his name to http://twitter.com/danbri (2026-08-31). FOAF Vocabulary Specification Authors line is mailto:danbri@danbri.org only, not a person IRI. Historical homepage/FOAF at danbri.org was not used as canonical this pass (did not reliably dereference). ORCID 0000-0002-6450-7041 from the DCMI Governing Board JSON-LD on https://www.dublincore.org/groups/governing-board/dan_brickley/. First registered 2026-08-31 from the WebID origin-story article. Local name :danBrickley is a registry index label only."@en ;
+    schema:dateCreated "2026-08-31T14:15:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── AfterQuery founders + Forbes reporter + IBPS partner catch-up (2026-09-01) ──
+# ═══════════════════════════════════════════════════════════════════════════════
+
+:spencerMateega a schema:Person ;
+    schema:name "Spencer Mateega"@en ;
+    schema:jobTitle "Co-Founder & CEO"@en ;
+    schema:worksFor <https://linkedin.com/company/afterquery#this> ;
+    schema:url <https://www.linkedin.com/in/spencermateega> ;
+    owl:sameAs <https://linkedin.com/in/spencermateega#this>,
+               <https://www.linkedin.com/in/spencermateega#this>,
+               <https://x.com/spencermateega#this> ;
+    schema:description "Co-founder and CEO of AfterQuery (YC W25); age 23. Wharton B.S. Finance and Statistics and Penn M.S. Computer Science; internships at Meta, Google, Morgan Stanley (technology IB), and Silver Lake (sole global summer analyst). AfterQuery is a San Francisco applied research lab selling expert-curated training data and RL environments to frontier labs."@en ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Slug /in/spencermateega HEAD 200 on linkedin.com 2026-09-01; www.linkedin.com GET 999 this pass — www alias still included. X @spencermateega (id 930959130940059648, display name Spencer Mateega, bio 'ceo @afterquery', website mateega.com HTTP 200) via fxtwitter 2026-09-01. No Wikidata Q-ID (search empty). First registered 2026-09-01 from Grok share https://x.com/i/grok/share/8d914c93f5264fd49cab9075f3587ea1 (GET 200) and Forbes https://www.forbes.com/sites/annatong/2026/09/01/afterquery-becomes-ycs-fastest-unicorn-at-32-billion/ (HEAD 200). Local name :spencerMateega is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:carlosGeorgescu a schema:Person ;
+    schema:name "Carlos Georgescu"@en ;
+    schema:jobTitle "Co-Founder & CTO"@en ;
+    schema:worksFor <https://linkedin.com/company/afterquery#this> ;
+    schema:url <https://x.com/CarlosGeorgescu> ;
+    owl:sameAs <https://x.com/CarlosGeorgescu#this> ;
+    schema:description "Co-founder and CTO of AfterQuery (YC W25); age 22. UBC B.S. Computer Science; internships at Meta, Google, and Citadel Securities (2x); past acquired ed-tech founder. Met Spencer Mateega in high school at a Google summer program and interned with him at Meta."@en ;
+    rdfs:comment "X is canonical. No confirmed public LinkedIn slug — not invented. Handle @CarlosGeorgescu (id 1512590317769269249, display name Carlos Georgescu, bio '@afterquery interested in AI research, quantitative finance & poker') HTTP 200 and fxtwitter-verified 2026-09-01. No Wikidata Q-ID this pass. First registered 2026-09-01 from the AfterQuery Grok share and YC company page https://www.ycombinator.com/companies/afterquery (HEAD 200). Local name :carlosGeorgescu is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:dannyTang a schema:Person ;
+    schema:name "Danny Tang"@en ;
+    schema:jobTitle "Co-Founder"@en ;
+    schema:worksFor <https://linkedin.com/company/afterquery#this> ;
+    schema:description "Third co-founder of AfterQuery (YC W25). Wharton roommate of Spencer Mateega; they met in high school, built and sold a startup, then both attended Wharton. Listed on the YC AfterQuery company page and YC LinkedIn launch post alongside Mateega and Georgescu. High-school public speaking and Microsoft AI competition wins; later real-estate / IPO work per the YC founder bio."@en ;
+    rdfs:comment "LOCAL-IRI EXCEPTION: no confirmed public LinkedIn slug (not invented). X handle @dannytang HTTP 200 / fxtwitter 200 this pass but the profile has an empty bio, 21 followers, and no AfterQuery affiliation — not treated as this person. No DBpedia or Wikidata hit. Canonical remains the registry-local IRI :dannyTang until a verified platform profile exists. First registered 2026-09-01 from the YC AfterQuery company page (named in Our Team / launch credits) and Forbes AfterQuery coverage. Local name :dannyTang is both the registry index label and, under the no-platform-presence exception, the canonical person IRI for this file."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:annaTong a schema:Person ;
+    schema:name "Anna Tong"@en ;
+    schema:jobTitle "Reporter"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Forbes> ;
+    schema:email "atong@forbes.com" ;
+    schema:url <https://www.linkedin.com/in/annatong> ;
+    owl:sameAs <https://linkedin.com/in/annatong#this>,
+               <https://www.linkedin.com/in/annatong#this>,
+               <https://x.com/annatonger#this> ;
+    schema:description "Forbes reporter covering artificial intelligence who broke the 2026-09-01 AfterQuery $3.2B valuation story. Previously Reuters tech correspondent and San Francisco Standard data editor; Harvard graduate."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/annatong HEAD 200 on linkedin.com 2026-09-01; www.linkedin.com GET 999 this pass — www alias still included. X @annatonger (id 15656406, display name Anna Tong, bio '@Forbes reporter covering artificial intelligence and technology') HTTP 200 and fxtwitter-verified 2026-09-01; public X bio lists atong@forbes.com (copied as schema:email). Author page https://www.forbes.com/sites/annatong/ HTTP-verified via the 2026-09-01 article URL HEAD 200. No Wikidata Q-ID (search empty). First registered 2026-09-01 from that Forbes article. Local name :annaTong is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:philippHerzig a schema:Person ;
+    schema:name "Philipp Herzig"@en ;
+    schema:jobTitle "Chief Technology Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/philipp-herzig> ;
+    owl:sameAs <https://linkedin.com/in/philipp-herzig#this>,
+               <https://www.linkedin.com/in/philipp-herzig#this> ;
+    schema:description "SAP Global CTO and member of the SAP SE Extended Board; previously Chief AI Officer and CPO for the Business AI Platform. Leads SAP technology strategy, research, innovation, corporate development, and Business AI."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/philipp-herzig HEAD 200 on linkedin.com 2026-09-01. Live profile title Chief Technology Officer at SAP SE; earlier Chief AI Officer role on the same profile. Named as CTO / Extended Board on architecture.learning.sap.com (AI-native North Star architecture foreword). Wikidata search returned Q102799649 (TU Dresden Dr.-Ing. 2014) without an SAP affiliation in the label — not added as unverified identity match. First registered 2026-09-01 from IBPS partner catch-up. Local name :philippHerzig is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:georgKniese a schema:Person ;
+    schema:name "Georg Kniese"@en ;
+    schema:jobTitle "Chief Corporate Development and Investments Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/georg-kniese-a12519192> ;
+    owl:sameAs <https://linkedin.com/in/georg-kniese-a12519192#this>,
+               <https://www.linkedin.com/in/georg-kniese-a12519192#this> ;
+    schema:description "SAP Chief Corporate Development and Investments Officer (corp-dev / acquire execution); EVP and member of the SAP Global Executive Team; SVP Global Head of Corporate Development M&A."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/georg-kniese-a12519192 HEAD 200 on linkedin.com 2026-09-01. First registered 2026-09-01 from IBPS partner catch-up (SAP acquire-execution contact). Local name :georgKniese is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:walterSun a schema:Person ;
+    schema:name "Walter Sun"@en ;
+    schema:jobTitle "SVP, Global Head of AI"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/sunwalter> ;
+    owl:sameAs <https://linkedin.com/in/sunwalter#this>,
+               <https://www.linkedin.com/in/sunwalter#this> ;
+    schema:description "SAP SVP and Global Head of AI (tech champion for Business AI). Previously Vice President of AI for Business Applications & Platform at Microsoft."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/sunwalter HEAD 200 on linkedin.com 2026-09-01; www.linkedin.com 429 this pass — www alias still included. First registered 2026-09-01 from IBPS partner catch-up. Local name :walterSun is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:karlFahrbach a schema:Person ;
+    schema:name "Karl Fahrbach"@en ;
+    schema:jobTitle "Chief Partner Officer"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/karlfahrbach> ;
+    owl:sameAs <https://linkedin.com/in/karlfahrbach#this>,
+               <https://www.linkedin.com/in/karlfahrbach#this> ;
+    schema:description "SAP Chief Partner Officer; owns PartnerEdge including PartnerEdge Build. Public voice on SAP Build TDD licenses and PartnerEdge leveling. PartnerEdge Build is the wrong door for inbound OEM (IBPS path)."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/karlfahrbach HEAD 200 on linkedin.com 2026-09-01. Named Chief Partner Officer on SAP News Center (2025-08 free SAP Build TDD licenses). First registered 2026-09-01 from IBPS partner catch-up as the PartnerEdge Build contact (wrong door for inbound OEM). Local name :karlFahrbach is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:rayCase a schema:Person ;
+    schema:name "Ray Case"@en ;
+    schema:jobTitle "Director IT Enterprise Architecture and SAP Infrastructure"@en ;
+    schema:worksFor <http://dbpedia.org/resource/O-I_Glass> ;
+    schema:url <https://www.linkedin.com/in/ray-case-07195899> ;
+    owl:sameAs <https://linkedin.com/in/ray-case-07195899#this>,
+               <https://www.linkedin.com/in/ray-case-07195899#this> ;
+    schema:description "O-I Glass (Owens-Illinois) Director of IT Enterprise Architecture and SAP Infrastructure; quoted O-I / SAP-infrastructure customer in IBM Db2 migration case studies."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/ray-case-07195899 HEAD 200 on linkedin.com 2026-09-01. Quoted as Director of SAP Infrastructure and Enterprise Platforms at Owens-Illinois / O-I Glass in IBM case studies (ibm.com/case-studies/owens-illinois-hybrid-cloud and o-i-glass-inc). First registered 2026-09-01 from IBPS partner catch-up (quoted customer). Local name :rayCase is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:elizabethCuratolo a schema:Person ;
+    schema:name "Elizabeth Curatolo"@en ;
+    schema:jobTitle "Technology Partnerships"@en ;
+    schema:worksFor <http://www.wikidata.org/entity/Q120599684> ;
+    schema:url <https://www.linkedin.com/in/elizabeth-curatolo> ;
+    owl:sameAs <https://linkedin.com/in/elizabeth-curatolo#this>,
+               <https://www.linkedin.com/in/elizabeth-curatolo#this> ;
+    schema:description "Technology Partnerships at SpaceXAI; previously Senior Director of Technology Partnerships at Cursor. First SpaceXAI conversation contact in the IBPS partner work."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/elizabeth-curatolo HEAD 200 on linkedin.com 2026-09-01. Live profile title Technology Partnerships at SpaceXAI (LinkedIn company spacexai). schema:worksFor uses the SpaceXAI Wikidata canonical org IRI (Q120599684), not SpaceX parent. First registered 2026-09-01 from IBPS partner catch-up. Local name :elizabethCuratolo is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+:irfanKhan a schema:Person ;
+    schema:name "Irfan Khan"@en ;
+    schema:jobTitle "President & Chief Product Officer, SAP Data & Analytics"@en ;
+    schema:worksFor <http://dbpedia.org/resource/SAP> ;
+    schema:url <https://www.linkedin.com/in/irfan-ak-khan> ;
+    owl:sameAs <https://linkedin.com/in/irfan-ak-khan#this>,
+               <https://www.linkedin.com/in/irfan-ak-khan#this> ;
+    schema:description "SAP President and Chief Product Officer for Data & Analytics (SAP HANA Database & Analytics portfolio, including HANA, Datasphere, Analytics Cloud, Business Data Cloud)."@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/irfan-ak-khan previously HTTP 500 / not fully verified; re-checked 2026-09-01: HEAD 200 on linkedin.com/in/irfan-ak-khan. GET from the box this pass returned a LinkedIn recaptcha/challenge page (not 500). Public profile snippet and LinkedIn posts under /posts/irfan-ak-khan_ match President & CPO SAP Data & Analytics / HANA Database & Analytics (ASUG, diginomica). A different slug /in/irfankhan also HEAD-200s — not aliased (unverified as the same person; not invented as a replacement). First registered 2026-09-01 from IBPS partner catch-up. Local name :irfanKhan is a registry index label only."@en ;
+    schema:dateCreated "2026-09-01T21:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Progress OpenEdge ISV / Epicor / proALPHA contacts (2026-09-02) ────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# CEO / CTO / product marketing / partnerships seats verified on LinkedIn
+# 2026-09-02. Live people.ttl is gitignored; people.example.ttl is the
+# pre-addition snapshot. Local names are registry index labels only.
+
+:sanjayBrahmawar a schema:Person ;
+    schema:name "Sanjay Brahmawar"@en ;
+    schema:jobTitle "CEO, QAD|Redzone"@en ;
+    schema:worksFor <https://linkedin.com/company/qad#this> ;
+    schema:url <https://www.linkedin.com/in/sanjay-brahmawar> ;
+    owl:sameAs <https://linkedin.com/in/sanjay-brahmawar#this>,
+               <https://www.linkedin.com/in/sanjay-brahmawar#this> ;
+    rdfs:comment "CEO since Mar 2025. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :sanjayBrahmawar is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:amitSharma a schema:Person ;
+    schema:name "Amit Sharma"@en ;
+    schema:jobTitle "President, Manufacturing ERP"@en ;
+    schema:worksFor <https://linkedin.com/company/qad#this> ;
+    schema:url <https://www.linkedin.com/in/amitsharma1382> ;
+    owl:sameAs <https://linkedin.com/in/amitsharma1382#this>,
+               <https://www.linkedin.com/in/amitsharma1382#this> ;
+    rdfs:comment "QAD May 2026 AWS/TCS release quotes him as President – Manufacturing ERP. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :amitSharma is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:gordonFleming a schema:Person ;
+    schema:name "Gordon Fleming"@en ;
+    schema:jobTitle "CMO"@en ;
+    schema:worksFor <https://linkedin.com/company/qad#this> ;
+    schema:url <https://www.linkedin.com/in/gordon-fleming-78a3b813> ;
+    owl:sameAs <https://linkedin.com/in/gordon-fleming-78a3b813#this>,
+               <https://www.linkedin.com/in/gordon-fleming-78a3b813#this> ;
+    rdfs:comment "Headline CMO at QAD 2026-09-02; thin profile. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :gordonFleming is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:lorenShumate a schema:Person ;
+    schema:name "Loren Shumate"@en ;
+    schema:jobTitle "Global VP of Marketing, Supply Chain"@en ;
+    schema:worksFor <https://linkedin.com/company/qad#this> ;
+    schema:url <https://www.linkedin.com/in/lorenshumate> ;
+    owl:sameAs <https://linkedin.com/in/lorenshumate#this>,
+               <https://www.linkedin.com/in/lorenshumate#this> ;
+    rdfs:comment "Stronger GTM profile than Fleming. Indexed Aug 2025–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :lorenShumate is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:parkerZanios a schema:Person ;
+    schema:name "Parker Zanios"@en ;
+    schema:jobTitle "SVP Global Partnerships"@en ;
+    schema:worksFor <https://linkedin.com/company/qad#this> ;
+    schema:url <https://www.linkedin.com/in/pzanios> ;
+    owl:sameAs <https://linkedin.com/in/pzanios#this>,
+               <https://www.linkedin.com/in/pzanios#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :parkerZanios is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:domTramontana a schema:Person ;
+    schema:name "Dom Tramontana"@en ;
+    schema:jobTitle "SVP of Engineering"@en ;
+    schema:worksFor <https://linkedin.com/company/qad#this> ;
+    schema:url <https://www.linkedin.com/in/domtramontana> ;
+    owl:sameAs <https://linkedin.com/in/domtramontana#this>,
+               <https://www.linkedin.com/in/domtramontana#this> ;
+    rdfs:comment "SVP Engineering on core QAD ERP. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :domTramontana is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:kevinSamuelson a schema:Person ;
+    schema:name "Kevin Samuelson"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/kevin-samuelson-b415673> ;
+    owl:sameAs <https://linkedin.com/in/kevin-samuelson-b415673#this>,
+               <https://www.linkedin.com/in/kevin-samuelson-b415673#this> ;
+    rdfs:comment "Infor CEO. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :kevinSamuelson is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:brandyAlderman a schema:Person ;
+    schema:name "Brandy Alderman"@en ;
+    schema:jobTitle "Product Manager, CloudSuite Distribution"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/brandy-alderman-518baa8> ;
+    owl:sameAs <https://linkedin.com/in/brandy-alderman-518baa8#this>,
+               <https://www.linkedin.com/in/brandy-alderman-518baa8#this> ;
+    rdfs:comment "CSD/SX.e product; Progress OpenEdge user groups; TUG Connects 2026 Director PM CSD/SX.e. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :brandyAlderman is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:kirstenAllegriWilliams a schema:Person ;
+    schema:name "Kirsten Allegri Williams"@en ;
+    schema:jobTitle "Chief Marketing Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/kirsten-allegri-williams> ;
+    owl:sameAs <https://linkedin.com/in/kirsten-allegri-williams#this>,
+               <https://www.linkedin.com/in/kirsten-allegri-williams#this> ;
+    rdfs:comment "Canonical slug; /in/kirsten-allegri-williams-157b281 redirects here. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :kirstenAllegriWilliams is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jeanneRunyonNewberry a schema:Person ;
+    schema:name "Jeanne Runyon Newberry"@en ;
+    schema:jobTitle "SVP, Ecosystem and Business Development"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/jeanne-runyon-newberry-2849913> ;
+    owl:sameAs <https://linkedin.com/in/jeanne-runyon-newberry-2849913#this>,
+               <https://www.linkedin.com/in/jeanne-runyon-newberry-2849913#this> ;
+    rdfs:comment "SVP Ecosystem May 2023–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jeanneRunyonNewberry is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:salenaButler a schema:Person ;
+    schema:name "Salena Butler"@en ;
+    schema:jobTitle "SVP and Channel Chief"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/salenabutler> ;
+    owl:sameAs <https://linkedin.com/in/salenabutler#this>,
+               <https://www.linkedin.com/in/salenabutler#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :salenaButler is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:julieBaltes a schema:Person ;
+    schema:name "Julie Baltes"@en ;
+    schema:jobTitle "Sr Director Software Development"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/julie-baltes-631885161> ;
+    owl:sameAs <https://linkedin.com/in/julie-baltes-631885161#this>,
+               <https://www.linkedin.com/in/julie-baltes-631885161#this> ;
+    rdfs:comment "TUG 2026 CSD development. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :julieBaltes is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:somaSomasundaram a schema:Person ;
+    schema:name "Soma Somasundaram"@en ;
+    schema:jobTitle "President and CTO"@en ;
+    schema:worksFor <https://linkedin.com/company/infor#this> ;
+    schema:url <https://www.linkedin.com/in/somasomasundaram> ;
+    owl:sameAs <https://linkedin.com/in/somasomasundaram#this>,
+               <https://www.linkedin.com/in/somasomasundaram#this> ;
+    rdfs:comment "Group CTO, not CSD-specific. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :somaSomasundaram is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:paulRamakers a schema:Person ;
+    schema:name "Paul Ramakers"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/exact#this> ;
+    schema:url <https://www.linkedin.com/in/paulramakers> ;
+    owl:sameAs <https://linkedin.com/in/paulramakers#this>,
+               <https://www.linkedin.com/in/paulramakers#this> ;
+    rdfs:comment "CEO since Nov 2020. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :paulRamakers is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:dannyBonthuis a schema:Person ;
+    schema:name "Danny Bonthuis"@en ;
+    schema:jobTitle "Product Line Manager, Exact Mid-Market"@en ;
+    schema:worksFor <https://linkedin.com/company/exact#this> ;
+    schema:url <https://www.linkedin.com/in/dannybonthuis> ;
+    owl:sameAs <https://linkedin.com/in/dannybonthuis#this>,
+               <https://www.linkedin.com/in/dannybonthuis#this> ;
+    rdfs:comment "PLM portfolio includes Exact Financials (OpenEdge) plus Globe+. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :dannyBonthuis is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:sophieWildeboer a schema:Person ;
+    schema:name "Sophie Wildeboer"@en ;
+    schema:jobTitle "Chief Marketing Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/exact#this> ;
+    schema:url <https://www.linkedin.com/in/sophie-wildeboer-010> ;
+    owl:sameAs <https://linkedin.com/in/sophie-wildeboer-010#this>,
+               <https://www.linkedin.com/in/sophie-wildeboer-010#this> ;
+    rdfs:comment "Not sophie-wildeboer-77a690182 (different person). Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :sophieWildeboer is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:wiegertDeVos a schema:Person ;
+    schema:name "Wiegert de Vos"@en ;
+    schema:jobTitle "Chief Commercial Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/exact#this> ;
+    schema:url <https://www.linkedin.com/in/wiegertdevos> ;
+    owl:sameAs <https://linkedin.com/in/wiegertdevos#this>,
+               <https://www.linkedin.com/in/wiegertdevos#this> ;
+    rdfs:comment "CCO since Dec 2020; sales and international partner channel. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :wiegertDeVos is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jeroenVanDerHeijden a schema:Person ;
+    schema:name "Jeroen van der Heijden"@en ;
+    schema:jobTitle "Chief Technology Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/exact#this> ;
+    schema:url <https://www.linkedin.com/in/jvdheijden> ;
+    owl:sameAs <https://linkedin.com/in/jvdheijden#this>,
+               <https://www.linkedin.com/in/jvdheijden#this> ;
+    rdfs:comment "CTO since Aug 2018. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jeroenVanDerHeijden is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:joepHoeks a schema:Person ;
+    schema:name "Joep Hoeks"@en ;
+    schema:jobTitle "Chief Product Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/exact#this> ;
+    schema:url <https://www.linkedin.com/in/joep-hoeks-4481516> ;
+    owl:sameAs <https://linkedin.com/in/joep-hoeks-4481516#this>,
+               <https://www.linkedin.com/in/joep-hoeks-4481516#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :joepHoeks is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:philippePlantive a schema:Person ;
+    schema:name "Philippe Plantive"@en ;
+    schema:jobTitle "Président"@en ;
+    schema:worksFor <https://linkedin.com/company/proginov#this> ;
+    schema:url <https://www.linkedin.com/in/philippe-plantive-285259114> ;
+    owl:sameAs <https://linkedin.com/in/philippe-plantive-285259114#this>,
+               <https://www.linkedin.com/in/philippe-plantive-285259114#this> ;
+    rdfs:comment "Use this slug, not the 1-follower stub philippe-plantive-82803a118. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :philippePlantive is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:xavierBossis a schema:Person ;
+    schema:name "Xavier Bossis"@en ;
+    schema:jobTitle "Directeur Général"@en ;
+    schema:worksFor <https://linkedin.com/company/proginov#this> ;
+    schema:url <https://www.linkedin.com/in/xavier-bossis-36483bb4> ;
+    owl:sameAs <https://linkedin.com/in/xavier-bossis-36483bb4#this>,
+               <https://www.linkedin.com/in/xavier-bossis-36483bb4#this> ;
+    rdfs:comment "Operating CEO. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :xavierBossis is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:stephaneDelhommeau a schema:Person ;
+    schema:name "Stéphane Delhommeau"@en ;
+    schema:jobTitle "Directeur Général Délégué / Directeur technique"@en ;
+    schema:worksFor <https://linkedin.com/company/proginov#this> ;
+    schema:url <https://www.linkedin.com/in/st%C3%A9phane-delhommeau-30163413a> ;
+    owl:sameAs <https://linkedin.com/in/st%C3%A9phane-delhommeau-30163413a#this>,
+               <https://www.linkedin.com/in/st%C3%A9phane-delhommeau-30163413a#this> ;
+    rdfs:comment "DGD Jan 2020–present; Directeur technique Jan 2015–present. No separate CTO headline. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :stephaneDelhommeau is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:valerieDurand a schema:Person ;
+    schema:name "Valérie Durand"@en ;
+    schema:jobTitle "Responsable de communication / marketing"@en ;
+    schema:worksFor <https://linkedin.com/company/proginov#this> ;
+    schema:url <https://www.linkedin.com/in/val%C3%A9rie-durand-651a2066> ;
+    owl:sameAs <https://linkedin.com/in/val%C3%A9rie-durand-651a2066#this>,
+               <https://www.linkedin.com/in/val%C3%A9rie-durand-651a2066#this> ;
+    rdfs:comment "No VP/Dir PMM found. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :valerieDurand is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:mathildeBourgault a schema:Person ;
+    schema:name "Mathilde Bourgault"@en ;
+    schema:jobTitle "Chargée du développement du réseau Partenaires intégrateurs"@en ;
+    schema:worksFor <https://linkedin.com/company/proginov#this> ;
+    schema:url <https://www.linkedin.com/in/mathildebourgault> ;
+    owl:sameAs <https://linkedin.com/in/mathildebourgault#this>,
+               <https://www.linkedin.com/in/mathildebourgault#this> ;
+    rdfs:comment "Posts as Mathilde Bonnet. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :mathildeBourgault is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:scottGlinski a schema:Person ;
+    schema:name "Scott Glinski"@en ;
+    schema:jobTitle "CEO"@en ;
+    schema:worksFor <https://linkedin.com/company/skyward#this> ;
+    schema:url <https://www.linkedin.com/in/scott-glinski-a1a77a12> ;
+    owl:sameAs <https://linkedin.com/in/scott-glinski-a1a77a12#this>,
+               <https://www.linkedin.com/in/scott-glinski-a1a77a12#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :scottGlinski is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:rayAckerlund a schema:Person ;
+    schema:name "Ray Ackerlund"@en ;
+    schema:jobTitle "President"@en ;
+    schema:worksFor <https://linkedin.com/company/skyward#this> ;
+    schema:url <https://www.linkedin.com/in/rayackerlund> ;
+    owl:sameAs <https://linkedin.com/in/rayackerlund#this>,
+               <https://www.linkedin.com/in/rayackerlund#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :rayAckerlund is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:michellePryzbylski a schema:Person ;
+    schema:name "Michelle Pryzbylski"@en ;
+    schema:jobTitle "Vice President of Applications Development"@en ;
+    schema:worksFor <https://linkedin.com/company/skyward#this> ;
+    schema:url <https://www.linkedin.com/in/michelle-p-01a71546> ;
+    owl:sameAs <https://linkedin.com/in/michelle-p-01a71546#this>,
+               <https://www.linkedin.com/in/michelle-p-01a71546#this> ;
+    rdfs:comment "skyward.com: VP of Software Engineering. John Ackerlund CTO on skyward.com; LinkedIn not found. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :michellePryzbylski is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:tomKing a schema:Person ;
+    schema:name "Tom King"@en ;
+    schema:jobTitle "Chief Marketing Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/skyward#this> ;
+    schema:url <https://www.linkedin.com/in/tomkingskyward> ;
+    owl:sameAs <https://linkedin.com/in/tomkingskyward#this>,
+               <https://www.linkedin.com/in/tomkingskyward#this> ;
+    rdfs:comment "Jan 2025 Skyward ELT announcement. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :tomKing is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:davidIlkka a schema:Person ;
+    schema:name "David Ilkka"@en ;
+    schema:jobTitle "Vice President of New Business Development"@en ;
+    schema:worksFor <https://linkedin.com/company/skyward#this> ;
+    schema:url <https://www.linkedin.com/in/david-ilkka-5aa5ba2a> ;
+    owl:sameAs <https://linkedin.com/in/david-ilkka-5aa5ba2a#this>,
+               <https://www.linkedin.com/in/david-ilkka-5aa5ba2a#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :davidIlkka is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:frankDiassi a schema:Person ;
+    schema:name "Frank Diassi"@en ;
+    schema:jobTitle "Chairman and CEO"@en ;
+    schema:worksFor <https://linkedin.com/company/unicorn-hro#this> ;
+    schema:url <https://www.linkedin.com/in/frank-diassi-32a8ba26> ;
+    owl:sameAs <https://linkedin.com/in/frank-diassi-32a8ba26#this>,
+               <https://www.linkedin.com/in/frank-diassi-32a8ba26#this> ;
+    rdfs:comment "Unicorn HCM is a PeopleGuru company. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :frankDiassi is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:richardCangemi a schema:Person ;
+    schema:name "Richard Cangemi"@en ;
+    schema:jobTitle "CEO, PeopleGuru"@en ;
+    schema:url <https://www.linkedin.com/in/richardcangemi> ;
+    owl:sameAs <https://linkedin.com/in/richardcangemi#this>,
+               <https://www.linkedin.com/in/richardcangemi#this> ;
+    rdfs:comment "Parent CEO PeopleGuru Jul 2016–present. Company page not opened this pass; no invented org IRI. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :richardCangemi is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:edGettings a schema:Person ;
+    schema:name "Ed Gettings"@en ;
+    schema:jobTitle "SVP Product Development and Operations"@en ;
+    schema:worksFor <https://linkedin.com/company/unicorn-hro#this> ;
+    schema:url <https://www.linkedin.com/in/ed-gettings-a488a66> ;
+    owl:sameAs <https://linkedin.com/in/ed-gettings-a488a66#this>,
+               <https://www.linkedin.com/in/ed-gettings-a488a66#this> ;
+    rdfs:comment "OpenEdge HCM product-tech. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :edGettings is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:calMcGrath a schema:Person ;
+    schema:name "Cal McGrath"@en ;
+    schema:jobTitle "Vice President, Product Management"@en ;
+    schema:worksFor <https://linkedin.com/company/unicorn-hro#this> ;
+    schema:url <https://www.linkedin.com/in/cal-mcgrath-92a4676> ;
+    owl:sameAs <https://linkedin.com/in/cal-mcgrath-92a4676#this>,
+               <https://www.linkedin.com/in/cal-mcgrath-92a4676#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :calMcGrath is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:christianSpoerl a schema:Person ;
+    schema:name "Christian Spoerl"@en ;
+    schema:jobTitle "VP of Marketing, PeopleGuru"@en ;
+    schema:url <https://www.linkedin.com/in/christianspoerl> ;
+    owl:sameAs <https://linkedin.com/in/christianspoerl#this>,
+               <https://www.linkedin.com/in/christianspoerl#this> ;
+    rdfs:comment "Unicorn HRO had no PMM on People tab; parent fallback. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :christianSpoerl is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:paulZugay a schema:Person ;
+    schema:name "Paul Zugay"@en ;
+    schema:jobTitle "Co-Founder and Chief Technology Guru, PeopleGuru"@en ;
+    schema:url <https://www.linkedin.com/in/paul-zugay-046018108> ;
+    owl:sameAs <https://linkedin.com/in/paul-zugay-046018108#this>,
+               <https://www.linkedin.com/in/paul-zugay-046018108#this> ;
+    rdfs:comment "PeopleGuru platform CTO, not Unicorn OpenEdge. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :paulZugay is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:tomJackson a schema:Person ;
+    schema:name "Tom Jackson"@en ;
+    schema:jobTitle "President"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/tom-jackson-a7a953> ;
+    owl:sameAs <https://linkedin.com/in/tom-jackson-a7a953#this>,
+               <https://www.linkedin.com/in/tom-jackson-a7a953#this> ;
+    rdfs:comment "Named President in Sep 2024 COO press release. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :tomJackson is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:ronGatti a schema:Person ;
+    schema:name "Ron Gatti"@en ;
+    schema:jobTitle "Director, ERP MES"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/ron-gatti-b108a4204> ;
+    owl:sameAs <https://linkedin.com/in/ron-gatti-b108a4204#this>,
+               <https://www.linkedin.com/in/ron-gatti-b108a4204#this> ;
+    rdfs:comment "Best OpenEdge/Chempax-adjacent eng lead. Former CTO Doug Salas left Sep 2025. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :ronGatti is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:traciCurran a schema:Person ;
+    schema:name "Traci Curran"@en ;
+    schema:jobTitle "Director of Product Marketing"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/tracicurran> ;
+    owl:sameAs <https://linkedin.com/in/tracicurran#this>,
+               <https://www.linkedin.com/in/tracicurran#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :traciCurran is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:davidHill a schema:Person ;
+    schema:name "David Hill"@en ;
+    schema:jobTitle "Director of Partnership Strategy"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/davidjhillengineermba> ;
+    owl:sameAs <https://linkedin.com/in/davidjhillengineermba#this>,
+               <https://www.linkedin.com/in/davidjhillengineermba#this> ;
+    rdfs:comment "Sole alliances-filter hit 2026-09-02. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :davidHill is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:caitlinODonnell a schema:Person ;
+    schema:name "Caitlin O'Donnell"@en ;
+    schema:jobTitle "Marketing"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/caitlineodonnell1986> ;
+    owl:sameAs <https://linkedin.com/in/caitlineodonnell1986#this>,
+               <https://www.linkedin.com/in/caitlineodonnell1986#this> ;
+    rdfs:comment "Brand-unification posts. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :caitlinODonnell is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jonathanCowan a schema:Person ;
+    schema:name "Jonathan Cowan"@en ;
+    schema:jobTitle "Chief Revenue Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/joncowan> ;
+    owl:sameAs <https://linkedin.com/in/joncowan#this>,
+               <https://www.linkedin.com/in/joncowan#this> ;
+    rdfs:comment "Named CRO on Datacor 2026 GTM Kickoff 17 Feb 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jonathanCowan is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:barryVandevier a schema:Person ;
+    schema:name "Barry Vandevier"@en ;
+    schema:jobTitle "COO"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/barryvandevier> ;
+    owl:sameAs <https://linkedin.com/in/barryvandevier#this>,
+               <https://www.linkedin.com/in/barryvandevier#this> ;
+    rdfs:comment "Joined Sep 2024. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :barryVandevier is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:anitaSalihi a schema:Person ;
+    schema:name "Anita Salihi"@en ;
+    schema:jobTitle "Head of Engineering"@en ;
+    schema:worksFor <https://linkedin.com/company/datacorinc#this> ;
+    schema:url <https://www.linkedin.com/in/anita-salihi> ;
+    owl:sameAs <https://linkedin.com/in/anita-salihi#this>,
+               <https://www.linkedin.com/in/anita-salihi#this> ;
+    rdfs:comment "CHEMCAD/GoldSim engineering software, not Chempax. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :anitaSalihi is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:alexandreBoury a schema:Person ;
+    schema:name "Alexandre Boury"@en ;
+    schema:jobTitle "General Manager, Construction ERP Division, The Access Group"@en ;
+    schema:worksFor <https://linkedin.com/company/coins#this> ;
+    schema:url <https://www.linkedin.com/in/alexandreboury> ;
+    owl:sameAs <https://linkedin.com/in/alexandreboury#this>,
+               <https://www.linkedin.com/in/alexandreboury#this>,
+               <https://uk.linkedin.com/in/alexandreboury#this> ;
+    rdfs:comment "Operating GM Access Construction. Verified LinkedIn 2026-09-02 via uk.linkedin.com. LinkedIn is canonical. Local name :alexandreBoury is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:robertBrown a schema:Person ;
+    schema:name "Robert Brown"@en ;
+    schema:jobTitle "CEO, COINS"@en ;
+    schema:worksFor <https://linkedin.com/company/coins#this> ;
+    schema:url <https://www.linkedin.com/in/robertneilbrown> ;
+    owl:sameAs <https://linkedin.com/in/robertneilbrown#this>,
+               <https://www.linkedin.com/in/robertneilbrown#this>,
+               <https://uk.linkedin.com/in/robertneilbrown#this> ;
+    rdfs:comment "LinkedIn still labels CEO; treat as uncleared title vs Boury operating GM. Verified LinkedIn 2026-09-02 via uk.linkedin.com. LinkedIn is canonical. Local name :robertBrown is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:brianDrumm a schema:Person ;
+    schema:name "Brian Drumm"@en ;
+    schema:jobTitle "Head of Product, Access Coins"@en ;
+    schema:worksFor <https://linkedin.com/company/coins#this> ;
+    schema:url <https://www.linkedin.com/in/brian-drumm-4412679> ;
+    owl:sameAs <https://linkedin.com/in/brian-drumm-4412679#this>,
+               <https://www.linkedin.com/in/brian-drumm-4412679#this> ;
+    rdfs:comment "Head of Product May 2023–present. No CTO on COINS People tab. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :brianDrumm is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:abiYogarajah a schema:Person ;
+    schema:name "Abi Yogarajah"@en ;
+    schema:jobTitle "Marketing Director, Construction ERP Software"@en ;
+    schema:worksFor <https://linkedin.com/company/coins#this> ;
+    schema:url <https://www.linkedin.com/in/abiyogarajah> ;
+    owl:sameAs <https://linkedin.com/in/abiyogarajah#this>,
+               <https://www.linkedin.com/in/abiyogarajah#this>,
+               <https://uk.linkedin.com/in/abiyogarajah#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02 via uk.linkedin.com. LinkedIn is canonical. Local name :abiYogarajah is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:richardWerner a schema:Person ;
+    schema:name "Richard Werner"@en ;
+    schema:jobTitle "Chairman, Construction Industry Solutions (Shaker) Corp."@en ;
+    schema:worksFor <https://linkedin.com/company/coins#this> ;
+    schema:url <https://www.linkedin.com/in/richard-werner-522ba5b> ;
+    owl:sameAs <https://linkedin.com/in/richard-werner-522ba5b#this>,
+               <https://www.linkedin.com/in/richard-werner-522ba5b#this> ;
+    rdfs:comment "Chairman Jan 1997–present; not operating CEO. Separate retired profile richard-werner-809079286 not aliased. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :richardWerner is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:tvnReddy a schema:Person ;
+    schema:name "TVN Reddy"@en ;
+    schema:jobTitle "Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/tvnreddy> ;
+    owl:sameAs <https://linkedin.com/in/tvnreddy#this>,
+               <https://www.linkedin.com/in/tvnreddy#this> ;
+    rdfs:comment "CEO Jul 2018–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :tvnReddy is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:stephenHay a schema:Person ;
+    schema:name "Stephen Hay"@en ;
+    schema:jobTitle "Associate Vice President"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/stephen-stevie-hay-30003617> ;
+    owl:sameAs <https://linkedin.com/in/stephen-stevie-hay-30003617#this>,
+               <https://www.linkedin.com/in/stephen-stevie-hay-30003617#this> ;
+    rdfs:comment "Prior GM Distribution & Plant Management; prior Senior Director Catalyst, Apprise & irms 360. Best Apprise exec still at Aptean. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :stephenHay is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jennyPeng a schema:Person ;
+    schema:name "Jenny Peng"@en ;
+    schema:jobTitle "Chief Technology Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/jennylinpeng> ;
+    owl:sameAs <https://linkedin.com/in/jennylinpeng#this>,
+               <https://www.linkedin.com/in/jennylinpeng#this> ;
+    rdfs:comment "Aptean AI Summit keynote 24 Apr 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jennyPeng is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:yamaHabibzai a schema:Person ;
+    schema:name "Yama Habibzai"@en ;
+    schema:jobTitle "Chief Marketing Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/habibzai> ;
+    owl:sameAs <https://linkedin.com/in/habibzai#this>,
+               <https://www.linkedin.com/in/habibzai#this> ;
+    rdfs:comment "CMO Apr 2026–present; appointed 3 Jun 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :yamaHabibzai is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jeremyWardell a schema:Person ;
+    schema:name "Jeremy Wardell"@en ;
+    schema:jobTitle "EVP and GM, CE Products, Rest of World and Global Channel"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/jeremy-wardell> ;
+    owl:sameAs <https://linkedin.com/in/jeremy-wardell#this>,
+               <https://www.linkedin.com/in/jeremy-wardell#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jeremyWardell is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:karaMcClain a schema:Person ;
+    schema:name "Kara McClain"@en ;
+    schema:jobTitle "VP Global Partner Program"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/karamcclain> ;
+    owl:sameAs <https://linkedin.com/in/karamcclain#this>,
+               <https://www.linkedin.com/in/karamcclain#this> ;
+    rdfs:comment "Nov 2023–present; F&B-heavy, not Apprise-specific. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :karaMcClain is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:megganLeong a schema:Person ;
+    schema:name "Meggan Leong"@en ;
+    schema:jobTitle "Director, Support, Services and EDI for Apprise"@en ;
+    schema:worksFor <https://linkedin.com/company/aptean#this> ;
+    schema:url <https://www.linkedin.com/in/meggan-leong-2b93b584> ;
+    owl:sameAs <https://linkedin.com/in/meggan-leong-2b93b584#this>,
+               <https://www.linkedin.com/in/meggan-leong-2b93b584#this> ;
+    rdfs:comment "Apr 2024–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :megganLeong is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:joshWeiss a schema:Person ;
+    schema:name "Josh Weiss"@en ;
+    schema:jobTitle "President"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/josh-weiss-98b48b10> ;
+    owl:sameAs <https://linkedin.com/in/josh-weiss-98b48b10#this>,
+               <https://www.linkedin.com/in/josh-weiss-98b48b10#this> ;
+    rdfs:comment "Omaha DMSi, not Syncron CEO josh-weiss-81879ba4. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :joshWeiss is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:brentHeavican a schema:Person ;
+    schema:name "Brent Heavican"@en ;
+    schema:jobTitle "Vice President and CTO"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/brentheavican> ;
+    owl:sameAs <https://linkedin.com/in/brentheavican#this>,
+               <https://www.linkedin.com/in/brentheavican#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :brentHeavican is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jasonNiemi a schema:Person ;
+    schema:name "Jason Niemi"@en ;
+    schema:jobTitle "Chief Product Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/jasonsniemi> ;
+    owl:sameAs <https://linkedin.com/in/jasonsniemi#this>,
+               <https://www.linkedin.com/in/jasonsniemi#this> ;
+    rdfs:comment "CPO ~1y 11m; post 9 Mar 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jasonNiemi is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:maryAmbrose a schema:Person ;
+    schema:name "Mary Ambrose"@en ;
+    schema:jobTitle "Director of Marketing"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/mary-ambrose-74b77a15> ;
+    owl:sameAs <https://linkedin.com/in/mary-ambrose-74b77a15#this>,
+               <https://www.linkedin.com/in/mary-ambrose-74b77a15#this> ;
+    rdfs:comment "Dec 2008–present; no CMO found. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :maryAmbrose is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:henryGerman a schema:Person ;
+    schema:name "Henry German"@en ;
+    schema:jobTitle "Chief Revenue Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/henry-german-bb811424> ;
+    owl:sameAs <https://linkedin.com/in/henry-german-bb811424#this>,
+               <https://www.linkedin.com/in/henry-german-bb811424#this> ;
+    rdfs:comment "Affiliated Distributors / Agility motion. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :henryGerman is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:jasonBolstad a schema:Person ;
+    schema:name "Jason Bolstad"@en ;
+    schema:jobTitle "Chief Development Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/jason-bolstad-b536328> ;
+    owl:sameAs <https://linkedin.com/in/jason-bolstad-b536328#this>,
+               <https://www.linkedin.com/in/jason-bolstad-b536328#this> ;
+    rdfs:comment "CDO Jan 2026–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :jasonBolstad is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:michaelLimas a schema:Person ;
+    schema:name "Michael Limas"@en ;
+    schema:jobTitle "EVP Corporate Strategy and Governance"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/michael-limas-a4ab544> ;
+    owl:sameAs <https://linkedin.com/in/michael-limas-a4ab544#this>,
+               <https://www.linkedin.com/in/michael-limas-a4ab544#this> ;
+    rdfs:comment "Jun 2026–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :michaelLimas is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:calGerman a schema:Person ;
+    schema:name "Cal German"@en ;
+    schema:jobTitle "CEO (indexed; not on live CEO filter)"@en ;
+    schema:worksFor <https://linkedin.com/company/dmsi-software#this> ;
+    schema:url <https://www.linkedin.com/in/cal-german-64420711> ;
+    owl:sameAs <https://linkedin.com/in/cal-german-64420711#this>,
+               <https://www.linkedin.com/in/cal-german-64420711#this> ;
+    rdfs:comment "Indexed CEO Apr 1983–present; last likes 2022; did not appear on live CEO People filter 2026-09-02. Verified slug exists. LinkedIn is canonical. Local name :calGerman is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:ericVerniaut a schema:Person ;
+    schema:name "Eric Verniaut"@en ;
+    schema:jobTitle "CEO"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/eric-verniaut-55463610> ;
+    owl:sameAs <https://linkedin.com/in/eric-verniaut-55463610#this>,
+               <https://www.linkedin.com/in/eric-verniaut-55463610#this> ;
+    rdfs:comment "Group CEO Jan 2020–present. Official management page. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :ericVerniaut is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:bjoernGoerke a schema:Person ;
+    schema:name "Björn Goerke"@en ;
+    schema:jobTitle "Chief Technology Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/bjoerngoerke> ;
+    owl:sameAs <https://linkedin.com/in/bjoerngoerke#this>,
+               <https://www.linkedin.com/in/bjoerngoerke#this> ;
+    rdfs:comment "CTO and Management Board; joined 1 Oct 2022. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :bjoernGoerke is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:otmarZewald a schema:Person ;
+    schema:name "Otmar Zewald"@en ;
+    schema:jobTitle "SVP Product Management and Product Marketing"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/otmarzewald> ;
+    owl:sameAs <https://linkedin.com/in/otmarzewald#this>,
+               <https://www.linkedin.com/in/otmarzewald#this> ;
+    rdfs:comment "Also appointed CPO in experience text. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :otmarZewald is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:michaelFinkler a schema:Person ;
+    schema:name "Michael Finkler"@en ;
+    schema:jobTitle "Geschäftsführer Business Development"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/michael-finkler-3833916b> ;
+    owl:sameAs <https://linkedin.com/in/michael-finkler-3833916b#this>,
+               <https://www.linkedin.com/in/michael-finkler-3833916b#this> ;
+    rdfs:comment "Official management page: BD plus research/association partnerships. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :michaelFinkler is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:michaelWintergerst a schema:Person ;
+    schema:name "Michael Wintergerst"@en ;
+    schema:jobTitle "SVP R&D Platform / Chief AI Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/michaelwintergerst> ;
+    owl:sameAs <https://linkedin.com/in/michaelwintergerst#this>,
+               <https://www.linkedin.com/in/michaelwintergerst#this> ;
+    rdfs:comment "Public materials also call him CAIO. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :michaelWintergerst is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:thomasFodermeyer a schema:Person ;
+    schema:name "Thomas Fodermeyer"@en ;
+    schema:jobTitle "SVP Marketing and Communications"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/tfodermeyer> ;
+    owl:sameAs <https://linkedin.com/in/tfodermeyer#this>,
+               <https://www.linkedin.com/in/tfodermeyer#this> ;
+    rdfs:comment "Corporate marketing, not PMM. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :thomasFodermeyer is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:joergLeidecker a schema:Person ;
+    schema:name "Jörg Leidecker"@en ;
+    schema:jobTitle "Vice President Sales Operations und Partner Management"@en ;
+    schema:worksFor <https://linkedin.com/company/proalpha#this> ;
+    schema:url <https://www.linkedin.com/in/j%C3%B6rg-leidecker-71568a118> ;
+    owl:sameAs <https://linkedin.com/in/j%C3%B6rg-leidecker-71568a118#this>,
+               <https://www.linkedin.com/in/j%C3%B6rg-leidecker-71568a118#this>,
+               <https://www.linkedin.com/in/j%C3%B6rg-leidecker-71568a118#this> ;
+    rdfs:comment "Also https://www.linkedin.com/in/j%C3%B6rg-leidecker-71568a118. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :joergLeidecker is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:steveMurphy a schema:Person ;
+    schema:name "Steve Murphy"@en ;
+    schema:jobTitle "CEO, Epicor Software Corporation"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/steve-murphy-epicor> ;
+    owl:sameAs <https://linkedin.com/in/steve-murphy-epicor#this>,
+               <https://www.linkedin.com/in/steve-murphy-epicor#this> ;
+    rdfs:comment "CEO through 30 Sep 2026; stays on the board. Business Wire 11 Aug 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :steveMurphy is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:vaibhavVohra a schema:Person ;
+    schema:name "Vaibhav Vohra"@en ;
+    schema:jobTitle "President and CPTO; incoming CEO 1 Oct 2026"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/vaibhav-vohra-599b2b15> ;
+    owl:sameAs <https://linkedin.com/in/vaibhav-vohra-599b2b15#this>,
+               <https://www.linkedin.com/in/vaibhav-vohra-599b2b15#this> ;
+    rdfs:comment "Becomes CEO 1 Oct 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :vaibhavVohra is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:grahamRigby a schema:Person ;
+    schema:name "Graham Rigby"@en ;
+    schema:jobTitle "Vice President of Product Management"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/graham-rigby-a5b7b56> ;
+    owl:sameAs <https://linkedin.com/in/graham-rigby-a5b7b56#this>,
+               <https://www.linkedin.com/in/graham-rigby-a5b7b56#this> ;
+    rdfs:comment "Prophet 21 Road Ahead Insights 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :grahamRigby is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:daveGetty a schema:Person ;
+    schema:name "Dave Getty"@en ;
+    schema:jobTitle "Group VP Product Development"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/dgetty> ;
+    owl:sameAs <https://linkedin.com/in/dgetty#this>,
+               <https://www.linkedin.com/in/dgetty#this> ;
+    rdfs:comment "P21 heritage Jenkintown PA; Road Ahead May 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :daveGetty is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:caraPingel a schema:Person ;
+    schema:name "Cara Pingel"@en ;
+    schema:jobTitle "Director of Product Marketing, Distribution and Building Supply"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/carapingel> ;
+    owl:sameAs <https://linkedin.com/in/carapingel#this>,
+               <https://www.linkedin.com/in/carapingel#this> ;
+    rdfs:comment "P21 PMM Jun 2025–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :caraPingel is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:michaelLovelace a schema:Person ;
+    schema:name "Michael Lovelace"@en ;
+    schema:jobTitle "Regional Vice President of Sales, North America"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/michaellovelace> ;
+    owl:sameAs <https://linkedin.com/in/michaellovelace#this>,
+               <https://www.linkedin.com/in/michaellovelace#this> ;
+    rdfs:comment "Distribution trade/buying-group alliances; former P21 customer. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :michaelLovelace is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:danKaminstein a schema:Person ;
+    schema:name "Dan Kaminstein"@en ;
+    schema:jobTitle "Sr Principal Product Manager, Prophet 21"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/dankaminstein> ;
+    owl:sameAs <https://linkedin.com/in/dankaminstein#this>,
+               <https://www.linkedin.com/in/dankaminstein#this> ;
+    rdfs:comment "Insights 2026 Road Ahead. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :danKaminstein is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:erikaMargerum a schema:Person ;
+    schema:name "Erika Margerum"@en ;
+    schema:jobTitle "Product Manager, Prophet 21"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/erikamargerum> ;
+    owl:sameAs <https://linkedin.com/in/erikamargerum#this>,
+               <https://www.linkedin.com/in/erikamargerum#this> ;
+    rdfs:comment "Mar 2024–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :erikaMargerum is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:benHalverson a schema:Person ;
+    schema:name "Ben Halverson"@en ;
+    schema:jobTitle "Principal Product Marketing Manager"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/benhalverson3> ;
+    owl:sameAs <https://linkedin.com/in/benhalverson3#this>,
+               <https://www.linkedin.com/in/benhalverson3#this> ;
+    rdfs:comment "Author of Prophet 21 2026.1 Is Now Available (Jun 2026). Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :benHalverson is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:brendaNobleza a schema:Person ;
+    schema:name "Brenda Nobleza"@en ;
+    schema:jobTitle "VP Channel Solutions"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/brenda-nobleza-761a281> ;
+    owl:sameAs <https://linkedin.com/in/brenda-nobleza-761a281#this>,
+               <https://www.linkedin.com/in/brenda-nobleza-761a281#this> ;
+    rdfs:comment "Partner Advisory Council 13 Aug 2026; covers Kinetic and P21 channel. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :brendaNobleza is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:arturoBuzzalino a schema:Person ;
+    schema:name "Arturo Buzzalino"@en ;
+    schema:jobTitle "Chief Product Officer and Chief Innovation Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/arturo-buzzalino-29470b7a> ;
+    owl:sameAs <https://linkedin.com/in/arturo-buzzalino-29470b7a#this>,
+               <https://www.linkedin.com/in/arturo-buzzalino-29470b7a#this> ;
+    rdfs:comment "SVP CPO & CIO Jul 2026–present; Kinetic product-tech lead. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :arturoBuzzalino is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:danHoudek a schema:Person ;
+    schema:name "Dan Houdek"@en ;
+    schema:jobTitle "Senior Director of Product Marketing, Manufacturing"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/danhoudek> ;
+    owl:sameAs <https://linkedin.com/in/danhoudek#this>,
+               <https://www.linkedin.com/in/danhoudek#this> ;
+    rdfs:comment "Kinetic/manufacturing PMM Mar 2025–present. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :danHoudek is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:danielCharvoz a schema:Person ;
+    schema:name "Daniel Charvoz"@en ;
+    schema:jobTitle "Sr. Product Marketing Manager, Manufacturing"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/danielcharvoz> ;
+    owl:sameAs <https://linkedin.com/in/danielcharvoz#this>,
+               <https://www.linkedin.com/in/danielcharvoz#this> ;
+    rdfs:comment "Author of Kinetic 2026.100 release post 5 May 2026. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :danielCharvoz is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:kerrieJordan a schema:Person ;
+    schema:name "Kerrie Jordan"@en ;
+    schema:jobTitle "Chief Marketing Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/kerriejordan> ;
+    owl:sameAs <https://linkedin.com/in/kerriejordan#this>,
+               <https://www.linkedin.com/in/kerriejordan#this> ;
+    rdfs:comment "CMO Aug 2025–present; previously GVP Product Management and ISV Partner Programs. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :kerrieJordan is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:rajeshBansal a schema:Person ;
+    schema:name "Rajesh Bansal"@en ;
+    schema:jobTitle "Sr. Director, Product Development"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/rajesh-bansal-844b4118> ;
+    owl:sameAs <https://linkedin.com/in/rajesh-bansal-844b4118#this>,
+               <https://www.linkedin.com/in/rajesh-bansal-844b4118#this> ;
+    rdfs:comment "Engineering for Kinetic ERP CSF. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :rajeshBansal is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:timothyShoemaker a schema:Person ;
+    schema:name "Timothy Alan Shoemaker"@en ;
+    schema:jobTitle "Distinguished Product Manager, Kinetic Core"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/timshuwy> ;
+    owl:sameAs <https://linkedin.com/in/timshuwy#this>,
+               <https://www.linkedin.com/in/timshuwy#this> ;
+    rdfs:comment "Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :timothyShoemaker is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:billHart a schema:Person ;
+    schema:name "Bill Hart"@en ;
+    schema:jobTitle "Head of Channel Growth, International"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/bill-hart-3b43811> ;
+    owl:sameAs <https://linkedin.com/in/bill-hart-3b43811#this>,
+               <https://www.linkedin.com/in/bill-hart-3b43811#this> ;
+    rdfs:comment "GSI/SI alliances, not Kinetic-specific. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :billHart is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:billWilson a schema:Person ;
+    schema:name "Bill Wilson"@en ;
+    schema:jobTitle "EVP, Product Development"@en ;
+    schema:worksFor <https://linkedin.com/company/epicor#this> ;
+    schema:url <https://www.linkedin.com/in/bill-wilson-222a534> ;
+    owl:sameAs <https://linkedin.com/in/bill-wilson-222a534#this>,
+               <https://www.linkedin.com/in/bill-wilson-222a534#this> ;
+    rdfs:comment "EVP Jun 2023–present; was CTO Jun 2022–Jun 2023. Verified LinkedIn 2026-09-02. LinkedIn is canonical. Local name :billWilson is a registry index label only. First registered 2026-09-02 from Progress OpenEdge ISV contact pass."@en ;
+    schema:dateCreated "2026-09-02T22:30:00Z"^^xsd:dateTime .
+
+:patrickSalyer a schema:Person ;
+    schema:name "Patrick Salyer"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/mayfield-fund#this> ;
+    schema:url <https://www.linkedin.com/in/patricksalyer> ;
+    owl:sameAs <https://linkedin.com/in/patricksalyer#this>,
+               <https://www.linkedin.com/in/patricksalyer#this> ;
+    schema:description "Partner at Mayfield Fund (AI and enterprise software; seed/Series A focus on LLM infra, middleware, and LLM-enabled applications). Former CEO of Gigya (customer identity / CIAM), acquired by SAP; scaled Gigya past $100M ARR. Former board member at Couchbase through its IPO. Based in the San Francisco Bay Area. Public Mayfield bio: https://www.mayfield.com/team/patrick-salyer/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/patricksalyer verified via public LinkedIn profile pages and Mayfield team page (mayfield.com/team/patrick-salyer/ HTTP 200 on 2026-09-09). Flagged LinkedIn post 2026-09-08 https://www.linkedin.com/posts/patricksalyer_founders-building-app-startups-are-constantly-share-7497724110777716736-7vst: argues founders should watch what data OpenAI/Anthropic buy via Mercor (~400 job listings); share of expert-data demand (multi-label): Finance & Investing 65%, Legal & Compliance 46%, Design/creative/video 44%, Healthcare & Clinical 25%, Science & Engineering benchmarks 23%, Enterprise Ops 11%, Physical trades & manufacturing 8%, Coding & SWE 6%. Thesis: labs moving up the app stack (Claude Code playbook) into finance/legal/healthcare, but those domains need embedded workflows, multiplayer controls, HITL, and sales-led distribution — so startups can still win where Cursor did in coding. ibps owns market-needs glean for Mercor/data-products lane. Local name :patrickSalyer is a registry index label only. First registered 2026-09-09 by bizdev; post body ingested same day."@en ;
+    schema:dateCreated "2026-09-09T17:15:00Z"^^xsd:dateTime .
+
+:thordurArnason a schema:Person ;
+    schema:name "Thordur Arnason"@en ;
+    schema:jobTitle "Vice President; Global Head of AI Enablement and GTM"@en ;
+    schema:worksFor <https://linkedin.com/company/capgemini-invent#this> ;
+    schema:homeLocation [ a schema:Place ; schema:name "Stange, Innlandet, Norway"@en ] ;
+    schema:url <https://www.linkedin.com/in/thordur> ;
+    owl:sameAs <https://linkedin.com/in/thordur#this>,
+               <https://www.linkedin.com/in/thordur#this>,
+               <https://no.linkedin.com/in/thordur#this> ;
+    schema:description "Norway-based technology executive (25+ years) at Capgemini Invent; Global Head of AI Enablement and GTM. Also Chair of the Board at Gervi Labs, a non-profit AI research lab he founded (2022) at the intersection of AI and art. Focus: practical/responsible generative and agentic AI in enterprise; Capgemini Invent global Nvidia partnership and large enterprise AI deployments. Author of LinkedIn Pulse 'The proxy doom loop' and related AI-enablement posts."@en ;
+    rdfs:comment "LinkedIn is canonical (person-IRI priority ladder). Slug /in/thordur: linkedin.com HTTP 200 on 2026-09-09; www HEAD 405 (alias still included); no.linkedin.com returned 999 this pass (locale alias still included, same pattern as :veronikaHeimsbakk). Capgemini Invent company IRI https://linkedin.com/company/capgemini-invent HTTP 200 same day. Public bio corroboration: Techpoint 2026 speaker page https://techpointconference.no/speaker/thordur-arnason/ (VP, Global AI GTM Lead, Capgemini). Newsletter/to-read sources: UGC https://www.linkedin.com/posts/thordur_my-ai-helps-me-write-a-ten-page-proposal-ugcPost-7503336558490460161-xThy/ and Pulse https://www.linkedin.com/pulse/proxy-doom-loop-thordur-arnason-mzeve/. Local name :thordurArnason is a registry index label only. First registered 2026-09-09 by Phenny from newsletter-ideas filing."@en ;
+    schema:dateCreated "2026-09-09T17:45:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Boston early / growth VC partners (2026-09-14) ──────────────────────────────
+# From Boston early VC tracking; Partner / Managing Partner / GP / Founding only.
+# Skipped non-partners: Pete Lamson (COO); Dorothy Chang, Anna Palmer (Flybridge VPs);
+# Richard Dulude, James Orsillo (Underscore VPs); Kleida Martiro (MD), Ali Mahmoud (Principal);
+# Eric Paley (Partner Emeritus), Dave Bisceglia (Venture Partner).
+# ═══════════════════════════════════════════════════════════════════════════════
+
+:larryCheng a schema:Person ;
+    schema:name "Larry Cheng"@en ;
+    schema:jobTitle "Co-Founder & Managing Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/volition-capital#this> ;
+    schema:url <https://www.linkedin.com/in/larrycheng> ;
+    owl:sameAs <https://linkedin.com/in/larrycheng#this>,
+               <https://www.linkedin.com/in/larrycheng#this>,
+               <https://x.com/larryvc#this> ;
+    schema:description "Co-Founder and Managing Partner at Volition Capital (Boston growth equity). Focuses on transactional Internet applications, e-commerce, digital health, and next-generation consumer brands; board roles include Burst, Grove Collaborative, Levanta, RTS, Rounds, Screenverse, Sensible Care, Statusphere, Super73, and US Mobile. Prior partner at Fidelity Ventures; earlier Battery Ventures and Bessemer Venture Partners; BA Psychology, Harvard College. Public bio: https://www.volitioncapital.com/team/larry-cheng/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/larrycheng and X @larryvc from Volition team page and Boston early VC tracking 2026-09-14. Company IRI https://linkedin.com/company/volition-capital HTTP 200. Local name :larryCheng is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:seanCantwell a schema:Person ;
+    schema:name "Sean Cantwell"@en ;
+    schema:jobTitle "Co-Founder & Managing Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/volition-capital#this> ;
+    schema:url <https://www.linkedin.com/in/sean-cantwell-59070a4> ;
+    owl:sameAs <https://linkedin.com/in/sean-cantwell-59070a4#this>,
+               <https://www.linkedin.com/in/sean-cantwell-59070a4#this> ;
+    schema:description "Managing Partner and co-founder at Volition Capital; focuses on SaaS and tech-enabled services. Current boards/investments include ABCS Insights, Automatiq, Black Kite, Creatio, Digital Onboarding, hackajob, Kombo, Tracelink, Zenarate, among others. Previously Fidelity Ventures and Summit Partners; BBA Notre Dame, MBA Harvard Business School. Public bio: https://www.volitioncapital.com/team/sean-cantwell/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/sean-cantwell-59070a4 from Volition team page. X not found per tracking. Local name :seanCantwell is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:rogerHurwitz a schema:Person ;
+    schema:name "Roger Hurwitz"@en ;
+    schema:jobTitle "Founding Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/volition-capital#this> ;
+    schema:url <https://www.linkedin.com/in/roger-hurwitz-89458114> ;
+    owl:sameAs <https://linkedin.com/in/roger-hurwitz-89458114#this>,
+               <https://www.linkedin.com/in/roger-hurwitz-89458114#this> ;
+    schema:description "Founding Partner at Volition Capital focusing on software and technology-enabled business services. Boards include Bond-Pro, ButterflyMX, Creatio, DataStealth, HAAS Alert, Messagepoint, PetScreening, Relish, Qure4u, and Securonix. Previously partner at Fidelity Ventures and Apax Partners; earlier GE Equity, Chase Manhattan, and Arthur Andersen; BS Syracuse, MBA Wharton. Public bio: https://www.volitioncapital.com/team/roger-hurwitz/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/roger-hurwitz-89458114 from Volition team page. X not found per tracking. Local name :rogerHurwitz is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:jimFerry a schema:Person ;
+    schema:name "Jim Ferry"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/volition-capital#this> ;
+    schema:url <https://www.linkedin.com/in/jim-ferry-91b33375> ;
+    owl:sameAs <https://linkedin.com/in/jim-ferry-91b33375#this>,
+               <https://www.linkedin.com/in/jim-ferry-91b33375#this>,
+               <https://x.com/JimFerryVC#this> ;
+    schema:description "Partner at Volition Capital on the Internet & Consumer team (joined 2014); focuses on consolidation platforms, movement of physical things, ad tech, marketplaces, and other internet transactional businesses. Boards include Aditude, Doing Things, Keynes, Linkby, Revi, and Rounds; board observer at Automatiq and ButterflyMX. Public bio: https://www.volitioncapital.com/team/jim-ferry/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/jim-ferry-91b33375 and X @JimFerryVC from Volition team page / Boston early VC tracking. Local name :jimFerry is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:tomyHan a schema:Person ;
+    schema:name "Tomy Han"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/volition-capital#this> ;
+    schema:url <https://www.linkedin.com/in/tomy-kihoon-han-75486122> ;
+    owl:sameAs <https://linkedin.com/in/tomy-kihoon-han-75486122#this>,
+               <https://www.linkedin.com/in/tomy-kihoon-han-75486122#this> ;
+    schema:description "Partner at Volition Capital (joined 2012 in the firm's first Analyst class); focuses on software and internet investments in compliance, security, supply chain, and vertical applications. Serves on boards of BusRight, HALOS, Pramata, and Qure4u; board observer at Black Kite, RTS, and Creatio. BA Economics, Harvard; Growthcap 40 Under 40 (2020, 2022). Public bio: https://www.volitioncapital.com/team/tomy-han/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/tomy-kihoon-han-75486122 from Volition team page. X not found per tracking. Local name :tomyHan is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:chipHazard a schema:Person ;
+    schema:name "Chip Hazard"@en ;
+    schema:jobTitle "Co-Founder & General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/flybridge#this> ;
+    schema:url <https://www.linkedin.com/in/chiphazard> ;
+    owl:sameAs <https://linkedin.com/in/chiphazard#this>,
+               <https://www.linkedin.com/in/chiphazard#this>,
+               <https://x.com/chazard#this> ;
+    schema:description "Co-founder and General Partner at Flybridge (East Coast seed; AI-powered future thesis). Investment interests: AI infrastructure, developer platforms, and agentic business applications; longest-serving non-founder board member at MongoDB; co-founder/investment partner with XFactor Ventures. Previously General Partner at Greylock (joined 1994); BA Stanford, MBA Harvard Business School (Baker Scholar, Ford Scholar). Public bio: https://www.flybridge.com/team"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/chiphazard and X @chazard from Flybridge team page. Company IRI https://linkedin.com/company/flybridge HTTP 200. Local name :chipHazard is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:jeffBussgang a schema:Person ;
+    schema:name "Jeff Bussgang"@en ;
+    schema:jobTitle "Co-Founder & General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/flybridge#this> ;
+    schema:url <https://www.linkedin.com/in/bussgang> ;
+    owl:sameAs <https://linkedin.com/in/bussgang#this>,
+               <https://www.linkedin.com/in/bussgang#this>,
+               <https://x.com/bussgang#this> ;
+    schema:description "Co-founder and General Partner at Flybridge; investment interests in agentic business applications, vertical SaaS, and fintech. Entrepreneur, HBS faculty (Launching Technology Ventures), and author of The Experimentation Machine: Finding Product-Market Fit in the Age of AI. Prior co-founder of Upromise (acquired by Sallie Mae) and executive at Open Market (IPO 1996). Public bio: https://www.flybridge.com/team"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/bussgang and X @bussgang from Flybridge team page. Local name :jeffBussgang is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:jesseMiddleton a schema:Person ;
+    schema:name "Jesse Middleton"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/flybridge#this> ;
+    schema:url <https://www.linkedin.com/in/jmiddleton> ;
+    owl:sameAs <https://linkedin.com/in/jmiddleton#this>,
+               <https://www.linkedin.com/in/jmiddleton#this>,
+               <https://x.com/srcasm#this> ;
+    schema:description "General Partner at Flybridge since 2016; focuses on future of work, native AI applications, and serial entrepreneurs. Early WeWork executive who helped scale to ~4,000 employees; later angel with reported 16x portfolio MOIC. Led investments including Arcee, CarEdge, Chief, HiFi (acquired by Square), Imperfect Foods, Splice, and Teal. Public bio: https://www.flybridge.com/team"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/jmiddleton and X @srcasm from Flybridge team page / tracking. Local name :jesseMiddleton is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:lilyLyman a schema:Person ;
+    schema:name "Lily Lyman"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/_underscore.vc#this> ;
+    schema:url <https://www.linkedin.com/in/lily-lyman-83868b13> ;
+    owl:sameAs <https://linkedin.com/in/lily-lyman-83868b13#this>,
+               <https://www.linkedin.com/in/lily-lyman-83868b13#this>,
+               <https://x.com/lilylyman#this> ;
+    schema:description "Partner at Underscore VC (Boston pre-seed/seed B2B software). Drives investments in workflow automation and Vertical AI (insurance, healthcare, life sciences) and helps manage firm evolution; previously growth leader at Facebook (products driving ~100M new users in 4 years) and co-founded an Agtech/CPG startup while at Stanford. Board roles include NEVCA, MIT Sandbox Funding Board, Harvard Allston Fund, WBUR; BA Harvard, MBA Stanford GSB. Public bio: https://underscore.vc/team/lily-lyman/"@en ;
+    rdfs:comment "LinkedIn is canonical. Firm team page publishes /in/lily-lyman-83868b13 (used here); tracking also cited /in/lilylyman. X @lilylyman verified in tracking. Company IRI https://linkedin.com/company/_underscore.vc (official LinkedIn slug; firm site also links company/10791786). Local name :lilyLyman is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:chrisGardner a schema:Person ;
+    schema:name "Chris Gardner"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/_underscore.vc#this> ;
+    schema:url <https://www.linkedin.com/in/chris-gardner-964280> ;
+    owl:sameAs <https://linkedin.com/in/chris-gardner-964280#this>,
+               <https://www.linkedin.com/in/chris-gardner-964280#this>,
+               <https://x.com/ccgardner#this> ;
+    schema:description "Partner at Underscore VC; operator-investor focused on uniquely qualified founders and hands-on company building. Fintech entrepreneur background: executive at PayPal after Paydiant acquisition (2015); prior CMO/product roles at ExtendMedia (acquired by Cisco), m-Qube (acquired by Verisign), and edocs (acquired by Siebel). BA Communications, UMass Amherst. Public bio: https://underscore.vc/team/chris-gardner/"@en ;
+    rdfs:comment "LinkedIn is canonical. Firm team page publishes /in/chris-gardner-964280 (used here); tracking also cited /in/ccgardner. X @ccgardner verified in tracking. Local name :chrisGardner is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:brianDevaney a schema:Person ;
+    schema:name "Brian Devaney"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/_underscore.vc#this> ;
+    schema:url <https://www.linkedin.com/in/devaneybrian> ;
+    owl:sameAs <https://linkedin.com/in/devaneybrian#this>,
+               <https://www.linkedin.com/in/devaneybrian#this> ;
+    schema:description "Partner at Underscore VC focusing on vertical-specific applications of AI and B2B software that transform legacy processes; active in sourcing, diligence, and early-stage founder support. Previously at First Round Capital (diligence/support across fintech, AI, workflow automation) and led go-to-market for Strava Metro. BA University of Vermont (Economics, Business Administration, Computer Science). Public bio: https://underscore.vc/team/brian-devaney/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/devaneybrian from Underscore team page / tracking. Active personal X not verified in tracking. Local name :brianDevaney is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:jamieGoldstein a schema:Person ;
+    schema:name "Jamie Goldstein"@en ;
+    schema:jobTitle "Founding / Managing Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/pillar-vc#this> ;
+    schema:url <https://www.linkedin.com/in/jamiegoldstein1> ;
+    owl:sameAs <https://linkedin.com/in/jamiegoldstein1#this>,
+               <https://www.linkedin.com/in/jamiegoldstein1#this>,
+               <https://x.com/JamieGoldstein1#this> ;
+    schema:description "Founding/Managing Partner at Pillar VC (Boston pre-seed/seed deep tech, bio, AI×science). Investments include Algorand, PathAI, Asimov, Abridge, Jellyfish, Cimulate, Tycho, Zilla Security, Neural Magic, Circle, PillPack, and Videa Health. Previously investing partner for 18 years at North Bridge Venture Partners; co-founded PureSpeech (AI/NLP/speech) in the mid-1990s. Public bio: https://www.pillar.vc/team/jamie-goldstein/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/jamiegoldstein1 from Pillar team page. X @JamieGoldstein1 listed in tracking (low activity / tentative). Company IRI https://linkedin.com/company/pillar-vc HTTP 200. Local name :jamieGoldstein is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:sarahHodges a schema:Person ;
+    schema:name "Sarah Hodges"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/pillar-vc#this> ;
+    schema:url <https://www.linkedin.com/in/sarahhodges1> ;
+    owl:sameAs <https://linkedin.com/in/sarahhodges1#this>,
+               <https://www.linkedin.com/in/sarahhodges1#this> ;
+    schema:description "General Partner at Pillar VC; invests in enterprise and consumer companies and builds networks of executives, advisors, mentors, and customers for portfolio founders. Prior executive team member at Pluralsight (NASDAQ: PS) and Smarterer (sold to Pluralsight); co-founded Intelligent.ly (leadership development for Boston companies). Investments include Hometap, Day AI, JobGet, and Hellotickets. Public bio: https://www.pillar.vc/team/sarah-hodges/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/sarahhodges1 from Pillar team page. X not found per tracking. Local name :sarahHodges is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:tonyKulesa a schema:Person ;
+    schema:name "Tony Kulesa"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/pillar-vc#this> ;
+    schema:url <https://www.linkedin.com/in/tony-kulesa> ;
+    owl:sameAs <https://linkedin.com/in/tony-kulesa#this>,
+               <https://www.linkedin.com/in/tony-kulesa#this> ;
+    schema:description "Partner at Pillar VC (joined investing team 2021) supporting biotech and deep tech; co-founded Petri, a biotech incubator funded by Pillar. Outside investing, accelerates science via FutureHouse, Nucleate, and Homeworld Collective. Investments include Latent Labs, Nabla Bio, Portal Biotech, and Amber Bio. Public bio: https://www.pillar.vc/team/tony-kulesa/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/tony-kulesa from Pillar team page. X not found per tracking. Local name :tonyKulesa is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:thomasDeVlaam a schema:Person ;
+    schema:name "Thomas de Vlaam"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/pillar-vc#this> ;
+    schema:url <https://www.linkedin.com/in/thomas-de-vlaam-54848674> ;
+    owl:sameAs <https://linkedin.com/in/thomas-de-vlaam-54848674#this>,
+               <https://www.linkedin.com/in/thomas-de-vlaam-54848674#this> ;
+    schema:description "Partner at Pillar VC supporting founders bringing innovations to patients. Previously at Flagship Pioneering (founding team of Quotient Therapeutics); founder and CEO of Amylon Therapeutics (RNA therapeutics for rare neurodegenerative disease), spun out from ProQR Therapeutics where he was head of CNS innovation. Investments include Thymmune, Arvada Therapeutics, and Amplifyer Bio. Public bio: https://www.pillar.vc/team/thomas-de-vlaam/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/thomas-de-vlaam-54848674 from Pillar team page. Personal X on firm page not independently verified in tracking doc (not added). Local name :thomasDeVlaam is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:parkerMcKee a schema:Person ;
+    schema:name "Parker McKee"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/pillar-vc#this> ;
+    schema:url <https://www.linkedin.com/in/parker-mckee-491118a7> ;
+    owl:sameAs <https://linkedin.com/in/parker-mckee-491118a7#this>,
+               <https://www.linkedin.com/in/parker-mckee-491118a7#this> ;
+    schema:description "Partner at Pillar VC investing in next-generation networks, AI-powered apps, software infrastructure, crypto, and data systems. Joined full-time in 2018 after internships at .406 Ventures and summers at Pillar; built a mobile outsourcing platform in college. Investments include Higharc, Gekit, Reclaim, Acelab, OpenHands, Boolsi, Event Horizon Labs, Topologic, Mesoware, Leibniz, and Shopped. University of Michigan graduate; former varsity lacrosse captain. Public bio: https://www.pillar.vc/team/parker-mckee/"@en ;
+    rdfs:comment "LinkedIn is canonical. Tracking pass marked LinkedIn not found; firm Pillar team page publishes /in/parker-mckee-491118a7 (used here — not invented). X not found per tracking. Local name :parkerMcKee is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:rudinaSeseri a schema:Person ;
+    schema:name "Rudina Seseri"@en ;
+    schema:jobTitle "Founder & Managing Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/glasswing-ventures#this> ;
+    schema:url <https://www.linkedin.com/in/rudinaseseri> ;
+    owl:sameAs <https://linkedin.com/in/rudinaseseri#this>,
+               <https://www.linkedin.com/in/rudinaseseri#this> ;
+    schema:description "Founder and Managing Partner of Glasswing Ventures (Boston AI-native / frontier-tech seed). Leads investments in AI-native enterprise SaaS, cloud, IT software, and vertical markets; boards/investments include Reprise, Verusen, Inrupt, FeatureByte, Ship Angel, Telmai, Plannuh (acq. Planful), Zylotech (acq. Terminus), Celtra, CrowdTwist (acq. Oracle), among others. Former Microsoft Corporate Development; HBS Executive Fellow; MIT Connection Science Fellow; boards of M&T Bank and MSC Industrial Supply. BA Wellesley (magna cum laude), MBA HBS. Public bio: https://glasswing.vc/our-team/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/rudinaseseri from Glasswing team page. X not firm-verified in tracking. Company IRI https://linkedin.com/company/glasswing-ventures HTTP 200. Local name :rudinaSeseri is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:rickGrinnell a schema:Person ;
+    schema:name "Rick Grinnell"@en ;
+    schema:jobTitle "Founder & Managing Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/glasswing-ventures#this> ;
+    schema:url <https://www.linkedin.com/in/rickgrinnell> ;
+    owl:sameAs <https://linkedin.com/in/rickgrinnell#this>,
+               <https://www.linkedin.com/in/rickgrinnell#this> ;
+    schema:description "Founder and Managing Partner of Glasswing Ventures focused on AI-enabled security and enterprise infrastructure. Prior Managing Director at Fairhaven Capital; investments/boards include Allure Security, Black Kite, Realm.Security, Trustle, Digital Guardian (acq. HelpSystems), EqualLogic (acq. Dell), Prelert (acq. Elastic), Resilient Systems (acq. IBM), among others. Operating roles at Adero, ClearOne, and PictureTel; BS/MS EE MIT, MBA HBS. Public bio: https://glasswing.vc/our-team/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/rickgrinnell from Glasswing team page. X not found per tracking. Local name :rickGrinnell is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:vladSejnoha a schema:Person ;
+    schema:name "Vlad Sejnoha"@en ;
+    schema:jobTitle "Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/glasswing-ventures#this> ;
+    schema:url <https://www.linkedin.com/in/vladsejnoha> ;
+    owl:sameAs <https://linkedin.com/in/vladsejnoha#this>,
+               <https://www.linkedin.com/in/vladsejnoha#this> ;
+    schema:description "Partner at Glasswing Ventures with 30+ years in AI, ML, and NLP; widely regarded as a speech-recognition and NLP pioneer. Former SVP and CTO of Nuance (2001–2018), leading a ~350-person research organization for conversational AI; earlier Chief Scientist at Kurzweil AI. Holds 27 patents; BEng/MEng Electrical Engineering, McGill University. Public bio: https://glasswing.vc/our-team/"@en ;
+    rdfs:comment "LinkedIn is canonical. Slug /in/vladsejnoha from Glasswing team page. X not found per tracking. Local name :vladSejnoha is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:micahRosenbloom a schema:Person ;
+    schema:name "Micah Rosenbloom"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/founder-collective#this> ;
+    schema:url <https://www.linkedin.com/in/micah-rosenbloom-a0350> ;
+    owl:sameAs <https://linkedin.com/in/micah-rosenbloom-a0350#this>,
+               <https://www.linkedin.com/in/micah-rosenbloom-a0350#this> ;
+    schema:description "General Partner at Founder Collective (seed-only; Cambridge Harvard Square + NYC SoHo). Led investments in Verkada, Talos, Lovevery, Tropic, Trusted, Plated, Periscope, and more. Previously co-founded Handshake.com, Brontes Technologies (acquired by 3M), and Sample6 (acquired by IEH); teaches Thinking Like a VC at Cornell Tech. BS Cornell, MBA Harvard Business School. Public bio: https://foundercollective.com/team/micah-rosenbloom/"@en ;
+    rdfs:comment "LinkedIn is canonical. Tracking pass marked LinkedIn not found; firm Founder Collective team page publishes /in/micah-rosenbloom-a0350 (used here — not invented). Company IRI https://linkedin.com/company/founder-collective HTTP 200. X not found per tracking. Local name :micahRosenbloom is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:amandaHerson a schema:Person ;
+    schema:name "Amanda Herson"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/founder-collective#this> ;
+    schema:url <https://www.linkedin.com/in/amanda-herson-9616802> ;
+    owl:sameAs <https://linkedin.com/in/amanda-herson-9616802#this>,
+               <https://www.linkedin.com/in/amanda-herson-9616802#this> ;
+    schema:description "General Partner at Founder Collective (seed-stage; based in New York) with e-commerce and complex-business scaling experience. Previously Director of eCommerce and Board Member at Cape Union Mart (launched e-commerce; expanded to 300+ stores); Highland Consumer Fund; L Brands; Boston Consulting Group. BA Economics Wharton (UPenn), MBA Harvard Business School. Public bio: https://foundercollective.com/team/amanda-herson/"@en ;
+    rdfs:comment "LinkedIn is canonical. Tracking pass marked LinkedIn not found; firm Founder Collective team page publishes /in/amanda-herson-9616802 (used here — not invented). X not found per tracking. Local name :amandaHerson is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+:davidFrankel a schema:Person ;
+    schema:name "David Frankel"@en ;
+    schema:jobTitle "General Partner"@en ;
+    schema:worksFor <https://linkedin.com/company/founder-collective#this> ;
+    schema:url <https://www.linkedin.com/in/davidafrankel1> ;
+    owl:sameAs <https://linkedin.com/in/davidafrankel1#this>,
+               <https://www.linkedin.com/in/davidafrankel1#this> ;
+    schema:description "General Partner at Founder Collective; ranked #2 on the 2025 Midas Seed List. Lead investor for Founder Collective in Coupang (NYSE: CPNG), SeatGeek, PillPack (acquired by Amazon), Suno, and Shield AI; previously first capital into Olo (NYSE: OLO). Co-founder and CEO of Internet Solutions (largest ISP in Africa, acquired by NTT); co-founder of NextUp youth employment accelerator in South Africa. Honors Electrical Engineering (Wits), MBA with distinction HBS. Public bio: https://foundercollective.com/team/david-frankel/"@en ;
+    rdfs:comment "LinkedIn is canonical. Tracking pass marked LinkedIn not found; firm Founder Collective team page publishes /in/davidafrankel1 (used here — not invented). X not found per tracking. Local name :davidFrankel is a registry index label only. First registered 2026-09-14 by Phenny from Boston early VC tracking."@en ;
+    schema:dateCreated "2026-09-14T17:30:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── AI infrastructure and application leaders (2026-09-22) ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+
+:bradGerstner a schema:Person ;
+    schema:name "Brad Gerstner"@en ;
+    schema:jobTitle "Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/altimeter-capital#this> ;
+    schema:url <https://www.linkedin.com/in/bradgerstner> ;
+    owl:sameAs <https://linkedin.com/in/bradgerstner#this>,
+               <https://www.linkedin.com/in/bradgerstner#this>,
+               <https://x.com/altcap#this> ;
+    schema:description "Founder and CEO of Altimeter, a technology-focused investment firm; also a founder of Invest America."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/bradgerstner was verified from the public profile and Altimeter affiliation. X @altcap was verified through live profile metadata naming Brad Gerstner and Altimeter. Local name :bradGerstner is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:sunnyMadra a schema:Person ;
+    schema:name "Sunny Madra"@en ;
+    schema:jobTitle "Vice President"@en ;
+    schema:worksFor <https://linkedin.com/company/nvidia#this> ;
+    schema:url <https://www.linkedin.com/in/sundeepm> ;
+    owl:sameAs <https://linkedin.com/in/sundeepm#this>,
+               <https://www.linkedin.com/in/sundeepm#this>,
+               <https://x.com/sundeep#this> ;
+    schema:description "Vice President at NVIDIA; previously President and COO of Groq and a co-founder of Definitive Intelligence, Autonomic, and Xtreme Labs."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/sundeepm was verified from the public profile naming Sunny Madra and NVIDIA. X @sundeep was verified through live profile metadata naming Sunny Madra and NVIDIA, with prior Groq and founder roles. Local name :sunnyMadra is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:chaseLochmiller a schema:Person ;
+    schema:name "Chase Lochmiller"@en ;
+    schema:jobTitle "Co-Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/crusoe#this> ;
+    schema:url <https://www.linkedin.com/in/chase-lochmiller-604483341> ;
+    owl:sameAs <https://linkedin.com/in/chase-lochmiller-604483341#this>,
+               <https://www.linkedin.com/in/chase-lochmiller-604483341#this>,
+               <https://x.com/ChaseLochmiller#this> ;
+    schema:description "Co-founder and CEO of Crusoe, an energy-first AI infrastructure company."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/chase-lochmiller-604483341 was verified from the public profile and Crusoe activity. X @ChaseLochmiller was verified through live profile metadata naming Chase Lochmiller as CEO and co-founder of Crusoe. Local name :chaseLochmiller is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:aliGhodsi a schema:Person ;
+    schema:name "Ali Ghodsi"@en ;
+    schema:jobTitle "Co-Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/databricks#this> ;
+    schema:url <https://www.linkedin.com/in/alighodsi> ;
+    owl:sameAs <https://linkedin.com/in/alighodsi#this>,
+               <https://www.linkedin.com/in/alighodsi#this>,
+               <https://x.com/alighodsi#this> ;
+    schema:description "Co-founder and CEO of Databricks and a member of the University of California, Berkeley faculty."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/alighodsi was verified from the public profile and Databricks activity. X @alighodsi was verified through live profile metadata naming Ali Ghodsi as Databricks CEO and co-founder and UC Berkeley faculty. Local name :aliGhodsi is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:sachinKatti a schema:Person ;
+    schema:name "Sachin Katti"@en ;
+    schema:jobTitle "Vice President, Compute Strategy and GPT-Infra"@en ;
+    schema:worksFor <https://linkedin.com/company/openai#this> ;
+    schema:url <https://www.linkedin.com/in/sachin-katti-72777943> ;
+    owl:sameAs <https://linkedin.com/in/sachin-katti-72777943#this>,
+               <https://www.linkedin.com/in/sachin-katti-72777943#this>,
+               <https://x.com/sk7037#this> ;
+    schema:description "Vice President of Compute Strategy and GPT-Infra at OpenAI; previously an Intel executive and Stanford professor."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/sachin-katti-72777943 was verified from the public profile naming OpenAI and the current Compute Strategy and GPT-Infra role. X @sk7037 was verified through live profile metadata identifying compute scaling at OpenAI. Local name :sachinKatti is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:yashPatil a schema:Person ;
+    schema:name "Yash Patil"@en ;
+    schema:jobTitle "Co-Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/appliedcompute#this> ;
+    schema:url <https://www.linkedin.com/in/yash-s-patil> ;
+    owl:sameAs <https://linkedin.com/in/yash-s-patil#this>,
+               <https://www.linkedin.com/in/yash-s-patil#this>,
+               <https://x.com/ypatil125#this> ;
+    schema:description "Co-founder and CEO of Applied Compute, which builds custom enterprise models and agent systems."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/yash-s-patil was verified from the public profile and Applied Compute activity. X @ypatil125 was verified both from the LinkedIn profile activity and live profile metadata naming Yash Patil as co-founder and CEO of Applied Compute. Local name :yashPatil is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:tuhinSrivastava a schema:Person ;
+    schema:name "Tuhin Srivastava"@en ;
+    schema:jobTitle "Co-Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/baseten#this> ;
+    schema:url <https://x.com/tuhinone> ;
+    owl:sameAs <https://x.com/tuhinone#this> ;
+    schema:description "Co-founder and CEO of Baseten, an AI inference infrastructure company."@en ;
+    rdfs:comment "X is canonical because no definitive personal LinkedIn profile URL could be verified; similarly named LinkedIn results referred to other people. X @tuhinone was corroborated by Baseten's company account and verified through live profile metadata naming Tuhin Srivastava and Baseten. Local name :tuhinSrivastava is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:guillermoRauch a schema:Person ;
+    schema:name "Guillermo Rauch"@en ;
+    schema:jobTitle "Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/vercel#this> ;
+    schema:url <https://www.linkedin.com/in/rauchg> ;
+    owl:sameAs <https://linkedin.com/in/rauchg#this>,
+               <https://www.linkedin.com/in/rauchg#this>,
+               <https://x.com/rauchg#this> ;
+    schema:description "Founder and CEO of Vercel and a creator of Next.js."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/rauchg was verified from the public profile naming Vercel. X @rauchg was verified through live profile metadata identifying him as Vercel CEO. Local name :guillermoRauch is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:ericKaudererAbrams a schema:Person ;
+    schema:name "Eric Kauderer-Abrams"@en ;
+    schema:jobTitle "Head of Biology and Life Sciences"@en ;
+    schema:worksFor <http://dbpedia.org/resource/Anthropic> ;
+    schema:url <https://www.linkedin.com/in/eric-kauderer-abrams-0ba5864a> ;
+    owl:sameAs <https://linkedin.com/in/eric-kauderer-abrams-0ba5864a#this>,
+               <https://www.linkedin.com/in/eric-kauderer-abrams-0ba5864a#this> ;
+    schema:description "Head of Biology and Life Sciences at Anthropic, focused on applying AI to scientific research and life-sciences workflows."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/eric-kauderer-abrams-0ba5864a was verified from the public profile naming Anthropic and his Head of Biology and Life Sciences role. No personal X profile URL was verified, so none is asserted. Anthropic's canonical organization IRI is reused from entities/organizations.ttl. Local name :ericKaudererAbrams is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .
+
+:joshuaMeier a schema:Person ;
+    schema:name "Joshua Meier"@en ;
+    schema:alternateName "Josh Meier"@en ;
+    schema:jobTitle "Co-Founder and Chief Executive Officer"@en ;
+    schema:worksFor <https://linkedin.com/company/chaidiscovery#this> ;
+    schema:url <https://www.linkedin.com/in/joshua-meier-27a6861a> ;
+    owl:sameAs <https://linkedin.com/in/joshua-meier-27a6861a#this>,
+               <https://www.linkedin.com/in/joshua-meier-27a6861a#this>,
+               <https://x.com/joshim5#this> ;
+    schema:description "Co-founder and CEO of Chai Discovery, which develops AI systems for molecular and drug design."@en ;
+    rdfs:comment "LinkedIn is canonical. LinkedIn /in/joshua-meier-27a6861a was verified from the public profile naming Chai Discovery; the table's 'Josh Meier' is recorded as an alternate name. X @joshim5 was verified through live profile metadata naming Joshua Meier as a Chai Discovery co-founder. Local name :joshuaMeier is a registry index label only. First registered 2026-09-22 from the AI leaders long/short table."@en ;
+    schema:dateCreated "2026-09-22T00:00:00Z"^^xsd:dateTime .

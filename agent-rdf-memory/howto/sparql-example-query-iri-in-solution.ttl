@@ -11,6 +11,7 @@
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :iriInSolutionGate ;
     rdfs:seeAlso <../preferences.ttl#step-sparqlExampleQueryIriInSolution>,
+        <../preferences.ttl#step-spasqlIriInSolution>,
         <sparql-sample-query-self-containment-gate.ttl>,
         <sparql-explore-query-as-url.ttl>,
         <hyperlink-sparql-urls.ttl>,
@@ -21,7 +22,8 @@
     schema:name "IRI-in-Solution Gate for Example SPARQL Queries"@en ;
     schema:description "Pre-publication check applied to every schema:SoftwareSourceCode SPARQL entity and every query rendered into a workbench, sample-query card, recipe dropdown, or chat answer."@en ;
     schema:step :step-whyItMatters, :step-theRule, :step-namingConvention,
-        :step-aggregateForms, :step-graphForms, :step-verifyCheck .
+        :step-aggregateForms, :step-graphForms, :step-verifyCheck,
+        :step-spasqlAndSqlForms, :step-superKeyRationale .
 
 :step-whyItMatters a schema:HowToStep ;
     schema:position 1 ;
@@ -84,3 +86,21 @@ SAMPLE() is the light-touch option and matches the canonical entity-census recip
 One caveat that will bite: a query designed to return ZERO rows (an anti-join proving an absence, e.g. 'risks with no proposal attached') has no bindings to inspect, so this check reports no IRI even when the projection is correct. Read the SELECT clause by hand for those, and do not 'fix' a correct query on the strength of an empty result set.
 
 This check is cheap and belongs in the same pass as the existing live-execution verification in live-sparql-verification-against-loaded-graph.ttl — the queries are already being run; only the assertion is new."""@en .
+
+:step-spasqlAndSqlForms a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "The rule covers SPASQL and SQL-over-SPARQL: project the IRI in the inner SELECT, carry it through, lead the outer SELECT with it"@en ;
+    schema:text """Added 2026-09-30 after two SPASQL recipes in the Neo4j scale-AI meshup shipped without IRIs. Corrected form, supplied by Kingsley:
+
+SELECT c, cluster_name, ram_gb, dbs, ...
+FROM (SPARQL ... SELECT ?c ?cluster_name ?ram_gb (COUNT(?db) AS ?dbs) ... GROUP BY ?c ?cluster_name ?ram_gb) AS x
+ORDER BY dbs DESC
+
+Put the IRI variable in the inner projection and in GROUP BY, name it plainly (?c, ?tenant_iri), and select it first in the outer statement. Avoid SQL reserved words as aliases: 'cluster' raised a syntax error in a derived-table alias and column list. Exempt: DESCRIBE, CONSTRUCT and SQL that returns text rather than entities, such as sparql_to_sql_text. The live check is the same as step 6: execute each recipe and confirm an IRI is returned."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-spasqlIriInSolution> .
+
+:step-superKeyRationale a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Why: a hyperlink IRI is a super-key, and a result that hides it hides the point"@en ;
+    schema:text """A name identifies a row inside one table. The IRI identifies the entity across tables, graphs and documents, resolves to a description, and joins to anything else that names the same thing. Surfacing it in query results is what makes that lookup effect visible, so it is part of the demonstration and not decoration. This is also why the IRI column leads the result and each solution row stays something a reader can follow."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-spasqlIriInSolution> .

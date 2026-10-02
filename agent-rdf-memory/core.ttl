@@ -80,7 +80,7 @@
 
 :userPrincipalCredentials a schema:PropertyValue ;
     schema:name "User principal PKCS#12 bundle (link-in-bio-credentials-5)"@en ;
-    schema:description "Kingsley's principal WebID-TLS credential bundle — cert.p12 (plus cert.pem, cert.crt, profile.ttl, certificate.ttl siblings). WebID SAN: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid, owl:sameAs the canonical identity https://www.linkedin.com/in/kidehen#this. Passphrase is never stored here — resolved at unlock time via the chain in howto/p12-passphrase-retrieval.ttl (macOS Keychain item uriburner-p12 first, then user elicitation), and never printed, logged, or persisted. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user."@en ;
+    schema:description "Kingsley's principal WebID-TLS credential bundle — cert.p12 (plus cert.pem, cert.crt, profile.ttl, certificate.ttl siblings). WebID SAN: https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/link-in-bio-credentials-5/index.html#netid, owl:sameAs the canonical identity https://www.linkedin.com/in/kidehen#this. Passphrase is never stored here — resolved only from the macOS Keychain item uriburner-p12 per howto/p12-passphrase-retrieval.ttl; if access fails or the item is empty, stop and ask the user to resolve secure-store access. Never use a plaintext-file fallback, and never print, log, or persist the passphrase. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user."@en ;
     schema:value "{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12" ;
     schema:dateCreated "2026-08-16"^^xsd:date .
 
@@ -101,6 +101,12 @@
     schema:description "PRIMARY source for the link-in-bio-agent-credentials cert.p12 unlock passphrase, LIVE as of 2026-08-31. Generic-password item; read with: security find-generic-password -s uriburner-agent-p12 -a \"$USER\" -w. Created with -T /usr/bin/security so reads are non-interactive. A DISTINCT keychain item from :p12PassphraseKeychainItem — the two p12 passphrases (principal vs agent delegate) are never shared or overloaded onto one entry, same pattern as :virtuosoLocalDbaPasswordKeychainItem and :ubIsqlPasswordKeychainItem. Migrated via /tmp/uyi with the user's explicit permission (first attempt used a stale/wrong value under key AGENT_P12_PWD and failed openssl Mac verification; the user corrected it under key AGENT_PWD on retry, which verified successfully). VERIFIED end-to-end 2026-08-31: unlocks cert.p12 via openssl (subject CN=Kingsley Idehen's Agent confirmed, valid 2026-06-18 to 2027-06-18). /tmp/uyi was discarded immediately after each read at the user's explicit instruction — it is not a standing fallback source for this item. The value itself is never recorded here or anywhere in this repository."@en ;
     schema:value "security find-generic-password -s uriburner-agent-p12 -a \"$USER\" -w" ;
     schema:dateCreated "2026-08-31"^^xsd:date .
+
+:wwwDavPasswordKeychainItem a schema:PropertyValue ;
+    schema:name "www.openlinksw.com DAV kidehen account password — macOS Keychain item"@en ;
+    schema:description "Digest-authentication password for the kidehen account on the www.openlinksw.com WebDAV, LIVE as of 2026-09-30. Generic-password item; read with: security find-generic-password -s kidehen-www-dav -a kidehen -w. Created by the user with -T /usr/bin/security so reads are non-interactive. A DISTINCT item from the older www.openlinksw.com internet-password entry, which the server rejected with 401, and from the URIBurner items; never shared or overloaded. Verified by a successful PUT (201) of a collection .html to /DAV/www2.openlinksw.com/data/html/. The value itself is never recorded here or anywhere in this repository."@en ;
+    schema:value "security find-generic-password -s kidehen-www-dav -a kidehen -w" ;
+    schema:dateCreated "2026-09-30"^^xsd:date .
 
 :virtuosoLocalDbaPasswordKeychainItem a schema:PropertyValue ;
     schema:name "Local Virtuoso dba account password — macOS Keychain item"@en ;

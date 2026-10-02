@@ -9,7 +9,7 @@
     schema:name "Entity Registry: Organizations"@en ;
     schema:description "Canonical schema:Organization entity IRIs for companies and institutions recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving an organization entity, and MUST register newly resolved organization IRIs here rather than only in session files."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-09-28T16:57:41Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-28T15:30:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :openlinkSoftware,
         :afterQuery, :sapSE, :yCombinator, :forbes, :spaceX, :spaceXAI, :oIGlass, :huggingFace,
@@ -22,7 +22,7 @@
         :bitbang, :dnv, :contentRules, :roche, :avalara, :americanSpeechLanguageHearingAssociation, :altuent, :iiug, :idug, :jpmorganchase, :mercor, :legora,
         :metacognitionAI, :morganStanley, :paystack, :smileID, :systemspecs, :youverify, :flutterwave, :prembly, :mono, :anchor, :deloitte, :pwc, :kpmg,
         :evercore, :quartr, :crunchbase, :lseg, :daloopa, :pitchbook, :shopify, :polywood, :bruntWorkwear, :aldoGroup, :abbottLyon, :redmond, :snocks,
-        :davidSBridal, :keen, :maggyLondon, :stripe, :lovable, :squarespace, :decagon, :tekion, :elevenlabs, :browserbase, :etsy, :fanatics, :stratechery ;
+        :davidSBridal, :keen, :maggyLondon, :stripe, :lovable, :squarespace, :decagon, :tekion, :elevenlabs, :browserbase, :etsy, :fanatics ;
     rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl> .
 
@@ -1673,17 +1673,3 @@
     owl:sameAs <http://dbpedia.org/resource/Fanatics,_Inc.> ;
     rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :fanatics is a registry index label only."@en ;
     schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
-
-# ── Stratechery ────────────────────────────────────────────────────────────────
-#
-# Canonical IRI: https://stratechery.com/#this
-# Priority ladder: homepage #this (official Stratechery homepage and About page)
-#
-
-:stratechery a schema:Organization ;
-    schema:name "Stratechery"@en ;
-    schema:description "Stratechery by Ben Thompson — a publication about the business, strategy, and impact of technology."@en ;
-    schema:url <https://stratechery.com/> ;
-    owl:sameAs <https://stratechery.com/#this> ;
-    rdfs:comment "Canonical entity IRI is the official homepage #this form, verified from https://stratechery.com/ and https://stratechery.com/about/ on 2026-09-28. Local name :stratechery is a registry index label only. First registered 2026-09-28 by ibps."@en ;
-    schema:dateCreated "2026-09-28T16:57:41Z"^^xsd:dateTime .

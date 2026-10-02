@@ -39,7 +39,7 @@
     schema:text """For every HTTP, WebDAV, and iSQL removal attempt:
 
 1. PKCS#12 path from core.ttl :userPrincipalCredentials (not a mid-task find): {CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12
-2. Passphrase resolves keychain-first: macOS Keychain item uriburner-p12 (SOLE source — the /tmp/uyi fallback is HISTORICAL, that file was deleted 2026-08-25; see p12-passphrase-retrieval.ttl). Export to MTLS_PKCS12_PW. Never print, log, or store it.
+2. Passphrase comes only from macOS Keychain item uriburner-p12 (see p12-passphrase-retrieval.ttl). If Keychain access fails, stop and ask the user to resolve secure-store access. Export to MTLS_PKCS12_PW. Never print, log, or store it.
 3. curl MUST use --cert-type P12 --cert {p12-path} --pass \"$MTLS_PKCS12_PW\". Do not extract a PEM to TMPDIR. Do not pass --cert file.p12:password.
 4. iSQL MUST use the same p12 path as -X {p12-path} and the same env passphrase as the third positional argument (never a literal in the shown command).
 5. unset MTLS_PKCS12_PW when finished."""@en ;
