@@ -1,0 +1,44 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/meshup-fragment-links-and-vendor-fairness.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 317. Corrections from the 2026-10-02 Databricks agentic-marketing meshup: in-text references get fragment hyperlinks, ODBC transfer is not a cost of the Virtuoso path, natural-language access and reasoning-based identity reconciliation are credited to Virtuoso, and an axis is demonstrated on the demo data or dropped."@en ;
+    schema:dateCreated "2026-10-02T19:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-10-02T19:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Meshup comparisons: fragment links for in-text references, and fair treatment of the Virtuoso side"@en ;
+    schema:description "Five rules stated by Kingsley on 2026-10-02 while correcting the Databricks agentic-marketing collection. They sit beside the 2026-09-30 scoring rules (preferences.ttl Step 314) and apply to every vendor-versus-Virtuoso meshup."@en ;
+    schema:step :step-fragmentLinks, :step-odbcTransfer, :step-naturalLanguage, :step-identityReasoning, :step-demonstrateOrDrop ;
+    rdfs:seeAlso <../preferences.ttl#step-meshupFragmentLinksVendorFairness> .
+
+:step-fragmentLinks a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Every in-text reference to something on the page is a fragment hyperlink to its section or card"@en ;
+    schema:text "Stated 2026-10-02 about the phrase 'Demo already holds such an attachment': utterances like it need the relevant fragment id hyperlink that takes the reader to the relevant section. Apply it to Query N references, the ODBC attachment, the ontology, the rewrite rules, the identity graph and the harness, in the comparison table, the FAQ and the narrative. Give each card an id and open any collapsed ancestor container when the fragment is followed, otherwise the link lands on nothing visible."@en .
+
+:step-odbcTransfer a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Reading Databricks rows over ODBC is the same transfer any Databricks client makes; never list it as a cost of the Virtuoso path"@en ;
+    schema:text "Stated 2026-10-02 against the sentence 'rows travel over ODBC at query time': that is the same travel time as any Databricks client, including Databricks' own. The only extra step the complementary path needs is the privacy review of the columns a mapping publishes."@en .
+
+:step-naturalLanguage a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "All Virtuoso interactions, administrative or querying, can be natural language over the Semantic Web the RDF Views generate; this is never a disadvantage against Databricks"@en ;
+    schema:text "Stated 2026-10-02 against a measurement-breadth row that omitted it. Any analysis that Databricks names as a method can be asked for in natural language against the same linked data, so a count of named methods is not a Virtuoso gap. Do not leave natural-language access out of a Virtuoso position."@en .
+
+:step-identityReasoning a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Identity reconciliation by ontology-based reasoning is Virtuoso's strongest feature and cannot be scored as a Databricks win standalone"@en ;
+    schema:text "Stated 2026-10-02: Virtuoso applies reasoning to identity natively, explicitly through owl:sameAs and implicitly through an owl:InverseFunctionalProperty designation, with no third-party dependency; attaching Databricks data over ODBC brings it to bear on that data; for master lookups OpenLink hosts DBpedia and many enclaves of the LOD Cloud (stated by OpenLink). Demonstrated on demo the same day over a physical identity graph: a customer known by 2 names with explicit sameAs became 4 once ckg:emailHash was declared inverse functional. Caveats found: owl:sameAs merging did not reach across the RDF View, so derive the facts into a physical graph; the signed-in XMLA route returned 7 rows in half a second while the anonymous HTTP endpoint returned 100,000 repeated rows, so verify on the route the reader will use."@en .
+
+:step-demonstrateOrDrop a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "If the Virtuoso side of an axis can be simulated on the demo data, simulate it; if an axis cannot be rated objectively, drop the row"@en ;
+    schema:text "Stated 2026-10-02 about the activation row: an article's claim is not evidence for a lean, and 'no live Virtuoso demo' is not a reason to credit the other side when the demo data makes one easy. The activation row was settled by building a consent-checked activation queue as a query, 12 rows with the suppressions and holdouts excluded by the join. A row that can be neither demonstrated nor rated objectively is removed, not parked at Even."@en .

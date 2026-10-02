@@ -2043,3 +2043,15 @@
     rdfs:seeAlso <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl> .
 
 :sessionIndex schema:itemListElement :session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup .
+
+# ── 2026-10-02: Claude Sonnet 5.5 + Claude Code — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory and ODBC-attached tables, live CustomerKG demo ──
+
+:session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup a schema:ListItem ;
+    schema:position 1191 ;
+    schema:item <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-02 (Claude Sonnet 5.5 + Claude Code — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory and Databricks tables attached over ODBC, with a live CustomerKG RDF View on demo.openlinksw.com)"@en ;
+    schema:description "Turtle + HTML collection: 12-table synthetic estate, 1,160-triple RDF View, rewrite rules, an identity graph reconciled by owl:sameAs and owl:InverseFunctionalProperty reasoning, and fourteen live queries grouped by server, function and language. Re-scored twice on the evidence to 0 Databricks / 11 Virtuoso / 2 Even after the stale-checkout cause of a scoring bias was found. Added Step 317 (meshup fragment links and vendor fairness) and fixed the shared KG Explorer core view so it has no orphan nodes. Uploaded to the URIBurner DAV daas/ folder."@en ;
+    rdfs:seeAlso <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl>,
+        <howto/meshup-fragment-links-and-vendor-fairness.ttl> .
+
+:sessionIndex schema:itemListElement :session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup .

@@ -3831,3 +3831,10 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/rdf-view-ontology-mandatory.ttl>,
         <howto/rdf-view-rewrite-rules-mandatory.ttl> .
 
+# ── Step 317: meshup fragment links and fair treatment of the Virtuoso side ──
+:step-meshupFragmentLinksVendorFairness a schema:HowToStep ;
+    schema:position "317"^^xsd:integer ;
+    schema:name "Meshups: hyperlink in-text references to their section by fragment id, never count ODBC transfer against Virtuoso, credit natural-language access and reasoning-based identity reconciliation to Virtuoso, and demonstrate an axis or drop the row"@en ;
+    schema:text "Link every in-text reference such as Query N or the ODBC attachment to its card or section, and follow the five corrections recorded in the howto."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/meshup-fragment-links-and-vendor-fairness.ttl> .
