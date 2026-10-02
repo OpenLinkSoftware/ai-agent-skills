@@ -3831,3 +3831,12 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/rdf-view-ontology-mandatory.ttl>,
         <howto/rdf-view-rewrite-rules-mandatory.ttl> .
 
+# ── Step 316: SPASQL sign-in notice on RDF Views demos at demo.openlinksw.com ──
+:step-demoSpasqlSigninNotice a schema:HowToStep ;
+    schema:position "316"^^xsd:integer ;
+    schema:name "Every SPASQL query in an RDF Views demo on demo.openlinksw.com carries a notice to authenticate as demo or vdb, user id and password identical; the instance is protected by ABAC ACLs"@en ;
+    schema:text "Show the sign-in notice on each SPASQL and SQL card, its group heading, the FAQ and HowTo, and as schema:conditionsOfAccess in the companion TTL."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/demo-spasql-signin-notice.ttl>,
+        <howto/spasql-example-live-link.ttl>,
+        <howto/sql-ddl-batch-script-and-verification.ttl> .
