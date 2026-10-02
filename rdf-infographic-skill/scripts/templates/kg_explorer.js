@@ -19,11 +19,32 @@ function initKGExplorer(config) {
     var sorted = kgData.nodes.slice().sort(function(a, b) { return (degMap[b.id] || 0) - (degMap[a.id] || 0); });
     var coreNodes = sorted.slice(0, 30);
     var coreIds = new Set(coreNodes.map(function(n) { return n.id; }));
-    var coreLinks = kgData.links.filter(function(l) {
-      var src = typeof l.source === 'object' ? l.source.id : l.source;
-      var tgt = typeof l.target === 'object' ? l.target.id : l.target;
-      return coreIds.has(src) && coreIds.has(tgt);
+    var nodeById = {};
+    kgData.nodes.forEach(function(n) { nodeById[n.id] = n; });
+    function endpoints(l) {
+      return [typeof l.source === 'object' ? l.source.id : l.source, typeof l.target === 'object' ? l.target.id : l.target];
+    }
+    function linksWithin(ids) {
+      return kgData.links.filter(function(l) { var e = endpoints(l); return ids.has(e[0]) && ids.has(e[1]); });
+    }
+    var coreLinks = linksWithin(coreIds);
+    // A busy node whose neighbours are all low-degree (typically a class that many instances point to via rdf:type)
+    // would otherwise be left in the core view with every edge cut. Pull in its best-connected neighbours so it is attached.
+    var attached = new Set();
+    coreLinks.forEach(function(l) { var e = endpoints(l); attached.add(e[0]); attached.add(e[1]); });
+    coreNodes.slice().forEach(function(n) {
+      if (attached.has(n.id)) return;
+      var neighbours = [];
+      kgData.links.forEach(function(l) {
+        var e = endpoints(l);
+        if (e[0] === n.id) neighbours.push(e[1]); else if (e[1] === n.id) neighbours.push(e[0]);
+      });
+      neighbours.sort(function(a, b) { return (degMap[b] || 0) - (degMap[a] || 0); });
+      neighbours.slice(0, 2).forEach(function(id) {
+        if (!coreIds.has(id) && nodeById[id]) { coreIds.add(id); coreNodes.push(nodeById[id]); }
+      });
     });
+    coreLinks = linksWithin(coreIds);
     return {
       core: { nodes: coreNodes, links: coreLinks },
       full: kgData
@@ -128,6 +149,14 @@ function initKGExplorer(config) {
       var tgt = typeof l.target === 'object' ? l.target.id : l.target;
       return activeNodeIds.has(src) && activeNodeIds.has(tgt);
     });
+
+    // Only nodes that appear in at least one active link are drawn; a node with every edge filtered out is an orphan.
+    var linkedIds = new Set();
+    filteredLinks.forEach(function(l) {
+      linkedIds.add(typeof l.source === 'object' ? l.source.id : l.source);
+      linkedIds.add(typeof l.target === 'object' ? l.target.id : l.target);
+    });
+    filteredNodes = filteredNodes.filter(function(n) { return linkedIds.has(n.id); });
 
     var nodeCount = document.getElementById('kgNodeCount');
     var linkCount = document.getElementById('kgLinkCount');
