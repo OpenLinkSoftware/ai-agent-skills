@@ -147,12 +147,13 @@
         <howto/filesystem-path-verification.ttl>,
         <howto/model-identity-resolution.ttl> ;
     schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
-        :step-modelIdentityPreflight, :step-defaultOutputRoot,
+        :step-gpt6CodexOutputDirs, :step-modelIdentityPreflight, :step-defaultOutputRoot,
         :step-modelOverEnvironment, :step-noPromptModelOverride, :step-modelIdentityResolution,
         :step-artifactPlacement, :step-screencastDistributionArtifacts,
         :step-screencastPresentationNaming, :step-screencastEmbedMp4,
         :step-remoteWebdavUpload, :step-remoteUploadOrder, :step-remoteRemovalOrder,
-        :step-markdownNotUploadedByDefault, :step-savedPromptsFolder, :step-filesystemPathVerification .
+        :step-markdownNotUploadedByDefault, :step-savedPromptsFolder, :step-filesystemPathVerification,
+        :step-publishUbWeblogToWww .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
 
@@ -276,7 +277,8 @@
         :step-retrievalToolOrder, :step-opalSessionVocabulary,
         :step-uriburnerOAuthAuthCodeFlow,
         :step-webdavWeblogEngineGate,
-        :step-meshupPromptStyle .
+        :step-meshupPromptStyle,
+        :step-meshupHarnessSkillsAreVirtuosoSide .
 
 # ── 8. Virtuoso & SPARQL ────────────────────────────────────────────────────
 
@@ -288,7 +290,29 @@
         <howto/sparql-example-query-iri-in-solution.ttl> ;
     schema:step :step-virtuosoSparqlFormats,
         :step-virtuosoWorkbenchQueryDedup,
-        :step-sparqlExampleQueryIriInSolution .
+        :step-sparqlExampleQueryIriInSolution,
+        :step-spasqlIriInSolution,
+        :step-rdfViewRewriteRulesMandatory,
+        :step-rdfViewOntologyMandatory .
+
+# ── Step 315: publishing UB weblog HTML to the www blog ─────────────────────
+:step-publishUbWeblogToWww a schema:HowToStep ;
+    schema:position "315"^^xsd:integer ;
+    schema:name "When publishing HTML from the UB weblog to the www blog, rewrite companion links that would 404 on www, with the user's approval per file and verified upload"@en ;
+    schema:text "Follow the howto: approve by number, rewrite same-folder companion links to their URIBurner URLs in the www copy, upload with Digest, and verify byte for byte."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/publish-ub-weblog-html-to-www-blog.ttl>,
+        <howto/publish-ub-weblog-html-to-www-blog.ttl#step-companionLinks>,
+        <howto/remote-webdav-upload.ttl> .
+
+# ── Step 314: the harness's skills count as Virtuoso-side capabilities in a meshup ──
+:step-meshupHarnessSkillsAreVirtuosoSide a schema:HowToStep ;
+    schema:position "314"^^xsd:integer ;
+    schema:name "In a meshup against Virtuoso with agent-rdf-memory deployed, the harness's skills are Virtuoso-side capabilities, including generating ontologies and instance data from text"@en ;
+    schema:text "Never describe the Virtuoso side as limited to its in-product generators when a harness skill covers the same ground."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/meshup-harness-skills-count-as-virtuoso-side.ttl>,
+        <howto/meshup-prompt-style.ttl> .
 
 # ── 9. Terminology & Conventions ────────────────────────────────────────────
 
@@ -350,6 +374,14 @@
 :step-gpt5ChatCodexOutputDirs a schema:HowToStep ;
     schema:position 3 ;
     schema:name "GPT-5 Chat Codex writes generated collections to GPT5-Chat-Generated root folders"@en ;
+    rdfs:seeAlso <howto/artifact-routing.ttl> .
+
+# ── GPT-6 Codex Desktop Output Dirs ──────────────────────────────────────────
+
+:step-gpt6CodexOutputDirs a schema:HowToStep ;
+    schema:position 309 ;
+    schema:name "GPT-6 in Codex Desktop writes generated collections under GPT-6 Generated"@en ;
+    schema:text "For GPT-6 running in Codex Desktop, write generated RDF, Markdown, and HTML collections to {LLM_ROOT}/GPT-6 Generated/rdf/, {LLM_ROOT}/GPT-6 Generated/md/, and {LLM_ROOT}/GPT-6 Generated/webpages/. Keep the model ID in artifact names as appropriate; do not route GPT-6 output to GPT5-Chat-Generated/."@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl> .
 
 # ── Step 2.2: Terminology — Mashup vs Meshup ─────────────────────────────────
@@ -2226,12 +2258,12 @@ Applies alongside step-screencastDistributionArtifacts (routing) and step-screen
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/reuse-proven-patterns.ttl> .
 
-# ── Step 160: /tmp/uyi PKCS#12 passphrase file format ───────────────────────
+# ── Step 160: retired plaintext-file credential procedure; historical pointer only ──
 
 :step-p12PassphraseUyiFile a schema:HowToStep ;
     schema:position 160 ;
-    schema:name "When PKCS#12 password is in /tmp/uyi (or user-named path): each line is KEY=VALUE — unlock with the VALUE of the first pair only"@en ;
-    schema:text """Stated by the user 2026-07-30 after the agent failed to unlock link-in-bio-credentials-5/cert.p12 by treating whole lines of /tmp/uyi as bare passwords. SUPERSEDED AS PRIMARY 2026-08-18 by :step-p12PassphraseKeychainFirst — /tmp/uyi is now the FALLBACK, not the first source. Its parse remains exactly as recorded: lines are KEY=VALUE pairs; the principal p12 passphrase is the substring after the first '=' on the first non-empty line (first key-pair value). Never use the whole line, the key, or concatenated lines unless the user explicitly says otherwise. Never print, log, or store the value in memory files. Companion: howto/p12-passphrase-retrieval.ttl. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user."""@en ;
+    schema:name "HISTORICAL ONLY — the former plaintext-file PKCS#12 credential procedure is retired and must not be used"@en ;
+    schema:text """Historical note: on 2026-07-30, the user corrected a parsing mistake involving a temporary KEY=VALUE credential hand-off. That procedure was retired when the temporary file was deleted on 2026-08-25. Do not read, recreate, or use a temporary credential file as a fallback. The active principal PKCS#12 passphrase procedure is in howto/p12-passphrase-retrieval.ttl and uses the approved native secret store; if access fails, stop and ask the user to resolve it."""@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl>, <howto/session-governance.ttl>, <howto/verified-identity.ttl> .
 
@@ -2805,7 +2837,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 
 :step-remoteRemovalOrder a schema:HowToStep ;
     schema:position 215 ;
-    schema:name "BLOCKING GATE — remote removals try HTTP DELETE first, then WebDAV, then iSQL; all three use the principal PKCS#12 file path and /tmp/uyi passphrase, never a TMPDIR PEM extract"@en ;
+    schema:name "BLOCKING GATE — remote removals try HTTP DELETE first, then WebDAV, then iSQL; all three use the principal PKCS#12 file path and Keychain-only passphrase retrieval, never a temporary plaintext credential or TMPDIR PEM extract"@en ;
     schema:text "2026-08-18: after URIBurner daas uploads of grok-bot-fourth-moment-of-ai-grok_4_6-1.md and .jsonld, HTTP DELETE on :5443 with --cert-type P12 --cert {principal-p12} --pass $MTLS_PKCS12_PW returned 204; sql:DAV_DELETE and PEM-in-TMPDIR curl were the wrong first moves. Verify the user-named public URL, slash variants, :5443 GET, and the folder listing before claiming the remote object is gone. Full procedure in howto/remote-resource-removal.ttl."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/remote-resource-removal.ttl>,
@@ -2816,7 +2848,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 
 :step-remoteUploadOrder a schema:HowToStep ;
     schema:position 216 ;
-    schema:name "BLOCKING GATE — remote uploads try HTTP PUT first, then WebDAV, then iSQL; same principal PKCS#12 file path and Keychain-resolved passphrase as removals (was /tmp/uyi until its deletion 2026-08-25), never a TMPDIR PEM extract"@en ;
+    schema:name "BLOCKING GATE — remote uploads try HTTP PUT first, then WebDAV, then iSQL; use the principal PKCS#12 file path and Keychain-only passphrase retrieval, never a temporary plaintext credential or TMPDIR PEM extract"@en ;
     schema:text "2026-08-18: user presumed the HTTP/WebDAV/iSQL order and credentials pattern also cover uploads. They do now. First attempt is HTTP PUT to https://linkeddata.uriburner.com:5443{dav-path} with --cert-type P12 --cert {principal-p12} --pass $MTLS_PKCS12_PW. Port 443 PUT returns 401 because that listener does not consume the client cert. Verify :5443 GET and the public 443 GET separately — a :5443 200 plus a 443 401 means the file is stored but not anonymously readable. Procedure: howto/remote-webdav-upload.ttl."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/remote-webdav-upload.ttl>,
@@ -2895,16 +2927,15 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     rdfs:seeAlso <howto/card-description-truncation-gate.ttl#step-singleItemFeatureBlock>,
         <howto/kg-curation-attribution.ttl> .
 
-# ── Step 224: PKCS#12 passphrase resolves from macOS Keychain first, /tmp/uyi as fallback ──
+# ── Step 224: principal PKCS#12 passphrase resolves from the native secret store only ──
 
 :step-p12PassphraseKeychainFirst a schema:HowToStep ;
     schema:position 224 ;
-    schema:name "Resolve the principal PKCS#12 passphrase from the macOS Keychain item uriburner-p12 FIRST, falling back to the /tmp/uyi first KEY=VALUE, then eliciting — and guard any keychain read the agent did not create with perl alarm, since `timeout` does not exist on stock macOS"@en ;
-    schema:text "2026-08-18: agent observed /tmp/uyi is mode -rw-r--r-- — a live credential in world-readable plaintext in a shared directory — and verified via a throwaway probe item that a keychain entry created with -T /usr/bin/security reads back non-interactively; the user approved making keychain primary. /tmp/uyi WAS DELETED 2026-08-25 at the user's instruction — that fallback branch is HISTORICAL and must not be reinstated; the Keychain item is now the sole source, and if it reads empty, STOP and elicit from the user." ;
+    schema:name "Resolve the principal PKCS#12 passphrase from the macOS Keychain item uriburner-p12 only; if unavailable, stop and ask the user to resolve secure-store access"@en ;
+    schema:text "The macOS Keychain item uriburner-p12 is the sole source for the principal PKCS#12 passphrase on this host. Guard CLI reads with Perl alarm when needed. If the item is empty, unreadable, or returns exit 44, stop and ask the user to resolve Keychain access; do not recreate the item, read a temporary file, or substitute another credential. On other platforms, use an available native secure secret store; if none is available, stop and ask the user to configure one."@en ;
     onto:hasTrigger onto:triggerSkillInvocation, onto:triggerBehaviorGapIdentified ;
     rdfs:seeAlso <howto/p12-passphrase-retrieval.ttl#step-keychainPrimary>,
         <howto/p12-passphrase-retrieval.ttl#step-canonicalSnippet>,
-        <preferences.ttl#step-p12PassphraseUyiFile>,
         <howto/credential-location-session-start.ttl>,
         <core.ttl> .
 
@@ -2923,7 +2954,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 
 :step-p12PassphraseKeychainLive a schema:HowToStep ;
     schema:position 226 ;
-    schema:name "The uriburner-p12 keychain item is LIVE (migrated from /tmp/uyi with user permission) and verified end-to-end against the real cert.p12 and a real authenticated URIBurner call; separately, this environment's curl cannot consume a Keychain identity for --cert despite the (SecureTransport) version banner — cert loading here is LibreSSL-backed and requires a file path (curl error 58 on both identity-name and SHA-1-hash forms), so the .p12 FILE remains required and Keychain supplies only its passphrase"@en ;
+    schema:name "The uriburner-p12 Keychain item is live and verified end-to-end; this curl build still requires the .p12 file path as the client certificate while Keychain supplies only its passphrase"@en ;
     schema:text "2026-08-18: told the user a SecureTransport banner meant --cert could take a keychain identity name/hash directly, without testing it; the user pushed back, testing then produced curl error 58 for both forms — the claim was wrong and is corrected here rather than repeated." ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/keychain-identity-vs-p12-file-curl.ttl>,
@@ -2934,7 +2965,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 
 :step-virtuosoLocalDbaKeychain a schema:HowToStep ;
     schema:position 238 ;
-    schema:name "Local Virtuoso dba password resolves from macOS Keychain item virtuoso-local-dba FIRST, /tmp/uyi DBA_PWD as fallback — a DISTINCT keychain item from uriburner-p12, never shared"@en ;
+    schema:name "Local Virtuoso dba password resolves only from its distinct macOS Keychain item virtuoso-local-dba — never share or overload the item used by uriburner-p12"@en ;
     schema:text "2026-08-19: user asked for the p12-passphrase Keychain treatment (Step 224) to be applied to the local Virtuoso dba password too, which was sitting in /tmp/uyi as DBA_PWD=.... Migrated into a new, separately-namespaced item (virtuoso-local-dba) using the identical -T /usr/bin/security / -U pattern, and verified the Keychain value matched the file byte-for-byte before testing. The subsequent isql login test failed (VD CL034 Bad login) — root-caused to the /tmp/uyi value already being stale, not to the migration, since the equality check passed. Only one login attempt was made; no retry loop against a live DBA account, since repeated failures risk lockout. RESOLVED same day: user corrected /tmp/uyi, agent re-synced the Keychain item to the new value and confirmed isql login succeeds using the Keychain-sourced password." ;
     onto:hasTrigger onto:triggerSkillInvocation ;
     rdfs:seeAlso <howto/virtuoso-local-dba-passphrase-retrieval.ttl>,
@@ -3715,6 +3746,16 @@ Apply when framing natural-language → RDF/KG/ontology authoring, thesis copy a
     rdfs:seeAlso <howto/people-registry-local-only.ttl#step-exampleTtlNaming>,
         <howto/people-registry-local-only.ttl> .
 
+# ── Step 310: registering a third-party skill — review, install to the registries, gitignore, upstream IRI ──
+:step-thirdPartySkillRegistration a schema:HowToStep ;
+    schema:position "310"^^xsd:integer ;
+    schema:name "'Register this skill <github-url>' means: review the upstream code and license first, install to the repo directory (which ~/.claude, ~/.qwen and ~/.gemini symlink) plus ~/.codex/skills and ~/.vibe/skills, add a /skill-name/ line to .gitignore rather than vendoring it, and register the entity in entities/tools.ttl under the UPSTREAM GitHub IRI + #this"@en ;
+    schema:text "Kingsley, 2026-09-28, registering Barty-Bart/motion-graphics: gitignore third-party skills rather than committing them into the public repo or leaving them merely untracked."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerSkillInvocation ;
+    rdfs:seeAlso <howto/third-party-skill-registration.ttl>,
+        <howto/canonical-entity-iri-denotation.ttl>,
+        <entities/tools.ttl> .
+
 # ── Step 305: LinkedIn newsletter/article — render before post; attribution at end; final approval ──
 :step-linkedinNewsletterArticlePublish a schema:HowToStep ;
     schema:position "305"^^xsd:integer ;
@@ -3761,4 +3802,32 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/tabulated-items-hyperlinked.ttl>,
         <howto/tabulated-items-hyperlinked.ttl#step-brokenTargetIsNotAnExemption>,
         <howto/entity-href-companion-ttl.ttl> .
+
+# ── Step 311: IRI-in-solution also covers SPASQL and SQL-over-SPARQL ─────────
+:step-spasqlIriInSolution a schema:HowToStep ;
+    schema:position "311"^^xsd:integer ;
+    schema:name "Every published SELECT, including SPASQL and SQL wrapping a SPARQL derived table, projects the entity IRI first, because the IRI is the super-key"@en ;
+    schema:text "Project the entity IRI in the inner SPARQL, carry it through the derived table and lead the outer SELECT with it."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/sparql-example-query-iri-in-solution.ttl#step-spasqlAndSqlForms>,
+        <howto/sparql-example-query-iri-in-solution.ttl#step-superKeyRationale> .
+
+# ── Step 312: RDF View demos must create URL rewrite rules ───────────────────
+:step-rdfViewRewriteRulesMandatory a schema:HowToStep ;
+    schema:position "312"^^xsd:integer ;
+    schema:name "Inline SPARQL or SPASQL demos over RDF Views must create the URL rewrite rules so the entity IRIs resolve"@en ;
+    schema:text "Deploy, verify and publish the rewrite rules whenever an RDF View demo is built, never leaving the view's IRIs returning 404."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/rdf-view-rewrite-rules-mandatory.ttl>,
+        <howto/rdf-view-rewrite-rules-mandatory.ttl#step-describePattern>,
+        <howto/rdf-views-verification-hyperlinks.ttl> .
+
+# ── Step 313: RDF View demos must ship an ontology for the terms the view uses ──
+:step-rdfViewOntologyMandatory a schema:HowToStep ;
+    schema:position "313"^^xsd:integer ;
+    schema:name "Every RDF View exercise ships an ontology covering the terms used in the view's graph, presented as a deliverable"@en ;
+    schema:text "Author, load, coverage-check and present an ontology for the view's classes and properties alongside the SQL, quad map and rewrite rules."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/rdf-view-ontology-mandatory.ttl>,
+        <howto/rdf-view-rewrite-rules-mandatory.ttl> .
 

@@ -7,12 +7,13 @@
     schema:name "Responsive Head-to-Head Comparison Presentation — Table on Large Screens, Cards on Small"@en ;
     schema:description "Canonical dual-presentation contract for multi-entity comparison matrices in rdf-infographic-skill HTML: a comparison table for larger viewports and product/entity cards for phones and narrow screens. Skill-primary (SKILL.md + competitive H2H template); preferences.ttl is the fallback when the skill text is not loaded."@en ;
     schema:dateCreated "2026-08-11T16:30:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-11T16:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-20T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :responsiveComparisonPresentation ;
     schema:step :step-whenApplies, :step-dualMarkup, :step-cssBreakpoint,
         :step-cardShape, :step-aesthetics, :step-resolverParity,
-        :step-overflow, :step-verifyViewports, :step-templateReuse ;
+        :step-overflow, :step-verifyViewports, :step-templateReuse,
+        :step-accordionIsNotDualPresentation ;
     rdfs:seeAlso <../preferences.ttl#step-responsiveComparisonPresentation>,
         <infographic-authoring.ttl>,
         <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/rdf-infographic-skill#this> .
@@ -128,3 +129,42 @@ GATE: do not deliver a multi-column comparison matrix that only horizontal-scrol
     schema:position 9 ;
     schema:name "Reuse the competitive H2H template pattern — do not invent a one-off matrix"@en ;
     schema:text """When content type is competitive/head-to-head (howto/infographic-authoring.ttl step-templateSelection), start from assets/templates/competitive-analysis-head-to-head-claude_sonnet_4_6.html which embeds this dual-presentation pattern. Copy the comparison CSS/HTML structure; substitute entities and cells from the companion RDF. Do not regenerate a bare <table> without cards. Worked example of a 4-entity instance: LLM_ROOT/Grok/webpages/coding-agent-harness-comparison-pi-opencode-claude-codex-grok-4-5-1.html (2026-08-11)."""@en .
+
+# ── Step 10 ──────────────────────────────────────────────────────────────────
+
+:step-accordionIsNotDualPresentation a schema:HowToStep ;
+    schema:position 10 ;
+    schema:name "An accordion list of dimensions is NOT dual presentation — and a two-entity vendor meshup still triggers this contract"@en ;
+    schema:text """RECURRENCE 2026-09-20 (Claude Opus 5 + Claude Code, Snowflake ontology/KG/semantic-layer
+meshup vs Virtuoso RDF Views). Twelve cdx:ComparisonDimension instances, each already carrying a
+Snowflake position, a Virtuoso position and an assessment, were rendered as twelve closed-by-default
+<details class="section-accordion"> blocks containing a two-column .solution-grid. Every generic
+infographic contract was re-read beforehand and validate-harness-contract.py returned PASS, because
+the harness validator has no check for this contract. The user caught it post-delivery.
+
+TWO DISTINCT MISTAKES, both worth guarding against separately:
+
+1. CLASSIFICATION. The section was mentally filed as narrative progressive disclosure rather than as
+a comparison matrix, because the source was a single-vendor article being meshed rather than a
+document titled 'competitive analysis'. The trigger in :step-whenApplies is structural, not
+editorial: if the companion TTL carries instances typed cdx:ComparisonDimension (or any aspect
+instances bearing one value per compared entity), a comparison matrix exists and this contract
+applies. TWO entities is enough — 'head-to-head' means exactly two. A vendor-vs-Virtuoso meshup,
+which is the single most common genre in this corpus, always qualifies.
+
+2. SHAPE. Per-dimension accordions are not the cards view. The cards view is entity-major — one card
+per value column, each listing every dimension — so a reader can scan one side end to end. A
+dimension-major accordion inverts that and, crucially, ships NO table at any width, which is the
+exact failure :step-verifyViewports exists to catch.
+
+PRE-BUILD CHECK, run before writing any comparison HTML: grep the companion TTL for
+cdx:ComparisonDimension. Any hit means emit .comparison-table-view + .comparison-cards-view, and run
+the viewport gate. Do not let a PASS from validate-harness-contract.py stand in for this check — it
+does not test for it (same false-confidence pattern logged under artifact-routing.ttl
+step-outputRootBlockingGate).
+
+ALLOWED VARIATION confirmed in the same session: with exactly two compared entities plus a neutral
+analysis column, three cards (Snowflake / Virtuoso / Assessment) satisfy :step-cardShape's
+'card count equals value-column count' reading while keeping the assessment prose out of both
+entity cards. Twelve rows per card is long but correct; do not substitute dimension-major cards to
+shorten it."""@en .

@@ -1,0 +1,81 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/publish-ub-weblog-html-to-www-blog.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 315. How to choose, prepare, upload and verify HTML posts taken from the URIBurner weblog collection for publication on the www.openlinksw.com blog, including the mandatory rewrite of companion links that would otherwise 404."@en ;
+    schema:dateCreated "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Publish HTML documents from the UB weblog to the www blog"@en ;
+    schema:description "A repeatable path from the URIBurner weblog collection to the www blog: select candidates, get approval, rewrite companion links for the www copy, upload with Digest authentication, and verify byte for byte."@en ;
+    schema:step :step-locations, :step-selectCandidates, :step-approval, :step-companionLinks, :step-authentication, :step-upload, :step-verify, :step-weblogEffects, :step-record, :step-exceptionsAndDeadLinks ;
+    rdfs:seeAlso <../preferences.ttl#step-publishUbWeblogToWww>,
+        <remote-webdav-upload.ttl>,
+        <webdav-weblog-engine-gate.ttl>,
+        <dav-public-url-default.ttl> .
+
+:step-locations a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Know both collections: UB weblog source and www blog target"@en ;
+    schema:text """UB weblog source: DAV collection /DAV/demos/daas/, served at https://linkeddata.uriburner.com/weblog/, files at https://linkeddata.uriburner.com/DAV/demos/daas/{filename}. www blog target: DAV collection /DAV/www2.openlinksw.com/data/html/, public at https://www.openlinksw.com/data/html/{filename} (public .../data/X corresponds to DAV /DAV/www2.openlinksw.com/data/X; confirmed 2026-09-30 by an existing page, openlink-strategy-infographic-gemini-1.html, answering 200). The same filename is used on both sites unless the user says otherwise; the user confirmed 'filename stays the same' on 2026-09-30. The www collection is also the weblog source for the www blog, so an uploaded .html appears in its index."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-publishUbWeblogToWww> .
+
+:step-selectCandidates a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "List candidates by PROPFIND of the UB collection, exclude what www already has, flag uncertain attribution"@en ;
+    schema:text """PROPFIND Depth 1 on https://linkeddata.uriburner.com:5443/DAV/demos/daas/ with the principal PKCS#12 (Keychain item uriburner-p12, passphrase to curl on stdin via -K), parse with an XML parser not a regex (the multistatus uses a D: prefix and attributes on every element), keep *.html, then subtract the names already present in PROPFIND Depth 1 of https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/ (anonymous read works there). For 'posts from Claude' match a model id in the filename (claude, sonnet, opus, haiku); this misses posts without one, so say so, and mark with a dagger any whose filename names the agent environment (claude_code) or a product instead of a model version, because filename stems have conflated environment and model before. Fetch each title with a ranged GET and decode with errors replaced: a byte range can cut a multi-byte character. On 2026-09-30 this gave 281 html files, 92 with a Claude id, 9 already on www, 83 candidates, 15 flagged."""@en ;
+    rdfs:seeAlso <artifact-routing.ttl> .
+
+:step-approval a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Show the numbered list and upload only what the user approves by number"@en ;
+    schema:text """Present a numbered table (number, date, title, a dagger for uncertain attribution) and save the full list with filenames and sizes under {model-root}/md/. Nothing is uploaded until the user approves specific numbers. Approval covers those files only and the method described; it does not extend to later batches. Note that older posts predate later rule corrections and have not been re-checked, and say so."""@en ;
+    rdfs:seeAlso <remote-webdav-upload.ttl#step-offerUpload> .
+
+:step-companionLinks a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "MANDATORY: rewrite companion links that would 404 on www, in the www copy only"@en ;
+    schema:text """Stated by Kingsley 2026-09-30: the broken TTL link 'should be noted and put in a howto'. A generated HTML declares its companion RDF with same-folder relative links, <link rel="related" href="{stem}.ttl"> and <link rel="alternate" href="{stem}.ttl">, plus matching entries in the embedded JSON-LD. Only the .html is published to www, so on www those links 404 (checked 2026-09-30: https://www.openlinksw.com/data/html/{stem}.ttl returned 404). PROCEDURE: (1) scan the file for relative references, meaning href/src values that do not start with http://, https://, #, mailto:, tel: or data:, and relative @id or url values in the JSON-LD; (2) for each one that points at a file not present on www, rewrite it in the www copy only to its absolute URIBurner DAV URL, https://linkeddata.uriburner.com/DAV/demos/daas/{filename}; (3) confirm each rewritten target answers 200 anonymously before publishing, because new resources on UB can be owner-only (401 for anonymous) and a rewrite to a 401 is no better than a 404; if a target is not anonymously readable, leave the link and tell the user; (4) write the rewritten file to the scratchpad, never over the local or UB original, and keep a list of every link changed; (5) upload the rewritten file and compare the www copy with the REWRITTEN file, not the original. Links that are already absolute, same-page fragments and links to files that are also on www are left alone. The local and UB copies keep their relative links, which are correct there."""@en ;
+    rdfs:seeAlso <dav-public-url-default.ttl>, <../preferences.ttl#step-publishUbWeblogToWww> .
+
+:step-exceptionsAndDeadLinks a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Exceptions found in the first batch: signed files, dead targets, and JavaScript template strings"@en ;
+    schema:text """From the 2026-09-30 batch of eight posts. (a) SIGNED FILES: if the page links a detached signature (a .html.sig), rewriting any byte makes that signature fail on the www copy, so upload the original bytes unchanged, leave its links alone, and tell the user the TTL link will 404 there; offer the rewrite as a choice that costs the signature. (b) DEAD TARGETS: many relative links point at files that exist nowhere public: Markdown companions (never published), .jsonld companions that were never uploaded to UB, audio, and other pages not on UB; do not rewrite them to URLs that would 404, leave them and list them for the user. (c) LAYOUT: older posts use the local tree layout, so companions appear as ../rdf/{stem}.ttl and ../md/{stem}.md while UB's collection is flat; the rewrite maps by file basename to https://linkeddata.uriburner.com/DAV/demos/daas/{basename}, only when that basename is in the UB PROPFIND listing. (d) TEMPLATE STRINGS: href values such as ${res(iri)} inside scripts are JavaScript, not links; exclude anything beginning with ${ from the scan. (e) SELF LINKS: a link to the file's own name stays relative, since it resolves on www once uploaded. (f) Replace only exact quoted values, "{value}", so HTML attributes and JSON-LD entries change together and nothing else does, then confirm no rewritten value remains and compare sizes."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-publishUbWeblogToWww> .
+
+:step-authentication a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Authenticate to www with Digest as kidehen, using Keychain item kidehen-www-dav"@en ;
+    schema:text """Verified 2026-09-30. The working credential is the generic-password item kidehen-www-dav, account kidehen (core.ttl :wwwDavPasswordKeychainItem), used for HTTP Digest: curl -sk -K - --digest with the line user = "kidehen:{password}" supplied on stdin so the password never reaches argv, after escaping any backslash or double quote for curl's config syntax. Do not use the older internet-password entry for www.openlinksw.com, which the server rejected with 401 twice. OBO does not apply: Digest logs in as kidehen directly, and the On-Behalf-Of header is for the agent PKCS#12. Client-certificate routes do not work here: www port 443 never sends a CertificateRequest (neither the principal nor the agent certificate was presented; both got 401), and port 5443 returned 502 through the sandbox proxy. Anonymous PROPFIND returns 207 and proves nothing about write access. A 401 followed by 201 is the normal Digest round trip."""@en ;
+    rdfs:seeAlso <remote-webdav-upload.ttl>, <../core.ttl#wwwDavPasswordKeychainItem> .
+
+:step-upload a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "PUT each approved file with an explicit Content-Type and check the target name is free first"@en ;
+    schema:text """For each file: HEAD the public URL and expect 404 so nothing is overwritten (an existing file is a separate decision for the user); then PUT to https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/{filename} with -H "Content-Type: text/html" and --upload-file, using the Digest method above. A plain PUT sets no schema:category; the publish helper in weblog-from-webdav (scripts/publish_with_metadata.py) does PUT, PROPPATCH schema:category and PROPFIND together and is the route when facets are wanted. State which was used."""@en ;
+    rdfs:seeAlso <uriburner-dav-put-content-type.ttl>, <remote-webdav-upload.ttl> .
+
+:step-verify a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Verify by fetching back: 200, text/html, byte-identical to the file that was uploaded"@en ;
+    schema:text """A 201 is not proof: on 2026-09-30 an upload to the UB DAV answered 201 and the file was absent on a later GET and PROPFIND until it was uploaded again. After each PUT, GET https://www.openlinksw.com/data/html/{filename} anonymously, require 200 and text/html, and cmp it with the uploaded (rewritten) file. Also GET the DAV URL. If missing or different, PUT again once and recheck, then report. Check a rewritten companion link still answers 200."""@en ;
+    rdfs:seeAlso <remote-webdav-upload.ttl#step-uploadVerification> .
+
+:step-weblogEffects a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Tell the user what publishing into the weblog collection does"@en ;
+    schema:text """The collection is the www blog's source, so each file appears in the weblog index; without a category it has no facet. Facet-enabled index, feeds and search are described in weblog-from-webdav. Do not claim a post is 'in the blog' beyond what was observed; if the blog route was not opened, say the file is published in the collection and verify the route separately."""@en ;
+    rdfs:seeAlso <webdav-weblog-engine-gate.ttl> .
+
+:step-record a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Record each publication in the session file: source, target, links rewritten, verification result"@en ;
+    schema:text """One schema:UploadAction per file or batch in the session TTL, with the UB source URL, the www URL, the list of rewritten links, the Content-Type, and the verification outcome. Record the Keychain item name only, never a password."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-publishUbWeblogToWww> .

@@ -1,0 +1,61 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/meshup-harness-skills-count-as-virtuoso-side.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 314. In a meshup comparing a vendor against 'Virtuoso with the agent-rdf-memory harness deployed', the harness's skills are Virtuoso-side capabilities, and Virtuoso is never described as limited to its in-product generators."@en ;
+    schema:dateCreated "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Count the harness's skills on the Virtuoso side of every meshup"@en ;
+    schema:description "Keeps Virtuoso-versus-vendor comparisons accurate about what 'Virtuoso with agent-rdf-memory deployed' can do."@en ;
+    schema:step :step-rule, :step-inventory, :step-stillHonest, :step-incident, :step-federationNotCaps, :step-neverAssertAbsence, :step-evenIsNotASafeDefault ;
+    rdfs:seeAlso <../preferences.ttl#step-meshupHarnessSkillsAreVirtuosoSide>,
+        <skill-invocation.ttl>,
+        <meshup-prompt-style.ttl> .
+
+:step-rule a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "The Virtuoso column describes the deployed stack: Virtuoso plus the harness and its skills, not the database engine alone"@en ;
+    schema:text """Stated by Kingsley 2026-09-30 after a comparison row said Virtuoso had 'no built-in inference of undeclared keys' and 'starts from the keys the schema actually declares'. The comparison in these meshups is against Virtuoso with agent-rdf-memory deployed. That stack includes skills that generate ontologies and instance data from textual sources, and skills that generate RDF Views and their ontologies and rewrite rules from relational tables, and the page itself was produced with them. Do not write a Virtuoso position that describes only the in-product generators when a harness skill covers the same ground."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-meshupHarnessSkillsAreVirtuosoSide> .
+
+:step-inventory a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Before writing a Virtuoso position, check the skills inventory for the capability"@en ;
+    schema:text """Skills that bear on model and data generation, from the repository's skill list: kg-generator (text or documents to RDF knowledge graphs, several templates), document-to-kg-skill (documents to schema.org RDF), linked-data-skills (relational database objects to a knowledge graph through Virtuoso RDF Views: TBox, ABox and rewrite rules), csv-to-rdf-det-generator and rdf-det-variant-generator (DAV ingestion that transforms uploads to RDF), linkedin-connections-rdf (tabular exports to RDF), infographic-describer (RDF descriptions of files), rdf-infographic-skill (RDF to interactive pages). Also the OpenLink OPAL functions RDFVIEW_FROM_TABLES, RDFVIEW_ONTOLOGY_FROM_TABLES, RDFVIEW_GENERATE_DATA_RULES and R2RML_FROM_TABLES. Re-read the current skill list; it grows."""@en ;
+    rdfs:seeAlso <skill-invocation.ttl> .
+
+:step-federationNotCaps a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Virtuoso scales by federating named graphs and instances, so a missing per-instance cap is not a gap to apologise for"@en ;
+    schema:text """Stated by Kingsley 2026-09-30 about a row that said 'No per-instance cap figure is published in the sources consulted': none is required, because Virtuoso produces a Semantic Web of data across federated named graphs, and the demo and URIBurner instances the page itself uses are testimony to that. Caps such as Neo4j's 5 databases per GB of RAM, 100 preview and 250 GA belong to a database-per-tenant model. When comparing isolation, tenancy or scale, describe Virtuoso's model (named graphs with graph-level permissions, RDF Views inheriting SQL grants, SPARQL-FED across instances) instead of hunting for an equivalent ceiling, and where possible prove it with a live federated query across the instances the page already uses. Query 9 on the ScaleKG page does this: run on URIBurner, it joins the collection graph there to the ScaleKG view on demo (10 rows summing to 67 entities). Practical note: the same query run on demo with the graph as a variable failed because the planner also tried an unrelated remote DSN (neo4j_aura_lt) registered there; run it from the other instance with the graph as a constant."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-meshupHarnessSkillsAreVirtuosoSide> .
+
+:step-neverAssertAbsence a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Never write that Virtuoso 'does not offer' or 'has no' a capability without evidence; check the known facts first"@en ;
+    schema:text """Stated by Kingsley 2026-09-30 ('False!') after the analytics row said a dedicated session-billed compute tier was 'a product shape Virtuoso does not offer' and that Virtuoso's answer was only to query a replica. Facts to apply before writing a Virtuoso position: Virtuoso is available as pay-as-you-go machine offers on AWS, Azure and Google Cloud (sources: the OpenLink community PAGO posts for each cloud); it supports graph analytics through SQL, SPARQL and GQL without compromising the standardized identifiers and multilingual capabilities of RDF; HTTP makes the graphs a Semantic Web, public or private. Verification status of those statements on 2026-09-30: AWS, Azure and GCP offers confirmed in OpenLink community posts; GraphQL support confirmed in OpenLink documentation; ISO GQL support and the analytics claim come from Kingsley and were not independently confirmed in the docs, so the page states them as Virtuoso's position. Clarified by Kingsley later the same day: GQL here is the ISO standard, 'the open standards variant of Cypher', which Virtuoso supports alongside SPARQL, SQL, GraphQL and SPASQL; it is not GraphQL. Still not confirmed in the docs by the agent, and the ScaleKG page does not exercise GQL, so it says it is stated rather than shown. DEPLOYMENT OPTIONS, stated by Kingsley 2026-09-30 (not independently checked beyond the cloud marketplace offers): on-premise; Docker containers; cloud AMIs/machine images on AWS, Azure and GCP; a self-managed service on AWS; and OpenLink Managed services announced for release in September 2026. Do not describe Virtuoso as 'operated by the customer or on cloud images' only, and do not credit the OpenLink managed service as available until it is released; say 'announced' and revisit the managed-service lean when it ships. Rule: an absence claim needs evidence; when there is none, state what is documented and mark the row Even or unranked."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-meshupHarnessSkillsAreVirtuosoSide> .
+
+:step-evenIsNotASafeDefault a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Rank each axis on the evidence available and label the evidence; 'Even' is for genuine parity, not a hedge for unverified claims"@en ;
+    schema:text """Stated by Kingsley 2026-09-30: 'Your reporting is biased! Virtuoso's strengths and wins are now presented as even. Why???' Cause: after each correction the agent marked rows Even whenever it could not independently verify a Virtuoso advantage, and over-corrected to avoid looking partisan, which flattened documented and demonstrated Virtuoso wins into ties. RULE: (1) decide each lean from the evidence that exists for both sides; (2) record an evidence label per row in the TTL (:evidence) and show it beside the assessment, using tiers such as demonstrated on this page, documented by the vendor, stated by OpenLink without independent checking, or taken from the article; (3) mark Even only where the two sides are genuinely equivalent on that axis, such as both compiling graph queries to SQL; (4) keep a concession only where the evidence earns it, never to fill a quota; and when a lean is challenged and the challenge is answered by evidence, move the row to the side the evidence supports, not to Even (the managed-service row went Neo4j, then Even, then Virtuoso: Kingsley pointed out natural-language configuration and administration through the bundled MCP tooling and packaged SKILL.md skills, broad deployment options, and that Neo4j also has a self-managed edition, and on 2026-09-30 he objected that parking the row at Even increased the number of evens instead of removing the Neo4j win; Even was the same hedge as before, applied to an unreleased managed service); a scoreboard that ends with no Neo4j lean is acceptable if the evidence says so, and should state where the evidence is thin instead; Even stays only for genuine parity, and a row whose assessment names a difference can never be Even: CONSISTENCY CHECK before delivery, read each row's assessment and ask whether it states any difference, breadth, visibility or availability gap, and if it does the lean must follow that difference (on 2026-09-30 the translation row said 'the difference is visibility and breadth' and was still marked Even; Virtuoso compiles several open-standards languages, SPARQL, SQL and SPASQL demonstrated and GraphQL and GQL stated by OpenLink, and exposes the generated SQL, where the article describes one language, Cypher, and is silent on inspecting its SQL, so it is a Virtuoso lean; do not describe Cypher as proprietary, say 'one language, Cypher, per the article'); (5) when a lean rests on availability or breadth rather than measured performance, say so. Re-ranked on this basis the ScaleKG page went from 1 Neo4j / 5 Virtuoso / 6 Even to 1 / 10 / 1, then to 0 / 10 / 2 when the operating row was set to Even, then to 0 / 11 / 1 when the operating row was set to Virtuoso, and finally to 0 / 12 / 0 when the translation row was set to Virtuoso. Virtuoso-side operating facts to use: the repository's virtuoso-support-agent skill documents 25 MCP tools, and the ScaleKG deployment was driven by an agent through the same OpenLink functions (RDFVIEW_GENERATE_DATA_RULES, exec over XMLA); the agent did not call the MCP tools directly, so say 'the same functions the MCP tooling exposes'."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-meshupHarnessSkillsAreVirtuosoSide> .
+
+:step-stillHonest a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Crediting the harness does not license claims that were not tested"@en ;
+    schema:text """Say what was done and what was not. The ScaleKG page used the harness to produce the ontology, quad map and rewrite rules, but did not test inferring undeclared foreign keys from a messy schema for either platform, so the dimension is marked Even and says it was not ranked on that. Distinguish in-product from agent-side, and tables from text, rather than flattening both into one claim."""@en .
+
+:step-incident a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Incident record: the 'Proposing the graph model from tables' row under-described Virtuoso"@en ;
+    schema:text """2026-09-30, Neo4j 'Scale AI into production' meshup. The row was marked a Neo4j lean and said Virtuoso starts only from declared keys. Kingsley pointed out that the deployed harness has many skills for generating ontologies and instance data from text, which is how the demos themselves were produced. Fixed: the row is renamed 'Proposing the graph model', the Virtuoso position names the skills, the lean is Even, and the page tallies changed from 4 Neo4j / 4 Virtuoso / 4 Even to 3 / 4 / 5. The page had already been uploaded to URIBurner with the old wording."""@en ;
+    rdfs:seeAlso <../sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl> .

@@ -1,0 +1,75 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:about :howto ;
+    schema:name "howto/refresh-loader-keychain.ttl"@en ;
+    schema:description "Keychain-authenticated execution of the agent-rdf-memory loader: turning refresh-loader.sh's printed '<dba-password>' placeholder into a runnable command without the password ever being typed, printed or recorded, plus a TARGETED variant that loads only the documents whose graphs are missing. Complements agent-rdf-memory-loader-run.ttl (the full regenerate/load/verify procedure) rather than repeating it. This file existed as a zero-byte document from 2026-09-16 (an abandoned write flagged by generate-loader-sql.py's zero-byte warning) and was filled in 2026-09-26 from the targeted load performed that day."@en ;
+    schema:dateCreated "2026-09-26T21:05:33Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-26T21:05:33Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    rdfs:seeAlso <agent-rdf-memory-loader-run.ttl>,
+        <virtuoso-local-dba-passphrase-retrieval.ttl>,
+        <memory-graph-state-table.ttl>,
+        <../preferences.ttl#step-memoryStoreSyncProcedure>,
+        <../preferences.ttl#step-memoryGraphsViaDba> .
+
+:howto a schema:HowTo ;
+    schema:name "Run the memory loader with the Keychain-resolved dba password — whole store or missing graphs only"@en ;
+    schema:description "refresh-loader.sh deliberately never holds a credential: it regenerates load-agent-rdf-memory.sql and PRINTS 'isql 1111 dba <dba-password> <sql>'. This HowTo is the agent-side bridge from that printed placeholder to an executed load, reading the password from Keychain item virtuoso-local-dba inside the same shell invocation."@en ;
+    schema:step :step-placeholderGap, :step-sandbox, :step-fullLoad, :step-findMissing, :step-targetedLoad, :step-verify, :step-exclusions ;
+    rdfs:seeAlso <agent-rdf-memory-loader-run.ttl#step-credential>,
+        <agent-rdf-memory-loader-run.ttl#step-isqlPositional> .
+
+:step-placeholderGap a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "refresh-loader.sh prints a '<dba-password>' placeholder by design — never paste or type the password into it; substitute a Keychain read in the same shell"@en ;
+    schema:text """The script's echoed command is:
+  isql 1111 dba <dba-password> "<scripts>/load-agent-rdf-memory.sql"
+Keeping the script credential-free is intentional (Step 301, :step-memoryGraphsViaDba) and must not be changed to embed a Keychain call inside refresh-loader.sh itself without the user's approval. The agent executes the printed command by replacing the placeholder with a shell variable resolved from Keychain, in ONE Bash invocation, and unsets it immediately — the value never appears in argv of a logged command line, the transcript, or any memory file."""@en .
+
+:step-sandbox a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "In a sandboxed agent harness, the Keychain read and the isql/SPARQL connection to localhost need an unsandboxed run"@en ;
+    schema:text """Observed 2026-09-26 in Claude Code (macOS Seatbelt sandbox): load_memory.py --state-table failed with curl exit 7 against https://localhost/sparql-auth and http://localhost:8890/sparql-auth — the sandbox's network filter, not a down server. The same command succeeded unsandboxed. isql to port 1111 and `security find-generic-password` likewise run outside the sandbox. Keep generated SQL in the session scratchpad (sandbox-writable) when the repo tree is write-protected; only a deliberate full refresh should rewrite scripts/load-agent-rdf-memory.sql. macOS has no `timeout` — use the perl alarm guard from agent-rdf-memory-loader-run.ttl#step-credential when a Keychain read could block."""@en .
+
+:step-fullLoad a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Whole-store load: regenerate, then run the printed command with the Keychain substitution"@en ;
+    schema:text """cd agent-rdf-memory
+python3 scripts/generate-loader-sql.py --store "$PWD" --out scripts/load-agent-rdf-memory.sql
+VIRT_DBA_PWD="$(perl -e 'alarm 8; exec @ARGV' security find-generic-password -s virtuoso-local-dba -a "$USER" -w)"
+[ -n "$VIRT_DBA_PWD" ] || { echo 'EMPTY keychain read -> STOP and elicit'; exit 1; }
+isql 1111 dba "$VIRT_DBA_PWD" scripts/load-agent-rdf-memory.sql > "$TMPDIR/load.log" 2>&1
+unset VIRT_DBA_PWD
+
+--store must be ABSOLUTE (agent-rdf-memory-loader-run.ttl#step-absoluteStorePath). The script is a POSITIONAL isql argument, never -f. One login attempt only."""@en .
+
+:step-findMissing a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Targeted load, part 1: find the missing graphs by listing loaded graphs AS dba and diffing against non-empty files on disk"@en ;
+    schema:text """Graph enumeration is refused anonymously (HTTP 401), and Step 301 forbids anonymous reads anyway, so list graphs through isql as dba:
+  isql 1111 dba "$VIRT_DBA_PWD" exec="SPARQL SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } FILTER (STRSTARTS(STR(?g), 'urn:dav:/DAV/home/kidehen/agent-rdf-memory/')) };"
+Strip the graph prefix to get relative paths, then compare with
+  find . -name '*.ttl' -not -path './scripts/*' -size +0
+(comm -23 disk loaded). Drop *.example.ttl templates from the result (see :step-exclusions). The remainder is the missing set."""@en .
+
+:step-targetedLoad a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Targeted load, part 2: extract only the missing documents' CLEAR + TTLP_MT blocks from a freshly generated loader and run them, ending with checkpoint"@en ;
+    schema:text """Generate the loader to a scratch path (generate-loader-sql.py --store "$PWD" --out "$SCRATCH/loader.sql"), then for each missing relative path R with graph G = urn:dav:/DAV/home/kidehen/agent-rdf-memory/R, slice from the literal 'SPARQL CLEAR GRAPH <G>;' through the terminating "'G', 255);" of its DB.DBA.TTLP_MT call. Concatenate the slices, append 'checkpoint;', and run the file positionally with the Keychain-resolved password as in :step-fullLoad. Reusing the generator's own blocks guarantees the same shared-prefix preamble, graph IRI and base IRI as a whole-store load; never hand-write TTLP calls. Graphs already loaded are not touched, so a targeted load cannot disturb IN_SYNC documents — but it also does not refresh STALE ones; use the whole-store load for that.
+
+VERIFIED 2026-09-26 (Claude Opus 5.5, Claude Code): 13 missing documents (4 howto/, 9 sessions/) loaded in one isql run, exit 0, no errors in the log; store went from 490/503 graphs (29,455 triples) to 503/503 (29,968)."""@en .
+
+:step-verify a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Verify with load_memory.py --state-table; every folder must read OK before reporting the store complete"@en ;
+    schema:text """python3 agent-rdf-memory/load_memory.py --state-table
+The per-folder table must show Files on disk == Graphs loaded and Status OK for every row. For per-document staleness (not just presence), follow with scripts/full-store-graph-gate.py as described in agent-rdf-memory-loader-run.ttl#step-verify."""@en .
+
+:step-exclusions a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Expected non-graphs: *.example.ttl templates are skipped by the loader, and a zero-byte document yields no graph — neither is 'missing'"@en ;
+    schema:text """entities/people.example.ttl and preferences.private.example.ttl are public-repo templates (people-registry-local-only.ttl); the loader and the state table both exclude them. A zero-byte .ttl produces a CLEAR with nothing loaded; generate-loader-sql.py warns about it. Confirm with the user whether such a file is intentional before filling or deleting it — this very document was the zero-byte case until 2026-09-26."""@en .

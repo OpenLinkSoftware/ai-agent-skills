@@ -7,9 +7,9 @@
     schema:name "Artifact Routing — Output Directories and Terminology"@en ;
     schema:description "Rules for routing generated artifacts (RDF, HTML, Markdown) to the correct model-specific output directories, preserving active model identity, and applying the meshup vs mashup terminology rule."@en ;
     schema:dateCreated "2026-06-05T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-26T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-28T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
-    schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs,
+    schema:step :step-outputDirs, :step-gpt5ChatCodexOutputDirs, :step-gpt6CodexOutputDirs,
         :step-mashupVsMeshup, :step-defaultOutputRoot, :step-modelOverEnvironment,
         :step-noPromptModelOverride, :step-outputRootBlockingGate,
         :step-savedPromptsFolder, :step-vspsFolder,
@@ -17,7 +17,7 @@
         :step-screencastPresentationNaming,
         :step-scopeFilesystemSearchesToLlmRoot, :step-outputRootGateAppliesBeyondKgGenerator,
         :step-buildFixtureIsStillAnArtifact ;
-    rdfs:seeAlso <../preferences.ttl#step-outputDirs>, <../preferences.ttl#step-defaultOutputRoot>, <../preferences.ttl#step-gpt5ChatCodexOutputDirs>, <../preferences.ttl#step-modelOverEnvironment>, <../preferences.ttl#step-modelIdentityPreflight>, <../preferences.ttl#step-noPromptModelOverride>, <../preferences.ttl#step-mashupVsMeshup>, <../preferences.ttl#step-savedPromptsFolder>, <../preferences.ttl#step-vspArtifactsFolder>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-screencastPresentationNaming>, <../preferences.ttl#step-chatResponsePortableLinks>, <../preferences.ttl#step-remoteRemovalOrder>, <remote-resource-removal.ttl> .
+    rdfs:seeAlso <../preferences.ttl#step-outputDirs>, <../preferences.ttl#step-defaultOutputRoot>, <../preferences.ttl#step-gpt5ChatCodexOutputDirs>, <../preferences.ttl#step-gpt6CodexOutputDirs>, <../preferences.ttl#step-modelOverEnvironment>, <../preferences.ttl#step-modelIdentityPreflight>, <../preferences.ttl#step-noPromptModelOverride>, <../preferences.ttl#step-mashupVsMeshup>, <../preferences.ttl#step-savedPromptsFolder>, <../preferences.ttl#step-vspArtifactsFolder>, <../preferences.ttl#step-screencastDistributionArtifacts>, <../preferences.ttl#step-screencastPresentationNaming>, <../preferences.ttl#step-chatResponsePortableLinks>, <../preferences.ttl#step-remoteRemovalOrder>, <remote-resource-removal.ttl> .
 
 # ── Step 1: Output Directory Routing ─────────────────────────────────────────
 
@@ -32,6 +32,14 @@
     schema:position "2"^^xsd:integer ;
     schema:name "GPT-5 Chat Codex writes generated collections to GPT5-Chat-Generated root folders"@en ;
     schema:text """For GPT-5 Chat running in Codex Desktop, write generated RDF, Markdown, and HTML document collections to {LLM_ROOT}/GPT5-Chat-Generated/rdf/, {LLM_ROOT}/GPT5-Chat-Generated/md/, and {LLM_ROOT}/GPT5-Chat-Generated/webpages/. Keep generator scripts in their project/work folders under showcases when appropriate, but never treat showcases/{rdf,md,webpages}/ as the canonical collection destination."""@en .
+
+# ── Step 2: GPT-6 Codex Desktop Output Dirs ───────────────────────────────────
+
+:step-gpt6CodexOutputDirs a schema:HowToStep ;
+    schema:position "15"^^xsd:integer ;
+    schema:name "GPT-6 in Codex Desktop writes generated collections under GPT-6 Generated"@en ;
+    schema:text "For GPT-6 running in Codex Desktop, write generated RDF, Markdown, and HTML collections to {LLM_ROOT}/GPT-6 Generated/rdf/, {LLM_ROOT}/GPT-6 Generated/md/, and {LLM_ROOT}/GPT-6 Generated/webpages/. Keep the model ID in artifact names as appropriate; do not route GPT-6 output to GPT5-Chat-Generated/."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-gpt6CodexOutputDirs> .
 
 # ── Step 3: Mashup vs Meshup Terminology ─────────────────────────────────────
 
