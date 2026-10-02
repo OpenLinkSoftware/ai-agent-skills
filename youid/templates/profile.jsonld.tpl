@@ -10,7 +10,8 @@
     "xsig": "http://www.w3.org/2000/09/xmldsig#",
     "owl": "http://www.w3.org/2002/07/owl#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "pim": "http://www.w3.org/ns/pim/space#"
+    "pim": "http://www.w3.org/ns/pim/space#",
+    "sec": "https://w3id.org/security#"
   },
   "@graph": [
     {
@@ -314,6 +315,22 @@
         }
       ]
     },
+
+!!{nostr_did}
+    {
+      "@id": "%{nostr_did}",
+      "sec:verificationMethod": { "@id": "%{nostr_did}#key1" },
+      "schema:identifier": "%{nostr_npub}"
+    },
+    {
+      "@id": "%{nostr_did}#key1",
+      "@type": "sec:Multikey",
+      "sec:controller": { "@id": "%{nostr_did}" },
+      "sec:publicKeyMultibase": { "@type": "sec:multibase", "@value": "%{nostr_multibase}" }
+    },
+!!.
+!{nostr_same}    { "@id": "%{webid}", "owl:sameAs": { "@id": "%{nostr_did}" } },
+!{nostr_agent}    { "@id": "%{webid}", "oplcert:hasIdentityDelegate": { "@id": "%{nostr_did}" } },
 
     {
       "@id": "%{jsonld_prof_url}#identity",

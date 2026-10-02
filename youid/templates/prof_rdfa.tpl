@@ -10,7 +10,8 @@
     xsd: http://www.w3.org/2001/XMLSchema#
    xsig: http://www.w3.org/2000/09/xmldsig#
     schema: http://schema.org/
-    pim: http://www.w3.org/ns/pim/space#"
+    pim: http://www.w3.org/ns/pim/space#
+    sec: https://w3id.org/security#"
   >
 
   <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">
@@ -168,5 +169,19 @@
   <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">
     <div rel="xhv:alt" resource="%{rdfa_cert_url}#cert"></div>
   </div>
+
+!!{nostr_did}
+  <div typeof="rdfs:Resource" about="%{nostr_did}">
+    <div property="schema:identifier" content="%{nostr_npub}"></div>
+    <div rel="sec:verificationMethod">
+      <div typeof="sec:Multikey" about="%{nostr_did}#key1">
+        <div rel="sec:controller" resource="%{nostr_did}"></div>
+        <div property="sec:publicKeyMultibase" datatype="sec:multibase" content="%{nostr_multibase}"></div>
+      </div>
+    </div>
+  </div>
+!!.
+!{nostr_same}  <div about="%{webid}"><div rel="owl:sameAs" resource="%{nostr_did}"></div></div>
+!{nostr_agent}  <div about="%{webid}"><div rel="oplcert:hasIdentityDelegate" resource="%{nostr_did}"></div></div>
 
 </div>
