@@ -14,5 +14,7 @@ item3.URL:%{pubkey_pem_url}
 item3.X-ABLabel:Certificate URL
 item4.URL:%{webid}
 item4.X-ABLabel:NetID
+!{nostr_npub}item5.URL:nostr:%{nostr_npub}
+!{nostr_npub}item5.X-ABLabel:Nostr
 PHOTO;ENCODING=b;TYPE=JPEG:%{photo_base64}
 END:VCARD

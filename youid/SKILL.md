@@ -13,13 +13,19 @@ description: >
   "verify identity at", "generate X.509 certificate for", "upload identity
   documents to", "delegate identity for", "what is a NetID", "define WebID",
   "explain YouID", "self-sovereign identity", "digital identity card",
-  "WebID-TLS", "DPKI certificate".
+  "WebID-TLS", "DPKI certificate", "generate a did:nostr identity",
+  "create an agent identity", "nostr keypair for", "link my nostr key to my WebID",
+  "resolve did:nostr", "verify nostr link".
+  Also mints did:nostr (Nostr / secp256k1) identities via create-agent, links
+  them to a WebID (same agent via owl:sameAs, or an agent acting on behalf of
+  the WebID via oplcert:hasIdentityDelegate), and resolves/verifies the link
+  in both directions.
   Compatible with the OpenLink YouID browser extension.
 ---
 
 # YouID Skill — Web-Scale Verifiable Digital Identity
 
-Version: 1.1.0
+Version: 1.2.0
 
 ## Operating Modality — Read This First
 
@@ -36,6 +42,15 @@ What this means in practice:
 - **First-pass quality** — the goal is zero aesthetic corrections from the user. Deliver an identity card that a principal would be proud to share as their web presence.
 
 ---
+
+**2026-09-28 Updates (v1.2.0) — did:nostr support:**
+- New **T8** (`scripts/generate_nostr_identity.sh`): mints a did:nostr identity via [create-agent](https://github.com/melvincarvalho/create-agent), writes the DID side of a WebID link, and supports optional relay services, macOS Keychain custody, an encrypted secp256k1 `.p12` backup, and a `.well-known` HTTP-resolution copy
+- `generate_identity.sh -N <did:nostr|npub|hex> -R same|agent` adds the WebID side of the link, plus a `sec:Multikey`, to `profile.ttl`, `profile.jsonld`, and the RDFa in `profile_rdfa.html`/`index.html`. It also adds a Nostr Identity card section (all 3 styles) and a vCard `nostr:` URI
+- New **Step 7 gate** (`scripts/nostr_link_gate.py`), which checks the link and Multikey across all 4 representations. The Step 6 delegation gate exempts `did:nostr:` delegates from the RSA `cert:key` rule
+- New `scripts/resolve_did.py`: did:nostr resolution (HTTP `.well-known` / offline minimal / relay-enhanced, with every relay event signature-checked), two-sided `link` verification, and `prove` proof-of-control from the git, Keychain, or `.p12` key
+- New `scripts/nostr_crypto.py` (stdlib secp256k1 + BIP-340 + bech32; `selftest` runs the BIP-340 vectors) and `scripts/nostr_relay.mjs` (dependency-free NIP-01 client)
+- Fixed a pre-existing bug: Step 5 ran `unset OUT_DIR`, which made the Step 6 delegation gate silently scan nothing and the final summary exit 1 under `set -u`
+- Reference: `references/did-nostr.md`
 
 **2026-07-08 Updates (v1.1.0):**
 - Added ACME certificate support: Let's Encrypt and ZeroSSL cert type modalities
@@ -77,6 +92,9 @@ Use this skill whenever the user wants to:
 | "Upload identity documents to {destination}" | Upload generated artifacts to WebDAV/LDP |
 | "Delegate identity for {WebID}" | Generate On-Behalf-Of delegation profile |
 | "What is {X}?" (WebID, NetID, DPKI, FOAF, etc.) | Explain semantic web identity concepts |
+| "Generate a did:nostr / agent identity", "nostr keypair for {agent}" | T8 — mint via create-agent, optionally link to a WebID |
+| "Link my nostr key / agent to my WebID" | T8 + T1/T2 with `-N … -R same\|agent` (both sides of the link) |
+| "Resolve did:nostr:…", "verify the nostr link for {WebID}" | T8 verification via `scripts/resolve_did.py` |
 
 ## Defaults & Settings
 
@@ -166,6 +184,7 @@ Before delivering any output to the user, the following MUST pass:
   - Social relation links (optional, list of platform URLs)
   - Bio summary (optional, free-text, for dark template bio section; set as `subj_summary` in extra data JSON)
   - Certificate validity in years (optional, default 1)
+  - **Nostr identity to link** (optional): a `did:nostr:…`, `npub1…`, or 64-hex key (mint one first with T8 if needed). If given, you MUST ask **"Whose identity is this?"**: *"(1) Mine — the same agent as this WebID (`owl:sameAs`), or (2) a separate agent acting on my behalf (`oplcert:hasIdentityDelegate`)?"* Pass it as `-N <id> -R same|agent`. Never assume `same`; see `references/did-nostr.md`
   - **Certificate type** (optional, default `self-signed`):
     - Ask: *"What type of X.509 certificate? (1) Self-signed — quick, no external dependency. (2) Let's Encrypt — publicly trusted CA, needs domain ownership validation. (3) ZeroSSL — publicly trusted CA, needs API key for External Account Binding."*
     - If `letsencrypt` or `zerossl` selected, collect ACME-specific parameters:
@@ -397,6 +416,39 @@ Verification SPARQL queries are in `references/verification-queries.md`.
 
     Full detail: standalone report `webid-tls-on-behalf-of-delegation-no-effect-incident-report-claude_sonnet_5-1.md`, and `agent-rdf-memory/preferences.ttl` Step 296 / `howto/remote-webid-verification-service-obo.ttl`.
 
+### T8 — did:nostr Identity (create-agent) + WebID Link
+
+Full reference: `references/did-nostr.md`. Requires Node ≥ 22 (`npx`, global WebSocket), Python 3 + rdflib, and openssl.
+
+1. **Elicit:**
+   - Agent directory. It becomes a git repo, and the secret goes in its `git config nostr.privkey`.
+   - WebID to link (optional). If one is given, ask **"Whose identity is this?"**: `same` (owl:sameAs / alsoKnownAs) or `agent` (hasIdentityDelegate / onBehalfOf).
+   - Relays to advertise (optional, `wss://`).
+   - Extra key storage (optional): macOS Keychain (`-K`) and/or an encrypted `.p12` backup (`-X file -p pass`). Tell the user the `.p12` is a backup only and cannot be used for WebID-TLS.
+   - Whether to write the HTTP-resolution copy (`-H <webroot>`).
+2. **Mint + DID side of the link:**
+   ```
+   scripts/generate_nostr_identity.sh -d <dir> [-w <webid> -R same|agent] [-r wss://relay/]... [-K] [-X out.p12 -p <pass>] [-H <webroot>]
+   ```
+   To apply options to an identity that already exists, add `-E`. Built-in gates:
+   - the secret derives the DID key
+   - the Keychain entry reads back to the same key
+   - the `.p12`'s secp256k1 x-coordinate equals the DID key
+3. **WebID side of the link:** run T1/T2 with `-N <did> -R <same mode>`. Step 7 of `generate_identity.sh` then gates the link and the Multikey across all 4 representations.
+4. **Publish:**
+   - Upload the WebID bundle (T5).
+   - Serve `<webroot>/.well-known/did/nostr/<hex>.json` as `application/did+json` at `https://<domain>/.well-known/did/nostr/<hex>.json`.
+5. **Verify (all resolution options):**
+   ```
+   scripts/resolve_did.py resolve did:nostr:<hex>                         # offline minimal
+   scripts/resolve_did.py resolve did:nostr:<hex> --domain <domain>       # HTTP .well-known
+   scripts/resolve_did.py resolve did:nostr:<hex> --relay wss://relay/    # relay-enhanced (signatures verified)
+   scripts/resolve_did.py link <webid> did:nostr:<hex> --domain <domain> [--relay …]
+   scripts/resolve_did.py prove did:nostr:<hex> --key git:<dir> | keychain:<npub> | p12:<file>   # YOUID_P12_PASS for p12
+   ```
+   Report **LINK VERIFIED** only when both sides agree. A one-sided claim is **NOT VERIFIED** and must be reported as such.
+6. **Secret handling:** never print the secret, never put it in the output bundle, and never commit it. The DID document (`agent.did.json`) is public and safe to commit.
+
 ### T7 — Define Identity Concept
 
 Explain semantic web identity concepts using `references/identity-ontologies.md`:
@@ -414,6 +466,10 @@ Explain semantic web identity concepts using `references/identity-ontologies.md`
 | owl:sameAs | Identity link between equivalent entities across graphs |
 | WebID-TLS | Authentication protocol using X.509 certificates bound to WebIDs |
 | WebID-OIDC | Authentication using OpenID Connect with a WebID as subject identifier |
+| did:nostr | W3C DID method whose identifier is a Nostr secp256k1 x-only public key (hex); resolvable offline from the key alone |
+| npub / nsec | NIP-19 bech32 display encodings of a Nostr public / secret key (the hex is canonical) |
+| Multikey | W3C Controlled Identifiers (CID) v1 verification-method type; did:nostr uses `publicKeyMultibase` = `fe70102` + hex |
+| alsoKnownAs | DID Core property claiming the same entity — the reciprocal half of a WebID ⇄ did:nostr `owl:sameAs` link |
 
 ## Template System Reference
 
@@ -439,6 +495,7 @@ Full variable reference in `references/template-variables.md`.
 | Conditionals | `!{pdp_url}`, `!{subj_email}`, `!!{use_opal_widget}`, `!!{ca_cert_url}` | Set/non-set flags |
 | Relations | `relList`, `relList_json`, `relList_html`, `rel_header_html` | Computed from social links |
 | OPAL | `w_opl_endpoint`, `w_model`, `w_module` (agent config name), `w_funcs`, `w_assistant`, `w_prompt1-4` | User config (optional) |
+| did:nostr | `nostr_did`, `nostr_npub`, `nostr_hex`, `nostr_multibase`, `nostr_relation_label`; flags `nostr_same` / `nostr_agent` | Computed from `-N` / `-R` |
 
 ## Pre-Build Check
 
@@ -492,6 +549,14 @@ Before delivering any generated identity to the user:
 - [ ] **No external framework**: no `bootstrap`, `jquery`, or other framework imports in the HTML body
 - [x] **Basic WebID Test PASS** — **AUTO-GATED** in Step 5 of `generate_identity.sh`. The orchestrator extracts modulus + exponent from `cert.p12` and cross-references `profile.ttl`, `profile.jsonld`, and `index.html` (RDFa) using `rdflib` and `HTMLParser`. Generation is blocked with exit code 1 on any mismatch. Manual check no longer required.
 - [x] **Delegation & Cert:Key Consistency Test PASS** — **AUTO-GATED** in Step 6 of `generate_identity.sh`. If any file contains `oplcert:hasIdentityDelegate` or `oplcert:onBehalfOf`, the gate verifies identical triples across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (embedded JSON-LD + RDFa rel/property attrs), AND that every named delegate has its own `cert:key` (modulus+exponent) republished consistently across the same four files, with matching modulus values wherever inlined. Skips cleanly if no delegation triples are present. Blocks generation on failure.
+- [x] **did:nostr Link Consistency Test PASS** — **AUTO-GATED** in Step 7 of `generate_identity.sh` when `-N` is given (`scripts/nostr_link_gate.py`). It checks, across `profile.ttl`, `profile.jsonld`, `profile_rdfa.html`, and `index.html` (embedded JSON-LD + Turtle, plus the RDFa layer on its own), that:
+  - the DID is an on-curve key
+  - `publicKeyMultibase` == `fe70102` + hex
+  - the npub decodes to the same key
+  - exactly the expected relation is present (`owl:sameAs` for `same`, `oplcert:hasIdentityDelegate` for `agent`)
+
+  Blocks generation on failure.
+- [ ] **did:nostr reciprocal side published** (T8): `agent.did.json` carries `alsoKnownAs` (same) or `oplcert:onBehalfOf` (agent), and `scripts/resolve_did.py link` reports **LINK VERIFIED** once both documents are live
 - [ ] **Hero badges rendered**: "✓ Verified WebID", subject name, email, org all visible
 - [ ] **Social `owl:sameAs` present**: `profile.ttl` and `profile.jsonld` contain `owl:sameAs` entries for each social platform URL collected from the user (not just profile-document equivalences)
 - [ ] **`<link rel="me">` in head**: `index.html` has `<link rel="me">` tags for each social platform URL
@@ -583,7 +648,8 @@ youid/
 │   ├── template-variables.md         # Complete variable reference (%{key}, !{key}, !!{key})
 │   ├── verification-queries.md       # SPARQL queries for WebID profile verification
 │   ├── upload-backends.md            # curl commands for WebDAV/LDP uploads
-│   └── acme-workflows.md             # ACME certificate workflow reference (LE, ZeroSSL)
+│   ├── acme-workflows.md             # ACME certificate workflow reference (LE, ZeroSSL)
+│   └── did-nostr.md                  # did:nostr (T8): spec facts, link modes, key custody, verification
 ├── templates/
 │   ├── profile.ttl.tpl               # Turtle profile document template
 │   ├── profile.jsonld.tpl            # JSON-LD profile document template
@@ -607,7 +673,12 @@ youid/
 │   ├── compute_fingerprints.sh       # Compute SHA-1/SHA-256 fingerprints and NI/DI URIs
 │   ├── template_fill.py              # Template engine (%{key}, !{key}, !!{key} substitution)
 │   ├── generate_identity.sh          # Orchestrator: cert → variables → template fill → bundle
-│   └── verify_webid.sh              # Fetch and SPARQL-verify a remote WebID profile
+│   ├── verify_webid.sh              # Fetch and SPARQL-verify a remote WebID profile
+│   ├── generate_nostr_identity.sh    # T8: did:nostr via create-agent + link/relays/Keychain/.p12/.well-known
+│   ├── nostr_link_gate.py            # Step 7 gate: WebID ⇄ did:nostr link + Multikey consistency
+│   ├── resolve_did.py                # did:nostr + WebID resolver; two-sided link check; proof of control
+│   ├── nostr_crypto.py               # stdlib secp256k1 / BIP-340 / bech32 / NIP-01 helpers (+ selftest)
+│   └── nostr_relay.mjs               # dependency-free NIP-01 relay client (Node ≥ 22)
 └── assets/                           # Static assets for identity card HTML
     ├── style.css                     # Card CSS (also in templates/)
     ├── opal.js                       # OPAL widget (basic) — see extension src/tpl/

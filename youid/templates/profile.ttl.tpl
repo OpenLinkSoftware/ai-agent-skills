@@ -9,6 +9,7 @@
 @prefix schema: <http://schema.org/> .
 @prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . 
 @prefix pim: <http://www.w3.org/ns/pim/space#> .
+@prefix sec: <https://w3id.org/security#> .
 
 <%{card_ident_url}>    cert:key <%{pubkey_url}#PublicKey> . 
 <%{prof_url}#identity>    cert:key <%{pubkey_url}#PublicKey> . 
@@ -128,5 +129,16 @@ a foaf:profileDocument , oplcert:Certificate ;
 	<%{prof_url}> .
 
 <%{prof_url}#identity> xhv:alt <%{cert_url}#cert> .
+
+!!{nostr_did}
+# did:nostr identity: secp256k1 Multikey (W3C CID v1 terms)
+<%{nostr_did}> sec:verificationMethod <%{nostr_did}#key1> ;
+    schema:identifier "%{nostr_npub}" .
+<%{nostr_did}#key1> a sec:Multikey ;
+    sec:controller <%{nostr_did}> ;
+    sec:publicKeyMultibase "%{nostr_multibase}"^^sec:multibase .
+!!.
+!{nostr_same}<%{webid}> owl:sameAs <%{nostr_did}> .
+!{nostr_agent}<%{webid}> oplcert:hasIdentityDelegate <%{nostr_did}> .
 
 
