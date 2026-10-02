@@ -53,6 +53,13 @@ gptree_output.txt
 # Third-party skills
 first-customer-finder/
 
+# Local-only skills. The two below are symlinks into ~/.codegpt/skills, so
+# committing them would record a symlink to an absolute home path that resolves
+# nowhere for anyone else.
+linkedin-connections-rdf/
+game-development
+browser-automation
+
 # Temp/unnamed files
 zi3vYccB
 zii6taXt
@@ -79,3 +86,8 @@ zii6taXt
 
 # Live person registry (local). Commit entities/people.example.ttl instead.
 agent-rdf-memory/entities/people.ttl
+
+# Third-party skills installed locally (this directory is what ~/.claude,
+# ~/.qwen and ~/.gemini skills symlink to). Upstream owns them; they are not
+# vendored into this repo.
+/motion-broll/
