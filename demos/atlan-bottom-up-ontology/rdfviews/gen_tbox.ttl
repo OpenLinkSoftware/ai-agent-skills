@@ -1,0 +1,447 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix aowl: <http://bblfish.net/work/atom-owl/2006-06-06/> .
+@prefix virtrdf: <http://www.openlinksw.com/schemas/virtrdf#> .
+@prefix gql: <http://www.openlinksw.com/schemas/graphql#> .
+@prefix DB: <http://demo.openlinksw.com/schemas/DB/> .
+
+DB: a owl:Ontology .
+
+# DB.kidehen.cc_source
+
+gql:cc_source gql:type gql:Array;
+  gql:rdfClass DB:cc_source .
+
+gql:cc_sourceObject gql:type gql:Object;
+  gql:rdfClass DB:cc_source .
+
+DB:cc_source a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_source ;
+  rdfs:label "DB.kidehen.cc_source" .
+
+DB:source_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_source ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:source_id ;
+  rdfs:label "source_id" .
+
+DB:name a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_source ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:name ;
+  rdfs:label "name" .
+
+DB:system_type a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_source ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:system_type ;
+  rdfs:label "system_type" .
+
+DB:description a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_source ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:description ;
+  rdfs:label "description" .
+
+
+# DB.kidehen.cc_entity
+
+gql:cc_entity gql:type gql:Array;
+  gql:rdfClass DB:cc_entity .
+
+gql:cc_entityObject gql:type gql:Object;
+  gql:rdfClass DB:cc_entity .
+
+DB:cc_entity a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_entity ;
+  rdfs:label "DB.kidehen.cc_entity" .
+
+DB:entity_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_entity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:entity_id ;
+  rdfs:label "entity_id" .
+
+DB:preferred_label a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_entity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:preferred_label ;
+  rdfs:label "preferred_label" .
+
+DB:description a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_entity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:description ;
+  rdfs:label "description" .
+
+
+# DB.kidehen.cc_entity_alt_label
+
+gql:cc_entity_alt_label gql:type gql:Array;
+  gql:rdfClass DB:cc_entity_alt_label .
+
+gql:cc_entity_alt_labelObject gql:type gql:Object;
+  gql:rdfClass DB:cc_entity_alt_label .
+
+DB:cc_entity_alt_label a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_entity_alt_label ;
+  rdfs:label "DB.kidehen.cc_entity_alt_label" .
+
+DB:entity_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_entity_alt_label ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:entity_id ;
+  rdfs:label "entity_id" .
+
+DB:alt_label a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_entity_alt_label ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:alt_label ;
+  rdfs:label "alt_label" .
+
+
+# DB.kidehen.cc_metric
+
+gql:cc_metric gql:type gql:Array;
+  gql:rdfClass DB:cc_metric .
+
+gql:cc_metricObject gql:type gql:Object;
+  gql:rdfClass DB:cc_metric .
+
+DB:cc_metric a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_metric ;
+  rdfs:label "DB.kidehen.cc_metric" .
+
+DB:metric_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_metric ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:metric_id ;
+  rdfs:label "metric_id" .
+
+DB:entity_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_metric ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:entity_id ;
+  rdfs:label "entity_id" .
+
+DB:preferred_label a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_metric ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:preferred_label ;
+  rdfs:label "preferred_label" .
+
+DB:description a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_metric ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:description ;
+  rdfs:label "description" .
+
+
+# DB.kidehen.cc_property
+
+gql:cc_property gql:type gql:Array;
+  gql:rdfClass DB:cc_property .
+
+gql:cc_propertyObject gql:type gql:Object;
+  gql:rdfClass DB:cc_property .
+
+DB:cc_property a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_property ;
+  rdfs:label "DB.kidehen.cc_property" .
+
+DB:property_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_property ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:property_id ;
+  rdfs:label "property_id" .
+
+DB:entity_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_property ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:entity_id ;
+  rdfs:label "entity_id" .
+
+DB:preferred_label a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_property ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:preferred_label ;
+  rdfs:label "preferred_label" .
+
+DB:description a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_property ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:description ;
+  rdfs:label "description" .
+
+
+# DB.kidehen.cc_relationship
+
+gql:cc_relationship gql:type gql:Array;
+  gql:rdfClass DB:cc_relationship .
+
+gql:cc_relationshipObject gql:type gql:Object;
+  gql:rdfClass DB:cc_relationship .
+
+DB:cc_relationship a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_relationship ;
+  rdfs:label "DB.kidehen.cc_relationship" .
+
+DB:rel_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_relationship ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:rel_id ;
+  rdfs:label "rel_id" .
+
+DB:from_entity_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_relationship ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:from_entity_id ;
+  rdfs:label "from_entity_id" .
+
+DB:to_entity_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_relationship ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:to_entity_id ;
+  rdfs:label "to_entity_id" .
+
+DB:preferred_label a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_relationship ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:preferred_label ;
+  rdfs:label "preferred_label" .
+
+
+# DB.kidehen.cc_claim
+
+gql:cc_claim gql:type gql:Array;
+  gql:rdfClass DB:cc_claim .
+
+gql:cc_claimObject gql:type gql:Object;
+  gql:rdfClass DB:cc_claim .
+
+DB:cc_claim a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_claim ;
+  rdfs:label "DB.kidehen.cc_claim" .
+
+DB:claim_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:claim_id ;
+  rdfs:label "claim_id" .
+
+DB:claim_kind a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:claim_kind ;
+  rdfs:label "claim_kind" .
+
+DB:subject_ref a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:subject_ref ;
+  rdfs:label "subject_ref" .
+
+DB:definition_text a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:definition_text ;
+  rdfs:label "definition_text" .
+
+DB:source_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:source_id ;
+  rdfs:label "source_id" .
+
+DB:confidence a owl:DatatypeProperty ;
+  rdfs:range xsd:numeric ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:confidence ;
+  rdfs:label "confidence" .
+
+DB:valid_from a owl:DatatypeProperty ;
+  rdfs:range xsd:date ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:valid_from ;
+  rdfs:label "valid_from" .
+
+DB:valid_to a owl:DatatypeProperty ;
+  rdfs:range xsd:date ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:valid_to ;
+  rdfs:label "valid_to" .
+
+DB:status a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:status ;
+  rdfs:label "status" .
+
+DB:reviewed_by a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:reviewed_by ;
+  rdfs:label "reviewed_by" .
+
+DB:reviewed_at a owl:DatatypeProperty ;
+  rdfs:range xsd:dateTime ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_claim ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:reviewed_at ;
+  rdfs:label "reviewed_at" .
+
+
+# DB.kidehen.cc_opportunity
+
+gql:cc_opportunity gql:type gql:Array;
+  gql:rdfClass DB:cc_opportunity .
+
+gql:cc_opportunityObject gql:type gql:Object;
+  gql:rdfClass DB:cc_opportunity .
+
+DB:cc_opportunity a rdfs:Class ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:cc_opportunity ;
+  rdfs:label "DB.kidehen.cc_opportunity" .
+
+DB:opp_id a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:opp_id ;
+  rdfs:label "opp_id" .
+
+DB:account_name a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:account_name ;
+  rdfs:label "account_name" .
+
+DB:stage a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:stage ;
+  rdfs:label "stage" .
+
+DB:amount a owl:DatatypeProperty ;
+  rdfs:range xsd:numeric ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:amount ;
+  rdfs:label "amount" .
+
+DB:created_at a owl:DatatypeProperty ;
+  rdfs:range xsd:date ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:created_at ;
+  rdfs:label "created_at" .
+
+DB:closed_at a owl:DatatypeProperty ;
+  rdfs:range xsd:date ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:closed_at ;
+  rdfs:label "closed_at" .
+
+DB:is_new_business a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:is_new_business ;
+  rdfs:label "is_new_business" .
+
+DB:reached_qualification a owl:DatatypeProperty ;
+  rdfs:range xsd:int ;
+  gql:type gql:Scalar ;
+  rdfs:domain DB:cc_opportunity ;
+  rdfs:isDefinedBy DB: ;
+  gql:field gql:reached_qualification ;
+  rdfs:label "reached_qualification" .
+
+
+
+gql:Map gql:dataGraph <http://demo.openlinksw.com/DB#> ;
+  gql:schemaGraph DB: ;
+  gql:schemaObjects gql:cc_source, gql:cc_entity, gql:cc_entity_alt_label, gql:cc_metric, gql:cc_property, gql:cc_relationship, gql:cc_claim, gql:cc_opportunity.

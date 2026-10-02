@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Virtuoso × Atlan — Bottom-Up Ontology Showcase</title>
+<style>
+:root{--accent:#5b4bff;--accent2:#00c2a8;--accent3:#ff6b4a;--bg:#0b0f1a;--card:#141a2b;--text:#e8ecf7;--muted:#9aa3b8;--border:#243049}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:radial-gradient(900px 500px at 80% -20%,#1c2558,var(--bg));color:var(--text)}
+a{color:var(--accent2)}main{max-width:920px;margin:0 auto;padding:2rem 1.25rem 3rem}
+h1{font-size:clamp(1.5rem,3vw,2.2rem);margin:.3rem 0 .8rem}p{color:var(--muted);line-height:1.55}
+.story{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1.25rem 0 1.5rem}
+.step{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.8rem;font-size:.85rem}
+.step b{display:block;color:var(--accent2);margin-bottom:.3rem;font-size:.75rem;letter-spacing:.03em;text-transform:uppercase}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem}
+.card h2{margin:0 0 .5rem;font-size:1rem}.card ul{margin:.3rem 0 0;padding-left:1.1rem;color:var(--muted);font-size:.9rem}
+.meta{font-size:.8rem;color:var(--muted);margin-top:1.5rem}
+@media(max-width:720px){.story,.links{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <div style="color:var(--accent2);font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Virtuoso showcase · DB.kidehen · localhost:8890</div>
+  <h1>Bottom-up claims + inherited ontology — one truth in SQL, SPASQL &amp; SPARQL</h1>
+  <p>
+    Proves the Atlan <a href="https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/" target="_blank" rel="noopener">Context &amp; Chaos</a> thesis:
+    mine local meaning; reuse SKOS / RDF / OWL / validity intervals for representation.
+    Competing <strong>Win Rate</strong> definitions stay visible — with time.
+  </p>
+  <div class="story">
+    <div class="step"><b>1 · Tables</b>DB.kidehen claims &amp; opportunities with valid_from/to</div>
+    <div class="step"><b>2 · Ontology</b>OWL+SKOS+PROV at /schemas/atlan-cc/</div>
+    <div class="step"><b>3 · RDF Views</b>Bridge → graph http://localhost:8890/atlan-cc#</div>
+    <div class="step"><b>4 · Query</b>SQL · SPASQL · SPARQL · spasqlqb</div>
+  </div>
+  <div class="links">
+    <div class="card">
+      <h2>Article narrative</h2>
+      <ul>
+        <li><a href="article/article.html">Interactive infographic</a></li>
+        <li><a href="article/article.md">Markdown companion</a></li>
+        <li><a href="article/article.ttl">schema.org KG (TTL)</a></li>
+        <li><a href="article/article-source.md">Cleaned source extract</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Load &amp; map</h2>
+      <ul>
+        <li><a href="sql/01_ddl.sql">01_ddl.sql</a> · <a href="sql/02_sample_data.sql">02_sample_data.sql</a></li>
+        <li><a href="ontology/atlan-cc.ttl">ontology/atlan-cc.ttl</a></li>
+        <li><a href="rdfviews/03_ontology_from_tables.sql">03 IRI / T-Box</a></li>
+        <li><a href="rdfviews/04_rdfview_data_rules.sql">04 QuadMap rules</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Queries</h2>
+      <ul>
+        <li><a href="queries/05_sql_samples.sql">SQL samples</a></li>
+        <li><a href="queries/06_spasql_samples.sql">SPASQL samples</a></li>
+        <li><a href="queries/07_sparql_samples.rq">SPARQL samples</a></li>
+        <li><a href="queries/spasqlqb-links.md">spasqlqb permalinks</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Local endpoints</h2>
+      <ul>
+        <li>SQL / ODBC: <code>localhost:1111</code> (DSN=Local_Instance)</li>
+        <li>HTTP: <a href="http://localhost:8890/" target="_blank" rel="noopener">:8890</a></li>
+        <li><a href="http://localhost:8890/spasqlqb/" target="_blank" rel="noopener">spasqlqb</a> · uid=kidehen</li>
+        <li><a href="http://localhost:8890/sparql" target="_blank" rel="noopener">/sparql</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="meta">Runbook: <a href="README.md">README.md</a> · Punchline: bottom-up SQL evidence + inherited RDF form + validity intervals + three query languages over the same truth.</p>
+</main>
+</body>
+</html>
