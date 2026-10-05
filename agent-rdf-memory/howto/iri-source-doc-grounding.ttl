@@ -44,8 +44,8 @@ When writing a rule or a template, use the placeholder. When generating a delive
 
 :step-navigationVersusDenotation a schema:HowToStep ;
     schema:position 4 ;
-    schema:name "In-document navigation may stay relative; denoted and displayed IRIs are the grounded form"@en ;
-    schema:text "A same-document jump such as href=\"#willis\" may stay relative, since it must work from any location including a local preview. Everything that denotes or displays a name does not: the JSON-LD and Turtle subjects, the IRI shown to the reader, the address-bar demo, copy-to-clipboard values and resolver links all use the full grounded IRI, never the address of the preview server the page happened to be opened from."@en .
+    schema:name "Entity links are resolver links built from the grounded IRI; only pure navigation controls stay relative"@en ;
+    schema:text "Any hyperlink that names an entity, whether in prose, a speech bubble, a card, a graph node, a name tag or the linkified JSON-LD and Turtle source, uses {default-resolver-server}/describe/?url={url-encoded grounded IRI}, because a bare href=\"#willis\" resolves to a file: or localhost URL as soon as the page is opened from disk. Only controls whose job is to scroll within the page, such as the nav bar, a jump-to-section button and a demo of fragment navigation, may use a relative #fragment. The IRIs shown or copied are always the full grounded form."@en .
 
 :step-scopeBoundary a schema:HowToStep ;
     schema:position 5 ;
@@ -60,4 +60,4 @@ When writing a rule or a template, use the placeholder. When generating a delive
 
 :workedExample a schema:CreativeWork ;
     schema:name "Worked example: the Whatchu Talkin' 'Bout page, 2026-10-05"@en ;
-    schema:text "The page first derived its IRIs from location.href, so while previewed on 127.0.0.1 the minted names read http://127.0.0.1:8765/...#willis. The user corrected this: IRIs must be grounded in the source document URL, and a local-only document presumes {default-resolver-server}/DAV/demos/daas/{filename}. The page now uses that presumed URL as the base for #arnold, #willis and #line, in markup, JSON-LD and Turtle, while its same-page jump links stay relative."@en .
+    schema:text "The page first derived its IRIs from location.href, so while previewed on 127.0.0.1 the minted names read http://127.0.0.1:8765/...#willis. The user corrected this: IRIs must be grounded in the source document URL, and a local-only document presumes {default-resolver-server}/DAV/demos/daas/{filename}. The page now uses that presumed URL as the base for #arnold, #willis and #line, in markup, JSON-LD and Turtle, while only its nav bar and fragment-navigation demo stay relative. A first pass left every entity link in the comic, the flip cards, the graph and the source view as a bare #fragment, which resolves to file: when the page is opened from disk. The user caught it, and every such link is now a resolver link built from the grounded IRI."@en .
