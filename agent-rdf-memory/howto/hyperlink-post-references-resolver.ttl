@@ -32,14 +32,14 @@ Never feed a pre-encoded URL (one already containing %27, %20, %5B) into the enc
     schema:name "Compute the resolver URL with a tool (single encoding)"@en ;
     schema:text """Resolver pattern:
 
-  https://linkeddata.uriburner.com/describe/?url={url-encoded-iri}
+  {default-resolver-server}/describe/?url={url-encoded-iri}
 
 Compute the percent-encoding programmatically (e.g. urllib.parse.quote(iri, safe='')). One url-decode pass on the query value must yield the clean post IRI — if it yields another describe/?url= or still-encoded text, it is double-wrapped."""@en .
 
 :step3 a schema:HowToStep ;
     schema:position 3 ;
     schema:name "Verify each resolver URL resolves (HTTP 200) before use"@en ;
-    schema:text """curl -s -L -o /dev/null -w '%{http_code}' 'https://linkeddata.uriburner.com/describe/?url={encoded}'
+    schema:text """curl -s -L -o /dev/null -w '%{http_code}' '{default-resolver-server}/describe/?url={encoded}'
 
 Only include the hyperlink if the resolver returns HTTP 200. A resolver URL that 404s or times out is worse than no link — drop it or ask the user for the correct URL. Never fabricate the encoding by hand."""@en .
 
@@ -48,6 +48,6 @@ Only include the hyperlink if the resolver returns HTTP 200. A resolver URL that
     schema:name "Render every referenced post as a resolver hyperlink"@en ;
     schema:text """In the response, wrap the post title (or a descriptive label) as a Markdown hyperlink to the verified resolver URL:
 
-  [Do We Need the Semantic Web?](https://linkeddata.uriburner.com/describe/?url=http%3A%2F%2Fwww.openlinksw.com%2Fdataspace%2Fkidehen%40openlinksw.com%2Fweblog%2Fkidehen%40openlinksw.com%27s%20BLOG%20%5B127%5D%2F231)
+  [Do We Need the Semantic Web?]({default-resolver-server}/describe/?url=http%3A%2F%2Fwww.openlinksw.com%2Fdataspace%2Fkidehen%40openlinksw.com%2Fweblog%2Fkidehen%40openlinksw.com%27s%20BLOG%20%5B127%5D%2F231)
 
 Never emit a bare post URL and never link directly to the source site — the resolver is the canonical hyperlink surface. Local file references (session memory, artifacts) keep their local relative paths."""@en .

@@ -1,0 +1,63 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "IRIs Are Grounded in the Source Document URL; the Default Resolver Server Is a Placeholder"@en ;
+    schema:description "Every IRI a document mints, including every #fragment, hangs off that document's own public URL. When only a local file exists, presume the URL it will have once published under the default resolver server's DAV daas folder. The server itself is the placeholder {default-resolver-server}, not a hardcoded host."@en ;
+    schema:dateCreated "2026-10-05T18:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-10-05T18:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :iriGrounding .
+
+:iriGrounding a schema:HowTo ;
+    schema:name "Grounding IRIs in the source document URL"@en ;
+    schema:description "Procedure for choosing the base of every IRI minted in a generated document, and for writing resolver and DAV hosts as a placeholder."@en ;
+    schema:step :step-groundInDocUrl, :step-presumeDaasForLocalDoc, :step-defaultResolverPlaceholder,
+        :step-navigationVersusDenotation, :step-scopeBoundary, :step-groundingVerification ;
+    rdfs:seeAlso <../preferences.ttl#step-iriSourceDocGrounding>,
+        <dav-public-url-default.ttl>, <canonical-entity-iri-denotation.ttl> .
+
+:step-groundInDocUrl a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Hang every minted IRI, fragment ids included, off the source document's own URL"@en ;
+    schema:text "A name minted for a thing described in or by a document is {document-URL}#{fragment}, or a slash IRI under the same document URL. The document URL is the one the source was published at (or will be). Fragment ids extend the document's name to anything inside it, so #arnold in a page at U denotes U#arnold, a thing, not the page. Never ground an IRI in localhost, 127.0.0.1, a file: URL, a scratchpad path or a bare relative reference. Set the serialization base to the grounded URL (@base in Turtle, @base in JSON-LD, or the equivalent prefix declaration) so the minted names are identical in every serialization."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerUserCorrection .
+
+:step-presumeDaasForLocalDoc a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "When only a local document exists, presume its URL is {default-resolver-server}/DAV/demos/daas/{filename}"@en ;
+    schema:text "A local-only artifact has no public URL yet, but its IRIs must still be grounded. Presume the document will be published under the default resolver server's DAV daas folder and use {default-resolver-server}/DAV/demos/daas/{filename} as its URL for every minted IRI, @base and displayed identifier. State the presumption in the delivery report. Presuming a URL does not authorize uploading: publishing is outward-facing and waits for the user's request. If the user names a different destination, that destination's URL is the base instead."@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .
+
+:step-defaultResolverPlaceholder a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Write the resolver and DAV host as {default-resolver-server}, never as a hardcoded product host"@en ;
+    schema:text """{default-resolver-server} is a placeholder for an origin, scheme included. Its public default is https://linkeddata.uriburner.com. It is overridable in preferences.private.ttl, so the same rules serve another Virtuoso-backed Linked Data deployment unchanged.
+
+It stands in for the host of: the describe resolver ({default-resolver-server}/describe/?url={url-encoded-iri}), the public DAV daas folder ({default-resolver-server}/DAV/demos/daas/{filename}), and the default SPARQL endpoint path ({default-resolver-server}/sparql) wherever a howto states these as defaults.
+
+When writing a rule or a template, use the placeholder. When generating a deliverable, substitute the resolved value so the delivered artifact contains a real, working URL."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration .
+
+:step-navigationVersusDenotation a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "In-document navigation may stay relative; denoted and displayed IRIs are the grounded form"@en ;
+    schema:text "A same-document jump such as href=\"#willis\" may stay relative, since it must work from any location including a local preview. Everything that denotes or displays a name does not: the JSON-LD and Turtle subjects, the IRI shown to the reader, the address-bar demo, copy-to-clipboard values and resolver links all use the full grounded IRI, never the address of the preview server the page happened to be opened from."@en .
+
+:step-scopeBoundary a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Howtos about a specific service's credentialed behavior keep the literal host"@en ;
+    schema:text "The placeholder replaces the host where a howto states a default resolver, DAV daas folder or public-URL pattern. It does not replace the host in howtos that describe how one particular service behaves: OAuth authorization-code flow, mTLS and PKCS#12 handling, isql credential resolution, authenticated DAV upload and removal. Those name URIBurner because the behavior belongs to it."@en .
+
+:step-groundingVerification a schema:HowToStep ;
+    schema:position 6 ;
+    schema:name "Check minted IRIs for local origins before delivery"@en ;
+    schema:text "Grep the deliverable and its RDF for 127.0.0.1, localhost, file: and bare relative IRIs used as subjects or displayed names. Any match is a FAIL. Confirm the @base equals the presumed or actual document URL and that fragment ids in the markup match the fragment names in the data."@en ;
+    rdfs:seeAlso <entity-href-companion-ttl.ttl>, <sparql-absolute-prefix-iri.ttl> .
+
+:workedExample a schema:CreativeWork ;
+    schema:name "Worked example: the Whatchu Talkin' 'Bout page, 2026-10-05"@en ;
+    schema:text "The page first derived its IRIs from location.href, so while previewed on 127.0.0.1 the minted names read http://127.0.0.1:8765/...#willis. The user corrected this: IRIs must be grounded in the source document URL, and a local-only document presumes {default-resolver-server}/DAV/demos/daas/{filename}. The page now uses that presumed URL as the base for #arnold, #willis and #line, in markup, JSON-LD and Turtle, while its same-page jump links stay relative."@en .
