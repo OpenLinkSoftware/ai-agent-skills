@@ -59,7 +59,7 @@
         OPTIONAL { ?term <http://schema.org/name> ?n1 } OPTIONAL { ?term <https://schema.org/name> ?n2 }
         BIND(COALESCE(?n1,?n2) AS ?name)
       }
-      FILTER(STRSTARTS(STR(?g), "https://linkeddata.uriburner.com/DAV/demos/daas/"))
+      FILTER(STRSTARTS(STR(?g), "{default-resolver-server}/DAV/demos/daas/"))
     }' \\
     --data-urlencode 'format=application/sparql-results+json'"""@en .
 

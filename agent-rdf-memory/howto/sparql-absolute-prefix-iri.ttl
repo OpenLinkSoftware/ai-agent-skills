@@ -34,16 +34,16 @@ This IRI does not exist at that location. The endpoint returns 0 results or a pa
     schema:name "Derive the absolute DAV IRI from the skills contract"@en ;
     schema:text """Read the DAV path pattern from the active skill. The canonical pattern from rdf-infographic-skill/SKILL.md and kg-generator/SKILL.md is:
 
-  https://linkeddata.uriburner.com/DAV/demos/daas/{filename}.ttl
+  {default-resolver-server}/DAV/demos/daas/{filename}.ttl
 
 Procedure:
   1. Identify the ontology or vocabulary TTL filename (e.g., okf-open-knowledge-format-ontology.ttl).
   2. Substitute into the DAV pattern:
-       https://linkeddata.uriburner.com/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl
+       {default-resolver-server}/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl
   3. Append the fragment separator and class/property prefix fragment:
-       https://linkeddata.uriburner.com/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl#okf-
+       {default-resolver-server}/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl#okf-
   4. Use this as the absolute PREFIX IRI:
-       PREFIX okf: <https://linkeddata.uriburner.com/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl#okf->
+       PREFIX okf: <{default-resolver-server}/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl#okf->
 
 NEVER ask the user for this path. It is always derivable from the skills contract."""@en .
 
@@ -55,7 +55,7 @@ NEVER ask the user for this path. It is always derivable from the skills contrac
 (A) The sparql-code display block — the human-readable syntax-highlighted code.
     Replace the relative IRI in the <span class="iri"> element:
     Before: <span class="iri">&lt;okf-open-knowledge-format-ontology.ttl#okf-&gt;</span>
-    After:  <span class="iri">&lt;https://linkeddata.uriburner.com/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl#okf-&gt;</span>
+    After:  <span class="iri">&lt;{default-resolver-server}/DAV/demos/daas/okf-open-knowledge-format-ontology.ttl#okf-&gt;</span>
 
 (B) The sparql-run-btn href — the URL-encoded query string.
     The IRI must be percent-encoded within the query parameter.
@@ -69,12 +69,12 @@ Both must be updated for each query. A display fix without fixing the href (or v
     schema:name "Add the FROM clause to scope the query to the named graph"@en ;
     schema:text """After fixing the PREFIX IRI, also verify that each query includes a FROM clause scoping it to the instance-data named graph (per Step 41 / :step-virtuosoWorkbenchQueryDedup):
 
-  FROM <https://linkeddata.uriburner.com/DAV/demos/daas/{instance-data-filename}.ttl>
+  FROM <{default-resolver-server}/DAV/demos/daas/{instance-data-filename}.ttl>
 
 This is separate from the PREFIX ontology IRI but equally required. Virtuoso is a quad store — without FROM, the query hits the union of all graphs and returns duplicates or misses.
 
 The FROM graph IRI is the instance data TTL (not the ontology TTL), e.g.:
-  FROM <https://linkeddata.uriburner.com/DAV/demos/daas/okf-open-knowledge-format-instance-data.ttl>
+  FROM <{default-resolver-server}/DAV/demos/daas/okf-open-knowledge-format-instance-data.ttl>
 
 Add this clause between the SELECT ... variables line and the WHERE { block in both the display code and the URL-encoded href."""@en .
 

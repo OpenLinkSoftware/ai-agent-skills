@@ -1826,7 +1826,7 @@ Certificate paths:
 
 :step-davPublicUrlDefault a schema:HowToStep ;
     schema:position 126 ;
-    schema:name "Links to a DIFFERENT generated document default to its public https://linkeddata.uriburner.com/DAV/demos/daas/{filename} URL, never a filesystem-relative or file: path"@en ;
+    schema:name "Links to a DIFFERENT generated document default to its public {default-resolver-server}/DAV/demos/daas/{filename} URL, never a filesystem-relative or file: path"@en ;
     schema:text "When a generated HTML or Markdown artifact links to a different, separately-generated document (not its own companion .ttl/.md/.html triplet), the default target is that document's public DAV-hosted URL, not a filesystem-relative path — unless the user explicitly overrides the destination for that link."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/dav-public-url-default.ttl> .
@@ -3840,6 +3840,18 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/demo-spasql-signin-notice.ttl>,
         <howto/spasql-example-live-link.ttl>,
         <howto/sql-ddl-batch-script-and-verification.ttl> .
+
+
+# ── Step 321: IRIs are grounded in the source document URL; the resolver server is a placeholder ──
+:step-iriSourceDocGrounding a schema:HowToStep ;
+    schema:position "321"^^xsd:integer ;
+    schema:name "Ground every minted IRI, fragment ids included, in the source document's URL; for a local-only document presume {default-resolver-server}/DAV/demos/daas/{filename}; write the resolver and DAV host as {default-resolver-server}, never a hardcoded host"@en ;
+    schema:text "Base IRIs on the source document's public URL, never on localhost, file: or a relative path, and defer the placeholder's value, defaults, overrides, and scope to the howto."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration, onto:triggerPreferencesUpdate ;
+    rdfs:seeAlso <howto/iri-source-doc-grounding.ttl>,
+        <howto/dav-public-url-default.ttl>,
+        <howto/entity-href-companion-ttl.ttl>,
+        <howto/canonical-entity-iri-denotation.ttl> .
 # ── Step 323: default narration voice is Grok/xAI "leo", key from XAI_API_KEY in ~/.zshrc ──
 :step-screencastNarrationVoiceLeo a schema:HowToStep ;
     schema:position "323"^^xsd:integer ;

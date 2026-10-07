@@ -12,6 +12,11 @@
     schema:name "Private endpoint selection order"@en ;
     schema:description "Example: local endpoint first, then a remote endpoint, then local Turtle document processing. Replace this text with your private policy in preferences.private.ttl."@en .
 
+# Default resolver server: the value substituted for {default-resolver-server} in the
+# public howtos (describe resolver, DAV daas folder, default SPARQL endpoint). The public
+# default is https://linkeddata.uriburner.com. Override here for another deployment.
+# :defaultResolverServer schema:value "https://linkeddata.uriburner.com" .
+
 # Example overlay assertion. Private graph values should be prioritized by the
 # harness when both public and private retrieval policies are available.
 # onto:VirtuosoSparqlTroubleshooting onto:retrievalPolicy :PrivateEndpointSelectionPolicy .
