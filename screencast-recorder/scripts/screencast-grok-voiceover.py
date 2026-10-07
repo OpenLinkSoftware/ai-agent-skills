@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate screencast narration with Grok/xAI text-to-speech (default voice: leo).
 
-One clip per scene, then (optionally) a timing plan and a standalone voice track
+One clip per scene, then (optionally) a timing plan, and a standalone voice track
 that fits each scene to its narration:  scene length = max(min_scene, clip + tail).
 
 The API key is read from the XAI_API_KEY environment variable. If it is not set,
