@@ -8,13 +8,15 @@
     schema:name "Screencast Recording and Voice-Over Conventions"@en ;
     schema:description "RDF companion procedure for screencast recording, including scene confirmation, model-specific routing, phonetic TTS spellings, recording validation, narration approval, and distribution handoff."@en ;
     schema:dateCreated "2026-08-10T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-22T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-10-07T17:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :screencastRecording ;
     schema:step :stepUseRecorderSkill, :stepConfirmScenes,
         :stepApplyPronunciations, :stepRecordAndVerify,
-        :stepApproveNarration, :stepBuildDistributionBundle ;
+        :stepApproveNarration, :stepBuildDistributionBundle,
+        :stepNarrationVoiceLeo, :stepFindPriorWorkInArtifacts ;
     rdfs:seeAlso <../preferences.ttl#step-ttsPronunciations>,
+        <../preferences.ttl#step-screencastNarrationVoiceLeo>,
         <artifact-routing.ttl>, <screencast-distribution-artifacts.ttl> .
 
 :screencastRecording a schema:Thing ;
@@ -33,7 +35,7 @@
 :stepApplyPronunciations a schema:HowToStep ;
     schema:position 3 ;
     schema:name "Apply the canonical phonetic spellings to TTS input"@en ;
-    schema:text "In narration and voice-over input, write URIBurner as 'U-R-I Burner', SPARQL as 'Sparkle', DaaS as 'DAAS' pronounced to rhyme with gas, and ABAC as 'A-BACK'; these spellings are for synthesized speech and need not replace visible technical labels."@en ;
+    schema:text "In narration and voice-over input, write URIBurner as 'U-R-I Burner', SPARQL as 'Sparkle', DaaS as 'DAAS' pronounced to rhyme with gas, ABAC as 'A-BACK', and (added 2026-10-07 from the user's revised LOAC storyboard) LOAC is pronounced 'lock', while ACP, UCP and MPP are spoken letter by letter; these spellings are for synthesized speech and need not replace visible technical labels."@en ;
     rdfs:seeAlso <../preferences.ttl#step-ttsPronunciations> .
 
 :stepRecordAndVerify a schema:HowToStep ;
@@ -52,3 +54,23 @@
     schema:name "Hand off to the screencast distribution contract"@en ;
     schema:text "Build and validate the named presentation HTML, embedded primary MP4, relative media links, JSON-LD, POSH metadata, captions, and attribution according to screencast-distribution-artifacts.ttl."@en ;
     rdfs:seeAlso <screencast-distribution-artifacts.ttl> .
+
+:stepNarrationVoiceLeo a schema:HowToStep ;
+    schema:position 7 ;
+    schema:name "Default narration voice is Grok/xAI voice leo, not OpenAI onyx"@en ;
+    schema:text """Set 2026-10-07 at the user's direction, after the agent defaulted to the documented onyx voice and asked about Leo. Unless the user names a different voice in the session, generate narration through the xAI text-to-speech endpoint, the same call the 2026-09-24 food-bookmark screencast used (Grok/screencasts/2026-09-24-food-bookmark-options-discovery/out/screencast/mac-regen-tts-mux.sh):
+
+POST https://api.x.ai/v1/tts
+Authorization: Bearer {key}   Content-Type: application/json
+body: {"text": "{scene narration}", "voice_id": "leo", "language": "en", "text_normalization": true}
+
+The response body is the MP3. Fall back to voice_id rex only when leo is unavailable, and say so. Make one clip per scene (named like 01-curate.mp3). Fit video to audio per scene: a scene lasts max(scene duration, narration length + 1.0 s); freeze the last video frame to make up any shortfall, pad the audio to the same length, concatenate, and mux as AAC into a new with-voiceover MP4 while keeping the silent original. Record the voice in a TTS.txt beside the clips (for example: TTS: Grok/xAI api.x.ai/v1/tts voice=leo text_normalization=true).
+
+CREDENTIAL: the key is the environment variable XAI_API_KEY that the user defines in their ~/.zshrc (an export line; GROK_API_KEY and GROK_CODE_XAI_API_KEY are defined there too but XAI_API_KEY is the one the scripts use). A non-interactive shell does not load .zshrc, so read just that export line into the process environment, for example by evaluating the single matching line, never by printing it. Never echo, log, store in memory, write to a file, or show the key; send it only to api.x.ai over verified TLS and do not disable certificate checks when it is attached to the request. This supersedes the onyx default in screencast-recorder/SKILL.md for as long as this step stands; preferences.ttl wins over skill prose. The voice-quality approval gate (stepApproveNarration) and the phonetic spellings (stepApplyPronunciations) still apply, and so does the rule that LOAC is spoken as L-O-A-C or spelled out as Linked Open Agentic Commerce, and ACP, UCP and MPP are spoken letter by letter."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-screencastNarrationVoiceLeo>,
+        <screencast-recording.ttl#stepApproveNarration> .
+
+:stepFindPriorWorkInArtifacts a schema:HowToStep ;
+    schema:position 8 ;
+    schema:name "When the user refers to something done in the past, look in recent artifact folders as well as in memory"@en ;
+    schema:text """Caught 2026-10-07: asked to use the Grok Leo profile used in the past, the agent searched only the memory .ttl files and reported no record, and the user had to point to recent screencasts. The evidence was in the output folders (TTS.txt and the mux scripts under {LLM_ROOT}/{model}/screencasts/{date-slug}/), never written into preferences. For any reference to a past voice, setting, style or procedure, search the newest bundles under {LLM_ROOT}/*/screencasts/ (file times, TTS.txt, narration, scripts) and the session files together before answering that there is no record, and when found in an artifact only, promote it into preferences.ttl once the user confirms."""@en .
