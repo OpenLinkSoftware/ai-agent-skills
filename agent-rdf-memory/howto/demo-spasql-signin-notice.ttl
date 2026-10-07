@@ -1,0 +1,45 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/demo-spasql-signin-notice.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 316. Every SPASQL query shown in an RDF Views demo on demo.openlinksw.com carries a visible notice about signing in as the demo or vdb account, where the user id and the password are identical; the instance is protected by ABAC ACLs."@en ;
+    schema:dateCreated "2026-10-02T14:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-10-02T14:30:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Put a sign-in notice on every SPASQL query in an RDF Views demo on demo.openlinksw.com"@en ;
+    schema:description "SPASQL and SQL need a signed-in session, which the anonymous SPARQL endpoint does not provide, so a reader who clicks a Query Builder link meets a sign-in page with no explanation unless the page says what to do."@en ;
+    schema:step :step-rule, :step-where, :step-grants, :step-permlink, :step-scope ;
+    rdfs:seeAlso <../preferences.ttl#step-demoSpasqlSigninNotice>, <spasql-example-live-link.ttl>, <sql-ddl-batch-script-and-verification.ttl> .
+
+:step-rule a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "The rule: authenticate as demo or vdb, user id and password identical, and say the instance is protected by ABAC ACLs"@en ;
+    schema:text "Kingsley, 2026-10-02, on the Databricks agentic-marketing collection: 'there always has to be a notice about authenticating using accounts demo or vdb, where the uid and pwd values are identical. The instance is appropriately protected by ABAC acls.' The notice is part of every SPASQL example, not an optional extra."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerArtifactGeneration .
+
+:step-where a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Where it goes: on each SPASQL and SQL card, on the group heading, in the FAQ and HowTo, and in the TTL"@en ;
+    schema:text "Put the notice on every card that needs a signed-in session (SPASQL and plain SQL run through the Query Builder), once more in the note that heads their group, in the FAQ and in the reproduction HowTo. Record it in the companion TTL as schema:conditionsOfAccess on each such query so the HTML and the RDF say the same thing. Anonymous SPARQL endpoint queries do not carry it."@en .
+
+:step-grants a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Grant SELECT on every demo table to demo and vdb, not only to SPARQL and PUBLIC"@en ;
+    schema:text "The two accounts are the ones a reader signs in with, so each table in the estate needs GRANT SELECT to them. The CustomerKG batch script grants to SPARQL, PUBLIC, demo and vdb, which is 48 statements for 12 tables. ABAC ACLs, not the narrowness of the grants, are what protect the instance."@en .
+
+:step-permlink a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Leave uid and pwd empty in the Query Builder permalink"@en ;
+    schema:text "The permalink JSON keeps uid and pwd empty, as in spasql-example-live-link.ttl. The reader signs in at the VAL prompt, so nothing sensitive is embedded in a URL, and the notice tells them which account to use."@en .
+
+:step-scope a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Scope: RDF Views and Linked Data demos on demo.openlinksw.com"@en ;
+    schema:text "Applies to any collection that demonstrates SQL DDL, RDF View generation, rewrite rules or SPASQL on demo.openlinksw.com, alongside the SPASQL live-link rule in Step 285 and the batch-script rule in the sql-ddl-batch howto. First applied in the 2026-10-02 collection Agentic Marketing: Databricks, Virtuoso, and Both Together."@en .
