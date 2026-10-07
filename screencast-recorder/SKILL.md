@@ -165,7 +165,7 @@ When the user wants voice-over narration, generate a standalone MP3 first and as
 
 The default narration voice is **leo**, through the Grok/xAI text-to-speech endpoint `https://api.x.ai/v1/tts` (set 2026-10-07, `preferences.ttl` Step 323). Use another voice only when the user names one in that session. `rex` is the fallback if `leo` is unavailable; say so if you use it.
 
-Use `scripts/screencast-grok-voiceover.py`. For a whole screencast, write one text file per scene (`narration-scenes/00-intro.txt`, `01-...txt`) and generate a clip per scene, a timing plan and a standalone voice track in one go:
+Use `scripts/screencast-grok-voiceover.py`. For a whole screencast, write one text file per scene (`narration-scenes/00-intro.txt`, `01-...txt`) and generate a clip per scene, a timing plan, and a standalone voice track in one go:
 
 ```bash
 python3 scripts/screencast-grok-voiceover.py \
