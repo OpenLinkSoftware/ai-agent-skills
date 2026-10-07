@@ -35,7 +35,7 @@
 :stepApplyPronunciations a schema:HowToStep ;
     schema:position 3 ;
     schema:name "Apply the canonical phonetic spellings to TTS input"@en ;
-    schema:text "In narration and voice-over input, write URIBurner as 'U-R-I Burner', SPARQL as 'Sparkle', DaaS as 'DAAS' pronounced to rhyme with gas, ABAC as 'A-BACK', and (added 2026-10-07 from the user's revised LOAC storyboard) LOAC is pronounced 'lock', while ACP, UCP and MPP are spoken letter by letter; these spellings are for synthesized speech and need not replace visible technical labels."@en ;
+    schema:text "In narration and voice-over input, write URIBurner as 'U-R-I Burner', SPARQL as 'Sparkle', DaaS as 'DAAS' pronounced to rhyme with gas, ABAC as 'A-BACK', and (added 2026-10-07 from the user's revised LOAC storyboard) LOAC is pronounced 'lock', while ACP, UCP, and MPP are spoken letter by letter; these spellings are for synthesized speech and need not replace visible technical labels."@en ;
     rdfs:seeAlso <../preferences.ttl#step-ttsPronunciations> .
 
 :stepRecordAndVerify a schema:HowToStep ;
