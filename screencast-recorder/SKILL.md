@@ -175,7 +175,7 @@ python3 scripts/screencast-grok-voiceover.py \
 
 For a single narration file: `--text-file narration.txt --output "{SCREENCAST_DIR}/{filename}-voiceover.mp3"`.
 
-- **Key:** the script reads `XAI_API_KEY` from the environment, and if that is unset it reads the single `export XAI_API_KEY=` line from the user's `~/.zshrc` (a non-interactive shell does not load that file). Never print, log, store or write the key anywhere, and send it only to `api.x.ai`.
+- **Key:** the script reads `XAI_API_KEY` from the environment, and if that is unset it reads the single `export XAI_API_KEY=` line from the user's `~/.zshrc` (a non-interactive shell does not load that file). Never print, log, store, or write the key anywhere, and send it only to `api.x.ai`.
 - **Sandboxed shells:** `api.x.ai` may need to be allowed for the command to reach the network.
 - **Scene timing:** each scene lasts its clip plus `--tail` seconds (default 1.0), written to the plan. Re-time the recording to those lengths rather than freezing the last frame when the visual is an animation; freeze the last frame only when the video is a fixed recording that cannot be re-timed.
 - **Pronunciation:** apply the phonetic spellings in `preferences.ttl` Step 175 and `howto/screencast-recording.ttl` (for example LOAC is pronounced "lock"; ACP, UCP and MPP are spoken letter by letter).
