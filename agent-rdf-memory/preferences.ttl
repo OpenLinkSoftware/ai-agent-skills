@@ -3840,3 +3840,12 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/demo-spasql-signin-notice.ttl>,
         <howto/spasql-example-live-link.ttl>,
         <howto/sql-ddl-batch-script-and-verification.ttl> .
+# ── Step 323: default narration voice is Grok/xAI "leo", key from XAI_API_KEY in ~/.zshrc ──
+:step-screencastNarrationVoiceLeo a schema:HowToStep ;
+    schema:position "323"^^xsd:integer ;
+    schema:name "Default voice-over for screencasts and videos is Grok/xAI text-to-speech voice leo (rex as fallback), with the key read from XAI_API_KEY as defined in the user's ~/.zshrc; the older onyx default no longer applies"@en ;
+    schema:text "Unless the user names another voice, narrate with the xAI endpoint api.x.ai/v1/tts using voice leo, rex as fallback, and the key from XAI_API_KEY in ~/.zshrc; the howto holds the request, key handling and fit rule."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/screencast-recording.ttl#stepNarrationVoiceLeo>,
+        <howto/screencast-recording.ttl#stepApproveNarration>,
+        <howto/screencast-recording.ttl#stepApplyPronunciations> .
