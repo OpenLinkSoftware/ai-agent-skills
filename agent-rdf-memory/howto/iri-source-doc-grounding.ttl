@@ -23,7 +23,7 @@
 :step-groundInDocUrl a schema:HowToStep ;
     schema:position 1 ;
     schema:name "Hang every minted IRI, fragment ids included, off the source document's own URL"@en ;
-    schema:text "A name minted for a thing described in or by a document is {document-URL}#{fragment}, or a slash IRI under the same document URL. The document URL is the one the source was published at (or will be). Fragment ids extend the document's name to anything inside it, so #arnold in a page at U denotes U#arnold, a thing, not the page. Never ground an IRI in localhost, 127.0.0.1, a file: URL, a scratchpad path or a bare relative reference. Set the serialization base to the grounded URL (@base in Turtle, @base in JSON-LD, or the equivalent prefix declaration) so the minted names are identical in every serialization."@en ;
+    schema:text "A name minted for a thing described in or by a document is `{document-URL}#{fragment}`, or a slash IRI under the same document URL. The document URL is the one the source was (or will be) published at. Fragment ids extend the document's name to anything inside it, so `#arnold` in a page at `U` denotes `U#arnold`, a thing, not the page. Never ground an IRI in localhost, any IPv4 address in the `127.0.0.0/8` range, the IPv6 address `::1`, a `file:` URL, a scratchpad path, or a bare relative reference. Set the serialization base to the grounded URL (`@base` in Turtle, `@base` in JSON-LD, or the equivalent prefix declaration) so the minted names are identical in every serialization."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerUserCorrection .
 
 :step-presumeDaasForLocalDoc a schema:HowToStep ;
