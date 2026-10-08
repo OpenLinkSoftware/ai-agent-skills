@@ -1,6 +1,6 @@
 {
   "schema": "llm-routing-graph-v2",
-  "updated_at": "2026-08-13",
+  "updated_at": "2026-10-07",
   "capability_levels": {
     "1": "Routine \u2014 mechanical extraction, classification, formatting",
     "2": "Standard \u2014 summarization, simple QA, boilerplate code",
@@ -59,22 +59,20 @@
         "creative"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -86,22 +84,19 @@
         "knowledge"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
-        "gpt-5.6-luna-272k",
+        "gpt-6-luna",
+        "gpt-6-luna-272k",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -113,22 +108,19 @@
         "tools"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-code-fast-1"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -139,20 +131,17 @@
         "knowledge"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -163,20 +152,17 @@
         "knowledge"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -188,22 +174,19 @@
         "long_context"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
-        "gpt-5.6-luna-272k",
+        "gpt-6-luna",
+        "gpt-6-luna-272k",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -215,20 +198,17 @@
         "reasoning"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "deepseek-v4-flash",
-        "gpt-5.6-luna",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -240,22 +220,19 @@
         "reasoning"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "codestral-latest",
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "deepseek-v4-flash",
-        "codestral-latest",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -271,7 +248,8 @@
         "codestral-latest",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.1-codex-mini"
+        "gpt-5.1-codex-mini",
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-8b-latest",
@@ -288,22 +266,19 @@
         "reasoning"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "codestral-latest",
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "deepseek-v4-flash",
-        "codestral-latest",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -319,7 +294,8 @@
         "codestral-latest",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.1-codex-mini"
+        "gpt-5.1-codex-mini",
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-8b-latest",
@@ -337,23 +313,20 @@
         "reasoning"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "codestral-latest",
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-code-fast-1"
       ],
       "escalation_ladder": [
         "deepseek-v4-flash",
-        "gpt-5.6-luna",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -365,20 +338,17 @@
         "reasoning"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "deepseek-v4-flash",
-        "gpt-5.6-luna",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -390,19 +360,16 @@
         "math"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
-        "gpt-5.6-luna",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -414,22 +381,19 @@
         "tools"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-code-fast-1"
       ],
       "escalation_ladder": [
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "gpt-5.1-codex-mini",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -442,23 +406,20 @@
         "code"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "codestral-latest",
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-code-fast-1"
       ],
       "escalation_ladder": [
         "deepseek-v4-flash",
-        "gpt-5.6-luna",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -476,7 +437,7 @@
         "ministral-8b-latest",
         "ministral-3b-latest",
         "gpt-5.1-codex-mini",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-code-fast-1"
       ],
       "escalation_ladder": [
@@ -495,14 +456,15 @@
       "pareto_frontier": [
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest"
       ],
       "escalation_ladder": [
         "gemini-1.5-flash",
-        "gpt-5.6-luna",
-        "muse-spark-1.2-contributor"
+        "gpt-6-luna",
+        "muse-spark-1.3-contributor"
       ]
     },
     {
@@ -514,22 +476,20 @@
         "knowledge"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-8b-latest",
         "deepseek-v4-flash",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -541,22 +501,20 @@
         "creative"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-8b-latest",
         "deepseek-v4-flash",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -567,20 +525,17 @@
         "knowledge"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -592,22 +547,19 @@
         "reasoning"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
-        "gpt-5.6-luna-272k",
+        "gpt-6-luna",
+        "gpt-6-luna-272k",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
-        "grok-4-fast-reasoning",
-        "gpt-5.6-luna-272k",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "gpt-6-luna-272k",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -621,6 +573,7 @@
         "amazon-nova-micro",
         "amazon-nova-lite",
         "gemini-2.0-flash-lite",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
@@ -648,15 +601,16 @@
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
         "gemini-2.5-pro",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
         "ministral-8b-latest",
-        "muse-spark-1.2-contributor",
+        "muse-spark-1.3-contributor",
         "gemini-2.5-pro-preview-03-25"
       ]
     },
@@ -675,10 +629,11 @@
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
         "gemini-2.5-pro",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
@@ -700,6 +655,7 @@
         "amazon-nova-lite",
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
@@ -708,7 +664,7 @@
       ],
       "escalation_ladder": [
         "amazon-nova-lite",
-        "grok-3-mini",
+        "gpt-6-luna",
         "gpt-image-1-mini"
       ]
     },
@@ -730,20 +686,17 @@
         "knowledge"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna"
+        "gpt-6-luna"
       ],
       "escalation_ladder": [
         "ministral-3b-latest",
         "ministral-8b-latest",
-        "claude-opus-4-5"
+        "claude-opus-5-5"
       ]
     },
     {
@@ -755,22 +708,19 @@
         "long_context"
       ],
       "pareto_frontier": [
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.0-flash-lite",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
-        "gpt-5.6-luna-272k",
+        "gpt-6-luna",
+        "gpt-6-luna-272k",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
-        "grok-4-fast-reasoning",
-        "gpt-5.6-luna-272k",
-        "claude-opus-4-5"
+        "gpt-6-luna",
+        "gpt-6-luna-272k",
+        "claude-opus-5-5"
       ]
     },
     {
@@ -785,25 +735,23 @@
       "pareto_frontier": [
         "amazon-nova-micro",
         "amazon-nova-lite",
-        "claude-opus-4-5",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
+        "claude-opus-5-5",
         "deepseek-v4-flash",
         "gemini-2.5-pro-preview-03-25",
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash",
         "gemini-2.5-pro",
+        "muse-spark-1.3-contributor",
         "muse-spark-1.2-contributor",
         "ministral-8b-latest",
         "ministral-3b-latest",
-        "gpt-5.6-luna",
+        "gpt-6-luna",
         "grok-4-fast-reasoning"
       ],
       "escalation_ladder": [
-        "muse-spark-1.2-contributor",
-        "gpt-5.6-luna",
-        "claude-opus-4-5"
+        "muse-spark-1.3-contributor",
+        "gpt-6-luna",
+        "claude-opus-5-5"
       ]
     }
   ],
@@ -907,7 +855,7 @@
       "prices": {
         "input_per_mtok": 3,
         "output_per_mtok": 15,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.3
       },
       "cost_tier": "medium",
       "latency_class": "medium",
@@ -930,7 +878,7 @@
       "prices": {
         "input_per_mtok": 3,
         "output_per_mtok": 15,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.3
       },
       "cost_tier": "medium",
       "latency_class": "medium",
@@ -953,7 +901,7 @@
       "prices": {
         "input_per_mtok": 15,
         "output_per_mtok": 75,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 1.5
       },
       "cost_tier": "high",
       "latency_class": "high",
@@ -976,7 +924,7 @@
       "prices": {
         "input_per_mtok": 0.25,
         "output_per_mtok": 1.25,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.025
       },
       "cost_tier": "low",
       "latency_class": "low",
@@ -999,7 +947,7 @@
       "prices": {
         "input_per_mtok": 0.8,
         "output_per_mtok": 4,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.08
       },
       "cost_tier": "medium",
       "latency_class": "low",
@@ -1022,7 +970,7 @@
       "prices": {
         "input_per_mtok": 1,
         "output_per_mtok": 5,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.1
       },
       "cost_tier": "medium",
       "latency_class": "low",
@@ -1039,13 +987,105 @@
       }
     },
     {
-      "id": "claude-sonnet-4.5",
+      "id": "claude-haiku-5.5",
       "vendor": "anthropic",
-      "name": "Claude Sonnet 4 and 4.5 \u2264200k",
+      "name": "Claude Haiku 5.5 \u2264100k",
+      "prices": {
+        "input_per_mtok": 0.1,
+        "output_per_mtok": 0.5,
+        "cached_input_per_mtok": 0.01
+      },
+      "cost_tier": "low",
+      "latency_class": "low",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 2,
+        "code": 2,
+        "creative": 2,
+        "long_context": 3,
+        "vision": 2,
+        "tools": 2,
+        "knowledge": 2,
+        "math": 2
+      }
+    },
+    {
+      "id": "claude-haiku-5.5-100k",
+      "vendor": "anthropic",
+      "name": "Claude Haiku 5.5 >100k",
+      "prices": {
+        "input_per_mtok": 0.5,
+        "output_per_mtok": 2.5,
+        "cached_input_per_mtok": 0.05
+      },
+      "cost_tier": "medium",
+      "latency_class": "low",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 2,
+        "code": 2,
+        "creative": 2,
+        "long_context": 3,
+        "vision": 2,
+        "tools": 2,
+        "knowledge": 2,
+        "math": 2
+      }
+    },
+    {
+      "id": "claude-sonnet-4",
+      "vendor": "anthropic",
+      "name": "Claude Sonnet 4 \u2264200k",
       "prices": {
         "input_per_mtok": 3,
         "output_per_mtok": 15,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.3
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 3,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "claude-sonnet-4-200k",
+      "vendor": "anthropic",
+      "name": "Claude Sonnet 4 >200k",
+      "prices": {
+        "input_per_mtok": 6,
+        "output_per_mtok": 22.5,
+        "cached_input_per_mtok": 0.6
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 3,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "claude-sonnet-4.5",
+      "vendor": "anthropic",
+      "name": "Claude Sonnet 4.5 \u2264200k",
+      "prices": {
+        "input_per_mtok": 3,
+        "output_per_mtok": 15,
+        "cached_input_per_mtok": 0.3
       },
       "cost_tier": "medium",
       "latency_class": "medium",
@@ -1064,13 +1104,36 @@
     {
       "id": "claude-sonnet-4.5-200k",
       "vendor": "anthropic",
-      "name": "Claude Sonnet 4 and 4.5 >200k",
+      "name": "Claude Sonnet 4.5 >200k",
       "prices": {
         "input_per_mtok": 6,
         "output_per_mtok": 22.5,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.6
       },
       "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 3,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "claude-sonnet-4.6",
+      "vendor": "anthropic",
+      "name": "Claude Sonnet 4.6",
+      "prices": {
+        "input_per_mtok": 3,
+        "output_per_mtok": 15,
+        "cached_input_per_mtok": 0.3
+      },
+      "cost_tier": "medium",
       "latency_class": "medium",
       "context_window_tokens": 200000,
       "capability": {
@@ -1091,7 +1154,30 @@
       "prices": {
         "input_per_mtok": 2,
         "output_per_mtok": 10,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.2
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "claude-sonnet-5.5",
+      "vendor": "anthropic",
+      "name": "Claude Sonnet 5.5",
+      "prices": {
+        "input_per_mtok": 2,
+        "output_per_mtok": 10,
+        "cached_input_per_mtok": 0.2
       },
       "cost_tier": "medium",
       "latency_class": "medium",
@@ -1114,7 +1200,7 @@
       "prices": {
         "input_per_mtok": 15,
         "output_per_mtok": 75,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 1.5
       },
       "cost_tier": "high",
       "latency_class": "medium",
@@ -1137,7 +1223,7 @@
       "prices": {
         "input_per_mtok": 15,
         "output_per_mtok": 75,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 1.5
       },
       "cost_tier": "high",
       "latency_class": "medium",
@@ -1160,7 +1246,7 @@
       "prices": {
         "input_per_mtok": 5,
         "output_per_mtok": 25,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.5
       },
       "cost_tier": "high",
       "latency_class": "high",
@@ -1183,7 +1269,7 @@
       "prices": {
         "input_per_mtok": 5,
         "output_per_mtok": 25,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.5
       },
       "cost_tier": "high",
       "latency_class": "high",
@@ -1206,7 +1292,7 @@
       "prices": {
         "input_per_mtok": 5,
         "output_per_mtok": 25,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.5
       },
       "cost_tier": "high",
       "latency_class": "high",
@@ -1229,7 +1315,53 @@
       "prices": {
         "input_per_mtok": 5,
         "output_per_mtok": 25,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 0.5
+      },
+      "cost_tier": "high",
+      "latency_class": "high",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 5,
+        "code": 5,
+        "creative": 5,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 5,
+        "knowledge": 5,
+        "math": 5
+      }
+    },
+    {
+      "id": "claude-opus-5",
+      "vendor": "anthropic",
+      "name": "Claude Opus 5",
+      "prices": {
+        "input_per_mtok": 5,
+        "output_per_mtok": 25,
+        "cached_input_per_mtok": 0.5
+      },
+      "cost_tier": "high",
+      "latency_class": "high",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 5,
+        "code": 5,
+        "creative": 5,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 5,
+        "knowledge": 5,
+        "math": 5
+      }
+    },
+    {
+      "id": "claude-opus-5-5",
+      "vendor": "anthropic",
+      "name": "Claude Opus 5.5",
+      "prices": {
+        "input_per_mtok": 4,
+        "output_per_mtok": 20,
+        "cached_input_per_mtok": 0.2
       },
       "cost_tier": "high",
       "latency_class": "high",
@@ -1252,7 +1384,30 @@
       "prices": {
         "input_per_mtok": 10,
         "output_per_mtok": 50,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 1
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 3,
+        "code": 3,
+        "creative": 5,
+        "long_context": 3,
+        "vision": 3,
+        "tools": 3,
+        "knowledge": 3,
+        "math": 3
+      }
+    },
+    {
+      "id": "claude-fable-5-1",
+      "vendor": "anthropic",
+      "name": "Claude Fable 5.1",
+      "prices": {
+        "input_per_mtok": 10,
+        "output_per_mtok": 50,
+        "cached_input_per_mtok": 0.25
       },
       "cost_tier": "high",
       "latency_class": "medium",
@@ -1275,7 +1430,30 @@
       "prices": {
         "input_per_mtok": 10,
         "output_per_mtok": 50,
-        "cached_input_per_mtok": null
+        "cached_input_per_mtok": 1
+      },
+      "cost_tier": "high",
+      "latency_class": "high",
+      "context_window_tokens": 200000,
+      "capability": {
+        "reasoning": 5,
+        "code": 5,
+        "creative": 5,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 5,
+        "knowledge": 5,
+        "math": 5
+      }
+    },
+    {
+      "id": "claude-mythos-5-1",
+      "vendor": "anthropic",
+      "name": "Claude Mythos 5.1",
+      "prices": {
+        "input_per_mtok": 10,
+        "output_per_mtok": 50,
+        "cached_input_per_mtok": 0.25
       },
       "cost_tier": "high",
       "latency_class": "high",
@@ -1936,6 +2114,29 @@
       }
     },
     {
+      "id": "gemini-3.8-flash",
+      "vendor": "google",
+      "name": "Gemini 3.8 Flash",
+      "prices": {
+        "input_per_mtok": 0.75,
+        "output_per_mtok": 3.75,
+        "cached_input_per_mtok": 0.075
+      },
+      "cost_tier": "medium",
+      "latency_class": "low",
+      "context_window_tokens": 1000000,
+      "capability": {
+        "reasoning": 3,
+        "code": 3,
+        "creative": 3,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 3,
+        "knowledge": 3,
+        "math": 3
+      }
+    },
+    {
       "id": "gemini-3.5-flash-lite",
       "vendor": "google",
       "name": "Gemini 3.5 Flash-Lite",
@@ -1956,6 +2157,52 @@
         "tools": 3,
         "knowledge": 3,
         "math": 3
+      }
+    },
+    {
+      "id": "muse-spark-1.3-contributor",
+      "vendor": "meta-ai",
+      "name": "Muse Spark 1.3 Contributor",
+      "prices": {
+        "input_per_mtok": 0.1,
+        "output_per_mtok": 0.2,
+        "cached_input_per_mtok": 0.002
+      },
+      "cost_tier": "low",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 2,
+        "code": 2,
+        "creative": 5,
+        "long_context": 2,
+        "vision": 4,
+        "tools": 1,
+        "knowledge": 2,
+        "math": 2
+      }
+    },
+    {
+      "id": "muse-spark-1.3",
+      "vendor": "meta-ai",
+      "name": "Muse Spark 1.3",
+      "prices": {
+        "input_per_mtok": 1.25,
+        "output_per_mtok": 4.25,
+        "cached_input_per_mtok": 0.15
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 2,
+        "code": 2,
+        "creative": 5,
+        "long_context": 2,
+        "vision": 4,
+        "tools": 1,
+        "knowledge": 2,
+        "math": 2
       }
     },
     {
@@ -2768,11 +3015,11 @@
       "vendor": "openai",
       "name": "o3",
       "prices": {
-        "input_per_mtok": 10,
-        "output_per_mtok": 40,
+        "input_per_mtok": 2,
+        "output_per_mtok": 8,
         "cached_input_per_mtok": 0.5
       },
-      "cost_tier": "high",
+      "cost_tier": "medium",
       "latency_class": "high",
       "context_window_tokens": 128000,
       "capability": {
@@ -3412,9 +3659,9 @@
       "vendor": "openai",
       "name": "GPT-5.6 Sol \u2264272k",
       "prices": {
-        "input_per_mtok": 5.0,
-        "output_per_mtok": 30.0,
-        "cached_input_per_mtok": 0.5
+        "input_per_mtok": 4.0,
+        "output_per_mtok": 20.0,
+        "cached_input_per_mtok": 0.4
       },
       "cost_tier": "high",
       "latency_class": "medium",
@@ -3435,9 +3682,9 @@
       "vendor": "openai",
       "name": "GPT-5.6 Sol >272k",
       "prices": {
-        "input_per_mtok": 10.0,
-        "output_per_mtok": 45.0,
-        "cached_input_per_mtok": 1.0
+        "input_per_mtok": 8.0,
+        "output_per_mtok": 30.0,
+        "cached_input_per_mtok": 0.8
       },
       "cost_tier": "high",
       "latency_class": "medium",
@@ -3543,6 +3790,351 @@
         "tools": 4,
         "knowledge": 4,
         "math": 4
+      }
+    },
+    {
+      "id": "gpt-6-astra",
+      "vendor": "openai",
+      "name": "GPT-6 Astra \u2264272k",
+      "prices": {
+        "input_per_mtok": 10.0,
+        "output_per_mtok": 50.0,
+        "cached_input_per_mtok": 1.0
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6-astra-272k",
+      "vendor": "openai",
+      "name": "GPT-6 Astra >272k",
+      "prices": {
+        "input_per_mtok": 20.0,
+        "output_per_mtok": 75.0,
+        "cached_input_per_mtok": 2.0
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 272000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6-sol",
+      "vendor": "openai",
+      "name": "GPT-6 Sol \u2264272k",
+      "prices": {
+        "input_per_mtok": 2.0,
+        "output_per_mtok": 10.0,
+        "cached_input_per_mtok": 0.2
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6-sol-272k",
+      "vendor": "openai",
+      "name": "GPT-6 Sol >272k",
+      "prices": {
+        "input_per_mtok": 4.0,
+        "output_per_mtok": 15.0,
+        "cached_input_per_mtok": 0.4
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 272000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6-luna",
+      "vendor": "openai",
+      "name": "GPT-6 Luna \u2264272k",
+      "prices": {
+        "input_per_mtok": 0.1,
+        "output_per_mtok": 0.5,
+        "cached_input_per_mtok": 0.01
+      },
+      "cost_tier": "low",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6-luna-272k",
+      "vendor": "openai",
+      "name": "GPT-6 Luna >272k",
+      "prices": {
+        "input_per_mtok": 0.2,
+        "output_per_mtok": 0.75,
+        "cached_input_per_mtok": 0.02
+      },
+      "cost_tier": "low",
+      "latency_class": "medium",
+      "context_window_tokens": 272000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6.1-sol",
+      "vendor": "openai",
+      "name": "GPT-6.1 Sol \u2264272k",
+      "prices": {
+        "input_per_mtok": 2.0,
+        "output_per_mtok": 10.0,
+        "cached_input_per_mtok": 0.1
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-6.1-sol-272k",
+      "vendor": "openai",
+      "name": "GPT-6.1 Sol >272k",
+      "prices": {
+        "input_per_mtok": 4.0,
+        "output_per_mtok": 15.0,
+        "cached_input_per_mtok": 0.2
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 272000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 5,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-5.6-cyber",
+      "vendor": "openai",
+      "name": "GPT-5.6 Cyber",
+      "prices": {
+        "input_per_mtok": 12.5,
+        "output_per_mtok": 75.0,
+        "cached_input_per_mtok": 1.25
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-5.5-cyber",
+      "vendor": "openai",
+      "name": "GPT-5.5 Cyber",
+      "prices": {
+        "input_per_mtok": 12.5,
+        "output_per_mtok": 75.0,
+        "cached_input_per_mtok": 1.25
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-5.3-codex",
+      "vendor": "openai",
+      "name": "GPT-5.3 Codex",
+      "prices": {
+        "input_per_mtok": 1.75,
+        "output_per_mtok": 14.0,
+        "cached_input_per_mtok": 0.175
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 5,
+        "creative": 3,
+        "long_context": 4,
+        "vision": 3,
+        "tools": 5,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "gpt-5-search-api",
+      "vendor": "openai",
+      "name": "GPT-5 Search API",
+      "prices": {
+        "input_per_mtok": 1.25,
+        "output_per_mtok": 10.0,
+        "cached_input_per_mtok": 0.125
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "chat-latest",
+      "vendor": "openai",
+      "name": "ChatGPT Latest (chat-latest)",
+      "prices": {
+        "input_per_mtok": 5.0,
+        "output_per_mtok": 30.0,
+        "cached_input_per_mtok": 0.5
+      },
+      "cost_tier": "high",
+      "latency_class": "low",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 3,
+        "code": 3,
+        "creative": 3,
+        "long_context": 3,
+        "vision": 4,
+        "tools": 3,
+        "knowledge": 3,
+        "math": 3
+      }
+    },
+    {
+      "id": "gpt-image-1.5-image",
+      "vendor": "openai",
+      "name": "gpt-image-1.5 (image gen) image tokens",
+      "prices": {
+        "input_per_mtok": 8,
+        "output_per_mtok": 32,
+        "cached_input_per_mtok": 2
+      },
+      "cost_tier": "high",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 1,
+        "code": 1,
+        "creative": 5,
+        "long_context": 1,
+        "vision": 5,
+        "tools": 1,
+        "knowledge": 1,
+        "math": 1
+      }
+    },
+    {
+      "id": "gpt-image-1.5-text",
+      "vendor": "openai",
+      "name": "gpt-image-1.5 (image gen) text tokens",
+      "prices": {
+        "input_per_mtok": 5,
+        "output_per_mtok": 10,
+        "cached_input_per_mtok": 1.25
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 128000,
+      "capability": {
+        "reasoning": 1,
+        "code": 1,
+        "creative": 5,
+        "long_context": 1,
+        "vision": 5,
+        "tools": 1,
+        "knowledge": 1,
+        "math": 1
       }
     },
     {
@@ -4124,6 +4716,52 @@
       "id": "grok-4.6-200k",
       "vendor": "xai",
       "name": "Grok 4.6 >200k",
+      "prices": {
+        "input_per_mtok": 4,
+        "output_per_mtok": 12,
+        "cached_input_per_mtok": 1
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 256000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "grok-4.7",
+      "vendor": "xai",
+      "name": "Grok 4.7 \u2264200k",
+      "prices": {
+        "input_per_mtok": 2,
+        "output_per_mtok": 6,
+        "cached_input_per_mtok": 0.5
+      },
+      "cost_tier": "medium",
+      "latency_class": "medium",
+      "context_window_tokens": 256000,
+      "capability": {
+        "reasoning": 4,
+        "code": 4,
+        "creative": 4,
+        "long_context": 4,
+        "vision": 4,
+        "tools": 4,
+        "knowledge": 4,
+        "math": 4
+      }
+    },
+    {
+      "id": "grok-4.7-200k",
+      "vendor": "xai",
+      "name": "Grok 4.7 >200k",
       "prices": {
         "input_per_mtok": 4,
         "output_per_mtok": 12,
