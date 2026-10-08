@@ -168,7 +168,7 @@ These examples apply to the stated Virtuoso configurations. Other Virtuoso insta
 **Local endpoint example:** A local Virtuoso instance listening on port `8890` over HTTP may use:
 
 ```text
-http://localhost:8890/sparql
+http://localhost:8890/sparql/
 ```
 
 Use the endpoint actually configured for the target instance. It may use HTTPS or a different port.
@@ -197,3 +197,15 @@ Add platform-specific examples here, following the same format: name the platfor
 - `SESSION-START-HOOK.md` — runtime injection and SPARQL-preferred context-selection design
 - `preferences.private.example.ttl` — public template for local-only private preference overlays
 - `scripts/validate-memory-protocol.py` — post-session audit tool
+
+## SHACL validation (structure) and content sync
+
+The store has SHACL shapes in `shapes/memory-shapes.ttl`. They cover session document entities (dated, with `schema:about`), index list items, and HowTo steps.
+
+```bash
+python3 scripts/validate-memory-shapes.py                 # report all files, exit 0
+python3 scripts/validate-memory-shapes.py --strict        # exit 1 on any violation
+python3 scripts/session-graph-gate.py check --all         # compares triple sets with the Virtuoso graphs
+```
+
+Report-only is the default. Older files that fail the shapes are reported, not edited. See `howto/memory-shacl-validation.ttl` and preferences Step 325.

@@ -1099,7 +1099,7 @@ Certificate paths:
 
 :topicSparqlMemoryLoading a schema:Thing ;
     schema:name "SPARQL-Based Session Memory Loading"@en ;
-    schema:description "Elicited SPARQL endpoint selection (localhost:8890/sparql or linkeddata.uriburner.com/sparql) for loading preferences, howto steps, and session context in a single query round-trip rather than N sequential file reads."@en .
+    schema:description "Elicited SPARQL endpoint selection (localhost:8890/sparql/ or linkeddata.uriburner.com/sparql) for loading preferences, howto steps, and session context in a single query round-trip rather than N sequential file reads."@en .
 
 # ── Step 47: KG Curation Attribution Pattern ──────────────────────────────────
 
@@ -3131,7 +3131,7 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
 :step-hyperlinkSparqlUrls a schema:HowToStep ;
     schema:position 262 ;
     schema:name "Whenever a SPARQL query URL is generated, present it as a clickable hyperlink — never as bare unlinked text"@en ;
-    schema:text "2026-08-19: user directive after the llm-routing-skill SPARQL endpoint URL was shown as a long raw string. Rule: every generated SPARQL query URL MUST be emitted as a Markdown/HTML hyperlink with a short human label (e.g. 'Run: code-generation frontier (cheapest first)'), and the URL must be verified to return results before it is presented. FORMAT: SELECT SPARQL URLs use the data-twingler convention — format=text/x-html+tr (percent-encoded as text%2Fx-html%2Btr, since '+' in a raw URL decodes to space), e.g. http://localhost:8890/sparql?default-graph-uri=&query=...&format=text%2Fx-html%2Btr — NOT format=json. Applies to chat responses, generated documents, and skill output alike. See llm-routing-skill SKILL.md SPARQL Query Templates for the query corpus this rule governs."@en ;
+    schema:text "2026-08-19: user directive after the llm-routing-skill SPARQL endpoint URL was shown as a long raw string. Rule: every generated SPARQL query URL MUST be emitted as a Markdown/HTML hyperlink with a short human label (e.g. 'Run: code-generation frontier (cheapest first)'), and the URL must be verified to return results before it is presented. FORMAT: SELECT SPARQL URLs use the data-twingler convention — format=text/x-html+tr (percent-encoded as text%2Fx-html%2Btr, since '+' in a raw URL decodes to space), e.g. http://localhost:8890/sparql/?default-graph-uri=&query=...&format=text%2Fx-html%2Btr — NOT format=json. Applies to chat responses, generated documents, and skill output alike. See llm-routing-skill SKILL.md SPARQL Query Templates for the query corpus this rule governs."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     rdfs:seeAlso <howto/hyperlink-sparql-urls.ttl> .
 
@@ -3861,3 +3861,11 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/screencast-recording.ttl#stepNarrationVoiceLeo>,
         <howto/screencast-recording.ttl#stepApproveNarration>,
         <howto/screencast-recording.ttl#stepApplyPronunciations> .
+
+# ── Step 325: memory store validation is SHACL (structure) plus procedural gates; graph sync is content-based ──
+:step-memoryShaclValidation a schema:HowToStep ;
+    schema:position "325"^^xsd:integer ;
+    schema:name "Validate the agent-rdf-memory store with SHACL shapes and check graph sync by content, not counts"@en ;
+    schema:text "Run scripts/validate-memory-shapes.py against shapes/memory-shapes.ttl for session files, index.ttl and preferences.ttl; report-only until the baseline is clean. Keep check-memory-gate.py, validate-memory-protocol.py and check-session-record.py. session-graph-gate.py compares triple sets with the named graph, not just counts."@en ;
+    rdfs:seeAlso <howto/memory-shacl-validation.ttl> ,
+        <shapes/memory-shapes.ttl> .
