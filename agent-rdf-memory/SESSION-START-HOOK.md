@@ -90,7 +90,7 @@ file documents the overlay shape without publishing private values.
 Bind it at runtime from the private overlay when present, otherwise from public
 endpoint configuration or the current task context. The general pattern is
 `https://{CNAME}/sparql`, including localhost when HTTPS is selected. The URL
-`http://localhost:8890/sparql` is a local-only Virtuoso endpoint pattern; do not
+`http://localhost:8890/sparql/` is a local-only Virtuoso endpoint pattern; do not
 rewrite it as `http://{CNAME}:8890/sparql` for remote targets. Public harness
 files should not encode personal endpoint order, private paths, credentials, or
 identity-specific preferences; those belong in gitignored `preferences.private.ttl`.

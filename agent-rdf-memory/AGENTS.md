@@ -11,7 +11,7 @@ session TTL (newest file in `sessions/`) for `onto:usedFileReads` or
 
   > "Memory loading preference for this session:\n>
   > (1) File reads  [default]\n>
-  > (2) SPARQL — localhost:8890/sparql  [local Virtuoso]\n>
+  > (2) SPARQL — localhost:8890/sparql/  [local Virtuoso]\n>
   > (3) SPARQL — other endpoint / other URI"
 
   Record the choice in the current session TTL as:

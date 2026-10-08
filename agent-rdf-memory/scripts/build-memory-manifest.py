@@ -9,12 +9,12 @@ user-global). Falls back to filesystem counts when the endpoint is unreachable.
 
 Usage:
   python3 build-memory-manifest.py --out /path/to/AGENTS.local.md
-  python3 build-memory-manifest.py --endpoint http://localhost:8890/sparql --limit 8
+  python3 build-memory-manifest.py --endpoint http://localhost:8890/sparql/ --limit 8
 """
 import argparse, datetime, glob, os, re, sys, urllib.parse, urllib.request
 
 STORE = "/Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory"
-SPARQL = "http://localhost:8890/sparql"
+SPARQL = "http://localhost:8890/sparql/"  # trailing slash: bare /sparql returns 301, which breaks POST
 G = "urn:dav:/DAV/home/kidehen/agent-rdf-memory/"
 PREF, INDEX, CORE = G+"preferences.ttl", G+"index.ttl", G+"core.ttl"
 PREFIX = "PREFIX schema: <http://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
