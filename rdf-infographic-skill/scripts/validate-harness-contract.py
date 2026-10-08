@@ -214,6 +214,23 @@ def check_exploration_disclosures(html: str, failures: list[str]) -> None:
             fail(f"{label} must sit inside a closed-by-default <details> (harness contract item 16)", failures)
 
 
+def check_kg_controls(html: str, failures: list[str]) -> None:
+    """Harness contract items 7-8: when a KG Explorer is present, its Advanced controls must exist.
+    Each check names the contract requirement it enforces (caught 2026-10-08 on the Jessica meshup,
+    which had a Node Types control built from RDF structural types instead of the contract taxonomy)."""
+    if 'id="kg-explorer"' not in html:
+        return
+    require_any(html, ['name="pred-display"'], "Predicate display must be an Icons/Labels radio group (contract item 8)", failures)
+    require_any(html, ['value="labels"', "value='labels'"], "Predicate display 'Labels' option missing (contract item 8)", failures)
+    require_any(html, ['value="icons"', "value='icons'"], "Predicate display 'Icons' option missing (contract item 8)", failures)
+    require_any(html, ['id="kg-resolver"'], "Resolver preference control missing (contract item 8)", failures)
+    require_any(html, ['value="custom"', "value='custom'"], "Resolver preference must offer a Custom pattern option (contract item 8)", failures)
+    require_any(html, ['value="directed"', "value='directed'"], "Arrow visibility must offer 'Directed' (contract item 8)", failures)
+    require_any(html, ['value="hidden"', "value='hidden'"], "Arrow visibility must offer 'Hidden' (contract item 8)", failures)
+    for label in ("Person", "Organization", "Place", "Concept", "Event", "Literal", "Resource"):
+        require(html, label, f"Node-type chip '{label}' missing; node types must follow the contract taxonomy (contract item 7)", failures)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("html")
@@ -319,6 +336,7 @@ def main() -> int:
             forbid_regex(html, r'<details class="sparql-card"[^>]*\bopen\b', "Sample-query <details> accordion must NOT carry an `open` attribute (closed by default)", failures)
 
     check_exploration_disclosures(html, failures)
+    check_kg_controls(html, failures)
     check_anchor_targets(html, failures)
 
     # Synopsis lede/body gate: a synopsis section with a spotlight panel and
