@@ -406,7 +406,7 @@ virtuoso-t -f
 
 2. Access Conductor: http://localhost:8890/conductor
 
-3. Access SPARQL endpoint: http://localhost:8890/sparql
+3. Access SPARQL endpoint: http://localhost:8890/sparql/
 
 Need help with configuration or troubleshooting? Just ask!"
 ```
