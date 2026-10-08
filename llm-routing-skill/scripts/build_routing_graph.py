@@ -203,8 +203,11 @@ def build(profiles, tasks, prices, updated_at):
     latency_spec = profiles["latency_classes"]
 
     models = []
+    excluded = set(profiles.get("excluded_models", []))
     for rec in prices:
         pid = rec["id"]
+        if pid in excluded:
+            continue
         vendor = rec.get("vendor", "unknown")
         profile = capability_for(pid, vendor, profiles)
         output_p = rec.get("output")

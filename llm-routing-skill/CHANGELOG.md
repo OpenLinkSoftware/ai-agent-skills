@@ -4,6 +4,40 @@ All notable changes to this skill are documented here. Format: [Keep a
 Changelog](https://keepachangelog.com/en/1.1.0/); versioning:
 [SemVer](https://semver.org/).
 
+## [1.5.0] - 2026-10-08
+
+### Changed
+- Routing graph rebuilt from the 2026-10-07 llm-prices.com feed: 175 models
+  (was 145), 30 task types. The old 2026-08-19 snapshot is superseded.
+- Claude 5 family now scored: `claude-opus-5`, `claude-opus-5-5` (top tier),
+  `claude-haiku-5.5` (+100k), `claude-sonnet-4` and `claude-sonnet-4.6`
+  (matched by the existing Sonnet 4.5 tier).
+- `code-generation` frontier is now 8 models and the escalation ladder is
+  `deepseek-v4-flash` → `gpt-6-luna` → `claude-opus-5-5`.
+- README verification values re-measured against the new graph (7 local
+  queries all return results). The public URIBurner copy still holds the old
+  graph until it is re-uploaded.
+- `scripts/build_routing_graph.py` skips judgment modalities listed in
+  `capability-profiles.json` → `excluded_models` before scoring.
+
+### Added
+- `scripts/load_graph.py`: generates the isql load script for the routing graph
+  (CLEAR + TTLP_MT, Turtle embedded as a string literal, no password in the
+  file). The README already referenced it; it was missing.
+- New family-rule patterns for `gpt-6` (incl. 272k), `gpt-5.5-cyber`,
+  `gpt-5.3-codex`, `gpt-5-search-api`, `chat-latest`, `gemini-3.8-flash`,
+  `grok-4.7`.
+
+### Fixed
+- Local endpoint links use the trailing-slash form `http://localhost:8890/sparql/`
+  (bare `/sparql` returns 301).
+
+### Notes
+- The new family-rule seeds are inferred from the nearest existing tier and are
+  not benchmarked. They are marked in each rule's `note` and should be refined
+  through feedback.
+- `jev-1.13.0` (System One judgment modality, not an LLM) is excluded.
+
 ## [1.4.0] - 2026-08-19
 
 ### Changed
