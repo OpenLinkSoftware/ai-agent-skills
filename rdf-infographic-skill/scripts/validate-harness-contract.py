@@ -179,6 +179,41 @@ def validate_rdf(path: str | None, fmt: str, failures: list[str]) -> None:
         fail(f"RDF parse failed for {path}: {exc}", failures)
 
 
+def check_anchor_targets(html: str, failures: list[str]) -> None:
+    """Every in-page href="#x" must resolve to an element id="x" in the same document.
+    A nav link to a missing id silently does nothing (caught 2026-10-08 on the Jessica meshup)."""
+    hrefs = {h for h in re.findall(r'href="#([^"]+)"', html) if h}
+    ids = set(re.findall(r'\bid="([^"]+)"', html))
+    missing = sorted(h for h in hrefs if h not in ids)
+    if missing:
+        fail(f"In-page links point to missing ids: {', '.join(missing[:8])}", failures)
+
+
+def check_exploration_disclosures(html: str, failures: list[str]) -> None:
+    """Harness contract item 16: the KG Explorer and SPARQL Workbench must sit inside a
+    native <details> that is closed by default (no `open` attribute). Each tool is
+    located by a marker element: id="kg-explorer" (Explorer) and id="sparqlBtn" (Workbench)."""
+    markers = {"kg-explorer": 'id="kg-explorer"', "sparqlBtn": 'id="sparqlBtn"'}
+    tokens = list(re.finditer(r'<details\b[^>]*>|</details>|id="kg-explorer"|id="sparqlBtn"', html))
+    stack: list[bool] = []  # True when the details element is closed by default
+    found: dict[str, bool] = {}
+    for m in tokens:
+        tok = m.group(0)
+        if tok.startswith("<details"):
+            stack.append("open" not in tok.split(">")[0].split())
+        elif tok == "</details>":
+            if stack:
+                stack.pop()
+        else:
+            key = "kg-explorer" if tok == 'id="kg-explorer"' else "sparqlBtn"
+            found[key] = any(stack)
+    for key, label in (("kg-explorer", "KG Explorer"), ("sparqlBtn", "SPARQL Workbench")):
+        if key not in found:
+            continue  # tool not present on this page
+        if not found[key]:
+            fail(f"{label} must sit inside a closed-by-default <details> (harness contract item 16)", failures)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("html")
@@ -282,6 +317,9 @@ def main() -> int:
         if "SoftwareSourceCode" in ttl_text and "SPARQL" in ttl_text:
             require(html, '<details class="sparql-card"', "SPARQL query examples must render as closed-by-default <details class=\"sparql-card\"> accordions, not always-open <div> blocks", failures)
             forbid_regex(html, r'<details class="sparql-card"[^>]*\bopen\b', "Sample-query <details> accordion must NOT carry an `open` attribute (closed by default)", failures)
+
+    check_exploration_disclosures(html, failures)
+    check_anchor_targets(html, failures)
 
     # Synopsis lede/body gate: a synopsis section with a spotlight panel and
     # CTA but no narrative prose reads as broken/sparse (a big mostly-empty
