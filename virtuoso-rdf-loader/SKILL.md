@@ -327,5 +327,10 @@ When invoked:
 
 ---
 
+
+## Safe Virtuoso ISQL Error Output
+
+Whenever this workflow invokes OpenLink's native Virtuoso `isql` client, pass the bare client option `COMMAND_TEXT_ON_ERROR=OFF`, for example `isql {host}:{port} {user} {password} COMMAND_TEXT_ON_ERROR=OFF {script.sql}`. Place it before SQL input, script arguments, or `-i`. `OFF` maps to the client's internal value `0` and prevents the client from appending the full failed command to error output. The client accepts `OFF`/`ON`; literal `0` is rejected. Do not use `-u` for this setting (`-u` populates the `U` argument array). This does not redact secrets from server diagnostics, shell history, or process arguments, so keep credentials out of SQL text and logs. Do not apply this Virtuoso-specific option to unixODBC/iODBC `isql` clients.
+
 ## Version
 **2.0.0** — Format-agnostic. Supports N-Triples, Turtle, RDF/XML, N-Quads, TriG, JSON-LD, Notation3, OWL — gzip-compressed or raw. Same `ld_dir` + `rdf_loader_run` pipeline for all.

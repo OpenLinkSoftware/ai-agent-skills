@@ -334,5 +334,10 @@ When invoked:
 
 ---
 
+
+## Virtuoso ISQL Error Output Setting
+
+The `COMMAND_TEXT_ON_ERROR=OFF` safe setting applies only when the executable is OpenLink's native Virtuoso `isql` client; `OFF` is the supported spelling for internal value `0`. The unixODBC/iODBC `isql` and `iodbctest` commands in this skill do not use that Virtuoso client option. Identify the client before adding it.
+
 ## Version
 **2.0.0** — Enhanced with Mode C (www_sv Admin Assistant) as preferred execution mode. All DSN types supported (MT, Virtuoso, Unix Lite). Modes: C (www_sv) → B (REST bridge) → A (local CLI).
