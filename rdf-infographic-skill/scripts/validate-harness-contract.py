@@ -227,6 +227,11 @@ def check_kg_controls(html: str, failures: list[str]) -> None:
     require_any(html, ['value="custom"', "value='custom'"], "Resolver preference must offer a Custom pattern option (contract item 8)", failures)
     require_any(html, ['value="directed"', "value='directed'"], "Arrow visibility must offer 'Directed' (contract item 8)", failures)
     require_any(html, ['value="hidden"', "value='hidden'"], "Arrow visibility must offer 'Hidden' (contract item 8)", failures)
+    # Settings panel: a fixed right-side drawer with a visible close control (contract item 8).
+    # position:absolute drawers open far down the page; fixed inside a transformed ancestor does too.
+    require_any(html, ['id="settings-panel-close"'], "Settings panel needs a visible close control (contract item 8)", failures)
+    if not re.search(r'#settings-panel\{[^}]*position:\s*fixed', html):
+        fail("Settings panel must be position:fixed as a right-side drawer (contract item 8)", failures)
     for label in ("Person", "Organization", "Place", "Concept", "Event", "Literal", "Resource"):
         require(html, label, f"Node-type chip '{label}' missing; node types must follow the contract taxonomy (contract item 7)", failures)
 
