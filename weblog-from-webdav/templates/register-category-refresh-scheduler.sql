@@ -134,12 +134,14 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
   IF (subseq (coll, length (coll) - 1) <> '/')
     coll := coll || '/';
 
-  SELECT pwd_magic_calc (U_NAME, U_PASSWORD, 1) INTO pwd
-    FROM DB.DBA.SYS_USERS
-   WHERE U_NAME = dav_user;
-
-  IF (pwd IS NULL)
-    SIGNAL ('22023', sprintf ('DAV user not found: %s', dav_user));
+  -- dav_user is kept for call compatibility (scheduled events pass it) but
+  -- no longer used: reads go straight to WS.WS.SYS_DAV_PROP and writes use
+  -- DAV_PROP_SET_INT. DAV_PROP_SET (path, ..., dav_user, pwd_magic_calc (...))
+  -- silently fails whenever that account's password hash does not resolve,
+  -- and the failure was only counted, never raised -- so the scheduled job
+  -- "completed" every 5 minutes while writing nothing (found 2026-10-10 on
+  -- the URIBurner weblog: 289 posts, 0 categories, SE_LAST_ERROR null).
+  pwd := null;
 
   scanned := 0;
   updated := 0;
@@ -148,6 +150,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
 
   FOR
     SELECT RES_FULL_PATH AS _path,
+           RES_ID AS _rid,
            RES_NAME AS _name,
            RES_CONTENT AS _content
       FROM WS.WS.SYS_DAV_RES
@@ -165,12 +168,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
     DECLARE rc ANY;
 
     scanned := scanned + 1;
-    existing := DB.DBA.DAV_PROP_GET (_path, 'schema:category', dav_user, pwd);
+    existing := null;
+    FOR SELECT PROP_VALUE AS _v FROM WS.WS.SYS_DAV_PROP
+         WHERE PROP_PARENT_ID = _rid AND PROP_TYPE = 'R' AND PROP_NAME = 'schema:category' DO
+      existing := _v;
     existing_text := '';
-    -- DAV_PROP_GET returns a negative error code (-11) -- not null -- when the
-    -- property does not exist. Only a string is an existing category: casting
-    -- the code to '-11' made every uncategorized post look categorized, so it
-    -- was skipped forever (found 2026-09-27 on the openlinksw.com weblog).
     IF (existing IS NOT NULL AND isstring (existing))
       existing_text := trim (cast (existing AS VARCHAR));
 
@@ -181,8 +183,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
     }
 
     categories := DB.DBA.WEBLOG_DAV_INFER_CATEGORIES (blob_to_string (_content), profile);
-    rc := DB.DBA.DAV_PROP_SET (_path, 'schema:category', categories, dav_user, pwd, 1);
-    IF (DB.DBA.DAV_HIDE_ERROR (rc) IS NULL)
+    rc := DB.DBA.DAV_PROP_SET_INT (_path, 'schema:category', categories, null, null, 0, 0, 1);
+    IF (not isinteger (rc) OR rc < 0)
       failed := failed + 1;
     ELSE
       updated := updated + 1;
@@ -242,6 +244,37 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_UNSCHEDULE_CATEGORY_REFRESH (IN event_name VA
   RETURN sprintf ('{"ok":true,"event":"%V","removed":true}', event_name);
 }
 ;
+
+-- Run every category-refresh job already scheduled on this server once,
+-- right now, with the procedures just installed above. Makes this file
+-- self-applying on any server (each job carries its own collection and
+-- profile), and immediately backfills posts a broken earlier version left
+-- untagged. Missing-only jobs never overwrite existing categories. Returns
+-- one line per job with its scanned/updated/skipped/failed counts.
+CREATE PROCEDURE DB.DBA.TMP_WEBLOG_RUN_CATEGORY_JOBS ()
+{
+  DECLARE report, st, msg VARCHAR;
+  DECLARE rows ANY;
+  report := '';
+  FOR (SELECT SE_NAME AS _n, SE_SQL AS _s FROM DB.DBA.SYS_SCHEDULED_EVENT
+        WHERE SE_SQL LIKE 'DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES (%') DO
+  {
+    st := '00000';
+    msg := '';
+    rows := null;
+    exec (concat ('SELECT ', _s), st, msg, vector (), 1, null, rows);
+    IF (st = '00000' AND rows IS NOT NULL AND length (rows) > 0)
+      report := concat (report, _n, ': ', cast (rows[0][0] AS VARCHAR), '\n');
+    ELSE
+      report := concat (report, _n, ': ERROR ', st, ' ', msg, '\n');
+  }
+  IF (report = '')
+    report := 'No scheduled category-refresh jobs on this server -- nothing run.';
+  RETURN report;
+}
+;
+SELECT DB.DBA.TMP_WEBLOG_RUN_CATEGORY_JOBS ();
+DROP PROCEDURE DB.DBA.TMP_WEBLOG_RUN_CATEGORY_JOBS;
 
 -- Usage: run once immediately for missing categories only.
 -- SELECT DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES ('/DAV/home/demo/Public/fifa-kg-player-reports/', 'fifa-player-reports', 'dba', 0);
