@@ -1,0 +1,43 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "Live Deployment: Federated Queries Become Local Queries"@en ;
+    schema:description "Staged deployments of the OSDI demo sites run some embedded SPARQL as federated SERVICE calls to the public endpoint. At final deployment to the public site those must be local queries. This howto records the rule, how to find the queries, and how to convert and verify them."@en ;
+    schema:dateCreated "2026-10-11T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-10-11T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :liveFederatedToLocal ;
+    rdfs:seeAlso <../preferences.ttl#step-liveFederatedQueriesLocal> .
+
+:liveFederatedToLocal a schema:HowTo ;
+    schema:name "Convert federated queries to local queries at final live deployment"@en ;
+    schema:description "The rule, the inventory, the conversion and the verification."@en ;
+    schema:step :step-theRule, :step-inventory, :step-convert, :step-verify .
+
+:step-theRule a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "State the rule: staging may federate, the public site must not"@en ;
+    schema:text """Kingsley, 2026-10-11, as an important live-deployment rule. While pages are staged on the test server the data they query (the FAQ graphs, the Virtuoso features matrix, the feed behind /posts) lives on the public endpoint, so the queries reach it with SERVICE <https://www.openlinksw.com/sparql> { ... }. On the public site that data is local, so the same pages must query local graphs directly. Staged deployments may keep SERVICE; the live cut-over may not."""@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate .
+
+:step-inventory a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Keep an inventory of federated queries while staging"@en ;
+    schema:text """Find them with a search for SERVICE < in the authored content and skin regions (inclusion-engine fixture/content and site/content, and opl-skins openlink-2026/template/region). As of 2026-10-11 the SERVICE queries are: the /posts feed query, the /virtuoso FAQ query, and the /virtuoso Edition Comparison Matrix query (it once carried a local branch for a feature the production graph lacked; production now has it, so the query is the remote one alone). Also review at cut-over, though they are not SERVICE calls: the /news query and the two offer-banner regions read remote feeds directly with FROM <feed URL> (sponged), and should read the live site's own graphs or feeds if those are local there. Add each new federated query to this list when it is written."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .
+
+:step-convert a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Convert: drop the SERVICE wrapper, keep the graph scoping, keep the projection types"@en ;
+    schema:text """Inside the SERVICE block the query is already scoped to named graphs (GRAPH <...> or FROM <...>). Move that body into the outer query, so it runs against the live server's own graphs, and remove SERVICE. Check that the graph IRIs exist on the live server under those names; if the live graphs carry different IRIs, change the GRAPH clauses to match. The STR() wrappers added around language-tagged labels and answers exist only because language-tagged literals fail passing through SERVICE (SR549); they are harmless locally and may stay or go. Keep the projected variable names, since the page scripts (embedded-sparql.js, faq-tabs.js, matrix-table.js) read them by name."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .
+
+:step-verify a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Verify each converted query against the live site"@en ;
+    schema:text """After the change, run each query on the live server and compare its row count and content with what the staged page shows (for the FAQ and the matrix, compare feature and question counts per category). Load each page and confirm the section renders with its empty state hidden. Report any query not yet converted rather than leaving it federated silently."""@en ;
+    onto:hasTrigger onto:triggerArtifactGeneration .

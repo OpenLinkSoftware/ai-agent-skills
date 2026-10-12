@@ -133,7 +133,8 @@
         :step-howtoAuthoringStructure,
         :step-identityEstablishment, :step-preferencesEstablishment,
         :step-identityMode, :step-progressiveContextLoading,
-        :step-grokBotMemorySync .
+        :step-grokBotMemorySync,
+        :step-liveFederatedQueriesLocal .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -3890,3 +3891,11 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/first-mention-hyperlinks.ttl>,
         <howto/first-mention-hyperlinks.ttl#step-definition>,
         <howto/concept-entity-hyperlinking.ttl> .
+
+# ── Step 329: federated queries become local queries at live deployment ──
+:step-liveFederatedQueriesLocal a schema:HowToStep ;
+    schema:position "329"^^xsd:integer ;
+    schema:name "At final deployment to the public site, convert every federated query (SERVICE to a remote endpoint) to a local query; staged deployments may stay federated"@en ;
+    schema:text "Important live-deployment rule (Kingsley, 2026-10-11): pages deployed to the staging server may run embedded SPARQL as SERVICE calls to the public endpoint, because the data is not there. On the public site the data is local, so each such query must be rewritten to run against the local graphs (drop the SERVICE wrapper; keep the GRAPH scoping and the query body) before or as part of the live cut-over. Keep a list of the federated queries while staging so none is missed, and verify each against the live site's own endpoint after the change."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/live-deployment-federated-to-local-queries.ttl> .
