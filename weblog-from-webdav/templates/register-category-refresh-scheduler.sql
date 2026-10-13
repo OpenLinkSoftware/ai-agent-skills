@@ -41,7 +41,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_APPEND (IN cats VARCHAR, IN label VA
 }
 ;
 
--- Lower-case, drop tags and entities, and collapse everything that is not
+-- Lower-case; drop tags and entities; and collapse everything that is not
 -- a-z/0-9 to single spaces, padded with a space at each end -- so a term
 -- matches only as whole words: ' api ' never matches 'rapid', ' rest '
 -- never matches 'interest'.
