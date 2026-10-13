@@ -120,13 +120,13 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_TERM_COUNT (IN norm_text LONG VARCHA
 CREATE PROCEDURE DB.DBA.WEBLOG_DAV_GENERIC_SIGNALS ()
 {
   RETURN vector (
-    vector ('Semantic Web, RDF & Linked Data', vector ('linked data', 'semantic web', 'rdf', 'ontology', 'ontologies')),
+    vector ('Semantic Web, RDF, & Linked Data', vector ('linked data', 'semantic web', 'rdf', 'ontology', 'ontologies')),
     vector ('Knowledge Graphs', vector ('knowledge graph', 'knowledge graphs')),
     vector ('AI Agents & LLMs', vector ('ai', 'agent', 'agents', 'ai agent', 'ai agents', 'agentic', 'llm', 'llms', 'chatgpt', 'gpt', 'claude', 'anthropic', 'openai', 'gemini')),
-    vector ('APIs, Protocols & Agent Skills', vector ('api', 'apis', 'rest api', 'oauth', 'mcp', 'a2a', 'agent skill', 'agent skills')),
+    vector ('APIs, Protocols, & Agent Skills', vector ('api', 'apis', 'rest api', 'oauth', 'mcp', 'a2a', 'agent skill', 'agent skills')),
     vector ('Virtuoso Platform', vector ('virtuoso', 'webdav', 'vsp', 'sparql', 'spasql', 'sql', 'uriburner')),
     vector ('Analytics & Data Engineering', vector ('analytics', 'data engineering', 'etl', 'elt', 'lakehouse', 'data warehouse')),
-    vector ('Identity, Security & Privacy', vector ('security', 'privacy', 'webid', 'identity', 'certificate', 'authentication')),
+    vector ('Identity, Security, & Privacy', vector ('security', 'privacy', 'webid', 'identity', 'certificate', 'authentication')),
     vector ('Cloud Storage & S3', vector ('s3', 'bucket', 'object storage', 'cloud storage')),
     vector ('FIFA World Cup & Football', vector ('fifa', 'world cup', 'football', 'soccer')));
 }
