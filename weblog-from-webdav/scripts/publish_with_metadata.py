@@ -83,7 +83,7 @@ GENERIC_SIGNALS = [
     ("APIs, Protocols & Agent Skills", ("api", "apis", "rest api", "oauth", "mcp", "a2a", "agent skill", "agent skills")),
     ("Virtuoso Platform", ("virtuoso", "webdav", "vsp", "sparql", "spasql", "sql", "uriburner")),
     ("Analytics & Data Engineering", ("analytics", "data engineering", "etl", "elt", "lakehouse", "data warehouse")),
-    ("Identity, Security & Privacy", ("security", "privacy", "webid", "identity", "certificate", "authentication")),
+    ("Identity, Security, & Privacy", ("security", "privacy", "webid", "identity", "certificate", "authentication")),
     ("Cloud Storage & S3", ("s3", "bucket", "object storage", "cloud storage")),
     ("FIFA World Cup & Football", ("fifa", "world cup", "football", "soccer")),
 ]
