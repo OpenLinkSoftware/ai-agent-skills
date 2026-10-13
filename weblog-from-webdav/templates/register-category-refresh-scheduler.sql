@@ -280,7 +280,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_INFER_CATEGORIES
   }
 
   -- Generic profile: whole-word terms, and a label only when the post is
-  -- ABOUT it -- a term in its title, meta description or first <h1>, or
+  -- ABOUT it -- a term in its title, meta description, or first <h1>, or
   -- repeated at least 20 times in the visible body. Plain substring tests
   -- over the whole page ('api' in 'rapid', 'rest' in 'interest', 'rdf' in
   -- every generated page's boilerplate) put the top labels on 287-289 of
