@@ -206,7 +206,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_APPLY_CATEGORY_ALIASES (IN cats VARCHAR, IN a
 }
 ;
 
--- 1 when every label in cats is one the generic profile produces, i.e. the
+-- 1 when every label in cats is one the generic profile produces, i.e., the
 -- tags were assigned automatically rather than curated by hand.
 CREATE PROCEDURE DB.DBA.WEBLOG_DAV_IS_AUTO_CATEGORIES (IN cats VARCHAR)
 {
