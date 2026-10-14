@@ -3869,3 +3869,24 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     schema:text "Run scripts/validate-memory-shapes.py against shapes/memory-shapes.ttl for session files, index.ttl and preferences.ttl; report-only until the baseline is clean. Keep check-memory-gate.py, validate-memory-protocol.py and check-session-record.py. session-graph-gate.py compares triple sets with the named graph, not just counts."@en ;
     rdfs:seeAlso <howto/memory-shacl-validation.ttl> ,
         <shapes/memory-shapes.ttl> .
+
+# ── Step 318: benchmark and performance reports start from the story template ──
+:step-benchmarkReportStoryTemplate a schema:HowToStep ;
+    schema:position "318"^^xsd:integer ;
+    schema:name "Benchmark and head-to-head performance reports start from the editorial story template (2026-10-03 Virtuoso 7 / Virtuoso 8 / QLever page), not a blank page"@en ;
+    schema:text "Reuse the template's narrative arc, section sequence, validated engine palette, single-state reactivity, statistical-honesty rules and verification routine, replacing only the engine list, the data block and the category function."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/benchmark-report-story-template.ttl>,
+        <howto/benchmark-report-story-template.ttl#workExample-storyTemplate>,
+        <howto/ui-ux-expert-persona.ttl>,
+        <howto/artifact-routing.ttl> .
+
+# ── Step 322: first mention of a named project or product is linked once, in prose, never in a heading ──
+:step-firstMentionHyperlinks a schema:HowToStep ;
+    schema:position "322"^^xsd:integer ;
+    schema:name "Hyperlink the first mention of a named project or product once, in running prose and never in a heading, to its confirmed canonical repository or homepage"@en ;
+    schema:text "Headings, titles, navigation, labels and table cells do not count as a mention; the howto gives the target, the generated-text method and the checks."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/first-mention-hyperlinks.ttl>,
+        <howto/first-mention-hyperlinks.ttl#step-definition>,
+        <howto/concept-entity-hyperlinking.ttl> .
