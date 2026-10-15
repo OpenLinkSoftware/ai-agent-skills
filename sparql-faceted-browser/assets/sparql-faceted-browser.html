@@ -107,10 +107,17 @@ button:disabled { cursor: default; opacity: .45; }
 /* layout */
 .layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; padding: 0 16px 24px; align-items: start; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
-/* The facet column never gets its own (hidden) scrollbar: it scrolls with the page, and is pinned
-   below the measured top bar only while it fits on screen (JS toggles .pinned). */
-aside { display: flex; flex-direction: column; gap: 12px; position: static; }
-aside.pinned { position: sticky; top: calc(var(--top-h, 57px) + 12px); }
+/* As in fct-dev (#fct_nav): the facet column is sticky below the measured top bar and scrolls inside itself, so working
+   down the facets never moves the page and the results pane stays in view. Its scrollbar is always visible (thin, styled),
+   so nothing in the column is ever unreachable. */
+aside { display: flex; flex-direction: column; gap: 12px; position: sticky; top: calc(var(--top-h, 57px) + 12px);
+  max-height: calc(100vh - var(--top-h, 57px) - 24px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px;
+  scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+aside::-webkit-scrollbar { width: 8px; }
+aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+aside:hover::-webkit-scrollbar-thumb { background: var(--muted); }
+/* the results pane is what a query changes: when it is off-screen at the start of a query, it is scrolled into view */
+#results { scroll-margin-top: calc(var(--top-h, 0px) + 12px); }
 /* FCT-style pager (facets inline; the main result pager floats at the viewport bottom while its results are visible) */
 .pgr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); font-size: 12px; color: var(--muted); }
 .pgr label { display: inline-flex; align-items: center; gap: 4px; }
@@ -297,7 +304,7 @@ footer.site a, #about a { color: var(--accent); }
 @media (max-width: 860px) {
   .ep { flex-basis: 100%; order: 3; }          /* endpoint controls take their own full-width row */
   .layout { grid-template-columns: minmax(0, 1fr); }
-  aside { position: static; max-height: none; order: 2; }
+  aside { position: static; max-height: none; overflow: visible; padding-right: 0; order: 2; }
   .topbar { position: static; }
   .ent { grid-template-columns: 40px minmax(0,1fr); }
   .ent .acts { grid-column: 2; }
@@ -423,7 +430,7 @@ footer.site a, #about a { color: var(--accent); }
       <details class="facet" id="fGraphs"><summary>Named graphs <span class="hint" id="graphHint"></span></summary><div class="body"><div id="graphs"></div></div></details>
     </section>
   </aside>
-  <section class="panel" aria-label="Results">
+  <section class="panel" id="results" aria-label="Results">
     <div class="tabs" role="tablist" id="tabs"></div>
     <div id="view"></div>
   </section>
@@ -740,11 +747,12 @@ async function detectProfile() {
 let inflight = 0;
 const queryLog = new Map();
 /* Connection state shown on the endpoint field, the Connect button and the status pill:
-   idle → pending (throbber) → ok (green) | err (red). */
-const conn = { state: 'idle', ep: null, profile: null, msg: '', pending: null, pendingEp: null, proxyFor: null };
+   idle → pending (throbber) → ok (green) | err (red). While pending, the button says "Connecting" and the pill names
+   the handshake step under way (conn.phase), with the detail in its tooltip — never the same word twice. */
+const conn = { state: 'idle', ep: null, profile: null, msg: '', phase: '', pending: null, pendingEp: null, proxyFor: null };
 function paintStatus() {
   const s = conn.state;
-  const text = s === 'pending' ? 'Connecting…' : s === 'err' ? 'Connection failed' :
+  const text = s === 'pending' ? (conn.phase || 'SPARQL handshake…') : s === 'err' ? 'Connection failed' :
     s === 'ok' ? 'Connected · ' + profile() + (proxied() ? ' · via UB proxy' : '') + (inflight ? ' · ' + inflight + ' running' : '') : 'Not connected';
   const el = document.getElementById('status');
   el.className = 'status ' + s + (s === 'ok' && inflight ? ' busy' : '');
@@ -758,7 +766,7 @@ function paintStatus() {
   btn.setAttribute('aria-busy', String(s === 'pending'));
   btn.querySelector('.lab').textContent = s === 'pending' ? 'Connecting' : 'Connect';
 }
-function setConn(state, msg) { conn.state = state; conn.msg = msg || ''; paintStatus(); }
+function setConn(state, msg, phase) { conn.state = state; conn.msg = msg || ''; conn.phase = phase || ''; paintStatus(); }
 // Handshake: a cheap ASK proves the URL is a reachable, CORS-enabled SPARQL endpoint; then the engine is profiled.
 /* When a URL answers with a web page instead of SPARQL results (e.g. a portal's query-editor page such as
    https://data.europa.eu/data/sparql, whose service is https://data.europa.eu/sparql), look for the real endpoint:
@@ -792,7 +800,7 @@ function handshake() {
   let ep = settings.ep;
   const t0 = performance.now(), asked = ep;
   conn.proxyFor = null;
-  setConn('pending', 'Contacting ' + ep);
+  setConn('pending', 'SPARQL Protocol handshake: sending ASK { ?s ?p ?o } to ' + ep, 'SPARQL handshake…');
   conn.pendingEp = ep;
   conn.pending = (async () => {
     try {
@@ -824,14 +832,14 @@ function handshake() {
         if (!j && e.cors && ep !== PROXY_EP && !settings.proxy) throw new Error(e.message + ' To reach it through URIBurner instead, turn on "Use the URIBurner SPARQL-FED proxy" in Settings.');
         if (j) { /* reached via the trailing-slash variant */ }
         else if (e.cors && ep !== PROXY_EP) {
-          setConn('pending', 'Direct access to ' + ep + ' is blocked by the browser — trying the URIBurner SPARQL-FED proxy…');
+          setConn('pending', 'Direct access to ' + ep + ' is blocked by the browser — repeating the SPARQL handshake through the URIBurner SPARQL-FED proxy', 'Trying UB proxy…');
           try { j = await sparql('ASK { ?s ?p ?o }', { quiet: true, timeout: 20000, proxyFor: ep }); }
           catch (e2) { throw new Error(e.message + ' The URIBurner SPARQL-FED proxy could not reach it either: ' + e2.message); }
           if (settings.ep !== asked) return false;
           conn.proxyFor = ep;
         } else if (!e.nonSparql) throw e;
         else {
-        setConn('pending', ep + ' is a web page, not a SPARQL service — looking for the endpoint behind it…');
+        setConn('pending', ep + ' is a web page, not a SPARQL service — looking for the endpoint behind it', 'Finding endpoint…');
         const found = await discoverEndpoint(ep, e.html);
         if (!found) throw new Error(e.message + ' — and no SPARQL endpoint answered at the usual locations near it.');
         if (settings.ep !== asked) return false;
@@ -843,6 +851,7 @@ function handshake() {
         }
       }
       if (typeof j.boolean !== 'boolean' && !j.results) throw new Error('The URL answered, but not with SPARQL results.');
+      if (settings.profile === 'auto' && !resolvedProfile) setConn('pending', 'Handshake done; detecting the engine (Virtuoso, generic SPARQL 1.1 or Wikidata) at ' + ep, 'Detecting engine…');
       await detectProfile();
       if (settings.ep !== ep) return false;
       conn.ep = ep; conn.profile = settings.profile;
@@ -1002,7 +1011,7 @@ const ANYTIME_MAX_MS = 30000, ANYTIME_SAFE_MS = 20000;
 /* Annotation-literal dedupe: 'auto' = only on Virtuoso (Settings → De-duplicate annotation literals). */
 const dedupeOn = () => settings.dedupe === 'on' || (settings.dedupe !== 'off' && profile() === 'virtuoso');
 const ANNOT_PROPS = ['rdfs:label', 'rdfs:comment', 'skos:prefLabel', 'skos:altLabel', 'skos:hiddenLabel', 'skos:definition', 'skos:note', 'skos:scopeNote',
-  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'foaf:name']
+  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'foaf:name']
   .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description']);
 const annotTest = () => '(?p IN (' + ANNOT_PROPS.map(iriRef).join(', ') + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })';
 const langOk = v => '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + litStr(prefLang()) + '))';
@@ -1174,16 +1183,20 @@ const Q = {
   graphsTotal: f => prologue() + 'SELECT (COUNT (DISTINCT ?g) AS ?n)\nWHERE {\n' + whereBody() + '\n  GRAPH ?g { ' + sv(f) + ' ?gp ?go }\n}',
   /* Description, paged like FCT's /describe (rdfdesc/description.vsp): one list of the entity's statements,
      outgoing (<e> ?p ?o) then incoming (?o ?p <e>), ordered by predicate, LIMIT/OFFSET per page, COUNT for the total.
-     With annotation dedupe on (Settings; default: Virtuoso only), literal objects of annotation properties (well-known
-     label/comment/name/description terms, plus anything the data declares an owl:AnnotationProperty) are SAMPLE()d to one
-     per property with a count; other literals keep every value. Both stay in the preferred language or untagged. */
-  describeUnion: (e, sampled) => sampled
+     mode 'sample' (annotation dedupe on — Settings; default: Virtuoso only): literal objects of annotation properties
+       (well-known label/comment/name/description/abstract terms, plus anything declared owl:AnnotationProperty) are
+       SAMPLE()d to one per property with a count; other literals keep every value;
+     mode 'lang' (dedupe off, any engine): every literal value is kept;
+     in both, literals are limited to the preferred language or untagged. mode 'all' ("All values & languages"): no filter. */
+  describeUnion: (e, mode) => mode === 'sample'
     ? '  { { SELECT ?p (SAMPLE (?lo) AS ?o) (COUNT (?lo) AS ?n) WHERE {\n      ' + iriRef(e) + ' ?p ?lo .\n      FILTER (isLiteral (?lo) && ' + annotTest() + ' && ' + langOk('?lo') + ')\n    } GROUP BY ?p } BIND ("out" AS ?dir) }\n' +
       '  UNION { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || (!' + annotTest() + ' && ' + langOk('?o') + ')) BIND ("out" AS ?dir) }\n' +
       '  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
+    : mode === 'lang'
+    ? '  { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || ' + langOk('?o') + ') BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
     : '  { ' + iriRef(e) + ' ?p ?o . BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }',
-  describePage: (e, sampled, off, lim) => sel('?dir ?p ?o' + (sampled ? ' ?n' : ''), Q.describeUnion(e, sampled), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
-  describeTotal: (e, sampled) => sel('(COUNT (*) AS ?n)', Q.describeUnion(e, sampled)),
+  describePage: (e, mode, off, lim) => sel('?dir ?p ?o' + (mode === 'sample' ? ' ?n' : ''), Q.describeUnion(e, mode), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
+  describeTotal: (e, mode) => sel('(COUNT (*) AS ?n)', Q.describeUnion(e, mode)),
   describeIn: e => sel('?s ?p', '  ?s ?p ' + iriRef(e) + ' .', 'LIMIT 300')
 };
 
@@ -1310,7 +1323,7 @@ async function cached(key, fn) {
 function resetCaches() { voidState.clear(); cache.clear(); countCache.clear(); countPartial.clear(); labels.clear(); cards.clear(); queryLog.clear(); }
 
 function newNav(nodes, view) { nav = { nodes, focus: nodes.length - 1, view: view || 'entities', off: 0, vp: null, ent: null }; }
-function go(replace) { writeHash(replace); render(); }
+function go(replace, opts = {}) { writeHash(replace); render(); if (!replace && !opts.noReveal) revealResults(); }
 
 async function render() {
   const my = ++gen;
@@ -1596,7 +1609,7 @@ function goPage(id, off, lim) {
   mutate(n => {
     if (id === 'main') { n.off = off; n.lim = lim; }
     else { n.pg = Object.assign({}, n.pg); n.pg[id] = { off, lim }; }
-  }, { keepView: true });
+  }, { keepView: true, noReveal: id !== 'main' && id !== 'desc' });
 }
 
 function renderView(my, signal) {
@@ -1838,26 +1851,27 @@ async function renderDescribe(el, my, signal) {
   const all = !!nav.allLangs;
   const { off, lim } = pgState('desc');
   const dd = dedupeOn();
-  let sampled = !all && dd;
-  let q = Q.describePage(e, sampled, off, lim);
+  // The language filter applies on every engine; SAMPLE() folding only where dedupe is on.
+  let mode = all ? 'all' : dd ? 'sample' : 'lang';
+  let q = Q.describePage(e, mode, off, lim);
   queryLog.set('Describe · statements (page)', q);
   pagerInfo.set('desc', { count: 0, total: null });
   el.innerHTML = '<div class="content" style="padding-top:14px">' + loading('Describing…') + '</div>';
   wantLabels([e]);
   const dkey = JSON.stringify([settings.ep, settings.graph, profile(), prefLang(), e, dd]);
   try {
-    // An endpoint that rejects the SAMPLE()/sub-select form gets the plain statement list instead.
+    // An endpoint that rejects the SAMPLE()/sub-select form gets the language-filtered list instead.
     const rs = await cached('d|' + dkey + '|' + all + '|' + off + '|' + lim, async () => {
       try { return rows(await sparql(q, { signal })); }
       catch (x) {
-        if (!sampled || x.message === 'cancelled' || !/^HTTP /.test(x.message)) throw x;
-        sampled = false; q = Q.describePage(e, false, off, lim);
+        if (mode !== 'sample' || x.message === 'cancelled' || !/^HTTP /.test(x.message)) throw x;
+        mode = 'lang'; q = Q.describePage(e, mode, off, lim);
         queryLog.set('Describe · statements (page)', q);
         const r = rows(await sparql(q, { signal })); r.unsampled = true; return r;
       }
     });
     if (my !== gen) return;
-    if (rs.unsampled) sampled = false;
+    if (rs.unsampled) mode = 'lang';
     await fetchCards([e], signal);
     if (my !== gen) return;
     // Group this page's statements by direction and predicate, keeping the server's order.
@@ -1883,7 +1897,7 @@ async function renderDescribe(el, my, signal) {
     el.innerHTML = '<div class="content" style="padding-top:14px">' +
       '<div class="desc-head">' + thumb(e, c, false).replace('class="thumb"', 'class="thumb" style="width:96px;height:96px;font-size:30px"') + '<div><h3>' + lbl(e) + '</h3>' + (c.desc ? '<p>' + esc(c.desc) + '</p>' : '') +
       '<div class="btnrow"><button class="btn primary" data-act="explore" data-iri="' + esc(e) + '">⇢ Start a trail here</button>' + (nav.nodes.length ? '<button class="btn" data-act="tab" data-view="entities">Back to the set</button>' : '') +
-      '<a class="btn" href="' + esc(e) + '" target="_blank" rel="noopener noreferrer">Open IRI ↗</a>' + (dd ? '<button class="btn" data-act="langs" title="Annotation literals (labels, comments, names…) are SAMPLE()d to one value per property">' + (all ? 'One value per annotation' : 'All values &amp; languages') + '</button>' : '') + '</div></div></div>' +
+      '<a class="btn" href="' + esc(e) + '" target="_blank" rel="noopener noreferrer">Open IRI ↗</a>' + '<button class="btn" data-act="langs" title="' + (dd ? 'Annotation literals (labels, comments, names…) are SAMPLE()d to one value per property, and literals are limited to ' : 'Literals are limited to ') + esc(prefLang()) + ' or untagged values">' + (all ? (dd ? 'One value per annotation' : 'Preferred language only') : 'All values &amp; languages') + '</button>' + '</div></div></div>' +
       (outs.length ? '<h4 class="sec">Attributes</h4>' + outs.map(groupHtml).join('') : '') +
       (ins.length ? '<h4 class="sec">Referenced by</h4>' + ins.map(groupHtml).join('') : '') +
       (!groups.length ? '<div class="empty">' + (off ? 'No statements on this page.' : 'No statements' + (settings.graph ? ' in the scoped graph' : '') + '.') + '</div>' : '') +
@@ -1891,9 +1905,9 @@ async function renderDescribe(el, my, signal) {
     setPager('desc', { count: rs.length });
     markPartial(el.querySelector('.desc-head h3'), rs.partial, rs.unsorted);
     if (off === 0 && rs.length < lim && !rs.partial) return setPager('desc', { total: rs.length });
-    const tq = Q.describeTotal(e, sampled);
+    const tq = Q.describeTotal(e, mode);
     queryLog.set('Describe · statements total', tq);
-    cached('dt|' + dkey + '|' + sampled, async () => { const tr = rows(await sparql(tq, { signal, quiet: true })); return tr[0] ? { n: Number(tr[0].n.value), partial: !!tr.partial } : null; })
+    cached('dt|' + dkey + '|' + mode, async () => { const tr = rows(await sparql(tq, { signal, quiet: true })); return tr[0] ? { n: Number(tr[0].n.value), partial: !!tr.partial } : null; })
       .then(t => { if (my === gen && t) setPager('desc', { total: t.n, totalPartial: t.partial }); }).catch(() => {});
   } catch (err) {
     if (my === gen && err.message !== 'cancelled') el.innerHTML = '<div class="content" style="padding-top:14px">' + errBox(err) + '</div>';
@@ -1915,7 +1929,18 @@ function mutate(fn, opts = {}) {
   nav = JSON.parse(JSON.stringify(nav));
   fn(nav);
   if (!opts.keepView) { nav.view = 'entities'; nav.off = 0; nav.pg = {}; }
-  go(false);
+  go(false, opts);
+}
+/* Keep the results pane in scope while its query runs: if a user action (a facet click, a pivot, a search, a results
+   page) leaves the pane's top above the viewport or low on the screen (phones stack the facets below the results),
+   bring it into view. Paging inside a facet list does not move the page (noReveal). */
+function revealResults() {
+  const p = document.getElementById('results');
+  if (!p) return;
+  const topH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--top-h')) || 0;
+  const t = p.getBoundingClientRect().top;
+  if (t < topH + 4 || t > innerHeight * 0.6)
+    p.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }
 const sameCond = (a, b) => JSON.stringify(Object.assign({}, a, { neg: 0 })) === JSON.stringify(Object.assign({}, b, { neg: 0 }));
 function addCond(c) { mutate(n => { const node = n.nodes[n.focus]; node.conds = node.conds.filter(x => !sameCond(x, c)); node.conds.push(c); }); }

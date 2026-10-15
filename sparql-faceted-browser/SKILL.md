@@ -102,7 +102,8 @@ Default endpoint: DBpedia. Use `--ep URL` for any other; the presets the app shi
 - **Virtuoso** — `bif:contains` text search, members ranked by `IRI_RANK`, **Anytime** queries (partial results at
   the time budget: say so when the output is flagged PARTIAL), annotation literals folded with `SAMPLE()` in
   descriptions.
-- **Generic SPARQL 1.1** — `CONTAINS()` text search over label properties, plain `DISTINCT`, no Anytime, no folding.
+- **Generic SPARQL 1.1** — `CONTAINS()` text search over label properties, plain `DISTINCT`, no Anytime, no folding
+  (descriptions are still limited to the preferred language; `--all-langs` lifts that on any engine).
 - **Wikidata** — EntitySearch for text, `wdt:P31` as the type property.
 
 The fallbacks the app uses are built in (no `IRI_RANK` → unranked; sorted-results cap → unsorted; cost-estimate
