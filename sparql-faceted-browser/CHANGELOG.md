@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.2 — 2026-10-15
+
+- **New presets:** 11, each with start samples (types, entities, search words) checked with the app's own query
+  shapes. They are listed in `references/endpoints.md`.
+  - **Direct, with CORS:** Italian Chamber of Deputies, dati.gov.it, datos.gob.es, LIBRIS, Data for Humanities
+    (ABES), WikiPathways, OMA, OrthoDB and 3LGM². Aragon Open Data's samples are refreshed.
+  - **Through the URIBurner proxy only:** datos.bcn.cl and SIOP (Brazil). Neither sends CORS headers on https.
+  - **Left out:** datos.infolobby.cl. Its certificate names `*.cplt.cl`, plain http is blocked on an https page, and
+    it refuses the proxy with 403.
+- **Removed preset:** Protein Ontology (`sparql.proconsortium.org`).
+- **Bundled app (`assets/`):**
+  - adds the new presets;
+  - proxied endpoints skip the engine check, which URIBurner refuses inside `SERVICE` after 45–90 s, and use the
+    generic SPARQL 1.1 profile.
+
 ## 1.0.1 — 2026-10-15
 
 - **Describe language filter:** it no longer depends on `SAMPLE()` de-duplication.
