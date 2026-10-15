@@ -1689,7 +1689,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     ext  := lower (subseq (_name, dpos + 1));
     if (ext = ''html'')
       dict_put (html_stems, stem, 1);
-    s := subseq (blob_to_string (_cont), 0, 8000);
+    s := blob_to_string (_cont);
+    -- Keep 8000 bytes for the title lookup, but starting at <title> when it
+    -- sits further in: generated pages can open with a large inline <style>
+    -- block, which pushed <title> past a fixed first-8000-byte window and
+    -- left the post listed under its filename.
+    declare title_pos any;
+    title_pos := null;
+    if (ext = ''html'')
+      title_pos := strcasestr (s, ''<title'');
+    if (title_pos is not null and title_pos > 7000)
+      s := subseq (s, title_pos, title_pos + 8000);
+    else
+      s := subseq (s, 0, 8000);
     all_rows := vector_concat (all_rows, vector (vector (_name, _mod, s, ext, stem)));
     }
   }
@@ -1711,7 +1723,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     ext  := lower (subseq (_name, dpos + 1));
     if (ext = ''html'')
       dict_put (html_stems, stem, 1);
-    s := subseq (blob_to_string (_cont), 0, 8000);
+    s := blob_to_string (_cont);
+    -- Keep 8000 bytes for the title lookup, but starting at <title> when it
+    -- sits further in: generated pages can open with a large inline <style>
+    -- block, which pushed <title> past a fixed first-8000-byte window and
+    -- left the post listed under its filename.
+    declare title_pos any;
+    title_pos := null;
+    if (ext = ''html'')
+      title_pos := strcasestr (s, ''<title'');
+    if (title_pos is not null and title_pos > 7000)
+      s := subseq (s, title_pos, title_pos + 8000);
+    else
+      s := subseq (s, 0, 8000);
     all_rows := vector_concat (all_rows, vector (vector (_name, _mod, s, ext, stem)));
     }
   }
@@ -1734,11 +1758,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
       goto next_row;
     if (ext = ''html'')
     {
-      t := regexp_match (''<title>[^<]+</title>'', s);
+      t := regexp_substr (''(?is)<title[^>]*>([^<]*)</title>'', s, 1);
       if (t is not null)
       {
-        t := replace (t, ''<title>'', '''');
-        t := replace (t, ''</title>'', '''');
         t := trim (t);
         t := DB.DBA.WEBLOG_HTML_UNESCAPE (t);
         t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
@@ -1746,7 +1768,23 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     }
     else
     {
-      t := stem;
+      -- Markdown: front-matter title:, else the first # heading, else the
+      -- stem. (No dollar signs in these patterns: isql treats one as a
+      -- macro even inside a loaded file.)
+      t := null;
+      if (s like ''---%'')
+        t := regexp_substr (''(?m)^title:[[:space:]]*([^[:cntrl:]]+)'', s, 1);
+      if (t is null or trim (t) = '''')
+        t := regexp_substr (''(?m)^#[[:space:]]+([^[:cntrl:]]+)'', s, 1);
+      if (t is not null)
+      {
+        t := trim (t);
+        if (length (t) > 1 and t like ''"%"'')
+          t := subseq (t, 1, length (t) - 1);
+        t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
+      }
+      if (t is null or t = '''')
+        t := stem;
     }
     if (t is null or t = '''')
       t := aref (r, 0);
