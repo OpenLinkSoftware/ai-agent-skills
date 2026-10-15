@@ -76,11 +76,11 @@ def detect_fifa_player_categories(text: str) -> list[str]:
 # templates/register-category-refresh-scheduler.sql, so a post tagged at
 # upload gets the same labels the scheduled refresh would give it.
 GENERIC_SIGNALS = [
-    ("Semantic Web, RDF & Linked Data", ("linked data", "semantic web", "rdf", "ontology", "ontologies")),
+    ("Semantic Web, RDF, & Linked Data", ("linked data", "semantic web", "rdf", "ontology", "ontologies")),
     ("Knowledge Graphs", ("knowledge graph", "knowledge graphs")),
     ("AI Agents & LLMs", ("ai", "agent", "agents", "ai agent", "ai agents", "agentic", "llm", "llms",
                           "chatgpt", "gpt", "claude", "anthropic", "openai", "gemini")),
-    ("APIs, Protocols & Agent Skills", ("api", "apis", "rest api", "oauth", "mcp", "a2a", "agent skill", "agent skills")),
+    ("APIs, Protocols, & Agent Skills", ("api", "apis", "rest api", "oauth", "mcp", "a2a", "agent skill", "agent skills")),
     ("Virtuoso Platform", ("virtuoso", "webdav", "vsp", "sparql", "spasql", "sql", "uriburner")),
     ("Analytics & Data Engineering", ("analytics", "data engineering", "etl", "elt", "lakehouse", "data warehouse")),
     ("Identity, Security, & Privacy", ("security", "privacy", "webid", "identity", "certificate", "authentication")),

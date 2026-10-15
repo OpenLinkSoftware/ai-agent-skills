@@ -21,6 +21,7 @@ CREATE PROCEDURE DB.DBA.TMP_WEBLOG_CATEGORY_REFRESH_DROP ()
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_STRIP_BLOCKS'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_GENERIC_SIGNALS'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_ALIASES'); }
+  { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_RENAMES'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_ACTIVE_CATEGORY_ALIASES'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_APPLY_CATEGORY_ALIASES'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; }; exec ('DROP PROCEDURE DB.DBA.WEBLOG_DAV_IS_AUTO_CATEGORIES'); }
@@ -132,6 +133,25 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_GENERIC_SIGNALS ()
 }
 ;
 
+-- Earlier spellings of a label -> the current one, applied to every post's
+-- existing tags on each refresh. Labels with three or more items take the
+-- Oxford comma (2026-10-15); posts tagged before that keep the old
+-- spelling until renamed, which would otherwise show each such label as
+-- two facets.
+CREATE PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_RENAMES ()
+{
+  RETURN vector (
+    'Semantic Web, RDF & Linked Data', 'Semantic Web, RDF, & Linked Data',
+    'APIs, Protocols & Agent Skills', 'APIs, Protocols, & Agent Skills',
+    'Identity, Security & Privacy', 'Identity, Security, & Privacy',
+    'Semantic Web, RDF & Ontologies', 'Semantic Web, RDF, & Ontologies',
+    'Analytics, Data Engineering & ERA', 'Analytics, Data Engineering, & ERA',
+    'Database, SQL & PostgreSQL', 'Database, SQL, & PostgreSQL',
+    'WebDAV, ODS & Collaboration', 'WebDAV, ODS, & Collaboration',
+    'Presentation, Infographic & Visual Explanation', 'Presentation, Infographic, & Visual Explanation');
+}
+;
+
 -- Generic label -> an established equivalent. Used only in a collection
 -- where the equivalent is already in use (i.e. it was curated with its own
 -- vocabulary, like the openlinksw.com weblog), so automatic tags join the
@@ -139,11 +159,11 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_GENERIC_SIGNALS ()
 CREATE PROCEDURE DB.DBA.WEBLOG_DAV_CATEGORY_ALIASES ()
 {
   RETURN vector (
-    'Semantic Web, RDF & Linked Data', 'Semantic Web, RDF & Ontologies',
+    'Semantic Web, RDF, & Linked Data', 'Semantic Web, RDF, & Ontologies',
     'Knowledge Graphs', 'Knowledge Graphs & Linked Data',
     'AI Agents & LLMs', 'AI Engineering & LLMs',
-    'Analytics & Data Engineering', 'Analytics, Data Engineering & ERA',
-    'APIs, Protocols & Agent Skills', 'OPAL & Agentic AI',
+    'Analytics & Data Engineering', 'Analytics, Data Engineering, & ERA',
+    'APIs, Protocols, & Agent Skills', 'OPAL & Agentic AI',
     'WebDAV Published Documents', 'OpenLink Technical Content');
 }
 ;
@@ -166,7 +186,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_ACTIVE_CATEGORY_ALIASES (IN coll VARCHAR)
     DECLARE j INTEGER;
     IF (isstring (_v))
     {
-      parts := split_and_decode (cast (_v AS VARCHAR), 0, '\0\0;');
+      -- Through the renames first: on the run that renames a collection's
+      -- tags, its curated labels still carry the old spelling.
+      parts := split_and_decode (DB.DBA.WEBLOG_DAV_APPLY_CATEGORY_ALIASES (
+        trim (cast (_v AS VARCHAR)), DB.DBA.WEBLOG_DAV_CATEGORY_RENAMES ()), 0, '\0\0;');
       FOR (j := 0; j < length (parts); j := j + 1)
         dict_put (seen, trim (parts[j]), 1);
     }
@@ -334,8 +357,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
   )
 {
   DECLARE coll, pwd VARCHAR;
-  DECLARE scanned, updated, skipped, failed INTEGER;
-  DECLARE active_aliases ANY;
+  DECLARE scanned, updated, skipped, failed, renamed INTEGER;
+  DECLARE active_aliases, renames ANY;
 
   coll := trim (dav_collection);
   IF (coll IS NULL OR coll = '')
@@ -366,6 +389,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
   updated := 0;
   skipped := 0;
   failed := 0;
+  renamed := 0;
+  renames := DB.DBA.WEBLOG_DAV_CATEGORY_RENAMES ();
 
   -- update_all: 0 = untagged posts only (the scheduled default);
   -- 1 = every post; 2 = untagged posts plus posts whose labels all came
@@ -405,6 +430,24 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
     IF (existing IS NOT NULL AND isstring (existing))
       existing_text := trim (cast (existing AS VARCHAR));
 
+    -- Bring any earlier spelling of a label up to date, curated tags
+    -- included: it is the same label, spelled the current way.
+    IF (existing_text <> '' AND existing_text <> '0')
+    {
+      categories := DB.DBA.WEBLOG_DAV_APPLY_CATEGORY_ALIASES (existing_text, renames);
+      IF (categories <> existing_text)
+      {
+        rc := DB.DBA.DAV_PROP_SET_INT (_path, 'schema:category', categories, null, null, 0, 0, 1);
+        IF (not isinteger (rc) OR rc < 0)
+          failed := failed + 1;
+        ELSE
+        {
+          renamed := renamed + 1;
+          existing_text := categories;
+        }
+      }
+    }
+
     IF (existing_text <> '' AND existing_text <> '0'
         AND (update_all = 0 OR (update_all = 2 AND DB.DBA.WEBLOG_DAV_IS_AUTO_CATEGORIES (existing_text) = 0)))
     {
@@ -437,7 +480,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
     next_resource: ;
   }
 
-  RETURN sprintf ('{"ok":true,"collection":"%V","profile":"%V","scanned":%d,"updated":%d,"skipped":%d,"failed":%d}', coll, profile, scanned, updated, skipped, failed);
+  RETURN sprintf ('{"ok":true,"collection":"%V","profile":"%V","scanned":%d,"renamed":%d,"updated":%d,"skipped":%d,"failed":%d}', coll, profile, scanned, renamed, updated, skipped, failed);
 }
 ;
 

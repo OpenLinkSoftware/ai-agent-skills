@@ -1441,14 +1441,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_TITLE (IN dav_collection VARCHAR,
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   content := '';
-  for (select subseq (blob_to_string (RES_CONTENT), 0, 8000) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
+  for (select blob_to_string (RES_CONTENT) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
   {
     content := _c;
   }
-  t := regexp_match ('<title>[^<]+</title>', content);
+  -- Look for <title> wherever it sits, not only in the first 8000 bytes:
+  -- generated pages can open with a large inline <style> block (the same
+  -- fix as the weblog page's post list in deploy-weblog-skinned.sql).
+  t := regexp_substr ('(?is)<title[^>]*>([^<]*)</title>', content, 1);
   if (t is null) return filename;
-  t := replace (t, '<title>', '');
-  t := replace (t, '</title>', '');
   t := trim (t);
   -- Plain text, every character reference decoded (&#x27; included):
   -- the card HTML-escapes it and the Subject header RFC 2047-encodes it.
@@ -1496,6 +1497,30 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IS_INFOGRAPHIC (IN lc VARCHAR)
   if (strstr (lc, 'class="section-nav"') is not null) return 1;
   if (strstr (lc, 'id="nav-panel"') is not null) return 1;
   if (strstr (lc, 'aria-label="section navigation"') is not null) return 1;
+  -- Any page with interactive widgets in its body, whichever generator made
+  -- it: those four markers belong to one generator family, so pages from
+  -- others (tab strips, era explorers, faceted browsers, benchmark
+  -- dashboards) were treated as plain articles and their whole <body> --
+  -- skip links, nav, Theme buttons, forms -- went into subscriber emails
+  -- (seven of ten posts in the 2026-10-14 URIBurner digest). 283 of the
+  -- URIBurner weblog's 291 posts carry at least one of these. <svg> is not
+  -- one of them: plain articles use it for icons and logos.
+  {
+    declare head_close INTEGER;
+    declare body_lc VARCHAR;
+    head_close := strstr (lc, '</head>');
+    body_lc := case when head_close is not null then subseq (lc, head_close) else lc end;
+    if (strstr (body_lc, '<button') is not null) return 1;
+    if (strstr (body_lc, '<nav') is not null) return 1;
+    if (strstr (body_lc, '<form') is not null) return 1;
+    if (strstr (body_lc, '<input') is not null) return 1;
+    if (strstr (body_lc, '<select') is not null) return 1;
+    if (strstr (body_lc, '<textarea') is not null) return 1;
+    if (strstr (body_lc, '<canvas') is not null) return 1;
+    if (strstr (body_lc, '<details') is not null) return 1;
+    if (strstr (body_lc, '<iframe') is not null) return 1;
+    if (strstr (body_lc, 'role="tablist"') is not null) return 1;
+  }
   return 0;
 }
 ;
@@ -1627,15 +1652,24 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_EXCERPT (IN dav_collection VARCHA
     }
     else
     {
+      -- An empty match counts as no match: some pages ship <p class="lede">
+      -- empty and fill it from script, which left '<p></p>' as the email's
+      -- excerpt (two VOS vs QLever benchmark posts, 2026-10-14 digest).
       frag := DB.DBA.WEBLOG_NEWSLETTER_FIND_TAGGED_TEXT (content, lc, '<p class="lede"', '</p>');
+      if (frag is not null and trim (regexp_replace (frag, '<[^>]*>', '', 1, null)) = '')
+        frag := null;
       if (frag is null)
         frag := DB.DBA.WEBLOG_NEWSLETTER_FIND_TAGGED_TEXT (content, lc, '<p class="tagline"', '</p>');
+      if (frag is not null and trim (regexp_replace (frag, '<[^>]*>', '', 1, null)) = '')
+        frag := null;
       if (frag is null)
       {
         h1_close := strstr (lc, '</h1>');
         if (h1_close is not null)
           frag := DB.DBA.WEBLOG_NEWSLETTER_FIND_TAGGED_TEXT (subseq (content, h1_close + 5), subseq (lc, h1_close + 5), '<p', '</p>');
       }
+      if (frag is not null and trim (regexp_replace (frag, '<[^>]*>', '', 1, null)) = '')
+        frag := null;
       if (frag is null)
         frag := '';
       else
