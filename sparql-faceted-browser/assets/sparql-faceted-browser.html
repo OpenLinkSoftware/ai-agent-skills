@@ -1,0 +1,2307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPARQL Faceted Browser</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f4e79' stroke-width='2.4'%3E%3Crect x='2' y='7' width='8' height='10' rx='2'/%3E%3Crect x='14' y='4' width='8' height='7' rx='2'/%3E%3Crect x='14' y='13' width='8' height='7' rx='2'/%3E%3C/svg%3E">
+<meta name="description" content="A generic, parallax-style faceted search and browse interface over any SPARQL endpoint, modelled on the OpenLink Faceted Browser (FCT) query tree, using SPARQL only.">
+<style>
+:root {
+  --bg: #f4f7fb; --surface: #ffffff; --surface2: #eef3f9; --text: #15212e; --muted: #5a6a7e;
+  --border: #d9e1ea; --accent: #1f4e79; --accent-soft: #e3edf7; --accent2: #6b4fbb; --accent2-soft: #efeafb;
+  --on-accent: #ffffff; --neg: #b42318; --neg-soft: #fdecea; --ok: #18794e; --ok-soft: #dcf3e6; --warn: #8a5a00; --warn-soft: #fff4d6; --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 14px rgba(16,24,40,.06);
+  --radius: 10px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b131d; --surface: #121e2c; --surface2: #172638; --text: #e5edf6; --muted: #93a5ba;
+    --border: #24364b; --accent: #00b4ff; --accent-soft: #0e2d44; --accent2: #b69cff; --accent2-soft: #2a2245;
+    --on-accent: #04131f; --neg: #ff8a80; --neg-soft: #3a1d1d; --ok: #5fd39a; --ok-soft: #123526; --warn: #f2c26b; --warn-soft: #3a2e12; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b131d; --surface: #121e2c; --surface2: #172638; --text: #e5edf6; --muted: #93a5ba;
+  --border: #24364b; --accent: #00b4ff; --accent-soft: #0e2d44; --accent2: #b69cff; --accent2-soft: #2a2245;
+  --on-accent: #04131f; --neg: #ff8a80; --neg-soft: #3a1d1d; --ok: #5fd39a; --ok-soft: #123526; --warn: #f2c26b; --warn-soft: #3a2e12; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+/* The hidden attribute must always win over component display rules (e.g. .menu { display: grid }). */
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .45; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* top bar */
+.topbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: .2px; margin-right: 6px; white-space: nowrap; color: var(--text); text-decoration: none; border-radius: 8px; padding: 2px 4px; margin-left: -4px; }
+.brand:hover { text-decoration: none; color: var(--accent); }
+.brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.brand svg { color: var(--accent); }
+.ep { display: flex; flex-wrap: wrap; flex: 1 1 520px; gap: 6px; min-width: 0; }
+.tools { display: flex; align-items: center; gap: 4px; margin-left: auto; flex: 0 0 auto; }
+.ep input { flex: 1 1 200px; min-width: 160px; }
+.ep #epPreset { flex: 0 1 150px; min-width: 110px; }
+.ep #profile { flex: 0 1 auto; }
+.field, .ep input, .ep select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+.btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
+.btn:hover:not(:disabled) { border-color: var(--accent); text-decoration: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.icon-btn { background: none; border: 1px solid transparent; border-radius: 8px; padding: 6px 8px; color: var(--muted); display: inline-grid; place-items: center; }
+.icon-btn:hover { color: var(--accent); border-color: var(--border); }
+/* Connection state: idle (grey) → pending (throbber) → ok (green) | err (red). */
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); transition: background-color .2s, border-color .2s, color .2s; min-width: 0; }
+.status #statusText { overflow: hidden; text-overflow: ellipsis; max-width: 40vw; }
+.status .dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); box-sizing: border-box; }
+.status.pending { color: var(--accent); border-color: var(--accent); }
+.status.pending .dot { width: 12px; height: 12px; background: none; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: spin .7s linear infinite; }
+.status.ok { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
+.status.ok .dot { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.status.ok.busy .dot { animation: pulse 1s infinite; }
+.status.err { color: var(--neg); border-color: var(--neg); background: var(--neg-soft); }
+.status.err .dot { background: var(--neg); box-shadow: 0 0 0 3px var(--neg-soft); }
+.ep input { transition: border-color .2s, box-shadow .2s; }
+.ep[data-conn="ok"] input { border-color: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.ep[data-conn="err"] input { border-color: var(--neg); box-shadow: 0 0 0 3px var(--neg-soft); }
+.ep[data-conn="pending"] input { border-color: var(--accent); background-image: linear-gradient(90deg, transparent, var(--accent-soft), transparent); background-size: 45% 100%; background-repeat: no-repeat; animation: shimmer 1.1s ease-in-out infinite; }
+.ep[data-dirty="true"] input { border-color: var(--accent); box-shadow: none; }
+.ep[data-dirty="true"] #connectBtn { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+#connectBtn:disabled { opacity: 1; cursor: progress; }
+#connectBtn .spin { display: none; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+.ep[data-conn="pending"] #connectBtn .spin { display: inline-block; }
+@keyframes shimmer { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+@media (prefers-reduced-motion: reduce) { .ep[data-conn="pending"] input { animation: none; } .status .dot, #connectBtn .spin { animation-duration: 1.6s; } }
+@keyframes pulse { 50% { opacity: .3; } }
+
+/* search */
+.search { display: flex; gap: 8px; padding: 14px 16px 6px; flex-wrap: wrap; }
+.search input[type=search] { flex: 1 1 300px; font-size: 16px; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); min-width: 0; }
+.search input[type=search]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* parallax trail */
+.trail-wrap { padding: 8px 16px 14px; overflow-x: auto; }
+.trail { display: flex; align-items: stretch; min-height: 66px; }
+.set { position: relative; flex: 0 0 auto; min-width: 150px; max-width: 260px; padding: 9px 30px 9px 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); box-shadow: 4px 4px 0 -1px var(--surface2), 4px 4px 0 0 var(--border), 8px 8px 0 -1px var(--surface2), 8px 8px 0 0 var(--border); cursor: pointer; text-align: left; transition: transform .15s; animation: slidein .25s ease-out; }
+.set:hover { transform: translateY(-2px); }
+.set:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.set.focus { border-color: var(--accent); background: var(--accent-soft); box-shadow: 4px 4px 0 -1px var(--surface2), 4px 4px 0 0 var(--accent), 8px 8px 0 -1px var(--surface2), 8px 8px 0 0 var(--accent); }
+.set .k { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.set .t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.set .n { font-size: 12px; color: var(--accent2); font-variant-numeric: tabular-nums; }
+.set .x { position: absolute; top: 4px; right: 4px; padding: 2px 6px; border: 0; background: none; color: var(--muted); border-radius: 6px; }
+.set .x:hover { color: var(--neg); background: var(--neg-soft); }
+.hop { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 12px 0 20px; min-width: 110px; max-width: 200px; color: var(--muted); font-size: 12px; text-align: center; animation: slidein .25s ease-out; }
+.hop .arrow { font-size: 20px; line-height: 1; color: var(--accent); }
+.hop .p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+@keyframes slidein { from { opacity: 0; transform: translateX(-12px); } }
+@media (prefers-reduced-motion: reduce) { .set, .hop { animation: none; transition: none; } }
+
+/* layout */
+.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; padding: 0 16px 24px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+/* The facet column never gets its own (hidden) scrollbar: it scrolls with the page, and is pinned
+   below the measured top bar only while it fits on screen (JS toggles .pinned). */
+aside { display: flex; flex-direction: column; gap: 12px; position: static; }
+aside.pinned { position: sticky; top: calc(var(--top-h, 57px) + 12px); }
+/* FCT-style pager (facets inline; the main result pager floats at the viewport bottom while its results are visible) */
+.pgr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); font-size: 12px; color: var(--muted); }
+.pgr label { display: inline-flex; align-items: center; gap: 4px; }
+.pgr select, .pgr input { font-size: 12px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+.pgr input { width: 4.2em; text-align: center; }
+.pgr-stats { font-variant-numeric: tabular-nums; color: var(--text); font-weight: 500; margin-right: auto; }
+.pgb { min-width: 28px; height: 26px; padding: 0 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--muted); font-size: 11px; letter-spacing: -2px; }
+.pgb:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.pgb:disabled { opacity: .35; cursor: not-allowed; }
+.pgr-slot { display: contents; }   /* lets the floating pager stick within the whole result list, not its wrapper */
+.pgr.floating { position: sticky; bottom: 12px; z-index: 6; width: fit-content; max-width: 100%; margin: 14px auto 0; padding: 8px 12px; gap: 8px 12px; font-size: 13px; background: var(--surface); box-shadow: 0 4px 20px rgba(0,0,0,.15); }
+.pgr.floating .pgr-stats { margin-right: 4px; }
+.lbl.curie, .curie { font-family: var(--mono); font-size: 12.5px; }
+details.facet > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-weight: 600; }
+details.facet > summary::-webkit-details-marker { display: none; }
+details.facet > summary::after { content: "▾"; color: var(--muted); transition: transform .15s; }
+details.facet:not([open]) > summary::after { transform: rotate(-90deg); }
+.facet .hint { font-weight: 400; font-size: 12px; color: var(--muted); margin-left: auto; }
+.facet .body { padding: 0 8px 10px; }
+.facet .filter { width: 100%; margin: 0 0 6px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); font-size: 13px; }
+.rows { list-style: none; margin: 0; padding: 0; }
+.row { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px; }
+.row:hover { background: var(--surface2); }
+.lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: none; border: 0; padding: 0; text-align: left; color: var(--accent); max-width: 100%; }
+.row .lblw { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: .3em; white-space: nowrap; color: var(--muted); }
+.row .lblw > .lbl { min-width: 0; }
+/* Raw IRIs (no label found). Multi-line areas wrap them anywhere; single-line slots truncate the
+   head ("http://host/path/…") and keep the distinctive tail visible. The full IRI is in href + title. */
+.raw { font-family: var(--mono); font-size: 12px; }
+.lbl.raw, .raw .ih, .raw .it { overflow-wrap: anywhere; word-break: break-all; white-space: normal; }
+.lblw .raw, .chip .raw, .tab .raw, .set .raw, .hop .raw, .view-head .raw {
+  display: inline-flex; max-width: 100%; min-width: 0; overflow: hidden; vertical-align: bottom; white-space: nowrap;
+}
+.lblw .raw .ih, .chip .raw .ih, .tab .raw .ih, .set .raw .ih, .hop .raw .ih, .view-head .raw .ih {
+  flex: 0 1000 auto; min-width: 1.2em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: normal;
+}
+.lblw .raw .it, .chip .raw .it, .tab .raw .it, .set .raw .it, .hop .raw .it, .view-head .raw .it {
+  flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: normal;
+}
+.lbl:hover { text-decoration: underline; }
+.cnt { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--accent2); background: var(--accent2-soft); border-radius: 999px; padding: 0 7px; white-space: nowrap; }
+.mini { border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 6px; padding: 0 6px; font-size: 12px; line-height: 20px; opacity: .6; white-space: nowrap; }
+.row:hover .mini, .ent:hover .mini, tr:hover .mini, .mini:focus-visible { opacity: 1; }
+.mini:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; opacity: 1; }
+.mini.neg:hover { color: var(--neg); border-color: var(--neg); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 4px 3px 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--border); font-size: 12px; }
+.chip.neg { background: var(--neg-soft); }
+.chip.neg .op { color: var(--neg); }
+.chip .op { font-weight: 700; color: var(--accent); white-space: nowrap; }
+.chip span.v { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.chip button { border: 0; background: none; color: var(--muted); border-radius: 50%; width: 20px; height: 20px; padding: 0; flex: 0 0 auto; }
+.chip button:hover { background: var(--surface); color: var(--neg); }
+.empty { color: var(--muted); font-size: 13px; padding: 6px; }
+
+/* center */
+.tabs { display: flex; gap: 2px; padding: 6px 8px 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; color: var(--muted); white-space: nowrap; max-width: min(300px, 62vw); overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: baseline; gap: .3em; flex: 0 0 auto; }
+.tab > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.view-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 12px 14px 6px; }
+.view-head h2 { font-size: 16px; margin: 0; overflow-wrap: anywhere; }
+.view-head .sub { color: var(--muted); font-size: 13px; }
+.content { padding: 4px 14px 14px; }
+.ents { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ent { display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 12px; align-items: start; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.ent:hover { border-color: var(--accent); }
+.thumb { width: 52px; height: 52px; border-radius: 8px; background: var(--surface2); display: grid; place-items: center; color: var(--muted); font-weight: 700; font-size: 18px; overflow: hidden; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ent .name { font-weight: 600; font-size: 15px; white-space: normal; display: inline-block; }
+.ent .name.raw { font-size: 13px; }
+.iri { font-family: var(--mono); font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
+.ent .desc { font-size: 13px; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ent .acts { display: flex; gap: 4px; }
+.lit { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.badge { font-size: 10.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; margin-left: 4px; white-space: nowrap; }
+table.vals { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.vals th, table.vals td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.vals th { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 600; }
+table.vals td:first-child { overflow-wrap: anywhere; }
+table.vals .num { text-align: right; width: 90px; }
+table.vals .acts { width: 72px; white-space: nowrap; }
+table.vals td .lbl { white-space: normal; }
+.pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; padding: 10px 0 0; color: var(--muted); font-size: 13px; }
+.err { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: var(--neg-soft); color: var(--neg); font-size: 13px; overflow-wrap: anywhere; }
+.loading { color: var(--muted); padding: 12px 6px; }
+.loading::before { content: ""; display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; vertical-align: -2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.range { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 10px; margin-bottom: 10px; border: 1px dashed var(--border); border-radius: 8px; font-size: 13px; }
+.range input { width: 150px; }
+.desc-head { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 16px; padding: 4px 0 12px; }
+.desc-head .thumb { width: 96px; height: 96px; font-size: 30px; }
+.desc-head h3 { margin: 0 0 4px; font-size: 20px; overflow-wrap: anywhere; }
+.desc-head p { margin: 6px 0 8px; }
+.btnrow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.prop-group { border-top: 1px solid var(--border); padding: 8px 0; display: grid; grid-template-columns: minmax(140px, 240px) minmax(0,1fr); gap: 12px; }
+.prop-group .pn { color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; overflow-wrap: anywhere; }
+.prop-group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.prop-group li .lbl, .prop-group .pn .lbl, table.vals .lbl, .desc-head h3 .lbl { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+.prop-group .pn > span { max-width: 100%; }
+.desc-head h3 .raw { font-size: 15px; }
+.more { background: none; border: 0; color: var(--accent); padding: 0; font-size: 12px; }
+h4.sec { margin: 14px 0 4px; }
+pre.q { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 4px; }
+.q-item { margin-bottom: 14px; }
+.qmeta { font-weight: 400; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.qmeta.part { color: var(--warn); }
+.partial { margin: 0 0 10px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--warn); background: var(--warn-soft); color: var(--warn); font-size: 13px; }
+.partial.compact { margin: 0 0 6px; padding: 5px 8px; font-size: 12px; }
+/* (i) partial-results indicator + tooltip */
+.pinfo-wrap { position: relative; display: inline-flex; vertical-align: 2px; margin-left: 8px; }
+.pinfo { width: 17px; height: 17px; padding: 0; border-radius: 50%; border: 1.5px solid var(--warn); background: var(--warn-soft); color: var(--warn);
+  font: italic 700 11px/1 Georgia, 'Times New Roman', serif; display: inline-grid; place-items: center; cursor: help; transition: transform .12s; }
+.pinfo.neutral { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.pinfo:hover, .pinfo:focus-visible { transform: scale(1.12); outline: none; box-shadow: 0 0 0 3px var(--warn-soft); }
+.pinfo-tip { position: absolute; left: -10px; top: calc(100% + 9px); z-index: 35; width: max-content; max-width: 250px; padding: 9px 11px; border-radius: 8px;
+  background: var(--text); color: var(--bg); font: 400 12.5px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; letter-spacing: 0; text-transform: none; text-align: left; white-space: normal;
+  box-shadow: var(--shadow); opacity: 0; visibility: hidden; transform: translateY(-3px); transition: opacity .15s, transform .15s, visibility .15s; }
+.pinfo-tip::before { content: ''; position: absolute; left: 14px; top: -5px; width: 10px; height: 10px; background: inherit; transform: rotate(45deg); }
+.pinfo-wrap:hover .pinfo-tip, .pinfo-wrap:focus-within .pinfo-tip { opacity: 1; visibility: visible; transform: none; }
+.pinfo-meta { display: block; margin-top: 3px; opacity: .75; font-size: 11.5px; }
+.retry-ico { width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1.5px solid currentColor; background: transparent; color: inherit; display: inline-grid; place-items: center; cursor: pointer; transition: transform .15s; }
+.retry-ico:hover, .retry-ico:focus-visible { transform: rotate(-40deg) scale(1.08); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.retry-wrap { margin-left: 6px; vertical-align: middle; }
+.pinfo-wrap .retry-ico { width: 17px; height: 17px; color: var(--accent); }
+.err.compact { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.err.compact .retry-wrap { margin-left: 0; }
+details.facet > summary .pinfo-wrap { margin-left: 6px; }
+.q-item h4 { margin: 0; font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.landing { padding: 26px 16px 40px; text-align: center; }
+.landing h1 { font-size: 26px; margin: 0 0 6px; }
+.landing p { color: var(--muted); max-width: 720px; margin: 0 auto 16px; }
+.landing .chips { justify-content: center; }
+.landing .chip { cursor: pointer; padding: 6px 14px; font-size: 13px; color: var(--text); }
+.starters-box { display: grid; gap: 10px; max-width: 760px; margin: 0 auto; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: left; }
+.starter-h { font-weight: 600; font-size: 14px; }
+.starter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.starter-k { width: 108px; flex: 0 0 auto; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+@media (max-width: 560px) { .starter-k { width: 100%; } }
+.landing .chip:hover { border-color: var(--accent); }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; max-width: 900px; margin: 26px auto 0; text-align: left; }
+.how div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 13px; color: var(--muted); }
+.how strong { display: block; color: var(--text); margin-bottom: 2px; }
+dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); padding: 0; width: min(560px, calc(100vw - 32px)); box-shadow: var(--shadow); }
+dialog::backdrop { background: rgba(5,12,20,.45); }
+dialog form { padding: 16px 18px; display: grid; gap: 12px; }
+dialog h2 { margin: 0; font-size: 17px; }
+dialog label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+dialog label input { color: var(--text); }
+dialog .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+dialog .check { display: flex; gap: 8px; align-items: center; color: var(--text); }
+dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 0; padding: 0; }
+.menu-wrap { position: relative; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 270px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); display: grid; gap: 8px; }
+.menu-h { font-weight: 600; font-size: 13px; }
+.menu-sub { font-size: 12px; color: var(--muted); }
+.menu-g { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.menu-g span { flex: 1; color: var(--muted); }
+.menu-g button { border: 1px solid var(--border); background: var(--surface2); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: var(--text); }
+.menu-g button:hover { border-color: var(--accent); color: var(--accent); }
+.toast { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 50; max-width: min(560px, calc(100vw - 32px)); padding: 10px 14px; border-radius: 10px; background: var(--text); color: var(--bg); font-size: 13px; box-shadow: var(--shadow); }
+.toast input { width: 100%; margin-top: 6px; font: 12px var(--mono); padding: 4px 6px; border-radius: 6px; border: 0; }
+footer.site { padding: 18px 16px 26px; color: var(--muted); font-size: 12px; text-align: center; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: center; border-top: 1px solid var(--border); margin-top: 8px; }
+footer.site .op-logo img { height: 40px; width: auto; display: block; }
+footer.site .showcase { display: inline-block; max-width: min(640px, 100%); box-sizing: border-box; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 12.5px; line-height: 1.45; }
+footer.site .copy { line-height: 1.5; }
+footer.site a, #about a { color: var(--accent); }
+/* OpenLink logo: standard artwork on light, reversed artwork on dark */
+.logo-dark { display: none !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo-light { display: none !important; } :root:not([data-theme="light"]) .logo-dark { display: block !important; } }
+:root[data-theme="dark"] .logo-light { display: none !important; }
+:root[data-theme="dark"] .logo-dark { display: block !important; }
+#about .about-body { padding: 16px 18px; display: grid; gap: 12px; font-size: 13.5px; line-height: 1.55; }
+#about h2 { margin: 0; font-size: 17px; }
+#about .tagline { margin: 0; color: var(--text); }
+#about dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; }
+#about dt { color: var(--muted); }
+#about dd { margin: 0; overflow-wrap: anywhere; }
+#about h3 { margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+#about p { margin: 0; }
+#about menu { display: flex; justify-content: flex-end; margin: 0; padding: 0; }
+@media (max-width: 480px) { #about dl { grid-template-columns: 1fr; } #about dd { margin-bottom: 6px; } }
+
+@media (max-width: 860px) {
+  .ep { flex-basis: 100%; order: 3; }          /* endpoint controls take their own full-width row */
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  aside { position: static; max-height: none; order: 2; }
+  .topbar { position: static; }
+  .ent { grid-template-columns: 40px minmax(0,1fr); }
+  .ent .acts { grid-column: 2; }
+  .ent .thumb { width: 40px; height: 40px; }
+  .prop-group { grid-template-columns: minmax(0,1fr); gap: 4px; }
+  .brand span { display: none; }
+  dialog .row2 { grid-template-columns: 1fr; }
+  table.vals .num { width: 70px; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" id="homeLink" href="?" data-act="home" title="Home — start a new exploration">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="8" height="10" rx="2"/><rect x="14" y="4" width="8" height="7" rx="2"/><rect x="14" y="13" width="8" height="7" rx="2"/><path d="M10 12h2m0 0V7.5h2M12 12v4.5h2"/></svg>
+    <span>SPARQL Faceted Browser</span>
+  </a>
+  <form class="ep" id="epForm" autocomplete="off">
+    <!-- Presets. Every URL was checked with a live ASK on 2026-10-14. "Most reliable 14" = endpoints from the
+         OpenLink SPARQL endpoint registry sheet that answered over HTTPS with SPARQL JSON and CORS headers in two
+         probe runs a minute apart, ranked by worst-case response time. "(no CORS)" endpoints answer but omit
+         Access-Control-Allow-Origin, so a browser page on another site cannot read their replies. -->
+    <label class="sr" for="epPreset">Endpoint presets</label>
+    <select id="epPreset" title="Choose a known SPARQL endpoint">
+      <option value="">Endpoints…</option>
+      <optgroup label="Featured">
+        <option value="https://dbpedia.org/sparql">DBpedia</option>
+        <option value="https://linkeddata.uriburner.com/sparql">URIBurner (UB)</option>
+        <option value="https://query.wikidata.org/sparql">Wikidata</option>
+        <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance (no CORS: needs proxy)</option>
+        <option value="https://sparql.uniprot.org/sparql">UniProt</option>
+        <option value="https://publications.europa.eu/webapi/rdf/sparql">EU Publications Office (no CORS: needs proxy)</option>
+      </optgroup>
+      <optgroup label="Most reliable (endpoint registry)">
+        <option value="https://sparql.proconsortium.org/virtuoso/sparql">Protein Ontology</option>
+        <option value="https://data.europa.eu/sparql">EU data portal (Cordis)</option>
+        <option value="https://api.parliament.uk/sparql">UK Parliament</option>
+        <option value="https://sparql.cellosaurus.org/sparql">Cellosaurus</option>
+        <option value="https://data.gov.cz/sparql">Czech Government</option>
+        <option value="https://data.idref.fr/sparql">IdRef (Sudoc authorities)</option>
+        <option value="https://www.nakala.fr/sparql">Nakala</option>
+        <option value="https://agrovoc.fao.org/sparql">AGROVOC</option>
+        <option value="https://scienceplus.abes.fr/sparql">science plus (ABES)</option>
+        <option value="https://opendata.aragon.es/sparql">Aragon Open Data</option>
+        <option value="https://sparql.datao.net/sparql">Datao</option>
+        <option value="https://data.bibliotheken.nl/sparql">KB — National Library of the Netherlands</option>
+        <option value="https://vocab.nerc.ac.uk/sparql/">NERC Vocabulary Service</option>
+        <option value="https://data.muziekschatten.nl/sparql">Muziekschatten</option>
+      </optgroup>
+    </select>
+    <label class="sr" for="endpoint">SPARQL endpoint</label>
+    <input id="endpoint" placeholder="SPARQL endpoint URL" spellcheck="false">
+    <label class="sr" for="profile">Engine profile</label>
+    <select id="profile" title="Engine profile: decides how text search and types are queried">
+      <option value="auto">Auto-detect</option>
+      <option value="virtuoso">Virtuoso</option>
+      <option value="generic">Generic SPARQL 1.1</option>
+      <option value="wikidata">Wikidata</option>
+    </select>
+    <button class="btn" type="submit" id="connectBtn"><span class="spin" aria-hidden="true"></span><span class="lab">Connect</span></button>
+  </form>
+  <div class="tools">
+  <div class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Not connected</span></div>
+  <button class="icon-btn" data-act="share" title="Share a link to this view" aria-label="Share a link to this view"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg></button>
+  <div class="menu-wrap">
+    <button class="icon-btn" id="exportBtn" data-act="exportMenu" title="Export this view as RDF" aria-label="Export this view as RDF" aria-haspopup="menu" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></button>
+    <div class="menu" id="exportMenu" role="menu" hidden>
+      <div class="menu-h">Download a data dump of this view</div>
+      <div class="menu-sub" id="exportScopeHint"></div>
+      <div class="menu-g"><span>This page</span><button role="menuitem" data-act="export" data-fmt="ttl" data-scope="page">Turtle</button><button role="menuitem" data-act="export" data-fmt="jsonld" data-scope="page">JSON-LD</button></div>
+      <div class="menu-g"><span>Whole view</span><button role="menuitem" data-act="export" data-fmt="ttl" data-scope="view">Turtle</button><button role="menuitem" data-act="export" data-fmt="jsonld" data-scope="view">JSON-LD</button></div>
+      <div class="menu-sub">Whole-view dumps are capped at 10,000 triples.</div>
+    </div>
+  </div>
+  <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+  <button class="icon-btn" id="aboutBtn" title="About" aria-label="About this app" aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+  <button class="icon-btn" id="themeBtn" title="Toggle light/dark" aria-label="Toggle light or dark theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  </div>
+</header>
+
+<form class="search" id="searchForm" autocomplete="off">
+  <label class="sr" for="q">Search text, or enter an entity IRI or CURIE</label>
+  <input type="search" id="q" placeholder="Search text — or paste an entity IRI / CURIE (e.g. dbr:Berlin) to describe it">
+  <label class="sr" for="scope">Match scope</label>
+  <select class="field" id="scope" title="Where to match the text">
+    <option value="label">in labels &amp; names</option>
+    <option value="any">in any literal</option>
+  </select>
+  <button class="btn primary" type="submit">Search</button>
+  <button class="btn" type="button" data-act="browseAll" title="Explore the whole dataset: its entity types, each with a sample entity and a count">Explore</button>
+</form>
+
+<div class="trail-wrap" id="trailWrap" hidden><nav class="trail" id="trail" aria-label="Set trail"></nav></div>
+
+<div id="landing" class="landing" hidden>
+  <h1>Search, filter and pivot across RDF data</h1>
+  <p>Start with a text search, or Explore the whole dataset. Narrow the current set with type and property-value facets, then pivot along any property to the set of related entities. Every panel is a SPARQL query you can read and re-run.</p>
+  <div class="chips" id="starters"></div>
+  <div id="landingErr" style="max-width:720px;margin:12px auto 0;text-align:left" aria-live="polite"></div>
+  <div class="how">
+    <div><strong>1 · Find a set</strong>Text search over labels (or any literal), a type, or one entity.</div>
+    <div><strong>2 · Narrow it</strong>Click types and property values to filter; ⊘ excludes, ± inverts.</div>
+    <div><strong>3 · Pivot</strong>⇢ moves to the set of values of a property; ⇠ to the entities that point at the set.</div>
+    <div><strong>4 · Refocus</strong>Click any set in the trail: its facets reflect the constraints on every other set.</div>
+  </div>
+</div>
+
+<main class="layout" id="main" hidden>
+  <aside aria-label="Facets">
+    <section class="panel">
+      <details class="facet" open id="fFilters"><summary>Filters on this set <span class="hint" id="filterHint"></span></summary><div class="body" id="filters"></div></details>
+    </section>
+    <section class="panel">
+      <details class="facet" open id="fTypes"><summary>Types <span class="hint" id="typesHint"></span></summary><div class="body"><input class="filter" data-filter="types" placeholder="Filter types" aria-label="Filter types"><div id="types"></div></div></details>
+    </section>
+    <section class="panel">
+      <details class="facet" open id="fProps"><summary>Properties <span class="hint" id="propsHint"></span></summary><div class="body"><input class="filter" data-filter="props" placeholder="Filter properties" aria-label="Filter properties"><div id="props"></div></div></details>
+    </section>
+    <section class="panel">
+      <details class="facet" id="fInprops"><summary>Referenced by <span class="hint" id="inpropsHint"></span></summary><div class="body"><input class="filter" data-filter="inprops" placeholder="Filter properties" aria-label="Filter incoming properties"><div id="inprops"></div></div></details>
+    </section>
+    <section class="panel">
+      <details class="facet" id="fGraphs"><summary>Named graphs <span class="hint" id="graphHint"></span></summary><div class="body"><div id="graphs"></div></div></details>
+    </section>
+  </aside>
+  <section class="panel" aria-label="Results">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="view"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<footer class="site">
+  <a class="op-logo" href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer" title="OpenLink Software"><img class="logo-light" src="data:image/png;base64,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" alt="OpenLink Software" width="100" height="40"><img class="logo-dark" src="data:image/png;base64,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" alt="OpenLink Software" width="100" height="40"></a>
+  <span class="showcase">Every fact one click from the next — an OpenLink Software HyperData showcase, built on nothing but SPARQL.</span>
+  <div class="copy">Data on this page is owned by its respective rights holders.<br>SPARQL Faceted Browser Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></div>
+</footer>
+
+<dialog id="about" aria-labelledby="aboutTitle">
+  <form method="dialog" class="about-body">
+    <h2 id="aboutTitle">About SPARQL Faceted Browser</h2>
+    <p class="tagline">Every fact one click from the next — an OpenLink Software HyperData showcase, built on nothing but SPARQL.</p>
+    <dl>
+      <dt>Version</dt><dd id="aboutVersion"></dd>
+      <dt>Endpoint</dt><dd id="aboutEp"></dd>
+      <dt>Engine</dt><dd id="aboutEngine"></dd>
+      <dt>Anytime queries</dt><dd id="aboutAnytime"></dd>
+      <dt>SPARQL-FED proxy</dt><dd id="aboutProxy"></dd>
+      <dt>Annotation dedupe</dt><dd id="aboutDedupe"></dd>
+      <dt>Literal language</dt><dd id="aboutLang"></dd>
+    </dl>
+    <h3>Lineage</h3>
+    <p>Modelled on the OpenLink Faceted Browser (FCT) query tree — text → types → property values → pivots — and rebuilt to speak only SPARQL over HTTP, so it works against any endpoint that allows cross-origin requests. Engine-specific features such as Anytime queries and <code>bif:contains</code> text search apply when the endpoint is <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Virtuoso</a>. State lives in the URL, so every view can be bookmarked and shared.</p>
+    <h3>Credits</h3>
+    <p>Generated with <a href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Claude Code</a> (Claude Opus 5.5).</p>
+    <p>Data on this page is owned by its respective rights holders.<br>SPARQL Faceted Browser Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></p>
+    <menu><button class="btn primary" value="close">Close</button></menu>
+  </form>
+</dialog>
+
+<dialog id="settings">
+  <form method="dialog" id="settingsForm">
+    <h2>Settings</h2>
+    <div class="row2">
+      <label>Page size <input class="field" type="number" min="5" max="500" name="limit"></label>
+      <label>Query timeout (ms) <input class="field" type="number" min="1000" step="1000" name="timeout" title="With Virtuoso Anytime on, the budget sent to the endpoint is capped so a fronting proxy does not cut the request before Virtuoso returns its partial result"></label>
+    </div>
+    <div class="row2">
+      <label>Preferred language <input class="field" name="lang" placeholder="browser default"></label>
+      <label>Type property <input class="field" name="typeProp" placeholder="rdf:type (wdt:P31 on Wikidata)"></label>
+    </div>
+    <label>Restrict to named graph (FROM) <input class="field" name="graph" placeholder="leave blank for the endpoint's default graph"></label>
+    <div class="row2">
+      <label>Virtuoso inference rule set <input class="field" name="inference" placeholder="optional"></label>
+      <label class="check" style="align-self:end"><input type="checkbox" name="sameAs"> owl:sameAs expansion (Virtuoso)</label>
+    </div>
+    <label class="check"><input type="checkbox" name="anytime"> Use Virtuoso Anytime queries — return partial results at the timeout instead of failing</label>
+    <label class="check"><input type="checkbox" name="proxy"> Use the URIBurner SPARQL-FED proxy for endpoints this page cannot reach directly (no CORS headers, or plain http on an https page)</label>
+    <label>De-duplicate annotation literals with SAMPLE() (labels, comments, names, descriptions…)
+      <select class="field" name="dedupe">
+        <option value="auto">Auto — on for Virtuoso endpoints only</option>
+        <option value="on">On for every endpoint</option>
+        <option value="off">Off — show every value</option>
+      </select>
+    </label>
+    <label>Explore shows
+      <select class="field" name="browseAll">
+        <option value="sample">Dataset overview — entity types with a SAMPLE() entity and counts</option>
+        <option value="raw">Raw list of every entity</option>
+      </select>
+    </label>
+    <label>Namespace prefixes (CURIEs shown for IRIs without labels)
+      <select class="field" name="prefixes">
+        <option value="prefixcc">prefix.cc community list (falls back to Zazuko over HTTPS)</option>
+        <option value="zazuko">Zazuko curated list</option>
+        <option value="builtin">Built-in list only</option>
+      </select>
+      <small id="prefixStatus" style="color:var(--muted)"></small>
+    </label>
+    <menu><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="ok">Apply</button></menu>
+  </form>
+</dialog>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- vocabulary ---------- */
+const NS = {
+  rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+  owl: 'http://www.w3.org/2002/07/owl#', xsd: 'http://www.w3.org/2001/XMLSchema#',
+  skos: 'http://www.w3.org/2004/02/skos/core#', foaf: 'http://xmlns.com/foaf/0.1/',
+  schema: 'http://schema.org/', dcterms: 'http://purl.org/dc/terms/', dc: 'http://purl.org/dc/elements/1.1/',
+  prov: 'http://www.w3.org/ns/prov#', geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+  dbo: 'http://dbpedia.org/ontology/', dbp: 'http://dbpedia.org/property/', dbr: 'http://dbpedia.org/resource/',
+  dbc: 'http://dbpedia.org/resource/Category:', yago: 'http://dbpedia.org/class/yago/',
+  wd: 'http://www.wikidata.org/entity/', wdt: 'http://www.wikidata.org/prop/direct/',
+  void: 'http://rdfs.org/ns/void#', sioc: 'http://rdfs.org/sioc/ns#', dcat: 'http://www.w3.org/ns/dcat#',
+  vcard: 'http://www.w3.org/2006/vcard/ns#', gr: 'http://purl.org/goodrelations/v1#',
+  virtrdf: 'http://www.openlinksw.com/schemas/virtrdf#',
+  // Copied verbatim from prefix.cc (popular/all.file.json, 2026-10-14) so CURIEs work even where prefix.cc is unreachable.
+  gql: 'http://www.openlinksw.com/schemas/graphql#', bif: 'http://www.openlinksw.com/schemas/bif#',
+  oplacl: 'http://www.openlinksw.com/ontology/acl#', oplcert: 'http://www.openlinksw.com/schemas/cert#',
+  oplecrm: 'http://www.openlinksw.com/ontology/ecrm#', oplprod: 'http://www.openlinksw.com/ontology/products#',
+  oplsoft: 'http://www.openlinksw.com/ontology/software#', oplweb: 'http://www.openlinksw.com/schemas/oplweb#',
+  opllic: 'http://www.openlinksw.com/ontology/licenses#', oplfeat: 'http://www.openlinksw.com/ontology/features#',
+  oplmkt: 'http://www.openlinksw.com/ontology/market#', odbc: 'http://www.openlinksw.com/ontology/odbc#',
+  fct: 'http://openlinksw.com/services/facets/1.0/',
+  sh: 'http://www.w3.org/ns/shacl#', org: 'http://www.w3.org/ns/org#', time: 'http://www.w3.org/2006/time#',
+  ldp: 'http://www.w3.org/ns/ldp#', as: 'https://www.w3.org/ns/activitystreams#', cc: 'http://creativecommons.org/ns#',
+  bibo: 'http://purl.org/ontology/bibo/', doap: 'http://usefulinc.com/ns/doap#', vann: 'http://purl.org/vocab/vann/',
+  adms: 'http://www.w3.org/ns/adms#', dqv: 'http://www.w3.org/ns/dqv#', odrl: 'http://www.w3.org/ns/odrl/2/',
+  dcam: 'http://purl.org/dc/dcam/', wdrs: 'http://www.w3.org/2007/05/powder-s#',
+  sd: 'http://www.w3.org/ns/sparql-service-description#', hydra: 'http://www.w3.org/ns/hydra/core#',
+  cnt: 'http://www.w3.org/2011/content#', ma: 'http://www.w3.org/ns/ma-ont#', event: 'http://purl.org/NET/c4dm/event.owl#',
+  qb: 'http://purl.org/linked-data/cube#',
+  wikibase: 'http://wikiba.se/ontology#', mo: 'http://purl.org/ontology/mo/', gsp: 'http://www.opengis.net/ont/geosparql#',
+  locn: 'http://www.w3.org/ns/locn#', gn: 'http://www.geonames.org/ontology#', lgdo: 'http://linkedgeodata.org/ontology/',
+  lgdm: 'http://linkedgeodata.org/meta/', ngeo: 'http://geovocab.org/geometry#', spatial: 'http://geovocab.org/spatial#',
+  m8g: 'http://data.europa.eu/m8g/', edm: 'http://www.europeana.eu/schemas/edm/', up: 'http://purl.uniprot.org/core/',
+  skosxl: 'http://www.w3.org/2008/05/skos-xl#', frbr: 'http://purl.org/vocab/frbr/core#', crm: 'http://www.cidoc-crm.org/cidoc-crm/',
+  ecrm: 'http://erlangen-crm.org/current/'
+};
+const LABEL_PROPS = ['rdfs:label', 'skos:prefLabel', 'schema:name', 'foaf:name', 'dcterms:title', 'dc:title'];
+const DESC_PROPS = ['rdfs:comment', 'schema:description', 'dcterms:description', 'skos:definition'];
+const IMG_PROPS = ['dbo:thumbnail', 'foaf:depiction', 'schema:image', 'wdt:P18'];
+const ORDERED = /#(integer|decimal|double|float|int|long|short|byte|nonNegativeInteger|positiveInteger|negativeInteger|nonPositiveInteger|unsignedInt|unsignedLong|unsignedShort|gYear|date|dateTime)$/;
+const expand = c => { const m = /^([A-Za-z][\w-]*):(.*)$/.exec(c); if (!m) return null; if (NS[m[1]] !== undefined) return NS[m[1]] + m[2]; const d = typeof derivedPrefixNs === 'function' && derivedPrefixNs(m[1]); return d ? d + m[2] : null; };
+/* Namespace → prefix index used to show a CURIE when an IRI has no label. Built-ins win; an external
+   list (prefix.cc, or Zazuko's curated list) only fills gaps. */
+const BUILTIN_NS = Object.assign({}, NS);
+const nsIndex = new Map();
+function indexPrefixes(map) {
+  for (const [p, ns] of Object.entries(map || {})) {
+    if (typeof ns !== 'string' || !/^[A-Za-z][\w.-]*$/.test(p) || !/^[a-z][\w+.-]*:/i.test(ns)) continue;
+    if (!nsIndex.has(ns)) nsIndex.set(ns, p);
+    if (!(p in NS)) NS[p] = ns;
+  }
+}
+indexPrefixes(BUILTIN_NS);
+// External prefix lists (Settings → Namespace prefixes). prefix.cc's HTTPS certificate was found expired
+// (2026-10-14) and its HTTP URL is blocked as mixed content on HTTPS pages, so the Zazuko list on jsDelivr
+// (HTTPS + CORS) is the fallback. A loaded list is cached for 7 days.
+const PREFIX_URLS = {
+  prefixcc: ['https://prefix.cc/popular/all.file.json', 'http://prefix.cc/popular/all.file.json'],
+  zazuko: 'https://cdn.jsdelivr.net/npm/@zazuko/prefixes@2.6.1/prefixes.js'
+};
+let prefixStatus = 'Built-in prefixes';
+async function loadPrefixes() {
+  const src = settings.prefixes || 'prefixcc';
+  nsIndex.clear();
+  Object.keys(NS).forEach(k => { if (!(k in BUILTIN_NS)) delete NS[k]; });
+  indexPrefixes(BUILTIN_NS);
+  prefixStatus = 'Built-in prefixes (' + nsIndex.size + ')';
+  if (src !== 'builtin') {
+    const ck = 'fct.prefixes.' + src, c = load(ck);
+    let map = c && c.map && c.at > Date.now() - 7 * 864e5 ? c.map : null, from = map ? c.from : '';
+    const get = async (u, as) => {   // 8 s cap so a dead source never stalls labelling
+      const t = new AbortController(), timer = setTimeout(() => t.abort(), 8000);
+      try { const r = await fetch(u, { cache: 'no-store', signal: t.signal }); return r.ok ? (as === 'json' ? r.json() : r.text()) : null; }
+      catch { return null; } finally { clearTimeout(timer); }
+    };
+    if (!map && src === 'prefixcc') {
+      for (const u of PREFIX_URLS.prefixcc) {
+        if (u.startsWith('http:') && location.protocol === 'https:') continue;
+        const j = await get(u, 'json');
+        if (j) { map = j; from = 'prefix.cc'; break; }
+      }
+    }
+    if (!map) {
+      // Read the module as data (prefix: 'namespace' pairs) instead of import(): its own sub-import 404s on the CDN.
+      const js = await get(PREFIX_URLS.zazuko, 'text');
+      if (js) {
+        map = {};
+        for (const m of js.matchAll(/^\s*'?([A-Za-z][\w.-]*)'?\s*:\s*'([^']+)'/gm)) map[m[1]] = m[2];
+        if (!Object.keys(map).length) map = null;
+        else from = src === 'prefixcc' ? 'Zazuko list (prefix.cc unreachable from this page)' : 'Zazuko list';
+      }
+    }
+    if (map) {
+      indexPrefixes(map);
+      save(ck, { at: c && c.map === map ? c.at : Date.now(), from, map });
+      prefixStatus = nsIndex.size.toLocaleString() + ' prefixes · built-in + ' + from;
+    } else prefixStatus = 'Built-in prefixes only — the external list could not be loaded';
+  }
+  derivedNs.clear();   // re-derive against the fuller prefix list so derived names never shadow real ones
+  const st = document.getElementById('prefixStatus');
+  if (st) st.textContent = prefixStatus;
+  paintLabels();
+}
+function curie(iri) {
+  // Try the longest namespace first: cut after the last '#', '/' or ':' that leaves a non-empty local name.
+  const cuts = ['#', '/', ':'].map(c => iri.lastIndexOf(c)).filter(i => i > 7 && i < iri.length - 1).sort((a, b) => b - a);
+  for (const i of cuts) {
+    const p = nsIndex.get(iri.slice(0, i + 1)), local = iri.slice(i + 1);
+    if (p && /^[^\s/#?<>"{}|\\^`]+$/.test(local)) return p + ':' + local;
+  }
+  return derivedCurie(iri);
+}
+/* Unknown namespace: derive a prefix so a label-less class or property still shows as a CURIE (label → CURIE → raw IRI).
+   Only for vocabulary-style IRIs (a word-like local name under a '#' or a named path), never for opaque instance IRIs
+   (numeric/ID path segments), which would otherwise mint a prefix per entity. The name comes from the namespace's last
+   meaningful path segment (or the host), gets a number on collision, and loses to any real prefix (built-in, prefix.cc,
+   Zazuko). Derived prefixes are declared in exports like any other. */
+const derivedNs = new Map();   // namespace -> derived prefix
+const GENERIC_SEG = /^(ontology|ontologies|schema|schemas|vocab|vocabulary|ns|core|terms|def|resource|resources|property|properties|class|classes|prop|o|v|id|data|rdf|owl|model|voc|elements)$/i;
+function derivedCurie(iri) {
+  const hash = iri.lastIndexOf('#'), cut = hash > 7 ? hash : iri.lastIndexOf('/');
+  if (cut <= 7 || cut >= iri.length - 1) return null;
+  const ns = iri.slice(0, cut + 1), local = iri.slice(cut + 1);
+  if (!/^[A-Za-z_][\w.-]{0,59}$/.test(local) || /\.$/.test(local)) return null;
+  let u; try { u = new URL(ns); } catch { return null; }
+  const segs = u.pathname.split('/').filter(Boolean);
+  if (segs.some(sg => /\d{3,}|^[0-9a-f-]{16,}$/i.test(sg))) return null;          // instance-style path
+  let p = derivedNs.get(ns);
+  if (!p) {
+    if (derivedNs.size >= 300) return null;
+    let name = segs.map(sg => sg.replace(/\.(owl|rdf|ttl|n3|xml|jsonld|nt)$/i, '')).reverse().find(sg => /^[A-Za-z][\w-]*$/.test(sg) && !GENERIC_SEG.test(sg));
+    if (!name) { const h = u.hostname.replace(/^www\./, '').split('.'); name = h.length > 1 ? h[h.length - 2] : h[0]; }
+    name = name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 14);
+    if (!/^[a-z]/.test(name)) name = 'ns' + name;
+    const taken = q => (q in NS) || [...derivedNs.values()].includes(q);
+    p = name; for (let n = 2; taken(p); n++) p = name + n;
+    derivedNs.set(ns, p);
+  }
+  return p + ':' + local;
+}
+const derivedPrefixNs = pfx => { for (const [ns, p] of derivedNs) if (p === pfx) return ns; return null; };
+function localName(iri) {
+  const m = /([^/#:]+)[/#]?$/.exec(iri);
+  if (!m) return iri;
+  try { return decodeURIComponent(m[1]).replace(/_/g, ' '); } catch { return m[1]; }
+}
+
+/* ---------- state ---------- */
+const DEFAULTS = { ep: 'https://dbpedia.org/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', inference: '', sameAs: false, anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
+let settings = Object.assign({}, DEFAULTS, load('fct.settings') || {});
+/* nav is the FCT query tree flattened into a chain of sets joined by pivots:
+   nodes[i] = { via: {p, dir:'out'|'in'} | null, text, scope, conds: [...] }
+   cond     = {t:'class', iri, neg} | {t:'pv', p, dir, v: term|null, neg, lo, hi, dt} | {t:'is', v: term}
+   Every node is a SPARQL variable ?s(i+1); the focus decides which variable the views project. */
+let nav = null;
+let resolvedProfile = null;
+
+function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+const b64e = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
+
+/* Link-scoped view settings: '&cfg=' carries base64url JSON next to '#s='. Only { lang } is honoured: the literal
+   language a link (e.g. one built by the sparql-faceted-browser skill) asks for. It overrides Settings and the
+   browser for this tab only, is never saved, and is dropped when the viewer applies Settings. */
+let hashCfg = {};
+const LANG_RE = /^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i;
+function readCfg() {
+  const m = /[#&]cfg=([\w-]+)/.exec(location.hash);
+  let c = {};
+  if (m) { try { const o = JSON.parse(b64d(m[1])); if (o && typeof o.lang === 'string' && LANG_RE.test(o.lang)) c = { lang: o.lang.toLowerCase() }; } catch {} }
+  if ((c.lang || '') !== (hashCfg.lang || '') && typeof resetCaches === 'function') resetCaches();
+  hashCfg = c;
+}
+const cfgHash = () => hashCfg.lang ? '&cfg=' + b64e(JSON.stringify(hashCfg)) : '';
+function writeHash(replace) {
+  const h = '#s=' + b64e(JSON.stringify({ ep: settings.ep, nav })) + cfgHash();
+  if (location.hash === h) return;
+  if (replace) history.replaceState(null, '', h); else history.pushState(null, '', h);
+}
+function readHash() {
+  readCfg();
+  const m = /#s=([\w-]+)/.exec(location.hash);
+  if (!m) return false;
+  try {
+    const o = JSON.parse(b64d(m[1]));
+    if (o.ep && o.ep !== settings.ep) { settings.ep = o.ep; resolvedProfile = null; }
+    nav = o.nav || null;
+    return true;
+  } catch { return false; }
+}
+
+/* ---------- SPARQL terms ---------- */
+const iriRef = i => '<' + String(i).replace(/[<>"{}|^`\\\s]/g, c => encodeURIComponent(c)) + '>';
+const P = c => iriRef(expand(c) || c);
+const litStr = s => '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+function termSparql(t) {
+  if (t.type === 'uri') return iriRef(t.value);
+  if (t.type === 'bnode') return null;
+  let s = litStr(t.value);
+  if (t['xml:lang']) s += '@' + t['xml:lang'];
+  else if (t.datatype) s += '^^' + iriRef(t.datatype);
+  return s;
+}
+function boundLiteral(raw, dt) {
+  raw = String(raw).trim();
+  if ((!dt || /#(integer|decimal|double|float|int|long|short|byte|nonNegativeInteger|positiveInteger|unsignedInt|unsignedLong)$/.test(dt)) && /^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(raw)) return raw;
+  if (dt) return litStr(raw) + '^^' + iriRef(dt);
+  return litStr(raw);
+}
+
+/* ---------- engine profile ---------- */
+// Preferred literal language: the explicit Settings value wins, else the browser's first preferred language (primary subtag), else English.
+const browserLang = () => ((navigator.languages && navigator.languages[0]) || navigator.language || 'en').toLowerCase().split('-')[0];
+const prefLang = () => ((typeof hashCfg !== 'undefined' && hashCfg.lang) || settings.lang || browserLang()).toLowerCase();
+function profile() { return settings.profile !== 'auto' ? settings.profile : (resolvedProfile || 'generic'); }
+// Wikidata data uses wdt:P31 for "instance of" whichever engine serves it (WDQS, or OpenLink's Virtuoso instance).
+function typeProp() { return settings.typeProp ? (expand(settings.typeProp) || settings.typeProp) : (profile() === 'wikidata' || /wikidata/i.test(settings.ep) ? NS.wdt + 'P31' : NS.rdf + 'type'); }
+async function detectProfile() {
+  if (settings.profile !== 'auto' || resolvedProfile) return;
+  if (/wikidata\.org/.test(settings.ep)) { resolvedProfile = 'wikidata'; return; }
+  try {
+    // bif: built-ins exist only in Virtuoso; any other engine rejects this query.
+    const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000 });
+    resolvedProfile = rows(j).length ? 'virtuoso' : 'generic';
+  } catch (e) {
+    // Only an actual rejection of the bif: query means "not Virtuoso"; a timeout or network error is retried next render.
+    if (/^HTTP /.test(e.message)) resolvedProfile = 'generic';
+  }
+}
+
+/* ---------- transport ---------- */
+let inflight = 0;
+const queryLog = new Map();
+/* Connection state shown on the endpoint field, the Connect button and the status pill:
+   idle → pending (throbber) → ok (green) | err (red). */
+const conn = { state: 'idle', ep: null, profile: null, msg: '', pending: null, pendingEp: null, proxyFor: null };
+function paintStatus() {
+  const s = conn.state;
+  const text = s === 'pending' ? 'Connecting…' : s === 'err' ? 'Connection failed' :
+    s === 'ok' ? 'Connected · ' + profile() + (proxied() ? ' · via UB proxy' : '') + (inflight ? ' · ' + inflight + ' running' : '') : 'Not connected';
+  const el = document.getElementById('status');
+  el.className = 'status ' + s + (s === 'ok' && inflight ? ' busy' : '');
+  el.title = conn.msg || text;
+  document.getElementById('statusText').textContent = text;
+  const form = document.getElementById('epForm');
+  form.dataset.conn = s;
+  form.dataset.dirty = String(document.getElementById('endpoint').value.trim() !== settings.ep);
+  const btn = document.getElementById('connectBtn');
+  btn.disabled = s === 'pending';
+  btn.setAttribute('aria-busy', String(s === 'pending'));
+  btn.querySelector('.lab').textContent = s === 'pending' ? 'Connecting' : 'Connect';
+}
+function setConn(state, msg) { conn.state = state; conn.msg = msg || ''; paintStatus(); }
+// Handshake: a cheap ASK proves the URL is a reachable, CORS-enabled SPARQL endpoint; then the engine is profiled.
+/* When a URL answers with a web page instead of SPARQL results (e.g. a portal's query-editor page such as
+   https://data.europa.eu/data/sparql, whose service is https://data.europa.eu/sparql), look for the real endpoint:
+   (1) the same URL asking explicitly for JSON, for servers that ignore Accept; (2) hints inside the page — a form
+   that submits a 'query' field, or SPARQL-looking links; (3) conventional locations up the path. Every candidate is
+   tested with an ASK in parallel; the first that answers with SPARQL results wins. */
+function endpointCandidates(ep, html) {
+  const out = [];
+  const add = u => { try { const x = new URL(u, ep).href.split('#')[0]; if (/^https?:/.test(x) && x !== ep && !out.includes(x)) out.push(x); } catch {} };
+  add(ep + (ep.includes('?') ? '&' : '?') + 'format=' + encodeURIComponent('application/sparql-results+json'));
+  if (html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('form').forEach(fm => { if (fm.querySelector('[name=query]')) add(fm.getAttribute('action') || ep); });
+    (html.match(/https?:\/\/[^\s"'<>()]*sparql[^\s"'<>()]*/gi) || []).slice(0, 20).forEach(add);
+    (html.match(/["'](\/[^\s"'<>()]*sparql[^\s"'<>()]*)["']/gi) || []).slice(0, 20).forEach(m => add(m.slice(1, -1)));
+  }
+  const u = new URL(ep), parts = u.pathname.split('/').filter(Boolean);
+  for (let i = parts.length; i >= 0; i--) add(u.origin + '/' + parts.slice(0, i).concat('sparql').join('/'));
+  ['/sparql/', '/query', '/api/sparql', '/sparql/endpoint'].forEach(p => add(u.origin + p));
+  return out.slice(0, 16);
+}
+async function discoverEndpoint(ep, html) {
+  const tries = endpointCandidates(ep, html).map(c => sparql('ASK { ?s ?p ?o }', { quiet: true, timeout: 8000, ep: c })
+    .then(j => { if (typeof j.boolean === 'boolean' || j.results) return c; throw new Error('not SPARQL'); }));
+  try { return await Promise.any(tries); } catch { return null; }
+}
+
+function handshake() {
+  if (conn.state === 'ok' && conn.ep === settings.ep && conn.profile === settings.profile) return Promise.resolve(true);
+  if (conn.pending && conn.pendingEp === settings.ep) return conn.pending;
+  let ep = settings.ep;
+  const t0 = performance.now(), asked = ep;
+  conn.proxyFor = null;
+  setConn('pending', 'Contacting ' + ep);
+  conn.pendingEp = ep;
+  conn.pending = (async () => {
+    try {
+      let j;
+      try { j = await sparql('ASK { ?s ?p ?o }', { quiet: true, timeout: 15000, probe: true }); }
+      catch (e) {
+        // A /sparql ↔ /sparql/ redirect without CORS headers blocks the browser even when the other form would answer:
+        // try the URL with/without its trailing slash before giving up.
+        if (e.cors) {
+          const alt = /\/$/.test(ep) ? ep.replace(/\/+$/, '') : ep + '/';
+          try {
+            const ja = await sparql('ASK { ?s ?p ?o }', { quiet: true, timeout: 15000, probe: true, ep: alt });
+            if (settings.ep !== asked) return false;
+            ep = alt; settings.ep = alt; save('fct.settings', settings);
+            document.getElementById('endpoint').value = alt;
+            if (nav) writeHash(true);
+            j = ja;
+          } catch {}
+        }
+        // A local instance (localhost, 127.x, *.local, private ranges) can't be reached by the UB proxy, and fails in
+        // the browser for reasons curl never shows: missing CORS for this page's origin, a CORS-less redirect, an untrusted
+        // (self-signed) https certificate, or Chrome's local-network permission.
+        const local = /^https?:\/\/(localhost|127\.|\[::1\]|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|[^/]+\.local\b)/i.test(ep);
+        if (!j && e.cors && local) throw new Error('This page (' + location.origin + ') could not read ' + ep + '. For a local Virtuoso: ' +
+          '(1) enable CORS on its /sparql path for ' + location.origin + ' (Conductor → Web Application Server → Virtual Domains & Directories → /sparql → Cross-Origin Resource Sharing); ' +
+          (/^https:/i.test(ep) ? '(2) trust its certificate by opening ' + ep + ' in this browser once (a self-signed certificate is rejected here even though curl -k accepts it); ' : '(2) use the URL form that answers without a redirect (e.g. with a trailing slash); ') +
+          '(3) allow this site to access your local network if the browser asks. The URIBurner proxy cannot reach a local instance.');
+        // The URIBurner SPARQL-FED proxy is opt-in (Settings); default off.
+        if (!j && e.cors && ep !== PROXY_EP && !settings.proxy) throw new Error(e.message + ' To reach it through URIBurner instead, turn on "Use the URIBurner SPARQL-FED proxy" in Settings.');
+        if (j) { /* reached via the trailing-slash variant */ }
+        else if (e.cors && ep !== PROXY_EP) {
+          setConn('pending', 'Direct access to ' + ep + ' is blocked by the browser — trying the URIBurner SPARQL-FED proxy…');
+          try { j = await sparql('ASK { ?s ?p ?o }', { quiet: true, timeout: 20000, proxyFor: ep }); }
+          catch (e2) { throw new Error(e.message + ' The URIBurner SPARQL-FED proxy could not reach it either: ' + e2.message); }
+          if (settings.ep !== asked) return false;
+          conn.proxyFor = ep;
+        } else if (!e.nonSparql) throw e;
+        else {
+        setConn('pending', ep + ' is a web page, not a SPARQL service — looking for the endpoint behind it…');
+        const found = await discoverEndpoint(ep, e.html);
+        if (!found) throw new Error(e.message + ' — and no SPARQL endpoint answered at the usual locations near it.');
+        if (settings.ep !== asked) return false;
+        ep = found; settings.ep = found; resolvedProfile = null;
+        save('fct.settings', settings);
+        document.getElementById('endpoint').value = found;
+        if (nav) writeHash(true);
+        j = { boolean: true };
+        }
+      }
+      if (typeof j.boolean !== 'boolean' && !j.results) throw new Error('The URL answered, but not with SPARQL results.');
+      await detectProfile();
+      if (settings.ep !== ep) return false;
+      conn.ep = ep; conn.profile = settings.profile;
+      setConn('ok', 'Connected to ' + ep + (ep !== asked ? ' (discovered from ' + asked + ')' : '') + (proxied() ? ' through the URIBurner SPARQL-FED proxy (the endpoint sends no CORS headers; named-graph scope is not applied)' : '') + ' in ' + Math.round(performance.now() - t0) + ' ms · engine profile: ' + profile());
+      return true;
+    } catch (e) {
+      if (settings.ep !== ep) return false;
+      conn.ep = null;
+      setConn('err', e.message);
+      return false;
+    } finally { if (conn.pendingEp === asked) conn.pending = null; }
+  })();
+  return conn.pending;
+}
+const connErrHtml = () => '<div class="err"><strong>Couldn’t connect to ' + esc(settings.ep) + '.</strong> ' + esc(conn.msg) +
+  ' <button class="mini" data-act="reconnect">Try again</button></div>';
+/* Worst-case route: when an endpoint cannot be read directly from this page (no CORS headers, or a plain-http
+   endpoint on an https page), send each query to URIBurner wrapped in SERVICE <endpoint> { … }. UB runs it against
+   the remote endpoint (SPARQL-FED) and answers with CORS headers. Verified 2026-10-14 against the OpenLink Wikidata
+   instance, the EU Publications Office and an http-only endpoint, including GROUP BY/ORDER BY subqueries and
+   bif:contains executed by a remote Virtuoso. */
+const PROXY_EP = 'https://linkeddata.uriburner.com/sparql';
+const proxied = () => conn.proxyFor === settings.ep;
+function proxify(q, ep) {
+  const lines = q.split('\n'), pro = [];
+  while (lines.length && /^\s*(PREFIX|DEFINE|BASE)\b/i.test(lines[0])) pro.push(lines.shift());
+  const body = lines.join('\n').trim(), svc = 'SERVICE ' + iriRef(ep);
+  if (/^ASK\b/i.test(body)) return pro.concat('ASK { ' + svc + ' ' + body.replace(/^ASK\s*(WHERE)?\s*/i, '') + ' }').join('\n');
+  return pro.concat('SELECT * WHERE { ' + svc + ' {\n' + body + '\n} }').join('\n');
+}
+async function sparql(q, opts = {}) {
+  const timeout = budgetMs(opts.timeout || settings.timeout);
+  const viaProxy = opts.proxyFor || (!opts.ep && proxied() ? settings.ep : null);
+  const sent = viaProxy ? proxify(q, viaProxy) : q;
+  const params = new URLSearchParams({ query: sent });
+  // Virtuoso Anytime Query: with a timeout parameter Virtuoso answers at the deadline with what it has
+  // (HTTP 206 + X-SQL-State: S1TAT) instead of failing. Turned off in Settings → plain hard timeout.
+  // Only Virtuoso understands this parameter (directly, or via the UB proxy, which is Virtuoso); never sent while the engine
+  // is still unknown, since other servers may reject it.
+  if (viaProxy ? settings.anytime !== false : anytimeOn()) params.set('timeout', String(timeout));
+  const t0 = performance.now();
+  const post = sent.length > 1800;
+  const ctl = new AbortController();
+  // Grace period before the browser gives up: with Anytime on, Virtuoso still needs time after its deadline to
+  // wind down and send what it has, so wait considerably longer than the budget.
+  const anytime = params.has('timeout');
+  const waitMs = anytime ? Math.max(timeout * 3, timeout + 20000) : timeout + 5000;
+  const timer = setTimeout(() => ctl.abort(), waitMs);
+  const onAbort = () => ctl.abort();
+  if (opts.signal) opts.signal.addEventListener('abort', onAbort, { once: true });
+  if (!opts.quiet) { inflight++; paintStatus(); }
+  try {
+    const ep = viaProxy ? PROXY_EP : (opts.ep || settings.ep);
+    const url = post ? ep : ep + (ep.includes('?') ? '&' : '?') + params;
+    const res = await fetch(url, {
+      // no-store: endpoints that echo the Origin in Access-Control-Allow-Origin without "Vary: Origin" (DBpedia)
+      // otherwise get a cached response replayed to a different page origin and fail CORS. Results are cached in memory instead.
+      method: post ? 'POST' : 'GET', signal: ctl.signal, cache: 'no-store',
+      headers: Object.assign({ Accept: 'application/sparql-results+json' }, post ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
+      body: post ? params : undefined
+    });
+    const body = await res.text();
+    const looksHtml = /^\s*<(!doctype html|html)/i.test(body);
+    // Virtuoso caps sorted results (SR353: "Sorted TOP clause specifies more then N rows to sort"), so a deep page of an
+    // ORDER BY query fails. Retry once without the final ORDER BY: the page then comes back in the store's own order.
+    if (!res.ok && /SR353|Sorted TOP clause/.test(body) && !opts.unsortedRetry) {
+      const q2 = withoutFinalOrderBy(q);
+      if (q2 !== q) {
+        const j2 = await sparql(q2, Object.assign({}, opts, { unsortedRetry: true, quiet: true }));
+        if (j2 && typeof j2 === 'object') j2.__unsorted = (body.match(/Only (\d+) are allowed/) || [])[1] || true;
+        return j2;
+      }
+    }
+    // Through UB's SPARQL-FED a remote Anytime cutoff comes back as an HTTP error carrying Virtuoso's
+    // "Returning incomplete results" message rather than as a 206; treat it as a partial result with no rows.
+    if (!res.ok && /Returning incomplete results|S1TAT/.test(body)) {
+      const meta = { ms: Number(res.headers.get('X-Exec-Milliseconds')) || Math.round(performance.now() - t0), partial: true,
+        msg: body.replace(/\s+Activity:.*$/s, '').replace(/\s+/g, ' ').trim().slice(0, 300) };
+      queryMeta.set(q, meta);
+      return { head: { vars: [] }, results: { bindings: [] }, __meta: meta };
+    }
+    if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status + ': ' + (looksHtml ? body.replace(/<[^>]+>/g, ' ') : body).replace(/\s+/g, ' ').trim().slice(0, 400)), looksHtml ? { nonSparql: true, html: body.slice(0, 300000) } : {});
+    let j;
+    try { j = JSON.parse(body); }
+    catch {
+      j = /<sparql[\s>]/.test(body) ? parseSparqlXml(body) : null;   // some endpoints ignore Accept and answer in SPARQL XML
+      if (!j) throw Object.assign(new Error('The URL did not return SPARQL results' + (looksHtml ? ' (it returned an HTML page)' : '') + ': ' + body.replace(/\s+/g, ' ').slice(0, 160)),
+        { nonSparql: true, html: looksHtml ? body.slice(0, 300000) : '' });
+    }
+    const msg = (res.headers.get('X-SQL-Message') || '').replace(/\s+Activity:.*$/s, '').trim();
+    const meta = { ms: Number(res.headers.get('X-Exec-Milliseconds')) || Math.round(performance.now() - t0),
+      partial: res.status === 206 || res.headers.get('X-SQL-State') === 'S1TAT', msg };
+    queryMeta.set(q, meta);
+    if (j && typeof j === 'object') j.__meta = meta;
+    return j;
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      if (opts.signal && opts.signal.aborted) throw new Error('cancelled');
+      throw Object.assign(new Error('No response after ' + Math.round(waitMs / 1000) + ' s' + (anytime ? ' (Anytime budget ' + secs(timeout) + ')' : '') + '.'), { short: 'Timed out after ' + Math.round(waitMs / 1000) + ' s' });
+    }
+    if (e instanceof TypeError) {
+      const waited = performance.now() - t0;
+      if (waited > 15000) throw Object.assign(new Error('The connection was dropped after ' + secs(waited) + ' with no reply. A request that waits this long can be cut on the network path (or by a gateway in front of the endpoint); this is not a CORS problem.' + (anytime ? ' A shorter Anytime budget lets Virtuoso send its partial result sooner.' : '')), { gateway: true, short: 'Connection dropped after ' + secs(waited) });
+      if (conn.state === 'ok' && !opts.probe) throw new Error('The request to ' + settings.ep + ' failed (network interruption, or the reply was blocked by the browser). The endpoint answered earlier, so this is unlikely to be a CORS configuration problem.');
+      throw Object.assign(new Error('Network or CORS error reaching ' + (opts.ep || settings.ep) + ' — the endpoint does not allow cross-origin requests from this page' + (location.protocol === 'https:' && /^http:/.test(opts.ep || settings.ep) ? ' (a plain-http endpoint cannot be called from an https page)' : '') + '.'), { cors: true });
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+    if (opts.signal) opts.signal.removeEventListener('abort', onAbort);
+    if (!opts.quiet) { inflight--; paintStatus(); }
+  }
+}
+// Result rows carry .partial (the response meta) when Virtuoso cut the query short at the Anytime deadline.
+const queryMeta = new Map();   // query text -> { ms, partial, msg }
+// SPARQL 1.1 XML results → the JSON results structure the app uses.
+function parseSparqlXml(xml) {
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  if (doc.querySelector('parsererror')) return null;
+  const b = doc.getElementsByTagName('boolean')[0];
+  if (b) return { head: {}, boolean: b.textContent.trim() === 'true' };
+  const vars = [...doc.getElementsByTagName('variable')].map(v => v.getAttribute('name'));
+  const bindings = [...doc.getElementsByTagName('result')].map(r => {
+    const o = {};
+    [...r.getElementsByTagName('binding')].forEach(bd => {
+      const t = bd.firstElementChild;
+      if (!t) return;
+      if (t.localName === 'uri') o[bd.getAttribute('name')] = { type: 'uri', value: t.textContent };
+      else if (t.localName === 'bnode') o[bd.getAttribute('name')] = { type: 'bnode', value: t.textContent };
+      else {
+        const lit = { type: 'literal', value: t.textContent };
+        const lang = t.getAttribute('xml:lang'), dt = t.getAttribute('datatype');
+        if (lang) lit['xml:lang'] = lang; else if (dt) lit.datatype = dt;
+        o[bd.getAttribute('name')] = lit;
+      }
+    });
+    return o;
+  });
+  return { head: { vars }, results: { bindings } };
+}
+const rows = j => { const r = (j && j.results && j.results.bindings) || []; if (j && j.__meta && j.__meta.partial) r.partial = j.__meta; if (j && j.__unsorted) r.unsorted = j.__unsorted; return r; };
+// Remove the top-level (last) ORDER BY … that precedes the final LIMIT/OFFSET, keeping GROUP BY and the paging.
+function withoutFinalOrderBy(q) {
+  const i = q.lastIndexOf('ORDER BY');
+  if (i < 0 || q.indexOf('}', i) >= 0) return q;           // only a trailing ORDER BY (not one inside a sub-select)
+  const lim = q.slice(i).search(/\bLIMIT\b/);
+  return lim < 0 ? q.slice(0, i) : q.slice(0, i) + q.slice(i + lim);
+}
+const secs = ms => (ms / 1000).toFixed(ms < 10000 ? 1 : 0) + ' s';
+/* Anytime budget ceiling. Measured on linkeddata.uriburner.com (2026-10-14): a heavy query returned its partial result
+   (HTTP 206, CORS headers present) after 22 s for a 20 s budget, 50-54 s for 40 s and 99 s for 70 s, sending nothing
+   meanwhile. Connections idle that long can be dropped on the network path, which the browser reports only as a bare
+   'Failed to fetch'. Capping the budget keeps the wait short enough for the partial result to arrive. */
+const ANYTIME_MAX_MS = 30000, ANYTIME_SAFE_MS = 20000;
+// Anytime applies only when the endpoint is Virtuoso (or reached through the UB proxy) and the setting is on; any other
+// engine gets conventional timeouts: the full budget, a plain time-out message, and Retry with double the time.
+/* Annotation-literal dedupe: 'auto' = only on Virtuoso (Settings → De-duplicate annotation literals). */
+const dedupeOn = () => settings.dedupe === 'on' || (settings.dedupe !== 'off' && profile() === 'virtuoso');
+const ANNOT_PROPS = ['rdfs:label', 'rdfs:comment', 'skos:prefLabel', 'skos:altLabel', 'skos:hiddenLabel', 'skos:definition', 'skos:note', 'skos:scopeNote',
+  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'foaf:name']
+  .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description']);
+const annotTest = () => '(?p IN (' + ANNOT_PROPS.map(iriRef).join(', ') + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })';
+const langOk = v => '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + litStr(prefLang()) + '))';
+const anytimeOn = () => settings.anytime !== false && (profile() === 'virtuoso' || (typeof proxied === 'function' && proxied()));
+const budgetMs = t => anytimeOn() ? Math.min(t, ANYTIME_MAX_MS) : t;
+const nextBudget = () => anytimeOn() ? Math.min(budgetMs(settings.timeout) * 2, ANYTIME_MAX_MS) : Math.min(settings.timeout * 2, 120000);
+// With Anytime on, Retry re-runs the queries at the same budget (cheap, and never risks the long waits that drop
+// connections); each run returns whatever Virtuoso gathers within the budget. Measured 2026-10-14 on URIBurner, four
+// same-budget retries returned varying, not steadily growing, totals (48.6M, 35.5M, 35.6M, 34.7M). Without Anytime a
+// retry is a plain timeout, so it doubles the budget instead.
+/* Retry is a ↻ icon; what happened and what the retry will do live in its helptext (hover, focus), like the (i) indicator.
+   why = the explanation of the failure or partial result; to = an explicit budget for the retry (ms). */
+const RETRY_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+function retryPlan(to) {
+  if (to) return { attrs: 'data-to="' + to + '"', does: 'Retry runs it again with a ' + secs(to) + ' budget' + (anytimeOn() ? ', returning whatever Virtuoso gathers by then (partial results).' : '.') };
+  if (anytimeOn()) return { attrs: 'data-same="1"', does: 'Retry re-runs it at the same ' + secs(budgetMs(settings.timeout)) + ' budget; each Anytime run returns whatever Virtuoso gathers in that time.' };
+  if (budgetMs(settings.timeout) >= nextBudget()) return null;
+  return { attrs: '', does: 'Retry runs it again with a ' + secs(nextBudget()) + ' time budget.' };
+}
+function retryIcon(why, to) {
+  const plan = retryPlan(to);
+  if (!plan) return '';
+  const id = 'pinfo-' + (++pinfoSeq), tip = (why ? why + ' ' : '') + plan.does;
+  return '<span class="pinfo-wrap retry-wrap"><button type="button" class="retry-ico" data-act="retry" ' + plan.attrs + ' aria-label="Retry" aria-describedby="' + id + '">' + RETRY_SVG + '</button>' +
+    '<span class="pinfo-tip" role="tooltip" id="' + id + '">' + esc(tip) + '</span></span>';
+}
+/* Partial results (Virtuoso Anytime): a small (i) indicator beside the heading of the panel it describes, with the
+   explanation in a tooltip on hover, focus or tap. A retry is offered there as a secondary action. */
+const PARTIAL_MSG = 'Partial results based on Virtuoso Anytime Query feature.';
+let pinfoSeq = 0;
+function pinfoHtml(m) {
+  const id = 'pinfo-' + (++pinfoSeq);
+  return '<span class="pinfo-wrap"><button type="button" class="pinfo" aria-label="Partial results — more information" aria-describedby="' + id + '">i</button>' +
+    '<span class="pinfo-tip" role="tooltip" id="' + id + '">' + PARTIAL_MSG + (m && m.ms ? '<span class="pinfo-meta">Stopped after ' + secs(m.ms) + '.</span>' : '') + '</span></span>' +
+    retryIcon('These are partial results.');
+}
+// Add (or clear, when m is falsy) the indicator at the end of a heading; before a trailing .hint when there is one.
+function markPartial(target, m, unsorted) {
+  if (!target) return;
+  target.querySelectorAll(':scope > .pinfo-wrap').forEach(n => n.remove());   // includes the ↻ retry icon
+  const html = (m ? pinfoHtml(m) : '') + (unsorted ? unsortedHtml(unsorted) : '');
+  if (!html) return;
+  const hint = target.querySelector(':scope > .hint');
+  if (hint) hint.insertAdjacentHTML('beforebegin', html); else target.insertAdjacentHTML('beforeend', html);
+}
+function infoHtml(text) {
+  const id = 'pinfo-' + (++pinfoSeq);
+  return '<span class="pinfo-wrap"><button type="button" class="pinfo neutral" aria-label="More information" aria-describedby="' + id + '">i</button>' +
+    '<span class="pinfo-tip" role="tooltip" id="' + id + '">' + esc(text) + '</span></span>';
+}
+function unsortedHtml(cap) {
+  const id = 'pinfo-' + (++pinfoSeq);
+  return '<span class="pinfo-wrap"><button type="button" class="pinfo neutral" aria-label="Order of this page — more information" aria-describedby="' + id + '">i</button>' +
+    '<span class="pinfo-tip" role="tooltip" id="' + id + '">Shown in the endpoint’s own order: this page lies beyond its limit for sorted results' +
+    (cap && cap !== true ? ' (' + Number(cap).toLocaleString() + ' rows)' : '') + ', so the query ran without ORDER BY.</span></span>';
+}
+
+/* ---------- query builder: FCT query tree → SPARQL ---------- */
+const sv = i => '?s' + (i + 1);
+function prologue() {
+  let s = '';
+  if (profile() === 'virtuoso') {
+    if (settings.inference) s += 'DEFINE input:inference ' + litStr(settings.inference) + '\n';
+    if (settings.sameAs) s += 'DEFINE input:same-as "yes"\n';
+  }
+  if (profile() === 'wikidata') s += 'PREFIX wikibase: <http://wikiba.se/ontology#>\nPREFIX bd: <http://www.bigdata.com/rdf#>\nPREFIX mwapi: <https://www.mediawiki.org/ontology#API/>\n';
+  return s;
+}
+const fromClause = () => settings.graph && !proxied() ? 'FROM ' + iriRef(settings.graph) + '\n' : '';
+const labelPath = () => '(' + LABEL_PROPS.map(P).join('|') + ')';
+
+function ftExpr(text) {
+  const words = text.replace(/["'\\()*&|!~^]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 12);
+  return words.map(w => w.length >= 4 ? '"' + w + '*"' : '"' + w + '"').join(' AND ');
+}
+function textPattern(s, node, i) {
+  const t = node.text.trim();
+  if (!t) return '';
+  const o = '?txt' + (i + 1);
+  const pr = profile();
+  if (pr === 'wikidata') {
+    return 'SERVICE wikibase:mwapi { bd:serviceParam wikibase:api "EntitySearch" ; wikibase:endpoint "www.wikidata.org" ; mwapi:search ' + litStr(t) +
+      ' ; mwapi:language ' + litStr(prefLang()) + ' . ' + s + ' wikibase:apiOutputItem mwapi:item . }';
+  }
+  const pred = node.scope === 'any' ? '?txtp' + (i + 1) : labelPath();
+  // Virtuoso needs bif:contains to follow a plain triple pattern binding its object. A property-path alternation
+  // (a|b|c) works when sent directly, but UB's SPARQL-FED re-serialization of it is rejected remotely (SP031), so
+  // label scope uses a predicate variable restricted with IN (…) instead — valid both directly and through the proxy.
+  if (pr === 'virtuoso') {
+    const tp = '?txtp' + (i + 1);
+    return s + ' ' + tp + ' ' + o + ' . ' + o + " bif:contains '" + ftExpr(t) + "' ." +
+      (node.scope === 'any' ? '' : ' FILTER (' + tp + ' IN (' + LABEL_PROPS.map(P).join(', ') + '))');
+  }
+  return s + ' ' + pred + ' ' + o + ' . FILTER (isLiteral (' + o + ') && CONTAINS (LCASE (STR (' + o + ')), ' + litStr(t.toLowerCase()) + '))';
+}
+function condPattern(s, c, aux) {
+  if (c.t === 'is') return c.neg ? 'FILTER (!sameTerm (' + s + ', ' + termSparql(c.v) + '))' : 'VALUES ' + s + ' { ' + termSparql(c.v) + ' }';
+  if (c.t === 'class') {
+    const tp = s + ' ' + iriRef(typeProp()) + ' ' + iriRef(c.iri) + ' .';
+    return c.neg ? 'FILTER NOT EXISTS { ' + tp + ' }' : tp;
+  }
+  if (c.t === 'pv') {
+    let inner;
+    if (c.v) {
+      const term = termSparql(c.v);
+      inner = c.dir === 'in' ? term + ' ' + iriRef(c.p) + ' ' + s + ' .' : s + ' ' + iriRef(c.p) + ' ' + term + ' .';
+    } else {
+      const x = aux();
+      inner = c.dir === 'in' ? x + ' ' + iriRef(c.p) + ' ' + s + ' .' : s + ' ' + iriRef(c.p) + ' ' + x + ' .';
+      const f = [];
+      if (c.lo != null && c.lo !== '') f.push(x + ' >= ' + boundLiteral(c.lo, c.dt));
+      if (c.hi != null && c.hi !== '') f.push(x + ' <= ' + boundLiteral(c.hi, c.dt));
+      if (f.length) inner += ' FILTER (' + f.join(' && ') + ')';
+    }
+    return c.neg ? 'FILTER NOT EXISTS { ' + inner + ' }' : inner;
+  }
+  return '';
+}
+// bound = index of a node the caller's own pattern binds (facet/value queries): no filler triple is needed for it.
+function whereBody(bound) {
+  const lines = [];
+  let k = 0;
+  const aux = () => '?v' + (++k);
+  nav.nodes.forEach((node, i) => {
+    const s = sv(i);
+    // most selective first: identity, text, pivot join, positive conditions; negations last (need bindings)
+    node.conds.filter(c => c.t === 'is' && !c.neg).forEach(c => lines.push(condPattern(s, c, aux)));
+    if (node.text) lines.push(textPattern(s, node, i));
+    if (i > 0) {
+      const via = node.via, prev = sv(i - 1);
+      lines.push(via.dir === 'in' ? s + ' ' + iriRef(via.p) + ' ' + prev + ' .' : prev + ' ' + iriRef(via.p) + ' ' + s + ' .');
+    }
+    node.conds.filter(c => c.t !== 'is' && !c.neg).forEach(c => lines.push(condPattern(s, c, aux)));
+    if (!(i > 0 || node.text || node.conds.some(c => !c.neg)) && i !== bound) lines.push(s + ' ?anyp ?anyo .');
+    node.conds.filter(c => c.neg).forEach(c => lines.push(condPattern(s, c, aux)));
+  });
+  return lines.filter(Boolean).map(l => '  ' + l).join('\n');
+}
+const sel = (proj, body, tail) => prologue() + 'SELECT ' + proj + '\n' + fromClause() + 'WHERE {\n' + body + '\n}' + (tail ? '\n' + tail : '');
+const page = (lim, off) => 'LIMIT ' + lim + (off ? ' OFFSET ' + off : '');
+const Q = {
+  // Virtuoso: rank members by entity rank (IRI_RANK), as FCT does; other engines get plain DISTINCT.
+  entitiesPlain: (f, off, lim) => sel('DISTINCT ' + sv(f), whereBody(), page(lim, off)),
+  // Explore overview: one row per entity type with a SAMPLE() member and a count, instead of every entity.
+  // Blank nodes are excluded, so every sample and type can be linked and described.
+  overview: (off, lim) => sel('?type (SAMPLE (?s1) AS ?sample) (COUNT (?s1) AS ?n)', '  ?s1 ' + iriRef(typeProp()) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))', 'GROUP BY ?type ORDER BY DESC (?n) ' + page(lim, off)),
+  overviewTotal: () => sel('(COUNT (DISTINCT ?type) AS ?n)', '  ?s1 ' + iriRef(typeProp()) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))'),
+  entities: (f, off, lim) => profile() === 'virtuoso' && !noRank.has(settings.ep)
+    ? sel(sv(f), whereBody(), 'GROUP BY ' + sv(f) + ' ORDER BY DESC (<LONG::IRI_RANK> (' + sv(f) + ')) ' + page(lim, off))
+    : sel('DISTINCT ' + sv(f), whereBody(), page(lim, off)),
+  count: f => sel('(COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody()),
+  // Facet lists page with LIMIT/OFFSET; a separate COUNT gives the total the FCT-style pager needs for "last".
+  types: (f, off, lim) => sel('?c (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody(f) + '\n  ' + sv(f) + ' ' + iriRef(typeProp()) + ' ?c .', 'GROUP BY ?c ORDER BY DESC (?n) ' + page(lim, off)),
+  // Count-free facet lists, used when an endpoint refuses the counting query on its cost estimate (Virtuoso 42000
+  // "estimated execution time … exceeds the limit"): rejected before running, so Anytime cannot help.
+  typesPlain: (f, off, lim) => sel('DISTINCT ?c', whereBody(f) + '\n  ' + sv(f) + ' ' + iriRef(typeProp()) + ' ?c .', page(lim, off)),
+  propsPlain: (f, dir, off, lim) => sel('DISTINCT ?p', whereBody(f) + '\n  ' + (dir === 'in' ? '?o ?p ' + sv(f) : sv(f) + ' ?p ?o') + ' .', page(lim, off)),
+  typesTotal: f => sel('(COUNT (DISTINCT ?c) AS ?n)', whereBody(f) + '\n  ' + sv(f) + ' ' + iriRef(typeProp()) + ' ?c .'),
+  props: (f, dir, off, lim) => sel('?p (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody(f) + '\n  ' + (dir === 'in' ? '?o ?p ' + sv(f) : sv(f) + ' ?p ?o') + ' .', 'GROUP BY ?p ORDER BY DESC (?n) ' + page(lim, off)),
+  propsTotal: (f, dir) => sel('(COUNT (DISTINCT ?p) AS ?n)', whereBody(f) + '\n  ' + (dir === 'in' ? '?o ?p ' + sv(f) : sv(f) + ' ?p ?o') + ' .'),
+  // FCT 'Distinct (Count)' (list-count): each distinct member of the focused set, counted over the distinct
+  // query solutions (?s1 … ?sN) that reach it — the same shape FCT generates in fct_view ('list-count').
+  distinct: (f, off, lim) => sel(sv(f) + ' (COUNT (*) AS ?n)', '  { SELECT DISTINCT ' + nav.nodes.map((_, i) => sv(i)).join(' ') + ' WHERE {\n' + whereBody() + '\n  } }',
+    'GROUP BY ' + sv(f) + ' ORDER BY DESC (?n) ' + page(lim, off)),
+  values: (f, p, dir, off, lim) => sel('?v (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody(f) + '\n  ' + (dir === 'in' ? '?v ' + iriRef(p) + ' ' + sv(f) : sv(f) + ' ' + iriRef(p) + ' ?v') + ' .', 'GROUP BY ?v ORDER BY DESC (?n) ' + page(lim, off)),
+  valuesTotal: (f, p, dir) => sel('(COUNT (DISTINCT ?v) AS ?n)', whereBody(f) + '\n  ' + (dir === 'in' ? '?v ' + iriRef(p) + ' ' + sv(f) : sv(f) + ' ' + iriRef(p) + ' ?v') + ' .'),
+  range: (f, p) => sel('(MIN (?v) AS ?min) (MAX (?v) AS ?max) (SAMPLE (DATATYPE (?v)) AS ?dt)', whereBody(f) + '\n  ' + sv(f) + ' ' + iriRef(p) + ' ?v . FILTER (isLiteral (?v))'),
+  graphs: (f, off, lim) => prologue() + 'SELECT ?g (COUNT (DISTINCT ' + sv(f) + ') AS ?n)\nWHERE {\n' + whereBody() + '\n  GRAPH ?g { ' + sv(f) + ' ?gp ?go }\n}\nGROUP BY ?g ORDER BY DESC (?n) ' + page(lim, off),
+  graphsTotal: f => prologue() + 'SELECT (COUNT (DISTINCT ?g) AS ?n)\nWHERE {\n' + whereBody() + '\n  GRAPH ?g { ' + sv(f) + ' ?gp ?go }\n}',
+  /* Description, paged like FCT's /describe (rdfdesc/description.vsp): one list of the entity's statements,
+     outgoing (<e> ?p ?o) then incoming (?o ?p <e>), ordered by predicate, LIMIT/OFFSET per page, COUNT for the total.
+     With annotation dedupe on (Settings; default: Virtuoso only), literal objects of annotation properties (well-known
+     label/comment/name/description terms, plus anything the data declares an owl:AnnotationProperty) are SAMPLE()d to one
+     per property with a count; other literals keep every value. Both stay in the preferred language or untagged. */
+  describeUnion: (e, sampled) => sampled
+    ? '  { { SELECT ?p (SAMPLE (?lo) AS ?o) (COUNT (?lo) AS ?n) WHERE {\n      ' + iriRef(e) + ' ?p ?lo .\n      FILTER (isLiteral (?lo) && ' + annotTest() + ' && ' + langOk('?lo') + ')\n    } GROUP BY ?p } BIND ("out" AS ?dir) }\n' +
+      '  UNION { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || (!' + annotTest() + ' && ' + langOk('?o') + ')) BIND ("out" AS ?dir) }\n' +
+      '  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
+    : '  { ' + iriRef(e) + ' ?p ?o . BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }',
+  describePage: (e, sampled, off, lim) => sel('?dir ?p ?o' + (sampled ? ' ?n' : ''), Q.describeUnion(e, sampled), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
+  describeTotal: (e, sampled) => sel('(COUNT (*) AS ?n)', Q.describeUnion(e, sampled)),
+  describeIn: e => sel('?s ?p', '  ?s ?p ' + iriRef(e) + ' .', 'LIMIT 300')
+};
+
+/* ---------- labels & entity cards ---------- */
+const labels = new Map();   // iri -> display label
+const cards = new Map();    // iri -> {desc, img}
+const pendingLabels = new Set();
+let labelTimer = null;
+// Wikidata property IRIs in every form (wdt:, p:, ps:, pq:, pr:, psv:, … all under /prop/…/P123) take their label
+// from the property entity wd:P123.
+const labelKey = iri => { const m = /^http:\/\/www\.wikidata\.org\/prop\/(?:[a-z-]+\/)*(P\d+)$/.exec(iri); return m ? NS.wd + m[1] : iri; };
+function pickLang(list) {
+  const want = prefLang();
+  return (list.find(x => x.lang === want) || list.find(x => x.lang && x.lang.startsWith(want)) || list.find(x => !x.lang) || list[0] || {}).value;
+}
+/* What a hyperlinked entity shows, in order: its label → a CURIE (when the namespace has a known
+   prefix) → the raw IRI. A lookup that found no label stores the IRI itself; until a lookup returns,
+   the local name is a placeholder. */
+function display(iri) {
+  const l = labels.get(iri);
+  if (l && l !== iri) return { kind: 'label', text: l };
+  if (l === iri) { const c = curie(iri); return c ? { kind: 'curie', text: c } : { kind: 'raw', text: iri }; }
+  return { kind: 'pending', text: localName(iri) };
+}
+const labelOf = iri => display(iri).text;
+const paintKey = d => d.kind + '|' + d.text;
+function wantLabels(iris) {
+  iris.forEach(i => { if (i && !labels.has(i)) pendingLabels.add(i); });
+  clearTimeout(labelTimer);
+  labelTimer = setTimeout(flushLabels, 30);
+}
+async function flushLabels() {
+  const all = [...pendingLabels]; pendingLabels.clear();
+  for (let i = 0; i < all.length; i += 60) {
+    const chunk = all.slice(i, i + 60);
+    const keyed = new Map(chunk.map(x => [labelKey(x), x]));
+    const q = sel('?x ?l', '  VALUES ?x { ' + [...keyed.keys()].map(iriRef).join(' ') + ' }\n  ?x ' + labelPath() + ' ?l .\n  FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + ')))', 'LIMIT ' + (chunk.length * 8));
+    try {
+      const by = new Map();
+      rows(await sparql(q, { quiet: true })).forEach(r => {
+        const x = keyed.get(r.x.value) || r.x.value;
+        if (!by.has(x)) by.set(x, []);
+        by.get(x).push({ value: r.l.value, lang: (r.l['xml:lang'] || '').toLowerCase() });
+      });
+      chunk.forEach(x => labels.set(x, by.has(x) ? pickLang(by.get(x)) : x));
+    } catch { /* a failed lookup is not "no label": leave these uncached so the next render asks again */ }
+    paintLabels();
+  }
+}
+function paintLabels() {
+  document.querySelectorAll('[data-lbl]').forEach(el => {
+    const iri = el.dataset.lbl, d = display(iri), k = paintKey(d);
+    if (el.dataset.painted === k) return;
+    el.classList.toggle('raw', d.kind === 'raw');
+    el.classList.toggle('curie', d.kind === 'curie');
+    if (d.kind === 'raw') el.innerHTML = rawHtml(iri); else el.textContent = d.text;
+    if ((d.kind === 'raw' || d.kind === 'curie') && !el.title) el.title = iri;
+    el.dataset.painted = k;
+  });
+}
+async function fetchCards(iris, signal) {
+  iris = iris.filter(i => !cards.has(i));
+  if (!iris.length) return;
+  const langF = 'LANG (?d) = "" || LANGMATCHES (LANG (?d), ' + litStr(prefLang()) + ')';
+  const q = sel('?x (SAMPLE (?d) AS ?desc) (SAMPLE (?i) AS ?img)',
+    '  VALUES ?x { ' + iris.map(iriRef).join(' ') + ' }\n' +
+    '  OPTIONAL { ?x (' + DESC_PROPS.map(P).join('|') + ') ?d . FILTER (isLiteral (?d) && (' + langF + ')) }\n' +
+    '  OPTIONAL { ?x (' + IMG_PROPS.map(P).join('|') + ') ?i . FILTER (isIRI (?i)) }', 'GROUP BY ?x');
+  try {
+    rows(await sparql(q, { quiet: true, signal })).forEach(r => cards.set(r.x.value, { desc: r.desc && r.desc.value, img: r.img && r.img.value }));
+  } catch (e) { if (e.message === 'cancelled') return; }
+  iris.forEach(i => { if (!cards.has(i)) cards.set(i, {}); });
+}
+
+/* ---------- rendering helpers ---------- */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtN = n => n == null ? '…' : Number(n).toLocaleString();
+// The entity label IS the hyperlink (href = IRI): a plain click acts in-app, a modified click opens the IRI.
+// A raw IRI is split into head + distinctive tail so single-line slots can truncate the middle, not the end.
+function splitIri(iri) { const m = /^(.*[/#:])([^/#:]+[/#]?)$/.exec(iri); return m ? [m[1], m[2]] : ['', iri]; }
+const rawHtml = iri => { const [h, t] = splitIri(iri); return '<span class="ih">' + esc(h) + '</span><span class="it">' + esc(t) + '</span>'; };
+const lblInner = d => d.kind === 'raw' ? rawHtml(d.text) : esc(d.text);
+const shortName = iri => { const d = display(iri); return d.kind === 'raw' ? splitIri(iri)[1] : d.kind === 'curie' ? d.text.slice(d.text.indexOf(':') + 1) : d.text; };
+const kindCls = d => d.kind === 'raw' ? ' raw' : d.kind === 'curie' ? ' curie' : '';
+const iriTitle = (iri, d, attrs) => (d.kind === 'raw' || d.kind === 'curie') && !/title=/.test(attrs || '') ? ' title="' + esc(iri) + '"' : '';
+const lbl = (iri, attrs, cls) => { const d = display(iri); return '<a class="lbl' + (cls ? ' ' + cls : '') + kindCls(d) + '" href="' + esc(iri) + '" data-lbl="' + esc(iri) + '" data-painted="' + esc(paintKey(d)) + '" ' + (attrs || 'data-act="describe" data-iri="' + esc(iri) + '"') + iriTitle(iri, d, attrs) + '>' + lblInner(d) + '</a>'; };
+const lblText = iri => { const d = display(iri); return '<span class="' + kindCls(d).trim() + '" data-lbl="' + esc(iri) + '" data-painted="' + esc(paintKey(d)) + '"' + iriTitle(iri, d) + '>' + lblInner(d) + '</span>'; };
+const dtBadge = t => t['xml:lang'] ? '<span class="badge">@' + esc(t['xml:lang']) + '</span>' : t.datatype ? '<span class="badge">' + esc(curie(t.datatype) || localName(t.datatype)) + '</span>' : '';
+function termHtml(t) {
+  if (!t) return '';
+  if (t.type === 'uri') return lbl(t.value);
+  if (t.type === 'bnode') return '<span class="lit">_:' + esc(t.value) + '</span>';
+  return '<span class="lit">' + esc(t.value.length > 400 ? t.value.slice(0, 400) + '…' : t.value) + '</span>' + dtBadge(t);
+}
+const loading = msg => '<div class="loading">' + esc(msg || 'Querying…') + '</div>';
+const errBox = e => {
+  if (e && e.short) {
+    const icon = e.gateway ? retryIcon(e.message, ANYTIME_SAFE_MS) : retryIcon(e.message);
+    return '<div class="err compact"><span>' + esc(e.short) + '</span>' + (icon || '<span>' + esc(e.message) + '</span>') + '</div>';
+  }
+  return '<div class="err">' + esc(e.message || e) + ' ' + retryIcon('') + '</div>';
+};
+const initial = s => esc(((s || '').replace(/^[^\p{L}\p{N}]+/u, '').charAt(0) || '?').toUpperCase());
+const thumb = (iri, c, lazy) => '<div class="thumb">' + (c.img ? '<img ' + (lazy ? 'loading="lazy" ' : '') + 'alt="" src="' + esc(c.img) + '" onerror="this.parentNode.textContent=\'' + initial(shortName(iri)) + '\'">' : initial(shortName(iri))) + '</div>';
+
+/* ---------- view model ---------- */
+let gen = 0, ctl = new AbortController();
+const cache = new Map();
+const countCache = new Map();
+const noRank = new Set();   // Virtuoso endpoints without DB.DBA.IRI_RANK (FCT package not installed)
+const countPartial = new Set();   // count keys whose COUNT was cut short (a lower bound)
+const countText = k => countPartial.has(k) ? (countCache.get(k) > 0 ? '≥ ' + fmtN(countCache.get(k)) + ' items' : 'count cut short') : fmtN(countCache.get(k)) + ' items';
+const cur = { entities: [], values: [], samples: [] };
+const focus = () => nav.focus;
+const fnode = () => nav.nodes[nav.focus];
+const navKey = () => JSON.stringify([settings.ep, settings.graph, settings.inference, settings.sameAs, settings.typeProp, profile(), nav.nodes]);
+async function cached(key, fn) {
+  if (cache.has(key)) return cache.get(key);
+  const v = await fn();
+  cache.set(key, v);
+  if (cache.size > 400) cache.delete(cache.keys().next().value);
+  return v;
+}
+function resetCaches() { voidState.clear(); cache.clear(); countCache.clear(); countPartial.clear(); labels.clear(); cards.clear(); queryLog.clear(); }
+
+function newNav(nodes, view) { nav = { nodes, focus: nodes.length - 1, view: view || 'entities', off: 0, vp: null, ent: null }; }
+function go(replace) { writeHash(replace); render(); }
+
+async function render() {
+  const my = ++gen;
+  ctl.abort();
+  ctl = new AbortController();
+  const signal = ctl.signal;
+  const has = !!nav;
+  const hasSets = has && nav.nodes.length > 0;
+  document.getElementById('landing').hidden = has;
+  document.getElementById('main').hidden = !has;
+  document.getElementById('trailWrap').hidden = !hasSets;
+  document.getElementById('endpoint').value = settings.ep;
+  document.getElementById('q').placeholder = searchPlaceholder();
+  const preset = document.getElementById('epPreset');
+  preset.value = [...preset.options].some(o => o.value === settings.ep) ? settings.ep : '';
+  document.getElementById('profile').value = settings.profile;
+  if (!has) renderLanding();
+  const ok = await handshake();
+  if (my !== gen) return;
+  document.getElementById('landingErr').innerHTML = ok ? '' : connErrHtml();
+  if (!has) { if (!ENDPOINT_SAMPLES[settings.ep]) voidStarters(my); return; }
+  if (!ok) {
+    // One clear connection error instead of a cascade of failing panels.
+    document.getElementById('view').innerHTML = '<div class="content" style="padding-top:14px">' + connErrHtml() + '</div>';
+    ['types', 'props', 'inprops', 'graphs'].forEach(id => document.getElementById(id).innerHTML = '<div class="empty">Waiting for a working endpoint.</div>');
+    document.getElementById('trail').querySelectorAll('.n').forEach(n => n.textContent = '—');
+    return;
+  }
+  const n0 = nav.nodes[0];
+  document.getElementById('q').value = n0 && n0.text || '';
+  document.getElementById('scope').value = n0 && n0.scope || 'label';
+  if (hasSets && !nav.nodes[nav.focus]) nav.focus = nav.nodes.length - 1;
+  renderTabs();
+  if (hasSets) {
+    renderTrail(my, signal);
+    renderFilters();
+    renderFacets(my, signal);
+  } else {
+    ['types', 'props', 'inprops', 'graphs'].forEach(id => document.getElementById(id).innerHTML = '<div class="empty">Use “Start a trail here” or a “⇢ as set” button to browse sets.</div>');
+    document.getElementById('filters').innerHTML = '<div class="empty">No set yet.</div>';
+    document.getElementById('filterHint').textContent = '';
+  }
+  renderView(my, signal);
+}
+
+/* Per-endpoint starter samples, derived by probing each preset endpoint (2026-10-14): starter searches verified to return
+   results with the app's own text-search query, prominent entity types, and well-labelled example entities. */
+const ENDPOINT_SAMPLES = /*SAMPLES*/{"https://dbpedia.org/sparql": {"searches": ["Alcides Mendoza Castro", "Aleksander Kreek", "Alcides"], "types": [{"iri": "http://dbpedia.org/ontology/Person", "label": "person"}, {"iri": "http://dbpedia.org/ontology/TimePeriod", "label": "time period"}, {"iri": "http://dbpedia.org/ontology/Species", "label": "species"}], "entities": [{"iri": "http://dbpedia.org/resource/Alcides_Mendoza_Castro", "label": "Alcides Mendoza Castro"}, {"iri": "http://dbpedia.org/resource/Aleksander_Kreek", "label": "Aleksander Kreek"}, {"iri": "http://dbpedia.org/resource/2027_in_spaceflight", "label": "2027 in spaceflight"}]}, "https://linkeddata.uriburner.com/sparql": {"searches": ["HowTo", "FAQ", "Glossary"], "types": [{"iri": "http://schema.org/Question", "label": "Question"}, {"iri": "http://schema.org/HowTo", "label": "HowTo"}, {"iri": "http://schema.org/SoftwareApplication", "label": "SoftwareApplication"}], "entities": [{"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/intent-to-action-agents-web-claude_sonnet_5_5-1.html#article", "label": "From Intent to Action"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/gates-turbulent-ai-era-critical-choices-claude_opus_5-1.ttl#analysis", "label": "The Turbulent AI Era and the Choices That Cannot Wait"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/the-next-difficulty-gpt_6-1.html", "label": "The Next Difficulty: An Atlas of Innovation"}]}, "https://query.wikidata.org/sparql": {"searches": ["Vladimir Lenin", "George Washington", "New York City"], "types": [{"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q515", "label": "city"}, {"iri": "http://www.wikidata.org/entity/Q11424", "label": "film"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q1394", "label": "Vladimir Lenin"}, {"iri": "http://www.wikidata.org/entity/Q23", "label": "George Washington"}, {"iri": "http://www.wikidata.org/entity/Q60", "label": "New York City"}]}, "https://sparql.uniprot.org/sparql": {"searches": [], "types": [{"iri": "http://purl.uniprot.org/core/Protein", "label": "Protein"}, {"iri": "http://purl.uniprot.org/core/Taxon", "label": "Taxon"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/P05067", "label": "Amyloid-beta precursor protein"}, {"iri": "http://purl.uniprot.org/uniprot/P04637", "label": "Cellular tumor antigen p53"}, {"iri": "http://purl.uniprot.org/uniprot/P69905", "label": "Hemoglobin subunit alpha"}]}, "https://data.europa.eu/sparql": {"searches": ["Tsunami", "Earthquake"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://data.europa.eu/88u/dataset/5b49f79d-fa7b-4e58-ae36-a4597aca5509", "label": "Timeseries air pressure 2019"}]}, "https://api.parliament.uk/sparql": {"searches": ["Randerson", "Female", "Male"], "types": [{"iri": "https://id.parliament.uk/schema/TemporalThing", "label": "Temporal thing"}, {"iri": "https://id.parliament.uk/schema/ExternalThing", "label": "External thing"}], "entities": [{"iri": "https://id.parliament.uk/eup4DwE5", "label": "Local Government Boundary Commission for England"}, {"iri": "https://id.parliament.uk/WfMpdObA", "label": "Randerson"}, {"iri": "https://id.parliament.uk/Hnymnoxw", "label": "Female"}]}, "https://sparql.cellosaurus.org/sparql": {"searches": ["THRA", "Raji CD19 Knockout", "Raji"], "types": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/ontology/Xref", "label": "Cross-Reference"}], "entities": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/CGNC_4ca7629cd06caa8af5abe13b3f14f089", "label": "THRA"}, {"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/Cellosaurus_0359cc0bf71d67a0eced65623b1a4bb0", "label": "Raji CD19 Knockout"}]}, "https://data.gov.cz/sparql": {"searches": ["restricted", "sensitive", "JSON"], "types": [{"iri": "http://www.w3.org/2008/05/skos-xl#Label", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://publications.europa.eu/resource/authority/access-right/1b8c1ab7ad9d578068eccaf6d810816e", "label": "restricted"}, {"iri": "http://publications.europa.eu/resource/authority/access-right/43038fb5dcced3fdf4af364bea7a3d00", "label": "sensitive"}, {"iri": "https://data.gov.cz/zdroj/datové-sady/00025429/1493900693/distribuce/801e174f7e1814eb2aa4a9319f4c11b4", "label": "JSON"}]}, "https://data.idref.fr/sparql": {"searches": ["accepted", "draft", "M.A"], "types": [{"iri": "http://rdaregistry.info/Elements/c/C10001", "label": null}, {"iri": "http://open.vocab.org/terms/SchemaExample", "label": null}, {"iri": "http://purl.org/ontology/bibo/DocumentStatus", "label": "Document Status"}], "entities": [{"iri": "http://www.idref.fr/206614411/id", "label": "Accord général sur les tarifs douaniers et le commerce"}, {"iri": "http://purl.org/vocab/bio/examples/1", "label": "A Biography of Henry VIII, King of England"}]}, "https://www.nakala.fr/sparql": {"searches": ["Sylvain LEBRETON", "Farida SAID", "Picture"], "types": [{"iri": "http://www.europeana.eu/schemas/edm/ProvidedCHO", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Agent", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Collection", "label": null}], "entities": [{"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.007d198x", "label": "Picture 402 story SH_story52 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.00ae2z49", "label": "Picture 421 story SH_story55 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/Agent/8b11605f-9138-11ef-89cb-52540084ccd3", "label": "Sylvain LEBRETON"}]}, "https://agrovoc.fao.org/sparql": {"searches": ["methods", "design", "Indigenous Peoples Group"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#ConceptScheme", "label": null}], "entities": [{"iri": "http://aims.fao.org/aos/agrovoc/c_4788", "label": "methods"}, {"iri": "http://aims.fao.org/aos/agrovoc/c_2208", "label": "design"}, {"iri": "http://aims.fao.org/aos/agrovoc/skosCollection_cb7b7c4a", "label": "Indigenous Peoples Group"}]}, "https://scienceplus.abes.fr/sparql": {"searches": ["complications", "growth monitoring", "growth"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": "Concept"}], "entities": [{"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E14630FE053120B220A17F5/subject/complications", "label": "complications"}, {"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E18630FE053120B220A17F5/subject/growthmonitoring", "label": "growth monitoring"}]}, "https://opendata.aragon.es/sparql": {"searches": ["Alto Gállego", "Jacetania", "Alto"], "types": [{"iri": "http://www.w3.org/ns/org#Organization", "label": "Organization"}], "entities": [{"iri": "http://opendata.aragon.es/recurso/sector-publico/organizacion/comarca/01", "label": "La Jacetania"}, {"iri": "http://opendata.aragon.es/recurso/sector-publico/organizacion/comarca/02", "label": "Alto Gállego"}]}, "https://sparql.datao.net/sparql": {"searches": ["DonnerwetteR", "Hygiea"], "types": [{"iri": "http://wikiba.se/ontology#Item", "label": null}, {"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing", "label": null}], "entities": [{"iri": "http://www.wikidata.org/entity/Q11508", "label": "!DonnerwetteR!"}, {"iri": "http://www.wikidata.org/entity/Q63777498", "label": "(10) Hygiea"}]}, "https://data.bibliotheken.nl/sparql": {"searches": ["Almelo", "Amsterdam", "Allart"], "types": [{"iri": "http://schema.org/ProductModel", "label": null}, {"iri": "http://schema.org/Book", "label": null}, {"iri": "http://schema.org/PublicationEvent", "label": null}], "entities": [{"iri": "http://data.bibliotheken.nl/id/nbt/p350580480", "label": "Almelo"}]}, "https://vocab.nerc.ac.uk/sparql/": {"searches": ["Surface", "radioactivity", "content"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "https://w3id.org/iadopt/ont#VariableSet", "label": null}], "entities": [{"iri": "http://vocab.nerc.ac.uk/standard_name/surface_radioactivity_content_of_141Ce/", "label": "Surface radioactivity content of 141Ce"}, {"iri": "http://vocab.nerc.ac.uk/collection/P06/current/BQSM/", "label": "Becquerels per square metre"}, {"iri": "http://vocab.nerc.ac.uk/collection/C35/current/", "label": "European Nature Information System Level 3 Habitats"}]}, "https://data.muziekschatten.nl/sparql": {"searches": ["Komt allen tezamen", "Lonely boy", "onvolledig"], "types": [{"iri": "http://schema.org/MusicComposition", "label": null}, {"iri": "https://data.muziekschatten.nl/som/LichteMuziekDeeltitel", "label": null}, {"iri": "https://data.muziekschatten.nl/som/Precat", "label": null}], "entities": [{"iri": "https://data.muziekschatten.nl/som/616024", "label": "Komt allen tezamen"}, {"iri": "https://data.muziekschatten.nl/som/177339", "label": "Lonely boy"}, {"iri": "https://data.muziekschatten.nl/som/177340", "label": "L'oiseau et l'enfant"}]}, "https://wikidata.demo.openlinksw.com/sparql": {"searches": ["Panthera leo", "Happiness", "George Washington"], "types": [{"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q16521", "label": "taxon"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q45106562", "label": "Panthera leo"}, {"iri": "http://www.wikidata.org/entity/Q33700518", "label": "Happiness"}, {"iri": "http://www.wikidata.org/entity/Q100948698", "label": "George Washington"}]}, "https://publications.europa.eu/webapi/rdf/sparql": {"searches": ["Marco ONIDA", "DCMI Type Vocabulary", "LCC"], "types": [{"iri": "http://xmlns.com/foaf/0.1/Person", "label": null}, {"iri": "http://purl.org/dc/dcam/VocabularyEncodingScheme", "label": null}, {"iri": "http://purl.org/dc/terms/AgentClass", "label": "Agent Class"}], "entities": [{"iri": "http://publications.europa.eu/resource/directory/person/COM_00006AA0DAA3", "label": "Lars DE NUL"}, {"iri": "http://publications.europa.eu/resource/directory/person/COM_00003367AF", "label": "Marco ONIDA"}, {"iri": "http://purl.org/dc/terms/DCMIType", "label": "DCMI Type Vocabulary"}]}}/*END*/;
+const presetName = ep => { const o = [...document.getElementById('epPreset').options].find(o => o.value === ep); return o ? o.textContent.replace(/\s*\(no CORS.*\)$/, '') : ep.replace(/^https?:\/\//, ''); };
+function renderLanding() {
+  const sm = ENDPOINT_SAMPLES[settings.ep];
+  const chip = (act, attrs, html) => '<button class="chip" data-act="' + act + '" ' + attrs + '>' + html + '</button>';
+  if (!sm) {
+    const ex = /wikidata/.test(settings.ep) || settings.profile === 'wikidata' ? ['Douglas Adams', 'Ada Lovelace', 'Lagos'] : ['Einstein', 'Semantic Web', 'Lagos'];
+    document.getElementById('starters').innerHTML = ex.map(t => chip('start', 'data-text="' + esc(t) + '"', 'Search “' + esc(t) + '”')).join('') + chip('browseAll', '', 'Explore the dataset');
+    return;
+  }
+  const row = (label, chips) => chips.length ? '<div class="starter-row"><span class="starter-k">' + label + '</span>' + chips.join('') + '</div>' : '';
+  wantLabels(sm.types.filter(t => !t.label).map(t => t.iri));
+  document.getElementById('starters').innerHTML = '<div class="starters-box"><div class="starter-h">Try on ' + esc(presetName(settings.ep)) + '</div>' +
+    row('Search', sm.searches.map(t => chip('start', 'data-text="' + esc(t) + '"', '“' + esc(t) + '”'))) +
+    row('Browse a type', sm.types.map(t => chip('startType', 'data-iri="' + esc(t.iri) + '" title="' + esc(t.iri) + '"', t.label ? esc(t.label) : lblText(t.iri)))) +
+    row('Describe', sm.entities.map(e => chip('describe', 'data-iri="' + esc(e.iri) + '" title="' + esc(e.iri) + '"', esc(e.label)))) +
+    row('Or', [chip('browseAll', '', 'Explore the whole dataset')]) + '</div>';
+}
+// Start-page examples from VoID (top classes + one sample each) for endpoints without baked samples.
+async function voidStarters(my) {
+  if (!(await hasVoid()) || my !== gen || nav) return;
+  try {
+    const types = rows(await sparql(Qv.classes(0, 3), { quiet: true })).filter(r => r.type && r.type.type === 'uri').map(r => r.type.value);
+    const samples = await voidSamples(types);
+    if (my !== gen || nav || !types.length) return;
+    const ents = [...samples.values()].filter(v => v.type === 'uri').map(v => v.value);
+    wantLabels(types.concat(ents));
+    const chip = (act, attrs, html) => '<button class="chip" data-act="' + act + '" ' + attrs + '>' + html + '</button>';
+    const row = (label, chips) => chips.length ? '<div class="starter-row"><span class="starter-k">' + label + '</span>' + chips.join('') + '</div>' : '';
+    document.getElementById('starters').innerHTML = '<div class="starters-box"><div class="starter-h">Try on ' + esc(presetName(settings.ep)) + ' <span class="sub" style="font-weight:400;color:var(--muted)">— from its VoID statistics</span></div>' +
+      row('Browse a type', types.map(t => chip('startType', 'data-iri="' + esc(t) + '" title="' + esc(t) + '"', lblText(t)))) +
+      row('Describe', ents.map(e => chip('describe', 'data-iri="' + esc(e) + '" title="' + esc(e) + '"', lblText(e)))) +
+      row('Or', [chip('browseAll', '', 'Explore the whole dataset')]) + '</div>';
+  } catch {}
+}
+// The search placeholder suggests a starter term from the current endpoint's samples.
+function searchPlaceholder() {
+  const sm = ENDPOINT_SAMPLES[settings.ep], t = sm && sm.searches[0];
+  return 'Search text' + (t ? ' (e.g. ' + t + ')' : '') + ' — or paste an entity IRI / CURIE to describe it';
+}
+
+function renderTabs() {
+  const hasSets = nav.nodes.length > 0;
+  const tabs = [['entities', 'Entities', hasSets], ['values', nav.vp ? 'Values · ' + lblText(nav.vp.p) : 'Distinct (Count)', hasSets], ['describe', nav.ent ? 'Description · ' + lblText(nav.ent) : 'Description', !!nav.ent], ['sparql', 'SPARQL', true]];
+  document.getElementById('tabs').innerHTML = tabs.map(([k, t, ok]) =>
+    '<button class="tab" role="tab" aria-selected="' + (nav.view === k) + '" data-act="tab" data-view="' + k + '"' + (ok ? '' : ' disabled') + '>' + t + '</button>').join('');
+}
+
+function setTitle(i) {
+  const n = nav.nodes[i];
+  if (i === 0) {
+    const is = n.conds.find(c => c.t === 'is' && !c.neg);
+    if (is) return { k: 'Entity', t: is.v.value, iri: is.v.type === 'uri' ? is.v.value : null };
+    if (n.text) return { k: 'Text match', t: '“' + n.text + '”' };
+    const cls = n.conds.find(c => c.t === 'class' && !c.neg);
+    if (cls) return { k: 'Type', t: cls.iri, iri: cls.iri };
+    return { k: 'Dataset', t: 'All entities' };
+  }
+  return { k: n.via.dir === 'in' ? 'Referrers via' : 'Values of', t: n.via.p, iri: n.via.p };
+}
+
+function renderTrail(my, signal) {
+  const iris = [];
+  const key = navKey();
+  document.getElementById('trail').innerHTML = nav.nodes.map((n, i) => {
+    const st = setTitle(i);
+    if (st.iri) iris.push(st.iri);
+    const hop = i > 0 ? '<div class="hop" aria-hidden="true"><span class="arrow">' + (n.via.dir === 'in' ? '⟵' : '⟶') + '</span><span class="p">' + (n.via.dir === 'in' ? 'is ' : '') + lblText(n.via.p) + (n.via.dir === 'in' ? ' of' : '') + '</span></div>' : '';
+    const fc = n.conds.filter(c => c.t !== 'is').length + (i > 0 && n.text ? 1 : 0);
+    const cnt = countCache.has(key + i) ? countText(key + i) : 'counting…';
+    return hop + '<div class="set' + (i === nav.focus ? ' focus' : '') + '" role="button" tabindex="0" data-act="focus" data-i="' + i + '"' + (i === nav.focus ? ' aria-current="true"' : '') + '>' +
+      '<div class="k">' + esc(st.k) + (fc ? ' · ' + fc + ' filter' + (fc > 1 ? 's' : '') : '') + '</div>' +
+      '<div class="t">' + (st.iri ? lblText(st.iri) : esc(st.t)) + '</div>' +
+      '<div class="n" id="cnt' + i + '">' + cnt + '</div>' +
+      '<button class="x" data-act="drop" data-i="' + i + '" title="' + (i ? 'Remove this set and every set after it' : 'Clear the trail') + '" aria-label="Remove set">×</button></div>';
+  }).join('');
+  wantLabels(iris);
+  nav.nodes.forEach((_, i) => {
+    if (countCache.has(key + i)) return;
+    sparql(Q.count(i), { signal, quiet: i !== nav.focus }).then(j => {
+      const rs = rows(j), r = rs[0];
+      const n = r ? Number(r.n.value) : 0;
+      countCache.set(key + i, n);
+      if (rs.partial) countPartial.add(key + i);
+      if (my === gen && i === nav.focus && (nav.view === 'entities' || (nav.view === 'values' && !nav.vp))) setPager('main', { total: n, totalPartial: !!rs.partial });
+      if (my === gen) { const c = document.getElementById('cnt' + i); if (c) { c.textContent = countText(key + i); c.title = rs.partial ? 'Lower bound: the count was cut short at the Anytime deadline (' + secs(rs.partial.ms) + ')' : ''; } }
+    }).catch(e => {
+      if (my !== gen || e.message === 'cancelled') return;
+      const c = document.getElementById('cnt' + i);
+      if (c) { c.textContent = 'count timed out'; c.title = e.message; }
+    });
+  });
+}
+
+function condLabel(c) {
+  if (c.t === 'class') return { op: c.neg ? 'not a' : 'a', v: lbl(c.iri) };
+  if (c.t === 'is') return { op: c.neg ? 'is not' : 'is', v: c.v.type === 'uri' ? lbl(c.v.value) : '“' + esc(c.v.value.slice(0, 60)) + '”' };
+  const pre = c.dir === 'in' ? 'is ' + lbl(c.p) + ' of' : lbl(c.p);
+  if (c.v) return { op: c.neg ? '≠' : '=', v: pre + ' ' + (c.v.type === 'uri' ? lbl(c.v.value) : '“' + esc(c.v.value.slice(0, 60)) + '”') };
+  if ((c.lo != null && c.lo !== '') || (c.hi != null && c.hi !== '')) return { op: c.neg ? 'outside' : 'within', v: pre + ' [' + esc(c.lo || '…') + ' – ' + esc(c.hi || '…') + ']' };
+  return { op: c.neg ? 'lacks' : 'has', v: pre };
+}
+function renderFilters() {
+  const n = fnode();
+  const parts = [];
+  if (n.text) parts.push('<span class="chip"><span class="op">text</span><span class="v">“' + esc(n.text) + '”</span><button data-act="rmText" aria-label="Remove text filter">×</button></span>');
+  n.conds.forEach((c, j) => {
+    const L = condLabel(c);
+    parts.push('<span class="chip' + (c.neg ? ' neg' : '') + '"><span class="op">' + esc(L.op) + '</span><span class="v">' + L.v + '</span>' +
+      '<button data-act="negCond" data-j="' + j + '" title="Invert this filter" aria-label="Invert filter">±</button>' +
+      '<button data-act="rmCond" data-j="' + j + '" title="Remove" aria-label="Remove filter">×</button></span>');
+  });
+  if (settings.graph) parts.push('<span class="chip"><span class="op">graph</span><span class="v" title="' + esc(settings.graph) + '">' + esc(settings.graph) + '</span><button data-act="clearGraph" aria-label="Remove graph scope">×</button></span>');
+  document.getElementById('filters').innerHTML = parts.length ? '<div class="chips">' + parts.join('') + '</div>' : '<div class="empty">No filters on this set. Pick a type or a property value to narrow it.</div>';
+  document.getElementById('filterHint').textContent = parts.length ? parts.length + ' active' : '';
+}
+
+// A facet shows one page of rows (its own LIMIT/OFFSET) followed by its FCT-style pager.
+function facetList(id, items, rowFn) {
+  const { off } = pgState(id);
+  document.getElementById(id).innerHTML = (items.length ? '<ul class="rows">' + items.map(rowFn).join('') + '</ul>' : '<div class="empty">' + (off ? 'No rows on this page.' : 'None found.') + '</div>') + pagerSlot(id);
+  setPager(id, { count: items.length });
+  const f = document.querySelector('[data-filter="' + id + '"]');
+  if (f && f.value) applyFilter(f);
+  fitAside();
+}
+function applyFilter(input) {
+  const needle = input.value.toLowerCase();
+  document.querySelectorAll('#' + input.dataset.filter + ' .row').forEach(r => { r.hidden = !!needle && !r.textContent.toLowerCase().includes(needle) && !(r.dataset.iri || '').toLowerCase().includes(needle); });
+  fitAside();
+}
+// Pin the facet column only while it fits between the measured top bar and the bottom of the viewport.
+function fitAside() {
+  const a = document.querySelector('aside'), tb = document.querySelector('.topbar');
+  if (!a || !tb) return;
+  const topH = getComputedStyle(tb).position === 'sticky' ? tb.getBoundingClientRect().height : 0;
+  document.documentElement.style.setProperty('--top-h', Math.round(topH) + 'px');
+  const fits = innerWidth > 860 && a.scrollHeight <= innerHeight - topH - 24;
+  a.classList.toggle('pinned', fits);
+}
+
+function renderFacets(my, signal) {
+  const f = focus();
+  const key = navKey() + '|' + f + '|';
+  // One page of a facet (its own LIMIT/OFFSET), then its total for the pager; a first page that is
+  // not full already tells us the total, so the COUNT query is skipped.
+  const run = (id, name, qFn, totalQ, rowFn, after, plainFn) => {
+    const { off, lim } = pgState(id);
+    const q = qFn(off, lim);
+    queryLog.set(name, q);
+    pagerInfo.set(id, { count: 0, total: null });
+    const pkey = key + id + '|' + off + '|' + lim;
+    if (!cache.has(pkey)) document.getElementById(id).innerHTML = loading();
+    cached(pkey, async () => {
+      try { return rows(await sparql(q, { signal })); }
+      catch (x) {
+        if (!plainFn || !/estimated execution time/i.test(x.message)) throw x;
+        const q2 = plainFn(off, lim);
+        queryLog.set(name + ' (without counts)', q2);
+        const r = rows(await sparql(q2, { signal })); r.nocounts = true; return r;
+      }
+    })
+      .then(rs => {
+        if (my !== gen) return;
+        facetList(id, rs, rowFn);
+        wantLabels(rs.map(r => (r.c || r.p || {}).value).filter(Boolean));
+        const summ = document.getElementById(id).closest('details').querySelector('summary');
+        markPartial(summ, rs.partial, rs.unsorted);
+        if (rs.nocounts) { (summ.querySelector(':scope > .hint') || summ).insertAdjacentHTML('beforebegin', infoHtml('Counts skipped: the endpoint estimated the counting query would take longer than it allows, so this list shows the values without counts.')); return; }
+        const done = (t, part) => { if (my !== gen) return; setPager(id, { total: t, totalPartial: !!part }); if (after) after(t, part); fitAside(); };
+        if (off === 0 && rs.length < lim && !rs.partial) return done(rs.length);
+        queryLog.set(name + ' · total', totalQ);
+        cached(key + id + '|total', async () => { const tr = rows(await sparql(totalQ, { signal, quiet: true })); return tr[0] ? { n: Number(tr[0].n.value), partial: !!tr.partial } : null; })
+          .then(t => { if (t) done(t.n, t.partial); })
+          .catch(() => {});
+      })
+      .catch(e => { if (my === gen && e.message !== 'cancelled') document.getElementById(id).innerHTML = errBox(e); });
+  };
+  run('types', 'Types facet', (o, l) => Q.types(f, o, l), Q.typesTotal(f), r => '<li class="row" data-iri="' + esc(r.c.value) + '"><span class="lblw">' + lbl(r.c.value, 'data-act="addClass" data-iri="' + esc(r.c.value) + '" title="Keep only entities of this type"') + '</span><span class="cnt">' + (r.n ? fmtN(r.n.value) : '–') + '</span><button class="mini neg" data-act="addClass" data-neg="1" data-iri="' + esc(r.c.value) + '" title="Exclude this type" aria-label="Exclude type">⊘</button></li>',
+    (t, part) => document.getElementById('typesHint').textContent = t ? (part ? '≥ ' : '') + t.toLocaleString() : '', (o, l) => Q.typesPlain(f, o, l));
+  const propRow = dir => r => '<li class="row" data-iri="' + esc(r.p.value) + '"><span class="lblw">' + (dir === 'in' ? 'is ' : '') + lbl(r.p.value, 'data-act="values" data-p="' + esc(r.p.value) + '" data-dir="' + dir + '" title="Show the values of this property"') + (dir === 'in' ? ' of' : '') + '</span><span class="cnt">' + (r.n ? fmtN(r.n.value) : '–') + '</span>' +
+    '<button class="mini" data-act="pivot" data-p="' + esc(r.p.value) + '" data-dir="' + dir + '" title="Pivot: browse the set of ' + (dir === 'in' ? 'entities that point at this set' : 'values') + '" aria-label="Pivot">' + (dir === 'in' ? '⇠' : '⇢') + '</button>' +
+    '<button class="mini neg" data-act="hasProp" data-neg="1" data-p="' + esc(r.p.value) + '" data-dir="' + dir + '" title="Only entities lacking this property" aria-label="Lacks property">⊘</button></li>';
+  run('props', 'Properties facet', (o, l) => Q.props(f, 'out', o, l), Q.propsTotal(f, 'out'), propRow('out'),
+    (t, part) => document.getElementById('propsHint').textContent = t ? (part ? '≥ ' : '') + t.toLocaleString() : '', (o, l) => Q.propsPlain(f, 'out', o, l));
+  if (document.getElementById('fInprops').open) run('inprops', 'Referenced-by facet', (o, l) => Q.props(f, 'in', o, l), Q.propsTotal(f, 'in'), propRow('in'),
+    (t, part) => document.getElementById('inpropsHint').textContent = t ? (part ? '≥ ' : '') + t.toLocaleString() : '', (o, l) => Q.propsPlain(f, 'in', o, l));
+  else document.getElementById('inprops').innerHTML = '<div class="empty">Expand to load.</div>';
+  if (document.getElementById('fGraphs').open) run('graphs', 'Named graphs facet', (o, l) => Q.graphs(f, o, l), Q.graphsTotal(f), r => '<li class="row" data-iri="' + esc(r.g.value) + '"><span class="lblw">' + lbl(r.g.value, 'data-act="setGraph" data-iri="' + esc(r.g.value) + '" title="Restrict every query to this graph"') + '</span><span class="cnt">' + (r.n ? fmtN(r.n.value) : '–') + '</span></li>');
+  else document.getElementById('graphs').innerHTML = '<div class="empty">Expand to load.</div>';
+  document.getElementById('graphHint').textContent = settings.graph ? 'scoped' : '';
+}
+
+const viewHead = (title, sub, extra) => '<div class="view-head"><div><h2>' + title + '</h2>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>' + (extra || '') + '</div>';
+/* ---------- FCT-style pager: Show [n] · Go to [row] · a – b of total · ◀◀ ◀ ▶ ▶▶ ----------
+   'main' pages the Entities/Values result (floats at the bottom of the viewport while the results
+   are on screen, like FCT's floating pager); facet ids page their own SPARQL LIMIT/OFFSET. */
+const PAGE_SIZES = [10, 20, 50, 100, 150, 200, 300, 400, 500];
+const FACET_PAGE = 20;
+const pagerInfo = new Map();   // id -> { count: rows on this page, total: number | null }
+function pgState(id) {
+  if (id === 'main') return { off: nav.off || 0, lim: nav.lim || settings.limit };
+  if (id === 'desc') { const p = (nav.pg || {}).desc || {}; return { off: p.off || 0, lim: p.lim || 100 }; }   // FCT n_per_page
+  const p = (nav.pg || {})[id] || {};
+  return { off: p.off || 0, lim: p.lim || FACET_PAGE };
+}
+function pagerHtml(id) {
+  const { count, total, totalPartial } = pagerInfo.get(id) || { count: 0, total: null };
+  const { off, lim } = pgState(id);
+  const known = typeof total === 'number' && !(totalPartial && total === 0);   // a cut-short zero tells us nothing
+  const atStart = off === 0, atEnd = known && !totalPartial ? off + lim >= total : count < lim;
+  if (id !== 'main' && atStart && atEnd) return '';   // a facet that fits on one page needs no control
+  const sizes = PAGE_SIZES.includes(lim) ? PAGE_SIZES : PAGE_SIZES.concat(lim).sort((a, b) => a - b);
+  const pageMode = id === 'desc';   // FCT's description pager counts pages, not rows
+  const stats = pageMode
+    ? 'Page ' + (Math.floor(off / lim) + 1).toLocaleString() + ' of ' + (known ? (totalPartial ? '≥ ' : '') + Math.max(1, Math.ceil(total / lim)).toLocaleString() : '…')
+    : count ? (off + 1).toLocaleString() + ' – ' + (off + count).toLocaleString() + ' of ' + (known ? (totalPartial ? '≥ ' : '') + total.toLocaleString() : '…')
+    : (off ? 'no rows on this page' : 'none');
+  const b = (to, sym, title, dis) => '<button type="button" class="pgb" data-act="pg" data-id="' + id + '" data-to="' + to + '" title="' + title + '" aria-label="' + title + '"' + (dis ? ' disabled' : '') + '>' + sym + '</button>';
+  return '<form class="pgr' + (id === 'main' || id === 'desc' ? ' floating' : '') + '" data-pager="' + id + '" aria-label="Pages">' +
+    '<label>Show <select name="lim" aria-label="Rows per page">' + sizes.map(n => '<option' + (n === lim ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label>' +
+    '<label>Go to <input name="go" inputmode="numeric" autocomplete="off" placeholder="' + (pageMode ? 'page' : 'row') + '" aria-label="Go to ' + (pageMode ? 'page' : 'row') + '"></label>' +
+    '<span class="pgr-stats" title="' + (known ? '' : 'Total still being counted (or the count timed out)') + '">' + stats + '</span>' +
+    b('first', '◀◀', 'First page', atStart) + b('prev', '◀', 'Previous page', atStart) +
+    b('next', '▶', 'Next page', atEnd) + b('last', '▶▶', totalPartial ? 'Last page (unknown: the total was cut short)' : 'Last page', atEnd || !known || totalPartial) + '</form>';
+}
+const pagerSlot = id => '<div class="pgr-slot" data-slot="' + id + '"></div>';
+function setPager(id, patch) {
+  pagerInfo.set(id, Object.assign({ count: 0, total: null }, pagerInfo.get(id), patch));
+  document.querySelectorAll('[data-slot="' + id + '"]').forEach(s => { s.innerHTML = pagerHtml(id); });
+}
+function goPage(id, off, lim) {
+  const info = pagerInfo.get(id) || {};
+  if (typeof info.total === 'number') off = Math.min(off, Math.max(0, info.total - 1));   // "Go to" starts at that row, as in FCT
+  off = Math.max(0, off);
+  mutate(n => {
+    if (id === 'main') { n.off = off; n.lim = lim; }
+    else { n.pg = Object.assign({}, n.pg); n.pg[id] = { off, lim }; }
+  }, { keepView: true });
+}
+
+function renderView(my, signal) {
+  const el = document.getElementById('view');
+  const v = nav.view;
+  if (v === 'sparql') return renderSparql(el);
+  if (v === 'describe' && nav.ent) return renderDescribe(el, my, signal);
+  if (!nav.nodes.length) { el.innerHTML = '<div class="content"><div class="empty">Nothing to show.</div></div>'; return; }
+  if (v === 'values') return nav.vp ? renderValues(el, my, signal) : renderDistinct(el, my, signal);
+  if (isBrowseAll() && !nav.raw && settings.browseAll !== 'raw') return renderOverview(el, my, signal);
+  return renderEntities(el, my, signal);
+}
+
+// 'Explore' = a single root set with no text and no conditions, focused.
+const isBrowseAll = () => nav.nodes.length === 1 && nav.focus === 0 && !nav.nodes[0].text && !nav.nodes[0].conds.length;
+
+// Dataset overview for Explore: each entity type with a SAMPLE() member and its count (Settings → Explore shows).
+/* VoID statistics. Where an endpoint publishes class partitions (void:classPartition → void:class + void:entities), they
+   give per-type entity counts without scanning the data: Explore uses them (summed across described datasets) and
+   fills each type's sample with a cheap LIMIT 1 lookup (counts = the largest figure any description reports); the start page uses them for endpoints without baked samples.
+   Seen 2026-10-14 on URIBurner, UniProt (40,586,252,222 faldo:Region) and Cellosaurus; most presets publish none. */
+const VOID = 'http://rdfs.org/ns/void#';
+const Qv = {
+  body: '  ?ds <' + VOID + 'classPartition> ?cp . ?cp <' + VOID + 'class> ?type ; <' + VOID + 'entities> ?e .\n  FILTER (!isBlank (?type))',
+  // MAX, not SUM: stores often repeat whole-dataset figures in several VoID descriptions (UniProt: SUM gave 48.5bn
+  // faldo:Region against the published 40.6bn), so the largest figure reported for a class is the safer count.
+  classes: (off, lim) => sel('?type (MAX (?e) AS ?n)', Qv.body, 'GROUP BY ?type ORDER BY DESC (?n) ' + page(lim, off)),
+  total: () => sel('(COUNT (DISTINCT ?type) AS ?n)', Qv.body),
+  // one non-blank member per type, each its own LIMIT 1 sub-select: cheap even for billions of instances
+  samples: types => sel('?type ?sample', types.map(t => '  { SELECT (' + iriRef(t) + ' AS ?type) ?sample WHERE { ?sample ' + iriRef(typeProp()) + ' ' + iriRef(t) + ' . FILTER (!isBlank (?sample)) } LIMIT 1 }').join('\n  UNION\n'))
+};
+const voidState = new Map();   // endpoint + type property → Promise<boolean>: does it publish VoID class partitions?
+function hasVoid() {
+  const k = settings.ep + '|' + typeProp() + '|' + settings.graph;
+  if (!voidState.has(k)) voidState.set(k, sparql(Qv.classes(0, 1), { quiet: true, timeout: 10000 }).then(j => rows(j).length > 0).catch(() => false));
+  return voidState.get(k);
+}
+async function voidSamples(types, signal) {
+  if (!types.length) return new Map();
+  const q = Qv.samples(types);
+  queryLog.set('Overview · samples (LIMIT 1 per type)', q);
+  try { return new Map(rows(await sparql(q, { signal, quiet: true })).filter(r => r.type && r.sample).map(r => [r.type.value, r.sample])); }
+  catch (e) { if (e.message === 'cancelled') throw e; return new Map(); }
+}
+
+async function renderOverview(el, my, signal) {
+  const { off, lim } = pgState('main');
+  el.innerHTML = viewHead('Dataset overview', 'Checking the dataset’s VoID statistics…') + '<div class="content">' + loading() + '</div>';
+  pagerInfo.set('main', { count: 0, total: null });
+  const voidOk = !nav.liveCounts && await hasVoid();
+  if (my !== gen) return;
+  const q = voidOk ? Qv.classes(off, lim) : Q.overview(off, lim);
+  queryLog.set(voidOk ? 'Overview (types from VoID class partitions)' : 'Overview (types with a SAMPLE() entity)', q);
+  const toggle = voidOk
+    ? '<button class="btn" data-act="liveCounts" title="Count types with a live SAMPLE()/COUNT aggregate instead">Use live counts</button>'
+    : (nav.liveCounts ? '<button class="btn" data-act="voidCounts" title="Use the dataset’s published VoID statistics">Use VoID counts</button>' : '');
+  el.innerHTML = viewHead('Dataset overview',
+    voidOk ? 'Entity types and counts from the dataset’s VoID description (void:classPartition; largest figure reported per type), each with one sample entity. Click a type to browse it, or the sample to describe it.'
+           : 'Entity types with one SAMPLE() member each and how many entities carry the type (blank nodes excluded). Click a type to browse it, or the sample to describe it.',
+    '<div class="btnrow" style="margin:0">' + toggle + '<button class="btn" data-act="rawList" title="List every entity instead (can be very large)">Show raw entity list</button></div>') + '<div class="content">' + loading() + '</div>';
+  try {
+    const rs = await cached(navKey() + '|ov|' + (voidOk ? 'void|' : '') + typeProp() + '|' + off + '|' + lim, async () => rows(await sparql(q, { signal })));
+    if (my !== gen) return;
+    const list = rs.filter(r => r.type);
+    const paint = samples => {
+      cur.samples = list.map(r => samples ? samples.get(r.type.value) : r.sample).filter(Boolean);
+      wantLabels(list.flatMap(r => [r.type.value].concat(cur.samples.filter(x => x.type === 'uri').map(x => x.value))));
+      el.querySelector('.content').innerHTML = (list.length
+        ? '<table class="vals"><thead><tr><th>Type</th><th>Sample entity</th><th class="num">Entities</th></tr></thead><tbody>' +
+          list.map(r => {
+            const smp = samples ? samples.get(r.type.value) : r.sample;
+            return '<tr><td>' + (r.type.type === 'uri' ? lbl(r.type.value, 'data-act="addClass" data-iri="' + esc(r.type.value) + '" title="Browse entities of this type"') : termHtml(r.type)) + '</td>' +
+              '<td>' + (smp ? termHtml(smp) : (samples ? '<span class="sub" style="color:var(--muted)">—</span>' : '<span class="loading" style="padding:0">…</span>')) + '</td>' +
+              '<td class="num"><span class="cnt">' + fmtN(r.n.value) + '</span></td></tr>';
+          }).join('') + '</tbody></table>' + pagerSlot('main')
+        : '<div class="empty">No typed entities found' + (off ? ' on this page' : '') + '.</div>' + (off ? pagerSlot('main') : ''));
+      setPager('main', { count: list.length });
+      markPartial(el.querySelector('.view-head h2'), rs.partial, rs.unsorted);
+    };
+    paint(voidOk ? null : undefined);
+    if (voidOk) {
+      const samples = await cached(navKey() + '|ovs|' + typeProp() + '|' + off + '|' + lim, () => voidSamples(list.filter(r => r.type.type === 'uri').map(r => r.type.value), signal));
+      if (my !== gen) return;
+      paint(samples);
+    }
+    if (off === 0 && list.length < lim && !rs.partial) return setPager('main', { total: list.length });
+    const tq = voidOk ? Qv.total() : Q.overviewTotal();
+    queryLog.set('Overview · total', tq);
+    cached(navKey() + '|ovt|' + (voidOk ? 'void|' : '') + typeProp(), async () => { const tr = rows(await sparql(tq, { signal, quiet: true })); return tr[0] ? { n: Number(tr[0].n.value), partial: !!tr.partial } : null; })
+      .then(t => { if (my === gen && t) setPager('main', { total: t.n, totalPartial: t.partial }); }).catch(() => {});
+  } catch (e) {
+    if (my === gen && e.message !== 'cancelled') el.querySelector('.content').innerHTML = errBox(e);
+  }
+}
+
+async function renderEntities(el, my, signal) {
+  const f = focus();
+  const st = setTitle(f);
+  const { off, lim } = pgState('main');
+  const q = Q.entities(f, off, lim);
+  pagerInfo.set('main', { count: 0, total: countCache.has(navKey() + f) ? countCache.get(navKey() + f) : null, totalPartial: countPartial.has(navKey() + f) });
+  queryLog.set('Entities', q);
+  el.innerHTML = viewHead(esc(st.k) + ': ' + (st.iri ? lbl(st.iri) : esc(st.t)), 'Members of the focused set. Open one to describe it; use the facets to narrow the set or pivot from it.',
+    isBrowseAll() && settings.browseAll !== 'raw' ? '<button class="btn" data-act="overview">Back to the dataset overview</button>' : '') + '<div class="content">' + loading() + '</div>';
+  try {
+    // Ranking by IRI_RANK needs every match before it can return any; if the Anytime deadline arrives first the
+    // ranked list is empty, so fall back to the unranked list, which returns matches as they are found.
+    const rs = await cached(navKey() + '|e|' + f + '|' + off + '|' + lim, async () => {
+      let r1;
+      try { r1 = rows(await sparql(q, { signal })); }
+      catch (x) {
+        // DB.DBA.IRI_RANK is installed by the FCT package, not core Virtuoso (SR185 "Undefined procedure" without it):
+        // remember the endpoint and list the set unranked.
+        if (!/IRI_RANK/.test(x.message)) throw x;
+        noRank.add(settings.ep);
+        const q0 = Q.entitiesPlain(f, off, lim);
+        queryLog.set('Entities', q0);
+        return rows(await sparql(q0, { signal }));
+      }
+      if (!(r1.partial && !r1.length && profile() === 'virtuoso' && !noRank.has(settings.ep))) return r1;
+      const q2 = Q.entitiesPlain(f, off, lim);
+      queryLog.set('Entities (unranked fallback)', q2);
+      const r2 = rows(await sparql(q2, { signal }));
+      r2.unranked = true;
+      return r2;
+    });
+    if (my !== gen) return;
+    const terms = rs.map(r => r[sv(f).slice(1)]).filter(Boolean);
+    cur.entities = terms;
+    const iris = terms.filter(t => t.type === 'uri').map(t => t.value);
+    wantLabels(iris);
+    const paint = () => {
+      if (my !== gen) return;
+      const box = el.querySelector('.content');
+      const note = rs.unranked ? '<div class="partial" role="note"><strong>Unranked</strong> — ranking by entity rank could not finish within the time budget, so these members are listed in the order found.</div>' : '';
+      markPartial(el.querySelector('.view-head h2'), rs.partial, rs.unsorted);
+      if (!terms.length) { box.innerHTML = note + '<div class="empty">No entities in this set' + (off ? ' on this page' : '') + '.</div>' + (off ? pagerSlot('main') : ''); setPager('main', { count: 0 }); return; }
+      box.innerHTML = note + '<ul class="ents">' + terms.map((t, k) => {
+        if (t.type !== 'uri') return '<li class="ent"><div class="thumb">“</div><div>' + termHtml(t) + '</div><div class="acts">' + (t.type === 'literal' ? '<button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this value">=</button>' : '') + '</div></li>';
+        const c = cards.get(t.value) || {};
+        return '<li class="ent">' + thumb(t.value, c, true) +
+          '<div>' + lbl(t.value, null, 'name') + (c.desc ? '<div class="desc">' + esc(c.desc) + '</div>' : '') + '</div>' +
+          '<div class="acts"><button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this entity" aria-label="Narrow to this entity">=</button><button class="mini" data-act="explore" data-iri="' + esc(t.value) + '" title="Start a new trail from this entity" aria-label="Start trail">⇢</button><a class="mini" href="' + esc(t.value) + '" target="_blank" rel="noopener noreferrer" title="Open the IRI itself" aria-label="Open IRI">↗</a></div></li>';
+      }).join('') + '</ul>' + pagerSlot('main');
+      setPager('main', { count: terms.length });
+    };
+    paint();
+    if (iris.length) { await fetchCards(iris, signal); paint(); }
+  } catch (e) {
+    if (my === gen && e.message !== 'cancelled') el.querySelector('.content').innerHTML = errBox(e);
+  }
+}
+
+// FCT 'Distinct (Count)': distinct members of the focused set with their solution counts. Clicking one narrows the
+// set to it (FCT select_value); ⊘ excludes it. Paged by the shared pager; the total is the focused set's count.
+async function renderDistinct(el, my, signal) {
+  const f = focus(), st = setTitle(f);
+  const { off, lim } = pgState('main');
+  const q = Q.distinct(f, off, lim);
+  const ck = navKey() + f;
+  pagerInfo.set('main', { count: 0, total: countCache.has(ck) ? countCache.get(ck) : null, totalPartial: countPartial.has(ck) });
+  queryLog.set('Distinct (Count)', q);
+  el.innerHTML = viewHead('Distinct (Count): ' + (st.iri ? lbl(st.iri) : esc(st.t)), 'Each distinct member of the focused set, with the number of query solutions that reach it. Click one to narrow the set to it; ⊘ excludes it.') + '<div class="content">' + loading() + '</div>';
+  try {
+    const rs = await cached(navKey() + '|d|' + f + '|' + off + '|' + lim, async () => rows(await sparql(q, { signal })));
+    if (my !== gen) return;
+    const key = sv(f).slice(1);
+    const list = rs.filter(r => r[key]);
+    cur.values = list.map(r => r[key]);
+    wantLabels(cur.values.filter(v => v.type === 'uri').map(v => v.value));
+    const cell = (v, k) => v.type === 'bnode' ? termHtml(v) : v.type === 'uri'
+      ? lbl(v.value, 'data-act="pickVal" data-k="' + k + '" title="Narrow the set to this value"')
+      : '<button class="lbl" data-act="pickVal" data-k="' + k + '" title="Narrow the set to this value">' + esc(v.value.length > 200 ? v.value.slice(0, 200) + '…' : v.value) + '</button>' + dtBadge(v);
+    el.querySelector('.content').innerHTML = (list.length
+      ? '<table class="vals"><thead><tr><th>Value</th><th class="num">Count</th><th class="acts"><span class="sr">Actions</span></th></tr></thead><tbody>' +
+        list.map((r, k) => '<tr><td>' + cell(r[key], k) + '</td><td class="num"><span class="cnt">' + fmtN(r.n.value) + '</span></td><td class="acts">' +
+          (r[key].type !== 'bnode' ? '<button class="mini neg" data-act="pickVal" data-neg="1" data-k="' + k + '" title="Exclude this value" aria-label="Exclude value">⊘</button> ' : '') +
+          (r[key].type === 'uri' ? '<button class="mini" data-act="describe" data-iri="' + esc(r[key].value) + '" title="Describe" aria-label="Describe">ℹ</button>' : '') + '</td></tr>').join('') +
+        '</tbody></table>' + pagerSlot('main')
+      : '<div class="empty">No values' + (off ? ' on this page' : '') + '.</div>' + (off ? pagerSlot('main') : ''));
+    setPager('main', { count: list.length });
+    markPartial(el.querySelector('.view-head h2'), rs.partial, rs.unsorted);
+  } catch (e) {
+    if (my === gen && e.message !== 'cancelled') el.querySelector('.content').innerHTML = errBox(e);
+  }
+}
+
+async function renderValues(el, my, signal) {
+  const f = focus(), { p, dir } = nav.vp;
+  const { off, lim } = pgState('main');
+  const q = Q.values(f, p, dir, off, lim);
+  pagerInfo.set('main', { count: 0, total: null });
+  queryLog.set('Values', q);
+  const title = (dir === 'in' ? 'Entities pointing at this set via ' : 'Values of ') + lbl(p);
+  const acts = '<div class="btnrow" style="margin:0"><button class="btn primary" data-act="pivot" data-p="' + esc(p) + '" data-dir="' + dir + '" title="Make this set of values the new focus">' + (dir === 'in' ? '⇠' : '⇢') + ' Pivot to these</button>' +
+    '<button class="btn" data-act="hasProp" data-p="' + esc(p) + '" data-dir="' + dir + '">Has any</button><button class="btn" data-act="hasProp" data-neg="1" data-p="' + esc(p) + '" data-dir="' + dir + '">Lacks</button>' +
+    '<button class="btn" data-act="clearVp" title="Distinct members of the focused set itself, with counts">Distinct (Count) of the set</button></div>';
+  el.innerHTML = viewHead(title, 'Distinct values, with how many members of the focused set carry each. Click a value to filter by it.', acts) + '<div class="content">' + loading() + '</div>';
+  wantLabels([p]);
+  try {
+    const rs = await cached(navKey() + '|v|' + f + '|' + p + '|' + dir + '|' + off + '|' + lim, async () => rows(await sparql(q, { signal })));
+    if (my !== gen) return;
+    cur.values = rs.map(r => r.v);
+    wantLabels(rs.filter(r => r.v.type === 'uri').map(r => r.v.value));
+    const ordered = dir === 'out' && rs.some(r => r.v.type !== 'uri' && r.v.datatype && ORDERED.test(r.v.datatype));
+    const valCell = (r, k) => r.v.type === 'bnode' ? termHtml(r.v) :
+      (r.v.type === 'uri' ? lbl(r.v.value, 'data-act="addVal" data-k="' + k + '" title="Keep entities with this value"') : '<button class="lbl" data-act="addVal" data-k="' + k + '" title="Keep entities with this value">' + esc(r.v.value.length > 200 ? r.v.value.slice(0, 200) + '…' : r.v.value) + '</button>' + dtBadge(r.v));
+    el.querySelector('.content').innerHTML = '<div id="rangeBox"></div>' + (rs.length ? '<table class="vals"><thead><tr><th>Value</th><th class="num">Entities</th><th class="acts"><span class="sr">Actions</span></th></tr></thead><tbody>' + rs.map((r, k) =>
+      '<tr><td>' + valCell(r, k) + '</td><td class="num"><span class="cnt">' + fmtN(r.n.value) + '</span></td><td class="acts">' +
+      (r.v.type !== 'bnode' ? '<button class="mini neg" data-act="addVal" data-neg="1" data-k="' + k + '" title="Exclude this value" aria-label="Exclude value">⊘</button> ' : '') +
+      (r.v.type === 'uri' ? '<button class="mini" data-act="describe" data-iri="' + esc(r.v.value) + '" title="Describe" aria-label="Describe">ℹ</button>' : '') + '</td></tr>').join('') + '</tbody></table>' + pagerSlot('main') : '<div class="empty">No values.</div>');
+    setPager('main', { count: rs.length });
+    markPartial(el.querySelector('.view-head h2'), rs.partial, rs.unsorted);
+    if (off === 0 && rs.length < lim && !rs.partial) setPager('main', { total: rs.length });
+    else {
+      const tq = Q.valuesTotal(f, p, dir);
+      queryLog.set('Values · total', tq);
+      cached(navKey() + '|vt|' + f + '|' + p + '|' + dir, async () => { const tr = rows(await sparql(tq, { signal, quiet: true })); return tr[0] ? { n: Number(tr[0].n.value), partial: !!tr.partial } : null; })
+        .then(t => { if (my === gen && t) setPager('main', { total: t.n, totalPartial: t.partial }); }).catch(() => {});
+    }
+    if (ordered) {
+      const rq = Q.range(f, p);
+      queryLog.set('Value range', rq);
+      sparql(rq, { signal, quiet: true }).then(j => {
+        const r = rows(j)[0];
+        const box = document.getElementById('rangeBox');
+        if (!r || my !== gen || !box) return;
+        const dt = r.dt ? r.dt.value : '';
+        box.innerHTML = '<form class="range" data-form="range"><strong>Range</strong><input class="field" name="lo" value="' + esc(r.min ? r.min.value : '') + '" aria-label="Lower bound"> to <input class="field" name="hi" value="' + esc(r.max ? r.max.value : '') + '" aria-label="Upper bound"><input type="hidden" name="dt" value="' + esc(dt) + '"><button class="btn">Apply range</button><span style="color:var(--muted)">' + esc(curie(dt) || '') + '</span></form>';
+      }).catch(() => {});
+    }
+  } catch (e) {
+    if (my === gen && e.message !== 'cancelled') el.querySelector('.content').innerHTML = errBox(e);
+  }
+}
+
+async function renderDescribe(el, my, signal) {
+  const e = nav.ent;
+  const all = !!nav.allLangs;
+  const { off, lim } = pgState('desc');
+  const dd = dedupeOn();
+  let sampled = !all && dd;
+  let q = Q.describePage(e, sampled, off, lim);
+  queryLog.set('Describe · statements (page)', q);
+  pagerInfo.set('desc', { count: 0, total: null });
+  el.innerHTML = '<div class="content" style="padding-top:14px">' + loading('Describing…') + '</div>';
+  wantLabels([e]);
+  const dkey = JSON.stringify([settings.ep, settings.graph, profile(), prefLang(), e, dd]);
+  try {
+    // An endpoint that rejects the SAMPLE()/sub-select form gets the plain statement list instead.
+    const rs = await cached('d|' + dkey + '|' + all + '|' + off + '|' + lim, async () => {
+      try { return rows(await sparql(q, { signal })); }
+      catch (x) {
+        if (!sampled || x.message === 'cancelled' || !/^HTTP /.test(x.message)) throw x;
+        sampled = false; q = Q.describePage(e, false, off, lim);
+        queryLog.set('Describe · statements (page)', q);
+        const r = rows(await sparql(q, { signal })); r.unsampled = true; return r;
+      }
+    });
+    if (my !== gen) return;
+    if (rs.unsampled) sampled = false;
+    await fetchCards([e], signal);
+    if (my !== gen) return;
+    // Group this page's statements by direction and predicate, keeping the server's order.
+    const groups = [];
+    rs.forEach(r => {
+      const dir = r.dir && r.dir.value === 'in' ? 'in' : 'out', p = r.p.value;
+      let g = groups[groups.length - 1];
+      if (!g || g.dir !== dir || g.p !== p) groups.push(g = { dir, p, vals: [] });
+      g.vals.push(r.o);
+      if (r.n && Number(r.n.value) > 1) g.variants = Number(r.n.value) - 1;
+    });
+    const iris = new Set([e]);
+    groups.forEach(g => { iris.add(g.p); g.vals.forEach(v => v.type === 'uri' && iris.add(v.value)); });
+    wantLabels([...iris]);
+    const c = cards.get(e) || {};
+    const groupHtml = g => {
+      const pv = '<button class="mini" data-act="explorePivot" data-iri="' + esc(e) + '" data-p="' + esc(g.p) + '" data-dir="' + g.dir + '" title="Browse every value as a set">' + (g.dir === 'in' ? '⇠' : '⇢') + ' as set</button>';
+      return '<div class="prop-group"><div class="pn"><span>' + (g.dir === 'in' ? 'is ' : '') + lbl(g.p) + (g.dir === 'in' ? ' of' : '') + '</span>' + (g.vals.some(v => v.type === 'uri') ? pv : '') + '</div><ul>' +
+        g.vals.map(v => '<li>' + termHtml(v) + '</li>').join('') +
+        (g.variants ? '<li><button class="more" data-act="langs" title="Annotation literals are SAMPLE()d to one per property">+' + g.variants + ' more value' + (g.variants > 1 ? 's' : '') + ' — show all</button></li>' : '') + '</ul></div>';
+    };
+    const outs = groups.filter(g => g.dir === 'out'), ins = groups.filter(g => g.dir === 'in');
+    el.innerHTML = '<div class="content" style="padding-top:14px">' +
+      '<div class="desc-head">' + thumb(e, c, false).replace('class="thumb"', 'class="thumb" style="width:96px;height:96px;font-size:30px"') + '<div><h3>' + lbl(e) + '</h3>' + (c.desc ? '<p>' + esc(c.desc) + '</p>' : '') +
+      '<div class="btnrow"><button class="btn primary" data-act="explore" data-iri="' + esc(e) + '">⇢ Start a trail here</button>' + (nav.nodes.length ? '<button class="btn" data-act="tab" data-view="entities">Back to the set</button>' : '') +
+      '<a class="btn" href="' + esc(e) + '" target="_blank" rel="noopener noreferrer">Open IRI ↗</a>' + (dd ? '<button class="btn" data-act="langs" title="Annotation literals (labels, comments, names…) are SAMPLE()d to one value per property">' + (all ? 'One value per annotation' : 'All values &amp; languages') + '</button>' : '') + '</div></div></div>' +
+      (outs.length ? '<h4 class="sec">Attributes</h4>' + outs.map(groupHtml).join('') : '') +
+      (ins.length ? '<h4 class="sec">Referenced by</h4>' + ins.map(groupHtml).join('') : '') +
+      (!groups.length ? '<div class="empty">' + (off ? 'No statements on this page.' : 'No statements' + (settings.graph ? ' in the scoped graph' : '') + '.') + '</div>' : '') +
+      pagerSlot('desc') + '</div>';
+    setPager('desc', { count: rs.length });
+    markPartial(el.querySelector('.desc-head h3'), rs.partial, rs.unsorted);
+    if (off === 0 && rs.length < lim && !rs.partial) return setPager('desc', { total: rs.length });
+    const tq = Q.describeTotal(e, sampled);
+    queryLog.set('Describe · statements total', tq);
+    cached('dt|' + dkey + '|' + sampled, async () => { const tr = rows(await sparql(tq, { signal, quiet: true })); return tr[0] ? { n: Number(tr[0].n.value), partial: !!tr.partial } : null; })
+      .then(t => { if (my === gen && t) setPager('desc', { total: t.n, totalPartial: t.partial }); }).catch(() => {});
+  } catch (err) {
+    if (my === gen && err.message !== 'cancelled') el.innerHTML = '<div class="content" style="padding-top:14px">' + errBox(err) + '</div>';
+  }
+}
+
+function renderSparql(el) {
+  const items = [...queryLog.entries()];
+  el.innerHTML = viewHead('Generated SPARQL', 'Each panel is one query against ' + esc(settings.ep) + ' (profile: ' + esc(profile()) + ')' + (proxied() ? ', sent through the URIBurner SPARQL-FED proxy as SELECT * WHERE { SERVICE &lt;endpoint&gt; { … } }' : '') + '. Labels, descriptions and thumbnails are fetched by small VALUES queries.') + '<div class="content">' + (items.length ? items.map(([name, q], k) => {
+    const url = settings.ep + (settings.ep.includes('?') ? '&' : '?') + new URLSearchParams({ query: q });
+    const m = queryMeta.get(q);
+    const metaHtml = m ? '<span class="qmeta' + (m.partial ? ' part' : '') + '" title="' + esc(m.msg || '') + '">' + m.ms.toLocaleString() + ' ms' + (m.partial ? ' · partial (Anytime)' : '') + '</span>' : '';
+    return '<div class="q-item"><h4>' + esc(name) + ' ' + metaHtml + ' <button class="mini" data-act="copy" data-k="' + k + '">Copy</button><a class="mini" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Run at endpoint ↗</a></h4><pre class="q">' + esc(q) + '</pre></div>';
+  }).join('') : '<div class="empty">No queries yet.</div>') + '</div>';
+}
+
+/* ---------- actions ---------- */
+function mutate(fn, opts = {}) {
+  nav = JSON.parse(JSON.stringify(nav));
+  fn(nav);
+  if (!opts.keepView) { nav.view = 'entities'; nav.off = 0; nav.pg = {}; }
+  go(false);
+}
+const sameCond = (a, b) => JSON.stringify(Object.assign({}, a, { neg: 0 })) === JSON.stringify(Object.assign({}, b, { neg: 0 }));
+function addCond(c) { mutate(n => { const node = n.nodes[n.focus]; node.conds = node.conds.filter(x => !sameCond(x, c)); node.conds.push(c); }); }
+function pivot(p, dir) {
+  mutate(n => {
+    n.nodes = n.nodes.slice(0, n.focus + 1);
+    n.nodes.push({ via: { p, dir }, text: '', scope: 'label', conds: [] });
+    n.focus = n.nodes.length - 1;
+    n.vp = null;
+  });
+}
+const entityNode = iri => ({ via: null, text: '', scope: 'label', conds: [{ t: 'is', v: { type: 'uri', value: iri } }] });
+const emptyNode = (text, scope) => ({ via: null, text: text || '', scope: scope || 'label', conds: [] });
+
+/* ---------- Share ---------- */
+let toastTimer = null;
+function toast(html, sticky) {
+  const t = document.getElementById('toast');
+  t.innerHTML = html; t.hidden = false;
+  clearTimeout(toastTimer);
+  if (!sticky) toastTimer = setTimeout(() => { t.hidden = true; }, 3500);
+}
+// The URL hash already holds the whole view state, so the current address is the share link.
+async function shareView() {
+  const url = location.href;
+  if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+    try { await navigator.share({ title: document.title, url }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast('Link to this view copied to the clipboard.'); }
+  catch {
+    toast('Copy this link to share the view:<input readonly value="' + esc(url) + '" aria-label="Link to this view">', true);
+    const i = document.querySelector('#toast input'); i.focus(); i.select();
+    setTimeout(() => { document.getElementById('toast').hidden = true; }, 12000);
+  }
+}
+
+/* ---------- Export: RDF data dumps of the current view (Turtle / JSON-LD) ----------
+   Triples are fetched with a plain SPARQL SELECT ?xs ?xp ?xo (so exports work wherever browsing works, including
+   the UB proxy and XML-only endpoints) and serialized here. "This page" = statements about the items on screen;
+   "Whole view" = the data behind the whole view, capped at EXPORT_CAP triples. */
+const EXPORT_CAP = 10000;
+function viewKind() {
+  if (!nav) return null;
+  if (nav.view === 'describe' && nav.ent) return 'describe';
+  if (!nav.nodes.length) return null;
+  if (nav.view === 'values') return nav.vp ? 'values' : 'distinct';
+  if (nav.view === 'entities') return isBrowseAll() && !nav.raw && settings.browseAll !== 'raw' ? 'overview' : 'entities';
+  return null;
+}
+const EXPORT_HINTS = {
+  describe: 'This page: the statements on the current page. Whole view: every statement about the entity, outgoing and incoming.',
+  entities: 'This page: statements about the entities listed. Whole view: statements about every member of the set.',
+  distinct: 'This page: statements about the values listed. Whole view: statements about every member of the set.',
+  values: 'This page: statements about the values listed. Whole view: the set → property → value triples.',
+  overview: 'This page: statements about the sample entities. Whole view: the entity → type triples.'
+};
+function toggleExportMenu(open) {
+  const m = document.getElementById('exportMenu'), b = document.getElementById('exportBtn');
+  if (!m) return;
+  const show = open === undefined ? m.hidden : open;
+  if (show) document.getElementById('exportScopeHint').textContent = EXPORT_HINTS[viewKind()] || 'Open a view (entities, values, a description or the overview) to export its data.';
+  m.hidden = !show; b.setAttribute('aria-expanded', String(show));
+}
+function exportQuery(scope) {
+  const kind = viewKind();
+  if (!kind) return null;
+  const T = (body, tail) => prologue() + 'SELECT ?xs ?xp ?xo\n' + fromClause() + 'WHERE {\n' + body + '\n}\n' + (tail || 'LIMIT ' + EXPORT_CAP);
+  const valuesOf = terms => { const iris = [...new Set(terms.filter(t => t && t.type === 'uri').map(t => t.value))]; return iris.length ? '  VALUES ?xs { ' + iris.map(iriRef).join(' ') + ' }\n  ?xs ?xp ?xo .' : null; };
+  const f = nav.nodes.length ? focus() : 0;
+  if (kind === 'describe') {
+    const e = iriRef(nav.ent);
+    const body = '  { ' + e + ' ?xp ?xo . BIND (' + e + ' AS ?xs) BIND ("out" AS ?dir) }\n  UNION { ?xs ?xp ' + e + ' . BIND (' + e + ' AS ?xo) BIND ("in" AS ?dir) }';
+    if (scope === 'page') { const { off, lim } = pgState('desc'); return T(body, 'ORDER BY DESC (?dir) ?xp ' + page(lim, off)); }
+    return T(body);
+  }
+  if (scope === 'page') {
+    const b = valuesOf(kind === 'entities' ? cur.entities : kind === 'overview' ? (cur.samples || []) : cur.values);
+    return b ? T(b) : null;
+  }
+  if (kind === 'entities' || kind === 'distinct')
+    return T('  { SELECT DISTINCT (' + sv(f) + ' AS ?xs) WHERE {\n' + whereBody() + '\n  } }\n  ?xs ?xp ?xo .');
+  if (kind === 'values') {
+    const { p, dir } = nav.vp, P_ = iriRef(p);
+    return T(whereBody() + '\n  ' + (dir === 'in' ? '?xs ' + P_ + ' ' + sv(f) + ' . BIND (' + sv(f) + ' AS ?xo)' : sv(f) + ' ' + P_ + ' ?xo . BIND (' + sv(f) + ' AS ?xs)') + ' BIND (' + P_ + ' AS ?xp)');
+  }
+  if (kind === 'overview') { const tp = iriRef(typeProp()); return T('  ?xs ' + tp + ' ?xo . FILTER (!isBlank (?xs) && !isBlank (?xo)) BIND (' + tp + ' AS ?xp)'); }
+  return null;
+}
+
+// ---- serializers ----
+const XSD_STRING = NS.xsd + 'string';
+const usedPrefixes = new Map();
+function compactIri(iri) {          // prefix:local only when it is a safe Turtle/JSON-LD compact IRI
+  const c = curie(iri);
+  if (!c) return null;
+  const i = c.indexOf(':'), pfx = c.slice(0, i), local = c.slice(i + 1);
+  if (!/^[A-Za-z][\w-]*$/.test(pfx) || !/^[A-Za-z0-9_](?:[\w.-]*[\w-])?$/.test(local)) return null;
+  usedPrefixes.set(pfx, NS[pfx] || ([...nsIndex].find(([ns, p]) => p === pfx) || [])[0] || derivedPrefixNs(pfx));
+  return c;
+}
+const ttlIri = iri => compactIri(iri) || '<' + iri.replace(/[\x00-\x20<>"{}|^`\\]/g, ch => '\\u' + ch.charCodeAt(0).toString(16).padStart(4, '0')) + '>';
+function ttlTerm(t) {
+  if (t.type === 'uri') return ttlIri(t.value);
+  if (t.type === 'bnode') return '_:' + t.value.replace(/[^\w-]/g, '_');
+  let s = '"' + t.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t') + '"';
+  if (t['xml:lang']) s += '@' + t['xml:lang'];
+  else if (t.datatype && t.datatype !== XSD_STRING) s += '^^' + ttlIri(t.datatype);
+  return s;
+}
+function bySubject(triples) {
+  const m = new Map();
+  triples.forEach(([s, p, o]) => {
+    const sk = (s.type === 'bnode' ? '_:' : '') + s.value;
+    if (!m.has(sk)) m.set(sk, { s, preds: new Map() });
+    const pm = m.get(sk).preds;
+    if (!pm.has(p.value)) pm.set(p.value, []);
+    pm.get(p.value).push(o);
+  });
+  return m;
+}
+function toTurtle(triples, meta) {
+  usedPrefixes.clear();
+  const RDF_TYPE = NS.rdf + 'type';
+  const blocks = [...bySubject(triples).values()].map(({ s, preds }) => {
+    const ps = [...preds.entries()].sort((a, b) => (b[0] === RDF_TYPE) - (a[0] === RDF_TYPE));
+    return ttlTerm(s) + '\n' + ps.map(([p, os]) => '    ' + (p === RDF_TYPE ? 'a' : ttlIri(p)) + ' ' + os.map(ttlTerm).join(' ,\n        ')).join(' ;\n') + ' .';
+  });
+  const head = ['# RDF data dump exported by SPARQL Faceted Browser',
+    '# View:     ' + meta.view, '# Endpoint: ' + meta.ep, '# Scope:    ' + meta.scope, '# Created:  ' + meta.when,
+    '# Triples:  ' + triples.length + (meta.capped ? ' (capped at ' + EXPORT_CAP + '; the view holds more)' : '') + (meta.partial ? ' (partial: the query was cut short by Virtuoso Anytime)' : ''),
+    '# Query:', ...meta.query.split('\n').map(l => '#   ' + l)];
+  const prefixes = [...usedPrefixes.entries()].sort().map(([p, ns]) => '@prefix ' + p + ': <' + ns + '> .');
+  return head.join('\n') + '\n\n' + prefixes.join('\n') + (prefixes.length ? '\n\n' : '') + blocks.join('\n\n') + '\n';
+}
+function toJsonLd(triples, meta) {
+  usedPrefixes.clear();
+  const RDF_TYPE = NS.rdf + 'type';
+  const id = t => t.type === 'bnode' ? '_:' + t.value.replace(/[^\w-]/g, '_') : (compactIri(t.value) || t.value);
+  const graph = [...bySubject(triples).values()].map(({ s, preds }) => {
+    const node = { '@id': id(s) };
+    preds.forEach((os, p) => {
+      if (p === RDF_TYPE && os.every(o => o.type !== 'literal')) { node['@type'] = os.map(id); return; }
+      node[compactIri(p) || p] = os.map(o => o.type === 'literal'
+        ? Object.assign({ '@value': o.value }, o['xml:lang'] ? { '@language': o['xml:lang'] } : o.datatype && o.datatype !== XSD_STRING ? { '@type': compactIri(o.datatype) || o.datatype } : {})
+        : { '@id': id(o) });
+    });
+    return node;
+  });
+  const context = Object.fromEntries([...usedPrefixes.entries()].sort());
+  // "_export" is not mapped in the @context, so JSON-LD processors ignore it: provenance without extra triples.
+  return JSON.stringify({ '@context': context, '_export': { tool: 'SPARQL Faceted Browser', view: meta.view, endpoint: meta.ep, scope: meta.scope, created: meta.when, triples: triples.length, capped: meta.capped, partial: meta.partial, query: meta.query }, '@graph': graph }, null, 2) + '\n';
+}
+function download(text, name, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: name });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+async function exportView(fmt, scope) {
+  const q = exportQuery(scope);
+  if (!q) return toast('Nothing to export in this view yet.');
+  toast('Preparing the ' + (fmt === 'ttl' ? 'Turtle' : 'JSON-LD') + ' export…', true);
+  try {
+    const rs = rows(await sparql(q, {}));
+    const seen = new Set(), triples = [];
+    rs.forEach(r => {
+      if (!r.xs || !r.xp || !r.xo) return;
+      const k = JSON.stringify([r.xs, r.xp.value, r.xo]);
+      if (!seen.has(k)) { seen.add(k); triples.push([r.xs, r.xp, r.xo]); }
+    });
+    // Cut short by Virtuoso Anytime before any data came back: don't hand over an empty file.
+    if (!triples.length && rs.partial) {
+      toast('The endpoint stopped this export after ' + secs(rs.partial.ms) + ' before returning any data (Anytime limit, often because it is busy). ' +
+        '<button class="mini" data-act="export" data-fmt="' + fmt + '" data-scope="' + scope + '">Try again</button>', true);
+      return;
+    }
+    const meta = { view: location.href, ep: settings.ep, scope: scope === 'page' ? 'this page' : 'whole view', when: new Date().toISOString(), query: q, capped: scope === 'view' && rs.length >= EXPORT_CAP, partial: !!rs.partial };
+    const kind = viewKind(), title = (kind === 'describe' ? labelOf(nav.ent) : setTitle(focus()).t) || 'view';
+    const slug = String(title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'view';
+    const name = 'sparql-export-' + kind + '-' + slug + '-' + (scope === 'page' ? 'page' : 'all') + (fmt === 'ttl' ? '.ttl' : '.jsonld');
+    download(fmt === 'ttl' ? toTurtle(triples, meta) : toJsonLd(triples, meta), name, fmt === 'ttl' ? 'text/turtle;charset=utf-8' : 'application/ld+json;charset=utf-8');
+    toast('Exported ' + triples.length.toLocaleString() + ' triples to ' + esc(name) + (meta.capped ? ' (capped at ' + EXPORT_CAP.toLocaleString() + ')' : '') + (meta.partial ? ' — partial (Anytime)' : '') + '.');
+  } catch (e) {
+    if (e.message !== 'cancelled') toast('Export failed: ' + esc(e.message));
+  }
+}
+
+const actions = {
+  start: d => { newNav([emptyNode(d.text)]); go(false); },
+  browseAll: () => { newNav([emptyNode()]); go(false); },
+  focus: d => { if (+d.i === nav.focus && nav.view === 'entities') return; mutate(n => { n.focus = +d.i; n.vp = null; }); },
+  drop: d => {
+    const i = +d.i;
+    if (i === 0) { nav = null; history.pushState(null, '', location.pathname + location.search); render(); return; }
+    mutate(n => { n.nodes = n.nodes.slice(0, i); n.focus = Math.min(n.focus, i - 1); n.vp = null; });
+  },
+  addClass: d => addCond({ t: 'class', iri: d.iri, neg: d.neg ? 1 : 0 }),
+  hasProp: d => addCond({ t: 'pv', p: d.p, dir: d.dir, v: null, neg: d.neg ? 1 : 0 }),
+  values: d => mutate(n => { n.vp = { p: d.p, dir: d.dir }; n.view = 'values'; n.off = 0; }, { keepView: true }),
+  pivot: d => pivot(d.p, d.dir),
+  pickVal: d => {
+    const v = cur.values[+d.k];
+    if (!v || v.type === 'bnode') return;
+    mutate(n => {
+      const node = n.nodes[n.focus];
+      if (d.neg) node.conds.push({ t: 'is', v, neg: 1 });
+      else { node.conds = node.conds.filter(c => !(c.t === 'is' && !c.neg)); node.conds.unshift({ t: 'is', v }); }
+    });
+  },
+  liveCounts: () => mutate(n => { n.liveCounts = true; n.off = 0; }, { keepView: true }),
+  voidCounts: () => mutate(n => { n.liveCounts = false; n.off = 0; }, { keepView: true }),
+  rawList: () => mutate(n => { n.raw = true; n.off = 0; }, { keepView: true }),
+  overview: () => mutate(n => { n.raw = false; n.off = 0; }, { keepView: true }),
+  clearVp: () => mutate(n => { n.vp = null; n.view = 'values'; n.off = 0; }, { keepView: true }),
+  addVal: d => { const v = cur.values[+d.k]; if (v) addCond({ t: 'pv', p: nav.vp.p, dir: nav.vp.dir, v, neg: d.neg ? 1 : 0 }); },
+  addSelf: d => { const v = cur.entities[+d.k]; if (v) mutate(n => { const node = n.nodes[n.focus]; node.conds = node.conds.filter(c => !(c.t === 'is' && !c.neg)); node.conds.unshift({ t: 'is', v }); }); },
+  rmCond: d => mutate(n => { n.nodes[n.focus].conds.splice(+d.j, 1); }),
+  negCond: d => mutate(n => { const c = n.nodes[n.focus].conds[+d.j]; c.neg = c.neg ? 0 : 1; }),
+  rmText: () => mutate(n => { n.nodes[n.focus].text = ''; }),
+  describe: d => { if (!nav) newNav([], 'describe'); mutate(n => { n.ent = d.iri; n.view = 'describe'; n.allLangs = false; n.pg = Object.assign({}, n.pg); delete n.pg.desc; }, { keepView: true }); },
+  explore: d => { newNav([entityNode(d.iri)]); go(false); },
+  explorePivot: d => { newNav([entityNode(d.iri), { via: { p: d.p, dir: d.dir }, text: '', scope: 'label', conds: [] }]); go(false); },
+  tab: d => mutate(n => { n.view = d.view; n.off = 0; }, { keepView: true }),
+  pg: d => {
+    const { off, lim } = pgState(d.id), info = pagerInfo.get(d.id) || {};
+    const last = typeof info.total === 'number' ? Math.max(0, Math.floor((info.total - 1) / lim) * lim) : off;
+    goPage(d.id, { first: 0, prev: off - lim, next: off + lim, last }[d.to], lim);
+  },
+  langs: () => mutate(n => { n.allLangs = !n.allLangs; n.pg = Object.assign({}, n.pg); delete n.pg.desc; }, { keepView: true }),
+  setGraph: d => { settings.graph = d.iri; save('fct.settings', settings); cache.clear(); countCache.clear(); countPartial.clear(); render(); },
+  clearGraph: () => { settings.graph = ''; save('fct.settings', settings); cache.clear(); countCache.clear(); countPartial.clear(); render(); },
+  reconnect: () => { conn.ep = null; resolvedProfile = null; render(); },
+  retry: d => { if (!(d && d.same)) settings.timeout = d && d.to ? Number(d.to) : nextBudget(); save('fct.settings', settings); cache.clear(); countCache.clear(); countPartial.clear(); render(); },
+  // Brand link: back to the start screen (no trail, empty search); endpoint and settings are kept, Back still works.
+  home: () => {
+    nav = null;
+    toggleExportMenu(false);
+    document.getElementById('q').value = '';
+    history.pushState(null, '', location.pathname + location.search);
+    render();
+    window.scrollTo(0, 0);
+  },
+  startType: d => { newNav([{ via: null, text: '', scope: 'label', conds: [{ t: 'class', iri: d.iri, neg: 0 }] }]); go(false); },
+  share: () => shareView(),
+  exportMenu: () => toggleExportMenu(),
+  export: d => { toggleExportMenu(false); exportView(d.fmt, d.scope); },
+  copy: (d, el) => {
+    const q = [...queryLog.values()][+d.k];
+    Promise.resolve().then(() => navigator.clipboard.writeText(q)).then(() => { el.textContent = 'Copied'; }, () => { el.textContent = 'Copy failed'; });
+  }
+};
+
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-act]');
+  if (!b || b.disabled) return;
+  if (b.tagName === 'A' && (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button !== 0)) return;
+  const fn = actions[b.dataset.act];
+  if (fn) { ev.preventDefault(); fn(b.dataset, b); }
+});
+document.addEventListener('click', ev => { if (!ev.target.closest('.menu-wrap')) toggleExportMenu(false); });
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') toggleExportMenu(false);
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('.set[data-act]')) { ev.preventDefault(); actions.focus(ev.target.dataset); }
+});
+document.addEventListener('input', ev => { if (ev.target.matches('.filter[data-filter]')) applyFilter(ev.target); });
+// Pager "Go to" (Enter in the row box starts the page at that row, as FCT does) and "Show n" page size.
+document.addEventListener('submit', ev => {
+  const f = ev.target;
+  if (!f.dataset.pager) return;
+  ev.preventDefault();
+  const n = parseInt(f.elements.go.value, 10);
+  const { lim } = pgState(f.dataset.pager);
+  if (n > 0) goPage(f.dataset.pager, f.dataset.pager === 'desc' ? (n - 1) * lim : n - 1, lim);
+});
+document.addEventListener('change', ev => {
+  const s = ev.target;
+  if (s.name !== 'lim' || !s.form || !s.form.dataset.pager) return;
+  const id = s.form.dataset.pager, lim = +s.value;
+  goPage(id, Math.floor(pgState(id).off / lim) * lim, lim);
+});
+document.addEventListener('submit', ev => {
+  const f = ev.target;
+  if (f.dataset.form !== 'range') return;
+  ev.preventDefault();
+  const fd = new FormData(f);
+  addCond({ t: 'pv', p: nav.vp.p, dir: 'out', v: null, neg: 0, lo: fd.get('lo'), hi: fd.get('hi'), dt: fd.get('dt') || undefined });
+});
+['fInprops', 'fGraphs'].forEach(id => document.getElementById(id).addEventListener('toggle', ev => {
+  if (ev.target.open && nav && nav.nodes.length) renderFacets(gen, ctl.signal);
+}));
+
+document.getElementById('searchForm').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const t = document.getElementById('q').value.trim();
+  if (!t) return actions.browseAll();
+  const iri = /^(https?|urn|ftp|mailto|did|file):\S+$/i.test(t) ? t : (/^\S+$/.test(t) ? expand(t) : null);
+  if (iri) { nav = null; actions.describe({ iri }); return; }
+  newNav([emptyNode(t, document.getElementById('scope').value)]);
+  go(false);
+});
+document.getElementById('epForm').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const ep = document.getElementById('endpoint').value.trim();
+  if (!/^https?:\/\/\S+$/i.test(ep)) { conn.ep = null; setConn('err', 'The endpoint must be an http(s) URL.'); return; }
+  conn.ep = null;
+  settings.ep = ep; settings.profile = document.getElementById('profile').value;
+  resolvedProfile = null; resetCaches();
+  save('fct.settings', settings);
+  if (nav) go(true); else render();
+});
+document.getElementById('profile').addEventListener('change', () => document.getElementById('epForm').requestSubmit());
+// Picking a preset fills the URL field and connects (the handshake then shows green/red).
+document.getElementById('epPreset').addEventListener('change', ev => {
+  if (!ev.target.value) return;
+  document.getElementById('endpoint').value = ev.target.value;
+  document.getElementById('epForm').requestSubmit();
+});
+// Editing the URL marks the form "dirty": the old green/red state no longer applies until Connect is pressed.
+document.getElementById('endpoint').addEventListener('input', paintStatus);
+
+const dlg = document.getElementById('settings');
+const sform = document.getElementById('settingsForm');
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  ['limit', 'timeout', 'lang', 'typeProp', 'graph', 'inference'].forEach(k => sform.elements[k].value = settings[k]);
+  sform.elements.sameAs.checked = !!settings.sameAs;
+  sform.elements.anytime.checked = settings.anytime !== false;
+  sform.elements.browseAll.value = settings.browseAll || 'sample';
+  sform.elements.proxy.checked = !!settings.proxy;
+  sform.elements.dedupe.value = settings.dedupe || 'auto';
+  sform.elements.lang.placeholder = 'browser default: ' + browserLang();
+  sform.elements.prefixes.value = settings.prefixes || 'prefixcc';
+  document.getElementById('prefixStatus').textContent = prefixStatus;
+  dlg.showModal();
+});
+dlg.addEventListener('close', () => {
+  if (dlg.returnValue !== 'ok') return;
+  settings.limit = Math.max(5, Math.min(500, +sform.elements.limit.value || 25));
+  settings.timeout = Math.max(1000, +sform.elements.timeout.value || 20000);
+  ['lang', 'typeProp', 'graph', 'inference'].forEach(k => settings[k] = sform.elements[k].value.trim());
+  settings.sameAs = sform.elements.sameAs.checked;
+  settings.anytime = sform.elements.anytime.checked;
+  settings.browseAll = sform.elements.browseAll.value;
+  settings.dedupe = sform.elements.dedupe.value;
+  if (hashCfg.lang) { hashCfg = {}; if (nav) writeHash(true); else history.replaceState(null, '', location.pathname + location.search); }
+  if (settings.proxy !== sform.elements.proxy.checked) { settings.proxy = sform.elements.proxy.checked; conn.ep = null; conn.proxyFor = null; }   // re-handshake
+  const prefixesChanged = sform.elements.prefixes.value !== (settings.prefixes || 'prefixcc');
+  settings.prefixes = sform.elements.prefixes.value;
+  save('fct.settings', settings);
+  resetCaches();
+  if (prefixesChanged) loadPrefixes();
+  render();
+});
+
+function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+applyTheme(load('fct.theme'));
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const t = dark ? 'light' : 'dark';
+  applyTheme(t); save('fct.theme', t);
+});
+
+/* ---------- About ---------- */
+const APP_VERSION = '1.0', APP_BUILT = '2026-10-15';
+document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
+document.getElementById('aboutBtn').addEventListener('click', () => {
+  const set = (id, t) => document.getElementById(id).textContent = t;
+  set('aboutVersion', APP_VERSION + ' · built ' + APP_BUILT);
+  set('aboutEp', presetName(settings.ep) + (presetName(settings.ep) !== settings.ep ? ' — ' + settings.ep : ''));
+  const eng = { virtuoso: 'Virtuoso', generic: 'Generic SPARQL 1.1', wikidata: 'Wikidata' }[profile()] || profile();
+  set('aboutEngine', eng + (settings.profile === 'auto' ? ' (auto-detected)' : ' (set manually)') + (conn.state === 'ok' ? '' : ' · not connected'));
+  set('aboutAnytime', anytimeOn() ? 'Active — partial results at the timeout' : (settings.anytime === false ? 'Off in Settings' : 'Not applicable to this engine'));
+  set('aboutProxy', proxied() ? 'In use for this endpoint' : (settings.proxy ? 'Enabled, not needed for this endpoint' : 'Off'));
+  set('aboutLang', prefLang() + (hashCfg.lang ? ' (from this link)' : settings.lang ? ' (Settings)' : ' (browser default)'));
+  set('aboutDedupe', (dedupeOn() ? 'On' : 'Off') + ' (' + ({ auto: 'auto: Virtuoso only', on: 'on for every endpoint', off: 'off' }[settings.dedupe || 'auto']) + ')');
+  document.getElementById('about').showModal();
+});
+
+window.addEventListener('popstate', () => { if (!readHash()) nav = null; render(); });
+new ResizeObserver(fitAside).observe(document.querySelector('aside'));
+new ResizeObserver(fitAside).observe(document.querySelector('.topbar'));
+addEventListener('resize', fitAside);
+loadPrefixes();
+readHash();
+render();
+})();
+</script>
+</body>
+</html>
