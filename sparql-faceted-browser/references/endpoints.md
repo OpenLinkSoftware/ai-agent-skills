@@ -11,7 +11,6 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://wikidata.demo.openlinksw.com/sparql | Wikidata, OpenLink instance | detected at run time | The app needs its UB proxy setting for this one (no CORS); the scripts do not |
 | https://sparql.uniprot.org/sparql | UniProt | Generic SPARQL 1.1 | No Anytime; descriptions are not folded |
 | https://publications.europa.eu/webapi/rdf/sparql | EU Publications Office | detected at run time | No CORS: the app needs the proxy |
-| https://sparql.proconsortium.org/virtuoso/sparql | Protein Ontology | detected at run time | |
 | https://data.europa.eu/sparql | EU data portal (Cordis) | detected at run time | |
 | https://api.parliament.uk/sparql | UK Parliament | detected at run time | |
 | https://sparql.cellosaurus.org/sparql | Cellosaurus | detected at run time | |
@@ -59,5 +58,5 @@ For an endpoint marked "No CORS":
 | Wikipedia-derived facts, films, people, places | DBpedia, or Wikidata |
 | Wikidata, Q-ids, P-ids | Wikidata |
 | URIBurner, the UB Blog, OpenLink how-tos, FAQs, glossaries | URIBurner |
-| Proteins, genes | UniProt or Protein Ontology |
+| Proteins, genes, orthology, pathways | UniProt, OMA, OrthoDB or WikiPathways |
 | An endpoint URL | That URL, through `--ep` |

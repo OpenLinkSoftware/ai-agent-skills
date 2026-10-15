@@ -335,7 +335,9 @@ footer.site a, #about a { color: var(--accent); }
   <form class="ep" id="epForm" autocomplete="off">
     <!-- Presets. Every URL was checked with a live ASK on 2026-10-14 (groups after "Most reliable" on 2026-10-15,
          with the app's origin; datos.infolobby.cl was left out: its https certificate names *.cplt.cl, plain http is
-         blocked on an https page, and it refuses the UB proxy with 403). "Most reliable 14" = endpoints from the
+         blocked on an https page, and it refuses the UB proxy with 403).
+         Protein Ontology (sparql.proconsortium.org) was dropped from the presets on 2026-10-15 at the user's request.
+         "Most reliable" = endpoints from the
          OpenLink SPARQL endpoint registry sheet that answered over HTTPS with SPARQL JSON and CORS headers in two
          probe runs a minute apart, ranked by worst-case response time. "(no CORS)" endpoints answer but omit
          Access-Control-Allow-Origin, so a browser page on another site cannot read their replies. -->
@@ -351,7 +353,6 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://publications.europa.eu/webapi/rdf/sparql">EU Publications Office (no CORS: needs proxy)</option>
       </optgroup>
       <optgroup label="Most reliable (endpoint registry)">
-        <option value="https://sparql.proconsortium.org/virtuoso/sparql">Protein Ontology</option>
         <option value="https://data.europa.eu/sparql">EU data portal (Cordis)</option>
         <option value="https://api.parliament.uk/sparql">UK Parliament</option>
         <option value="https://sparql.cellosaurus.org/sparql">Cellosaurus</option>

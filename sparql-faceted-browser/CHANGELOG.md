@@ -9,6 +9,7 @@
   - **Through the URIBurner proxy only:** datos.bcn.cl and SIOP (Brazil). Neither sends CORS headers on https.
   - **Left out:** datos.infolobby.cl. Its certificate names `*.cplt.cl`, plain http is blocked on an https page, and
     it refuses the proxy with 403.
+- **Removed preset:** Protein Ontology (`sparql.proconsortium.org`).
 - **Bundled app (`assets/`):**
   - adds the new presets;
   - proxied endpoints skip the engine check, which URIBurner refuses inside `SERVICE` after 45–90 s, and use the
