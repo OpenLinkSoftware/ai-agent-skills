@@ -740,11 +740,12 @@ async function detectProfile() {
 let inflight = 0;
 const queryLog = new Map();
 /* Connection state shown on the endpoint field, the Connect button and the status pill:
-   idle → pending (throbber) → ok (green) | err (red). */
-const conn = { state: 'idle', ep: null, profile: null, msg: '', pending: null, pendingEp: null, proxyFor: null };
+   idle → pending (throbber) → ok (green) | err (red). While pending, the button says "Connecting" and the pill names
+   the handshake step under way (conn.phase), with the detail in its tooltip — never the same word twice. */
+const conn = { state: 'idle', ep: null, profile: null, msg: '', phase: '', pending: null, pendingEp: null, proxyFor: null };
 function paintStatus() {
   const s = conn.state;
-  const text = s === 'pending' ? 'Connecting…' : s === 'err' ? 'Connection failed' :
+  const text = s === 'pending' ? (conn.phase || 'SPARQL handshake…') : s === 'err' ? 'Connection failed' :
     s === 'ok' ? 'Connected · ' + profile() + (proxied() ? ' · via UB proxy' : '') + (inflight ? ' · ' + inflight + ' running' : '') : 'Not connected';
   const el = document.getElementById('status');
   el.className = 'status ' + s + (s === 'ok' && inflight ? ' busy' : '');
@@ -758,7 +759,7 @@ function paintStatus() {
   btn.setAttribute('aria-busy', String(s === 'pending'));
   btn.querySelector('.lab').textContent = s === 'pending' ? 'Connecting' : 'Connect';
 }
-function setConn(state, msg) { conn.state = state; conn.msg = msg || ''; paintStatus(); }
+function setConn(state, msg, phase) { conn.state = state; conn.msg = msg || ''; conn.phase = phase || ''; paintStatus(); }
 // Handshake: a cheap ASK proves the URL is a reachable, CORS-enabled SPARQL endpoint; then the engine is profiled.
 /* When a URL answers with a web page instead of SPARQL results (e.g. a portal's query-editor page such as
    https://data.europa.eu/data/sparql, whose service is https://data.europa.eu/sparql), look for the real endpoint:
@@ -792,7 +793,7 @@ function handshake() {
   let ep = settings.ep;
   const t0 = performance.now(), asked = ep;
   conn.proxyFor = null;
-  setConn('pending', 'Contacting ' + ep);
+  setConn('pending', 'SPARQL Protocol handshake: sending ASK { ?s ?p ?o } to ' + ep, 'SPARQL handshake…');
   conn.pendingEp = ep;
   conn.pending = (async () => {
     try {
@@ -824,14 +825,14 @@ function handshake() {
         if (!j && e.cors && ep !== PROXY_EP && !settings.proxy) throw new Error(e.message + ' To reach it through URIBurner instead, turn on "Use the URIBurner SPARQL-FED proxy" in Settings.');
         if (j) { /* reached via the trailing-slash variant */ }
         else if (e.cors && ep !== PROXY_EP) {
-          setConn('pending', 'Direct access to ' + ep + ' is blocked by the browser — trying the URIBurner SPARQL-FED proxy…');
+          setConn('pending', 'Direct access to ' + ep + ' is blocked by the browser — repeating the SPARQL handshake through the URIBurner SPARQL-FED proxy', 'Trying UB proxy…');
           try { j = await sparql('ASK { ?s ?p ?o }', { quiet: true, timeout: 20000, proxyFor: ep }); }
           catch (e2) { throw new Error(e.message + ' The URIBurner SPARQL-FED proxy could not reach it either: ' + e2.message); }
           if (settings.ep !== asked) return false;
           conn.proxyFor = ep;
         } else if (!e.nonSparql) throw e;
         else {
-        setConn('pending', ep + ' is a web page, not a SPARQL service — looking for the endpoint behind it…');
+        setConn('pending', ep + ' is a web page, not a SPARQL service — looking for the endpoint behind it', 'Finding endpoint…');
         const found = await discoverEndpoint(ep, e.html);
         if (!found) throw new Error(e.message + ' — and no SPARQL endpoint answered at the usual locations near it.');
         if (settings.ep !== asked) return false;
@@ -843,6 +844,7 @@ function handshake() {
         }
       }
       if (typeof j.boolean !== 'boolean' && !j.results) throw new Error('The URL answered, but not with SPARQL results.');
+      if (settings.profile === 'auto' && !resolvedProfile) setConn('pending', 'Handshake done; detecting the engine (Virtuoso, generic SPARQL 1.1 or Wikidata) at ' + ep, 'Detecting engine…');
       await detectProfile();
       if (settings.ep !== ep) return false;
       conn.ep = ep; conn.profile = settings.profile;
