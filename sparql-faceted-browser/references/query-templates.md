@@ -45,18 +45,21 @@ Here `F` is the focused set and `typeProp` is `rdf:type`, or `wdt:P31` on Wikida
 
 ### Describe
 
-**Plain form**, used when de-duplication is off:
+The describe query has three modes:
+
+| Mode | When | Literals |
+|---|---|---|
+| `sample` | De-duplication is on: Virtuoso by default; set it with `--dedupe auto\|on\|off` | **Annotation properties** are folded to one `SAMPLE()` value per property, with a count. These are the rdfs/skos/dc/dcterms/schema/foaf label, comment, name, description and abstract terms, `dbo:abstract`, and any property the data declares `owl:AnnotationProperty`. Other literals keep every value. All literals are limited to the preferred language or untagged |
+| `lang` | De-duplication is off (any engine) | Every value is kept, limited to the preferred language or untagged |
+| `all` | `--all-langs`, or the app's "All values & languages" | No language filter |
 
 ```
-{ <e> ?p ?o . BIND ("out" AS ?dir) } UNION { ?o ?p <e> . BIND ("in" AS ?dir) }
+lang: { <e> ?p ?o . FILTER (!isLiteral (?o) || LANG (?o) = "" || LANGMATCHES (LANG (?o), "<lang>")) BIND ("out" AS ?dir) }
+      UNION { ?o ?p <e> . BIND ("in" AS ?dir) }
 ```
 
-**Folded form**, used when de-duplication is on (by default on Virtuoso only; set it with `--dedupe auto|on|off`):
-- **Annotation-property literals** are folded to one `SAMPLE()` value per property, with a count. Annotation
-  properties are the rdfs/skos/dc/dcterms/schema/foaf label, comment, name and description terms, plus any property
-  the data declares `owl:AnnotationProperty`.
-- **Other literals** keep every value.
-- **Language:** both kinds keep only values in the preferred language or untagged.
+The language filter does not depend on folding, so non-Virtuoso endpoints such as QLever also show one language by
+default. If an endpoint rejects the folded form, the query falls back to `lang`, not to the unfiltered form.
 
 ## Engine behaviour and fallbacks
 

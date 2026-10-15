@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.1 — 2026-10-15
+
+- **Describe language filter:** it no longer depends on `SAMPLE()` de-duplication.
+  - Modes are now `sample` (Virtuoso default), `lang` (any other engine) and `all` (`--all-langs`).
+  - The bug: on a non-Virtuoso endpoint such as QLever, `dbo:abstract` showed in 11 languages despite the English
+    default.
+- **Annotation properties:** `dbo:abstract` now counts as one.
+- **Bundled app (`assets/`):**
+  - the language filter applies on every engine, and "All values & languages" is always offered;
+  - the facet column is sticky and scrolls inside itself, as in fct-dev;
+  - the results pane scrolls into view when a query starts while it is off-screen;
+  - the connect status names each handshake step.
+
 ## 1.0.0 — 2026-10-15
 
 First release.

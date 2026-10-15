@@ -7,7 +7,7 @@ rows the app shows, and every answer comes with the app link for the same view.
 
     fct_query.py [--link LINK | --ep EP OPS...] [--what WHAT] [--limit N] [--offset N] [--lang xx]
                  [--profile auto|virtuoso|generic|wikidata] [--timeout MS] [--no-anytime] [--dedupe auto|on|off]
-                 [--format md|table|json] [--show-query] [--app URL]
+                 [--format md|table|json] [--show-query] [--all-langs] [--app URL]
 
 WHAT (default: from the view in the link/options)
     members    entities of the focused set (ranked by IRI_RANK on Virtuoso)
@@ -37,7 +37,7 @@ import fct_state as st  # noqa: E402
 NS = st.NS
 LABEL_PROPS = ['rdfs:label', 'skos:prefLabel', 'schema:name', 'foaf:name', 'dcterms:title', 'dc:title']
 ANNOT_PROPS = ['rdfs:label', 'rdfs:comment', 'skos:prefLabel', 'skos:altLabel', 'skos:hiddenLabel', 'skos:definition', 'skos:note',
-               'skos:scopeNote', 'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'schema:name',
+               'skos:scopeNote', 'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name',
                'schema:alternateName', 'schema:description', 'foaf:name']
 ANNOT_IRIS = [NS[c.split(':')[0]] + c.split(':')[1] for c in ANNOT_PROPS] + ['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description']
 ANYTIME_MAX_MS = 30000
@@ -317,15 +317,20 @@ class Builder:
         body = '  ?s1 ' + iri_ref(self.c.type_prop) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))'
         return self.sel('?type (SAMPLE (?s1) AS ?sample) (COUNT (?s1) AS ?n)', body, 'GROUP BY ?type ORDER BY DESC (?n) ' + self.page(lim, off))
 
-    def describe(self, e, sampled, off, lim):
+    def describe(self, e, mode, off, lim):
+        """mode 'sample': fold annotation literals with SAMPLE(); 'lang': keep every value; both limited to the preferred
+        language or untagged. mode 'all': no language filter (the app's 'All values & languages')."""
         E = iri_ref(e)
         lang = lit_str(self.c.lang)
+        sampled = mode == 'sample'
+        ok = lambda v: '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + lang + '))'  # noqa: E731
         if sampled:
             annot = '(?p IN (' + ', '.join(iri_ref(i) for i in ANNOT_IRIS) + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })'
-            ok = lambda v: '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + lang + '))'  # noqa: E731
             union = ('  { { SELECT ?p (SAMPLE (?lo) AS ?o) (COUNT (?lo) AS ?n) WHERE {\n      ' + E + ' ?p ?lo .\n      FILTER (isLiteral (?lo) && ' + annot + ' && ' + ok('?lo') + ')\n    } GROUP BY ?p } BIND ("out" AS ?dir) }\n'
                      '  UNION { ' + E + ' ?p ?o . FILTER (!isLiteral (?o) || (!' + annot + ' && ' + ok('?o') + ')) BIND ("out" AS ?dir) }\n'
                      '  UNION { ?o ?p ' + E + ' . BIND ("in" AS ?dir) }')
+        elif mode == 'lang':
+            union = '  { ' + E + ' ?p ?o . FILTER (!isLiteral (?o) || ' + ok('?o') + ') BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + E + ' . BIND ("in" AS ?dir) }'
         else:
             union = '  { ' + E + ' ?p ?o . BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + E + ' . BIND ("in" AS ?dir) }'
         return self.sel('?dir ?p ?o' + (' ?n' if sampled else ''), union, 'ORDER BY DESC (?dir) ?p ' + self.page(lim, off))
@@ -400,7 +405,7 @@ def cell(t, labels, fmt):
 
 
 # ---------- running a request ----------
-def run(ctx, nav, what, off, lim, prop=None, incoming=False, entity=None):
+def run(ctx, nav, what, off, lim, prop=None, incoming=False, entity=None, all_langs=False):
     b = Builder(ctx, nav)
     f = nav.get('focus', len(nav['nodes']) - 1)
     if what in ('members', 'count', 'types', 'props', 'props-in', 'values', 'distinct') and not nav['nodes']:
@@ -446,13 +451,15 @@ def run(ctx, nav, what, off, lim, prop=None, incoming=False, entity=None):
         e = st.expand(entity) if entity else nav.get('ent')
         if not e:
             raise QueryError('describe needs --entity IRI (or a link opened on a description)')
-        sampled = ctx.dedupe_on()
+        mode = 'all' if all_langs else ('sample' if ctx.dedupe_on() else 'lang')
+        sampled = mode == 'sample'
         try:
-            data = ctx.run(b.describe(e, sampled, off, lim), 'describe')
+            data = ctx.run(b.describe(e, mode, off, lim), 'describe')
         except QueryError:
             if not sampled:
                 raise
-            data = ctx.run(b.describe(e, False, off, lim), 'describe (plain)')
+            sampled = False
+            data = ctx.run(b.describe(e, 'lang', off, lim), 'describe (language-filtered, unfolded)')
         cols = [('direction', 'dir'), ('property', 'p'), ('value', 'o')] + ([('values folded', 'n')] if sampled else [])
     else:
         raise QueryError('Unknown --what ' + what)
@@ -502,7 +509,7 @@ def main(argv):
     fmt = take(argv, '--format', 'md')
     prop = take(argv, '--prop'); entity = take(argv, '--entity-iri') or take(argv, '--about')
     app = take(argv, '--app'); ep_opt = take(argv, '--ep'); type_prop = take(argv, '--type-prop')
-    flags = {f: (f in argv) for f in ('--show-query', '--no-anytime', '--incoming')}
+    flags = {f: (f in argv) for f in ('--show-query', '--no-anytime', '--incoming', '--all-langs')}
     argv = [a for a in argv if a not in flags]
     if link:
         base, state, cfg = st.parse_link(link)
@@ -523,7 +530,7 @@ def main(argv):
     if what == 'describe' and entity and not nav.get('ent'):
         nav['ent'] = st.expand(entity); nav['view'] = 'describe'
     try:
-        cols, data = run(ctx, nav, what, off, lim, prop, flags['--incoming'], entity)
+        cols, data = run(ctx, nav, what, off, lim, prop, flags['--incoming'], entity, flags['--all-langs'] or bool(nav.get('allLangs')))
     except QueryError as e:
         out = {'error': str(e), 'endpoint': ep, 'profile': ctx.profile, 'queries': [q for _, q in ctx.queries]}
         print(json.dumps(out, indent=2) if fmt == 'json' else 'error: ' + str(e), file=sys.stdout if fmt == 'json' else sys.stderr)
