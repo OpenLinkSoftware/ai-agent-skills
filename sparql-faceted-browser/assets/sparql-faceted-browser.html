@@ -122,6 +122,16 @@ aside:hover::-webkit-scrollbar-thumb { background: var(--muted); }
 .pgr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); font-size: 12px; color: var(--muted); }
 .pgr label { display: inline-flex; align-items: center; gap: 4px; }
 .pgr select, .pgr input { font-size: 12px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+/* Dropdowns: the native arrow sits flush against the right edge and differs per browser, so every select draws the
+   same chevron from two gradient triangles in the theme's own colour (light and dark), inset with matching padding. */
+.ep select, select.field, .pgr select { -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 17px) calc(50% + 1px), calc(100% - 12px) calc(50% + 1px);
+  background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 32px; }
+.pgr select { background-position: calc(100% - 12px) calc(50% + 1px), calc(100% - 8px) calc(50% + 1px); background-size: 4px 4px, 4px 4px; padding-right: 22px; }
+.ep select:hover, select.field:hover, .pgr select:hover, .ep select:focus-visible, select.field:focus-visible, .pgr select:focus-visible {
+  background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%), linear-gradient(135deg, var(--accent) 50%, transparent 50%); }
+select::-ms-expand { display: none; }
 .pgr input { width: 4.2em; text-align: center; }
 .pgr-stats { font-variant-numeric: tabular-nums; color: var(--text); font-weight: 500; margin-right: auto; }
 .pgb { min-width: 28px; height: 26px; padding: 0 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--muted); font-size: 11px; letter-spacing: -2px; }
