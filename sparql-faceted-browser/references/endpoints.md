@@ -25,6 +25,22 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://data.bibliotheken.nl/sparql | KB, National Library of the Netherlands | detected at run time | |
 | https://vocab.nerc.ac.uk/sparql/ | NERC Vocabulary Service | detected at run time | |
 | https://data.muziekschatten.nl/sparql | Muziekschatten | detected at run time | |
+| https://dati.camera.it/sparql | Italian Chamber of Deputies | Virtuoso | Added 2026-10-15 (it returned 502 for part of that day) |
+| https://lod.dati.gov.it/sparql/ | dati.gov.it (Italian open data) | Virtuoso | Added 2026-10-15 |
+| https://datos.gob.es/virtuoso/sparql | datos.gob.es (Spanish open data) | Virtuoso | Added 2026-10-15 |
+| https://datos.bcn.cl/sparql | BCN, Library of the National Congress of Chile | Virtuoso | No CORS on https; the http vhost sends CORS only on its redirect. The app needs the proxy; the scripts do not |
+| https://www1.siop.planejamento.gov.br/sparql/ | SIOP, Brazilian federal budget | Virtuoso 06.01 | No CORS: the app needs the proxy. No free-text index, so no search samples |
+| https://libris.kb.se/sparql | LIBRIS, National Library of Sweden | Virtuoso | Labels use kbv:name / kbv:prefLabel, outside the app's label properties, so label search finds nothing; use `--any-literal` |
+| https://dataforhumanities.abes.fr/sparql | Data for Humanities (ABES) | Virtuoso | Added 2026-10-15 |
+| https://sparql.wikipathways.org/sparql | WikiPathways | Virtuoso | Labels are not free-text indexed, so text search returns nothing |
+| https://sparql.omabrowser.org/sparql/ | OMA orthology browser | Virtuoso | Gene symbols as labels (TP53, INS) |
+| https://sparql.orthodb.org/sparql | OrthoDB | Virtuoso | Large; labels are mostly identifiers |
+| https://www.3lgm2.de/sparql | 3LGM², IHE integration profiles | Virtuoso | Added 2026-10-15 |
+
+**Left out:** `http://datos.infolobby.cl/sparql`. The app cannot reach it by any route:
+- its https certificate is issued for `*.cplt.cl`, not this host;
+- plain http is blocked on an https page;
+- it refuses the URIBurner proxy with 403.
 
 ## CORS: why the chat answer and the app can differ in reach
 
