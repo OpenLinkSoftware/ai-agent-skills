@@ -46,11 +46,13 @@ button:disabled { cursor: default; opacity: .45; }
 .brand:hover { text-decoration: none; color: var(--accent); }
 .brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .brand svg { color: var(--accent); }
-.ep { display: flex; flex-wrap: wrap; flex: 1 1 520px; gap: 6px; min-width: 0; }
-.tools { display: flex; align-items: center; gap: 4px; margin-left: auto; flex: 0 0 auto; }
-.ep input { flex: 1 1 200px; min-width: 160px; }
-.ep #epPreset { flex: 0 1 150px; min-width: 110px; }
-.ep #profile { flex: 0 1 auto; }
+/* Desktop: the endpoint controls stay on one row; the URL field absorbs width changes, never the layout. */
+.ep { display: flex; flex-wrap: nowrap; flex: 1 1 480px; gap: 6px; min-width: 0; align-items: center; }
+.tools { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; margin-left: auto; flex: 0 0 auto; }
+.ep input { flex: 1 1 220px; min-width: 120px; }
+.ep #epPreset { flex: 0 1 170px; min-width: 110px; }
+.ep #profile { flex: 0 1 150px; min-width: 120px; }
+.ep #connectBtn { flex: 0 0 auto; }
 .field, .ep input, .ep select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
 .btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
 .btn:hover:not(:disabled) { border-color: var(--accent); text-decoration: none; }
@@ -59,7 +61,9 @@ button:disabled { cursor: default; opacity: .45; }
 .icon-btn:hover { color: var(--accent); border-color: var(--border); }
 /* Connection state: idle (grey) → pending (throbber) → ok (green) | err (red). */
 .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); transition: background-color .2s, border-color .2s, color .2s; min-width: 0; }
-.status #statusText { overflow: hidden; text-overflow: ellipsis; max-width: 40vw; }
+/* Fixed width, so running queries ("N running" + Stop, both inside the pill) never shift the top bar. */
+.status { width: 13.75rem; box-sizing: border-box; }
+.status #statusText { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .status .dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); box-sizing: border-box; }
 .status.pending { color: var(--accent); border-color: var(--accent); }
 .status.pending .dot { width: 12px; height: 12px; background: none; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: spin .7s linear infinite; }
@@ -69,7 +73,7 @@ button:disabled { cursor: default; opacity: .45; }
 /* While queries run, the pill and a Stop button next to it cancel them (the render's AbortController). */
 .status.ok.busy { cursor: pointer; }
 .status.ok.busy:hover .dot { border-radius: 2px; background: var(--neg); box-shadow: 0 0 0 3px var(--neg-soft); animation: none; }
-.stop-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--neg); background: var(--neg-soft); color: var(--neg); cursor: pointer; white-space: nowrap; }
+.stop-btn { flex: 0 0 auto; margin: -2px -6px -2px auto; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; line-height: 1; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--neg); background: var(--surface); color: var(--neg); cursor: pointer; white-space: nowrap; }
 .stop-btn .sq { width: 8px; height: 8px; border-radius: 1px; background: currentColor; }
 .stop-btn:hover, .stop-btn:focus-visible { background: var(--neg); color: #fff; outline: none; }
 .loading.stopped { display: flex; align-items: center; gap: 8px; color: var(--muted); }
@@ -91,7 +95,7 @@ button:disabled { cursor: default; opacity: .45; }
 
 /* search */
 .search { display: flex; gap: 8px; padding: 14px 16px 6px; flex-wrap: wrap; }
-.search input[type=search] { flex: 1 1 300px; font-size: 16px; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); min-width: 0; }
+.search input[type=search] { flex: 1 1 200px; font-size: 16px; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); min-width: 0; }
 .search input[type=search]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* parallax trail */
@@ -339,18 +343,33 @@ footer.site a, #about a { color: var(--accent); }
 #about menu { display: flex; justify-content: flex-end; margin: 0; padding: 0; }
 @media (max-width: 480px) { #about dl { grid-template-columns: 1fr; } #about dd { margin-bottom: 6px; } }
 
+/* mid widths: the brand shows its icon only, so endpoint controls, status and tools keep one row */
+@media (max-width: 1200px) { .brand span { display: none; } .brand { margin-right: 0; } }
 @media (max-width: 860px) {
-  .ep { flex-basis: 100%; order: 3; }          /* endpoint controls take their own full-width row */
+  /* endpoint controls: their own full-width row, as a 2x2 grid (presets | engine / URL | Connect) */
+  .ep { flex-basis: 100%; order: 3; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+  .ep #epPreset { grid-column: 1; grid-row: 1; min-width: 0; }
+  .ep #profile { grid-column: 2 / 4; grid-row: 1; min-width: 0; }
+  .ep input { grid-column: 1 / 3; grid-row: 2; min-width: 0; }
+  .ep #connectBtn { grid-column: 3; grid-row: 2; }
   .layout { grid-template-columns: minmax(0, 1fr); }
   aside { position: static; max-height: none; overflow: visible; padding-right: 0; order: 2; }
   .topbar { position: static; }
-  .ent { grid-template-columns: 40px minmax(0,1fr); }
-  .ent .acts { grid-column: 2; }
-  .ent .thumb { width: 40px; height: 40px; }
   .prop-group { grid-template-columns: minmax(0,1fr); gap: 4px; }
   .brand span { display: none; }
   dialog .row2 { grid-template-columns: 1fr; }
   table.vals .num { width: 70px; }
+}
+@media (max-width: 560px) {
+  .ent { grid-template-columns: 40px minmax(0,1fr); }
+  .ent .acts { grid-column: 2; }
+  .ent .thumb { width: 40px; height: 40px; }
+  .status { width: 8.25rem; padding: 4px 8px; } /* phones: brand, pill and tools share one row */
+  .status .st-pre { display: none; }
+  .tools { gap: 2px; }
+  .stop-btn .lab { display: none; }
+  .stop-btn { padding: 4px 6px; }
+  .tools .icon-btn { padding: 6px 5px; }
 }
 </style>
 </head>
@@ -425,8 +444,7 @@ footer.site a, #about a { color: var(--accent); }
     <button class="btn" type="submit" id="connectBtn"><span class="spin" aria-hidden="true"></span><span class="lab">Connect</span></button>
   </form>
   <div class="tools">
-  <div class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Not connected</span></div>
-  <button type="button" class="stop-btn" id="stopBtn" hidden title="Stop the running queries" aria-label="Stop the running queries"><span class="sq" aria-hidden="true"></span>Stop</button>
+  <div class="status" id="status"><span class="dot" aria-hidden="true"></span><span id="statusText" role="status" aria-live="polite">Not connected</span><button type="button" class="stop-btn" id="stopBtn" hidden title="Stop the running queries" aria-label="Stop the running queries"><span class="sq" aria-hidden="true"></span><span class="lab">Stop</span></button></div>
   <button class="icon-btn" data-act="share" title="Share a link to this view" aria-label="Share a link to this view"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg></button>
   <div class="menu-wrap">
     <button class="icon-btn" id="exportBtn" data-act="exportMenu" title="Export this view as RDF" aria-label="Export this view as RDF" aria-haspopup="menu" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></button>
@@ -821,13 +839,16 @@ const conn = { state: 'idle', ep: null, profile: null, msg: '', phase: '', pendi
 function paintStatus() {
   const s = conn.state;
   const text = s === 'pending' ? (conn.phase || 'SPARQL handshake…') : s === 'err' ? 'Connection failed' :
-    s === 'ok' ? 'Connected · ' + profile() + (proxied() ? ' · via UB proxy' : '') + (inflight ? ' · ' + inflight + ' running' : '') : 'Not connected';
+    s === 'ok' ? (inflight ? inflight + ' running' : 'Connected · ' + profile() + (proxied() ? ' · via proxy' : '')) : 'Not connected';
   const el = document.getElementById('status');
   el.className = 'status ' + s + (s === 'ok' && inflight ? ' busy' : '');
-  el.title = s === 'ok' && inflight ? 'Click to stop the ' + inflight + ' running quer' + (inflight === 1 ? 'y' : 'ies') : (conn.msg || text);
+  el.title = s === 'ok' && inflight ? 'Connected · ' + profile() + (proxied() ? ' via the UB proxy' : '') + ' — click to stop the ' + inflight + ' running quer' + (inflight === 1 ? 'y' : 'ies') : (conn.msg || text);
   const stop = document.getElementById('stopBtn');
   if (stop) stop.hidden = !(s === 'ok' && inflight);
-  document.getElementById('statusText').textContent = text;
+  // the 'Connected · ' prefix is its own span so phones can drop it (the green dot already says connected)
+  const st = document.getElementById('statusText');
+  if (s === 'ok' && !inflight && text.startsWith('Connected · ')) st.innerHTML = '<span class="st-pre">Connected · </span>' + esc(text.slice(12));
+  else st.textContent = text;
   const form = document.getElementById('epForm');
   form.dataset.conn = s;
   form.dataset.dirty = String(document.getElementById('endpoint').value.trim() !== settings.ep);
@@ -2416,7 +2437,7 @@ document.getElementById('themeBtn').addEventListener('click', () => {
 });
 
 document.getElementById('stopBtn').addEventListener('click', stopQueries);
-document.getElementById('status').addEventListener('click', () => { if (conn.state === 'ok' && inflight) stopQueries(); });
+document.getElementById('status').addEventListener('click', ev => { if (!ev.target.closest('#stopBtn') && conn.state === 'ok' && inflight) stopQueries(); });
 
 /* ---------- Lightbox ---------- */
 {
