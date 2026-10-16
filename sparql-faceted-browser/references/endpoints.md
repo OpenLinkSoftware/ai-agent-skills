@@ -8,7 +8,7 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://dbpedia.org/sparql | DBpedia | Virtuoso | Default endpoint |
 | https://linkeddata.uriburner.com/sparql | URIBurner (UB) | Virtuoso | Holds the UB Blog companion graphs; VoID class partitions |
 | https://query.wikidata.org/sparql | Wikidata | Wikidata | Answers in SPARQL XML; types via `wdt:P31` |
-| https://wikidata.demo.openlinksw.com/sparql | Wikidata, OpenLink instance | detected at run time | The app needs its UB proxy setting for this one (no CORS); the scripts do not |
+| https://wikidata.demo.openlinksw.com/sparql | Wikidata, OpenLink instance | Virtuoso | Sends CORS headers for any origin since 2026-10-16, so the app connects directly |
 | https://sparql.uniprot.org/sparql | UniProt | Generic SPARQL 1.1 | No Anytime; descriptions are not folded |
 | https://publications.europa.eu/webapi/rdf/sparql | EU Publications Office | detected at run time | No CORS: the app needs the proxy |
 | https://data.europa.eu/sparql | EU data portal (Cordis) | detected at run time | |

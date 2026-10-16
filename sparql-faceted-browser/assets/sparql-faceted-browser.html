@@ -123,7 +123,7 @@ aside:hover::-webkit-scrollbar-thumb { background: var(--muted); }
 .pgr label { display: inline-flex; align-items: center; gap: 4px; }
 .pgr select, .pgr input { font-size: 12px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
 /* Dropdowns: the native arrow sits flush against the right edge and differs per browser, so every select draws the
-   same chevron from two gradient triangles in the theme's own color (light and dark), inset with matching padding. */
+   same chevron from two gradient triangles in the theme's own colour (light and dark), inset with matching padding. */
 .ep select, select.field, .pgr select { -webkit-appearance: none; appearance: none; cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position: calc(100% - 17px) calc(50% + 1px), calc(100% - 12px) calc(50% + 1px);
@@ -290,9 +290,13 @@ dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 0; pad
 .menu-g button:hover { border-color: var(--accent); color: var(--accent); }
 .toast { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 50; max-width: min(560px, calc(100vw - 32px)); padding: 10px 14px; border-radius: 10px; background: var(--text); color: var(--bg); font-size: 13px; box-shadow: var(--shadow); }
 .toast input { width: 100%; margin-top: 6px; font: 12px var(--mono); padding: 4px 6px; border-radius: 6px; border: 0; }
-footer.site { padding: 18px 16px 26px; color: var(--muted); font-size: 12px; text-align: center; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: center; border-top: 1px solid var(--border); margin-top: 8px; }
+/* Footer: the OpenLink logo on the viewer's left, spanning both text rows (showcase line, then copyright), so the
+   footer is one compact band instead of three stacked rows. */
+footer.site { padding: 12px 16px 16px; color: var(--muted); font-size: 12px; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; row-gap: 6px; align-items: center; justify-items: start; border-top: 1px solid var(--border); margin-top: 8px; }
+footer.site .op-logo { grid-row: 1 / span 2; align-self: center; }
 footer.site .op-logo img { height: 40px; width: auto; display: block; }
-footer.site .showcase { display: inline-block; max-width: min(640px, 100%); box-sizing: border-box; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 12.5px; line-height: 1.45; }
+@media (max-width: 480px) { footer.site { column-gap: 12px; } footer.site .op-logo img { height: 28px; } footer.site .showcase { padding: 4px 10px; } }
+footer.site .showcase { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 12.5px; line-height: 1.45; }
 footer.site .copy { line-height: 1.5; }
 footer.site a, #about a { color: var(--accent); }
 /* OpenLink logo: standard artwork on light, reversed artwork on dark */
@@ -348,7 +352,7 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://dbpedia.org/sparql">DBpedia</option>
         <option value="https://linkeddata.uriburner.com/sparql">URIBurner (UB)</option>
         <option value="https://query.wikidata.org/sparql">Wikidata</option>
-        <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance (no CORS: needs proxy)</option>
+        <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance</option>
         <option value="https://sparql.uniprot.org/sparql">UniProt</option>
         <option value="https://publications.europa.eu/webapi/rdf/sparql">EU Publications Office (no CORS: needs proxy)</option>
       </optgroup>
