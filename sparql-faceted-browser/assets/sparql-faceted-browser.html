@@ -123,7 +123,7 @@ aside:hover::-webkit-scrollbar-thumb { background: var(--muted); }
 .pgr label { display: inline-flex; align-items: center; gap: 4px; }
 .pgr select, .pgr input { font-size: 12px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
 /* Dropdowns: the native arrow sits flush against the right edge and differs per browser, so every select draws the
-   same chevron from two gradient triangles in the theme's own color (light and dark), inset with matching padding. */
+   same chevron from two gradient triangles in the theme's own colour (light and dark), inset with matching padding. */
 .ep select, select.field, .pgr select { -webkit-appearance: none; appearance: none; cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position: calc(100% - 17px) calc(50% + 1px), calc(100% - 12px) calc(50% + 1px);
@@ -197,6 +197,22 @@ details.facet:not([open]) > summary::after { transform: rotate(-90deg); }
 .ent:hover { border-color: var(--accent); }
 .thumb { width: 52px; height: 52px; border-radius: 8px; background: var(--surface2); display: grid; place-items: center; color: var(--muted); font-weight: 700; font-size: 18px; overflow: hidden; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
+/* A thumbnail with an image is a button that opens the lightbox (full image, fitted; click for actual size). */
+button.thumb { padding: 0; border: 0; cursor: zoom-in; font: inherit; }
+button.thumb:hover img { transform: scale(1.06); }
+button.thumb img { transition: transform .2s; }
+button.thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#lightbox { width: auto; max-width: min(96vw, 1400px); padding: 0; overflow: hidden; }
+#lightbox::backdrop { background: rgba(5,12,20,.78); }
+#lightbox .lb-stage { display: grid; place-items: center; max-width: min(96vw, 1400px); max-height: calc(92vh - 64px); overflow: auto; background: var(--surface2); }
+#lightbox .lb-stage img { display: block; max-width: min(96vw, 1400px); max-height: calc(92vh - 64px); object-fit: contain; cursor: zoom-in; }
+#lightbox.actual .lb-stage { place-items: start; }
+#lightbox.actual .lb-stage img { max-width: none; max-height: none; cursor: zoom-out; }
+#lightbox .lb-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; font-size: 13px; min-height: 44px; box-sizing: border-box; }
+#lightbox .lb-cap { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#lightbox .lb-bar a { color: var(--accent); white-space: nowrap; }
+#lightbox .lb-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+@media (max-width: 560px) { #lightbox .lb-hint { display: none; } }
 .ent .name { font-weight: 600; font-size: 15px; white-space: normal; display: inline-block; }
 .ent .name.raw { font-size: 13px; }
 .iri { font-family: var(--mono); font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
@@ -290,9 +306,13 @@ dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 0; pad
 .menu-g button:hover { border-color: var(--accent); color: var(--accent); }
 .toast { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 50; max-width: min(560px, calc(100vw - 32px)); padding: 10px 14px; border-radius: 10px; background: var(--text); color: var(--bg); font-size: 13px; box-shadow: var(--shadow); }
 .toast input { width: 100%; margin-top: 6px; font: 12px var(--mono); padding: 4px 6px; border-radius: 6px; border: 0; }
-footer.site { padding: 18px 16px 26px; color: var(--muted); font-size: 12px; text-align: center; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: center; border-top: 1px solid var(--border); margin-top: 8px; }
+/* Footer: the OpenLink logo on the viewer's left, spanning both text rows (showcase line, then copyright), so the
+   footer is one compact band instead of three stacked rows. */
+footer.site { padding: 12px 16px 16px; color: var(--muted); font-size: 12px; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; row-gap: 6px; align-items: center; justify-items: start; border-top: 1px solid var(--border); margin-top: 8px; }
+footer.site .op-logo { grid-row: 1 / span 2; align-self: center; }
 footer.site .op-logo img { height: 40px; width: auto; display: block; }
-footer.site .showcase { display: inline-block; max-width: min(640px, 100%); box-sizing: border-box; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 12.5px; line-height: 1.45; }
+@media (max-width: 480px) { footer.site { column-gap: 12px; } footer.site .op-logo img { height: 28px; } footer.site .showcase { padding: 4px 10px; } }
+footer.site .showcase { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 12.5px; line-height: 1.45; }
 footer.site .copy { line-height: 1.5; }
 footer.site a, #about a { color: var(--accent); }
 /* OpenLink logo: standard artwork on light, reversed artwork on dark */
@@ -348,7 +368,7 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://dbpedia.org/sparql">DBpedia</option>
         <option value="https://linkeddata.uriburner.com/sparql">URIBurner (UB)</option>
         <option value="https://query.wikidata.org/sparql">Wikidata</option>
-        <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance (no CORS: needs proxy)</option>
+        <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance</option>
         <option value="https://sparql.uniprot.org/sparql">UniProt</option>
         <option value="https://publications.europa.eu/webapi/rdf/sparql">EU Publications Office (no CORS: needs proxy)</option>
       </optgroup>
@@ -493,6 +513,11 @@ footer.site a, #about a { color: var(--accent); }
     <p>Data on this page is owned by its respective rights holders.<br>SPARQL Faceted Browser Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></p>
     <menu><button class="btn primary" value="close">Close</button></menu>
   </form>
+</dialog>
+
+<dialog id="lightbox" aria-label="Image viewer">
+  <div class="lb-stage"><img id="lbImg" alt=""></div>
+  <div class="lb-bar"><span class="lb-cap" id="lbCap"></span><span class="lb-hint" id="lbHint">Click the image for actual size</span><a id="lbOrig" href="#" target="_blank" rel="noopener noreferrer">Open original ↗</a><button type="button" class="icon-btn" id="lbClose" aria-label="Close image viewer" title="Close (Esc)">✕</button></div>
 </dialog>
 
 <dialog id="settings">
@@ -1334,7 +1359,32 @@ const errBox = e => {
   return '<div class="err">' + esc(e.message || e) + ' ' + retryIcon('') + '</div>';
 };
 const initial = s => esc(((s || '').replace(/^[^\p{L}\p{N}]+/u, '').charAt(0) || '?').toUpperCase());
-const thumb = (iri, c, lazy) => '<div class="thumb">' + (c.img ? '<img ' + (lazy ? 'loading="lazy" ' : '') + 'alt="" src="' + esc(c.img) + '" onerror="this.parentNode.textContent=\'' + initial(shortName(iri)) + '\'">' : initial(shortName(iri))) + '</div>';
+const thumb = (iri, c, lazy) => c.img
+  ? '<button type="button" class="thumb" data-act="zoom" data-src="' + esc(c.img) + '" data-iri="' + esc(iri) + '" aria-label="Enlarge image" title="Enlarge image">' +
+    '<img ' + (lazy ? 'loading="lazy" ' : '') + 'alt="" src="' + esc(c.img) + '" onerror="const b=this.parentNode; b.removeAttribute(\'data-act\'); b.style.cursor=\'default\'; b.textContent=\'' + initial(shortName(iri)) + '\'"></button>'
+  : '<div class="thumb">' + initial(shortName(iri)) + '</div>';
+/* Full-size image for a thumbnail URL: Wikimedia Commons Special:FilePath links lose their ?width= resize, and
+   upload.wikimedia.org /thumb/…/NNNpx-File paths map back to the original file. Other URLs are used as they are. */
+function fullImage(u) {
+  try {
+    const x = new URL(u);
+    if (/Special:FilePath\//i.test(x.pathname)) { x.searchParams.delete('width'); x.searchParams.delete('height'); return x.toString(); }
+    const m = /^(\/wikipedia\/[^/]+)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/[^/]+$/.exec(x.pathname);
+    if (x.hostname === 'upload.wikimedia.org' && m) { x.pathname = m[1] + m[2]; x.search = ''; return x.toString(); }
+  } catch {}
+  return u;
+}
+function openLightbox(src, iri) {
+  const dlg = document.getElementById('lightbox'), img = document.getElementById('lbImg'), full = fullImage(src);
+  dlg.classList.remove('actual');
+  img.onerror = () => { if (img.src !== src) img.src = src; };   // full image unavailable: show the thumbnail
+  img.src = full;
+  img.alt = iri ? labelOf(iri) : '';
+  document.getElementById('lbOrig').href = full;
+  document.getElementById('lbCap').innerHTML = iri ? lbl(iri) : '';
+  document.getElementById('lbHint').textContent = 'Click the image for actual size';
+  dlg.showModal();
+}
 
 /* ---------- view model ---------- */
 let gen = 0, ctl = new AbortController();
@@ -2197,6 +2247,7 @@ const actions = {
   describe: d => { if (!nav) newNav([], 'describe'); mutate(n => { n.ent = d.iri; n.view = 'describe'; n.allLangs = false; n.pg = Object.assign({}, n.pg); delete n.pg.desc; }, { keepView: true }); },
   explore: d => { newNav([entityNode(d.iri)]); go(false); },
   explorePivot: d => { newNav([entityNode(d.iri), { via: { p: d.p, dir: d.dir }, text: '', scope: 'label', conds: [] }]); go(false); },
+  zoom: d => openLightbox(d.src, d.iri),
   tab: d => mutate(n => { n.view = d.view; n.off = 0; }, { keepView: true }),
   pg: d => {
     const { off, lim } = pgState(d.id), info = pagerInfo.get(d.id) || {};
@@ -2336,6 +2387,18 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   const t = dark ? 'light' : 'dark';
   applyTheme(t); save('fct.theme', t);
 });
+
+/* ---------- Lightbox ---------- */
+{
+  const dlg = document.getElementById('lightbox');
+  document.getElementById('lbImg').addEventListener('click', () => {
+    const on = dlg.classList.toggle('actual');
+    document.getElementById('lbHint').textContent = on ? 'Click the image to fit the window' : 'Click the image for actual size';
+  });
+  document.getElementById('lbClose').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', ev => { if (ev.target === dlg) dlg.close(); });            // backdrop click
+  document.getElementById('lbCap').addEventListener('click', ev => { if (ev.target.closest('[data-act]')) dlg.close(); });
+}
 
 /* ---------- About ---------- */
 const APP_VERSION = '1.0', APP_BUILT = '2026-10-15';
