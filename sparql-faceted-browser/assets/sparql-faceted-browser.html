@@ -197,6 +197,22 @@ details.facet:not([open]) > summary::after { transform: rotate(-90deg); }
 .ent:hover { border-color: var(--accent); }
 .thumb { width: 52px; height: 52px; border-radius: 8px; background: var(--surface2); display: grid; place-items: center; color: var(--muted); font-weight: 700; font-size: 18px; overflow: hidden; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
+/* A thumbnail with an image is a button that opens the lightbox (full image, fitted; click for actual size). */
+button.thumb { padding: 0; border: 0; cursor: zoom-in; font: inherit; }
+button.thumb:hover img { transform: scale(1.06); }
+button.thumb img { transition: transform .2s; }
+button.thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#lightbox { width: auto; max-width: min(96vw, 1400px); padding: 0; overflow: hidden; }
+#lightbox::backdrop { background: rgba(5,12,20,.78); }
+#lightbox .lb-stage { display: grid; place-items: center; max-width: min(96vw, 1400px); max-height: calc(92vh - 64px); overflow: auto; background: var(--surface2); }
+#lightbox .lb-stage img { display: block; max-width: min(96vw, 1400px); max-height: calc(92vh - 64px); object-fit: contain; cursor: zoom-in; }
+#lightbox.actual .lb-stage { place-items: start; }
+#lightbox.actual .lb-stage img { max-width: none; max-height: none; cursor: zoom-out; }
+#lightbox .lb-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; font-size: 13px; min-height: 44px; box-sizing: border-box; }
+#lightbox .lb-cap { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#lightbox .lb-bar a { color: var(--accent); white-space: nowrap; }
+#lightbox .lb-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+@media (max-width: 560px) { #lightbox .lb-hint { display: none; } }
 .ent .name { font-weight: 600; font-size: 15px; white-space: normal; display: inline-block; }
 .ent .name.raw { font-size: 13px; }
 .iri { font-family: var(--mono); font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
@@ -497,6 +513,11 @@ footer.site a, #about a { color: var(--accent); }
     <p>Data on this page is owned by its respective rights holders.<br>SPARQL Faceted Browser Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></p>
     <menu><button class="btn primary" value="close">Close</button></menu>
   </form>
+</dialog>
+
+<dialog id="lightbox" aria-label="Image viewer">
+  <div class="lb-stage"><img id="lbImg" alt=""></div>
+  <div class="lb-bar"><span class="lb-cap" id="lbCap"></span><span class="lb-hint" id="lbHint">Click the image for actual size</span><a id="lbOrig" href="#" target="_blank" rel="noopener noreferrer">Open original ↗</a><button type="button" class="icon-btn" id="lbClose" aria-label="Close image viewer" title="Close (Esc)">✕</button></div>
 </dialog>
 
 <dialog id="settings">
@@ -1338,7 +1359,32 @@ const errBox = e => {
   return '<div class="err">' + esc(e.message || e) + ' ' + retryIcon('') + '</div>';
 };
 const initial = s => esc(((s || '').replace(/^[^\p{L}\p{N}]+/u, '').charAt(0) || '?').toUpperCase());
-const thumb = (iri, c, lazy) => '<div class="thumb">' + (c.img ? '<img ' + (lazy ? 'loading="lazy" ' : '') + 'alt="" src="' + esc(c.img) + '" onerror="this.parentNode.textContent=\'' + initial(shortName(iri)) + '\'">' : initial(shortName(iri))) + '</div>';
+const thumb = (iri, c, lazy) => c.img
+  ? '<button type="button" class="thumb" data-act="zoom" data-src="' + esc(c.img) + '" data-iri="' + esc(iri) + '" aria-label="Enlarge image" title="Enlarge image">' +
+    '<img ' + (lazy ? 'loading="lazy" ' : '') + 'alt="" src="' + esc(c.img) + '" onerror="const b=this.parentNode; b.removeAttribute(\'data-act\'); b.style.cursor=\'default\'; b.textContent=\'' + initial(shortName(iri)) + '\'"></button>'
+  : '<div class="thumb">' + initial(shortName(iri)) + '</div>';
+/* Full-size image for a thumbnail URL: Wikimedia Commons Special:FilePath links lose their ?width= resize, and
+   upload.wikimedia.org /thumb/…/NNNpx-File paths map back to the original file. Other URLs are used as they are. */
+function fullImage(u) {
+  try {
+    const x = new URL(u);
+    if (/Special:FilePath\//i.test(x.pathname)) { x.searchParams.delete('width'); x.searchParams.delete('height'); return x.toString(); }
+    const m = /^(\/wikipedia\/[^/]+)\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/[^/]+$/.exec(x.pathname);
+    if (x.hostname === 'upload.wikimedia.org' && m) { x.pathname = m[1] + m[2]; x.search = ''; return x.toString(); }
+  } catch {}
+  return u;
+}
+function openLightbox(src, iri) {
+  const dlg = document.getElementById('lightbox'), img = document.getElementById('lbImg'), full = fullImage(src);
+  dlg.classList.remove('actual');
+  img.onerror = () => { if (img.src !== src) img.src = src; };   // full image unavailable: show the thumbnail
+  img.src = full;
+  img.alt = iri ? labelOf(iri) : '';
+  document.getElementById('lbOrig').href = full;
+  document.getElementById('lbCap').innerHTML = iri ? lbl(iri) : '';
+  document.getElementById('lbHint').textContent = 'Click the image for actual size';
+  dlg.showModal();
+}
 
 /* ---------- view model ---------- */
 let gen = 0, ctl = new AbortController();
@@ -2201,6 +2247,7 @@ const actions = {
   describe: d => { if (!nav) newNav([], 'describe'); mutate(n => { n.ent = d.iri; n.view = 'describe'; n.allLangs = false; n.pg = Object.assign({}, n.pg); delete n.pg.desc; }, { keepView: true }); },
   explore: d => { newNav([entityNode(d.iri)]); go(false); },
   explorePivot: d => { newNav([entityNode(d.iri), { via: { p: d.p, dir: d.dir }, text: '', scope: 'label', conds: [] }]); go(false); },
+  zoom: d => openLightbox(d.src, d.iri),
   tab: d => mutate(n => { n.view = d.view; n.off = 0; }, { keepView: true }),
   pg: d => {
     const { off, lim } = pgState(d.id), info = pagerInfo.get(d.id) || {};
@@ -2340,6 +2387,18 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   const t = dark ? 'light' : 'dark';
   applyTheme(t); save('fct.theme', t);
 });
+
+/* ---------- Lightbox ---------- */
+{
+  const dlg = document.getElementById('lightbox');
+  document.getElementById('lbImg').addEventListener('click', () => {
+    const on = dlg.classList.toggle('actual');
+    document.getElementById('lbHint').textContent = on ? 'Click the image to fit the window' : 'Click the image for actual size';
+  });
+  document.getElementById('lbClose').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', ev => { if (ev.target === dlg) dlg.close(); });            // backdrop click
+  document.getElementById('lbCap').addEventListener('click', ev => { if (ev.target.closest('[data-act]')) dlg.close(); });
+}
 
 /* ---------- About ---------- */
 const APP_VERSION = '1.0', APP_BUILT = '2026-10-15';
