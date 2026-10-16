@@ -305,8 +305,15 @@ dialog form { padding: 16px 18px; display: grid; gap: 12px; }
 dialog h2 { margin: 0; font-size: 17px; }
 dialog label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 dialog label input { color: var(--text); }
+dialog label, dialog .row2 > * { min-width: 0; }
+dialog .field { width: 100%; min-width: 0; max-width: 100%; text-overflow: ellipsis; }
 dialog .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 dialog .check { display: flex; gap: 8px; align-items: center; color: var(--text); }
+dialog fieldset.virt { border: 1px solid var(--border); border-radius: 10px; margin: 0; padding: 10px 12px 12px; display: grid; gap: 10px; min-width: 0; }
+dialog fieldset.virt legend { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--text); }
+dialog fieldset.virt[data-off] .virt-ctl { opacity: .55; }
+dialog .virt-note { font-size: 12px; color: var(--muted); margin: 0; }
+dialog .virt-note.warn { color: var(--warn, #b45309); }
 dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 0; padding: 0; }
 .menu-wrap { position: relative; }
 .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 270px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); display: grid; gap: 8px; }
@@ -531,6 +538,8 @@ footer.site a, #about a { color: var(--accent); }
       <dt>Anytime queries</dt><dd id="aboutAnytime"></dd>
       <dt>SPARQL-FED proxy</dt><dd id="aboutProxy"></dd>
       <dt>Annotation dedupe</dt><dd id="aboutDedupe"></dd>
+      <dt>Reasoning</dt><dd id="aboutReason"></dd>
+      <dt>Sponger</dt><dd id="aboutSponge"></dd>
       <dt>Literal language</dt><dd id="aboutLang"></dd>
     </dl>
     <h3>Lineage</h3>
@@ -559,10 +568,54 @@ footer.site a, #about a { color: var(--accent); }
       <label>Type property <input class="field" name="typeProp" placeholder="rdf:type (wdt:P31 on Wikidata)"></label>
     </div>
     <label>Restrict to named graph (FROM) <input class="field" name="graph" placeholder="leave blank for the endpoint's default graph"></label>
-    <div class="row2">
-      <label>Virtuoso inference rule set <input class="field" name="inference" placeholder="optional"></label>
-      <label class="check" style="align-self:end"><input type="checkbox" name="sameAs"> owl:sameAs expansion (Virtuoso)</label>
-    </div>
+    <fieldset class="virt" id="virtSet">
+      <legend>Virtuoso reasoning &amp; sponging</legend>
+      <p class="virt-note" id="virtNote"></p>
+      <div class="virt-ctl">
+        <label>Inference rule set <small>(DEFINE input:inference)</small>
+          <select class="field" name="infRule"></select>
+        </label>
+        <label id="infCustomWrap" hidden>Rule set name <input class="field" name="infCustom" placeholder="as listed in DB.DBA.SYS_RDF_SCHEMA" autocomplete="off" spellcheck="false"></label>
+      </div>
+      <div class="row2 virt-ctl">
+        <label>&ldquo;Same As&rdquo; <small>(DEFINE input:same-as)</small>
+          <select class="field" name="sas">
+            <option value="SAME_AS_OFF">Disabled (fastest)</option>
+            <option value="SAME_AS_S">Apply to subjects only</option>
+            <option value="SAME_AS_O">Apply to objects only</option>
+            <option value="SAME_AS_S_O">Apply to both subjects and objects (recommended)</option>
+            <option value="SAME_AS">Apply to subjects, objects and predicates (not recommended on big datasets)</option>
+            <option value="SAME_AS_P">Apply to predicates only (special use cases only)</option>
+          </select>
+        </label>
+        <label>Inverse functional properties <small>(DEFINE input:ifp)</small>
+          <select class="field" name="ifp">
+            <option value="IFP_OFF">Disabled (fastest)</option>
+            <option value="IFP_S">Apply to subjects only</option>
+            <option value="IFP_O">Apply to objects only</option>
+            <option value="IFP">Apply to both subjects and objects</option>
+          </select>
+        </label>
+      </div>
+      <div class="row2 virt-ctl">
+        <label>Sponger (Linked Data fetch)
+          <select class="field" name="sponge">
+            <option value="off">Off — use only data already in the store</option>
+            <option value="soft">Fetch missing source documents (get:soft "soft")</option>
+            <option value="replace">Re-fetch source documents (get:soft "replace")</option>
+            <option value="grab-all">Fetch all missing data that might be useful</option>
+            <option value="grab-seealso">… including rdfs:seeAlso / foaf:seeAlso references</option>
+            <option value="grab-everything">Try to fetch every referenced resource (slow)</option>
+          </select>
+        </label>
+        <label>Sponge on
+          <select class="field" name="spongeScope">
+            <option value="describe">Entity descriptions only (recommended)</option>
+            <option value="all">Every query (lists, facets and counts too)</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
     <label class="check"><input type="checkbox" name="anytime"> Use Virtuoso Anytime queries — return partial results at the timeout instead of failing</label>
     <label class="check"><input type="checkbox" name="proxy"> Use the URIBurner SPARQL-FED proxy for endpoints this page cannot reach directly (no CORS headers, or plain http on an https page)</label>
     <label>De-duplicate annotation literals with SAMPLE() (labels, comments, names, descriptions…)
@@ -742,8 +795,14 @@ function localName(iri) {
 }
 
 /* ---------- state ---------- */
-const DEFAULTS = { ep: 'https://dbpedia.org/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', inference: '', sameAs: false, anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
+const DEFAULTS = { ep: 'https://dbpedia.org/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', infRule: 'auto', sas: 'SAME_AS_OFF', ifp: 'IFP_OFF', sponge: 'off', spongeScope: 'describe', anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
 let settings = Object.assign({}, DEFAULTS, load('fct.settings') || {});
+// Before the Virtuoso pragma menus, Settings had a free-text rule set ('inference') and an owl:sameAs checkbox.
+if ('inference' in settings || 'sameAs' in settings) {
+  if (settings.inference) settings.infRule = settings.inference;
+  if (settings.sameAs) settings.sas = 'SAME_AS';
+  delete settings.inference; delete settings.sameAs;
+}
 /* nav is the FCT query tree flattened into a chain of sets joined by pivots:
    nodes[i] = { via: {p, dir:'out'|'in'} | null, text, scope, conds: [...] }
    cond     = {t:'class', iri, neg} | {t:'pv', p, dir, v: term|null, neg, lo, hi, dt} | {t:'is', v: term}
@@ -821,7 +880,7 @@ async function detectProfile() {
   if (proxied()) { resolvedProfile = 'generic'; return; }
   try {
     // bif: built-ins exist only in Virtuoso; any other engine rejects this query.
-    const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000 });
+    const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000, noPragma: true });
     resolvedProfile = rows(j).length ? 'virtuoso' : 'generic';
   } catch (e) {
     // Only an actual rejection of the bif: query means "not Virtuoso"; a timeout or network error is retried next render.
@@ -974,6 +1033,9 @@ function proxify(q, ep) {
   return pro.concat('SELECT * WHERE { ' + svc + ' {\n' + body + '\n} }').join('\n');
 }
 async function sparql(q, opts = {}) {
+  // Pragmas also reach the queries built without prologue(); the probes (noPragma) and other endpoints never get them.
+  const qKey = opts.metaKey || q;   // the caller's text: the SPARQL tab looks timings up by it
+  if (!opts.noPragma && !opts.ep && !opts.proxyFor) { const pg = pragmas(); if (pg && !q.includes(pg)) q = pg + q; }
   const timeout = budgetMs(opts.timeout || settings.timeout);
   const viaProxy = opts.proxyFor || (!opts.ep && proxied() ? settings.ep : null);
   const sent = viaProxy ? proxify(q, viaProxy) : q;
@@ -1016,12 +1078,20 @@ async function sparql(q, opts = {}) {
         return j2;
       }
     }
+    // A pragma the endpoint refuses: drop that group for this endpoint and run the query again without it.
+    const fault = !res.ok && !opts.noPragma && pragmaFault(q, body);
+    if (fault) {
+      pragmaOff.add(settings.ep + '|' + fault.g);
+      toast('This endpoint refused the ' + esc(fault.name) + ' (' + esc(body.split(/SPARQL query:/)[0].replace(/\s+/g, ' ').trim().slice(0, 140)) + '); queries now run without it. Change it in Settings.');
+      fault.line.lastIndex = 0;
+      return sparql(q.replace(fault.line, ''), Object.assign({}, opts, { noPragma: true, metaKey: qKey }));
+    }
     // Through UB's SPARQL-FED a remote Anytime cutoff comes back as an HTTP error carrying Virtuoso's
     // "Returning incomplete results" message rather than as a 206; treat it as a partial result with no rows.
     if (!res.ok && /Returning incomplete results|S1TAT/.test(body)) {
       const meta = { ms: Number(res.headers.get('X-Exec-Milliseconds')) || Math.round(performance.now() - t0), partial: true,
         msg: body.replace(/\s+Activity:.*$/s, '').replace(/\s+/g, ' ').trim().slice(0, 300) };
-      queryMeta.set(q, meta);
+      queryMeta.set(qKey, meta);
       return { head: { vars: [] }, results: { bindings: [] }, __meta: meta };
     }
     if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status + ': ' + (looksHtml ? body.replace(/<[^>]+>/g, ' ') : body).replace(/\s+/g, ' ').trim().slice(0, 400)), looksHtml ? { nonSparql: true, html: body.slice(0, 300000) } : {});
@@ -1035,7 +1105,7 @@ async function sparql(q, opts = {}) {
     const msg = (res.headers.get('X-SQL-Message') || '').replace(/\s+Activity:.*$/s, '').trim();
     const meta = { ms: Number(res.headers.get('X-Exec-Milliseconds')) || Math.round(performance.now() - t0),
       partial: res.status === 206 || res.headers.get('X-SQL-State') === 'S1TAT', msg };
-    queryMeta.set(q, meta);
+    queryMeta.set(qKey, meta);
     if (j && typeof j === 'object') j.__meta = meta;
     return j;
   } catch (e) {
@@ -1102,8 +1172,8 @@ const ANYTIME_MAX_MS = 30000, ANYTIME_SAFE_MS = 20000;
 /* Annotation-literal dedupe: 'auto' = only on Virtuoso (Settings → De-duplicate annotation literals). */
 const dedupeOn = () => settings.dedupe === 'on' || (settings.dedupe !== 'off' && profile() === 'virtuoso');
 const ANNOT_PROPS = ['rdfs:label', 'rdfs:comment', 'skos:prefLabel', 'skos:altLabel', 'skos:hiddenLabel', 'skos:definition', 'skos:note', 'skos:scopeNote',
-  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'foaf:name']
-  .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description']);
+  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'schema:jobTitle', 'foaf:name']
+  .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description', 'https://schema.org/jobTitle']);
 const annotTest = () => '(?p IN (' + ANNOT_PROPS.map(iriRef).join(', ') + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })';
 const langOk = v => '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + litStr(prefLang()) + '))';
 const anytimeOn = () => settings.anytime !== false && (profile() === 'virtuoso' || (typeof proxied === 'function' && proxied()));
@@ -1160,14 +1230,78 @@ function unsortedHtml(cap) {
     (cap && cap !== true ? ' (' + Number(cap).toLocaleString() + ' rows)' : '') + ', so the query ran without ORDER BY.</span></span>';
 }
 
+/* ---------- Virtuoso pragmas: reasoning (fct-dev Settings) and sponging ----------
+   Only for a Virtuoso endpoint reached directly (through the UB proxy they would apply at UB, not at the remote).
+   Rule sets: fct-dev lists DB.DBA.SYS_RDF_SCHEMA, which a SPARQL client cannot read, so the candidates below (the
+   rule sets defined on URIBurner, 2026-10-16) are checked on the connected endpoint with one ASK each; an undefined
+   name fails at compile time (SP031). A custom name can be typed. URIBurner defaults to the RDFS subclass/subproperty
+   rules ('auto'); everywhere else 'auto' means none.
+   Sponger modes follow the /sparql should-sponge mapping in the Virtuoso docs (Sponger usage, table 16.10), plus
+   get:soft "replace" to re-fetch; on entity descriptions input:grab-iri names the entity so even "soft" fetches it.
+   If the endpoint refuses a pragma (undefined rule, no SPARQL_SPONGE privilege, an older server without the IFP /
+   SAME_AS_* modes), that pragma is dropped for the endpoint, the query re-runs without it, and a toast says so. */
+const UB_EP = 'https://linkeddata.uriburner.com/sparql';
+const UB_DEFAULT_RULE = 'urn:rdfs:subclass:subproperty:inference:rules';
+const RULE_CANDIDATES = ['urn:rdfs:subclass:subproperty:inference:rules', 'urn:owl:equivalent:class:inference:rules',
+  'urn:relationships:ontology:inference:rules', 'urn:class:inf', 'http://www.w3.org/2002/07/owl#', 'skos-trans', 'facets',
+  'b3s', 'b3sifp', 'eqinf', 'ldp', 'oplweb', 'virtrdf-label', 'virtrdf-ifp', 'virtrdf-url', 'virtrdf-hashtag',
+  'virtrdf-meta-entity-class', 'virtrdf-eturtle-containers', 'virtpivot-rules', 'urn:det:rdf:label', 'cciso',
+  'ActivityStreamsMap', 'asEquivalent', 'rel-me-auth', 'urn:analytics:acqof:rule', 'urn:com.openlinksw.outarde:inference',
+  'http://linkeddata.uriburner.com/dataspace', 'urn:why-the-triple-is-the-wrong-grain:equivalent-class-rules'];
+const SEEALSO = ' define input:grab-seealso <http://www.w3.org/2000/01/rdf-schema#seeAlso> define input:grab-seealso <http://xmlns.com/foaf/0.1/seeAlso>';
+const SPONGE_PRAGMAS = {
+  soft: 'define get:soft "soft"',
+  replace: 'define get:soft "replace"',
+  'grab-all': 'define input:grab-all "yes" define input:grab-depth 5 define input:grab-limit 100',
+  'grab-seealso': 'define input:grab-all "yes" define input:grab-depth 5 define input:grab-limit 200' + SEEALSO,
+  'grab-everything': 'define input:grab-all "yes" define input:grab-intermediate "yes" define input:grab-depth 5 define input:grab-limit 500' + SEEALSO
+};
+const pragmaOff = new Set();                 // ep|group pairs the endpoint refused: inference, sas, ifp, sponge
+const isOff = g => pragmaOff.has(settings.ep + '|' + g);
+const virtPragmasOn = () => profile() === 'virtuoso' && !proxied();
+const infRule = () => settings.infRule === 'auto' ? (settings.ep === UB_EP ? UB_DEFAULT_RULE : '') : settings.infRule === 'none' ? '' : (settings.infRule || '');
+function pragmas() {
+  if (!virtPragmasOn()) return '';
+  let s = '';
+  if (infRule() && !isOff('inference')) s += 'DEFINE input:inference ' + litStr(infRule()) + '\n';
+  if (settings.sas && settings.sas !== 'SAME_AS_OFF' && !isOff('sas')) s += 'DEFINE input:same-as ' + litStr(settings.sas) + '\n';
+  if (settings.ifp && settings.ifp !== 'IFP_OFF' && !isOff('ifp')) s += 'DEFINE input:ifp ' + litStr(settings.ifp) + '\n';
+  if (settings.spongeScope === 'all') s += spongePragmas(null, 'all');
+  return s;
+}
+// e: the described entity (named with input:grab-iri) or null; total: the COUNT companion of a description page,
+// which never re-fetches ("replace" would load the document twice).
+function spongePragmas(e, scope, total) {
+  const m = settings.sponge || 'off';
+  if (m === 'off' || !SPONGE_PRAGMAS[m] || !virtPragmasOn() || isOff('sponge') || (settings.spongeScope || 'describe') !== scope) return '';
+  if (total && m === 'replace') return e ? 'define get:soft "soft" define input:grab-iri ' + iriRef(e) + '\n' : '';
+  return SPONGE_PRAGMAS[m] + (e && !/^urn:|^_:/.test(e) ? ' define input:grab-iri ' + iriRef(e) : '') + '\n';
+}
+const PRAGMA_GROUPS = [
+  { g: 'inference', line: /^DEFINE input:inference .*\n/gim, err: /input:inference|inference rule/i, name: 'inference rule set' },
+  { g: 'sas', line: /^DEFINE input:same-as .*\n/gim, err: /same-as|SAME_AS/i, name: '“Same As” mode' },
+  { g: 'ifp', line: /^DEFINE input:ifp .*\n/gim, err: /input:ifp|IFP_/i, name: 'IFP mode' },
+  { g: 'sponge', line: /^define (get:soft|input:grab-).*\n/gim, err: /spong|grab|get:soft|SR186/i, name: 'Sponger' }
+];
+// Which pragma group a failed query's error points at. The message part only: Virtuoso echoes the query after it.
+function pragmaFault(q, body) {
+  const msg = body.split(/SPARQL query:/)[0];
+  return PRAGMA_GROUPS.find(p => { p.line.lastIndex = 0; return p.line.test(q) && p.err.test(msg); });
+}
+// Rule sets defined on the connected endpoint: one cached probe per endpoint.
+const ruleProbe = new Map();
+function probeRules(ep) {
+  if (!ruleProbe.has(ep)) ruleProbe.set(ep, Promise.all(RULE_CANDIDATES.map(r =>
+    sparql('DEFINE input:inference ' + litStr(r) + '\nASK { }', { quiet: true, timeout: 8000, noPragma: true }).then(() => r, () => null)))
+    .then(rs => rs.filter(Boolean)));
+  return ruleProbe.get(ep);
+}
+
 /* ---------- query builder: FCT query tree → SPARQL ---------- */
 const sv = i => '?s' + (i + 1);
 function prologue() {
   let s = '';
-  if (profile() === 'virtuoso') {
-    if (settings.inference) s += 'DEFINE input:inference ' + litStr(settings.inference) + '\n';
-    if (settings.sameAs) s += 'DEFINE input:same-as "yes"\n';
-  }
+  s += pragmas();
   if (profile() === 'wikidata') s += 'PREFIX wikibase: <http://wikiba.se/ontology#>\nPREFIX bd: <http://www.bigdata.com/rdf#>\nPREFIX mwapi: <https://www.mediawiki.org/ontology#API/>\n';
   return s;
 }
@@ -1286,8 +1420,8 @@ const Q = {
     : mode === 'lang'
     ? '  { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || ' + langOk('?o') + ') BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
     : '  { ' + iriRef(e) + ' ?p ?o . BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }',
-  describePage: (e, mode, off, lim) => sel('?dir ?p ?o' + (mode === 'sample' ? ' ?n' : ''), Q.describeUnion(e, mode), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
-  describeTotal: (e, mode) => sel('(COUNT (*) AS ?n)', Q.describeUnion(e, mode)),
+  describePage: (e, mode, off, lim) => spongePragmas(e, 'describe') + sel('?dir ?p ?o' + (mode === 'sample' ? ' ?n' : ''), Q.describeUnion(e, mode), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
+  describeTotal: (e, mode) => spongePragmas(e, 'describe', true) + sel('(COUNT (*) AS ?n)', Q.describeUnion(e, mode)),
   describeIn: e => sel('?s ?p', '  ?s ?p ' + iriRef(e) + ' .', 'LIMIT 300')
 };
 
@@ -1428,7 +1562,7 @@ const countText = k => countPartial.has(k) ? (countCache.get(k) > 0 ? '≥ ' + f
 const cur = { entities: [], values: [], samples: [] };
 const focus = () => nav.focus;
 const fnode = () => nav.nodes[nav.focus];
-const navKey = () => JSON.stringify([settings.ep, settings.graph, settings.inference, settings.sameAs, settings.typeProp, profile(), nav.nodes]);
+const navKey = () => JSON.stringify([settings.ep, settings.graph, pragmas(), settings.sponge, settings.typeProp, profile(), nav.nodes]);
 async function cached(key, fn) {
   if (cache.has(key)) return cache.get(key);
   const v = await fn();
@@ -2397,8 +2531,8 @@ document.getElementById('endpoint').addEventListener('input', paintStatus);
 const dlg = document.getElementById('settings');
 const sform = document.getElementById('settingsForm');
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  ['limit', 'timeout', 'lang', 'typeProp', 'graph', 'inference'].forEach(k => sform.elements[k].value = settings[k]);
-  sform.elements.sameAs.checked = !!settings.sameAs;
+  ['limit', 'timeout', 'lang', 'typeProp', 'graph'].forEach(k => sform.elements[k].value = settings[k]);
+  fillVirt();
   sform.elements.anytime.checked = settings.anytime !== false;
   sform.elements.browseAll.value = settings.browseAll || 'sample';
   sform.elements.proxy.checked = !!settings.proxy;
@@ -2408,12 +2542,61 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
   document.getElementById('prefixStatus').textContent = prefixStatus;
   dlg.showModal();
 });
+/* Virtuoso reasoning & sponging fieldset. The rule menu lists 'auto', 'none', the rule sets the endpoint answered
+   for (probed when Settings opens) and a custom name. Off-Virtuoso the controls stay editable but are marked inactive. */
+let ruleChoices = null;
+function ruleOptions(found) {
+  const cur = settings.infRule || 'auto';
+  const opts = [['auto', 'Default — ' + (settings.ep === UB_EP ? UB_DEFAULT_RULE + ' (URIBurner)' : 'none (rule sets are on by default for URIBurner only)')], ['none', 'None']];
+  (found || []).forEach(r => opts.push([r, r]));
+  if (!['auto', 'none'].includes(cur) && !(found || []).includes(cur)) opts.push([cur, cur + (found ? ' (not defined on this endpoint)' : '')]);
+  opts.push(['__custom__', 'Other rule set…']);
+  const selEl = sform.elements.infRule;
+  selEl.innerHTML = opts.map(([v, t]) => '<option value="' + esc(v) + '">' + esc(t) + '</option>').join('');
+  selEl.value = ruleChoices && opts.some(o => o[0] === ruleChoices) ? ruleChoices : cur;
+  document.getElementById('infCustomWrap').hidden = selEl.value !== '__custom__';
+}
+function fillVirt() {
+  ['sas', 'ifp', 'sponge', 'spongeScope'].forEach(k => sform.elements[k].value = settings[k] || DEFAULTS[k]);
+  sform.elements.infCustom.value = '';
+  ruleChoices = null;
+  const set = document.getElementById('virtSet'), note = document.getElementById('virtNote');
+  const on = virtPragmasOn();
+  set.toggleAttribute('data-off', !on);
+  note.className = 'virt-note';
+  ruleOptions(null);
+  if (!on) {
+    note.textContent = proxied() ? 'Not applied: this endpoint is reached through the URIBurner proxy, so these pragmas would act on URIBurner rather than on it.'
+      : 'Not applied: these are Virtuoso pragmas, and the connected endpoint ' + (conn.state === 'ok' ? 'is not Virtuoso.' : 'is not connected yet.');
+    return;
+  }
+  const off = PRAGMA_GROUPS.filter(p => isOff(p.g)).map(p => p.name);
+  note.textContent = 'Checking which rule sets this endpoint defines…' + (off.length ? ' Refused earlier: ' + off.join(', ') + '.' : '');
+  const ep = settings.ep;
+  probeRules(ep).then(found => {
+    if (settings.ep !== ep || !dlg.open) return;
+    ruleOptions(found);
+    note.textContent = found.length + ' of ' + RULE_CANDIDATES.length + ' known rule sets are defined on this endpoint; use “Other rule set…” for one not listed.' +
+      (off.length ? ' Refused earlier (applying Settings retries them): ' + off.join(', ') + '.' : '');
+    if (off.length) note.classList.add('warn');
+  });
+}
+sform.elements.infRule.addEventListener('change', ev => {
+  ruleChoices = ev.target.value;
+  const custom = ev.target.value === '__custom__';
+  document.getElementById('infCustomWrap').hidden = !custom;
+  if (custom) sform.elements.infCustom.focus();
+});
 dlg.addEventListener('close', () => {
   if (dlg.returnValue !== 'ok') return;
   settings.limit = Math.max(5, Math.min(500, +sform.elements.limit.value || 25));
   settings.timeout = Math.max(1000, +sform.elements.timeout.value || 20000);
-  ['lang', 'typeProp', 'graph', 'inference'].forEach(k => settings[k] = sform.elements[k].value.trim());
-  settings.sameAs = sform.elements.sameAs.checked;
+  ['lang', 'typeProp', 'graph'].forEach(k => settings[k] = sform.elements[k].value.trim());
+  const ir = sform.elements.infRule.value;
+  settings.infRule = ir === '__custom__' ? (sform.elements.infCustom.value.trim() || 'none') : ir;
+  ['sas', 'ifp', 'sponge', 'spongeScope'].forEach(k => settings[k] = sform.elements[k].value);
+  ruleChoices = null;
+  [...pragmaOff].filter(k => k.startsWith(settings.ep + '|')).forEach(k => pragmaOff.delete(k));   // retry refused pragmas after a change
   settings.anytime = sform.elements.anytime.checked;
   settings.browseAll = sform.elements.browseAll.value;
   settings.dedupe = sform.elements.dedupe.value;
@@ -2463,6 +2646,12 @@ document.getElementById('aboutBtn').addEventListener('click', () => {
   set('aboutAnytime', anytimeOn() ? 'Active — partial results at the timeout' : (settings.anytime === false ? 'Off in Settings' : 'Not applicable to this engine'));
   set('aboutProxy', proxied() ? 'In use for this endpoint' : (settings.proxy ? 'Enabled, not needed for this endpoint' : 'Off'));
   set('aboutLang', prefLang() + (hashCfg.lang ? ' (from this link)' : settings.lang ? ' (Settings)' : ' (browser default)'));
+  const sasTxt = { SAME_AS_S: 'same-as on subjects', SAME_AS_O: 'same-as on objects', SAME_AS_S_O: 'same-as on subjects and objects', SAME_AS: 'same-as on subjects, objects and predicates', SAME_AS_P: 'same-as on predicates' }[settings.sas];
+  const ifpTxt = { IFP_S: 'IFP on subjects', IFP_O: 'IFP on objects', IFP: 'IFP on subjects and objects' }[settings.ifp];
+  const reason = [infRule() && !isOff('inference') ? 'rule set ' + infRule() : '', isOff('sas') ? '' : sasTxt, isOff('ifp') ? '' : ifpTxt].filter(Boolean).join(' · ');
+  set('aboutReason', !virtPragmasOn() ? 'Not applicable (Virtuoso endpoints only)' : reason || 'None');
+  set('aboutSponge', !virtPragmasOn() ? 'Not applicable (Virtuoso endpoints only)' : (settings.sponge || 'off') === 'off' ? 'Off' : isOff('sponge') ? 'Refused by this endpoint' :
+    sform.elements.sponge.querySelector('option[value="' + settings.sponge + '"]').textContent + ' — ' + (settings.spongeScope === 'all' ? 'every query' : 'entity descriptions'));
   set('aboutDedupe', (dedupeOn() ? 'On' : 'Off') + ' (' + ({ auto: 'auto: Virtuoso only', on: 'on for every endpoint', off: 'off' }[settings.dedupe || 'auto']) + ')');
   document.getElementById('about').showModal();
 });
