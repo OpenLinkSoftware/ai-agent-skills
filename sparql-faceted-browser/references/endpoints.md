@@ -27,6 +27,7 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://dati.camera.it/sparql | Italian Chamber of Deputies | Virtuoso | Added 2026-10-15 (it returned 502 for part of that day) |
 | https://lod.dati.gov.it/sparql/ | dati.gov.it (Italian open data) | Virtuoso | Added 2026-10-15 |
 | https://datos.gob.es/virtuoso/sparql | datos.gob.es (Spanish open data) | Virtuoso | Added 2026-10-15 |
+| https://graph.data.era.europa.eu/repositories/rinf-plus | ERA RINF — EU Register of Railway Infrastructure | GraphDB (generic profile) | Added 2026-10-17. CORS for any origin. https://rinf.data.era.europa.eu/endpoint is the portal's web page, not the SPARQL service. Label search is a full scan (11–15 s). |
 | https://datos.bcn.cl/sparql | BCN, Library of the National Congress of Chile | Virtuoso | No CORS on https; the http vhost sends CORS only on its redirect. The app needs the proxy; the scripts do not |
 | https://www1.siop.planejamento.gov.br/sparql/ | SIOP, Brazilian federal budget | Virtuoso 06.01 | No CORS: the app needs the proxy. No free-text index, so no search samples |
 | https://libris.kb.se/sparql | LIBRIS, National Library of Sweden | Virtuoso | Labels use kbv:name / kbv:prefLabel, outside the app's label properties, so label search finds nothing; use `--any-literal` |

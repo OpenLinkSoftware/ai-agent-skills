@@ -14,6 +14,8 @@
   - `schema:jobTitle` literals are folded with `SAMPLE()` like the other annotation properties.
   - Also: a Stop control for running queries, an image viewer for thumbnails, and a top bar that never reflows.
   - DBpedia's starter samples lead with Benin City.
+  - New preset: ERA RINF (`graph.data.era.europa.eu/repositories/rinf-plus`, GraphDB), with operational points,
+    sections of line and tunnels as starter types.
 - **Examples:** the Describe and Language examples use `dbr:Benin_City` instead of `dbr:Lagos`, with output re-run
   from `fct_query.py`.
 
