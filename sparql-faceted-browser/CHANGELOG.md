@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.3 — 2026-10-16
+
+- **Bundled app (`assets/`):**
+  - Settings gains a **Virtuoso reasoning & sponging** section, replacing the free-text rule field and the sameAs
+    checkbox (old values migrate):
+    - inference rule set (`DEFINE input:inference`), checked on the endpoint with one ASK per candidate; the default
+      is `urn:rdfs:subclass:subproperty:inference:rules` on URIBurner and none elsewhere;
+    - fct-dev's "Same As" (`input:same-as`) and IFP (`input:ifp`) modes;
+    - Sponger modes (`get:soft`, `input:grab-*`), applied to entity descriptions by default.
+  - A pragma the endpoint refuses is dropped for that endpoint and the query re-runs. For example, DBpedia refuses the
+    Sponger with SR186.
+  - `schema:jobTitle` literals are folded with `SAMPLE()` like the other annotation properties.
+  - Also: a Stop control for running queries, an image viewer for thumbnails, and a top bar that never reflows.
+  - DBpedia's starter samples lead with Benin City.
+- **Examples:** the Describe and Language examples use `dbr:Benin_City` instead of `dbr:Lagos`, with output re-run
+  from `fct_query.py`.
+
 ## 1.0.2 — 2026-10-15
 
 - **New presets:** 11, each with start samples (types, entities, search words) checked with the app's own query

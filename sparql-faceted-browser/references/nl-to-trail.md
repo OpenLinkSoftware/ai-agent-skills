@@ -24,7 +24,7 @@ name to an IRI with a query first, and never guess one.
 | …by state | `… --values-of dbo:subdivision` |
 | people named Einstein | `--text Einstein --type dbo:Person` |
 | cities with 1–5 million people | `--type dbo:City --range dbo:populationTotal 1000000 5000000` |
-| tell me about Lagos | `--describe dbr:Lagos` |
+| tell me about Benin City | `--describe dbr:Benin_City` |
 
 ## Wikidata (`--ep https://query.wikidata.org/sparql`)
 
