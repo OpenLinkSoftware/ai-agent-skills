@@ -46,6 +46,7 @@ button:disabled { cursor: default; opacity: .45; }
 .brand:hover { text-decoration: none; color: var(--accent); }
 .brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .brand svg { color: var(--accent); }
+.brand .brand-mark { height: 30px; width: auto; display: block; flex: none; }
 /* Desktop: the endpoint controls stay on one row; the URL field absorbs width changes, never the layout. */
 .ep { display: flex; flex-wrap: nowrap; flex: 1 1 480px; gap: 6px; min-width: 0; align-items: center; }
 .tools { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; margin-left: auto; flex: 0 0 auto; }
@@ -259,7 +260,42 @@ table.vals td .lbl { white-space: normal; }
 .desc-head h3 .raw { font-size: 15px; }
 .more { background: none; border: 0; color: var(--accent); padding: 0; font-size: 12px; }
 h4.sec { margin: 14px 0 4px; }
-pre.q { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 4px; }
+.geo-box { margin: 4px 0 14px; }
+.geo-box .geo-map { height: 280px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface2); z-index: 0; }
+.geo-box .geo-cap { font-size: 12px; color: var(--muted); margin: 6px 2px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.geo-box .leaflet-container { font: inherit; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .geo-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); } }
+:root[data-theme="dark"] .geo-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); }
+.vals .picked { color: var(--accent); font-weight: 700; }
+.chip .v .or { color: var(--muted); font-style: italic; padding: 0 2px; }
+.set-map .geo-map { height: min(64vh, 620px); }
+.map-bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.map-bar select.field { width: auto; padding: 2px 26px 2px 8px; font-size: 12px; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; margin: 8px 2px 0; }
+.map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.map-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.15); }
+.leaflet-popup-content .pop-t { font-weight: 600; margin-bottom: 2px; }
+.leaflet-popup-content .pop-k { color: #667; font-size: 12px; margin-bottom: 6px; }
+.geo-box .geo-map:fullscreen { height: 100%; border-radius: 0; border: 0; }
+.geo-box .geo-cap .mini { opacity: .85; }
+.geo-box .geo-cap .grow { flex: 1 1 auto; }
+@media (max-width: 560px) { .geo-box .geo-map { height: 220px; } }
+textarea.q { display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 4.5em; color: var(--text); }
+textarea.q:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.q-item.edited h4::after { content: 'edited'; font-size: 11px; font-weight: 500; color: var(--warn); border: 1px solid currentColor; border-radius: 999px; padding: 0 6px; }
+.q-item h4 .q-acts { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; }
+.run-btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 6px; padding: 0 10px; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 22px; cursor: pointer; white-space: nowrap; }
+.run-btn:hover { filter: brightness(1.08); }
+.run-btn:disabled { opacity: .6; cursor: progress; }
+.run-btn svg { width: 10px; height: 10px; fill: currentColor; }
+.q-out { margin: 6px 0 2px; }
+.q-out:empty { display: none; }
+.q-out .q-res { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 420px; overflow-y: auto; }
+.q-out table.vals { table-layout: auto; font-size: 13px; }
+.q-out table.vals th { position: sticky; top: 0; background: var(--surface2); text-transform: none; letter-spacing: 0; }
+.q-out .q-sum { font-size: 12px; color: var(--muted); margin: 4px 2px 0; }
+.q-out .q-ask { font: 600 14px var(--mono); padding: 8px 10px; }
+pre.q, textarea.q { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 4px; }
 .q-item { margin-bottom: 14px; }
 .qmeta { font-weight: 400; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .qmeta.part { color: var(--warn); }
@@ -327,12 +363,29 @@ dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 0; pad
 .toast input { width: 100%; margin-top: 6px; font: 12px var(--mono); padding: 4px 6px; border-radius: 6px; border: 0; }
 /* Footer: the OpenLink logo on the viewer's left, spanning both text rows (showcase line, then copyright), so the
    footer is one compact band instead of three stacked rows. */
-footer.site { padding: 12px 16px 16px; color: var(--muted); font-size: 12px; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; row-gap: 6px; align-items: center; justify-items: start; border-top: 1px solid var(--border); margin-top: 8px; }
-footer.site .op-logo { grid-row: 1 / span 2; align-self: center; }
-footer.site .op-logo img { height: 40px; width: auto; display: block; }
-@media (max-width: 480px) { footer.site { column-gap: 12px; } footer.site .op-logo img { height: 28px; } footer.site .showcase { padding: 4px 10px; } }
-footer.site .showcase { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 12.5px; line-height: 1.45; }
-footer.site .copy { line-height: 1.5; }
+footer.site { margin-top: 20px; padding: 22px 20px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; text-align: left;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%); }
+footer.site .ft-main { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 22px; align-items: center; max-width: 1180px; }
+footer.site .op-logo { padding-right: 22px; border-right: 1px solid var(--border); align-self: stretch; display: flex; align-items: center; }
+footer.site .op-logo img { height: 38px; width: auto; display: block; }
+footer.site .ft-body { display: grid; gap: 10px; min-width: 0; }
+footer.site .showcase { margin: 0; padding-left: 12px; border-left: 3px solid var(--accent); color: var(--text); font-size: 14.5px; line-height: 1.45; font-weight: 500; letter-spacing: -.005em; text-wrap: balance; }
+footer.site .skill-ack { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; line-height: 1.5; }
+footer.site .ft-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-weight: 600; font-size: 12px; text-decoration: none; transition: border-color .15s, background .15s, color .15s; }
+footer.site .ft-chip:hover, footer.site .ft-chip:focus-visible { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); text-decoration: none; }
+footer.site .ft-chip svg { width: 14px; height: 14px; flex: none; color: var(--accent); }
+footer.site .ft-note { flex: 1 1 320px; min-width: 0; color: var(--muted); }
+footer.site .ft-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11.5px; max-width: 1180px; }
+footer.site .ft-bar a { font-weight: 600; text-decoration: none; }
+footer.site .ft-bar a:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  footer.site { padding: 18px 16px 12px; }
+  footer.site .ft-main { grid-template-columns: 1fr; row-gap: 14px; }
+  footer.site .op-logo { border-right: 0; padding-right: 0; }
+  footer.site .op-logo img { height: 30px; }
+  footer.site .showcase { font-size: 13.5px; }
+  footer.site .ft-bar { flex-direction: column; }
+}
 footer.site a, #about a { color: var(--accent); }
 /* OpenLink logo: standard artwork on light, reversed artwork on dark */
 .logo-dark { display: none !important; }
@@ -383,7 +436,7 @@ footer.site a, #about a { color: var(--accent); }
 <body>
 <header class="topbar">
   <a class="brand" id="homeLink" href="?" data-act="home" title="Home — start a new exploration">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="8" height="10" rx="2"/><rect x="14" y="4" width="8" height="7" rx="2"/><rect x="14" y="13" width="8" height="7" rx="2"/><path d="M10 12h2m0 0V7.5h2M12 12v4.5h2"/></svg>
+    <img class="brand-mark" src="data:image/png;base64,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" width="27" height="31" alt="OpenLink Software">
     <span>SPARQL Faceted Browser</span>
   </a>
   <form class="ep" id="epForm" autocomplete="off">
@@ -403,6 +456,7 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://linkeddata.uriburner.com/sparql">URIBurner (UB)</option>
         <option value="https://query.wikidata.org/sparql">Wikidata</option>
         <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance</option>
+        <option value="https://demo.openlinksw.com/sparql">OpenLink demo server</option>
         <option value="https://sparql.uniprot.org/sparql">UniProt</option>
         <option value="https://publications.europa.eu/webapi/rdf/sparql">EU Publications Office (no CORS: needs proxy)</option>
       </optgroup>
@@ -416,7 +470,6 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://agrovoc.fao.org/sparql">AGROVOC</option>
         <option value="https://scienceplus.abes.fr/sparql">science plus (ABES)</option>
         <option value="https://opendata.aragon.es/sparql">Aragon Open Data</option>
-        <option value="https://sparql.datao.net/sparql">Datao</option>
         <option value="https://data.bibliotheken.nl/sparql">KB — National Library of the Netherlands</option>
         <option value="https://vocab.nerc.ac.uk/sparql/">NERC Vocabulary Service</option>
         <option value="https://data.muziekschatten.nl/sparql">Muziekschatten</option>
@@ -425,6 +478,12 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://dati.camera.it/sparql">Italian Chamber of Deputies</option>
         <option value="https://lod.dati.gov.it/sparql/">dati.gov.it (Italian open data)</option>
         <option value="https://datos.gob.es/virtuoso/sparql">datos.gob.es (Spanish open data)</option>
+        <option value="https://graph.data.era.europa.eu/repositories/rinf-plus">ERA RINF — EU Register of Railway Infrastructure</option>
+        <option value="https://graph.data.era.europa.eu/repositories/ERA-Onto">ERA vocabulary &amp; requirements</option>
+        <option value="https://graph.data.era.europa.eu/repositories/OCR-KG">ERA OCR — Organisation Code Register</option>
+        <option value="https://graph.data.era.europa.eu/repositories/era-lex">ERA-Lex — EU railway legislation</option>
+        <option value="https://fedlex.data.admin.ch/sparqlendpoint">Fedlex — Swiss federal law</option>
+        <option value="https://data.legilux.public.lu/sparqlendpoint">Legilux — Luxembourg legislation</option>
         <option value="https://datos.bcn.cl/sparql">BCN — Library of the National Congress of Chile (no CORS: needs proxy)</option>
         <option value="https://www1.siop.planejamento.gov.br/sparql/">SIOP — Brazilian federal budget (no CORS: needs proxy)</option>
       </optgroup>
@@ -522,9 +581,14 @@ footer.site a, #about a { color: var(--accent); }
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <footer class="site">
+  <div class="ft-main">
   <a class="op-logo" href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer" title="OpenLink Software"><img class="logo-light" src="data:image/png;base64,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" alt="OpenLink Software" width="100" height="40"><img class="logo-dark" src="data:image/png;base64,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" alt="OpenLink Software" width="100" height="40"></a>
-  <span class="showcase">Every fact one click from the next — an OpenLink Software HyperData showcase, built on nothing but SPARQL.</span>
-  <div class="copy">Data on this page is owned by its respective rights holders.<br>SPARQL Faceted Browser Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></div>
+  <div class="ft-body">
+    <p class="showcase">Every fact one click from the next — an OpenLink Software HyperData showcase, built on nothing but SPARQL.</p>
+    <p class="skill-ack"><a class="ft-chip" href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/sparql-faceted-browser" target="_blank" rel="noopener noreferrer" title="The sparql-faceted-browser skill on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4 2 8l3.5 4M10.5 4 14 8l-3.5 4"/></svg>sparql-faceted-browser skill</a><a class="ft-chip" href="https://github.com/OpenLinkSoftware/ai-agent-skills" target="_blank" rel="noopener noreferrer" title="The OpenLink AI Agent Skills collection on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1.2"/><rect x="9" y="2" width="5" height="5" rx="1.2"/><rect x="2" y="9" width="5" height="5" rx="1.2"/><rect x="9" y="9" width="5" height="5" rx="1.2"/></svg>OpenLink AI Agent Skills</a><span class="ft-note">Also available as an agent skill, part of OpenLink’s collection showcasing the symbiotic relationship between LLM-powered AI Agents and the Semantic Web vision.</span></p>
+  </div>
+  </div>
+  <div class="ft-bar"><span>Data on this page is owned by its respective rights holders.</span><span>SPARQL Faceted Browser · Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></span></div>
 </footer>
 
 <dialog id="about" aria-labelledby="aboutTitle">
@@ -653,7 +717,7 @@ const NS = {
   owl: 'http://www.w3.org/2002/07/owl#', xsd: 'http://www.w3.org/2001/XMLSchema#',
   skos: 'http://www.w3.org/2004/02/skos/core#', foaf: 'http://xmlns.com/foaf/0.1/',
   schema: 'http://schema.org/', dcterms: 'http://purl.org/dc/terms/', dc: 'http://purl.org/dc/elements/1.1/',
-  prov: 'http://www.w3.org/ns/prov#', geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+  prov: 'http://www.w3.org/ns/prov#', geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#', jolux: 'http://data.legilux.public.lu/resource/ontology/jolux#',
   dbo: 'http://dbpedia.org/ontology/', dbp: 'http://dbpedia.org/property/', dbr: 'http://dbpedia.org/resource/',
   dbc: 'http://dbpedia.org/resource/Category:', yago: 'http://dbpedia.org/class/yago/',
   wd: 'http://www.wikidata.org/entity/', wdt: 'http://www.wikidata.org/prop/direct/',
@@ -683,9 +747,15 @@ const NS = {
   skosxl: 'http://www.w3.org/2008/05/skos-xl#', frbr: 'http://purl.org/vocab/frbr/core#', crm: 'http://www.cidoc-crm.org/cidoc-crm/',
   ecrm: 'http://erlangen-crm.org/current/'
 };
-const LABEL_PROPS = ['rdfs:label', 'skos:prefLabel', 'schema:name', 'foaf:name', 'dcterms:title', 'dc:title'];
+const LABEL_PROPS = ['rdfs:label', 'skos:prefLabel', 'schema:name', 'foaf:name', 'dcterms:title', 'dc:title', 'jolux:title'];
 const DESC_PROPS = ['rdfs:comment', 'schema:description', 'dcterms:description', 'skos:definition'];
 const IMG_PROPS = ['dbo:thumbnail', 'foaf:depiction', 'schema:image', 'wdt:P18'];
+/* Some gateways reject any request that mentions http://xmlns.com/ (the FOAF namespace): Fedlex's BIT firewall answers
+   400 with an HTML page and no CORS headers, GET or POST, full IRI or PREFIX. A probe at connect marks such endpoints,
+   and the app's own property lists then leave FOAF terms out of the queries they build. */
+const foafBlocked = new Set();
+const okIri = iri => !(foafBlocked.has(settings.ep) && /\/\/xmlns\.com\//.test(iri));
+const usable = list => list.filter(c => okIri(expand(c) || c));
 const ORDERED = /#(integer|decimal|double|float|int|long|short|byte|nonNegativeInteger|positiveInteger|negativeInteger|nonPositiveInteger|unsignedInt|unsignedLong|unsignedShort|gYear|date|dateTime)$/;
 const expand = c => { const m = /^([A-Za-z][\w-]*):(.*)$/.exec(c); if (!m) return null; if (NS[m[1]] !== undefined) return NS[m[1]] + m[2]; const d = typeof derivedPrefixNs === 'function' && derivedPrefixNs(m[1]); return d ? d + m[2] : null; };
 /* Namespace → prefix index used to show a CURIE when an IRI has no label. Built-ins win; an external
@@ -797,6 +867,9 @@ function localName(iri) {
 /* ---------- state ---------- */
 const DEFAULTS = { ep: 'https://dbpedia.org/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', infRule: 'auto', sas: 'SAME_AS_OFF', ifp: 'IFP_OFF', sponge: 'off', spongeScope: 'describe', anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
 let settings = Object.assign({}, DEFAULTS, load('fct.settings') || {});
+// DBpedia is the pinned default: a visit without a view link ('#s=…') always starts there, whatever endpoint was used
+// last. A link carries its own endpoint, and the rest of Settings is still remembered.
+if (!/^#s=/.test(location.hash)) { settings.ep = DEFAULTS.ep; settings.profile = 'auto'; }
 // Before the Virtuoso pragma menus, Settings had a free-text rule set ('inference') and an owl:sameAs checkbox.
 if ('inference' in settings || 'sameAs' in settings) {
   if (settings.inference) settings.infRule = settings.inference;
@@ -871,6 +944,19 @@ const prefLang = () => ((typeof hashCfg !== 'undefined' && hashCfg.lang) || sett
 function profile() { return settings.profile !== 'auto' ? settings.profile : (resolvedProfile || 'generic'); }
 // Wikidata data uses wdt:P31 for "instance of" whichever engine serves it (WDQS, or OpenLink's Virtuoso instance).
 function typeProp() { return settings.typeProp ? (expand(settings.typeProp) || settings.typeProp) : (profile() === 'wikidata' || /wikidata/i.test(settings.ep) ? NS.wdt + 'P31' : NS.rdf + 'type'); }
+/* A Virtuoso without a free-text index (data.legilux.public.lu) answers every bif:contains with nothing, so text search
+   would look empty. At connect, one real label word is looked up with bif:contains; if it is not found, text search on
+   that endpoint uses CONTAINS over the label properties instead (as on other engines). */
+const ftiOff = new Set();
+async function probeFti(ep) {
+  try {
+    const j = await sparql('SELECT ?l WHERE { ?s ?p ?l . FILTER (?p IN (' + usable(LABEL_PROPS).map(P).join(', ') + ') && isLiteral (?l)) } LIMIT 20', { quiet: true, timeout: 10000, noPragma: true });
+    const w = rows(j).map(r => (r.l.value.match(/[A-Za-zÀ-ÿ]{5,}/) || [])[0]).find(Boolean);
+    if (!w) return;
+    const k = await sparql("SELECT ?o WHERE { ?s ?p ?o . ?o bif:contains '\"" + w + "\"' } LIMIT 1", { quiet: true, timeout: 10000, noPragma: true });
+    if (!rows(k).length) ftiOff.add(ep);
+  } catch { /* unknown: keep bif:contains */ }
+}
 async function detectProfile() {
   if (settings.profile !== 'auto' || resolvedProfile) return;
   if (/wikidata\.org/.test(settings.ep)) { resolvedProfile = 'wikidata'; return; }
@@ -882,10 +968,18 @@ async function detectProfile() {
     // bif: built-ins exist only in Virtuoso; any other engine rejects this query.
     const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000, noPragma: true });
     resolvedProfile = rows(j).length ? 'virtuoso' : 'generic';
+    if (resolvedProfile === 'virtuoso') await probeFti(settings.ep);
   } catch (e) {
     // Only an actual rejection of the bif: query means "not Virtuoso"; a timeout or network error is retried next render.
-    if (/^HTTP /.test(e.message)) resolvedProfile = 'generic';
+    // A gateway that blocks the probe without CORS headers (Fedlex) looks like a CORS error; this runs only after the
+    // handshake ASK has just succeeded, so that is a rejection too.
+    if (/^HTTP /.test(e.message) || e.cors) resolvedProfile = 'generic';
   }
+  await probeFoaf(settings.ep);
+}
+async function probeFoaf(ep) {
+  try { await sparql('ASK { <urn:fct:probe> <http://xmlns.com/foaf/0.1/name> ?o }', { quiet: true, timeout: 10000, noPragma: true }); }
+  catch (e) { if (e.cors || /^HTTP 4/.test(e.message)) foafBlocked.add(ep); }   // never on a timeout
 }
 
 /* ---------- transport ---------- */
@@ -1116,6 +1210,7 @@ async function sparql(q, opts = {}) {
     if (e instanceof TypeError) {
       const waited = performance.now() - t0;
       if (waited > 15000) throw Object.assign(new Error('The connection was dropped after ' + secs(waited) + ' with no reply. A request that waits this long can be cut on the network path (or by a gateway in front of the endpoint); this is not a CORS problem.' + (anytime ? ' A shorter Anytime budget lets Virtuoso send its partial result sooner.' : '')), { gateway: true, short: 'Connection dropped after ' + secs(waited) });
+      if (conn.state === 'ok' && !opts.probe && foafBlocked.has(settings.ep) && /\/\/xmlns\.com\//.test(sent)) throw Object.assign(new Error('This endpoint’s gateway rejects any query that mentions http://xmlns.com/ (the FOAF namespace), so this view cannot be queried there.'), { short: 'Blocked: query mentions FOAF' });
       if (conn.state === 'ok' && !opts.probe) throw new Error('The request to ' + settings.ep + ' failed (network interruption, or the reply was blocked by the browser). The endpoint answered earlier, so this is unlikely to be a CORS configuration problem.');
       throw Object.assign(new Error('Network or CORS error reaching ' + (opts.ep || settings.ep) + ' — the endpoint does not allow cross-origin requests from this page' + (location.protocol === 'https:' && /^http:/.test(opts.ep || settings.ep) ? ' (a plain-http endpoint cannot be called from an https page)' : '') + '.'), { cors: true });
     }
@@ -1172,9 +1267,9 @@ const ANYTIME_MAX_MS = 30000, ANYTIME_SAFE_MS = 20000;
 /* Annotation-literal dedupe: 'auto' = only on Virtuoso (Settings → De-duplicate annotation literals). */
 const dedupeOn = () => settings.dedupe === 'on' || (settings.dedupe !== 'off' && profile() === 'virtuoso');
 const ANNOT_PROPS = ['rdfs:label', 'rdfs:comment', 'skos:prefLabel', 'skos:altLabel', 'skos:hiddenLabel', 'skos:definition', 'skos:note', 'skos:scopeNote',
-  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'schema:jobTitle', 'foaf:name']
+  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'schema:jobTitle', 'foaf:name', 'jolux:title']
   .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description', 'https://schema.org/jobTitle']);
-const annotTest = () => '(?p IN (' + ANNOT_PROPS.map(iriRef).join(', ') + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })';
+const annotTest = () => '(?p IN (' + ANNOT_PROPS.filter(okIri).map(iriRef).join(', ') + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })';
 const langOk = v => '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + litStr(prefLang()) + '))';
 const anytimeOn = () => settings.anytime !== false && (profile() === 'virtuoso' || (typeof proxied === 'function' && proxied()));
 const budgetMs = t => anytimeOn() ? Math.min(t, ANYTIME_MAX_MS) : t;
@@ -1306,7 +1401,7 @@ function prologue() {
   return s;
 }
 const fromClause = () => settings.graph && !proxied() ? 'FROM ' + iriRef(settings.graph) + '\n' : '';
-const labelPath = () => '(' + LABEL_PROPS.map(P).join('|') + ')';
+const labelPath = () => '(' + usable(LABEL_PROPS).map(P).join('|') + ')';
 
 function ftExpr(text) {
   const words = text.replace(/["'\\()*&|!~^]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 12);
@@ -1325,10 +1420,10 @@ function textPattern(s, node, i) {
   // Virtuoso needs bif:contains to follow a plain triple pattern binding its object. A property-path alternation
   // (a|b|c) works when sent directly, but UB's SPARQL-FED re-serialization of it is rejected remotely (SP031), so
   // label scope uses a predicate variable restricted with IN (…) instead — valid both directly and through the proxy.
-  if (pr === 'virtuoso') {
+  if (pr === 'virtuoso' && !ftiOff.has(settings.ep)) {
     const tp = '?txtp' + (i + 1);
     return s + ' ' + tp + ' ' + o + ' . ' + o + " bif:contains '" + ftExpr(t) + "' ." +
-      (node.scope === 'any' ? '' : ' FILTER (' + tp + ' IN (' + LABEL_PROPS.map(P).join(', ') + '))');
+      (node.scope === 'any' ? '' : ' FILTER (' + tp + ' IN (' + usable(LABEL_PROPS).map(P).join(', ') + '))');
   }
   return s + ' ' + pred + ' ' + o + ' . FILTER (isLiteral (' + o + ') && CONTAINS (LCASE (STR (' + o + ')), ' + litStr(t.toLowerCase()) + '))';
 }
@@ -1340,7 +1435,10 @@ function condPattern(s, c, aux) {
   }
   if (c.t === 'pv') {
     let inner;
-    if (c.v) {
+    if (c.vs && c.vs.length) {   // any of several values (OR), e.g. in country FRA or DEU or ITA
+      const x = aux();
+      inner = 'VALUES ' + x + ' { ' + c.vs.map(termSparql).join(' ') + ' } ' + (c.dir === 'in' ? x + ' ' + iriRef(c.p) + ' ' + s + ' .' : s + ' ' + iriRef(c.p) + ' ' + x + ' .');
+    } else if (c.v) {
       const term = termSparql(c.v);
       inner = c.dir === 'in' ? term + ' ' + iriRef(c.p) + ' ' + s + ' .' : s + ' ' + iriRef(c.p) + ' ' + term + ' .';
     } else {
@@ -1356,7 +1454,10 @@ function condPattern(s, c, aux) {
   return '';
 }
 // bound = index of a node the caller's own pattern binds (facet/value queries): no filler triple is needed for it.
-function whereBody(bound) {
+// skip = { i, p, dir }: leave out set i's positive value filters on that property, so a property's value list shows
+// every value the rest of the trail allows (multi-select facets: picking FRA still lists DEU and ITA to add with ∨).
+const isValFilter = (c, sk) => sk && c.t === 'pv' && !c.neg && c.p === sk.p && c.dir === sk.dir && (c.v || (c.vs && c.vs.length));
+function whereBody(bound, skip) {
   const lines = [];
   let k = 0;
   const aux = () => '?v' + (++k);
@@ -1369,7 +1470,7 @@ function whereBody(bound) {
       const via = node.via, prev = sv(i - 1);
       lines.push(via.dir === 'in' ? s + ' ' + iriRef(via.p) + ' ' + prev + ' .' : prev + ' ' + iriRef(via.p) + ' ' + s + ' .');
     }
-    node.conds.filter(c => c.t !== 'is' && !c.neg).forEach(c => lines.push(condPattern(s, c, aux)));
+    node.conds.filter(c => c.t !== 'is' && !c.neg && !(skip && skip.i === i && isValFilter(c, skip))).forEach(c => lines.push(condPattern(s, c, aux)));
     if (!(i > 0 || node.text || node.conds.some(c => !c.neg)) && i !== bound) lines.push(s + ' ?anyp ?anyo .');
     node.conds.filter(c => c.neg).forEach(c => lines.push(condPattern(s, c, aux)));
   });
@@ -1401,8 +1502,8 @@ const Q = {
   // query solutions (?s1 … ?sN) that reach it — the same shape FCT generates in fct_view ('list-count').
   distinct: (f, off, lim) => sel(sv(f) + ' (COUNT (*) AS ?n)', '  { SELECT DISTINCT ' + nav.nodes.map((_, i) => sv(i)).join(' ') + ' WHERE {\n' + whereBody() + '\n  } }',
     'GROUP BY ' + sv(f) + ' ORDER BY DESC (?n) ' + page(lim, off)),
-  values: (f, p, dir, off, lim) => sel('?v (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody(f) + '\n  ' + (dir === 'in' ? '?v ' + iriRef(p) + ' ' + sv(f) : sv(f) + ' ' + iriRef(p) + ' ?v') + ' .', 'GROUP BY ?v ORDER BY DESC (?n) ' + page(lim, off)),
-  valuesTotal: (f, p, dir) => sel('(COUNT (DISTINCT ?v) AS ?n)', whereBody(f) + '\n  ' + (dir === 'in' ? '?v ' + iriRef(p) + ' ' + sv(f) : sv(f) + ' ' + iriRef(p) + ' ?v') + ' .'),
+  values: (f, p, dir, off, lim) => sel('?v (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody(f, { i: f, p, dir }) + '\n  ' + (dir === 'in' ? '?v ' + iriRef(p) + ' ' + sv(f) : sv(f) + ' ' + iriRef(p) + ' ?v') + ' .', 'GROUP BY ?v ORDER BY DESC (?n) ' + page(lim, off)),
+  valuesTotal: (f, p, dir) => sel('(COUNT (DISTINCT ?v) AS ?n)', whereBody(f, { i: f, p, dir }) + '\n  ' + (dir === 'in' ? '?v ' + iriRef(p) + ' ' + sv(f) : sv(f) + ' ' + iriRef(p) + ' ?v') + ' .'),
   range: (f, p) => sel('(MIN (?v) AS ?min) (MAX (?v) AS ?max) (SAMPLE (DATATYPE (?v)) AS ?dt)', whereBody(f) + '\n  ' + sv(f) + ' ' + iriRef(p) + ' ?v . FILTER (isLiteral (?v))'),
   graphs: (f, off, lim) => prologue() + 'SELECT ?g (COUNT (DISTINCT ' + sv(f) + ') AS ?n)\nWHERE {\n' + whereBody() + '\n  GRAPH ?g { ' + sv(f) + ' ?gp ?go }\n}\nGROUP BY ?g ORDER BY DESC (?n) ' + page(lim, off),
   graphsTotal: f => prologue() + 'SELECT (COUNT (DISTINCT ?g) AS ?n)\nWHERE {\n' + whereBody() + '\n  GRAPH ?g { ' + sv(f) + ' ?gp ?go }\n}',
@@ -1433,6 +1534,10 @@ let labelTimer = null;
 // Wikidata property IRIs in every form (wdt:, p:, ps:, pq:, pr:, psv:, … all under /prop/…/P123) take their label
 // from the property entity wd:P123.
 const labelKey = iri => { const m = /^http:\/\/www\.wikidata\.org\/prop\/(?:[a-z-]+\/)*(P\d+)$/.exec(iri); return m ? NS.wd + m[1] : iri; };
+// EU Publications Office language authority codes (as used by jolux:language) -> BCP 47.
+const EU_LANG = { ENG: 'en', FRA: 'fr', DEU: 'de', ITA: 'it', ROH: 'rm', SPA: 'es', POR: 'pt', NLD: 'nl', LTZ: 'lb', DAN: 'da', SWE: 'sv',
+  FIN: 'fi', POL: 'pl', CES: 'cs', SLK: 'sk', SLV: 'sl', HUN: 'hu', RON: 'ro', BUL: 'bg', ELL: 'el', HRV: 'hr', EST: 'et', LAV: 'lv',
+  LIT: 'lt', MLT: 'mt', GLE: 'ga', RUS: 'ru', ARA: 'ar', SRP: 'sr', TUR: 'tr', ZHO: 'zh', JPN: 'ja' };
 function pickLang(list) {
   const want = prefLang();
   return (list.find(x => x.lang === want) || list.find(x => x.lang && x.lang.startsWith(want)) || list.find(x => !x.lang) || list[0] || {}).value;
@@ -1458,15 +1563,25 @@ async function flushLabels() {
   for (let i = 0; i < all.length; i += 60) {
     const chunk = all.slice(i, i + 60);
     const keyed = new Map(chunk.map(x => [labelKey(x), x]));
-    const q = sel('?x ?l', '  VALUES ?x { ' + [...keyed.keys()].map(iriRef).join(' ') + ' }\n  ?x ' + labelPath() + ' ?l .\n  FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + ')))', 'LIMIT ' + (chunk.length * 8));
+    // DISTINCT: a store holding the same label in many graphs (rdf:type's "type" on demo.openlinksw.com) otherwise
+    // fills the LIMIT with copies. If the LIMIT is still reached, IRIs without a row are asked again rather than
+    // cached as unlabelled.
+    const lim = chunk.length * 8;
+    // JOLux (Fedlex, Legilux): a work or act has no label of its own; its titles sit on its expressions
+    // (jolux:isRealizedBy/jolux:title), one per language, untagged, with the language in jolux:language.
+    const q = sel('DISTINCT ?x ?l ?xl', '  VALUES ?x { ' + [...keyed.keys()].map(iriRef).join(' ') + ' }\n  { ?x ' + labelPath() + ' ?l .\n    FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + '))) }\n' +
+      '  UNION { ?x ' + P('jolux:isRealizedBy') + ' ?xe . ?xe ' + P('jolux:title') + ' ?l . OPTIONAL { ?xe ' + P('jolux:language') + ' ?xl } }', 'LIMIT ' + lim);
     try {
       const by = new Map();
-      rows(await sparql(q, { quiet: true })).forEach(r => {
+      const rs = rows(await sparql(q, { quiet: true }));
+      rs.forEach(r => {
         const x = keyed.get(r.x.value) || r.x.value;
         if (!by.has(x)) by.set(x, []);
-        by.get(x).push({ value: r.l.value, lang: (r.l['xml:lang'] || '').toLowerCase() });
+        by.get(x).push({ value: r.l.value, lang: (r.l['xml:lang'] || (r.xl && EU_LANG[r.xl.value.split('/').pop()]) || '').toLowerCase() });
       });
-      chunk.forEach(x => labels.set(x, by.has(x) ? pickLang(by.get(x)) : x));
+      const full = rs.length >= lim;
+      chunk.forEach(x => { if (by.has(x)) labels.set(x, pickLang(by.get(x))); else if (full) pendingLabels.add(x); else labels.set(x, x); });
+      if (full && pendingLabels.size) { clearTimeout(labelTimer); labelTimer = setTimeout(flushLabels, 30); }
     } catch { /* a failed lookup is not "no label": leave these uncached so the next render asks again */ }
     paintLabels();
   }
@@ -1488,8 +1603,8 @@ async function fetchCards(iris, signal) {
   const langF = 'LANG (?d) = "" || LANGMATCHES (LANG (?d), ' + litStr(prefLang()) + ')';
   const q = sel('?x (SAMPLE (?d) AS ?desc) (SAMPLE (?i) AS ?img)',
     '  VALUES ?x { ' + iris.map(iriRef).join(' ') + ' }\n' +
-    '  OPTIONAL { ?x (' + DESC_PROPS.map(P).join('|') + ') ?d . FILTER (isLiteral (?d) && (' + langF + ')) }\n' +
-    '  OPTIONAL { ?x (' + IMG_PROPS.map(P).join('|') + ') ?i . FILTER (isIRI (?i)) }', 'GROUP BY ?x');
+    '  OPTIONAL { ?x (' + usable(DESC_PROPS).map(P).join('|') + ') ?d . FILTER (isLiteral (?d) && (' + langF + ')) }\n' +
+    '  OPTIONAL { ?x (' + usable(IMG_PROPS).map(P).join('|') + ') ?i . FILTER (isIRI (?i) || STRSTARTS (STR (?i), "http")) }', 'GROUP BY ?x');   // some stores keep image URLs as plain literals
   try {
     rows(await sparql(q, { quiet: true, signal })).forEach(r => cards.set(r.x.value, { desc: r.desc && r.desc.value, img: r.img && r.img.value }));
   } catch (e) { if (e.message === 'cancelled') return; }
@@ -1636,7 +1751,7 @@ async function render() {
 
 /* Per-endpoint starter samples, derived by probing each preset endpoint (2026-10-14): starter searches verified to return
    results with the app's own text-search query, prominent entity types, and well-labelled example entities. */
-const ENDPOINT_SAMPLES = /*SAMPLES*/{"https://dbpedia.org/sparql": {"searches": ["Benin City", "Alcides Mendoza Castro", "Aleksander Kreek"], "types": [{"iri": "http://dbpedia.org/ontology/Person", "label": "person"}, {"iri": "http://dbpedia.org/ontology/TimePeriod", "label": "time period"}, {"iri": "http://dbpedia.org/ontology/Species", "label": "species"}], "entities": [{"iri": "http://dbpedia.org/resource/Benin_City", "label": "Benin City"}, {"iri": "http://dbpedia.org/resource/Alcides_Mendoza_Castro", "label": "Alcides Mendoza Castro"}, {"iri": "http://dbpedia.org/resource/Aleksander_Kreek", "label": "Aleksander Kreek"}]}, "https://linkeddata.uriburner.com/sparql": {"searches": ["HowTo", "FAQ", "Glossary"], "types": [{"iri": "http://schema.org/Question", "label": "Question"}, {"iri": "http://schema.org/HowTo", "label": "HowTo"}, {"iri": "http://schema.org/SoftwareApplication", "label": "SoftwareApplication"}], "entities": [{"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/intent-to-action-agents-web-claude_sonnet_5_5-1.html#article", "label": "From Intent to Action"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/gates-turbulent-ai-era-critical-choices-claude_opus_5-1.ttl#analysis", "label": "The Turbulent AI Era and the Choices That Cannot Wait"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/the-next-difficulty-gpt_6-1.html", "label": "The Next Difficulty: An Atlas of Innovation"}]}, "https://query.wikidata.org/sparql": {"searches": ["Vladimir Lenin", "George Washington", "New York City"], "types": [{"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q515", "label": "city"}, {"iri": "http://www.wikidata.org/entity/Q11424", "label": "film"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q1394", "label": "Vladimir Lenin"}, {"iri": "http://www.wikidata.org/entity/Q23", "label": "George Washington"}, {"iri": "http://www.wikidata.org/entity/Q60", "label": "New York City"}]}, "https://sparql.uniprot.org/sparql": {"searches": [], "types": [{"iri": "http://purl.uniprot.org/core/Protein", "label": "Protein"}, {"iri": "http://purl.uniprot.org/core/Taxon", "label": "Taxon"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/P05067", "label": "Amyloid-beta precursor protein"}, {"iri": "http://purl.uniprot.org/uniprot/P04637", "label": "Cellular tumor antigen p53"}, {"iri": "http://purl.uniprot.org/uniprot/P69905", "label": "Hemoglobin subunit alpha"}]}, "https://data.europa.eu/sparql": {"searches": ["Tsunami", "Earthquake"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://data.europa.eu/88u/dataset/5b49f79d-fa7b-4e58-ae36-a4597aca5509", "label": "Timeseries air pressure 2019"}]}, "https://api.parliament.uk/sparql": {"searches": ["Randerson", "Female", "Male"], "types": [{"iri": "https://id.parliament.uk/schema/TemporalThing", "label": "Temporal thing"}, {"iri": "https://id.parliament.uk/schema/ExternalThing", "label": "External thing"}], "entities": [{"iri": "https://id.parliament.uk/eup4DwE5", "label": "Local Government Boundary Commission for England"}, {"iri": "https://id.parliament.uk/WfMpdObA", "label": "Randerson"}, {"iri": "https://id.parliament.uk/Hnymnoxw", "label": "Female"}]}, "https://sparql.cellosaurus.org/sparql": {"searches": ["THRA", "Raji CD19 Knockout", "Raji"], "types": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/ontology/Xref", "label": "Cross-Reference"}], "entities": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/CGNC_4ca7629cd06caa8af5abe13b3f14f089", "label": "THRA"}, {"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/Cellosaurus_0359cc0bf71d67a0eced65623b1a4bb0", "label": "Raji CD19 Knockout"}]}, "https://data.gov.cz/sparql": {"searches": ["restricted", "sensitive", "JSON"], "types": [{"iri": "http://www.w3.org/2008/05/skos-xl#Label", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://publications.europa.eu/resource/authority/access-right/1b8c1ab7ad9d578068eccaf6d810816e", "label": "restricted"}, {"iri": "http://publications.europa.eu/resource/authority/access-right/43038fb5dcced3fdf4af364bea7a3d00", "label": "sensitive"}, {"iri": "https://data.gov.cz/zdroj/datové-sady/00025429/1493900693/distribuce/801e174f7e1814eb2aa4a9319f4c11b4", "label": "JSON"}]}, "https://data.idref.fr/sparql": {"searches": ["accepted", "draft", "M.A"], "types": [{"iri": "http://rdaregistry.info/Elements/c/C10001", "label": null}, {"iri": "http://open.vocab.org/terms/SchemaExample", "label": null}, {"iri": "http://purl.org/ontology/bibo/DocumentStatus", "label": "Document Status"}], "entities": [{"iri": "http://www.idref.fr/206614411/id", "label": "Accord général sur les tarifs douaniers et le commerce"}, {"iri": "http://purl.org/vocab/bio/examples/1", "label": "A Biography of Henry VIII, King of England"}]}, "https://www.nakala.fr/sparql": {"searches": ["Sylvain LEBRETON", "Farida SAID", "Picture"], "types": [{"iri": "http://www.europeana.eu/schemas/edm/ProvidedCHO", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Agent", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Collection", "label": null}], "entities": [{"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.007d198x", "label": "Picture 402 story SH_story52 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.00ae2z49", "label": "Picture 421 story SH_story55 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/Agent/8b11605f-9138-11ef-89cb-52540084ccd3", "label": "Sylvain LEBRETON"}]}, "https://agrovoc.fao.org/sparql": {"searches": ["methods", "design", "Indigenous Peoples Group"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#ConceptScheme", "label": null}], "entities": [{"iri": "http://aims.fao.org/aos/agrovoc/c_4788", "label": "methods"}, {"iri": "http://aims.fao.org/aos/agrovoc/c_2208", "label": "design"}, {"iri": "http://aims.fao.org/aos/agrovoc/skosCollection_cb7b7c4a", "label": "Indigenous Peoples Group"}]}, "https://scienceplus.abes.fr/sparql": {"searches": ["complications", "growth monitoring", "growth"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": "Concept"}], "entities": [{"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E14630FE053120B220A17F5/subject/complications", "label": "complications"}, {"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E18630FE053120B220A17F5/subject/growthmonitoring", "label": "growth monitoring"}]}, "https://opendata.aragon.es/sparql": {"searches": ["Zaragoza", "Huesca", "Teruel"], "types": [{"iri": "http://www.w3.org/ns/org#Organization", "label": "Organization"}, {"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "DCAT Dataset"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}], "entities": [{"iri": "http://icearagon.aragon.es/resource/hydro/org/Confederación_Hidrográfica_del_Ebro", "label": "Confederación Hidrográfica del Ebro"}, {"iri": "http://opendata.aragon.es/recurso/sector-publico/organizacion/comarca/01", "label": "La Jacetania"}, {"iri": "https://opendata.aragon.es/datos/catalogo/dataset/escudos-y-logotipos-del-gobierno-de-aragon", "label": "Escudos y logotipos del Gobierno de Aragón"}]}, "https://sparql.datao.net/sparql": {"searches": ["DonnerwetteR", "Hygiea"], "types": [{"iri": "http://wikiba.se/ontology#Item", "label": null}, {"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing", "label": null}], "entities": [{"iri": "http://www.wikidata.org/entity/Q11508", "label": "!DonnerwetteR!"}, {"iri": "http://www.wikidata.org/entity/Q63777498", "label": "(10) Hygiea"}]}, "https://data.bibliotheken.nl/sparql": {"searches": ["Almelo", "Amsterdam", "Allart"], "types": [{"iri": "http://schema.org/ProductModel", "label": null}, {"iri": "http://schema.org/Book", "label": null}, {"iri": "http://schema.org/PublicationEvent", "label": null}], "entities": [{"iri": "http://data.bibliotheken.nl/id/nbt/p350580480", "label": "Almelo"}]}, "https://vocab.nerc.ac.uk/sparql/": {"searches": ["Surface", "radioactivity", "content"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "https://w3id.org/iadopt/ont#VariableSet", "label": null}], "entities": [{"iri": "http://vocab.nerc.ac.uk/standard_name/surface_radioactivity_content_of_141Ce/", "label": "Surface radioactivity content of 141Ce"}, {"iri": "http://vocab.nerc.ac.uk/collection/P06/current/BQSM/", "label": "Becquerels per square metre"}, {"iri": "http://vocab.nerc.ac.uk/collection/C35/current/", "label": "European Nature Information System Level 3 Habitats"}]}, "https://data.muziekschatten.nl/sparql": {"searches": ["Komt allen tezamen", "Lonely boy", "onvolledig"], "types": [{"iri": "http://schema.org/MusicComposition", "label": null}, {"iri": "https://data.muziekschatten.nl/som/LichteMuziekDeeltitel", "label": null}, {"iri": "https://data.muziekschatten.nl/som/Precat", "label": null}], "entities": [{"iri": "https://data.muziekschatten.nl/som/616024", "label": "Komt allen tezamen"}, {"iri": "https://data.muziekschatten.nl/som/177339", "label": "Lonely boy"}, {"iri": "https://data.muziekschatten.nl/som/177340", "label": "L'oiseau et l'enfant"}]}, "https://wikidata.demo.openlinksw.com/sparql": {"searches": ["Panthera leo", "Happiness", "George Washington"], "types": [{"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q16521", "label": "taxon"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q45106562", "label": "Panthera leo"}, {"iri": "http://www.wikidata.org/entity/Q33700518", "label": "Happiness"}, {"iri": "http://www.wikidata.org/entity/Q100948698", "label": "George Washington"}]}, "https://publications.europa.eu/webapi/rdf/sparql": {"searches": ["Marco ONIDA", "DCMI Type Vocabulary", "LCC"], "types": [{"iri": "http://xmlns.com/foaf/0.1/Person", "label": null}, {"iri": "http://purl.org/dc/dcam/VocabularyEncodingScheme", "label": null}, {"iri": "http://purl.org/dc/terms/AgentClass", "label": "Agent Class"}], "entities": [{"iri": "http://publications.europa.eu/resource/directory/person/COM_00006AA0DAA3", "label": "Lars DE NUL"}, {"iri": "http://publications.europa.eu/resource/directory/person/COM_00003367AF", "label": "Marco ONIDA"}, {"iri": "http://purl.org/dc/terms/DCMIType", "label": "DCMI Type Vocabulary"}]}, "https://libris.kb.se/sparql": {"searches": [], "types": [{"iri": "https://id.kb.se/vocab/Person", "label": "Person"}, {"iri": "https://id.kb.se/vocab/Topic", "label": "Topic"}, {"iri": "https://id.kb.se/vocab/Instance", "label": "Instance"}], "entities": [{"iri": "https://libris.kb.se/tr574vdc33gk2cc#it", "label": "August Strindberg"}, {"iri": "https://libris.kb.se/qn247n18248vs58#it", "label": "Selma Lagerlöf"}, {"iri": "https://id.kb.se/term/sao/Journalister", "label": "Journalister"}]}, "https://dati.camera.it/sparql": {"searches": ["Berlinguer", "Moro", "bilancio"], "types": [{"iri": "http://dati.camera.it/ocd/deputato", "label": "deputato"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}, {"iri": "http://dati.camera.it/ocd/atto", "label": "atto camera"}], "entities": [{"iri": "http://dati.camera.it/ocd/mandatoCamera.rdf/mc6_720_19720519", "label": "Mandato Camera di Enrico Berlinguer (VI Legislatura)"}, {"iri": "http://dati.camera.it/ocd/attocamera.rdf/ac02_1901", "label": "Riordinamento dell'Amministrazione giudiziaria"}, {"iri": "http://dati.camera.it/ocd/persona.rdf/p308280", "label": "Gaetano Manfredi"}]}, "https://lod.dati.gov.it/sparql/": {"searches": ["Roma", "trasporti", "bilancio"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://dati.puglia.it/ckan/dataset/04ca61f4-f857-4a31-98b9-eeb3b68ab821", "label": "Adozione Nuovo Piano d'Ambito Puglia 2020-2045"}, {"iri": "https://github.com/Universita-degli-Studi-di-Teramo/OpenData/tree/main/catalogo/collaboratori-linguistici-2022", "label": "Collaboratori linguistici 2022"}, {"iri": "https://dati.gov.it/", "label": "Dati Gov IT"}]}, "https://datos.gob.es/virtuoso/sparql": {"searches": ["Madrid", "presupuesto", "turismo"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://datos.gob.es/catalogo/a01002820-hidrografia", "label": "Hidrografía"}, {"iri": "http://datos.gob.es", "label": "datos.gob.es"}]}, "https://sparql.wikipathways.org/sparql": {"searches": [], "types": [{"iri": "http://vocabularies.wikipathways.org/wp#Pathway", "label": "Pathway"}, {"iri": "http://vocabularies.wikipathways.org/wp#GeneProduct", "label": "GeneProduct"}, {"iri": "http://vocabularies.wikipathways.org/wp#Metabolite", "label": "Metabolite"}], "entities": [{"iri": "https://identifiers.org/wikipathways/WP254", "label": "Apoptosis"}, {"iri": "https://identifiers.org/wikipathways/WP1061", "label": "Fatty Acid beta-oxidation"}, {"iri": "https://identifiers.org/wikipathways/WP1156", "label": "Inflammatory Response"}]}, "https://sparql.omabrowser.org/sparql/": {"searches": ["TP53", "INS", "BRCA1"], "types": [{"iri": "http://purl.org/net/orth#Protein", "label": "Protein"}, {"iri": "http://purl.org/net/orth#OrthologsCluster", "label": "Cluster of orthologs"}, {"iri": "http://purl.org/net/orth#Gene", "label": "Gene"}], "entities": [{"iri": "https://omabrowser.org/oma/info/HUMAN54858", "label": "TP53BP2 (human)"}, {"iri": "https://omabrowser.org/oma/info/CAVPO15986", "label": "INS (guinea pig)"}]}, "https://sparql.orthodb.org/sparql": {"searches": [], "types": [{"iri": "http://purl.orthodb.org/OrthoGroup", "label": "OrthoGroup"}, {"iri": "http://purl.orthodb.org/Gene", "label": "Gene"}, {"iri": "http://purl.orthodb.org/Uniprot", "label": "Uniprot"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/A0A1T4WVK7", "label": "A0A1T4WVK7"}, {"iri": "http://purl.orthodb.org/odbgene/10013_0_000457", "label": "10013_0:000457"}]}, "https://datos.bcn.cl/sparql": {"searches": ["Constitución", "educación", "pensiones"], "types": [{"iri": "http://datos.bcn.cl/ontologies/bcn-resources#ProyectoDeLey", "label": "Proyecto de Ley"}, {"iri": "http://datos.bcn.cl/ontologies/bcn-resources#MocionParlamentaria", "label": "Moción Parlamentaria"}, {"iri": "http://xmlns.com/foaf/0.1/Document", "label": "Document"}], "entities": [{"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/5881-07", "label": "Modifica los artículos 94 y 32 de la Constitución Política de la República"}, {"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/1194-07", "label": "Establece normas para derogar la inviolabilidad parlamentaria"}]}, "https://www1.siop.planejamento.gov.br/sparql/": {"searches": [], "types": [{"iri": "http://vocab.e.gov.br/2013/09/loa#Programa", "label": "Programa"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#Acao", "label": "Ação"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#UnidadeOrcamentaria", "label": "Unidade Orçamentária"}], "entities": [{"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2015", "label": "Aperfeiçoamento do Sistema Único de Saúde (SUS)"}, {"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2030", "label": "Educação Básica"}]}, "https://www.3lgm2.de/sparql": {"searches": ["Radiology", "Patient", "Document"], "types": [{"iri": "https://www.3lgm2.de/resource/ihe/IntegrationProfile", "label": "Integration Profile"}, {"iri": "https://www.3lgm2.de/resource/ihe/Actor", "label": "Actor"}, {"iri": "https://www.3lgm2.de/resource/ihe/Domain", "label": "Domain"}], "entities": [{"iri": "https://www.3lgm2.de/resource/ihe/ARI", "label": "Access to Radiology Information"}, {"iri": "https://www.3lgm2.de/resource/ihe/ATNA", "label": "Audit Trail and Node Authentication"}, {"iri": "https://www.3lgm2.de/resource/ihe/APPC_CONTENT_CREATOR", "label": "Content Creator (APPC)"}]}, "https://dataforhumanities.abes.fr/sparql": {"searches": ["Paris", "Lyon", "université"], "types": [{"iri": "https://ontome.net/class/21", "label": "OntoME class 21"}, {"iri": "http://symogih.org/ontology/Actor", "label": "Actor"}, {"iri": "http://symogih.org/ontology/NamedPlace", "label": "Named place"}], "entities": [{"iri": "urn:uuid:497924b1-15a4-4f80-9960-c9749e0dd060", "label": "Léon Lyon-Caen"}, {"iri": "http://www.wikidata.org/entity/Q10159", "label": "École Normale Supérieure de Lyon"}]}}/*END*/;
+const ENDPOINT_SAMPLES = /*SAMPLES*/{"https://dbpedia.org/sparql": {"searches": ["Benin City", "Alcides Mendoza Castro", "Aleksander Kreek"], "types": [{"iri": "http://dbpedia.org/ontology/Person", "label": "person"}, {"iri": "http://dbpedia.org/ontology/TimePeriod", "label": "time period"}, {"iri": "http://dbpedia.org/ontology/Species", "label": "species"}], "entities": [{"iri": "http://dbpedia.org/resource/Benin_City", "label": "Benin City"}, {"iri": "http://dbpedia.org/resource/Alcides_Mendoza_Castro", "label": "Alcides Mendoza Castro"}, {"iri": "http://dbpedia.org/resource/Aleksander_Kreek", "label": "Aleksander Kreek"}]}, "https://linkeddata.uriburner.com/sparql": {"searches": ["HowTo", "FAQ", "Glossary"], "types": [{"iri": "http://schema.org/Question", "label": "Question"}, {"iri": "http://schema.org/HowTo", "label": "HowTo"}, {"iri": "http://schema.org/SoftwareApplication", "label": "SoftwareApplication"}], "entities": [{"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/intent-to-action-agents-web-claude_sonnet_5_5-1.html#article", "label": "From Intent to Action"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/gates-turbulent-ai-era-critical-choices-claude_opus_5-1.ttl#analysis", "label": "The Turbulent AI Era and the Choices That Cannot Wait"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/the-next-difficulty-gpt_6-1.html", "label": "The Next Difficulty: An Atlas of Innovation"}]}, "https://query.wikidata.org/sparql": {"searches": ["Vladimir Lenin", "George Washington", "New York City"], "types": [{"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q515", "label": "city"}, {"iri": "http://www.wikidata.org/entity/Q11424", "label": "film"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q1394", "label": "Vladimir Lenin"}, {"iri": "http://www.wikidata.org/entity/Q23", "label": "George Washington"}, {"iri": "http://www.wikidata.org/entity/Q60", "label": "New York City"}]}, "https://sparql.uniprot.org/sparql": {"searches": [], "types": [{"iri": "http://purl.uniprot.org/core/Protein", "label": "Protein"}, {"iri": "http://purl.uniprot.org/core/Taxon", "label": "Taxon"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/P05067", "label": "Amyloid-beta precursor protein"}, {"iri": "http://purl.uniprot.org/uniprot/P04637", "label": "Cellular tumor antigen p53"}, {"iri": "http://purl.uniprot.org/uniprot/P69905", "label": "Hemoglobin subunit alpha"}]}, "https://data.europa.eu/sparql": {"searches": ["Tsunami", "Earthquake"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://data.europa.eu/88u/dataset/5b49f79d-fa7b-4e58-ae36-a4597aca5509", "label": "Timeseries air pressure 2019"}]}, "https://api.parliament.uk/sparql": {"searches": ["Randerson", "Female", "Male"], "types": [{"iri": "https://id.parliament.uk/schema/TemporalThing", "label": "Temporal thing"}, {"iri": "https://id.parliament.uk/schema/ExternalThing", "label": "External thing"}], "entities": [{"iri": "https://id.parliament.uk/eup4DwE5", "label": "Local Government Boundary Commission for England"}, {"iri": "https://id.parliament.uk/WfMpdObA", "label": "Randerson"}, {"iri": "https://id.parliament.uk/Hnymnoxw", "label": "Female"}]}, "https://sparql.cellosaurus.org/sparql": {"searches": ["THRA", "Raji CD19 Knockout", "Raji"], "types": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/ontology/Xref", "label": "Cross-Reference"}], "entities": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/CGNC_4ca7629cd06caa8af5abe13b3f14f089", "label": "THRA"}, {"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/Cellosaurus_0359cc0bf71d67a0eced65623b1a4bb0", "label": "Raji CD19 Knockout"}]}, "https://data.gov.cz/sparql": {"searches": ["restricted", "sensitive", "JSON"], "types": [{"iri": "http://www.w3.org/2008/05/skos-xl#Label", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://publications.europa.eu/resource/authority/access-right/1b8c1ab7ad9d578068eccaf6d810816e", "label": "restricted"}, {"iri": "http://publications.europa.eu/resource/authority/access-right/43038fb5dcced3fdf4af364bea7a3d00", "label": "sensitive"}, {"iri": "https://data.gov.cz/zdroj/datové-sady/00025429/1493900693/distribuce/801e174f7e1814eb2aa4a9319f4c11b4", "label": "JSON"}]}, "https://data.idref.fr/sparql": {"searches": ["accepted", "draft", "M.A"], "types": [{"iri": "http://rdaregistry.info/Elements/c/C10001", "label": null}, {"iri": "http://open.vocab.org/terms/SchemaExample", "label": null}, {"iri": "http://purl.org/ontology/bibo/DocumentStatus", "label": "Document Status"}], "entities": [{"iri": "http://www.idref.fr/206614411/id", "label": "Accord général sur les tarifs douaniers et le commerce"}, {"iri": "http://purl.org/vocab/bio/examples/1", "label": "A Biography of Henry VIII, King of England"}]}, "https://www.nakala.fr/sparql": {"searches": ["Sylvain LEBRETON", "Farida SAID", "Picture"], "types": [{"iri": "http://www.europeana.eu/schemas/edm/ProvidedCHO", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Agent", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Collection", "label": null}], "entities": [{"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.007d198x", "label": "Picture 402 story SH_story52 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.00ae2z49", "label": "Picture 421 story SH_story55 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/Agent/8b11605f-9138-11ef-89cb-52540084ccd3", "label": "Sylvain LEBRETON"}]}, "https://agrovoc.fao.org/sparql": {"searches": ["methods", "design", "Indigenous Peoples Group"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#ConceptScheme", "label": null}], "entities": [{"iri": "http://aims.fao.org/aos/agrovoc/c_4788", "label": "methods"}, {"iri": "http://aims.fao.org/aos/agrovoc/c_2208", "label": "design"}, {"iri": "http://aims.fao.org/aos/agrovoc/skosCollection_cb7b7c4a", "label": "Indigenous Peoples Group"}]}, "https://scienceplus.abes.fr/sparql": {"searches": ["complications", "growth monitoring", "growth"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": "Concept"}], "entities": [{"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E14630FE053120B220A17F5/subject/complications", "label": "complications"}, {"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E18630FE053120B220A17F5/subject/growthmonitoring", "label": "growth monitoring"}]}, "https://opendata.aragon.es/sparql": {"searches": ["Zaragoza", "Huesca", "Teruel"], "types": [{"iri": "http://www.w3.org/ns/org#Organization", "label": "Organization"}, {"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "DCAT Dataset"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}], "entities": [{"iri": "http://icearagon.aragon.es/resource/hydro/org/Confederación_Hidrográfica_del_Ebro", "label": "Confederación Hidrográfica del Ebro"}, {"iri": "http://opendata.aragon.es/recurso/sector-publico/organizacion/comarca/01", "label": "La Jacetania"}, {"iri": "https://opendata.aragon.es/datos/catalogo/dataset/escudos-y-logotipos-del-gobierno-de-aragon", "label": "Escudos y logotipos del Gobierno de Aragón"}]}, "https://data.bibliotheken.nl/sparql": {"searches": ["Almelo", "Amsterdam", "Allart"], "types": [{"iri": "http://schema.org/ProductModel", "label": null}, {"iri": "http://schema.org/Book", "label": null}, {"iri": "http://schema.org/PublicationEvent", "label": null}], "entities": [{"iri": "http://data.bibliotheken.nl/id/nbt/p350580480", "label": "Almelo"}]}, "https://vocab.nerc.ac.uk/sparql/": {"searches": ["Surface", "radioactivity", "content"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "https://w3id.org/iadopt/ont#VariableSet", "label": null}], "entities": [{"iri": "http://vocab.nerc.ac.uk/standard_name/surface_radioactivity_content_of_141Ce/", "label": "Surface radioactivity content of 141Ce"}, {"iri": "http://vocab.nerc.ac.uk/collection/P06/current/BQSM/", "label": "Becquerels per square metre"}, {"iri": "http://vocab.nerc.ac.uk/collection/C35/current/", "label": "European Nature Information System Level 3 Habitats"}]}, "https://data.muziekschatten.nl/sparql": {"searches": ["Komt allen tezamen", "Lonely boy", "onvolledig"], "types": [{"iri": "http://schema.org/MusicComposition", "label": null}, {"iri": "https://data.muziekschatten.nl/som/LichteMuziekDeeltitel", "label": null}, {"iri": "https://data.muziekschatten.nl/som/Precat", "label": null}], "entities": [{"iri": "https://data.muziekschatten.nl/som/616024", "label": "Komt allen tezamen"}, {"iri": "https://data.muziekschatten.nl/som/177339", "label": "Lonely boy"}, {"iri": "https://data.muziekschatten.nl/som/177340", "label": "L'oiseau et l'enfant"}]}, "https://wikidata.demo.openlinksw.com/sparql": {"searches": ["Panthera leo", "Happiness", "George Washington"], "types": [{"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q16521", "label": "taxon"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q45106562", "label": "Panthera leo"}, {"iri": "http://www.wikidata.org/entity/Q33700518", "label": "Happiness"}, {"iri": "http://www.wikidata.org/entity/Q100948698", "label": "George Washington"}]}, "https://publications.europa.eu/webapi/rdf/sparql": {"searches": ["Marco ONIDA", "DCMI Type Vocabulary", "LCC"], "types": [{"iri": "http://xmlns.com/foaf/0.1/Person", "label": null}, {"iri": "http://purl.org/dc/dcam/VocabularyEncodingScheme", "label": null}, {"iri": "http://purl.org/dc/terms/AgentClass", "label": "Agent Class"}], "entities": [{"iri": "http://publications.europa.eu/resource/directory/person/COM_00006AA0DAA3", "label": "Lars DE NUL"}, {"iri": "http://publications.europa.eu/resource/directory/person/COM_00003367AF", "label": "Marco ONIDA"}, {"iri": "http://purl.org/dc/terms/DCMIType", "label": "DCMI Type Vocabulary"}]}, "https://libris.kb.se/sparql": {"searches": [], "types": [{"iri": "https://id.kb.se/vocab/Person", "label": "Person"}, {"iri": "https://id.kb.se/vocab/Topic", "label": "Topic"}, {"iri": "https://id.kb.se/vocab/Instance", "label": "Instance"}], "entities": [{"iri": "https://libris.kb.se/tr574vdc33gk2cc#it", "label": "August Strindberg"}, {"iri": "https://libris.kb.se/qn247n18248vs58#it", "label": "Selma Lagerlöf"}, {"iri": "https://id.kb.se/term/sao/Journalister", "label": "Journalister"}]}, "https://dati.camera.it/sparql": {"searches": ["Berlinguer", "Moro", "bilancio"], "types": [{"iri": "http://dati.camera.it/ocd/deputato", "label": "deputato"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}, {"iri": "http://dati.camera.it/ocd/atto", "label": "atto camera"}], "entities": [{"iri": "http://dati.camera.it/ocd/mandatoCamera.rdf/mc6_720_19720519", "label": "Mandato Camera di Enrico Berlinguer (VI Legislatura)"}, {"iri": "http://dati.camera.it/ocd/attocamera.rdf/ac02_1901", "label": "Riordinamento dell'Amministrazione giudiziaria"}, {"iri": "http://dati.camera.it/ocd/persona.rdf/p308280", "label": "Gaetano Manfredi"}]}, "https://lod.dati.gov.it/sparql/": {"searches": ["Roma", "trasporti", "bilancio"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://dati.puglia.it/ckan/dataset/04ca61f4-f857-4a31-98b9-eeb3b68ab821", "label": "Adozione Nuovo Piano d'Ambito Puglia 2020-2045"}, {"iri": "https://github.com/Universita-degli-Studi-di-Teramo/OpenData/tree/main/catalogo/collaboratori-linguistici-2022", "label": "Collaboratori linguistici 2022"}, {"iri": "https://dati.gov.it/", "label": "Dati Gov IT"}]}, "https://datos.gob.es/virtuoso/sparql": {"searches": ["Madrid", "presupuesto", "turismo"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://datos.gob.es/catalogo/a01002820-hidrografia", "label": "Hidrografía"}, {"iri": "http://datos.gob.es", "label": "datos.gob.es"}]}, "https://sparql.wikipathways.org/sparql": {"searches": [], "types": [{"iri": "http://vocabularies.wikipathways.org/wp#Pathway", "label": "Pathway"}, {"iri": "http://vocabularies.wikipathways.org/wp#GeneProduct", "label": "GeneProduct"}, {"iri": "http://vocabularies.wikipathways.org/wp#Metabolite", "label": "Metabolite"}], "entities": [{"iri": "https://identifiers.org/wikipathways/WP254", "label": "Apoptosis"}, {"iri": "https://identifiers.org/wikipathways/WP1061", "label": "Fatty Acid beta-oxidation"}, {"iri": "https://identifiers.org/wikipathways/WP1156", "label": "Inflammatory Response"}]}, "https://sparql.omabrowser.org/sparql/": {"searches": ["TP53", "INS", "BRCA1"], "types": [{"iri": "http://purl.org/net/orth#Protein", "label": "Protein"}, {"iri": "http://purl.org/net/orth#OrthologsCluster", "label": "Cluster of orthologs"}, {"iri": "http://purl.org/net/orth#Gene", "label": "Gene"}], "entities": [{"iri": "https://omabrowser.org/oma/info/HUMAN54858", "label": "TP53BP2 (human)"}, {"iri": "https://omabrowser.org/oma/info/CAVPO15986", "label": "INS (guinea pig)"}]}, "https://sparql.orthodb.org/sparql": {"searches": [], "types": [{"iri": "http://purl.orthodb.org/OrthoGroup", "label": "OrthoGroup"}, {"iri": "http://purl.orthodb.org/Gene", "label": "Gene"}, {"iri": "http://purl.orthodb.org/Uniprot", "label": "Uniprot"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/A0A1T4WVK7", "label": "A0A1T4WVK7"}, {"iri": "http://purl.orthodb.org/odbgene/10013_0_000457", "label": "10013_0:000457"}]}, "https://datos.bcn.cl/sparql": {"searches": ["Constitución", "educación", "pensiones"], "types": [{"iri": "http://datos.bcn.cl/ontologies/bcn-resources#ProyectoDeLey", "label": "Proyecto de Ley"}, {"iri": "http://datos.bcn.cl/ontologies/bcn-resources#MocionParlamentaria", "label": "Moción Parlamentaria"}, {"iri": "http://xmlns.com/foaf/0.1/Document", "label": "Document"}], "entities": [{"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/5881-07", "label": "Modifica los artículos 94 y 32 de la Constitución Política de la República"}, {"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/1194-07", "label": "Establece normas para derogar la inviolabilidad parlamentaria"}]}, "https://www1.siop.planejamento.gov.br/sparql/": {"searches": [], "types": [{"iri": "http://vocab.e.gov.br/2013/09/loa#Programa", "label": "Programa"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#Acao", "label": "Ação"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#UnidadeOrcamentaria", "label": "Unidade Orçamentária"}], "entities": [{"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2015", "label": "Aperfeiçoamento do Sistema Único de Saúde (SUS)"}, {"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2030", "label": "Educação Básica"}]}, "https://www.3lgm2.de/sparql": {"searches": ["Radiology", "Patient", "Document"], "types": [{"iri": "https://www.3lgm2.de/resource/ihe/IntegrationProfile", "label": "Integration Profile"}, {"iri": "https://www.3lgm2.de/resource/ihe/Actor", "label": "Actor"}, {"iri": "https://www.3lgm2.de/resource/ihe/Domain", "label": "Domain"}], "entities": [{"iri": "https://www.3lgm2.de/resource/ihe/ARI", "label": "Access to Radiology Information"}, {"iri": "https://www.3lgm2.de/resource/ihe/ATNA", "label": "Audit Trail and Node Authentication"}, {"iri": "https://www.3lgm2.de/resource/ihe/APPC_CONTENT_CREATOR", "label": "Content Creator (APPC)"}]}, "https://dataforhumanities.abes.fr/sparql": {"searches": ["Paris", "Lyon", "université"], "types": [{"iri": "https://ontome.net/class/21", "label": "OntoME class 21"}, {"iri": "http://symogih.org/ontology/Actor", "label": "Actor"}, {"iri": "http://symogih.org/ontology/NamedPlace", "label": "Named place"}], "entities": [{"iri": "urn:uuid:497924b1-15a4-4f80-9960-c9749e0dd060", "label": "Léon Lyon-Caen"}, {"iri": "http://www.wikidata.org/entity/Q10159", "label": "École Normale Supérieure de Lyon"}]}, "https://graph.data.era.europa.eu/repositories/rinf-plus": {"searches": ["Bruxelles", "München", "Koralm"], "types": [{"iri": "http://data.europa.eu/949/OperationalPoint", "label": "Operational Point"}, {"iri": "http://data.europa.eu/949/SectionOfLine", "label": "Section Of Line"}, {"iri": "http://data.europa.eu/949/Tunnel", "label": "Tunnel"}], "entities": [{"iri": "http://data.europa.eu/949/operationalPoint/960db8597a", "label": "Bruxelles-Midi | Brussel-Zuid"}, {"iri": "http://data.europa.eu/949/operationalPoint/43e3d4a5ce", "label": "München Hbf"}, {"iri": "http://data.europa.eu/949/functionalInfrastructure/tunnels/AT/0081/40101_AT01315_AT01035_67b50b71-f815-476b-8e2d-719b46dc9283_4063", "label": "KORALM (tunnel)"}]}, "https://demo.openlinksw.com/sparql": {"searches": ["Osimhen", "Haaland", "Salah"], "types": [{"iri": "https://transfermarkt.com/ontology#Player", "label": "Player (Transfermarkt)"}, {"iri": "http://demo.openlinksw.com/tcrd/ontology#Gene", "label": "Gene (TCRD)"}, {"iri": "http://www.openlinksw.com/ontology/nflverse#Play", "label": "Play (NFL)"}], "entities": [{"iri": "https://transfermarkt.com/victor-osimhen/profil/spieler/401923#player", "label": "Victor Osimhen"}, {"iri": "http://www.ncbi.nlm.nih.gov/gene/?term=7157#this", "label": "P53_HUMAN"}, {"iri": "https://www.fifa.com/en/articles/norway-senegal-match-report-highlights#this", "label": "Haaland helps fire Norway into knockouts"}]}, "https://graph.data.era.europa.eu/repositories/ERA-Onto": {"searches": ["RINF", "SHACL", "gauge"], "types": [{"iri": "http://www.w3.org/2002/07/owl#Class", "label": "Class (ERA ontology)"}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": "Concept"}, {"iri": "https://w3id.org/vpa#Requirement", "label": "Requirement"}], "entities": [{"iri": "http://data.europa.eu/949/id/distribution/rinf/era-shapes", "label": "ERA RINF SHACL shapes (Turtle)"}, {"iri": "http://data.europa.eu/949/concepts/nominal-track-gauges/NominalTrackGauges", "label": "Nominal Track Gauges"}, {"iri": "http://data.europa.eu/949/legislation/requirements/cir-2020-387", "label": "2020/387"}]}, "https://graph.data.era.europa.eu/repositories/OCR-KG": {"searches": ["VR-Yhtymä", "SNCF", "Stena"], "types": [{"iri": "http://www.w3.org/ns/org#Organization", "label": "Organization"}, {"iri": "http://data.europa.eu/949/Body", "label": "Body"}, {"iri": "http://www.w3.org/ns/org#Site", "label": "Site"}], "entities": [{"iri": "http://data.europa.eu/949/body/organisation/0087", "label": "Sncf Réseau"}, {"iri": "http://data.europa.eu/949/body/organisation/0010", "label": "VR-Yhtymä Oyj"}, {"iri": "http://data.europa.eu/949/body/organisation/0006", "label": "Stena Line Holland BV"}]}, "https://graph.data.era.europa.eu/repositories/era-lex": {"searches": ["Directive", "Regulation", "safety"], "types": [{"iri": "http://data.europa.eu/eli/ontology#LegalResource", "label": "Legal Resource"}, {"iri": "http://data.europa.eu/eli/ontology#LegalResourceSubdivision", "label": "Legal Resource Subdivision"}, {"iri": "http://data.europa.eu/eli/ontology#LegalExpression", "label": "Legal Expression"}], "entities": [{"iri": "http://data.europa.eu/949/legislation/requirements/dir-2016-798", "label": "Directive (EU) 2016/798"}, {"iri": "http://data.europa.eu/949/legislation/requirements/dir-2016-797", "label": "Directive (EU) 2016/797"}, {"iri": "http://data.europa.eu/949/legislation/requirements/reg-2016-919", "label": "Commission Regulation (EU) 2016/919"}]}, "https://fedlex.data.admin.ch/sparqlendpoint": {"searches": ["Constitution", "Zivilgesetzbuch", "Obligations"], "types": [{"iri": "http://data.legilux.public.lu/resource/ontology/jolux#Act", "label": "Act"}, {"iri": "http://data.legilux.public.lu/resource/ontology/jolux#ConsolidationAbstract", "label": "Consolidation abstract"}, {"iri": "http://data.legilux.public.lu/resource/ontology/jolux#LegalInstitution", "label": "Legal institution"}], "entities": [{"iri": "https://fedlex.data.admin.ch/eli/cc/1999/404", "label": "Federal Constitution of the Swiss Confederation"}, {"iri": "https://fedlex.data.admin.ch/eli/cc/24/233_245_233", "label": "Swiss Civil Code"}, {"iri": "https://fedlex.data.admin.ch/eli/cc/27/317_321_377", "label": "Code of Obligations"}]}, "https://data.legilux.public.lu/sparqlendpoint": {"searches": ["Code civil", "Constitution", "règlement"], "types": [{"iri": "http://data.legilux.public.lu/resource/ontology/jolux#Act", "label": "Acte"}, {"iri": "http://data.legilux.public.lu/resource/ontology/jolux#Memorial", "label": "Mémorial"}, {"iri": "http://data.legilux.public.lu/resource/ontology/jolux#Article", "label": "Article"}], "entities": [{"iri": "http://data.legilux.public.lu/eli/etat/leg/constitution/1868/10/17/n1/jo", "label": "Constitution du Grand-Duché de Luxembourg"}, {"iri": "http://data.legilux.public.lu/eli/etat/leg/loi/1804/03/21/n1/jo", "label": "Code civil"}]}}/*END*/;
 const presetName = ep => { const o = [...document.getElementById('epPreset').options].find(o => o.value === ep); return o ? o.textContent.replace(/\s*\(no CORS.*\)$/, '') : ep.replace(/^https?:\/\//, ''); };
 function renderLanding() {
   const sm = ENDPOINT_SAMPLES[settings.ep];
@@ -1679,7 +1794,7 @@ function searchPlaceholder() {
 
 function renderTabs() {
   const hasSets = nav.nodes.length > 0;
-  const tabs = [['entities', 'Entities', hasSets], ['values', nav.vp ? 'Values · ' + lblText(nav.vp.p) : 'Distinct (Count)', hasSets], ['describe', nav.ent ? 'Description · ' + lblText(nav.ent) : 'Description', !!nav.ent], ['sparql', 'SPARQL', true]];
+  const tabs = [['entities', 'Entities', hasSets], ['values', nav.vp ? 'Values · ' + lblText(nav.vp.p) : 'Distinct (Count)', hasSets], ['map', 'Map', hasSets], ['describe', nav.ent ? 'Description · ' + lblText(nav.ent) : 'Description', !!nav.ent], ['sparql', 'SPARQL', true]];
   document.getElementById('tabs').innerHTML = tabs.map(([k, t, ok]) =>
     '<button class="tab" role="tab" aria-selected="' + (nav.view === k) + '" data-act="tab" data-view="' + k + '"' + (ok ? '' : ' disabled') + '>' + t + '</button>').join('');
 }
@@ -1734,7 +1849,9 @@ function condLabel(c) {
   if (c.t === 'class') return { op: c.neg ? 'not a' : 'a', v: lbl(c.iri) };
   if (c.t === 'is') return { op: c.neg ? 'is not' : 'is', v: c.v.type === 'uri' ? lbl(c.v.value) : '“' + esc(c.v.value.slice(0, 60)) + '”' };
   const pre = c.dir === 'in' ? 'is ' + lbl(c.p) + ' of' : lbl(c.p);
-  if (c.v) return { op: c.neg ? '≠' : '=', v: pre + ' ' + (c.v.type === 'uri' ? lbl(c.v.value) : '“' + esc(c.v.value.slice(0, 60)) + '”') };
+  const tv = t => t.type === 'uri' ? lbl(t.value) : '“' + esc(t.value.slice(0, 60)) + '”';
+  if (c.vs && c.vs.length) return { op: c.neg ? 'none of' : 'any of', v: pre + ' ' + c.vs.map(tv).join(' <span class="or">or</span> ') };
+  if (c.v) return { op: c.neg ? '≠' : '=', v: pre + ' ' + tv(c.v) };
   if ((c.lo != null && c.lo !== '') || (c.hi != null && c.hi !== '')) return { op: c.neg ? 'outside' : 'within', v: pre + ' [' + esc(c.lo || '…') + ' – ' + esc(c.hi || '…') + ']' };
   return { op: c.neg ? 'lacks' : 'has', v: pre };
 }
@@ -1884,6 +2001,7 @@ function renderView(my, signal) {
   if (v === 'describe' && nav.ent) return renderDescribe(el, my, signal);
   if (!nav.nodes.length) { el.innerHTML = '<div class="content"><div class="empty">Nothing to show.</div></div>'; return; }
   if (v === 'values') return nav.vp ? renderValues(el, my, signal) : renderDistinct(el, my, signal);
+  if (v === 'map') return renderMap(el, my, signal);
   if (isBrowseAll() && !nav.raw && settings.browseAll !== 'raw') return renderOverview(el, my, signal);
   return renderEntities(el, my, signal);
 }
@@ -2080,11 +2198,12 @@ async function renderValues(el, my, signal) {
     cur.values = rs.map(r => r.v);
     wantLabels(rs.filter(r => r.v.type === 'uri').map(r => r.v.value));
     const ordered = dir === 'out' && rs.some(r => r.v.type !== 'uri' && r.v.datatype && ORDERED.test(r.v.datatype));
-    const valCell = (r, k) => r.v.type === 'bnode' ? termHtml(r.v) :
-      (r.v.type === 'uri' ? lbl(r.v.value, 'data-act="addVal" data-k="' + k + '" title="Keep entities with this value"') : '<button class="lbl" data-act="addVal" data-k="' + k + '" title="Keep entities with this value">' + esc(r.v.value.length > 200 ? r.v.value.slice(0, 200) + '…' : r.v.value) + '</button>' + dtBadge(r.v));
+    const picked = new Set(); fnode().conds.forEach(c => { if (isValFilter(c, { p, dir })) (c.vs || [c.v]).forEach(t => picked.add(t.type + '|' + t.value)); });
+    const valCell = (r, k) => (picked.has(r.v.type + '|' + r.v.value) ? '<span class="picked" title="Selected in the filters">✓</span> ' : '') + (r.v.type === 'bnode' ? termHtml(r.v) :
+      (r.v.type === 'uri' ? lbl(r.v.value, 'data-act="addVal" data-k="' + k + '" title="Keep entities with this value"') : '<button class="lbl" data-act="addVal" data-k="' + k + '" title="Keep entities with this value">' + esc(r.v.value.length > 200 ? r.v.value.slice(0, 200) + '…' : r.v.value) + '</button>' + dtBadge(r.v)));
     el.querySelector('.content').innerHTML = '<div id="rangeBox"></div>' + (rs.length ? '<table class="vals"><thead><tr><th>Value</th><th class="num">Entities</th><th class="acts"><span class="sr">Actions</span></th></tr></thead><tbody>' + rs.map((r, k) =>
       '<tr><td>' + valCell(r, k) + '</td><td class="num"><span class="cnt">' + fmtN(r.n.value) + '</span></td><td class="acts">' +
-      (r.v.type !== 'bnode' ? '<button class="mini neg" data-act="addVal" data-neg="1" data-k="' + k + '" title="Exclude this value" aria-label="Exclude value">⊘</button> ' : '') +
+      (r.v.type !== 'bnode' ? '<button class="mini" data-act="addVal" data-or="1" data-k="' + k + '" title="Or: also keep entities with this value (widens an existing filter on this property)" aria-label="Also allow this value">∨</button> <button class="mini neg" data-act="addVal" data-neg="1" data-k="' + k + '" title="Exclude this value" aria-label="Exclude value">⊘</button> ' : '') +
       (r.v.type === 'uri' ? '<button class="mini" data-act="describe" data-iri="' + esc(r.v.value) + '" title="Describe" aria-label="Describe">ℹ</button>' : '') + '</td></tr>').join('') + '</tbody></table>' + pagerSlot('main') : '<div class="empty">No values.</div>');
     setPager('main', { count: rs.length });
     markPartial(el.querySelector('.view-head h2'), rs.partial, rs.unsorted);
@@ -2109,6 +2228,350 @@ async function renderValues(el, my, signal) {
   } catch (e) {
     if (my === gen && e.message !== 'cancelled') el.querySelector('.content').innerHTML = errBox(e);
   }
+}
+
+/* ---------- Location map on descriptions ----------
+   Like fct-dev's OpenLayers map for geosparql:asWKT, the description shows a map when the entity has a location:
+   geo:lat/geo:long, GeoSPARQL asWKT (on the entity or through geo:hasGeometry), Wikidata P625, georss:point or
+   schema:geo. One small UNION query; Leaflet 1.9.4 (cdnjs, SRI-pinned) loads only when a location is found;
+   OpenStreetMap tiles. WKT is read as CRS84 (lon lat) unless it names EPSG:4326 (lat lon); other CRSs are skipped. */
+const GSP = 'http://www.opengis.net/ont/geosparql#';
+let leafletP = null;
+const geoCache = new Map();   // ep|entity -> promise of location rows
+function loadLeaflet() {
+  if (window.L) return Promise.resolve(window.L);
+  if (!leafletP) leafletP = new Promise((ok, fail) => {
+    const base = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
+    const css = document.createElement('link');
+    Object.assign(css, { rel: 'stylesheet', href: base + 'leaflet.min.css', crossOrigin: 'anonymous', referrerPolicy: 'no-referrer',
+      integrity: 'sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==' });
+    document.head.appendChild(css);
+    const js = document.createElement('script');
+    Object.assign(js, { src: base + 'leaflet.min.js', crossOrigin: 'anonymous', referrerPolicy: 'no-referrer',
+      integrity: 'sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==' });
+    js.onload = () => ok(window.L); js.onerror = () => { leafletP = null; fail(new Error('map library unavailable')); };
+    document.head.appendChild(js);
+  });
+  return leafletP;
+}
+// WKT literal -> GeoJSON geometry (Point, LineString, Polygon and their Multi forms; Z/M values dropped).
+function wktToGeo(w) {
+  let s = String(w).trim(), swap = false;
+  const crs = s.match(/^<([^>]+)>\s*/);
+  if (crs) {
+    if (/EPSG\/0\/4326$/.test(crs[1])) swap = true;
+    else if (!/CRS84$|wikidata\.org\/entity\/Q2$/.test(crs[1])) return null;   // another CRS, or another globe
+    s = s.slice(crs[0].length);
+  }
+  s = s.replace(/^SRID=\d+;/i, '');
+  const m = s.match(/^([A-Za-z]+)\s*(?:ZM|Z|M)?\s*(\(.*\))\s*$/s);
+  if (!m) return null;
+  const str = m[2]; let i = 0;
+  const pt = b => { const n = b.trim().split(/\s+/).slice(0, 2).map(Number); return swap ? [n[1], n[0]] : n; };
+  const parse = () => {
+    i++; const items = []; let buf = '';
+    while (i < str.length) {
+      const c = str[i];
+      if (c === '(') items.push(parse());
+      else if (c === ')') { if (buf.trim()) items.push(pt(buf)); i++; return items; }
+      else if (c === ',') { if (buf.trim()) items.push(pt(buf)); buf = ''; i++; }
+      else { buf += c; i++; }
+    }
+    return items;
+  };
+  const c = parse(), type = m[1].toUpperCase();
+  const geo = type === 'POINT' ? { type: 'Point', coordinates: c[0] }
+    : type === 'LINESTRING' ? { type: 'LineString', coordinates: c }
+    : type === 'POLYGON' ? { type: 'Polygon', coordinates: c }
+    : type === 'MULTIPOINT' ? { type: 'MultiPoint', coordinates: c.map(p => Array.isArray(p[0]) ? p[0] : p) }
+    : type === 'MULTILINESTRING' ? { type: 'MultiLineString', coordinates: c }
+    : type === 'MULTIPOLYGON' ? { type: 'MultiPolygon', coordinates: c } : null;
+  const ok = a => Array.isArray(a) && (typeof a[0] === 'number' ? a.length === 2 && a.every(Number.isFinite) && Math.abs(a[1]) <= 90 && Math.abs(a[0]) <= 180 : a.length && a.every(ok));
+  return geo && ok(geo.coordinates) ? geo : null;
+}
+const geoPoint = (lat, lon) => { const a = Number(lat), o = Number(lon); return Number.isFinite(a) && Number.isFinite(o) && Math.abs(a) <= 90 && Math.abs(o) <= 180 ? { type: 'Point', coordinates: [o, a] } : null; };
+/* Location patterns shared by the description map and the Map tab. 'direct' looks at the entity itself; 'hop' one
+   link further (RINF keeps an operational point's coordinates on its era:netReference), reporting the link in ?hop. */
+// o.kinds limits the branches to those a first load found ('ll' lat/long, 'wkt', 'pt'); o.via fixes the hop predicate.
+function geoBlock(x, hop, o = {}) {
+  const G = NS.geo, S = 'http://schema.org/', SS = 'https://schema.org/';
+  const n = hop ? '?gn' : x, k = o.kinds, want = kind => !k || k.has(kind);
+  const parts = [];
+  if (want('ll')) parts.push('{ ' + n + ' <' + G + 'lat> ?lat ; <' + G + 'long> ?lon }');
+  if (want('wkt')) parts.push('{ ' + n + ' <' + GSP + 'asWKT> ?wkt }', '{ ' + n + ' <' + GSP + 'hasGeometry> ?gg . ?gg <' + GSP + 'asWKT> ?wkt }');
+  if (!hop && want('wkt')) parts.push('{ ' + n + ' <http://www.wikidata.org/prop/direct/P625> ?wkt }');
+  if (!hop && want('wkt')) parts.push('{ ' + n + ' <' + G + 'geometry> ?wkt }');
+  if (!hop && want('pt')) parts.push('{ ' + n + ' <http://www.georss.org/georss/point> ?pt }');
+  if (!hop && want('ll')) [S, SS].forEach(ns => parts.push('{ ' + n + ' <' + ns + 'latitude> ?lat ; <' + ns + 'longitude> ?lon }', '{ ' + n + ' <' + ns + 'geo> ?sg . ?sg <' + ns + 'latitude> ?lat ; <' + ns + 'longitude> ?lon }'));
+  const b = parts.join('\n  UNION ');
+  if (!hop) return '  { ' + b + ' }';
+  const link = o.via ? '  ' + x + ' ' + iriRef(o.via) + ' ?gn . BIND (' + iriRef(o.via) + ' AS ?hop)' : '  ' + x + ' ?hop ?gn . FILTER (isIRI (?gn) && ?hop != <' + GSP + 'hasGeometry>)';
+  return link + '\n  { ' + b + ' }';
+}
+function rowGeo(r) {
+  if (r.wkt) return wktToGeo(r.wkt.value);
+  if (r.pt) { const [a, o] = r.pt.value.trim().split(/[\s,]+/); return geoPoint(a, o); }
+  if (r.lat && r.lon) return geoPoint(r.lat.value, r.lon.value);
+  return null;
+}
+const MAP_COLORS = ['#1f77b4', '#d62728', '#2ca02c', '#ff7f0e', '#9467bd', '#17becf', '#e377c2', '#8c564b', '#bcbd22'];
+/* Map tab: members of the focused set that have a location, drawn with Leaflet (canvas) and coloured by their most
+   specific type among those on the map. It follows the trail, so facets (a country, a type, a value) narrow the map
+   the way RINF Atlas filters do. Members without their own geometry are looked up one link away. */
+async function renderMap(el, my, signal) {
+  const f = nav.focus, v = sv(f), vn = v.slice(1);
+  const ms = Object.assign({ lim: 3000, by: '', view: false }, nav.pg.map || {});
+  const cap = [1000, 3000, 10000].includes(+ms.lim) ? +ms.lim : 3000;
+  const setMs = patch => mutate(n => { n.pg = Object.assign({}, n.pg, { map: Object.assign({}, ms, patch) }); }, { keepView: true });
+  el.innerHTML = viewHead('Map', 'Members of the focused set that have a location. Narrow it with the facets (∨ in a value list adds an alternative); click a feature to describe it.') +
+    '<div class="content set-map"><div class="map-bar"><span id="mapStat">Finding locations…</span>' +
+    '<label>Colour by <select class="field" id="mapBy"><option value="">Type</option>' + (ms.by ? '<option value="' + esc(ms.by) + '" selected>' + esc(labelOf(ms.by)) + '</option>' : '') + '</select></label>' +
+    '<label>Show up to <select class="field" id="mapCap">' + [1000, 3000, 10000].map(n => '<option value="' + n + '"' + (n === cap ? ' selected' : '') + '>' + n.toLocaleString() + '</option>').join('') + '</select></label>' +
+    '<label class="check" title="Re-query as you pan and zoom: only members located in the visible area are fetched (points by their coordinates; lines and areas are clipped by the map)"><input type="checkbox" id="mapView"' + (ms.view ? ' checked' : '') + '> Limit to map view</label></div>' +
+    '<div class="geo-box"><div class="geo-map" id="setMap" role="img" aria-label="Map of the focused set"></div><div class="map-legend" id="mapLegend"></div>' +
+    '<p class="geo-cap"><span class="grow"></span><button type="button" class="mini" id="mapFull">⤢ Full screen</button><button type="button" class="mini" id="mapJson">GeoJSON ↓</button></p></div></div>';
+  document.getElementById('mapCap').onchange = ev => setMs({ lim: +ev.target.value });
+  document.getElementById('mapBy').onchange = ev => setMs({ by: ev.target.value });
+  document.getElementById('mapView').onchange = ev => setMs({ view: ev.target.checked });
+  const stat = () => document.getElementById('mapStat');
+
+  // Colour-by choices: properties of (a sample of) the set with at most 15 distinct values.
+  const pq = sel('?p (COUNT (DISTINCT ?o) AS ?n)', '  { SELECT DISTINCT ' + v + ' WHERE {\n' + whereBody(f) + '\n  } LIMIT 2000 }\n  ' + v + ' ?p ?o . FILTER (!isBlank (?o) && ?p != ' + iriRef(typeProp()) + ')',
+    'GROUP BY ?p HAVING (COUNT (DISTINCT ?o) <= 15 && COUNT (DISTINCT ?o) > 1) ORDER BY DESC (COUNT (*)) LIMIT 25');
+  cached(navKey() + '|mapby', async () => rows(await sparql(pq, { quiet: true, signal })).map(r => r.p.value)).then(ps => {
+    if (my !== gen) return;
+    wantLabels(ps);
+    const fill = () => { const s = document.getElementById('mapBy'); if (!s) return;
+      s.innerHTML = '<option value="">Type</option>' + [...new Set(ms.by ? [ms.by, ...ps] : ps)].map(p => '<option value="' + esc(p) + '"' + (p === ms.by ? ' selected' : '') + '>' + esc(labelOf(p)) + '</option>').join(''); };
+    fill(); setTimeout(fill, 1500);
+  }).catch(() => {});
+
+  // Locations: own geometry and one link away, together; a bounding box applies to lat/long rows when limiting to the view.
+  // lat/long rows compare numerically; WKT points have their coordinates read with REPLACE; lines and areas pass and are
+  // clipped by the map itself.
+  const inBox = (la, lo, bb) => '(' + XSD_D + '(' + la + ') >= ' + bb.s + ' && ' + XSD_D + '(' + la + ') <= ' + bb.n + ' && ' + XSD_D + '(' + lo + ') >= ' + bb.w + ' && ' + XSD_D + '(' + lo + ') <= ' + bb.e + ')';
+  const WKT_XY = '"^[^(]*[(][ (]*([-0-9.eE+]+)[ ]+([-0-9.eE+]+).*$"';
+  const bboxF = bb => bb ? '\n  FILTER ((BOUND (?lat) && ' + inBox('?lat', '?lon', bb) + ') || BOUND (?pt) || (BOUND (?wkt) && (!CONTAINS (UCASE (STR (?wkt)), "POINT") || ' +
+    inBox('REPLACE (STR (?wkt), ' + WKT_XY + ', "$2")', 'REPLACE (STR (?wkt), ' + WKT_XY + ', "$1")', bb) + ')))' : '';
+  // What the first (whole-set) load found is reused for the view queries: only the branches that produced locations,
+  // and the hop link as a fixed predicate; a variable link with a post-filtered box can take minutes.
+  const plan = { direct: null, hop: null };
+  const run = (hop, bb) => {
+    const pl = bb ? plan[hop ? 'hop' : 'direct'] : null;
+    if (bb && !pl) return Promise.resolve([]);
+    const q = sel('DISTINCT ' + v + ' ?lat ?lon ?wkt ?pt' + (hop ? ' ?hop' : ''), whereBody(f) + '\n' + geoBlock(v, hop, pl || {}) + bboxF(bb), 'LIMIT ' + cap);
+    queryLog.set('Map · locations' + (hop ? ' (one link away)' : ''), q);
+    return cached(navKey() + '|map|' + hop + '|' + cap + '|' + (bb ? [bb.s, bb.w, bb.n, bb.e].join(',') : ''), async () => rows(await sparql(q, { signal })));
+  };
+  async function locate(bb) {
+    const [d, h] = await Promise.allSettled([run(false, bb), run(true, bb)]);
+    if (d.status === 'rejected' && h.status === 'rejected') throw d.reason;
+    const direct = d.status === 'fulfilled' ? d.value : [], viaHop = h.status === 'fulfilled' ? h.value : [];
+    // a failed half that would have mattered is an error, not "nothing here"
+    if (!direct.length && h.status === 'rejected') throw h.reason;
+    if (!viaHop.length && d.status === 'rejected') throw d.reason;
+    if (!bb) {
+      const kinds = rs => { const k = new Set(rs.map(r => r.lat ? 'll' : r.wkt ? 'wkt' : r.pt ? 'pt' : '').filter(Boolean));
+        // the same place as lat/long and as a WKT point (RINF net references): lat/long alone is enough, and cheap to box
+        if (k.has('ll') && k.has('wkt') && rs.every(r => !r.wkt || /^\s*(<[^>]*>\s*)?POINT/i.test(r.wkt.value))) k.delete('wkt');
+        return k; };
+      if (direct.length) plan.direct = { kinds: kinds(direct) };
+      const hv = new Map(); viaHop.forEach(r => r.hop && hv.set(r.hop.value, (hv.get(r.hop.value) || 0) + 1));
+      if (viaHop.length) plan.hop = { kinds: kinds(viaHop), via: [...hv.entries()].sort((a, b) => b[1] - a[1])[0][0] };
+    }
+    const own = new Set(direct.map(r => r[vn] && r[vn].value));
+    const all = direct.concat(viaHop.filter(r => !own.has(r[vn] && r[vn].value)));
+    const feats = new Map(), hops = new Map();
+    all.forEach(r => {
+      const id = r[vn] && r[vn].value, g = rowGeo(r);
+      if (!id || !g) return;
+      const cur = feats.get(id);
+      if (!cur || (cur.type === 'Point' && g.type !== 'Point')) feats.set(id, g);
+      if (r.hop) hops.set(r.hop.value, (hops.get(r.hop.value) || 0) + 1);
+    });
+    return { feats, own, hopP: [...hops.entries()].sort((a, b) => b[1] - a[1])[0], capped: direct.length >= cap || viaHop.length >= cap };
+  }
+  // Colour key per member: its type (dataset vocabulary, rarest, ties to the trail's class) or its value for ms.by.
+  async function keys(ids) {
+    const pred = ms.by || typeProp(), vals = new Map();
+    for (let i = 0; i < ids.length; i += 300) {
+      const chunk = ids.slice(i, i + 300);
+      try {
+        rows(await sparql(sel('?x ?t', '  VALUES ?x { ' + chunk.map(iriRef).join(' ') + ' }\n  ?x ' + iriRef(pred) + ' ?t . FILTER (!isBlank (?t))'), { quiet: true, signal }))
+          .forEach(r => { const a = vals.get(r.x.value) || []; a.push(r.t.type === 'uri' ? r.t.value : '"' + r.t.value); vals.set(r.x.value, a); });
+      } catch { break; }
+      if (my !== gen) return null;
+    }
+    const freq = new Map();
+    vals.forEach(ts => ts.forEach(t => freq.set(t, (freq.get(t) || 0) + 1)));
+    if (ms.by) return new Map(ids.map(id => [id, (vals.get(id) || []).slice().sort((a, b) => freq.get(b) - freq.get(a))[0] || '']));
+    const asked = new Set(nav.nodes[f].conds.filter(c => c.t === 'class' && !c.neg).map(c => c.iri));
+    const nsOf = t => t.replace(/[^#/]*$/, ''), nsFreq = new Map();
+    vals.forEach(ts => new Set(ts.map(nsOf)).forEach(n => nsFreq.set(n, (nsFreq.get(n) || 0) + 1)));
+    const mainNs = [...nsFreq.entries()].sort((a, b) => b[1] - a[1]).map(([n]) => n).find(n => !/www\.w3\.org\/(2002\/07\/owl|2000\/01\/rdf-schema)#|opengis\.net|wgs84_pos/.test(n));
+    return new Map(ids.map(id => { const ts = vals.get(id) || [], mine = ts.filter(t => nsOf(t) === mainNs);
+      return [id, (mine.length ? mine : ts).slice().sort((a, b) => (freq.get(a) - freq.get(b)) || (asked.has(b) - asked.has(a)))[0] || '']; }));
+  }
+  const keyLabel = k => k.startsWith('"') ? k.slice(1) : labelOf(k);
+
+  let L;
+  try { L = await loadLeaflet(); } catch { stat().textContent = 'The map library could not be loaded.'; return; }
+  if (my !== gen || !document.getElementById('setMap')) return;
+  const mapEl = document.getElementById('setMap');
+  const map = L.map(mapEl, { preferCanvas: true, scrollWheelZoom: true, worldCopyJump: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(map);
+  map.setView([30, 10], 2);
+  let layer = null, fc = null, seq = 0, fitAll = null, touched = false;
+  // Fit again whenever the map's box changes size (first layout, a hidden tab becoming visible, full screen) until the
+  // viewer has moved the map themselves.
+  ['mousedown', 'wheel', 'touchstart', 'keydown'].forEach(t => mapEl.addEventListener(t, () => { touched = true; }, { passive: true }));
+  new ResizeObserver(() => { map.invalidateSize(); if (!touched && fitAll) fitAll(); }).observe(mapEl);
+  async function draw(bb, fit) {
+    const mySeq = ++seq;
+    stat().textContent = bb ? 'Loading this area…' : 'Finding locations…';
+    let res;
+    try { res = await locate(bb); } catch (err) { if (my === gen && err.message !== 'cancelled') stat().innerHTML = esc(err.short || err.message); return; }
+    if (my !== gen || mySeq !== seq) return;
+    const { feats, own, hopP, capped } = res, ids = [...feats.keys()];
+    if (!ids.length) {
+      stat().textContent = bb ? 'No located members in this area.' : 'No member of this set has a location (geo:lat/long, GeoSPARQL WKT, Wikidata P625, georss or schema:geo), directly or one link away.';
+      if (layer) { layer.remove(); layer = null; }
+      if (!bb) mapEl.hidden = true;
+      return;
+    }
+    stat().innerHTML = ids.length.toLocaleString() + ' located member' + (ids.length === 1 ? '' : 's') + (bb ? ' in view' : '') +
+      (hopP ? ' · ' + (own.size ? own.size.toLocaleString() + ' directly, the rest through ' : 'located through ') + lbl(hopP[0]) : '') +
+      (capped ? ' · <span style="color:var(--warn)">limit reached: ' + (bb ? 'zoom in, ' : '') + 'narrow with the facets or raise the limit</span>' : '');
+    if (hopP) wantLabels([hopP[0]]);
+    const key = await keys(ids);
+    if (!key || my !== gen || mySeq !== seq) return;
+    const counts = new Map();
+    key.forEach(k => counts.set(k, (counts.get(k) || 0) + 1));
+    const top = [...counts.entries()].filter(([k]) => k).sort((a, b) => b[1] - a[1]).slice(0, MAP_COLORS.length - 1).map(([k]) => k);
+    const colorOf = k => { const i = top.indexOf(k); return i < 0 ? '#888' : MAP_COLORS[i]; };
+    wantLabels(top.filter(k => !k.startsWith('"')));
+    const legend = () => { const lg = document.getElementById('mapLegend'); if (lg) lg.innerHTML = (ms.by ? '<span style="color:var(--muted)">' + esc(labelOf(ms.by)) + ':</span>' : '') +
+      top.map(k => '<span><i style="background:' + colorOf(k) + '"></i>' + esc(keyLabel(k)) + ' (' + counts.get(k).toLocaleString() + ')</span>').join('') +
+      (counts.size > top.length || counts.has('') ? '<span><i style="background:#888"></i>' + (ms.by ? 'Other / none' : 'Other') + '</span>' : ''); };
+    legend(); setTimeout(legend, 1500);
+    fc = { type: 'FeatureCollection', features: ids.map(id => ({ type: 'Feature', geometry: feats.get(id), properties: { iri: id, key: key.get(id) || null } })) };
+    const n = ids.length;
+    if (layer) layer.remove();
+    layer = L.geoJSON(fc, {
+      style: ft => ({ color: colorOf(ft.properties.key), weight: 3, opacity: .85 }),
+      pointToLayer: (ft, ll) => L.circleMarker(ll, { radius: n > 1500 ? 3 : n > 300 ? 4 : 6, color: '#fff', weight: n > 1500 ? .5 : 1, fillColor: colorOf(ft.properties.key), fillOpacity: .9 }),
+      onEachFeature: (ft, lyr) => lyr.bindPopup(() => {
+        const id = ft.properties.iri, k = ft.properties.key; wantLabels([id]);
+        return '<div class="pop-t">' + esc(labelOf(id)) + '</div><div class="pop-k">' + (k ? (ms.by ? esc(labelOf(ms.by)) + ': ' : '') + esc(keyLabel(k)) : '') + '</div>' +
+          '<button class="mini" data-act="describe" data-iri="' + esc(id) + '">Describe</button> <a class="mini" href="' + esc(id) + '" target="_blank" rel="noopener noreferrer">IRI ↗</a>';
+      })
+    }).addTo(map);
+    if (fit) { fitAll = () => { if (!layer || !mapEl.clientWidth) return; map.invalidateSize(); map.fitBounds(layer.getBounds(), { padding: [20, 20], maxZoom: 14 }); }; fitAll(); }
+  }
+  const bounds = () => { const b = map.getBounds(); const r = x => Math.round(x * 1e4) / 1e4; return { s: r(b.getSouth()), w: r(b.getWest()), n: r(b.getNorth()), e: r(b.getEast()) }; };
+  await draw(null, true);
+  if (ms.view) {
+    let t = null, ready = false;
+    setTimeout(() => { ready = true; }, 400);   // ignore the moves made by the initial fit
+    map.on('moveend', () => { if (!ready || my !== gen) return; clearTimeout(t); t = setTimeout(() => draw(bounds(), false), 450); });
+  }
+  document.getElementById('mapFull').onclick = () => { const p = document.fullscreenElement ? document.exitFullscreen() : mapEl.requestFullscreen ? mapEl.requestFullscreen() : null; if (p && p.catch) p.catch(() => {}); };
+  mapEl.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 60));
+  document.getElementById('mapJson').onclick = () => {
+    if (!fc) return;
+    fc.features.forEach(ft => { ft.properties.name = labelOf(ft.properties.iri); ft.properties.colourBy = ms.by ? labelOf(ms.by) : 'type'; ft.properties.value = ft.properties.key ? keyLabel(ft.properties.key) : null; });
+    download(JSON.stringify(Object.assign({ endpoint: settings.ep }, fc)) + '\n', 'map-' + new Date().toISOString().slice(0, 10) + '.geojson', 'application/geo+json');
+  };
+}
+const XSD_D = '<http://www.w3.org/2001/XMLSchema#double>';
+
+async function showGeo(e, my, signal) {
+  const S = 'http://schema.org/', SS = 'https://schema.org/', x = iriRef(e);
+  const body = '  { ' + x + ' <' + NS.geo + 'lat> ?lat ; <' + NS.geo + 'long> ?lon . BIND ("geo:lat/long" AS ?src) }\n' +
+    '  UNION { ' + x + ' <' + GSP + 'asWKT> ?wkt . BIND ("GeoSPARQL asWKT" AS ?src) }\n' +
+    '  UNION { ' + x + ' <' + GSP + 'hasGeometry> ?g . ?g <' + GSP + 'asWKT> ?wkt . BIND ("GeoSPARQL hasGeometry" AS ?src) }\n' +
+    '  UNION { ' + x + ' <http://www.wikidata.org/prop/direct/P625> ?wkt . BIND ("Wikidata P625" AS ?src) }\n' +
+    '  UNION { ' + x + ' <http://www.georss.org/georss/point> ?pt . BIND ("georss:point" AS ?src) }\n' +
+    '  UNION { ' + x + ' <' + NS.geo + 'geometry> ?wkt . BIND ("geo:geometry" AS ?src) }\n' +
+    // schema.org, direct or via schema:geo, in both namespaces; plain triples (no property paths) so the query also
+    // survives the UB SPARQL-FED proxy
+    [S, SS].map(n => '  UNION { ' + x + ' <' + n + 'latitude> ?lat ; <' + n + 'longitude> ?lon . BIND ("schema:latitude/longitude" AS ?src) }\n' +
+      '  UNION { ' + x + ' <' + n + 'geo> ?sg . ?sg <' + n + 'latitude> ?lat ; <' + n + 'longitude> ?lon . BIND ("schema:geo" AS ?src) }').join('\n');
+  const q = sel('?lat ?lon ?wkt ?pt ?src', body, 'LIMIT 50');
+  queryLog.set('Describe · location', q);
+  // One lookup per endpoint and entity, shared by every render of the description (a re-render while it runs,
+  // or a later visit, reuses it); drawn into whichever description box is current when it lands.
+  const key = settings.ep + '|' + e;
+  if (!geoCache.has(key)) geoCache.set(key, sparql(q, { quiet: true }).then(rows, err => { geoCache.delete(key); throw err; }));
+  let rs;
+  try { rs = await geoCache.get(key); } catch { return; }
+  if (!rs.length) {   // nothing on the entity itself: look one link further (e.g. a RINF operational point's netReference)
+    const k2 = key + '|hop', q2 = sel('?lat ?lon ?wkt ?pt ?hop', geoBlock(iriRef(e), true), 'LIMIT 20');
+    if (!geoCache.has(k2)) geoCache.set(k2, sparql(q2, { quiet: true }).then(rows, err => { geoCache.delete(k2); throw err; }));
+    try { rs = (await geoCache.get(k2)).map(r => Object.assign({ src: { value: 'via ' + labelOf(r.hop.value) } }, r)); } catch { return; }
+  }
+  if (signal.aborted || nav.ent !== e) return;
+  const geos = [], srcs = new Set(), keys = new Set();
+  rs.forEach(r => {
+    let g = null;
+    if (r.wkt) g = wktToGeo(r.wkt.value);
+    else if (r.pt) { const [a, o] = r.pt.value.trim().split(/[\s,]+/); g = geoPoint(a, o); }
+    else if (r.lat && r.lon) g = geoPoint(r.lat.value, r.lon.value);
+    // the same place often comes twice (geo:lat/long as xsd:float, georss:point as text): compare at ~1 m
+    const gk = g && JSON.stringify(g, (k, v) => typeof v === 'number' ? Math.round(v * 1e5) / 1e5 : v);
+    if (g && !keys.has(gk)) { keys.add(gk); geos.push(g); }
+    if (g) srcs.add(r.src.value);
+  });
+  const box = document.getElementById('geoBox');
+  if (!geos.length || !box || !box.hidden) return;
+  const first = geos.find(g => g.type === 'Point') || geos[0];
+  const [lon, lat] = first.type === 'Point' ? first.coordinates : (function f(a) { return typeof a[0] === 'number' ? a : f(a[0]); })(first.coordinates);
+  const osm = 'https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=15/' + lat + '/' + lon;
+  box.hidden = false;
+  box.innerHTML = '<h4 class="sec">Location</h4><div class="geo-map" id="geoMap" role="img" aria-label="Map of ' + esc(labelOf(e)) + '"></div>' +
+    '<p class="geo-cap"><span class="grow">' + lat.toFixed(5) + ', ' + lon.toFixed(5) + (geos.length > 1 ? ' · ' + geos.length + ' geometries' : '') + ' · from ' + esc([...srcs].join(', ')) + '</span>' +
+    '<button type="button" class="mini" id="geoFull" title="Show the map full screen (Esc to leave)">⤢ Full screen</button>' +
+    '<button type="button" class="mini" id="geoTab" title="Open this map on its own page in a new tab">Open map in new tab ↗</button>' +
+    '<button type="button" class="mini" id="geoJson" title="Download the geometry as GeoJSON (for QGIS, geojson.io, …)">GeoJSON ↓</button>' +
+    '<a class="mini" href="' + esc(osm) + '" target="_blank" rel="noopener noreferrer">OpenStreetMap ↗</a></p>';
+  // Outside the app: a GeoJSON file, and a standalone page with the same map (Leaflet from cdnjs, SRI-pinned).
+  const name = labelOf(e);
+  const fc = { type: 'FeatureCollection', features: geos.map(g => ({ type: 'Feature', geometry: g, properties: { name, iri: e, source: [...srcs].join(', '), endpoint: settings.ep } })) };
+  const slug = (name || 'location').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60) || 'location';
+  document.getElementById('geoJson').onclick = () => download(JSON.stringify(fc, null, 2) + '\n', slug + '.geojson', 'application/geo+json');
+  document.getElementById('geoTab').onclick = () => {
+    const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(name) + ' — map</title>' +
+      '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer">' +
+      '<style>html,body{margin:0;height:100%;font:14px system-ui,sans-serif}#m{position:absolute;inset:0}#h{position:absolute;z-index:1000;top:10px;left:56px;right:10px;max-width:640px;background:#fff;padding:8px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)}#h a{color:#1f4e79}</style></head><body>' +
+      '<div id="m"></div><div id="h"><strong>' + esc(name) + '</strong><br><a href="' + esc(e) + '" target="_blank" rel="noopener">' + esc(e) + '</a><br><small>' + esc([...srcs].join(', ')) + ' · ' + esc(settings.ep) + '</small></div>' +
+      '<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"><\/script>' +
+      '<script>const fc=' + JSON.stringify(fc).replace(/</g, '\\u003c') + ';const m=L.map("m");L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; <a href=\\"https://www.openstreetmap.org/copyright\\">OpenStreetMap</a> contributors"}).addTo(m);' +
+      'const g=L.geoJSON(fc,{style:{color:"#1f4e79",weight:4},pointToLayer:(f,ll)=>L.circleMarker(ll,{radius:8,color:"#fff",weight:2,fillColor:"#1f4e79",fillOpacity:1})}).addTo(m);' +
+      'const b=g.getBounds();if(fc.features.length===1&&fc.features[0].geometry.type==="Point")m.setView(b.getCenter(),14);else m.fitBounds(b,{padding:[30,30],maxZoom:15});<\/script></body></html>';
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    if (!window.open(url, '_blank')) toast('The new tab was blocked by the browser; allow pop-ups for this page, or use GeoJSON ↓.');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  };
+  let L;
+  try { L = await loadLeaflet(); } catch { document.getElementById('geoMap').outerHTML = '<div class="empty">The map library could not be loaded; the coordinates are above.</div>'; return; }
+  if (signal.aborted || !document.getElementById('geoMap') || document.getElementById('geoMap')._leaflet_id) return;
+  const map = L.map('geoMap', { scrollWheelZoom: true, attributionControl: true });
+  const mapEl = document.getElementById('geoMap');
+  document.getElementById('geoFull').onclick = () => {
+    const p = document.fullscreenElement ? document.exitFullscreen() : mapEl.requestFullscreen ? mapEl.requestFullscreen() : null;
+    if (p && p.catch) p.catch(() => toast('Full screen is not available here; try “Open map in new tab”.'));
+    else if (!p) toast('Full screen is not available here; try “Open map in new tab”.');
+  };
+  mapEl.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 60));
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(map);
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#1f4e79';
+  const layer = L.geoJSON({ type: 'FeatureCollection', features: geos.map(g => ({ type: 'Feature', geometry: g, properties: {} })) }, {
+    style: { color: accent, weight: 4, opacity: .9 },
+    pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 8, color: '#fff', weight: 2, fillColor: accent, fillOpacity: 1 })
+  }).addTo(map);
+  const b = layer.getBounds();
+  if (geos.length === 1 && first.type === 'Point') map.setView([lat, lon], 14); else map.fitBounds(b, { padding: [24, 24], maxZoom: 15 });
+  setTimeout(() => map.invalidateSize(), 50);
 }
 
 async function renderDescribe(el, my, signal) {
@@ -2163,11 +2626,13 @@ async function renderDescribe(el, my, signal) {
       '<div class="desc-head">' + thumb(e, c, false).replace('class="thumb"', 'class="thumb" style="width:96px;height:96px;font-size:30px"') + '<div><h3>' + lbl(e) + '</h3>' + (c.desc ? '<p>' + esc(c.desc) + '</p>' : '') +
       '<div class="btnrow"><button class="btn primary" data-act="explore" data-iri="' + esc(e) + '">⇢ Start a trail here</button>' + (nav.nodes.length ? '<button class="btn" data-act="tab" data-view="entities">Back to the set</button>' : '') +
       '<a class="btn" href="' + esc(e) + '" target="_blank" rel="noopener noreferrer">Open IRI ↗</a>' + '<button class="btn" data-act="langs" title="' + (dd ? 'Annotation literals (labels, comments, names…) are SAMPLE()d to one value per property, and literals are limited to ' : 'Literals are limited to ') + esc(prefLang()) + ' or untagged values">' + (all ? (dd ? 'One value per annotation' : 'Preferred language only') : 'All values &amp; languages') + '</button>' + '</div></div></div>' +
+      '<div class="geo-box" id="geoBox" hidden></div>' +
       (outs.length ? '<h4 class="sec">Attributes</h4>' + outs.map(groupHtml).join('') : '') +
       (ins.length ? '<h4 class="sec">Referenced by</h4>' + ins.map(groupHtml).join('') : '') +
       (!groups.length ? '<div class="empty">' + (off ? 'No statements on this page.' : 'No statements' + (settings.graph ? ' in the scoped graph' : '') + '.') + '</div>' : '') +
       pagerSlot('desc') + '</div>';
     setPager('desc', { count: rs.length });
+    if (off === 0) showGeo(e, my, signal);
     markPartial(el.querySelector('.desc-head h3'), rs.partial, rs.unsorted);
     if (off === 0 && rs.length < lim && !rs.partial) return setPager('desc', { total: rs.length });
     const tq = Q.describeTotal(e, mode);
@@ -2179,13 +2644,62 @@ async function renderDescribe(el, my, signal) {
   }
 }
 
+/* SPARQL tab: each logged query is editable and runs in place (▶ Run or ⌘/Ctrl+Enter). The text runs exactly as shown
+   (no pragma injection), with the current view's AbortController so Stop covers it. Results: a table of up to
+   RUN_ROWS bindings, ASK as true/false, errors in the usual box. Edits survive re-renders until the view's query changes. */
+const qEdits = new Map();   // name -> { base: logged text, text: edited text }
+const RUN_ROWS = 200;
+const endpointUrl = q => settings.ep + (settings.ep.includes('?') ? '&' : '?') + new URLSearchParams({ query: q });
+async function runLogged(item) {
+  const ta = item.querySelector('textarea.q'), out = item.querySelector('.q-out'), btn = item.querySelector('.run-btn');
+  const q = ta.value.trim();
+  if (!q) return;
+  btn.disabled = true;
+  out.innerHTML = loading('Running…');
+  const t0 = performance.now();
+  try {
+    const j = await sparql(q, { signal: ctl.signal, noPragma: true });
+    const meta = (j && j.__meta) || {}, ms = meta.ms || Math.round(performance.now() - t0);
+    const part = meta.partial ? ' · <span style="color:var(--warn)">partial (Anytime)</span>' : '';
+    if (j && typeof j.boolean === 'boolean') { out.innerHTML = '<div class="q-res"><div class="q-ask">' + j.boolean + '</div></div><p class="q-sum">ASK · ' + ms.toLocaleString() + ' ms' + part + '</p>'; return; }
+    const vars = (j && j.head && j.head.vars) || [], bs = rows(j), shown = bs.slice(0, RUN_ROWS);
+    const iris = new Set();
+    shown.forEach(r => vars.forEach(v => r[v] && r[v].type === 'uri' && iris.add(r[v].value)));
+    out.innerHTML = (bs.length ? '<div class="q-res"><table class="vals"><thead><tr>' + vars.map(v => '<th>?' + esc(v) + '</th>').join('') + '</tr></thead><tbody>' +
+      shown.map(r => '<tr>' + vars.map(v => '<td>' + termHtml(r[v]) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>' : '<div class="empty">No results.</div>') +
+      '<p class="q-sum">' + bs.length.toLocaleString() + ' row' + (bs.length === 1 ? '' : 's') + (bs.length > RUN_ROWS ? ' (first ' + RUN_ROWS + ' shown)' : '') + ' · ' + ms.toLocaleString() + ' ms' + part + '</p>';
+    wantLabels([...iris]);
+  } catch (err) {
+    if (err.message === 'cancelled') out.innerHTML = '<p class="q-sum">Stopped.</p>';
+    else out.innerHTML = errBox(err);
+  } finally { btn.disabled = false; }
+}
+document.addEventListener('input', ev => {
+  const ta = ev.target.closest('.q-item textarea.q'); if (!ta) return;
+  const item = ta.closest('.q-item'), [name, base] = [...queryLog.entries()][+item.dataset.k] || [];
+  if (name == null) return;
+  if (ta.value === base) qEdits.delete(name); else qEdits.set(name, { base, text: ta.value });
+  item.classList.toggle('edited', ta.value !== base);
+  item.querySelector('.q-ext').href = endpointUrl(ta.value);
+});
+document.addEventListener('keydown', ev => {
+  const ta = ev.target.closest && ev.target.closest('.q-item textarea.q');
+  if (ta && ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); runLogged(ta.closest('.q-item')); }
+});
+
 function renderSparql(el) {
   const items = [...queryLog.entries()];
-  el.innerHTML = viewHead('Generated SPARQL', 'Each panel is one query against ' + esc(settings.ep) + ' (profile: ' + esc(profile()) + ')' + (proxied() ? ', sent through the URIBurner SPARQL-FED proxy as SELECT * WHERE { SERVICE &lt;endpoint&gt; { … } }' : '') + '. Labels, descriptions and thumbnails are fetched by small VALUES queries.') + '<div class="content">' + (items.length ? items.map(([name, q], k) => {
-    const url = settings.ep + (settings.ep.includes('?') ? '&' : '?') + new URLSearchParams({ query: q });
+  el.innerHTML = viewHead('Generated SPARQL', 'Each panel is one query against ' + esc(settings.ep) + ' (profile: ' + esc(profile()) + ')' + (proxied() ? ', sent through the URIBurner SPARQL-FED proxy as SELECT * WHERE { SERVICE &lt;endpoint&gt; { … } }' : '') + '. Labels, descriptions and thumbnails are fetched by small VALUES queries. Edit any query and press Run to see its results here.') + '<div class="content">' + (items.length ? items.map(([name, q], k) => {
     const m = queryMeta.get(q);
     const metaHtml = m ? '<span class="qmeta' + (m.partial ? ' part' : '') + '" title="' + esc(m.msg || '') + '">' + m.ms.toLocaleString() + ' ms' + (m.partial ? ' · partial (Anytime)' : '') + '</span>' : '';
-    return '<div class="q-item"><h4>' + esc(name) + ' ' + metaHtml + ' <button class="mini" data-act="copy" data-k="' + k + '">Copy</button><a class="mini" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Run at endpoint ↗</a></h4><pre class="q">' + esc(q) + '</pre></div>';
+    const ed = qEdits.get(name), text = ed && ed.base === q ? ed.text : q;
+    if (ed && ed.base !== q) qEdits.delete(name);
+    const lines = text.split('\n').length;
+    return '<div class="q-item' + (text !== q ? ' edited' : '') + '" data-k="' + k + '"><h4>' + esc(name) + ' ' + metaHtml + '<span class="q-acts">' +
+      '<button class="run-btn" data-act="runq" data-k="' + k + '" title="Run this query here and show the results below (⌘/Ctrl+Enter in the query)"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 0l9 5-9 5z"/></svg>Run</button>' +
+      '<button class="mini" data-act="copy" data-k="' + k + '">Copy</button>' +
+      '<a class="mini q-ext" href="' + esc(endpointUrl(text)) + '" target="_blank" rel="noopener noreferrer" title="Open the endpoint’s own result page in a new tab">Endpoint ↗</a></span></h4>' +
+      '<textarea class="q" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="SPARQL query: ' + esc(name) + '" rows="' + Math.min(Math.max(lines, 3), 24) + '">' + esc(text) + '</textarea><div class="q-out" aria-live="polite"></div></div>';
   }).join('') : '<div class="empty">No queries yet.</div>') + '</div>';
 }
 
@@ -2193,7 +2707,7 @@ function renderSparql(el) {
 function mutate(fn, opts = {}) {
   nav = JSON.parse(JSON.stringify(nav));
   fn(nav);
-  if (!opts.keepView) { nav.view = 'entities'; nav.off = 0; nav.pg = {}; }
+  if (!opts.keepView) { if (nav.view !== 'map') nav.view = 'entities'; nav.off = 0; nav.pg = {}; }   // the map stays the map while facets narrow it
   go(false, opts);
 }
 /* Keep the results pane in scope while its query runs: if a user action (a facet click, a pivot, a search, a results
@@ -2208,6 +2722,18 @@ function revealResults() {
     p.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }
 const sameCond = (a, b) => JSON.stringify(Object.assign({}, a, { neg: 0 })) === JSON.stringify(Object.assign({}, b, { neg: 0 }));
+// "Or": widen an existing positive value filter on the same property (p = A becomes p = A or B); without one, a plain filter.
+const sameTerm = (a, b) => a && b && a.type === b.type && a.value === b.value;
+function orCond(p, dir, v) {
+  mutate(n => {
+    const node = n.nodes[n.focus];
+    const c = node.conds.find(x => x.t === 'pv' && !x.neg && x.p === p && x.dir === dir && (x.v || (x.vs && x.vs.length)));
+    if (!c) { node.conds.push({ t: 'pv', p, dir, v, neg: 0 }); return; }
+    const vs = c.vs ? c.vs.slice() : [c.v];
+    if (!vs.some(t => sameTerm(t, v))) vs.push(v);
+    delete c.v; c.vs = vs; c.v = null;
+  }, { keepView: true });   // stay on the value list (or the map) to keep adding alternatives
+}
 function addCond(c) { mutate(n => { const node = n.nodes[n.focus]; node.conds = node.conds.filter(x => !sameCond(x, c)); node.conds.push(c); }); }
 function pivot(p, dir) {
   mutate(n => {
@@ -2420,7 +2946,7 @@ const actions = {
   rawList: () => mutate(n => { n.raw = true; n.off = 0; }, { keepView: true }),
   overview: () => mutate(n => { n.raw = false; n.off = 0; }, { keepView: true }),
   clearVp: () => mutate(n => { n.vp = null; n.view = 'values'; n.off = 0; }, { keepView: true }),
-  addVal: d => { const v = cur.values[+d.k]; if (v) addCond({ t: 'pv', p: nav.vp.p, dir: nav.vp.dir, v, neg: d.neg ? 1 : 0 }); },
+  addVal: d => { const v = cur.values[+d.k]; if (!v) return; if (d.or) return orCond(nav.vp.p, nav.vp.dir, v); addCond({ t: 'pv', p: nav.vp.p, dir: nav.vp.dir, v, neg: d.neg ? 1 : 0 }); },
   addSelf: d => { const v = cur.entities[+d.k]; if (v) mutate(n => { const node = n.nodes[n.focus]; node.conds = node.conds.filter(c => !(c.t === 'is' && !c.neg)); node.conds.unshift({ t: 'is', v }); }); },
   rmCond: d => mutate(n => { n.nodes[n.focus].conds.splice(+d.j, 1); }),
   negCond: d => mutate(n => { const c = n.nodes[n.focus].conds[+d.j]; c.neg = c.neg ? 0 : 1; }),
@@ -2454,8 +2980,10 @@ const actions = {
   share: () => shareView(),
   exportMenu: () => toggleExportMenu(),
   export: d => { toggleExportMenu(false); exportView(d.fmt, d.scope); },
+  runq: (d, el) => runLogged(el.closest('.q-item')),
   copy: (d, el) => {
-    const q = [...queryLog.values()][+d.k];
+    const ta = el.closest('.q-item') && el.closest('.q-item').querySelector('textarea.q');
+    const q = ta ? ta.value : [...queryLog.values()][+d.k];
     Promise.resolve().then(() => navigator.clipboard.writeText(q)).then(() => { el.textContent = 'Copied'; }, () => { el.textContent = 'Copy failed'; });
   }
 };

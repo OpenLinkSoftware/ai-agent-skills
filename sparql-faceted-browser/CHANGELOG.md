@@ -1,5 +1,61 @@
 # Changelog
 
+## 1.0.4 — 2026-10-17
+
+- **Bundled app (`assets/`):**
+  - New preset: ERA RINF (`graph.data.era.europa.eu/repositories/rinf-plus`, GraphDB), with operational points,
+    sections of line and tunnels as starter types.
+  - New presets on the same ERA GraphDB server: ERA vocabulary & requirements (`ERA-Onto`) and the ERA
+    Organisation Code Register (`OCR-KG`), plus ERA-Lex, the EU railway legislation corpus (`era-lex`).
+  - New preset: OpenLink demo server (`demo.openlinksw.com/sparql`), with Transfermarkt players, TCRD genes and NFL
+    plays as starter types.
+  - Labels: the batched label lookup uses `SELECT DISTINCT`. When a batch still reaches its LIMIT, the missing IRIs
+    are asked again instead of being cached as unlabelled. Before this, labels copied across many graphs (the demo
+    server's `rdf:type`) left entity headings showing raw IRIs.
+  - Thumbnails also accept image URLs stored as plain literals.
+  - DBpedia is the pinned default: opening the app without a view link always starts on DBpedia, not on the last
+    endpoint used. Links still open on their own endpoint, and other Settings are still remembered.
+  - Descriptions show a **Location** map (Leaflet with OpenStreetMap tiles, loaded only when needed) when the entity
+    has `geo:lat`/`geo:long`, GeoSPARQL `asWKT` (directly or through `hasGeometry`; points, lines and polygons),
+    Wikidata P625, `georss:point` or `schema:geo`. This follows fct-dev's map for `geosparql:asWKT`.
+    The map zooms with the mouse wheel, and opens outside the app: full screen, as a standalone map page in a new
+    tab, as a GeoJSON download, or in OpenStreetMap.
+  - **Map tab** for the focused set, in the manner of RINF Atlas. It draws the members that have a location (points
+    and lines, on a canvas), coloured by their type in the dataset's own vocabulary, with a legend. It follows the
+    trail, so facets narrow it, and changing a facet keeps the map open. Members without their own geometry are
+    located one link away (RINF operational points through `era:netReference`). The map shows up to 1,000, 3,000 or
+    10,000 features, and offers full screen and a GeoJSON download. Descriptions use the same one-link fallback.
+  - `fct_state.py --view map` builds a link that opens the Map tab.
+  - **Multi-select facets (OR):** the ∨ button in a value list adds an alternative, giving for example
+    "any of In country France or Germany or Italy". A property's value list ignores its own value filter, so the
+    other values stay listed (selected ones are ticked) and the list stays open while you add more. Condition JSON:
+    `vs: [TERM, …]`. Skill: `fct_state.py --pv-or P=V`, and `fct_query.py` uses the same semantics.
+  - **Map: Colour by** a property of the set with 2–15 distinct values (for example RINF's type of operational point)
+    instead of type, with a legend.
+  - **Map: Limit to map view** re-queries as you pan and zoom. It reuses what the first load found (the link and the
+    lat/long or WKT branch), and boxes points numerically: 2 s instead of over 45 s on RINF. Map options travel in the
+    link (`pg.map`; skill: `--map-by`, `--map-limit`, `--map-in-view`).
+  - New presets: Fedlex (Swiss federal law) and Legilux (Luxembourg legislation), both at `/sparqlendpoint`.
+  - JOLux labelling: `jolux:title` is a label property. Works and acts take their title from
+    `jolux:isRealizedBy/jolux:title`, in the preferred language when `jolux:language` names it.
+  - Text search falls back to `CONTAINS` on a Virtuoso without a free-text index (checked at connect).
+  - Endpoints whose gateway rejects FOAF IRIs (checked at connect) get queries without FOAF terms.
+  - Header: the app's mark is now the OpenLink logo used on openlinksw.com (the minimal blue mark), embedded at 2x.
+  - Footer redesign: a main tier (logo behind a hairline divider, the tagline with an accent rule, chips linking the
+    sparql-faceted-browser skill and the OpenLink AI Agent Skills collection on GitHub, and a one-line note), above a
+    base bar for the rights notice and copyright. On phones it stacks.
+  - SPARQL tab: each query is editable and has a **Run** button (or ⌘/Ctrl+Enter) that shows results in place
+    (table, ASK true/false, or the error). The endpoint's own result page is still one click away.
+  - Presets: Datao (`sparql.datao.net`) removed after failing the `ASK { ?s ?p ?o }` probe (HTTP 503, re-checked on
+    2026-10-17). The Italian Chamber of Deputies (`dati.camera.it`) stays: an earlier run of this release removed it
+    after HTTP 502s, but it answers again (HTTP 200 on two probes).
+  - The location map also reads WGS84 `geo:geometry` and direct schema.org `latitude`/`longitude`, uses plain
+    triples rather than property paths (so the query survives the URIBurner proxy), and dims tiles in dark mode.
+    This folds in a parallel 1.0.4 map from another working session.
+- **Scripts:** `fct_state.py` adds `--pv-or`, `--view map`, `--map-by`, `--map-limit` and `--map-in-view`, plus the
+  `era:` and `jolux:` prefixes. `fct_query.py` understands OR conditions (`vs`), and a property's value list ignores
+  that property's own filter, as in the app.
+
 ## 1.0.3 — 2026-10-16
 
 - **Bundled app (`assets/`):**

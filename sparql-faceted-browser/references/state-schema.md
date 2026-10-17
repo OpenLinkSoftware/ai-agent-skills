@@ -34,7 +34,8 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 | `ep` | The SPARQL endpoint the app connects to |
 | `nodes` | The trail: a chain of sets. Each set after the first is reached by a pivot from the one before it |
 | `focus` | Index of the set the view shows (0-based; −1 when there is no set, e.g. a describe-only link) |
-| `view` | Which tab is open: `entities` (members), `values` (values of `vp`, or "Distinct (Count)" when `vp` is null), `describe` (the entity `ent`), or `sparql` (the generated queries) |
+| `view` | Which tab is open: `entities` (members), `values` (values of `vp`, or "Distinct (Count)" when `vp` is null), `map` (members of the focused set that have a location, coloured by type), `describe` (the entity `ent`), or `sparql` (the generated queries) |
+| `pg.map` | Map-tab options: `lim` (1000, 3000 or 10000 features), `by` (property IRI to colour by; empty = type), `view` (true = re-query for the visible area) |
 | `vp` | `{ "p": IRI, "dir": "out" \| "in" }`: the property whose values the values tab lists |
 | `ent` | The IRI shown on the describe tab |
 | `off`, `pg` | Paging state. Links built by the skill start at the first page |
@@ -59,6 +60,7 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 |---|---|
 | `{ "t": "class", "iri": IRI, "neg": 0\|1 }` | Has (or lacks) this type. The type property is `rdf:type`, or `wdt:P31` on Wikidata |
 | `{ "t": "pv", "p": IRI, "dir": "out"\|"in", "v": TERM, "neg": 0\|1 }` | Has (or lacks) this property value. With `dir: "in"`, `v` points at the member |
+| `{ "t": "pv", "p": IRI, "dir": "out"\|"in", "v": null, "vs": [TERM, …], "neg": 0\|1 }` | Has any of these values (OR). With `neg: 1`, has none of them. A value list for `p` ignores this filter, so the other values stay available to add |
 | `{ "t": "pv", "p": IRI, "dir": "out", "v": null, "neg": 0 }` | Has any value for `p` |
 | `{ "t": "pv", "p": IRI, "dir": "out", "v": null, "lo": "...", "hi": "...", "dt": IRI? }` | Value of `p` lies in the range; `""` leaves an end open |
 | `{ "t": "is", "v": TERM }` | The set is exactly this entity |

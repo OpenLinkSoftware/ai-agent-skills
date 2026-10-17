@@ -21,6 +21,8 @@ name to an IRI with a query first, and never guess one.
 | the actors in those films | `… --pivot dbo:starring` |
 | …born in London | `… --pivot dbo:starring --pv dbo:birthPlace=dbr:London` |
 | settlements in Nigeria | `--type dbo:Settlement --pv dbo:country=dbr:Nigeria` |
+| …in Nigeria or Ghana | `… --pv dbo:country=dbr:Nigeria --pv-or dbo:country=dbr:Ghana` |
+| map RINF operational points in France, Germany and Italy, coloured by type of point | `--type era:OperationalPoint --pv era:inCountry=<…/country/FRA> --pv-or era:inCountry=<…/country/DEU> --pv-or era:inCountry=<…/country/ITA> --view map --map-by era:opType` |
 | …by state | `… --values-of dbo:subdivision` |
 | people named Einstein | `--text Einstein --type dbo:Person` |
 | cities with 1–5 million people | `--type dbo:City --range dbo:populationTotal 1000000 5000000` |

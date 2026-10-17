@@ -244,7 +244,10 @@ class Builder:
             tp = s + ' ' + iri_ref(self.c.type_prop) + ' ' + iri_ref(c['iri']) + ' .'
             return 'FILTER NOT EXISTS { ' + tp + ' }' if c.get('neg') else tp
         if c['t'] == 'pv':
-            if c.get('v'):
+            if c.get('vs'):
+                x = aux()
+                inner = 'VALUES ' + x + ' { ' + ' '.join(term_sparql(t) for t in c['vs']) + ' } ' + ((x + ' ' + iri_ref(c['p']) + ' ' + s + ' .') if c['dir'] == 'in' else (s + ' ' + iri_ref(c['p']) + ' ' + x + ' .'))
+            elif c.get('v'):
                 t = term_sparql(c['v'])
                 inner = (t + ' ' + iri_ref(c['p']) + ' ' + s + ' .') if c['dir'] == 'in' else (s + ' ' + iri_ref(c['p']) + ' ' + t + ' .')
             else:
@@ -260,8 +263,14 @@ class Builder:
             return 'FILTER NOT EXISTS { ' + inner + ' }' if c.get('neg') else inner
         return ''
 
-    def where(self, bound=None):
+    def where(self, bound=None, skip=None):
+        """skip=(i, p, dir): leave out set i's positive value filters on that property, as the app does for value lists
+        (multi-select facets: with FRA picked, the country list still shows DEU and ITA)."""
         lines, k = [], [0]
+
+        def skipped(i, c):
+            return (skip is not None and skip[0] == i and c['t'] == 'pv' and not c.get('neg') and c['p'] == skip[1]
+                    and c['dir'] == skip[2] and (c.get('v') or c.get('vs')))
 
         def aux():
             k[0] += 1
@@ -275,7 +284,7 @@ class Builder:
             if i > 0:
                 via, prev = node['via'], sv(i - 1)
                 lines.append((s + ' ' + iri_ref(via['p']) + ' ' + prev + ' .') if via['dir'] == 'in' else (prev + ' ' + iri_ref(via['p']) + ' ' + s + ' .'))
-            lines += [self.cond_pattern(s, c, aux) for c in conds if c['t'] != 'is' and not c.get('neg')]
+            lines += [self.cond_pattern(s, c, aux) for c in conds if c['t'] != 'is' and not c.get('neg') and not skipped(i, c)]
             if not (i > 0 or node.get('text') or any(not c.get('neg') for c in conds)) and i != bound:
                 lines.append(s + ' ?anyp ?anyo .')
             lines += [self.cond_pattern(s, c, aux) for c in conds if c.get('neg')]
@@ -306,7 +315,7 @@ class Builder:
         return self.sel('DISTINCT ?p', body, self.page(lim, off)) if plain else self.sel('?p (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', body, 'GROUP BY ?p ORDER BY DESC (?n) ' + self.page(lim, off))
 
     def values(self, f, p, d, off, lim):
-        body = self.where(f) + '\n  ' + ('?v ' + iri_ref(p) + ' ' + sv(f) if d == 'in' else sv(f) + ' ' + iri_ref(p) + ' ?v') + ' .'
+        body = self.where(f, (f, p, d)) + '\n  ' + ('?v ' + iri_ref(p) + ' ' + sv(f) if d == 'in' else sv(f) + ' ' + iri_ref(p) + ' ?v') + ' .'
         return self.sel('?v (COUNT (DISTINCT ' + sv(f) + ') AS ?n)', body, 'GROUP BY ?v ORDER BY DESC (?n) ' + self.page(lim, off))
 
     def distinct(self, f, off, lim):
