@@ -9,6 +9,7 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://linkeddata.uriburner.com/sparql | URIBurner (UB) | Virtuoso | Holds the UB Blog companion graphs; VoID class partitions |
 | https://query.wikidata.org/sparql | Wikidata | Wikidata | Answers in SPARQL XML; types via `wdt:P31` |
 | https://wikidata.demo.openlinksw.com/sparql | Wikidata, OpenLink instance | Virtuoso | Sends CORS headers for any origin since 2026-10-16, so the app connects directly |
+| https://demo.openlinksw.com/sparql | OpenLink demo server | Virtuoso | Added 2026-10-17. CORS for any origin. A mixed demo store (Transfermarkt players, TCRD genes, NFL plays, LUBM, UMLS…) |
 | https://sparql.uniprot.org/sparql | UniProt | Generic SPARQL 1.1 | No Anytime; descriptions are not folded |
 | https://publications.europa.eu/webapi/rdf/sparql | EU Publications Office | detected at run time | No CORS: the app needs the proxy |
 | https://data.europa.eu/sparql | EU data portal (Cordis) | detected at run time | |
@@ -20,13 +21,18 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://agrovoc.fao.org/sparql | AGROVOC | detected at run time | |
 | https://scienceplus.abes.fr/sparql | science plus (ABES) | detected at run time | |
 | https://opendata.aragon.es/sparql | Aragon Open Data | detected at run time | |
-| https://sparql.datao.net/sparql | Datao | detected at run time | Was returning 503 on 2026-10-14 |
 | https://data.bibliotheken.nl/sparql | KB, National Library of the Netherlands | detected at run time | |
 | https://vocab.nerc.ac.uk/sparql/ | NERC Vocabulary Service | detected at run time | |
 | https://data.muziekschatten.nl/sparql | Muziekschatten | detected at run time | |
-| https://dati.camera.it/sparql | Italian Chamber of Deputies | Virtuoso | Added 2026-10-15 (it returned 502 for part of that day) |
+| https://dati.camera.it/sparql | Italian Chamber of Deputies | Virtuoso | Added 2026-10-15. Intermittent 502s on 2026-10-15 and 2026-10-17; answering again |
 | https://lod.dati.gov.it/sparql/ | dati.gov.it (Italian open data) | Virtuoso | Added 2026-10-15 |
 | https://datos.gob.es/virtuoso/sparql | datos.gob.es (Spanish open data) | Virtuoso | Added 2026-10-15 |
+| https://graph.data.era.europa.eu/repositories/rinf-plus | ERA RINF — EU Register of Railway Infrastructure | GraphDB (generic profile) | Added 2026-10-17. CORS for any origin. https://rinf.data.era.europa.eu/endpoint is the portal's web page, not the SPARQL service. Label search is a full scan (11–15 s). |
+| https://graph.data.era.europa.eu/repositories/ERA-Onto | ERA vocabulary & requirements | GraphDB (generic profile) | Added 2026-10-17. CORS for any origin. ERA ontology (341 OWL classes), concept schemes and legal requirements |
+| https://graph.data.era.europa.eu/repositories/OCR-KG | ERA OCR — Organisation Code Register | GraphDB (generic profile) | Added 2026-10-17. CORS for any origin. 5,614 railway bodies and their sites |
+| https://graph.data.era.europa.eu/repositories/era-lex | ERA-Lex — EU railway legislation | GraphDB (generic profile) | Added 2026-10-17. CORS for any origin. ELI legal resources (7,317), their subdivisions and language expressions |
+| https://fedlex.data.admin.ch/sparqlendpoint | Fedlex — Swiss federal law | Non-Virtuoso (generic profile) | Added 2026-10-17. CORS for any origin. https://fedlex.data.admin.ch/en-CH/sparql is the portal page. JOLux: acts are labelled from their expressions (`jolux:isRealizedBy/jolux:title`, language from `jolux:language`). Its gateway rejects any request mentioning `http://xmlns.com/` (FOAF); the app detects this and leaves FOAF terms out |
+| https://data.legilux.public.lu/sparqlendpoint | Legilux — Luxembourg legislation | Virtuoso, no free-text index (search uses CONTAINS) | Added 2026-10-17. CORS for any origin. https://data.legilux.public.lu/sparql is the portal page. JOLux, labelled as for Fedlex |
 | https://datos.bcn.cl/sparql | BCN, Library of the National Congress of Chile | Virtuoso | No CORS on https; the http vhost sends CORS only on its redirect. The app needs the proxy; the scripts do not |
 | https://www1.siop.planejamento.gov.br/sparql/ | SIOP, Brazilian federal budget | Virtuoso 06.01 | No CORS: the app needs the proxy. No free-text index, so no search samples |
 | https://libris.kb.se/sparql | LIBRIS, National Library of Sweden | Virtuoso | Labels use kbv:name / kbv:prefLabel, outside the app's label properties, so label search finds nothing; use `--any-literal` |
@@ -35,6 +41,10 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://sparql.omabrowser.org/sparql/ | OMA orthology browser | Virtuoso | Gene symbols as labels (TP53, INS) |
 | https://sparql.orthodb.org/sparql | OrthoDB | Virtuoso | Large; labels are mostly identifiers |
 | https://www.3lgm2.de/sparql | 3LGM², IHE integration profiles | Virtuoso | Added 2026-10-15 |
+
+**Dropped 2026-10-17:** `https://sparql.datao.net/sparql` failed the `ASK { ?s ?p ?o }` probe with HTTP 503 in
+repeated runs. `https://dati.camera.it/sparql` failed with HTTP 502 in one run that day but answered again later, so it
+stays.
 
 **Left out:** `http://datos.infolobby.cl/sparql`. The app cannot reach it by any route:
 - its https certificate is issued for `*.cplt.cl`, not this host;

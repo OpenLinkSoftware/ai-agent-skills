@@ -24,14 +24,18 @@ OPS are applied left to right, so filters always attach to the most recent set:
     --pv P=V                 property P has value V              (--not-pv to exclude)
                              V: IRI, CURIE, <IRI>, "literal", "literal"@en, "5"^^xsd:integer, or a bare number
     --pv-in P=V              V points at the member through P (incoming)
+    --pv-or P=V              or: widen the last --pv on P to also allow V (P = A or B …)
     --has P                  member has any value for P          (--has-in P for incoming)
     --range P LO HI          numeric/date range on P (use '' for an open end)
     --entity IRI             the set is exactly this entity
     --pivot P | --pivot-in P new set: the values of P (or the things pointing at the set through P)
     --focus N                focus set N (1-based)
-    --view entities|values|describe|sparql
+    --view entities|values|map|describe|sparql
     --values-of P[:in]       open the values view of P for the focused set
     --describe IRI           open the description of IRI (with no trail, just that entity)
+    --map-by P               Map view: colour members by property P (default: their type)
+    --map-limit N            Map view: show up to N features (1000, 3000 or 10000)
+    --map-in-view            Map view: re-query for the visible area as the viewer pans and zooms
 """
 import base64
 import json
@@ -50,6 +54,7 @@ NS = {
     'skos': 'http://www.w3.org/2004/02/skos/core#', 'foaf': 'http://xmlns.com/foaf/0.1/',
     'schema': 'http://schema.org/', 'dcterms': 'http://purl.org/dc/terms/', 'dc': 'http://purl.org/dc/elements/1.1/',
     'prov': 'http://www.w3.org/ns/prov#', 'geo': 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+    'era': 'http://data.europa.eu/949/', 'jolux': 'http://data.legilux.public.lu/resource/ontology/jolux#',
     'dbo': 'http://dbpedia.org/ontology/', 'dbp': 'http://dbpedia.org/property/', 'dbr': 'http://dbpedia.org/resource/',
     'dbc': 'http://dbpedia.org/resource/Category:', 'yago': 'http://dbpedia.org/class/yago/',
     'wd': 'http://www.wikidata.org/entity/', 'wdt': 'http://www.wikidata.org/prop/direct/',
@@ -58,7 +63,7 @@ NS = {
     'up': 'http://purl.uniprot.org/core/',
 }
 LANG_RE = re.compile(r'^[a-z]{2,3}(-[a-z0-9]{1,8})*$', re.I)
-VIEWS = ('entities', 'values', 'describe', 'sparql')
+VIEWS = ('entities', 'values', 'map', 'describe', 'sparql')
 
 
 class UsageError(Exception):
@@ -160,13 +165,14 @@ def cur(nav):
     return nav['nodes'][nav['focus']]
 
 
-FILTER_OPS = {'--text', '--any-literal', '--type', '--not-type', '--pv', '--not-pv', '--pv-in', '--has', '--has-in', '--range', '--entity'}
+FILTER_OPS = {'--text', '--any-literal', '--type', '--not-type', '--pv', '--not-pv', '--pv-in', '--pv-or', '--has', '--has-in', '--range', '--entity'}
 
 
 def apply_ops(nav, ops):
     """Apply OPS left to right. As in the app, adding a filter returns the view to the entity list unless a later
     --view, --values-of or --describe chooses another view."""
     i = 0
+    map_opts = dict(((nav.get('pg') or {}).get('map')) or {})   # Map-view options survive an edit
 
     def arg():
         nonlocal i
@@ -177,7 +183,7 @@ def apply_ops(nav, ops):
 
     while i < len(ops):
         op = ops[i]; i += 1
-        if op in FILTER_OPS and nav['view'] != 'describe':
+        if op in FILTER_OPS and nav['view'] not in ('describe', 'map'):
             nav['view'], nav['vp'] = 'entities', None
         if op == '--text':
             cur(nav)['text'] = arg()
@@ -188,6 +194,26 @@ def apply_ops(nav, ops):
         elif op in ('--pv', '--not-pv', '--pv-in'):
             p, v = split_pv(arg())
             cur(nav)['conds'].append({'t': 'pv', 'p': p, 'dir': 'in' if op == '--pv-in' else 'out', 'v': v, 'neg': 1 if op == '--not-pv' else 0})
+        elif op == '--pv-or':
+            p, v = split_pv(arg())
+            node = cur(nav)
+            c = next((x for x in reversed(node['conds']) if x['t'] == 'pv' and not x.get('neg') and x['p'] == p and x['dir'] == 'out' and (x.get('v') or x.get('vs'))), None)
+            if c is None:
+                node['conds'].append({'t': 'pv', 'p': p, 'dir': 'out', 'v': v, 'neg': 0})
+            else:
+                vs = c.get('vs') or [c['v']]
+                if v not in vs:
+                    vs.append(v)
+                c['vs'], c['v'] = vs, None
+        elif op == '--map-by':
+            map_opts['by'] = expand(arg())
+        elif op == '--map-limit':
+            n = int(arg())
+            if n not in (1000, 3000, 10000):
+                raise UsageError('--map-limit must be 1000, 3000 or 10000')
+            map_opts['lim'] = n
+        elif op == '--map-in-view':
+            map_opts['view'] = True
         elif op in ('--has', '--has-in'):
             cur(nav)['conds'].append({'t': 'pv', 'p': expand(arg()), 'dir': 'in' if op == '--has-in' else 'out', 'v': None, 'neg': 0})
         elif op == '--range':
@@ -236,7 +262,7 @@ def apply_ops(nav, ops):
         else:
             raise UsageError('Unknown option: ' + op)
     nav['off'] = 0
-    nav['pg'] = {}
+    nav['pg'] = {'map': map_opts} if map_opts else {}
     return nav
 
 
@@ -286,6 +312,8 @@ def summarize(state, cfg=None, base=None):
             elif c['t'] == 'pv':
                 if c.get('lo') not in (None, '') or c.get('hi') not in (None, ''):
                     bits.append('%s between %s and %s' % (short(c['p']), c.get('lo') or '−∞', c.get('hi') or '+∞'))
+                elif c.get('vs'):
+                    bits.append(neg + '%s = %s' % (short(c['p']), ' or '.join(term_text(x) for x in c['vs'])))
                 elif c['dir'] == 'in':
                     bits.append(neg + '%s %s this' % (term_text(c['v']), short(c['p'])))
                 else:
