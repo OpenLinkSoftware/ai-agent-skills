@@ -13,7 +13,7 @@ link the script printed, never a shortened one.
 | 4 | Refine | "Only the ones starring Michael Caine." |
 | 5 | Facets / distribution | "How are those settlements spread across states?" |
 | 6 | Pivot | "Which actors in Nolan's films were born in London?" |
-| 7 | Describe | "Tell me about Lagos." |
+| 7 | Describe | "Tell me about Benin City." |
 | 8 | Read a pasted link back | "What is this view? <link>" |
 | 9 | Language | "Same, but in German." |
 | 10 | Another app instance | "Use my browser at <your-app-url>" |
@@ -171,19 +171,19 @@ the app the trail reads *Films → starring → born in London*.
 
 ## 7. Describe
 
-> **User:** Tell me about Lagos.
+> **User:** Tell me about Benin City.
 
 **Skill decides:** this is one entity. It fetches its description and summarizes the notable facts in prose rather
 than pasting every row.
 
 ```bash
-python3 scripts/fct_query.py --describe dbr:Lagos --limit 200
+python3 scripts/fct_query.py --describe dbr:Benin_City --limit 200
 ```
 ```
 | direction | property | value | values folded |
 |---|---|---|---|
-| out | [area total (km2)](http://dbpedia.org/ontology/PopulatedPlace/areaTotal) | 1171.28 |  |
-| out | [area code](http://dbpedia.org/ontology/areaCode) | 010 |  |
+| out | [description](http://dbpedia.org/ontology/description) | capital city of Edo State, Nigeria @en |  |
+| out | [thumbnail](http://dbpedia.org/ontology/thumbnail) | [http://commons.wikimedia.org/wiki/Special:FilePath/Areal_view_of_the_ancient_city_of_Benin.jpg?width=300](http://commons.wikimedia.org/wiki/Special:FilePath/Areal_view_of_the_ancient_city_of_Benin.jpg?width=300) |  |
 | … |
 ```
 
@@ -214,13 +214,13 @@ View:      entities
 > **User:** Same, but in German.
 
 ```bash
-python3 scripts/fct_query.py --describe dbr:Lagos --lang de --limit 8 --format table
+python3 scripts/fct_query.py --describe dbr:Benin_City --lang de --limit 8 --format table
 ```
 ```
-out  Fläche (km2)  1171.28
-out  Stadtgebiet (km2)  907.0
-out  Bevölkerungsdichte (/sqkm)  6871.0
-out  Vorwahl  010
+out  Beschreibung  Großstadt in Nigeria @de
+out  dbo:thumbnail  http://commons.wikimedia.org/wiki/Special:FilePath/Areal_view_of_the_ancient_city_of_Benin.jpg?width=300
+out  dbo:wikiPageExternalLink  http://www.edoworld.net/Tourism.html
+…
 ```
 
 `--lang de` changes both the labels in chat and the link: the link gains `&cfg=…`, so the app opens in German

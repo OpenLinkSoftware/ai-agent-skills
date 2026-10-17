@@ -46,11 +46,13 @@ button:disabled { cursor: default; opacity: .45; }
 .brand:hover { text-decoration: none; color: var(--accent); }
 .brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .brand svg { color: var(--accent); }
-.ep { display: flex; flex-wrap: wrap; flex: 1 1 520px; gap: 6px; min-width: 0; }
-.tools { display: flex; align-items: center; gap: 4px; margin-left: auto; flex: 0 0 auto; }
-.ep input { flex: 1 1 200px; min-width: 160px; }
-.ep #epPreset { flex: 0 1 150px; min-width: 110px; }
-.ep #profile { flex: 0 1 auto; }
+/* Desktop: the endpoint controls stay on one row; the URL field absorbs width changes, never the layout. */
+.ep { display: flex; flex-wrap: nowrap; flex: 1 1 480px; gap: 6px; min-width: 0; align-items: center; }
+.tools { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; margin-left: auto; flex: 0 0 auto; }
+.ep input { flex: 1 1 220px; min-width: 120px; }
+.ep #epPreset { flex: 0 1 170px; min-width: 110px; }
+.ep #profile { flex: 0 1 150px; min-width: 120px; }
+.ep #connectBtn { flex: 0 0 auto; }
 .field, .ep input, .ep select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
 .btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
 .btn:hover:not(:disabled) { border-color: var(--accent); text-decoration: none; }
@@ -59,13 +61,23 @@ button:disabled { cursor: default; opacity: .45; }
 .icon-btn:hover { color: var(--accent); border-color: var(--border); }
 /* Connection state: idle (grey) → pending (throbber) → ok (green) | err (red). */
 .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); transition: background-color .2s, border-color .2s, color .2s; min-width: 0; }
-.status #statusText { overflow: hidden; text-overflow: ellipsis; max-width: 40vw; }
+/* Fixed width, so running queries ("N running" + Stop, both inside the pill) never shift the top bar. */
+.status { width: 13.75rem; box-sizing: border-box; }
+.status #statusText { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .status .dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); box-sizing: border-box; }
 .status.pending { color: var(--accent); border-color: var(--accent); }
 .status.pending .dot { width: 12px; height: 12px; background: none; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: spin .7s linear infinite; }
 .status.ok { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
 .status.ok .dot { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
 .status.ok.busy .dot { animation: pulse 1s infinite; }
+/* While queries run, the pill and a Stop button next to it cancel them (the render's AbortController). */
+.status.ok.busy { cursor: pointer; }
+.status.ok.busy:hover .dot { border-radius: 2px; background: var(--neg); box-shadow: 0 0 0 3px var(--neg-soft); animation: none; }
+.stop-btn { flex: 0 0 auto; margin: -2px -6px -2px auto; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; line-height: 1; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--neg); background: var(--surface); color: var(--neg); cursor: pointer; white-space: nowrap; }
+.stop-btn .sq { width: 8px; height: 8px; border-radius: 1px; background: currentColor; }
+.stop-btn:hover, .stop-btn:focus-visible { background: var(--neg); color: #fff; outline: none; }
+.loading.stopped { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.loading.stopped::before { display: none; }
 .status.err { color: var(--neg); border-color: var(--neg); background: var(--neg-soft); }
 .status.err .dot { background: var(--neg); box-shadow: 0 0 0 3px var(--neg-soft); }
 .ep input { transition: border-color .2s, box-shadow .2s; }
@@ -83,7 +95,7 @@ button:disabled { cursor: default; opacity: .45; }
 
 /* search */
 .search { display: flex; gap: 8px; padding: 14px 16px 6px; flex-wrap: wrap; }
-.search input[type=search] { flex: 1 1 300px; font-size: 16px; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); min-width: 0; }
+.search input[type=search] { flex: 1 1 200px; font-size: 16px; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); min-width: 0; }
 .search input[type=search]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* parallax trail */
@@ -293,8 +305,15 @@ dialog form { padding: 16px 18px; display: grid; gap: 12px; }
 dialog h2 { margin: 0; font-size: 17px; }
 dialog label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 dialog label input { color: var(--text); }
+dialog label, dialog .row2 > * { min-width: 0; }
+dialog .field { width: 100%; min-width: 0; max-width: 100%; text-overflow: ellipsis; }
 dialog .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 dialog .check { display: flex; gap: 8px; align-items: center; color: var(--text); }
+dialog fieldset.virt { border: 1px solid var(--border); border-radius: 10px; margin: 0; padding: 10px 12px 12px; display: grid; gap: 10px; min-width: 0; }
+dialog fieldset.virt legend { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--text); }
+dialog fieldset.virt[data-off] .virt-ctl { opacity: .55; }
+dialog .virt-note { font-size: 12px; color: var(--muted); margin: 0; }
+dialog .virt-note.warn { color: var(--warn, #b45309); }
 dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 0; padding: 0; }
 .menu-wrap { position: relative; }
 .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 270px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); display: grid; gap: 8px; }
@@ -331,18 +350,33 @@ footer.site a, #about a { color: var(--accent); }
 #about menu { display: flex; justify-content: flex-end; margin: 0; padding: 0; }
 @media (max-width: 480px) { #about dl { grid-template-columns: 1fr; } #about dd { margin-bottom: 6px; } }
 
+/* mid widths: the brand shows its icon only, so endpoint controls, status and tools keep one row */
+@media (max-width: 1200px) { .brand span { display: none; } .brand { margin-right: 0; } }
 @media (max-width: 860px) {
-  .ep { flex-basis: 100%; order: 3; }          /* endpoint controls take their own full-width row */
+  /* endpoint controls: their own full-width row, as a 2x2 grid (presets | engine / URL | Connect) */
+  .ep { flex-basis: 100%; order: 3; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+  .ep #epPreset { grid-column: 1; grid-row: 1; min-width: 0; }
+  .ep #profile { grid-column: 2 / 4; grid-row: 1; min-width: 0; }
+  .ep input { grid-column: 1 / 3; grid-row: 2; min-width: 0; }
+  .ep #connectBtn { grid-column: 3; grid-row: 2; }
   .layout { grid-template-columns: minmax(0, 1fr); }
   aside { position: static; max-height: none; overflow: visible; padding-right: 0; order: 2; }
   .topbar { position: static; }
-  .ent { grid-template-columns: 40px minmax(0,1fr); }
-  .ent .acts { grid-column: 2; }
-  .ent .thumb { width: 40px; height: 40px; }
   .prop-group { grid-template-columns: minmax(0,1fr); gap: 4px; }
   .brand span { display: none; }
   dialog .row2 { grid-template-columns: 1fr; }
   table.vals .num { width: 70px; }
+}
+@media (max-width: 560px) {
+  .ent { grid-template-columns: 40px minmax(0,1fr); }
+  .ent .acts { grid-column: 2; }
+  .ent .thumb { width: 40px; height: 40px; }
+  .status { width: 8.25rem; padding: 4px 8px; } /* phones: brand, pill and tools share one row */
+  .status .st-pre { display: none; }
+  .tools { gap: 2px; }
+  .stop-btn .lab { display: none; }
+  .stop-btn { padding: 4px 6px; }
+  .tools .icon-btn { padding: 6px 5px; }
 }
 </style>
 </head>
@@ -417,7 +451,7 @@ footer.site a, #about a { color: var(--accent); }
     <button class="btn" type="submit" id="connectBtn"><span class="spin" aria-hidden="true"></span><span class="lab">Connect</span></button>
   </form>
   <div class="tools">
-  <div class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Not connected</span></div>
+  <div class="status" id="status"><span class="dot" aria-hidden="true"></span><span id="statusText" role="status" aria-live="polite">Not connected</span><button type="button" class="stop-btn" id="stopBtn" hidden title="Stop the running queries" aria-label="Stop the running queries"><span class="sq" aria-hidden="true"></span><span class="lab">Stop</span></button></div>
   <button class="icon-btn" data-act="share" title="Share a link to this view" aria-label="Share a link to this view"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg></button>
   <div class="menu-wrap">
     <button class="icon-btn" id="exportBtn" data-act="exportMenu" title="Export this view as RDF" aria-label="Export this view as RDF" aria-haspopup="menu" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></button>
@@ -504,6 +538,8 @@ footer.site a, #about a { color: var(--accent); }
       <dt>Anytime queries</dt><dd id="aboutAnytime"></dd>
       <dt>SPARQL-FED proxy</dt><dd id="aboutProxy"></dd>
       <dt>Annotation dedupe</dt><dd id="aboutDedupe"></dd>
+      <dt>Reasoning</dt><dd id="aboutReason"></dd>
+      <dt>Sponger</dt><dd id="aboutSponge"></dd>
       <dt>Literal language</dt><dd id="aboutLang"></dd>
     </dl>
     <h3>Lineage</h3>
@@ -532,10 +568,54 @@ footer.site a, #about a { color: var(--accent); }
       <label>Type property <input class="field" name="typeProp" placeholder="rdf:type (wdt:P31 on Wikidata)"></label>
     </div>
     <label>Restrict to named graph (FROM) <input class="field" name="graph" placeholder="leave blank for the endpoint's default graph"></label>
-    <div class="row2">
-      <label>Virtuoso inference rule set <input class="field" name="inference" placeholder="optional"></label>
-      <label class="check" style="align-self:end"><input type="checkbox" name="sameAs"> owl:sameAs expansion (Virtuoso)</label>
-    </div>
+    <fieldset class="virt" id="virtSet">
+      <legend>Virtuoso reasoning &amp; sponging</legend>
+      <p class="virt-note" id="virtNote"></p>
+      <div class="virt-ctl">
+        <label>Inference rule set <small>(DEFINE input:inference)</small>
+          <select class="field" name="infRule"></select>
+        </label>
+        <label id="infCustomWrap" hidden>Rule set name <input class="field" name="infCustom" placeholder="as listed in DB.DBA.SYS_RDF_SCHEMA" autocomplete="off" spellcheck="false"></label>
+      </div>
+      <div class="row2 virt-ctl">
+        <label>&ldquo;Same As&rdquo; <small>(DEFINE input:same-as)</small>
+          <select class="field" name="sas">
+            <option value="SAME_AS_OFF">Disabled (fastest)</option>
+            <option value="SAME_AS_S">Apply to subjects only</option>
+            <option value="SAME_AS_O">Apply to objects only</option>
+            <option value="SAME_AS_S_O">Apply to both subjects and objects (recommended)</option>
+            <option value="SAME_AS">Apply to subjects, objects and predicates (not recommended on big datasets)</option>
+            <option value="SAME_AS_P">Apply to predicates only (special use cases only)</option>
+          </select>
+        </label>
+        <label>Inverse functional properties <small>(DEFINE input:ifp)</small>
+          <select class="field" name="ifp">
+            <option value="IFP_OFF">Disabled (fastest)</option>
+            <option value="IFP_S">Apply to subjects only</option>
+            <option value="IFP_O">Apply to objects only</option>
+            <option value="IFP">Apply to both subjects and objects</option>
+          </select>
+        </label>
+      </div>
+      <div class="row2 virt-ctl">
+        <label>Sponger (Linked Data fetch)
+          <select class="field" name="sponge">
+            <option value="off">Off — use only data already in the store</option>
+            <option value="soft">Fetch missing source documents (get:soft "soft")</option>
+            <option value="replace">Re-fetch source documents (get:soft "replace")</option>
+            <option value="grab-all">Fetch all missing data that might be useful</option>
+            <option value="grab-seealso">… including rdfs:seeAlso / foaf:seeAlso references</option>
+            <option value="grab-everything">Try to fetch every referenced resource (slow)</option>
+          </select>
+        </label>
+        <label>Sponge on
+          <select class="field" name="spongeScope">
+            <option value="describe">Entity descriptions only (recommended)</option>
+            <option value="all">Every query (lists, facets and counts too)</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
     <label class="check"><input type="checkbox" name="anytime"> Use Virtuoso Anytime queries — return partial results at the timeout instead of failing</label>
     <label class="check"><input type="checkbox" name="proxy"> Use the URIBurner SPARQL-FED proxy for endpoints this page cannot reach directly (no CORS headers, or plain http on an https page)</label>
     <label>De-duplicate annotation literals with SAMPLE() (labels, comments, names, descriptions…)
@@ -715,8 +795,14 @@ function localName(iri) {
 }
 
 /* ---------- state ---------- */
-const DEFAULTS = { ep: 'https://dbpedia.org/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', inference: '', sameAs: false, anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
+const DEFAULTS = { ep: 'https://dbpedia.org/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', infRule: 'auto', sas: 'SAME_AS_OFF', ifp: 'IFP_OFF', sponge: 'off', spongeScope: 'describe', anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
 let settings = Object.assign({}, DEFAULTS, load('fct.settings') || {});
+// Before the Virtuoso pragma menus, Settings had a free-text rule set ('inference') and an owl:sameAs checkbox.
+if ('inference' in settings || 'sameAs' in settings) {
+  if (settings.inference) settings.infRule = settings.inference;
+  if (settings.sameAs) settings.sas = 'SAME_AS';
+  delete settings.inference; delete settings.sameAs;
+}
 /* nav is the FCT query tree flattened into a chain of sets joined by pivots:
    nodes[i] = { via: {p, dir:'out'|'in'} | null, text, scope, conds: [...] }
    cond     = {t:'class', iri, neg} | {t:'pv', p, dir, v: term|null, neg, lo, hi, dt} | {t:'is', v: term}
@@ -794,7 +880,7 @@ async function detectProfile() {
   if (proxied()) { resolvedProfile = 'generic'; return; }
   try {
     // bif: built-ins exist only in Virtuoso; any other engine rejects this query.
-    const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000 });
+    const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000, noPragma: true });
     resolvedProfile = rows(j).length ? 'virtuoso' : 'generic';
   } catch (e) {
     // Only an actual rejection of the bif: query means "not Virtuoso"; a timeout or network error is retried next render.
@@ -812,11 +898,16 @@ const conn = { state: 'idle', ep: null, profile: null, msg: '', phase: '', pendi
 function paintStatus() {
   const s = conn.state;
   const text = s === 'pending' ? (conn.phase || 'SPARQL handshake…') : s === 'err' ? 'Connection failed' :
-    s === 'ok' ? 'Connected · ' + profile() + (proxied() ? ' · via UB proxy' : '') + (inflight ? ' · ' + inflight + ' running' : '') : 'Not connected';
+    s === 'ok' ? (inflight ? inflight + ' running' : 'Connected · ' + profile() + (proxied() ? ' · via proxy' : '')) : 'Not connected';
   const el = document.getElementById('status');
   el.className = 'status ' + s + (s === 'ok' && inflight ? ' busy' : '');
-  el.title = conn.msg || text;
-  document.getElementById('statusText').textContent = text;
+  el.title = s === 'ok' && inflight ? 'Connected · ' + profile() + (proxied() ? ' via the UB proxy' : '') + ' — click to stop the ' + inflight + ' running quer' + (inflight === 1 ? 'y' : 'ies') : (conn.msg || text);
+  const stop = document.getElementById('stopBtn');
+  if (stop) stop.hidden = !(s === 'ok' && inflight);
+  // the 'Connected · ' prefix is its own span so phones can drop it (the green dot already says connected)
+  const st = document.getElementById('statusText');
+  if (s === 'ok' && !inflight && text.startsWith('Connected · ')) st.innerHTML = '<span class="st-pre">Connected · </span>' + esc(text.slice(12));
+  else st.textContent = text;
   const form = document.getElementById('epForm');
   form.dataset.conn = s;
   form.dataset.dirty = String(document.getElementById('endpoint').value.trim() !== settings.ep);
@@ -942,6 +1033,9 @@ function proxify(q, ep) {
   return pro.concat('SELECT * WHERE { ' + svc + ' {\n' + body + '\n} }').join('\n');
 }
 async function sparql(q, opts = {}) {
+  // Pragmas also reach the queries built without prologue(); the probes (noPragma) and other endpoints never get them.
+  const qKey = opts.metaKey || q;   // the caller's text: the SPARQL tab looks timings up by it
+  if (!opts.noPragma && !opts.ep && !opts.proxyFor) { const pg = pragmas(); if (pg && !q.includes(pg)) q = pg + q; }
   const timeout = budgetMs(opts.timeout || settings.timeout);
   const viaProxy = opts.proxyFor || (!opts.ep && proxied() ? settings.ep : null);
   const sent = viaProxy ? proxify(q, viaProxy) : q;
@@ -984,12 +1078,20 @@ async function sparql(q, opts = {}) {
         return j2;
       }
     }
+    // A pragma the endpoint refuses: drop that group for this endpoint and run the query again without it.
+    const fault = !res.ok && !opts.noPragma && pragmaFault(q, body);
+    if (fault) {
+      pragmaOff.add(settings.ep + '|' + fault.g);
+      toast('This endpoint refused the ' + esc(fault.name) + ' (' + esc(body.split(/SPARQL query:/)[0].replace(/\s+/g, ' ').trim().slice(0, 140)) + '); queries now run without it. Change it in Settings.');
+      fault.line.lastIndex = 0;
+      return sparql(q.replace(fault.line, ''), Object.assign({}, opts, { noPragma: true, metaKey: qKey }));
+    }
     // Through UB's SPARQL-FED a remote Anytime cutoff comes back as an HTTP error carrying Virtuoso's
     // "Returning incomplete results" message rather than as a 206; treat it as a partial result with no rows.
     if (!res.ok && /Returning incomplete results|S1TAT/.test(body)) {
       const meta = { ms: Number(res.headers.get('X-Exec-Milliseconds')) || Math.round(performance.now() - t0), partial: true,
         msg: body.replace(/\s+Activity:.*$/s, '').replace(/\s+/g, ' ').trim().slice(0, 300) };
-      queryMeta.set(q, meta);
+      queryMeta.set(qKey, meta);
       return { head: { vars: [] }, results: { bindings: [] }, __meta: meta };
     }
     if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status + ': ' + (looksHtml ? body.replace(/<[^>]+>/g, ' ') : body).replace(/\s+/g, ' ').trim().slice(0, 400)), looksHtml ? { nonSparql: true, html: body.slice(0, 300000) } : {});
@@ -1003,7 +1105,7 @@ async function sparql(q, opts = {}) {
     const msg = (res.headers.get('X-SQL-Message') || '').replace(/\s+Activity:.*$/s, '').trim();
     const meta = { ms: Number(res.headers.get('X-Exec-Milliseconds')) || Math.round(performance.now() - t0),
       partial: res.status === 206 || res.headers.get('X-SQL-State') === 'S1TAT', msg };
-    queryMeta.set(q, meta);
+    queryMeta.set(qKey, meta);
     if (j && typeof j === 'object') j.__meta = meta;
     return j;
   } catch (e) {
@@ -1070,8 +1172,8 @@ const ANYTIME_MAX_MS = 30000, ANYTIME_SAFE_MS = 20000;
 /* Annotation-literal dedupe: 'auto' = only on Virtuoso (Settings → De-duplicate annotation literals). */
 const dedupeOn = () => settings.dedupe === 'on' || (settings.dedupe !== 'off' && profile() === 'virtuoso');
 const ANNOT_PROPS = ['rdfs:label', 'rdfs:comment', 'skos:prefLabel', 'skos:altLabel', 'skos:hiddenLabel', 'skos:definition', 'skos:note', 'skos:scopeNote',
-  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'foaf:name']
-  .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description']);
+  'dc:title', 'dc:description', 'dcterms:title', 'dcterms:description', 'dcterms:abstract', 'dbo:abstract', 'schema:name', 'schema:alternateName', 'schema:description', 'schema:jobTitle', 'foaf:name']
+  .map(c => NS[c.split(':')[0]] + c.split(':')[1]).concat(['https://schema.org/name', 'https://schema.org/alternateName', 'https://schema.org/description', 'https://schema.org/jobTitle']);
 const annotTest = () => '(?p IN (' + ANNOT_PROPS.map(iriRef).join(', ') + ') || EXISTS { ?p a <http://www.w3.org/2002/07/owl#AnnotationProperty> })';
 const langOk = v => '(LANG (' + v + ') = "" || LANGMATCHES (LANG (' + v + '), ' + litStr(prefLang()) + '))';
 const anytimeOn = () => settings.anytime !== false && (profile() === 'virtuoso' || (typeof proxied === 'function' && proxied()));
@@ -1128,14 +1230,78 @@ function unsortedHtml(cap) {
     (cap && cap !== true ? ' (' + Number(cap).toLocaleString() + ' rows)' : '') + ', so the query ran without ORDER BY.</span></span>';
 }
 
+/* ---------- Virtuoso pragmas: reasoning (fct-dev Settings) and sponging ----------
+   Only for a Virtuoso endpoint reached directly (through the UB proxy they would apply at UB, not at the remote).
+   Rule sets: fct-dev lists DB.DBA.SYS_RDF_SCHEMA, which a SPARQL client cannot read, so the candidates below (the
+   rule sets defined on URIBurner, 2026-10-16) are checked on the connected endpoint with one ASK each; an undefined
+   name fails at compile time (SP031). A custom name can be typed. URIBurner defaults to the RDFS subclass/subproperty
+   rules ('auto'); everywhere else 'auto' means none.
+   Sponger modes follow the /sparql should-sponge mapping in the Virtuoso docs (Sponger usage, table 16.10), plus
+   get:soft "replace" to re-fetch; on entity descriptions input:grab-iri names the entity so even "soft" fetches it.
+   If the endpoint refuses a pragma (undefined rule, no SPARQL_SPONGE privilege, an older server without the IFP /
+   SAME_AS_* modes), that pragma is dropped for the endpoint, the query re-runs without it, and a toast says so. */
+const UB_EP = 'https://linkeddata.uriburner.com/sparql';
+const UB_DEFAULT_RULE = 'urn:rdfs:subclass:subproperty:inference:rules';
+const RULE_CANDIDATES = ['urn:rdfs:subclass:subproperty:inference:rules', 'urn:owl:equivalent:class:inference:rules',
+  'urn:relationships:ontology:inference:rules', 'urn:class:inf', 'http://www.w3.org/2002/07/owl#', 'skos-trans', 'facets',
+  'b3s', 'b3sifp', 'eqinf', 'ldp', 'oplweb', 'virtrdf-label', 'virtrdf-ifp', 'virtrdf-url', 'virtrdf-hashtag',
+  'virtrdf-meta-entity-class', 'virtrdf-eturtle-containers', 'virtpivot-rules', 'urn:det:rdf:label', 'cciso',
+  'ActivityStreamsMap', 'asEquivalent', 'rel-me-auth', 'urn:analytics:acqof:rule', 'urn:com.openlinksw.outarde:inference',
+  'http://linkeddata.uriburner.com/dataspace', 'urn:why-the-triple-is-the-wrong-grain:equivalent-class-rules'];
+const SEEALSO = ' define input:grab-seealso <http://www.w3.org/2000/01/rdf-schema#seeAlso> define input:grab-seealso <http://xmlns.com/foaf/0.1/seeAlso>';
+const SPONGE_PRAGMAS = {
+  soft: 'define get:soft "soft"',
+  replace: 'define get:soft "replace"',
+  'grab-all': 'define input:grab-all "yes" define input:grab-depth 5 define input:grab-limit 100',
+  'grab-seealso': 'define input:grab-all "yes" define input:grab-depth 5 define input:grab-limit 200' + SEEALSO,
+  'grab-everything': 'define input:grab-all "yes" define input:grab-intermediate "yes" define input:grab-depth 5 define input:grab-limit 500' + SEEALSO
+};
+const pragmaOff = new Set();                 // ep|group pairs the endpoint refused: inference, sas, ifp, sponge
+const isOff = g => pragmaOff.has(settings.ep + '|' + g);
+const virtPragmasOn = () => profile() === 'virtuoso' && !proxied();
+const infRule = () => settings.infRule === 'auto' ? (settings.ep === UB_EP ? UB_DEFAULT_RULE : '') : settings.infRule === 'none' ? '' : (settings.infRule || '');
+function pragmas() {
+  if (!virtPragmasOn()) return '';
+  let s = '';
+  if (infRule() && !isOff('inference')) s += 'DEFINE input:inference ' + litStr(infRule()) + '\n';
+  if (settings.sas && settings.sas !== 'SAME_AS_OFF' && !isOff('sas')) s += 'DEFINE input:same-as ' + litStr(settings.sas) + '\n';
+  if (settings.ifp && settings.ifp !== 'IFP_OFF' && !isOff('ifp')) s += 'DEFINE input:ifp ' + litStr(settings.ifp) + '\n';
+  if (settings.spongeScope === 'all') s += spongePragmas(null, 'all');
+  return s;
+}
+// e: the described entity (named with input:grab-iri) or null; total: the COUNT companion of a description page,
+// which never re-fetches ("replace" would load the document twice).
+function spongePragmas(e, scope, total) {
+  const m = settings.sponge || 'off';
+  if (m === 'off' || !SPONGE_PRAGMAS[m] || !virtPragmasOn() || isOff('sponge') || (settings.spongeScope || 'describe') !== scope) return '';
+  if (total && m === 'replace') return e ? 'define get:soft "soft" define input:grab-iri ' + iriRef(e) + '\n' : '';
+  return SPONGE_PRAGMAS[m] + (e && !/^urn:|^_:/.test(e) ? ' define input:grab-iri ' + iriRef(e) : '') + '\n';
+}
+const PRAGMA_GROUPS = [
+  { g: 'inference', line: /^DEFINE input:inference .*\n/gim, err: /input:inference|inference rule/i, name: 'inference rule set' },
+  { g: 'sas', line: /^DEFINE input:same-as .*\n/gim, err: /same-as|SAME_AS/i, name: '“Same As” mode' },
+  { g: 'ifp', line: /^DEFINE input:ifp .*\n/gim, err: /input:ifp|IFP_/i, name: 'IFP mode' },
+  { g: 'sponge', line: /^define (get:soft|input:grab-).*\n/gim, err: /spong|grab|get:soft|SR186/i, name: 'Sponger' }
+];
+// Which pragma group a failed query's error points at. The message part only: Virtuoso echoes the query after it.
+function pragmaFault(q, body) {
+  const msg = body.split(/SPARQL query:/)[0];
+  return PRAGMA_GROUPS.find(p => { p.line.lastIndex = 0; return p.line.test(q) && p.err.test(msg); });
+}
+// Rule sets defined on the connected endpoint: one cached probe per endpoint.
+const ruleProbe = new Map();
+function probeRules(ep) {
+  if (!ruleProbe.has(ep)) ruleProbe.set(ep, Promise.all(RULE_CANDIDATES.map(r =>
+    sparql('DEFINE input:inference ' + litStr(r) + '\nASK { }', { quiet: true, timeout: 8000, noPragma: true }).then(() => r, () => null)))
+    .then(rs => rs.filter(Boolean)));
+  return ruleProbe.get(ep);
+}
+
 /* ---------- query builder: FCT query tree → SPARQL ---------- */
 const sv = i => '?s' + (i + 1);
 function prologue() {
   let s = '';
-  if (profile() === 'virtuoso') {
-    if (settings.inference) s += 'DEFINE input:inference ' + litStr(settings.inference) + '\n';
-    if (settings.sameAs) s += 'DEFINE input:same-as "yes"\n';
-  }
+  s += pragmas();
   if (profile() === 'wikidata') s += 'PREFIX wikibase: <http://wikiba.se/ontology#>\nPREFIX bd: <http://www.bigdata.com/rdf#>\nPREFIX mwapi: <https://www.mediawiki.org/ontology#API/>\n';
   return s;
 }
@@ -1254,8 +1420,8 @@ const Q = {
     : mode === 'lang'
     ? '  { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || ' + langOk('?o') + ') BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
     : '  { ' + iriRef(e) + ' ?p ?o . BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }',
-  describePage: (e, mode, off, lim) => sel('?dir ?p ?o' + (mode === 'sample' ? ' ?n' : ''), Q.describeUnion(e, mode), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
-  describeTotal: (e, mode) => sel('(COUNT (*) AS ?n)', Q.describeUnion(e, mode)),
+  describePage: (e, mode, off, lim) => spongePragmas(e, 'describe') + sel('?dir ?p ?o' + (mode === 'sample' ? ' ?n' : ''), Q.describeUnion(e, mode), 'ORDER BY DESC (?dir) ?p ' + page(lim, off)),
+  describeTotal: (e, mode) => spongePragmas(e, 'describe', true) + sel('(COUNT (*) AS ?n)', Q.describeUnion(e, mode)),
   describeIn: e => sel('?s ?p', '  ?s ?p ' + iriRef(e) + ' .', 'LIMIT 300')
 };
 
@@ -1396,7 +1562,7 @@ const countText = k => countPartial.has(k) ? (countCache.get(k) > 0 ? '≥ ' + f
 const cur = { entities: [], values: [], samples: [] };
 const focus = () => nav.focus;
 const fnode = () => nav.nodes[nav.focus];
-const navKey = () => JSON.stringify([settings.ep, settings.graph, settings.inference, settings.sameAs, settings.typeProp, profile(), nav.nodes]);
+const navKey = () => JSON.stringify([settings.ep, settings.graph, pragmas(), settings.sponge, settings.typeProp, profile(), nav.nodes]);
 async function cached(key, fn) {
   if (cache.has(key)) return cache.get(key);
   const v = await fn();
@@ -1409,6 +1575,21 @@ function resetCaches() { voidState.clear(); cache.clear(); countCache.clear(); c
 function newNav(nodes, view) { nav = { nodes, focus: nodes.length - 1, view: view || 'entities', off: 0, vp: null, ent: null }; }
 function go(replace, opts = {}) { writeHash(replace); render(); if (!replace && !opts.noReveal) revealResults(); }
 
+/* Stop: cancel every query of the current view (fetches abort; the endpoint ends its side at its own timeout, which is
+   short with Anytime). What has already arrived stays on screen; panels still waiting say so and offer to run again. */
+function stopQueries() {
+  if (!inflight) return;
+  ctl.abort();
+  document.querySelectorAll('#main .loading:not(.stopped), aside .loading:not(.stopped)').forEach(el => {
+    el.classList.add('stopped');
+    const id = 'pinfo-' + (++pinfoSeq);
+    el.innerHTML = '<span>Stopped.</span><span class="pinfo-wrap retry-wrap"><button type="button" class="retry-ico" data-act="rerun" aria-label="Run again" aria-describedby="' + id + '">' + RETRY_SVG + '</button>' +
+      '<span class="pinfo-tip" role="tooltip" id="' + id + '">You stopped this query. Run it again with the same settings.</span></span>';
+  });
+  // trail cards whose count was still running
+  document.querySelectorAll('#trail .set .n').forEach(n => { if (n.textContent === 'counting…') { n.textContent = 'count stopped'; n.title = 'You stopped the count; re-run the view to count again.'; } });
+  toast('Stopped the running queries.');
+}
 async function render() {
   const my = ++gen;
   ctl.abort();
@@ -1455,13 +1636,13 @@ async function render() {
 
 /* Per-endpoint starter samples, derived by probing each preset endpoint (2026-10-14): starter searches verified to return
    results with the app's own text-search query, prominent entity types, and well-labelled example entities. */
-const ENDPOINT_SAMPLES = /*SAMPLES*/{"https://dbpedia.org/sparql": {"searches": ["Alcides Mendoza Castro", "Aleksander Kreek", "Alcides"], "types": [{"iri": "http://dbpedia.org/ontology/Person", "label": "person"}, {"iri": "http://dbpedia.org/ontology/TimePeriod", "label": "time period"}, {"iri": "http://dbpedia.org/ontology/Species", "label": "species"}], "entities": [{"iri": "http://dbpedia.org/resource/Alcides_Mendoza_Castro", "label": "Alcides Mendoza Castro"}, {"iri": "http://dbpedia.org/resource/Aleksander_Kreek", "label": "Aleksander Kreek"}, {"iri": "http://dbpedia.org/resource/2027_in_spaceflight", "label": "2027 in spaceflight"}]}, "https://linkeddata.uriburner.com/sparql": {"searches": ["HowTo", "FAQ", "Glossary"], "types": [{"iri": "http://schema.org/Question", "label": "Question"}, {"iri": "http://schema.org/HowTo", "label": "HowTo"}, {"iri": "http://schema.org/SoftwareApplication", "label": "SoftwareApplication"}], "entities": [{"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/intent-to-action-agents-web-claude_sonnet_5_5-1.html#article", "label": "From Intent to Action"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/gates-turbulent-ai-era-critical-choices-claude_opus_5-1.ttl#analysis", "label": "The Turbulent AI Era and the Choices That Cannot Wait"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/the-next-difficulty-gpt_6-1.html", "label": "The Next Difficulty: An Atlas of Innovation"}]}, "https://query.wikidata.org/sparql": {"searches": ["Vladimir Lenin", "George Washington", "New York City"], "types": [{"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q515", "label": "city"}, {"iri": "http://www.wikidata.org/entity/Q11424", "label": "film"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q1394", "label": "Vladimir Lenin"}, {"iri": "http://www.wikidata.org/entity/Q23", "label": "George Washington"}, {"iri": "http://www.wikidata.org/entity/Q60", "label": "New York City"}]}, "https://sparql.uniprot.org/sparql": {"searches": [], "types": [{"iri": "http://purl.uniprot.org/core/Protein", "label": "Protein"}, {"iri": "http://purl.uniprot.org/core/Taxon", "label": "Taxon"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/P05067", "label": "Amyloid-beta precursor protein"}, {"iri": "http://purl.uniprot.org/uniprot/P04637", "label": "Cellular tumor antigen p53"}, {"iri": "http://purl.uniprot.org/uniprot/P69905", "label": "Hemoglobin subunit alpha"}]}, "https://data.europa.eu/sparql": {"searches": ["Tsunami", "Earthquake"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://data.europa.eu/88u/dataset/5b49f79d-fa7b-4e58-ae36-a4597aca5509", "label": "Timeseries air pressure 2019"}]}, "https://api.parliament.uk/sparql": {"searches": ["Randerson", "Female", "Male"], "types": [{"iri": "https://id.parliament.uk/schema/TemporalThing", "label": "Temporal thing"}, {"iri": "https://id.parliament.uk/schema/ExternalThing", "label": "External thing"}], "entities": [{"iri": "https://id.parliament.uk/eup4DwE5", "label": "Local Government Boundary Commission for England"}, {"iri": "https://id.parliament.uk/WfMpdObA", "label": "Randerson"}, {"iri": "https://id.parliament.uk/Hnymnoxw", "label": "Female"}]}, "https://sparql.cellosaurus.org/sparql": {"searches": ["THRA", "Raji CD19 Knockout", "Raji"], "types": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/ontology/Xref", "label": "Cross-Reference"}], "entities": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/CGNC_4ca7629cd06caa8af5abe13b3f14f089", "label": "THRA"}, {"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/Cellosaurus_0359cc0bf71d67a0eced65623b1a4bb0", "label": "Raji CD19 Knockout"}]}, "https://data.gov.cz/sparql": {"searches": ["restricted", "sensitive", "JSON"], "types": [{"iri": "http://www.w3.org/2008/05/skos-xl#Label", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://publications.europa.eu/resource/authority/access-right/1b8c1ab7ad9d578068eccaf6d810816e", "label": "restricted"}, {"iri": "http://publications.europa.eu/resource/authority/access-right/43038fb5dcced3fdf4af364bea7a3d00", "label": "sensitive"}, {"iri": "https://data.gov.cz/zdroj/datové-sady/00025429/1493900693/distribuce/801e174f7e1814eb2aa4a9319f4c11b4", "label": "JSON"}]}, "https://data.idref.fr/sparql": {"searches": ["accepted", "draft", "M.A"], "types": [{"iri": "http://rdaregistry.info/Elements/c/C10001", "label": null}, {"iri": "http://open.vocab.org/terms/SchemaExample", "label": null}, {"iri": "http://purl.org/ontology/bibo/DocumentStatus", "label": "Document Status"}], "entities": [{"iri": "http://www.idref.fr/206614411/id", "label": "Accord général sur les tarifs douaniers et le commerce"}, {"iri": "http://purl.org/vocab/bio/examples/1", "label": "A Biography of Henry VIII, King of England"}]}, "https://www.nakala.fr/sparql": {"searches": ["Sylvain LEBRETON", "Farida SAID", "Picture"], "types": [{"iri": "http://www.europeana.eu/schemas/edm/ProvidedCHO", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Agent", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Collection", "label": null}], "entities": [{"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.007d198x", "label": "Picture 402 story SH_story52 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.00ae2z49", "label": "Picture 421 story SH_story55 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/Agent/8b11605f-9138-11ef-89cb-52540084ccd3", "label": "Sylvain LEBRETON"}]}, "https://agrovoc.fao.org/sparql": {"searches": ["methods", "design", "Indigenous Peoples Group"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#ConceptScheme", "label": null}], "entities": [{"iri": "http://aims.fao.org/aos/agrovoc/c_4788", "label": "methods"}, {"iri": "http://aims.fao.org/aos/agrovoc/c_2208", "label": "design"}, {"iri": "http://aims.fao.org/aos/agrovoc/skosCollection_cb7b7c4a", "label": "Indigenous Peoples Group"}]}, "https://scienceplus.abes.fr/sparql": {"searches": ["complications", "growth monitoring", "growth"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": "Concept"}], "entities": [{"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E14630FE053120B220A17F5/subject/complications", "label": "complications"}, {"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E18630FE053120B220A17F5/subject/growthmonitoring", "label": "growth monitoring"}]}, "https://opendata.aragon.es/sparql": {"searches": ["Zaragoza", "Huesca", "Teruel"], "types": [{"iri": "http://www.w3.org/ns/org#Organization", "label": "Organization"}, {"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "DCAT Dataset"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}], "entities": [{"iri": "http://icearagon.aragon.es/resource/hydro/org/Confederación_Hidrográfica_del_Ebro", "label": "Confederación Hidrográfica del Ebro"}, {"iri": "http://opendata.aragon.es/recurso/sector-publico/organizacion/comarca/01", "label": "La Jacetania"}, {"iri": "https://opendata.aragon.es/datos/catalogo/dataset/escudos-y-logotipos-del-gobierno-de-aragon", "label": "Escudos y logotipos del Gobierno de Aragón"}]}, "https://sparql.datao.net/sparql": {"searches": ["DonnerwetteR", "Hygiea"], "types": [{"iri": "http://wikiba.se/ontology#Item", "label": null}, {"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing", "label": null}], "entities": [{"iri": "http://www.wikidata.org/entity/Q11508", "label": "!DonnerwetteR!"}, {"iri": "http://www.wikidata.org/entity/Q63777498", "label": "(10) Hygiea"}]}, "https://data.bibliotheken.nl/sparql": {"searches": ["Almelo", "Amsterdam", "Allart"], "types": [{"iri": "http://schema.org/ProductModel", "label": null}, {"iri": "http://schema.org/Book", "label": null}, {"iri": "http://schema.org/PublicationEvent", "label": null}], "entities": [{"iri": "http://data.bibliotheken.nl/id/nbt/p350580480", "label": "Almelo"}]}, "https://vocab.nerc.ac.uk/sparql/": {"searches": ["Surface", "radioactivity", "content"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "https://w3id.org/iadopt/ont#VariableSet", "label": null}], "entities": [{"iri": "http://vocab.nerc.ac.uk/standard_name/surface_radioactivity_content_of_141Ce/", "label": "Surface radioactivity content of 141Ce"}, {"iri": "http://vocab.nerc.ac.uk/collection/P06/current/BQSM/", "label": "Becquerels per square metre"}, {"iri": "http://vocab.nerc.ac.uk/collection/C35/current/", "label": "European Nature Information System Level 3 Habitats"}]}, "https://data.muziekschatten.nl/sparql": {"searches": ["Komt allen tezamen", "Lonely boy", "onvolledig"], "types": [{"iri": "http://schema.org/MusicComposition", "label": null}, {"iri": "https://data.muziekschatten.nl/som/LichteMuziekDeeltitel", "label": null}, {"iri": "https://data.muziekschatten.nl/som/Precat", "label": null}], "entities": [{"iri": "https://data.muziekschatten.nl/som/616024", "label": "Komt allen tezamen"}, {"iri": "https://data.muziekschatten.nl/som/177339", "label": "Lonely boy"}, {"iri": "https://data.muziekschatten.nl/som/177340", "label": "L'oiseau et l'enfant"}]}, "https://wikidata.demo.openlinksw.com/sparql": {"searches": ["Panthera leo", "Happiness", "George Washington"], "types": [{"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q16521", "label": "taxon"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q45106562", "label": "Panthera leo"}, {"iri": "http://www.wikidata.org/entity/Q33700518", "label": "Happiness"}, {"iri": "http://www.wikidata.org/entity/Q100948698", "label": "George Washington"}]}, "https://publications.europa.eu/webapi/rdf/sparql": {"searches": ["Marco ONIDA", "DCMI Type Vocabulary", "LCC"], "types": [{"iri": "http://xmlns.com/foaf/0.1/Person", "label": null}, {"iri": "http://purl.org/dc/dcam/VocabularyEncodingScheme", "label": null}, {"iri": "http://purl.org/dc/terms/AgentClass", "label": "Agent Class"}], "entities": [{"iri": "http://publications.europa.eu/resource/directory/person/COM_00006AA0DAA3", "label": "Lars DE NUL"}, {"iri": "http://publications.europa.eu/resource/directory/person/COM_00003367AF", "label": "Marco ONIDA"}, {"iri": "http://purl.org/dc/terms/DCMIType", "label": "DCMI Type Vocabulary"}]}, "https://libris.kb.se/sparql": {"searches": [], "types": [{"iri": "https://id.kb.se/vocab/Person", "label": "Person"}, {"iri": "https://id.kb.se/vocab/Topic", "label": "Topic"}, {"iri": "https://id.kb.se/vocab/Instance", "label": "Instance"}], "entities": [{"iri": "https://libris.kb.se/tr574vdc33gk2cc#it", "label": "August Strindberg"}, {"iri": "https://libris.kb.se/qn247n18248vs58#it", "label": "Selma Lagerlöf"}, {"iri": "https://id.kb.se/term/sao/Journalister", "label": "Journalister"}]}, "https://dati.camera.it/sparql": {"searches": ["Berlinguer", "Moro", "bilancio"], "types": [{"iri": "http://dati.camera.it/ocd/deputato", "label": "deputato"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}, {"iri": "http://dati.camera.it/ocd/atto", "label": "atto camera"}], "entities": [{"iri": "http://dati.camera.it/ocd/mandatoCamera.rdf/mc6_720_19720519", "label": "Mandato Camera di Enrico Berlinguer (VI Legislatura)"}, {"iri": "http://dati.camera.it/ocd/attocamera.rdf/ac02_1901", "label": "Riordinamento dell'Amministrazione giudiziaria"}, {"iri": "http://dati.camera.it/ocd/persona.rdf/p308280", "label": "Gaetano Manfredi"}]}, "https://lod.dati.gov.it/sparql/": {"searches": ["Roma", "trasporti", "bilancio"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://dati.puglia.it/ckan/dataset/04ca61f4-f857-4a31-98b9-eeb3b68ab821", "label": "Adozione Nuovo Piano d'Ambito Puglia 2020-2045"}, {"iri": "https://github.com/Universita-degli-Studi-di-Teramo/OpenData/tree/main/catalogo/collaboratori-linguistici-2022", "label": "Collaboratori linguistici 2022"}, {"iri": "https://dati.gov.it/", "label": "Dati Gov IT"}]}, "https://datos.gob.es/virtuoso/sparql": {"searches": ["Madrid", "presupuesto", "turismo"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://datos.gob.es/catalogo/a01002820-hidrografia", "label": "Hidrografía"}, {"iri": "http://datos.gob.es", "label": "datos.gob.es"}]}, "https://sparql.wikipathways.org/sparql": {"searches": [], "types": [{"iri": "http://vocabularies.wikipathways.org/wp#Pathway", "label": "Pathway"}, {"iri": "http://vocabularies.wikipathways.org/wp#GeneProduct", "label": "GeneProduct"}, {"iri": "http://vocabularies.wikipathways.org/wp#Metabolite", "label": "Metabolite"}], "entities": [{"iri": "https://identifiers.org/wikipathways/WP254", "label": "Apoptosis"}, {"iri": "https://identifiers.org/wikipathways/WP1061", "label": "Fatty Acid beta-oxidation"}, {"iri": "https://identifiers.org/wikipathways/WP1156", "label": "Inflammatory Response"}]}, "https://sparql.omabrowser.org/sparql/": {"searches": ["TP53", "INS", "BRCA1"], "types": [{"iri": "http://purl.org/net/orth#Protein", "label": "Protein"}, {"iri": "http://purl.org/net/orth#OrthologsCluster", "label": "Cluster of orthologs"}, {"iri": "http://purl.org/net/orth#Gene", "label": "Gene"}], "entities": [{"iri": "https://omabrowser.org/oma/info/HUMAN54858", "label": "TP53BP2 (human)"}, {"iri": "https://omabrowser.org/oma/info/CAVPO15986", "label": "INS (guinea pig)"}]}, "https://sparql.orthodb.org/sparql": {"searches": [], "types": [{"iri": "http://purl.orthodb.org/OrthoGroup", "label": "OrthoGroup"}, {"iri": "http://purl.orthodb.org/Gene", "label": "Gene"}, {"iri": "http://purl.orthodb.org/Uniprot", "label": "Uniprot"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/A0A1T4WVK7", "label": "A0A1T4WVK7"}, {"iri": "http://purl.orthodb.org/odbgene/10013_0_000457", "label": "10013_0:000457"}]}, "https://datos.bcn.cl/sparql": {"searches": ["Constitución", "educación", "pensiones"], "types": [{"iri": "http://datos.bcn.cl/ontologies/bcn-resources#ProyectoDeLey", "label": "Proyecto de Ley"}, {"iri": "http://datos.bcn.cl/ontologies/bcn-resources#MocionParlamentaria", "label": "Moción Parlamentaria"}, {"iri": "http://xmlns.com/foaf/0.1/Document", "label": "Document"}], "entities": [{"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/5881-07", "label": "Modifica los artículos 94 y 32 de la Constitución Política de la República"}, {"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/1194-07", "label": "Establece normas para derogar la inviolabilidad parlamentaria"}]}, "https://www1.siop.planejamento.gov.br/sparql/": {"searches": [], "types": [{"iri": "http://vocab.e.gov.br/2013/09/loa#Programa", "label": "Programa"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#Acao", "label": "Ação"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#UnidadeOrcamentaria", "label": "Unidade Orçamentária"}], "entities": [{"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2015", "label": "Aperfeiçoamento do Sistema Único de Saúde (SUS)"}, {"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2030", "label": "Educação Básica"}]}, "https://www.3lgm2.de/sparql": {"searches": ["Radiology", "Patient", "Document"], "types": [{"iri": "https://www.3lgm2.de/resource/ihe/IntegrationProfile", "label": "Integration Profile"}, {"iri": "https://www.3lgm2.de/resource/ihe/Actor", "label": "Actor"}, {"iri": "https://www.3lgm2.de/resource/ihe/Domain", "label": "Domain"}], "entities": [{"iri": "https://www.3lgm2.de/resource/ihe/ARI", "label": "Access to Radiology Information"}, {"iri": "https://www.3lgm2.de/resource/ihe/ATNA", "label": "Audit Trail and Node Authentication"}, {"iri": "https://www.3lgm2.de/resource/ihe/APPC_CONTENT_CREATOR", "label": "Content Creator (APPC)"}]}, "https://dataforhumanities.abes.fr/sparql": {"searches": ["Paris", "Lyon", "université"], "types": [{"iri": "https://ontome.net/class/21", "label": "OntoME class 21"}, {"iri": "http://symogih.org/ontology/Actor", "label": "Actor"}, {"iri": "http://symogih.org/ontology/NamedPlace", "label": "Named place"}], "entities": [{"iri": "urn:uuid:497924b1-15a4-4f80-9960-c9749e0dd060", "label": "Léon Lyon-Caen"}, {"iri": "http://www.wikidata.org/entity/Q10159", "label": "École Normale Supérieure de Lyon"}]}}/*END*/;
+const ENDPOINT_SAMPLES = /*SAMPLES*/{"https://dbpedia.org/sparql": {"searches": ["Benin City", "Alcides Mendoza Castro", "Aleksander Kreek"], "types": [{"iri": "http://dbpedia.org/ontology/Person", "label": "person"}, {"iri": "http://dbpedia.org/ontology/TimePeriod", "label": "time period"}, {"iri": "http://dbpedia.org/ontology/Species", "label": "species"}], "entities": [{"iri": "http://dbpedia.org/resource/Benin_City", "label": "Benin City"}, {"iri": "http://dbpedia.org/resource/Alcides_Mendoza_Castro", "label": "Alcides Mendoza Castro"}, {"iri": "http://dbpedia.org/resource/Aleksander_Kreek", "label": "Aleksander Kreek"}]}, "https://linkeddata.uriburner.com/sparql": {"searches": ["HowTo", "FAQ", "Glossary"], "types": [{"iri": "http://schema.org/Question", "label": "Question"}, {"iri": "http://schema.org/HowTo", "label": "HowTo"}, {"iri": "http://schema.org/SoftwareApplication", "label": "SoftwareApplication"}], "entities": [{"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/intent-to-action-agents-web-claude_sonnet_5_5-1.html#article", "label": "From Intent to Action"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/gates-turbulent-ai-era-critical-choices-claude_opus_5-1.ttl#analysis", "label": "The Turbulent AI Era and the Choices That Cannot Wait"}, {"iri": "https://linkeddata.uriburner.com/DAV/demos/daas/the-next-difficulty-gpt_6-1.html", "label": "The Next Difficulty: An Atlas of Innovation"}]}, "https://query.wikidata.org/sparql": {"searches": ["Vladimir Lenin", "George Washington", "New York City"], "types": [{"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q515", "label": "city"}, {"iri": "http://www.wikidata.org/entity/Q11424", "label": "film"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q1394", "label": "Vladimir Lenin"}, {"iri": "http://www.wikidata.org/entity/Q23", "label": "George Washington"}, {"iri": "http://www.wikidata.org/entity/Q60", "label": "New York City"}]}, "https://sparql.uniprot.org/sparql": {"searches": [], "types": [{"iri": "http://purl.uniprot.org/core/Protein", "label": "Protein"}, {"iri": "http://purl.uniprot.org/core/Taxon", "label": "Taxon"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/P05067", "label": "Amyloid-beta precursor protein"}, {"iri": "http://purl.uniprot.org/uniprot/P04637", "label": "Cellular tumor antigen p53"}, {"iri": "http://purl.uniprot.org/uniprot/P69905", "label": "Hemoglobin subunit alpha"}]}, "https://data.europa.eu/sparql": {"searches": ["Tsunami", "Earthquake"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://data.europa.eu/88u/dataset/5b49f79d-fa7b-4e58-ae36-a4597aca5509", "label": "Timeseries air pressure 2019"}]}, "https://api.parliament.uk/sparql": {"searches": ["Randerson", "Female", "Male"], "types": [{"iri": "https://id.parliament.uk/schema/TemporalThing", "label": "Temporal thing"}, {"iri": "https://id.parliament.uk/schema/ExternalThing", "label": "External thing"}], "entities": [{"iri": "https://id.parliament.uk/eup4DwE5", "label": "Local Government Boundary Commission for England"}, {"iri": "https://id.parliament.uk/WfMpdObA", "label": "Randerson"}, {"iri": "https://id.parliament.uk/Hnymnoxw", "label": "Female"}]}, "https://sparql.cellosaurus.org/sparql": {"searches": ["THRA", "Raji CD19 Knockout", "Raji"], "types": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/ontology/Xref", "label": "Cross-Reference"}], "entities": [{"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/CGNC_4ca7629cd06caa8af5abe13b3f14f089", "label": "THRA"}, {"iri": "https://purl.expasy.org/cellosaurus/rdf/xref/Cellosaurus_0359cc0bf71d67a0eced65623b1a4bb0", "label": "Raji CD19 Knockout"}]}, "https://data.gov.cz/sparql": {"searches": ["restricted", "sensitive", "JSON"], "types": [{"iri": "http://www.w3.org/2008/05/skos-xl#Label", "label": null}, {"iri": "http://www.w3.org/ns/dcat#Distribution", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}], "entities": [{"iri": "http://publications.europa.eu/resource/authority/access-right/1b8c1ab7ad9d578068eccaf6d810816e", "label": "restricted"}, {"iri": "http://publications.europa.eu/resource/authority/access-right/43038fb5dcced3fdf4af364bea7a3d00", "label": "sensitive"}, {"iri": "https://data.gov.cz/zdroj/datové-sady/00025429/1493900693/distribuce/801e174f7e1814eb2aa4a9319f4c11b4", "label": "JSON"}]}, "https://data.idref.fr/sparql": {"searches": ["accepted", "draft", "M.A"], "types": [{"iri": "http://rdaregistry.info/Elements/c/C10001", "label": null}, {"iri": "http://open.vocab.org/terms/SchemaExample", "label": null}, {"iri": "http://purl.org/ontology/bibo/DocumentStatus", "label": "Document Status"}], "entities": [{"iri": "http://www.idref.fr/206614411/id", "label": "Accord général sur les tarifs douaniers et le commerce"}, {"iri": "http://purl.org/vocab/bio/examples/1", "label": "A Biography of Henry VIII, King of England"}]}, "https://www.nakala.fr/sparql": {"searches": ["Sylvain LEBRETON", "Farida SAID", "Picture"], "types": [{"iri": "http://www.europeana.eu/schemas/edm/ProvidedCHO", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Agent", "label": null}, {"iri": "http://www.europeana.eu/schemas/edm/Collection", "label": null}], "entities": [{"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.007d198x", "label": "Picture 402 story SH_story52 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/ProvidedCHO/10.34847/nkl.00ae2z49", "label": "Picture 421 story SH_story55 Shuoshu - Chinese Storytelling project"}, {"iri": "https://nakala.fr/pub/Agent/8b11605f-9138-11ef-89cb-52540084ccd3", "label": "Sylvain LEBRETON"}]}, "https://agrovoc.fao.org/sparql": {"searches": ["methods", "design", "Indigenous Peoples Group"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#ConceptScheme", "label": null}], "entities": [{"iri": "http://aims.fao.org/aos/agrovoc/c_4788", "label": "methods"}, {"iri": "http://aims.fao.org/aos/agrovoc/c_2208", "label": "design"}, {"iri": "http://aims.fao.org/aos/agrovoc/skosCollection_cb7b7c4a", "label": "Indigenous Peoples Group"}]}, "https://scienceplus.abes.fr/sparql": {"searches": ["complications", "growth monitoring", "growth"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": "Concept"}], "entities": [{"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E14630FE053120B220A17F5/subject/complications", "label": "complications"}, {"iri": "http://hub.abes.fr/bmj/periodical/adc/1997/volume_76/issue_1/B352E9EC8E18630FE053120B220A17F5/subject/growthmonitoring", "label": "growth monitoring"}]}, "https://opendata.aragon.es/sparql": {"searches": ["Zaragoza", "Huesca", "Teruel"], "types": [{"iri": "http://www.w3.org/ns/org#Organization", "label": "Organization"}, {"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "DCAT Dataset"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}], "entities": [{"iri": "http://icearagon.aragon.es/resource/hydro/org/Confederación_Hidrográfica_del_Ebro", "label": "Confederación Hidrográfica del Ebro"}, {"iri": "http://opendata.aragon.es/recurso/sector-publico/organizacion/comarca/01", "label": "La Jacetania"}, {"iri": "https://opendata.aragon.es/datos/catalogo/dataset/escudos-y-logotipos-del-gobierno-de-aragon", "label": "Escudos y logotipos del Gobierno de Aragón"}]}, "https://sparql.datao.net/sparql": {"searches": ["DonnerwetteR", "Hygiea"], "types": [{"iri": "http://wikiba.se/ontology#Item", "label": null}, {"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing", "label": null}], "entities": [{"iri": "http://www.wikidata.org/entity/Q11508", "label": "!DonnerwetteR!"}, {"iri": "http://www.wikidata.org/entity/Q63777498", "label": "(10) Hygiea"}]}, "https://data.bibliotheken.nl/sparql": {"searches": ["Almelo", "Amsterdam", "Allart"], "types": [{"iri": "http://schema.org/ProductModel", "label": null}, {"iri": "http://schema.org/Book", "label": null}, {"iri": "http://schema.org/PublicationEvent", "label": null}], "entities": [{"iri": "http://data.bibliotheken.nl/id/nbt/p350580480", "label": "Almelo"}]}, "https://vocab.nerc.ac.uk/sparql/": {"searches": ["Surface", "radioactivity", "content"], "types": [{"iri": "http://www.w3.org/2004/02/skos/core#Concept", "label": null}, {"iri": "http://www.w3.org/2004/02/skos/core#Collection", "label": null}, {"iri": "https://w3id.org/iadopt/ont#VariableSet", "label": null}], "entities": [{"iri": "http://vocab.nerc.ac.uk/standard_name/surface_radioactivity_content_of_141Ce/", "label": "Surface radioactivity content of 141Ce"}, {"iri": "http://vocab.nerc.ac.uk/collection/P06/current/BQSM/", "label": "Becquerels per square metre"}, {"iri": "http://vocab.nerc.ac.uk/collection/C35/current/", "label": "European Nature Information System Level 3 Habitats"}]}, "https://data.muziekschatten.nl/sparql": {"searches": ["Komt allen tezamen", "Lonely boy", "onvolledig"], "types": [{"iri": "http://schema.org/MusicComposition", "label": null}, {"iri": "https://data.muziekschatten.nl/som/LichteMuziekDeeltitel", "label": null}, {"iri": "https://data.muziekschatten.nl/som/Precat", "label": null}], "entities": [{"iri": "https://data.muziekschatten.nl/som/616024", "label": "Komt allen tezamen"}, {"iri": "https://data.muziekschatten.nl/som/177339", "label": "Lonely boy"}, {"iri": "https://data.muziekschatten.nl/som/177340", "label": "L'oiseau et l'enfant"}]}, "https://wikidata.demo.openlinksw.com/sparql": {"searches": ["Panthera leo", "Happiness", "George Washington"], "types": [{"iri": "http://www.wikidata.org/entity/Q13442814", "label": "scholarly article"}, {"iri": "http://www.wikidata.org/entity/Q5", "label": "human"}, {"iri": "http://www.wikidata.org/entity/Q16521", "label": "taxon"}], "entities": [{"iri": "http://www.wikidata.org/entity/Q45106562", "label": "Panthera leo"}, {"iri": "http://www.wikidata.org/entity/Q33700518", "label": "Happiness"}, {"iri": "http://www.wikidata.org/entity/Q100948698", "label": "George Washington"}]}, "https://publications.europa.eu/webapi/rdf/sparql": {"searches": ["Marco ONIDA", "DCMI Type Vocabulary", "LCC"], "types": [{"iri": "http://xmlns.com/foaf/0.1/Person", "label": null}, {"iri": "http://purl.org/dc/dcam/VocabularyEncodingScheme", "label": null}, {"iri": "http://purl.org/dc/terms/AgentClass", "label": "Agent Class"}], "entities": [{"iri": "http://publications.europa.eu/resource/directory/person/COM_00006AA0DAA3", "label": "Lars DE NUL"}, {"iri": "http://publications.europa.eu/resource/directory/person/COM_00003367AF", "label": "Marco ONIDA"}, {"iri": "http://purl.org/dc/terms/DCMIType", "label": "DCMI Type Vocabulary"}]}, "https://libris.kb.se/sparql": {"searches": [], "types": [{"iri": "https://id.kb.se/vocab/Person", "label": "Person"}, {"iri": "https://id.kb.se/vocab/Topic", "label": "Topic"}, {"iri": "https://id.kb.se/vocab/Instance", "label": "Instance"}], "entities": [{"iri": "https://libris.kb.se/tr574vdc33gk2cc#it", "label": "August Strindberg"}, {"iri": "https://libris.kb.se/qn247n18248vs58#it", "label": "Selma Lagerlöf"}, {"iri": "https://id.kb.se/term/sao/Journalister", "label": "Journalister"}]}, "https://dati.camera.it/sparql": {"searches": ["Berlinguer", "Moro", "bilancio"], "types": [{"iri": "http://dati.camera.it/ocd/deputato", "label": "deputato"}, {"iri": "http://xmlns.com/foaf/0.1/Person", "label": "Person"}, {"iri": "http://dati.camera.it/ocd/atto", "label": "atto camera"}], "entities": [{"iri": "http://dati.camera.it/ocd/mandatoCamera.rdf/mc6_720_19720519", "label": "Mandato Camera di Enrico Berlinguer (VI Legislatura)"}, {"iri": "http://dati.camera.it/ocd/attocamera.rdf/ac02_1901", "label": "Riordinamento dell'Amministrazione giudiziaria"}, {"iri": "http://dati.camera.it/ocd/persona.rdf/p308280", "label": "Gaetano Manfredi"}]}, "https://lod.dati.gov.it/sparql/": {"searches": ["Roma", "trasporti", "bilancio"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://dati.puglia.it/ckan/dataset/04ca61f4-f857-4a31-98b9-eeb3b68ab821", "label": "Adozione Nuovo Piano d'Ambito Puglia 2020-2045"}, {"iri": "https://github.com/Universita-degli-Studi-di-Teramo/OpenData/tree/main/catalogo/collaboratori-linguistici-2022", "label": "Collaboratori linguistici 2022"}, {"iri": "https://dati.gov.it/", "label": "Dati Gov IT"}]}, "https://datos.gob.es/virtuoso/sparql": {"searches": ["Madrid", "presupuesto", "turismo"], "types": [{"iri": "http://www.w3.org/ns/dcat#Dataset", "label": "Dataset"}, {"iri": "http://www.w3.org/ns/dcat#Catalog", "label": "Catalog"}, {"iri": "http://xmlns.com/foaf/0.1/Agent", "label": "Agent"}], "entities": [{"iri": "https://datos.gob.es/catalogo/a01002820-hidrografia", "label": "Hidrografía"}, {"iri": "http://datos.gob.es", "label": "datos.gob.es"}]}, "https://sparql.wikipathways.org/sparql": {"searches": [], "types": [{"iri": "http://vocabularies.wikipathways.org/wp#Pathway", "label": "Pathway"}, {"iri": "http://vocabularies.wikipathways.org/wp#GeneProduct", "label": "GeneProduct"}, {"iri": "http://vocabularies.wikipathways.org/wp#Metabolite", "label": "Metabolite"}], "entities": [{"iri": "https://identifiers.org/wikipathways/WP254", "label": "Apoptosis"}, {"iri": "https://identifiers.org/wikipathways/WP1061", "label": "Fatty Acid beta-oxidation"}, {"iri": "https://identifiers.org/wikipathways/WP1156", "label": "Inflammatory Response"}]}, "https://sparql.omabrowser.org/sparql/": {"searches": ["TP53", "INS", "BRCA1"], "types": [{"iri": "http://purl.org/net/orth#Protein", "label": "Protein"}, {"iri": "http://purl.org/net/orth#OrthologsCluster", "label": "Cluster of orthologs"}, {"iri": "http://purl.org/net/orth#Gene", "label": "Gene"}], "entities": [{"iri": "https://omabrowser.org/oma/info/HUMAN54858", "label": "TP53BP2 (human)"}, {"iri": "https://omabrowser.org/oma/info/CAVPO15986", "label": "INS (guinea pig)"}]}, "https://sparql.orthodb.org/sparql": {"searches": [], "types": [{"iri": "http://purl.orthodb.org/OrthoGroup", "label": "OrthoGroup"}, {"iri": "http://purl.orthodb.org/Gene", "label": "Gene"}, {"iri": "http://purl.orthodb.org/Uniprot", "label": "Uniprot"}], "entities": [{"iri": "http://purl.uniprot.org/uniprot/A0A1T4WVK7", "label": "A0A1T4WVK7"}, {"iri": "http://purl.orthodb.org/odbgene/10013_0_000457", "label": "10013_0:000457"}]}, "https://datos.bcn.cl/sparql": {"searches": ["Constitución", "educación", "pensiones"], "types": [{"iri": "http://datos.bcn.cl/ontologies/bcn-resources#ProyectoDeLey", "label": "Proyecto de Ley"}, {"iri": "http://datos.bcn.cl/ontologies/bcn-resources#MocionParlamentaria", "label": "Moción Parlamentaria"}, {"iri": "http://xmlns.com/foaf/0.1/Document", "label": "Document"}], "entities": [{"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/5881-07", "label": "Modifica los artículos 94 y 32 de la Constitución Política de la República"}, {"iri": "http://datos.bcn.cl/recurso/cl/proyecto-de-ley/1194-07", "label": "Establece normas para derogar la inviolabilidad parlamentaria"}]}, "https://www1.siop.planejamento.gov.br/sparql/": {"searches": [], "types": [{"iri": "http://vocab.e.gov.br/2013/09/loa#Programa", "label": "Programa"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#Acao", "label": "Ação"}, {"iri": "http://vocab.e.gov.br/2013/09/loa#UnidadeOrcamentaria", "label": "Unidade Orçamentária"}], "entities": [{"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2015", "label": "Aperfeiçoamento do Sistema Único de Saúde (SUS)"}, {"iri": "http://orcamento.dados.gov.br/id/2013/Programa/2030", "label": "Educação Básica"}]}, "https://www.3lgm2.de/sparql": {"searches": ["Radiology", "Patient", "Document"], "types": [{"iri": "https://www.3lgm2.de/resource/ihe/IntegrationProfile", "label": "Integration Profile"}, {"iri": "https://www.3lgm2.de/resource/ihe/Actor", "label": "Actor"}, {"iri": "https://www.3lgm2.de/resource/ihe/Domain", "label": "Domain"}], "entities": [{"iri": "https://www.3lgm2.de/resource/ihe/ARI", "label": "Access to Radiology Information"}, {"iri": "https://www.3lgm2.de/resource/ihe/ATNA", "label": "Audit Trail and Node Authentication"}, {"iri": "https://www.3lgm2.de/resource/ihe/APPC_CONTENT_CREATOR", "label": "Content Creator (APPC)"}]}, "https://dataforhumanities.abes.fr/sparql": {"searches": ["Paris", "Lyon", "université"], "types": [{"iri": "https://ontome.net/class/21", "label": "OntoME class 21"}, {"iri": "http://symogih.org/ontology/Actor", "label": "Actor"}, {"iri": "http://symogih.org/ontology/NamedPlace", "label": "Named place"}], "entities": [{"iri": "urn:uuid:497924b1-15a4-4f80-9960-c9749e0dd060", "label": "Léon Lyon-Caen"}, {"iri": "http://www.wikidata.org/entity/Q10159", "label": "École Normale Supérieure de Lyon"}]}}/*END*/;
 const presetName = ep => { const o = [...document.getElementById('epPreset').options].find(o => o.value === ep); return o ? o.textContent.replace(/\s*\(no CORS.*\)$/, '') : ep.replace(/^https?:\/\//, ''); };
 function renderLanding() {
   const sm = ENDPOINT_SAMPLES[settings.ep];
   const chip = (act, attrs, html) => '<button class="chip" data-act="' + act + '" ' + attrs + '>' + html + '</button>';
   if (!sm) {
-    const ex = /wikidata/.test(settings.ep) || settings.profile === 'wikidata' ? ['Douglas Adams', 'Ada Lovelace', 'Lagos'] : ['Einstein', 'Semantic Web', 'Lagos'];
+    const ex = /wikidata/.test(settings.ep) || settings.profile === 'wikidata' ? ['Douglas Adams', 'Ada Lovelace', 'Lagos'] : ['Einstein', 'Semantic Web', 'Benin City'];
     document.getElementById('starters').innerHTML = ex.map(t => chip('start', 'data-text="' + esc(t) + '"', 'Search “' + esc(t) + '”')).join('') + chip('browseAll', '', 'Explore the dataset');
     return;
   }
@@ -2248,6 +2429,7 @@ const actions = {
   explore: d => { newNav([entityNode(d.iri)]); go(false); },
   explorePivot: d => { newNav([entityNode(d.iri), { via: { p: d.p, dir: d.dir }, text: '', scope: 'label', conds: [] }]); go(false); },
   zoom: d => openLightbox(d.src, d.iri),
+  rerun: () => render(),
   tab: d => mutate(n => { n.view = d.view; n.off = 0; }, { keepView: true }),
   pg: d => {
     const { off, lim } = pgState(d.id), info = pagerInfo.get(d.id) || {};
@@ -2349,8 +2531,8 @@ document.getElementById('endpoint').addEventListener('input', paintStatus);
 const dlg = document.getElementById('settings');
 const sform = document.getElementById('settingsForm');
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  ['limit', 'timeout', 'lang', 'typeProp', 'graph', 'inference'].forEach(k => sform.elements[k].value = settings[k]);
-  sform.elements.sameAs.checked = !!settings.sameAs;
+  ['limit', 'timeout', 'lang', 'typeProp', 'graph'].forEach(k => sform.elements[k].value = settings[k]);
+  fillVirt();
   sform.elements.anytime.checked = settings.anytime !== false;
   sform.elements.browseAll.value = settings.browseAll || 'sample';
   sform.elements.proxy.checked = !!settings.proxy;
@@ -2360,12 +2542,61 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
   document.getElementById('prefixStatus').textContent = prefixStatus;
   dlg.showModal();
 });
+/* Virtuoso reasoning & sponging fieldset. The rule menu lists 'auto', 'none', the rule sets the endpoint answered
+   for (probed when Settings opens) and a custom name. Off-Virtuoso the controls stay editable but are marked inactive. */
+let ruleChoices = null;
+function ruleOptions(found) {
+  const cur = settings.infRule || 'auto';
+  const opts = [['auto', 'Default — ' + (settings.ep === UB_EP ? UB_DEFAULT_RULE + ' (URIBurner)' : 'none (rule sets are on by default for URIBurner only)')], ['none', 'None']];
+  (found || []).forEach(r => opts.push([r, r]));
+  if (!['auto', 'none'].includes(cur) && !(found || []).includes(cur)) opts.push([cur, cur + (found ? ' (not defined on this endpoint)' : '')]);
+  opts.push(['__custom__', 'Other rule set…']);
+  const selEl = sform.elements.infRule;
+  selEl.innerHTML = opts.map(([v, t]) => '<option value="' + esc(v) + '">' + esc(t) + '</option>').join('');
+  selEl.value = ruleChoices && opts.some(o => o[0] === ruleChoices) ? ruleChoices : cur;
+  document.getElementById('infCustomWrap').hidden = selEl.value !== '__custom__';
+}
+function fillVirt() {
+  ['sas', 'ifp', 'sponge', 'spongeScope'].forEach(k => sform.elements[k].value = settings[k] || DEFAULTS[k]);
+  sform.elements.infCustom.value = '';
+  ruleChoices = null;
+  const set = document.getElementById('virtSet'), note = document.getElementById('virtNote');
+  const on = virtPragmasOn();
+  set.toggleAttribute('data-off', !on);
+  note.className = 'virt-note';
+  ruleOptions(null);
+  if (!on) {
+    note.textContent = proxied() ? 'Not applied: this endpoint is reached through the URIBurner proxy, so these pragmas would act on URIBurner rather than on it.'
+      : 'Not applied: these are Virtuoso pragmas, and the connected endpoint ' + (conn.state === 'ok' ? 'is not Virtuoso.' : 'is not connected yet.');
+    return;
+  }
+  const off = PRAGMA_GROUPS.filter(p => isOff(p.g)).map(p => p.name);
+  note.textContent = 'Checking which rule sets this endpoint defines…' + (off.length ? ' Refused earlier: ' + off.join(', ') + '.' : '');
+  const ep = settings.ep;
+  probeRules(ep).then(found => {
+    if (settings.ep !== ep || !dlg.open) return;
+    ruleOptions(found);
+    note.textContent = found.length + ' of ' + RULE_CANDIDATES.length + ' known rule sets are defined on this endpoint; use “Other rule set…” for one not listed.' +
+      (off.length ? ' Refused earlier (applying Settings retries them): ' + off.join(', ') + '.' : '');
+    if (off.length) note.classList.add('warn');
+  });
+}
+sform.elements.infRule.addEventListener('change', ev => {
+  ruleChoices = ev.target.value;
+  const custom = ev.target.value === '__custom__';
+  document.getElementById('infCustomWrap').hidden = !custom;
+  if (custom) sform.elements.infCustom.focus();
+});
 dlg.addEventListener('close', () => {
   if (dlg.returnValue !== 'ok') return;
   settings.limit = Math.max(5, Math.min(500, +sform.elements.limit.value || 25));
   settings.timeout = Math.max(1000, +sform.elements.timeout.value || 20000);
-  ['lang', 'typeProp', 'graph', 'inference'].forEach(k => settings[k] = sform.elements[k].value.trim());
-  settings.sameAs = sform.elements.sameAs.checked;
+  ['lang', 'typeProp', 'graph'].forEach(k => settings[k] = sform.elements[k].value.trim());
+  const ir = sform.elements.infRule.value;
+  settings.infRule = ir === '__custom__' ? (sform.elements.infCustom.value.trim() || 'none') : ir;
+  ['sas', 'ifp', 'sponge', 'spongeScope'].forEach(k => settings[k] = sform.elements[k].value);
+  ruleChoices = null;
+  [...pragmaOff].filter(k => k.startsWith(settings.ep + '|')).forEach(k => pragmaOff.delete(k));   // retry refused pragmas after a change
   settings.anytime = sform.elements.anytime.checked;
   settings.browseAll = sform.elements.browseAll.value;
   settings.dedupe = sform.elements.dedupe.value;
@@ -2387,6 +2618,9 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   const t = dark ? 'light' : 'dark';
   applyTheme(t); save('fct.theme', t);
 });
+
+document.getElementById('stopBtn').addEventListener('click', stopQueries);
+document.getElementById('status').addEventListener('click', ev => { if (!ev.target.closest('#stopBtn') && conn.state === 'ok' && inflight) stopQueries(); });
 
 /* ---------- Lightbox ---------- */
 {
@@ -2412,6 +2646,12 @@ document.getElementById('aboutBtn').addEventListener('click', () => {
   set('aboutAnytime', anytimeOn() ? 'Active — partial results at the timeout' : (settings.anytime === false ? 'Off in Settings' : 'Not applicable to this engine'));
   set('aboutProxy', proxied() ? 'In use for this endpoint' : (settings.proxy ? 'Enabled, not needed for this endpoint' : 'Off'));
   set('aboutLang', prefLang() + (hashCfg.lang ? ' (from this link)' : settings.lang ? ' (Settings)' : ' (browser default)'));
+  const sasTxt = { SAME_AS_S: 'same-as on subjects', SAME_AS_O: 'same-as on objects', SAME_AS_S_O: 'same-as on subjects and objects', SAME_AS: 'same-as on subjects, objects and predicates', SAME_AS_P: 'same-as on predicates' }[settings.sas];
+  const ifpTxt = { IFP_S: 'IFP on subjects', IFP_O: 'IFP on objects', IFP: 'IFP on subjects and objects' }[settings.ifp];
+  const reason = [infRule() && !isOff('inference') ? 'rule set ' + infRule() : '', isOff('sas') ? '' : sasTxt, isOff('ifp') ? '' : ifpTxt].filter(Boolean).join(' · ');
+  set('aboutReason', !virtPragmasOn() ? 'Not applicable (Virtuoso endpoints only)' : reason || 'None');
+  set('aboutSponge', !virtPragmasOn() ? 'Not applicable (Virtuoso endpoints only)' : (settings.sponge || 'off') === 'off' ? 'Off' : isOff('sponge') ? 'Refused by this endpoint' :
+    sform.elements.sponge.querySelector('option[value="' + settings.sponge + '"]').textContent + ' — ' + (settings.spongeScope === 'all' ? 'every query' : 'entity descriptions'));
   set('aboutDedupe', (dedupeOn() ? 'On' : 'Off') + ' (' + ({ auto: 'auto: Virtuoso only', on: 'on for every endpoint', off: 'off' }[settings.dedupe || 'auto']) + ')');
   document.getElementById('about').showModal();
 });
