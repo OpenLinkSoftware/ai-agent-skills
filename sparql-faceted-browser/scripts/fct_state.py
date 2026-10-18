@@ -45,7 +45,7 @@ import sys
 import urllib.parse
 
 DEFAULT_APP = 'https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html'
-DEFAULT_EP = 'https://dbpedia.org/sparql'
+DEFAULT_EP = 'https://linkeddata.uriburner.com/sparql'
 
 # Same core prefixes as the app (it also loads prefix.cc); a CURIE outside this list must be given as a full IRI.
 NS = {

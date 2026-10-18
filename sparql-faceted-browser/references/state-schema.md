@@ -87,6 +87,6 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 ## Examples
 
 ```bash
-python3 scripts/fct_state.py build --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --json
+python3 scripts/fct_state.py build --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --json
 python3 scripts/fct_state.py decode "<link>" --json
 ```

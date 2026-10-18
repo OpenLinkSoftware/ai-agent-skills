@@ -96,7 +96,8 @@ are in `references/nl-to-trail.md`.
 
 ## 5. Endpoints and engines
 
-Default endpoint: DBpedia. Use `--ep URL` for any other; the presets the app ships with are listed in
+Default endpoint: URIBurner (https://linkeddata.uriburner.com/sparql), in the app and the scripts. Use `--ep URL`
+for any other (the DBpedia examples pass `--ep https://dbpedia.org/sparql`); the presets the app ships with are listed in
 `references/endpoints.md`. The engine is detected the way the app does it, and the queries follow:
 
 - **Virtuoso** — `bif:contains` text search, members ranked by `IRI_RANK`, **Anytime** queries (partial results at

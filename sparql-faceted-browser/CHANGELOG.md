@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.5 — 2026-10-18
+
+- **Default endpoint:** URIBurner (`linkeddata.uriburner.com/sparql`) replaces DBpedia.
+  - The app opens on it unless a link names another endpoint, and lists it first in the Featured group.
+  - `fct_state.py` and `fct_query.py` default to it when no `--ep` is given.
+  - The DBpedia worked examples (README, `examples/`, `references/`) pass `--ep https://dbpedia.org/sparql`.
+- **EU data portal preset:** new starter samples.
+  - Types: Dataset, Catalog and Data Service.
+  - Searches that return datasets: "air quality", "renewable energy", "Horizon 2020".
+  - Entities: the CORDIS coronavirus dataset, and the Eurostat and Open Maps for Europe catalogues.
+- **Unranked fallback:** when the ranked member query is refused without CORS headers, the app lists the members
+  unranked instead of failing. data.europa.eu has no `IRI_RANK` and sends its error without those headers.
+
 ## 1.0.4 — 2026-10-17
 
 - **Bundled app (`assets/`):**

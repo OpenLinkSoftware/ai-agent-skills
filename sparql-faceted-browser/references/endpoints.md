@@ -5,8 +5,8 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 
 | Endpoint | Name | Engine (verified 2026-10-15) | Notes |
 |---|---|---|---|
-| https://dbpedia.org/sparql | DBpedia | Virtuoso | Default endpoint |
-| https://linkeddata.uriburner.com/sparql | URIBurner (UB) | Virtuoso | Holds the UB Blog companion graphs; VoID class partitions |
+| https://linkeddata.uriburner.com/sparql | URIBurner (UB) | Virtuoso | Default endpoint (app and scripts); holds the UB Blog companion graphs; VoID class partitions |
+| https://dbpedia.org/sparql | DBpedia | Virtuoso | Pass `--ep https://dbpedia.org/sparql` (the worked examples do) |
 | https://query.wikidata.org/sparql | Wikidata | Wikidata | Answers in SPARQL XML; types via `wdt:P31` |
 | https://wikidata.demo.openlinksw.com/sparql | Wikidata, OpenLink instance | Virtuoso | Sends CORS headers for any origin since 2026-10-16, so the app connects directly |
 | https://demo.openlinksw.com/sparql | OpenLink demo server | Virtuoso | Added 2026-10-17. CORS for any origin. A mixed demo store (Transfermarkt players, TCRD genes, NFL plays, LUBM, UMLS…) |
