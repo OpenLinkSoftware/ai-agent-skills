@@ -35,7 +35,7 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 | `nodes` | The trail: a chain of sets. Each set after the first is reached by a pivot from the one before it |
 | `focus` | Index of the set the view shows (0-based; −1 when there is no set, e.g. a describe-only link) |
 | `view` | Which tab is open: `entities` (members), `values` (values of `vp`, or "Distinct (Count)" when `vp` is null), `map` (members of the focused set that have a location, coloured by type), `describe` (the entity `ent`), or `sparql` (the generated queries) |
-| `pg.map` | Map-tab options: `lim` (1000, 3000 or 10000 features), `by` (property IRI to colour by; empty = type), `view` (true = re-query for the visible area) |
+| `pg.map` | Map-tab options: `lim` (1000, 3000, 10000 or 25000 features; beyond it members are grouped by area and the map follows the view), `by` (property IRI to colour by; empty = type), `view` (true = re-query for the visible area), `layers` (class IRIs drawn as extra layers), `lf` (false = do not apply the focused set's value filters to the layers; default true), `shape` (`lines` or `points` for members that join two located things; default auto) |
 | `vp` | `{ "p": IRI, "dir": "out" \| "in" }`: the property whose values the values tab lists |
 | `ent` | The IRI shown on the describe tab |
 | `off`, `pg` | Paging state. Links built by the skill start at the first page |

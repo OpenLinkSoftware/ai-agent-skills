@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.6 — 2026-10-18
+
+- **Map tab, after the production RINF Atlas:**
+  - **Grouped by area.** When more members are located than the limit, they are counted per grid cell in SPARQL
+    (`GROUP BY` on the rounded coordinates) and drawn as numbered circles. All 62,352 RINF operational points open on one
+    map; zooming in regroups at finer cells until the view holds no more than the limit, then draws each member.
+  - **Layers.** Other classes can be added as layers from the dataset's classes (VoID or live counts) or by IRI. Each
+    is located like the set, drawn under it in its own colour and grouped by area when large. The focused set's value
+    filters apply to the layers by default (for example a country), as Atlas filters do.
+  - **Lines between linked places.** A member with no line geometry of its own is drawn as a line when a sample of
+    the set shows two links to located things on nearly every member, for example a section of line's `era:opStart`
+    and `era:opEnd`; "Draw as" switches between lines and points.
+  - Lines are placed by their first coordinate when the view is limited (areas still pass), so line sets fill in as
+    the viewer zooms. New limit: 25,000 features.
+- **Scripts:** `fct_state.py` adds `--map-layer`, `--map-layer-filters on|off`, `--map-shape` and `--map-limit 25000`.
+
 ## 1.0.5 — 2026-10-18
 
 - **Default endpoint:** URIBurner (`linkeddata.uriburner.com/sparql`) replaces DBpedia.
