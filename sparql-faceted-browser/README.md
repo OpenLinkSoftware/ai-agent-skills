@@ -10,10 +10,10 @@ conversation reached.
 cd sparql-faceted-browser
 
 # Answer in chat: rows as a Markdown table, plus the link to the same view in the app
-python3 scripts/fct_query.py --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan
 
 # Build a link only
-python3 scripts/fct_state.py build --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --values-of dbo:starring
+python3 scripts/fct_state.py build --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --values-of dbo:starring
 
 # Refine a link, or read one someone pasted
 python3 scripts/fct_state.py edit "<link>" --pv dbo:starring=dbr:Michael_Caine

@@ -12,7 +12,7 @@ name to an IRI with a query first, and never guess one.
 4. **Move along a relation:** `--pivot P` for the values of P, or `--pivot-in P` for the things pointing in through P.
 5. **Choose the view:** members (default), `--values-of P` for a distribution, or `--describe IRI` for one entity.
 
-## DBpedia (default endpoint)
+## DBpedia (`--ep https://dbpedia.org/sparql`)
 
 | Request | Options |
 |---|---|
@@ -38,7 +38,7 @@ Types use `wdt:P31` automatically, so `--type wd:Q…` means "instance of".
 | describe Ada Lovelace | `--describe wd:Q7259` |
 | humans (Q5) with a given property value | `--type wd:Q5 --pv wdt:P…=wd:Q…` (look up the P and Q ids with `--what props` / `--text`) |
 
-## URIBurner (`--ep https://linkeddata.uriburner.com/sparql`)
+## URIBurner (the default endpoint; `--ep` optional)
 
 | Request | Options |
 |---|---|

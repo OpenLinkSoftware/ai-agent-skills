@@ -27,7 +27,7 @@ link the script printed, never a shortened one.
 **Skill decides:** this is a fact with a one-line answer, so it stays in chat. First it resolves the name to an IRI.
 
 ```bash
-python3 scripts/fct_query.py --text "Christopher Nolan" --type dbo:Person --limit 3
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --text "Christopher Nolan" --type dbo:Person --limit 3
 ```
 ```
 | entity |
@@ -40,7 +40,7 @@ python3 scripts/fct_query.py --text "Christopher Nolan" --type dbo:Person --limi
 The first row is the filmmaker. When a name is ambiguous like this, ask, or pick by context.
 
 ```bash
-python3 scripts/fct_query.py --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --what count
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --what count
 ```
 ```
 | count |
@@ -58,7 +58,7 @@ python3 scripts/fct_query.py --type dbo:Film --pv dbo:director=dbr:Christopher_N
 **Skill decides:** 16 rows fit in chat, so it shows a table and the link.
 
 ```bash
-python3 scripts/fct_query.py --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --limit 20
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan --limit 20
 ```
 ```
 | entity |
@@ -79,7 +79,7 @@ The answer is the table plus one line: `[Open in SPARQL Faceted Browser](…the 
 **Skill decides:** "explore" plus a large set means the app. It sizes the set first.
 
 ```bash
-python3 scripts/fct_query.py --type dbo:Settlement --pv dbo:country=dbr:Nigeria --what count
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Settlement --pv dbo:country=dbr:Nigeria --what count
 ```
 ```
 | count |
@@ -126,13 +126,13 @@ That's 7 films. `edit` keeps the app instance and language of the link it is giv
 **Skill decides:** this is a distribution. If the property isn't known yet, the property facet reveals it.
 
 ```bash
-python3 scripts/fct_query.py --type dbo:Settlement --pv dbo:country=dbr:Nigeria --what props --limit 25
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Settlement --pv dbo:country=dbr:Nigeria --what props --limit 25
 ```
 
 Among the results, "subdivision" (`dbo:subdivision`) covers 1,520 of the 1,572 members.
 
 ```bash
-python3 scripts/fct_query.py --type dbo:Settlement --pv dbo:country=dbr:Nigeria --values-of dbo:subdivision --limit 6
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Settlement --pv dbo:country=dbr:Nigeria --values-of dbo:subdivision --limit 6
 ```
 ```
 | value | members |
@@ -154,7 +154,7 @@ The link opens the app on the **Values · subdivision** tab, so the user can cli
 **Skill decides:** this moves from films to the actors in them (`--pivot`), then filters the actors.
 
 ```bash
-python3 scripts/fct_query.py --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan \
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan \
   --pivot dbo:starring --pv dbo:birthPlace=dbr:London --limit 6
 ```
 ```
@@ -177,7 +177,7 @@ the app the trail reads *Films → starring → born in London*.
 than pasting every row.
 
 ```bash
-python3 scripts/fct_query.py --describe dbr:Benin_City --limit 200
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --describe dbr:Benin_City --limit 200
 ```
 ```
 | direction | property | value | values folded |
@@ -214,7 +214,7 @@ View:      entities
 > **User:** Same, but in German.
 
 ```bash
-python3 scripts/fct_query.py --describe dbr:Benin_City --lang de --limit 8 --format table
+python3 scripts/fct_query.py --ep https://dbpedia.org/sparql --describe dbr:Benin_City --lang de --limit 8 --format table
 ```
 ```
 out  Beschreibung  Großstadt in Nigeria @de
@@ -245,7 +245,7 @@ python3 scripts/fct_state.py check-app "$APP_URL"
 From then on, every call carries `--app`:
 
 ```bash
-python3 scripts/fct_query.py --app "$APP_URL" --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan
+python3 scripts/fct_query.py --app "$APP_URL" --ep https://dbpedia.org/sparql --type dbo:Film --pv dbo:director=dbr:Christopher_Nolan
 ```
 
 Alternatively, set `export FCT_APP_URL=https://…` once for the whole session. Without `--app` or `FCT_APP_URL`,
