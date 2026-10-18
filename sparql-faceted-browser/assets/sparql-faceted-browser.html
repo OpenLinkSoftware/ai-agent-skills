@@ -274,6 +274,21 @@ h4.sec { margin: 14px 0 4px; }
 .map-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; margin: 8px 2px 0; }
 .map-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .map-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.15); }
+.map-legend .ml-leg em { font-style: normal; color: var(--muted); }
+.map-layers { position: relative; }
+.map-layers > summary { cursor: pointer; list-style: none; border: 1px solid var(--border); border-radius: 6px; padding: 1px 8px; background: var(--surface); color: var(--text); }
+.map-layers > summary::-webkit-details-marker { display: none; }
+.map-layers > summary::after { content: ' ▾'; color: var(--muted); }
+.map-layers[open] > summary { border-color: var(--accent); }
+.map-layers .ml-pop { position: absolute; z-index: 1100; top: calc(100% + 6px); left: 0; width: 320px; max-width: calc(100vw - 32px); background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 10px; display: grid; gap: 8px; }
+.map-layers .ml-list { max-height: 260px; overflow: auto; display: grid; gap: 2px; border-top: 1px solid var(--border); padding-top: 6px; }
+.map-layers .ml-list label { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.map-layers .ml-name { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map-layers .ml-add { display: flex; gap: 6px; }
+.map-layers .ml-add .field { flex: 1 1 auto; font-size: 12px; padding: 3px 8px; }
+.map-cell { background: none; border: 0; }
+.map-cell span { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: 50%; color: #fff; font: 600 11px/1 system-ui, sans-serif; border: 2px solid rgba(255,255,255,.92); box-shadow: 0 1px 4px rgba(0,0,0,.35); opacity: .9; box-sizing: border-box; }
+.map-cell.layer span { opacity: .8; border-style: dashed; }
 .leaflet-popup-content .pop-t { font-weight: 600; margin-bottom: 2px; }
 .leaflet-popup-content .pop-k { color: #667; font-size: 12px; margin-bottom: 6px; }
 .geo-box .geo-map:fullscreen { height: 100%; border-radius: 0; border: 0; }
@@ -2318,23 +2333,41 @@ function rowGeo(r) {
   return null;
 }
 const MAP_COLORS = ['#1f77b4', '#d62728', '#2ca02c', '#ff7f0e', '#9467bd', '#17becf', '#e377c2', '#8c564b', '#bcbd22'];
-/* Map tab: members of the focused set that have a location, drawn with Leaflet (canvas) and coloured by their most
-   specific type among those on the map. It follows the trail, so facets (a country, a type, a value) narrow the map
-   the way RINF Atlas filters do. Members without their own geometry are looked up one link away. */
+const LAYER_COLORS = ['#e6550d', '#31a354', '#756bb1', '#c51b8a', '#3182bd', '#636363', '#8c6d31', '#17becf'];
+const MAP_CAPS = [1000, 3000, 10000, 25000];
+const compactN = n => n >= 1e4 ? Math.round(n / 1e3) + 'k' : n >= 1e3 ? (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
+/* Map tab, after RINF Atlas: the members of the focused set that have a location, drawn with Leaflet (canvas) and
+   coloured by their most specific type among those on the map; other classes can be added as layers. It follows the
+   trail, so facets (a country, a type, a value) narrow the map, and can narrow the layers too.
+   Each source (the set, each layer) is located the same way:
+   - its own geometry, or one link away (RINF keeps an operational point's coordinates on its era:netReference);
+   - as a line between two linked things that have a location, when a sample of the set shows two such links on
+     (nearly) every member, e.g. a section of line's era:opStart and era:opEnd;
+   - when more members are located than the limit, they are counted per grid cell in SPARQL (GROUP BY on the rounded
+     coordinates) and drawn as numbered circles, so a whole class (62,000 operational points) fits on one map; the
+     source then follows the view, and individual members appear once the visible area holds no more than the limit. */
 async function renderMap(el, my, signal) {
-  const f = nav.focus, v = sv(f), vn = v.slice(1);
-  const ms = Object.assign({ lim: 3000, by: '', view: false }, nav.pg.map || {});
-  const cap = [1000, 3000, 10000].includes(+ms.lim) ? +ms.lim : 3000;
-  const setMs = patch => mutate(n => { n.pg = Object.assign({}, n.pg, { map: Object.assign({}, ms, patch) }); }, { keepView: true });
-  el.innerHTML = viewHead('Map', 'Members of the focused set that have a location. Narrow it with the facets (∨ in a value list adds an alternative); click a feature to describe it.') +
+  const f = nav.focus, v = sv(f);
+  const ms = Object.assign({ lim: 3000, by: '', view: false, layers: [], lf: true, shape: 'auto' }, nav.pg.map || {});
+  const cap = MAP_CAPS.includes(+ms.lim) ? +ms.lim : 3000;
+  const setMs = patch => mutate(n => { n.pg = Object.assign({}, n.pg, { map: Object.assign({}, nav.pg.map || {}, patch) }); }, { keepView: true });
+  // Options the live map applies itself (layers) go into the link without a redraw, so the view stays where it is.
+  const saveMs = patch => { Object.assign(ms, patch); nav.pg = Object.assign({}, nav.pg, { map: Object.assign({}, nav.pg.map || {}, patch) }); writeHash(true); };
+  el.innerHTML = viewHead('Map', 'Members of the focused set that have a location. Narrow it with the facets (∨ in a value list adds an alternative); add other classes as layers; click a feature to describe it.') +
     '<div class="content set-map"><div class="map-bar"><span id="mapStat">Finding locations…</span>' +
     '<label>Colour by <select class="field" id="mapBy"><option value="">Type</option>' + (ms.by ? '<option value="' + esc(ms.by) + '" selected>' + esc(labelOf(ms.by)) + '</option>' : '') + '</select></label>' +
-    '<label>Show up to <select class="field" id="mapCap">' + [1000, 3000, 10000].map(n => '<option value="' + n + '"' + (n === cap ? ' selected' : '') + '>' + n.toLocaleString() + '</option>').join('') + '</select></label>' +
-    '<label class="check" title="Re-query as you pan and zoom: only members located in the visible area are fetched (points by their coordinates; lines and areas are clipped by the map)"><input type="checkbox" id="mapView"' + (ms.view ? ' checked' : '') + '> Limit to map view</label></div>' +
+    '<label id="mapShapeL" hidden>Draw as <select class="field" id="mapShape">' + [['auto', 'Auto'], ['lines', 'Lines'], ['points', 'Points']].map(([k, t]) => '<option value="' + k + '"' + (k === ms.shape ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
+    '<label>Show up to <select class="field" id="mapCap">' + MAP_CAPS.map(n => '<option value="' + n + '"' + (n === cap ? ' selected' : '') + '>' + n.toLocaleString() + '</option>').join('') + '</select></label>' +
+    '<label class="check" title="Re-query as you pan and zoom: only members located in the visible area are fetched (points and lines by their coordinates; areas are clipped by the map). Large sets follow the view on their own once grouped by area"><input type="checkbox" id="mapView"' + (ms.view ? ' checked' : '') + '> Limit to map view</label>' +
+    '<details class="map-layers" id="mapLayers"><summary>Layers<span id="mapLayerN">' + (ms.layers.length ? ' (' + ms.layers.length + ')' : '') + '</span></summary><div class="ml-pop">' +
+    '<label class="check" title="Apply the focused set’s value filters (for example a country) to every layer, as RINF Atlas does; a layer whose class lacks the property then shows nothing"><input type="checkbox" id="mapLf"' + (ms.lf !== false ? ' checked' : '') + '> Apply this set’s filters to layers</label>' +
+    '<div class="ml-list" id="mapLayerList"><span class="sub">Loading the dataset’s classes…</span></div>' +
+    '<form class="ml-add" id="mapLayerAdd"><input class="field" name="c" placeholder="Another class: IRI or prefix:Name" aria-label="Class to add as a layer"><button class="mini" type="submit">Add</button></form></div></details></div>' +
     '<div class="geo-box"><div class="geo-map" id="setMap" role="img" aria-label="Map of the focused set"></div><div class="map-legend" id="mapLegend"></div>' +
     '<p class="geo-cap"><span class="grow"></span><button type="button" class="mini" id="mapFull">⤢ Full screen</button><button type="button" class="mini" id="mapJson">GeoJSON ↓</button></p></div></div>';
   document.getElementById('mapCap').onchange = ev => setMs({ lim: +ev.target.value });
   document.getElementById('mapBy').onchange = ev => setMs({ by: ev.target.value });
+  document.getElementById('mapShape').onchange = ev => setMs({ shape: ev.target.value });
   document.getElementById('mapView').onchange = ev => setMs({ view: ev.target.checked });
   const stat = () => document.getElementById('mapStat');
 
@@ -2349,52 +2382,132 @@ async function renderMap(el, my, signal) {
     fill(); setTimeout(fill, 1500);
   }).catch(() => {});
 
-  // Locations: own geometry and one link away, together; a bounding box applies to lat/long rows when limiting to the view.
-  // lat/long rows compare numerically; WKT points have their coordinates read with REPLACE; lines and areas pass and are
-  // clipped by the map itself.
+  // A bounding box applies when the view is limited: lat/long compare numerically; WKT points and lines are placed by
+  // their first coordinate pair, read with REPLACE (a line starting outside the view is left to a wider view); areas
+  // pass and are clipped by the map itself, since a large area can cover the view without a vertex in it.
   const inBox = (la, lo, bb) => '(' + XSD_D + '(' + la + ') >= ' + bb.s + ' && ' + XSD_D + '(' + la + ') <= ' + bb.n + ' && ' + XSD_D + '(' + lo + ') >= ' + bb.w + ' && ' + XSD_D + '(' + lo + ') <= ' + bb.e + ')';
   const WKT_XY = '"^[^(]*[(][ (]*([-0-9.eE+]+)[ ]+([-0-9.eE+]+).*$"';
-  const bboxF = bb => bb ? '\n  FILTER ((BOUND (?lat) && ' + inBox('?lat', '?lon', bb) + ') || BOUND (?pt) || (BOUND (?wkt) && (!CONTAINS (UCASE (STR (?wkt)), "POINT") || ' +
+  const bboxF = bb => bb ? '\n  FILTER ((BOUND (?lat) && ' + inBox('?lat', '?lon', bb) + ') || BOUND (?pt) || (BOUND (?wkt) && (CONTAINS (UCASE (STR (?wkt)), "POLYGON") || ' +
     inBox('REPLACE (STR (?wkt), ' + WKT_XY + ', "$2")', 'REPLACE (STR (?wkt), ' + WKT_XY + ', "$1")', bb) + ')))' : '';
-  // What the first (whole-set) load found is reused for the view queries: only the branches that produced locations,
-  // and the hop link as a fixed predicate; a variable link with a post-filtered box can take minutes.
-  const plan = { direct: null, hop: null };
-  const run = (hop, bb) => {
-    const pl = bb ? plan[hop ? 'hop' : 'direct'] : null;
-    if (bb && !pl) return Promise.resolve([]);
-    const q = sel('DISTINCT ' + v + ' ?lat ?lon ?wkt ?pt' + (hop ? ' ?hop' : ''), whereBody(f) + '\n' + geoBlock(v, hop, pl || {}) + bboxF(bb), 'LIMIT ' + cap);
-    queryLog.set('Map · locations' + (hop ? ' (one link away)' : ''), q);
-    return cached(navKey() + '|map|' + hop + '|' + cap + '|' + (bb ? [bb.s, bb.w, bb.n, bb.e].join(',') : ''), async () => rows(await sparql(q, { signal })));
+  const bk = bb => bb ? [bb.s, bb.w, bb.n, bb.e].join(',') : '';
+  // An end of a line: the linked thing's own lat/long or WKT, or one link further (via).
+  const endP = (o, s, via) => { const n = via ? '?' + s + 'g' : o;
+    return (via ? '  ' + o + ' ' + iriRef(via) + ' ' + n + ' .\n' : '') + '  { ' + n + ' <' + NS.geo + 'lat> ?' + s + 'lat ; <' + NS.geo + 'long> ?' + s + 'lon } UNION { ' + n + ' <' + GSP + 'asWKT> ?' + s + 'wkt }'; };
+  const endGeo = (r, s) => r[s + 'lat'] && r[s + 'lon'] ? geoPoint(r[s + 'lat'].value, r[s + 'lon'].value) : r[s + 'wkt'] ? wktToGeo(r[s + 'wkt'].value) : null;
+  const pairGeo = r => {
+    const a = endGeo(r, 'a'), b = endGeo(r, 'b');
+    if (a && b && a.type === 'Point' && b.type === 'Point')
+      return a.coordinates[0] === b.coordinates[0] && a.coordinates[1] === b.coordinates[1] ? a : { type: 'LineString', coordinates: [a.coordinates, b.coordinates] };
+    return a || b;
   };
-  async function locate(bb) {
-    const [d, h] = await Promise.allSettled([run(false, bb), run(true, bb)]);
-    if (d.status === 'rejected' && h.status === 'rejected') throw d.reason;
-    const direct = d.status === 'fulfilled' ? d.value : [], viaHop = h.status === 'fulfilled' ? h.value : [];
-    // a failed half that would have mattered is an error, not "nothing here"
-    if (!direct.length && h.status === 'rejected') throw h.reason;
-    if (!viaHop.length && d.status === 'rejected') throw d.reason;
-    if (!bb) {
-      const kinds = rs => { const k = new Set(rs.map(r => r.lat ? 'll' : r.wkt ? 'wkt' : r.pt ? 'pt' : '').filter(Boolean));
-        // the same place as lat/long and as a WKT point (RINF net references): lat/long alone is enough, and cheap to box
-        if (k.has('ll') && k.has('wkt') && rs.every(r => !r.wkt || /^\s*(<[^>]*>\s*)?POINT/i.test(r.wkt.value))) k.delete('wkt');
-        return k; };
-      if (direct.length) plan.direct = { kinds: kinds(direct) };
-      const hv = new Map(); viaHop.forEach(r => r.hop && hv.set(r.hop.value, (hv.get(r.hop.value) || 0) + 1));
-      if (viaHop.length) plan.hop = { kinds: kinds(viaHop), via: [...hv.entries()].sort((a, b) => b[1] - a[1])[0][0] };
-    }
-    const own = new Set(direct.map(r => r[vn] && r[vn].value));
-    const all = direct.concat(viaHop.filter(r => !own.has(r[vn] && r[vn].value)));
-    const feats = new Map(), hops = new Map();
-    all.forEach(r => {
-      const id = r[vn] && r[vn].value, g = rowGeo(r);
-      if (!id || !g) return;
-      const cur = feats.get(id);
-      if (!cur || (cur.type === 'Point' && g.type !== 'Point')) feats.set(id, g);
-      if (r.hop) hops.set(r.hop.value, (hops.get(r.hop.value) || 0) + 1);
+
+  // One source of features: the focused set, or a layer.
+  function source(sv0, body, key, name, isMain) {
+    const vn = sv0.slice(1);
+    // What the first (whole-set) load found is reused for the view queries: only the branches that produced locations,
+    // and the hop link as a fixed predicate; a variable link with a post-filtered box can take minutes.
+    const plan = { direct: null, hop: null, pair: null };
+    const S = { v: sv0, name, isMain, plan, live: false, gridZoom: null, seq: 0, layer: null, fc: null, note: 'loading…', n: 0 };
+    S.lines = () => !!plan.pair && (isMain && ms.shape === 'lines' ? true : isMain && ms.shape === 'points' ? false : plan.pair.cover >= .9);
+    const run = (hop, bb) => {
+      const pl = bb ? plan[hop ? 'hop' : 'direct'] : null;
+      if (bb && !pl) return Promise.resolve([]);
+      const q = sel('DISTINCT ' + sv0 + ' ?lat ?lon ?wkt ?pt' + (hop ? ' ?hop' : ''), body + '\n' + geoBlock(sv0, hop, pl || {}) + bboxF(bb), 'LIMIT ' + cap);
+      queryLog.set('Map · ' + name + (hop ? ' (one link away)' : ''), q);
+      return cached(key + '|' + hop + '|' + cap + '|' + bk(bb), async () => rows(await sparql(q, { signal })));
+    };
+    // Lines between two linked located things: on a sample of the set, links whose object has a location (directly or
+    // one link further) and that nearly every sampled member has exactly once; two of them on the same path make a pair.
+    const findPair = () => cached(key + '|pairs', async () => {
+      const N = 200, samp = '  { SELECT DISTINCT ' + sv0 + ' WHERE {\n' + body + '\n  } LIMIT ' + N + ' }\n';
+      const located = n => '{ ' + n + ' <' + NS.geo + 'lat> ?pla } UNION { ' + n + ' <' + GSP + 'asWKT> ?pw } UNION { ' + n + ' <' + GSP + 'hasGeometry> ?pgg . ?pgg <' + GSP + 'asWKT> ?pw }';
+      const link = '  ' + sv0 + ' ?pp ?po . FILTER (isIRI (?po) && ?pp != ' + iriRef(typeProp()) + ' && ?pp != <' + GSP + 'hasGeometry>)\n';
+      const agg = '(COUNT (DISTINCT ' + sv0 + ') AS ?n) (COUNT (DISTINCT ?po) AS ?k)';
+      const qs = [sel('(COUNT (*) AS ?n)', samp),
+        sel('?pp ' + agg, samp + link + '  ' + located('?po'), 'GROUP BY ?pp ORDER BY DESC (?n) LIMIT 20'),
+        sel('?pp ?pq ' + agg, samp + link + '  ?po ?pq ?pg . FILTER (isIRI (?pg) && ?pq != <' + GSP + 'hasGeometry>)\n  ' + located('?pg'), 'GROUP BY ?pp ?pq ORDER BY DESC (?n) LIMIT 20')];
+      const [c, d, h] = await Promise.all(qs.map(q => sparql(q, { quiet: true, signal, timeout: 20000 }).then(rows).catch(() => [])));
+      const total = c.length && c[0].n ? +c[0].n.value : 0;
+      if (total < 2) return null;
+      const groups = new Map();
+      d.concat(h).forEach(r => {
+        const n = +r.n.value, k = +r.k.value, via = r.pq ? r.pq.value : '';
+        if (n < .6 * total || k > 1.2 * n) return;
+        const g = groups.get(via) || []; g.push({ p: r.pp.value, n }); groups.set(via, g);
+      });
+      let best = null;
+      groups.forEach((g, via) => {
+        if (g.length < 2) return;
+        // equal coverage: a 'start'-like link first, so lines read start → end (era:opStart → era:opEnd)
+        const first = x => /(start|from|begin|origin|source)[^#/]*$/i.test(x.p) ? 0 : 1;
+        g.sort((a, b) => b.n - a.n || first(a) - first(b) || (a.p < b.p ? -1 : 1));
+        const cover = g[1].n / total;
+        if (!best || cover > best.cover) best = { a: g[0].p, b: g[1].p, via: via || null, cover };
+      });
+      return best;
     });
-    return { feats, own, hopP: [...hops.entries()].sort((a, b) => b[1] - a[1])[0], capped: direct.length >= cap || viaHop.length >= cap };
+    const runPair = bb => {
+      const p = plan.pair;
+      const box = bb ? '\n  FILTER ((BOUND (?alat) && ' + inBox('?alat', '?alon', bb) + ') || (BOUND (?blat) && ' + inBox('?blat', '?blon', bb) + ') || (!BOUND (?alat) && !BOUND (?blat)))' : '';
+      const q = sel('DISTINCT ' + sv0 + ' ?alat ?alon ?awkt ?blat ?blon ?bwkt', body + '\n  ' + sv0 + ' ' + iriRef(p.a) + ' ?pa . ' + sv0 + ' ' + iriRef(p.b) + ' ?pb .\n' +
+        endP('?pa', 'a', p.via) + '\n' + endP('?pb', 'b', p.via) + box, 'LIMIT ' + cap);
+      queryLog.set('Map · ' + name + ' (lines)', q);
+      return cached(key + '|pair|' + cap + '|' + bk(bb), async () => rows(await sparql(q, { signal })));
+    };
+    S.locate = async bb => {
+      const [d, h, pr] = await Promise.allSettled([run(false, bb), run(true, bb), bb ? Promise.resolve(plan.pair) : findPair()]);
+      if (d.status === 'rejected' && h.status === 'rejected') throw d.reason;
+      const direct = d.status === 'fulfilled' ? d.value : [], viaHop = h.status === 'fulfilled' ? h.value : [];
+      if (!bb) {
+        const kinds = rs => { const k = new Set(rs.map(r => r.lat ? 'll' : r.wkt ? 'wkt' : r.pt ? 'pt' : '').filter(Boolean));
+          // the same place as lat/long and as a WKT point (RINF net references): lat/long alone is enough, and cheap to box
+          if (k.has('ll') && k.has('wkt') && rs.every(r => !r.wkt || /^\s*(<[^>]*>\s*)?POINT/i.test(r.wkt.value))) k.delete('wkt');
+          return k; };
+        if (direct.length) plan.direct = { kinds: kinds(direct), n: direct.length };
+        const hv = new Map(); viaHop.forEach(r => r.hop && hv.set(r.hop.value, (hv.get(r.hop.value) || 0) + 1));
+        if (viaHop.length) plan.hop = { kinds: kinds(viaHop), via: [...hv.entries()].sort((a, b) => b[1] - a[1])[0][0], n: viaHop.length };
+        plan.pair = pr.status === 'fulfilled' ? pr.value : null;
+      }
+      const lines = S.lines() ? await runPair(bb).catch(e => { if (e.message === 'cancelled') throw e; return []; }) : [];
+      // a failed half that would have mattered is an error, not "nothing here"
+      if (!direct.length && !lines.length && h.status === 'rejected') throw h.reason;
+      if (!viaHop.length && !lines.length && d.status === 'rejected') throw d.reason;
+      const feats = new Map(), own = new Set(), lined = new Set(), hops = new Map();
+      const put = (id, g) => { const cur = feats.get(id); if (!cur || (cur.type === 'Point' && g.type !== 'Point')) { feats.set(id, g); return true; } return false; };
+      direct.forEach(r => { const id = r[vn] && r[vn].value, g = rowGeo(r); if (id && g) { own.add(id); put(id, g); } });
+      lines.forEach(r => { const id = r[vn] && r[vn].value, g = pairGeo(r); if (id && g && put(id, g) && g.type !== 'Point') lined.add(id); });
+      viaHop.forEach(r => {
+        const id = r[vn] && r[vn].value, g = rowGeo(r);
+        if (!id || !g || own.has(id) || feats.has(id)) return;
+        feats.set(id, g);
+        if (r.hop) hops.set(r.hop.value, (hops.get(r.hop.value) || 0) + 1);
+      });
+      lined.forEach(id => own.delete(id));
+      return { feats, own, lined, hopP: [...hops.entries()].sort((a, b) => b[1] - a[1])[0], capped: direct.length >= cap || viaHop.length >= cap || lines.length >= cap };
+    };
+    // Members per grid cell (cell size in degrees), from the plan that gives coordinates most cheaply.
+    S.grid = (bb, cs) => {
+      const pd = plan.direct, ph = plan.hop, pp = plan.pair, ll = new Set(['ll']);
+      let part, la = '?lat', lo = '?lon', fl = '';
+      if (pd && pd.kinds.has('ll') && (!ph || !ph.kinds.has('ll') || pd.n >= ph.n)) part = geoBlock(sv0, false, { kinds: ll });
+      else if (ph && ph.kinds.has('ll')) part = geoBlock(sv0, true, { kinds: ll, via: ph.via });
+      else if (pp) { part = '  ' + sv0 + ' ' + iriRef(pp.a) + ' ?pa .\n' + endP('?pa', 'a', pp.via); la = '?alat'; lo = '?alon'; fl = 'BOUND (?alat)'; }
+      else if ((pd && pd.kinds.has('wkt')) || (ph && ph.kinds.has('wkt'))) {
+        const hop = !(pd && pd.kinds.has('wkt'));
+        part = geoBlock(sv0, hop, hop ? { kinds: new Set(['wkt']), via: ph.via } : { kinds: new Set(['wkt']) });
+        la = 'REPLACE (STR (?wkt), ' + WKT_XY + ', "$2")'; lo = 'REPLACE (STR (?wkt), ' + WKT_XY + ', "$1")'; fl = '!CONTAINS (UCASE (STR (?wkt)), "POLYGON")';
+      } else return Promise.resolve(null);
+      const c = String(+cs.toPrecision(2));
+      const q = sel('?gy ?gx (COUNT (DISTINCT ' + sv0 + ') AS ?n) (AVG (?gla) AS ?cy) (AVG (?glo) AS ?cx)', body + '\n' + part +
+        (fl ? '\n  FILTER (' + fl + ')' : '') + '\n  BIND (' + XSD_D + '(' + la + ') AS ?gla) BIND (' + XSD_D + '(' + lo + ') AS ?glo)' +
+        (bb ? '\n  FILTER (' + inBox('?gla', '?glo', bb) + ')' : '') + '\n  BIND (FLOOR (?gla / ' + c + ') AS ?gy) BIND (FLOOR (?glo / ' + c + ') AS ?gx)', 'GROUP BY ?gy ?gx');
+      queryLog.set('Map · ' + name + ' (grouped by area)', q);
+      return cached(key + '|grid|' + c + '|' + bk(bb), async () => rows(await sparql(q, { signal })).filter(r => r.cy && r.cx && r.n));
+    };
+    return S;
   }
-  // Colour key per member: its type (dataset vocabulary, rarest, ties to the trail's class) or its value for ms.by.
+
+  // Colour key per member of the set: its type (dataset vocabulary, rarest, ties to the trail's class) or its value for ms.by.
   async function keys(ids) {
     const pred = ms.by || typeProp(), vals = new Map();
     for (let i = 0; i < ids.length; i += 300) {
@@ -2422,68 +2535,204 @@ async function renderMap(el, my, signal) {
   if (my !== gen || !document.getElementById('setMap')) return;
   const mapEl = document.getElementById('setMap');
   const map = L.map(mapEl, { preferCanvas: true, scrollWheelZoom: true, worldCopyJump: true });
+  map.createPane('mapLayers').style.zIndex = 390;   // layers under the set
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(map);
   map.setView([30, 10], 2);
-  let layer = null, fc = null, seq = 0, fitAll = null, touched = false;
+  let fitAll = null, touched = false, mainLegend = '';
   // Fit again whenever the map's box changes size (first layout, a hidden tab becoming visible, full screen) until the
   // viewer has moved the map themselves.
   ['mousedown', 'wheel', 'touchstart', 'keydown'].forEach(t => mapEl.addEventListener(t, () => { touched = true; }, { passive: true }));
   new ResizeObserver(() => { map.invalidateSize(); if (!touched && fitAll) fitAll(); }).observe(mapEl);
-  async function draw(bb, fit) {
-    const mySeq = ++seq;
-    stat().textContent = bb ? 'Loading this area…' : 'Finding locations…';
-    let res;
-    try { res = await locate(bb); } catch (err) { if (my === gen && err.message !== 'cancelled') stat().innerHTML = esc(err.short || err.message); return; }
-    if (my !== gen || mySeq !== seq) return;
-    const { feats, own, hopP, capped } = res, ids = [...feats.keys()];
-    if (!ids.length) {
-      stat().textContent = bb ? 'No located members in this area.' : 'No member of this set has a location (geo:lat/long, GeoSPARQL WKT, Wikidata P625, georss or schema:geo), directly or one link away.';
-      if (layer) { layer.remove(); layer = null; }
-      if (!bb) mapEl.hidden = true;
-      return;
-    }
-    stat().innerHTML = ids.length.toLocaleString() + ' located member' + (ids.length === 1 ? '' : 's') + (bb ? ' in view' : '') +
-      (hopP ? ' · ' + (own.size ? own.size.toLocaleString() + ' directly, the rest through ' : 'located through ') + lbl(hopP[0]) : '') +
-      (capped ? ' · <span style="color:var(--warn)">limit reached: ' + (bb ? 'zoom in, ' : '') + 'narrow with the facets or raise the limit</span>' : '');
-    if (hopP) wantLabels([hopP[0]]);
-    const key = await keys(ids);
-    if (!key || my !== gen || mySeq !== seq) return;
-    const counts = new Map();
-    key.forEach(k => counts.set(k, (counts.get(k) || 0) + 1));
-    const top = [...counts.entries()].filter(([k]) => k).sort((a, b) => b[1] - a[1]).slice(0, MAP_COLORS.length - 1).map(([k]) => k);
-    const colorOf = k => { const i = top.indexOf(k); return i < 0 ? '#888' : MAP_COLORS[i]; };
-    wantLabels(top.filter(k => !k.startsWith('"')));
-    const legend = () => { const lg = document.getElementById('mapLegend'); if (lg) lg.innerHTML = (ms.by ? '<span style="color:var(--muted)">' + esc(labelOf(ms.by)) + ':</span>' : '') +
-      top.map(k => '<span><i style="background:' + colorOf(k) + '"></i>' + esc(keyLabel(k)) + ' (' + counts.get(k).toLocaleString() + ')</span>').join('') +
-      (counts.size > top.length || counts.has('') ? '<span><i style="background:#888"></i>' + (ms.by ? 'Other / none' : 'Other') + '</span>' : ''); };
-    legend(); setTimeout(legend, 1500);
-    fc = { type: 'FeatureCollection', features: ids.map(id => ({ type: 'Feature', geometry: feats.get(id), properties: { iri: id, key: key.get(id) || null } })) };
-    const n = ids.length;
-    if (layer) layer.remove();
-    layer = L.geoJSON(fc, {
-      style: ft => ({ color: colorOf(ft.properties.key), weight: 3, opacity: .85 }),
-      pointToLayer: (ft, ll) => L.circleMarker(ll, { radius: n > 1500 ? 3 : n > 300 ? 4 : 6, color: '#fff', weight: n > 1500 ? .5 : 1, fillColor: colorOf(ft.properties.key), fillOpacity: .9 }),
-      onEachFeature: (ft, lyr) => lyr.bindPopup(() => {
-        const id = ft.properties.iri, k = ft.properties.key; wantLabels([id]);
-        return '<div class="pop-t">' + esc(labelOf(id)) + '</div><div class="pop-k">' + (k ? (ms.by ? esc(labelOf(ms.by)) + ': ' : '') + esc(keyLabel(k)) : '') + '</div>' +
-          '<button class="mini" data-act="describe" data-iri="' + esc(id) + '">Describe</button> <a class="mini" href="' + esc(id) + '" target="_blank" rel="noopener noreferrer">IRI ↗</a>';
-      })
-    }).addTo(map);
-    if (fit) { fitAll = () => { if (!layer || !mapEl.clientWidth) return; map.invalidateSize(); map.fitBounds(layer.getBounds(), { padding: [20, 20], maxZoom: 14 }); }; fitAll(); }
-  }
   const bounds = () => { const b = map.getBounds(); const r = x => Math.round(x * 1e4) / 1e4; return { s: r(b.getSouth()), w: r(b.getWest()), n: r(b.getNorth()), e: r(b.getEast()) }; };
-  await draw(null, true);
-  if (ms.view) {
-    let t = null, ready = false;
-    setTimeout(() => { ready = true; }, 400);   // ignore the moves made by the initial fit
-    map.on('moveend', () => { if (!ready || my !== gen) return; clearTimeout(t); t = setTimeout(() => draw(bounds(), false), 450); });
+  const fitTo = lyr => { fitAll = () => { if (!lyr || !mapEl.clientWidth || !map.hasLayer(lyr)) return; const b = lyr.getBounds(); if (!b.isValid()) return; map.invalidateSize(); map.fitBounds(b, { padding: [20, 20], maxZoom: 14, animate: false }); }; fitAll(); };
+
+  const main = source(v, whereBody(f), navKey() + '|map', 'set', true);
+  const layers = new Map();   // class IRI -> source
+  const legend = () => { const lg = document.getElementById('mapLegend'); if (!lg) return;
+    lg.innerHTML = mainLegend + [...layers.values()].map(S => '<span class="ml-leg" title="Layer: ' + esc(labelOf(S.cls)) + '"><i style="background:' + S.color + '"></i>' + esc(labelOf(S.cls)) + ' <em>' + esc(S.note) + '</em></span>').join(''); };
+  const layerPopup = S => ft => { const id = ft.properties.iri; wantLabels([id]);
+    return '<div class="pop-t">' + esc(labelOf(id)) + '</div><div class="pop-k">Layer: ' + esc(labelOf(S.cls)) + '</div>' +
+      '<button class="mini" data-act="describe" data-iri="' + esc(id) + '">Describe</button> <a class="mini" href="' + esc(id) + '" target="_blank" rel="noopener noreferrer">IRI ↗</a>'; };
+
+  // Numbered circles, one per grid cell; a click zooms in on it.
+  function drawCells(S, cells, fit, color) {
+    const total = cells.reduce((a, r) => a + +r.n.value, 0);
+    const lg = L.featureGroup(cells.map(r => {
+      const n = +r.n.value, sz = Math.round(20 + 8 * Math.log10(Math.max(n, 1)));
+      return L.marker([+r.cy.value, +r.cx.value], { icon: L.divIcon({ className: 'map-cell' + (S.isMain ? '' : ' layer'), html: '<span style="background:' + color + '">' + compactN(n) + '</span>', iconSize: [sz, sz],
+        // a layer's circle sits down and to the right of the set's, so cells of the same area stay readable
+        iconAnchor: S.isMain ? [sz / 2, sz / 2] : [sz * .1, sz * .1] }),
+        title: n.toLocaleString() + ' ' + (S.isMain ? 'located members' : labelOf(S.cls)) + ' here; click to zoom in', keyboard: true, zIndexOffset: S.isMain ? 1000 : 0 })
+        .on('click', ev => map.setView(ev.latlng, Math.min(map.getZoom() + 2, 18)));
+    }));
+    if (S.layer) S.layer.remove();
+    S.layer = lg.addTo(map); S.fc = null; S.n = total;
+    if (fit) fitTo(lg);
+    return total;
   }
+
+  async function draw(S, bb, fit) {
+    const mySeq = ++S.seq, stale = () => my !== gen || mySeq !== S.seq || (!S.isMain && layers.get(S.cls) !== S);
+    const z0 = map.getZoom();
+    if (S.isMain) stat().textContent = bb ? 'Loading this area…' : 'Finding locations…'; else { S.note = 'loading…'; legend(); }
+    try {
+      // Already grouped at this zoom or a wider one: the area query would only reach the limit again.
+      let res = null;
+      if (!(bb && S.gridZoom != null && z0 <= S.gridZoom)) res = await S.locate(bb);
+      if (stale()) return;
+      if (S.isMain && main.plan.pair) { const l = document.getElementById('mapShapeL'); if (l) { l.hidden = false; l.title = 'Lines join ' + labelOf(main.plan.pair.a) + ' and ' + labelOf(main.plan.pair.b) + (main.plan.pair.via ? ' (through ' + labelOf(main.plan.pair.via) + ')' : ''); wantLabels([main.plan.pair.a, main.plan.pair.b].concat(main.plan.pair.via ? [main.plan.pair.via] : [])); } }
+      if (!res || res.capped) {
+        S.live = true;
+        const z = map.getZoom(), cs = 360 / Math.pow(2, z) / 6;   // the zoom now: an earlier fit may have moved the map
+        const cells = await S.grid(bb, cs).catch(e => { if (e.message === 'cancelled') throw e; return null; });
+        if (stale()) return;
+        if (cells && cells.length) {
+          S.gridZoom = z;
+          const total = drawCells(S, cells, fit, S.isMain ? MAP_COLORS[0] : S.color);
+          if (S.isMain) {
+            mapEl.hidden = false;
+            stat().innerHTML = total.toLocaleString() + ' located member' + (total === 1 ? '' : 's') + (bb ? ' in view' : '') + ', grouped by area · <span style="color:var(--warn)">zoom in (or narrow with the facets) to see each one</span>';
+            mainLegend = '<span><i style="background:' + MAP_COLORS[0] + '"></i>Members per area (click a circle to zoom in)</span>'; legend();
+          } else { S.note = total.toLocaleString() + (bb ? ' in view' : '') + ', grouped · zoom in'; legend(); }
+          return;
+        }
+        if (!res) res = await S.locate(bb);
+        if (stale()) return;
+      }
+      S.gridZoom = null;
+      const { feats, own, lined, hopP, capped } = res, ids = [...feats.keys()];
+      if (!ids.length) {
+        if (S.layer) { S.layer.remove(); S.layer = null; } S.fc = null; S.n = 0;
+        if (S.isMain) {
+          stat().textContent = bb ? 'No located members in this area.' : 'No member of this set has a location (geo:lat/long, GeoSPARQL WKT, Wikidata P625, georss or schema:geo), directly, one link away or between two linked places.';
+          if (!bb && !layers.size) mapEl.hidden = true;
+          mainLegend = ''; legend();
+        } else { S.note = bb ? 'none in view' : 'no located members'; legend(); }
+        return;
+      }
+      mapEl.hidden = false;
+      const n = ids.length;
+      if (S.isMain) {
+        stat().innerHTML = n.toLocaleString() + ' located member' + (n === 1 ? '' : 's') + (bb ? ' in view' : '') +
+          (lined.size ? ' · ' + lined.size.toLocaleString() + ' as lines (' + lbl(main.plan.pair.a) + ' → ' + lbl(main.plan.pair.b) + ')' : '') +
+          (hopP ? ' · ' + (own.size || lined.size ? (own.size + lined.size).toLocaleString() + ' directly, the rest through ' : 'located through ') + lbl(hopP[0]) : '') +
+          (capped ? ' · <span style="color:var(--warn)">limit reached: ' + (bb ? 'zoom in, ' : '') + 'narrow with the facets or raise the limit</span>' : '');
+        if (hopP) wantLabels([hopP[0]]);
+      }
+      let colorOf = () => S.color, key = null;
+      if (S.isMain) {
+        key = await keys(ids);
+        if (!key || stale()) return;
+        const counts = new Map();
+        key.forEach(k => counts.set(k, (counts.get(k) || 0) + 1));
+        const top = [...counts.entries()].filter(([k]) => k).sort((a, b) => b[1] - a[1]).slice(0, MAP_COLORS.length - 1).map(([k]) => k);
+        colorOf = k => { const i = top.indexOf(k); return i < 0 ? '#888' : MAP_COLORS[i]; };
+        wantLabels(top.filter(k => !k.startsWith('"')));
+        const mk = () => { mainLegend = (ms.by ? '<span style="color:var(--muted)">' + esc(labelOf(ms.by)) + ':</span>' : '') +
+          top.map(k => '<span><i style="background:' + colorOf(k) + '"></i>' + esc(keyLabel(k)) + ' (' + counts.get(k).toLocaleString() + ')</span>').join('') +
+          (counts.size > top.length || counts.has('') ? '<span><i style="background:#888"></i>' + (ms.by ? 'Other / none' : 'Other') + '</span>' : ''); legend(); };
+        mk(); setTimeout(mk, 1500);
+      } else {
+        S.note = n.toLocaleString() + (bb ? ' in view' : '') + (capped ? ' (limit reached; zoom in)' : ''); legend();
+      }
+      S.live = S.live || capped;
+      S.fc = { type: 'FeatureCollection', features: ids.map(id => ({ type: 'Feature', geometry: feats.get(id), properties: S.isMain ? { iri: id, key: key.get(id) || null } : { iri: id, layer: S.cls } })) };
+      if (S.layer) S.layer.remove();
+      const pane = S.isMain ? 'overlayPane' : 'mapLayers';
+      S.layer = L.geoJSON(S.fc, {
+        pane,
+        style: ft => ({ color: S.isMain ? colorOf(ft.properties.key) : S.color, weight: S.isMain ? 3 : 2.5, opacity: .85 }),
+        pointToLayer: (ft, ll) => L.circleMarker(ll, { pane, radius: n > 1500 ? 3 : n > 300 ? 4 : S.isMain ? 6 : 5, color: '#fff', weight: n > 1500 ? .5 : 1, fillColor: S.isMain ? colorOf(ft.properties.key) : S.color, fillOpacity: .9 }),
+        onEachFeature: (ft, lyr) => lyr.bindPopup(S.isMain ? () => {
+          const id = ft.properties.iri, k = ft.properties.key; wantLabels([id]);
+          return '<div class="pop-t">' + esc(labelOf(id)) + '</div><div class="pop-k">' + (k ? (ms.by ? esc(labelOf(ms.by)) + ': ' : '') + esc(keyLabel(k)) : '') + '</div>' +
+            '<button class="mini" data-act="describe" data-iri="' + esc(id) + '">Describe</button> <a class="mini" href="' + esc(id) + '" target="_blank" rel="noopener noreferrer">IRI ↗</a>';
+        } : () => layerPopup(S)(ft))
+      }).addTo(map);
+      S.n = n;
+      if (fit) fitTo(S.layer);
+    } catch (err) {
+      if (my !== gen || err.message === 'cancelled') return;
+      if (S.isMain) stat().innerHTML = esc(err.short || err.message); else { S.note = 'failed: ' + (err.short || err.message); legend(); }
+    }
+  }
+
+  // Layers: other classes, each located like the set and drawn under it in its own colour; optionally narrowed by the
+  // set's value filters (positive ones first, negations last).
+  const lfConds = () => nav.nodes[f].conds.filter(c => c.t === 'pv').sort((a, b) => !!a.neg - !!b.neg);
+  function addLayer(cls, fit) {
+    if (layers.has(cls)) return;
+    const i = [...layers.keys()].length, lv = '?ly' + (i + 1);
+    let k = 0; const aux = () => lv + 'f' + (++k);
+    const body = ['  ' + lv + ' ' + iriRef(typeProp()) + ' ' + iriRef(cls) + ' .'].concat(ms.lf !== false ? lfConds().map(c => '  ' + condPattern(lv, c, aux)) : []).join('\n');
+    const S = source(lv, body, JSON.stringify([settings.ep, settings.graph, pragmas(), typeProp(), cls, ms.lf !== false ? lfConds() : []]) + '|layer', labelOf(cls) + ' layer', false);
+    const used = new Set([...layers.values()].map(x => x.color));
+    S.cls = cls; S.color = LAYER_COLORS.find(c => !used.has(c)) || LAYER_COLORS[i % LAYER_COLORS.length];
+    layers.set(cls, S);
+    wantLabels([cls]);
+    draw(S, null, fit);
+  }
+  const dropLayer = cls => { const S = layers.get(cls); if (!S) return; if (S.layer) S.layer.remove(); layers.delete(cls); legend(); };
+  const syncLayers = () => {
+    saveMs({ layers: [...layers.keys()] });
+    const nEl = document.getElementById('mapLayerN'); if (nEl) nEl.textContent = layers.size ? ' (' + layers.size + ')' : '';
+  };
+  let cands = null;
+  const paintLayerList = () => {
+    const box = document.getElementById('mapLayerList'); if (!box || !cands) return;
+    const list = cands.slice(); [...layers.keys()].forEach(c => { if (!list.some(x => x.iri === c)) list.unshift({ iri: c, n: null }); });
+    box.innerHTML = list.length ? list.map(x => '<label class="check"><input type="checkbox" data-cls="' + esc(x.iri) + '"' + (layers.has(x.iri) ? ' checked' : '') + '> <span class="ml-name">' + esc(labelOf(x.iri)) + '</span>' +
+      (x.n != null ? ' <span class="cnt">' + fmtN(x.n) + '</span>' : '') + '</label>').join('') : '<span class="sub">No classes found; add one by IRI below.</span>';
+  };
+  const lp = document.getElementById('mapLayers');
+  lp.addEventListener('toggle', () => {
+    if (!lp.open || cands) return;
+    cached(JSON.stringify([settings.ep, settings.graph, typeProp()]) + '|layerClasses', async () => {
+      const voidOk = await hasVoid();
+      return rows(await sparql(voidOk ? Qv.classes(0, 40) : Q.overview(0, 40), { quiet: true, signal })).filter(r => r.type && r.type.type === 'uri').map(r => ({ iri: r.type.value, n: r.n ? +r.n.value : null }));
+    }).then(cs => { if (my !== gen) return; cands = cs; wantLabels(cs.map(x => x.iri)); paintLayerList(); setTimeout(paintLayerList, 1500); })
+      .catch(e => { const box = document.getElementById('mapLayerList'); if (box && e.message !== 'cancelled') box.innerHTML = '<span class="sub">Could not list classes (' + esc(e.short || e.message) + '); add one by IRI below.</span>'; cands = []; });
+  });
+  document.getElementById('mapLayerList').addEventListener('change', ev => {
+    const cls = ev.target.dataset && ev.target.dataset.cls; if (!cls) return;
+    if (ev.target.checked) addLayer(cls, !main.n && !touched); else dropLayer(cls);
+    syncLayers();
+  });
+  document.getElementById('mapLayerAdd').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const inp = ev.target.elements.c, raw = inp.value.trim(); if (!raw) return;
+    const iri = /^https?:\/\//.test(raw) ? raw : expand(raw);
+    if (!iri) { inp.setCustomValidity('Unknown prefix'); inp.reportValidity(); return; }
+    inp.setCustomValidity(''); inp.value = '';
+    addLayer(iri, !main.n && !touched); syncLayers();
+    if (!cands) cands = []; paintLayerList();
+  });
+  document.getElementById('mapLf').addEventListener('change', ev => {
+    saveMs({ lf: ev.target.checked });
+    const cls = [...layers.keys()]; cls.forEach(dropLayer); cls.forEach(c => addLayer(c, false));
+  });
+
+  ms.layers.forEach(c => addLayer(c, false));
+  await draw(main, null, true);
+  if (my !== gen) return;
+  // The first grouping used the world view; once fitted, group again at the fitted zoom.
+  [main, ...layers.values()].forEach(S => { if (S.gridZoom != null && map.getZoom() > S.gridZoom) draw(S, bounds(), false); });
+  // Follow the view: the set when 'Limit to map view' is on, and any source that is grouped by area or hit the limit.
+  let t = null, ready = false;
+  setTimeout(() => { ready = true; }, 400);   // ignore the moves made by the initial fit
+  map.on('moveend', () => {
+    if (!ready || my !== gen) return;
+    clearTimeout(t);
+    t = setTimeout(() => { const bb = bounds(); [main, ...layers.values()].forEach(S => { if (S.live || (S.isMain && ms.view)) draw(S, bb, false); }); }, 450);
+  });
   document.getElementById('mapFull').onclick = () => { const p = document.fullscreenElement ? document.exitFullscreen() : mapEl.requestFullscreen ? mapEl.requestFullscreen() : null; if (p && p.catch) p.catch(() => {}); };
   mapEl.addEventListener('fullscreenchange', () => setTimeout(() => map.invalidateSize(), 60));
   document.getElementById('mapJson').onclick = () => {
-    if (!fc) return;
-    fc.features.forEach(ft => { ft.properties.name = labelOf(ft.properties.iri); ft.properties.colourBy = ms.by ? labelOf(ms.by) : 'type'; ft.properties.value = ft.properties.key ? keyLabel(ft.properties.key) : null; });
-    download(JSON.stringify(Object.assign({ endpoint: settings.ep }, fc)) + '\n', 'map-' + new Date().toISOString().slice(0, 10) + '.geojson', 'application/geo+json');
+    const feats = [];
+    if (main.fc) main.fc.features.forEach(ft => feats.push({ type: 'Feature', geometry: ft.geometry, properties: { iri: ft.properties.iri, name: labelOf(ft.properties.iri), colourBy: ms.by ? labelOf(ms.by) : 'type', value: ft.properties.key ? keyLabel(ft.properties.key) : null } }));
+    layers.forEach(S => S.fc && S.fc.features.forEach(ft => feats.push({ type: 'Feature', geometry: ft.geometry, properties: { iri: ft.properties.iri, name: labelOf(ft.properties.iri), layer: labelOf(S.cls), layerClass: S.cls } })));
+    if (!feats.length) { stat().innerHTML += ' · <span style="color:var(--warn)">nothing to export while grouped by area: zoom in first</span>'; return; }
+    download(JSON.stringify({ type: 'FeatureCollection', endpoint: settings.ep, features: feats }) + '\n', 'map-' + new Date().toISOString().slice(0, 10) + '.geojson', 'application/geo+json');
   };
 }
 const XSD_D = '<http://www.w3.org/2001/XMLSchema#double>';

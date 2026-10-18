@@ -34,8 +34,12 @@ OPS are applied left to right, so filters always attach to the most recent set:
     --values-of P[:in]       open the values view of P for the focused set
     --describe IRI           open the description of IRI (with no trail, just that entity)
     --map-by P               Map view: colour members by property P (default: their type)
-    --map-limit N            Map view: show up to N features (1000, 3000 or 10000)
+    --map-limit N            Map view: show up to N features (1000, 3000, 10000 or 25000); beyond it the map groups
+                             members by area and follows the view
     --map-in-view            Map view: re-query for the visible area as the viewer pans and zooms
+    --map-layer C            Map view: add class C as a layer (repeatable)
+    --map-layer-filters on|off  Map view: apply the focused set's value filters to the layers (default on)
+    --map-shape auto|lines|points  Map view: draw members that join two located things as lines or as points
 """
 import base64
 import json
@@ -209,11 +213,30 @@ def apply_ops(nav, ops):
             map_opts['by'] = expand(arg())
         elif op == '--map-limit':
             n = int(arg())
-            if n not in (1000, 3000, 10000):
-                raise UsageError('--map-limit must be 1000, 3000 or 10000')
+            if n not in (1000, 3000, 10000, 25000):
+                raise UsageError('--map-limit must be 1000, 3000, 10000 or 25000')
             map_opts['lim'] = n
         elif op == '--map-in-view':
             map_opts['view'] = True
+        elif op == '--map-layer':
+            c = expand(arg())
+            map_opts['layers'] = [x for x in (map_opts.get('layers') or []) if x != c] + [c]
+        elif op == '--map-layer-filters':
+            a = arg()
+            if a not in ('on', 'off'):
+                raise UsageError('--map-layer-filters must be on or off')
+            if a == 'off':
+                map_opts['lf'] = False
+            else:
+                map_opts.pop('lf', None)
+        elif op == '--map-shape':
+            a = arg()
+            if a not in ('auto', 'lines', 'points'):
+                raise UsageError('--map-shape must be auto, lines or points')
+            if a == 'auto':
+                map_opts.pop('shape', None)
+            else:
+                map_opts['shape'] = a
         elif op in ('--has', '--has-in'):
             cur(nav)['conds'].append({'t': 'pv', 'p': expand(arg()), 'dir': 'in' if op == '--has-in' else 'out', 'v': None, 'neg': 0})
         elif op == '--range':

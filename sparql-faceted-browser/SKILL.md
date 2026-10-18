@@ -55,6 +55,7 @@ user needs to look around.
 | wants to explore, browse, scan "all", compare or narrow a large set; or the count is large | **Summon the app** | `fct_query.py --what count` to size it, short summary in chat, then open the view (§3) |
 | refines: "only the ones…", "narrow to…", "exclude…", "now their birthplaces" | **Refine** | `fct_state.py edit <last link> …` (or rebuild) → answer + new link; same trail, one more step |
 | asks what kinds of things / which properties a set has | **Facets** | `fct_query.py --what types` / `props` → table; link opens the same set so the facet panel is live |
+| asks to map a set, or where things are ("show on a map", "with the lines", "plus the tunnels") | **Map** | build the trail, then `--view map`; `--map-layer C` per extra class, `--map-by P` to colour; large sets open grouped by area and fill in as the viewer zooms |
 | asks about one entity | **Describe** | `fct_query.py --describe IRI` → summarize the key facts; link opens the description |
 | pastes an app link | **Read back** | `fct_state.py decode LINK` → say what the view holds; `fct_query.py --link LINK` → answer from it; continue refining with `edit` |
 | asks for another language | **Language** | add `--lang xx` (labels and the link's `&cfg=` language) |

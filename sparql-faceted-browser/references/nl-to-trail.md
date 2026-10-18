@@ -23,6 +23,8 @@ name to an IRI with a query first, and never guess one.
 | settlements in Nigeria | `--type dbo:Settlement --pv dbo:country=dbr:Nigeria` |
 | …in Nigeria or Ghana | `… --pv dbo:country=dbr:Nigeria --pv-or dbo:country=dbr:Ghana` |
 | map RINF operational points in France, Germany and Italy, coloured by type of point | `--type era:OperationalPoint --pv era:inCountry=<…/country/FRA> --pv-or era:inCountry=<…/country/DEU> --pv-or era:inCountry=<…/country/ITA> --view map --map-by era:opType` |
+| RINF sections of line in Belgium as lines, with operational points and tunnels as layers | `--type era:SectionOfLine --pv era:inCountry=<…/country/BEL> --view map --map-layer era:OperationalPoint --map-layer era:Tunnel` |
+| all RINF operational points on one map | `--type era:OperationalPoint --view map` (62,352 members open grouped by area; zoom in for each point) |
 | …by state | `… --values-of dbo:subdivision` |
 | people named Einstein | `--text Einstein --type dbo:Person` |
 | cities with 1–5 million people | `--type dbo:City --range dbo:populationTotal 1000000 5000000` |
