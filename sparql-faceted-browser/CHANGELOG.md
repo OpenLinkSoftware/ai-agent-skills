@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.7 — 2026-10-21
+
+- **Description map is scoped to the entity.** When an entity has no coordinates of its own, the lookup now tries, in
+  order: `owl:sameAs` twins on the same endpoint; the Wikidata twin's `wdt:P625` (DBpedia keeps none on many places,
+  e.g. Paris); then one link further. The one-link step no longer follows `dbo:wikiPageWikiLink`, redirects,
+  disambiguations, page links, `owl:sameAs` or primary-topic links, which used to plot up to 20 unrelated places that
+  the article merely mentions and zoom the map out to fit them. The caption names the source ("Wikidata P625 via owl:sameAs").
+- **No coordinates → the Location map is greyed out** with a note, instead of being left out without a word.
+
 ## 1.0.6 — 2026-10-18
 
 - **Map tab, after the production RINF Atlas:**
