@@ -474,6 +474,7 @@ footer.site a, #about a { color: var(--accent); }
         <option value="https://query.wikidata.org/sparql">Wikidata</option>
         <option value="https://wikidata.demo.openlinksw.com/sparql">Wikidata — OpenLink instance</option>
         <option value="https://demo.openlinksw.com/sparql">OpenLink demo server</option>
+        <option value="https://vec.demo.openlinksw.com/sparql">OpenLink vector demo (DBpedia, search by meaning)</option>
         <option value="https://sparql.uniprot.org/sparql">UniProt</option>
         <option value="https://publications.europa.eu/webapi/rdf/sparql">EU Publications Office (no CORS: needs proxy)</option>
       </optgroup>
@@ -552,6 +553,7 @@ footer.site a, #about a { color: var(--accent); }
   <select class="field" id="scope" title="Where to match the text">
     <option value="label">in labels &amp; names</option>
     <option value="any">in any literal</option>
+    <option value="vector" hidden disabled>by meaning (vector similarity)</option>
   </select>
   <button class="btn primary" type="submit">Search</button>
   <button class="btn" type="button" data-act="browseAll" title="Explore the whole dataset: its entity types, each with a sample entity and a count">Explore</button>
@@ -974,7 +976,36 @@ async function probeFti(ep) {
     if (!rows(k).length) ftiOff.add(ep);
   } catch { /* unknown: keep bif:contains */ }
 }
+/* Vector similarity search (bif:knnSimilar) exists only on newer Virtuoso instances with a vector index. One ASK per
+   connect tells them apart: true where it is installed, false (HTTP 200) on a Virtuoso without it. The probe leaves out
+   OPTION (SCORE ...), which a Virtuoso without vector support rejects with SP031 instead of answering. The scope option
+   "by meaning" appears only while the endpoint's answer is true; a timeout or network error leaves it unknown (hidden). */
+const vecState = new Map();   // endpoint -> true | false
+const vecOn = () => vecState.get(settings.ep) === true;
+function syncScopeOptions() {
+  const sc = document.getElementById('scope'), o = sc && sc.querySelector('option[value="vector"]');
+  if (!o) return;
+  o.hidden = o.disabled = !vecOn();
+  if (!vecOn() && sc.value === 'vector') sc.value = 'label';
+}
+async function probeVec(ep) {
+  const before = vecState.get(ep);
+  try {
+    const j = await sparql('ASK { ?s ?p ?o . ?o bif:knnSimilar "test" }', { quiet: true, timeout: 60000, noPragma: true });
+    vecState.set(ep, j && j.boolean === true);
+  } catch (e) { if (/^HTTP /.test(e.message)) vecState.set(ep, false); else vecState.delete(ep); }
+  syncScopeOptions();
+  // A link saved with "by meaning" was first drawn as a label search while the probe ran: draw it again once it is on.
+  if (before !== true && vecState.get(ep) === true && ep === settings.ep && nav && nav.nodes.some(n => n.text && n.scope === 'vector')) render();
+}
 async function detectProfile() {
+  const fresh = settings.profile === 'auto' && !resolvedProfile;
+  if (fresh) vecState.delete(settings.ep);
+  await detectProfile0();
+  if (settings.profile === 'virtuoso') probeVec(settings.ep);   // engine chosen by hand in Settings: no auto-detection ran
+  syncScopeOptions();
+}
+async function detectProfile0() {
   if (settings.profile !== 'auto' || resolvedProfile) return;
   if (/wikidata\.org/.test(settings.ep)) { resolvedProfile = 'wikidata'; return; }
   // Through the UB SPARQL-FED proxy the remote engine cannot be probed: UB refuses bif: calls inside SERVICE ("Permission
@@ -985,7 +1016,7 @@ async function detectProfile() {
     // bif: built-ins exist only in Virtuoso; any other engine rejects this query.
     const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000, noPragma: true });
     resolvedProfile = rows(j).length ? 'virtuoso' : 'generic';
-    if (resolvedProfile === 'virtuoso') await probeFti(settings.ep);
+    if (resolvedProfile === 'virtuoso') { await probeFti(settings.ep); probeVec(settings.ep); }
   } catch (e) {
     // Only an actual rejection of the bif: query means "not Virtuoso"; a timeout or network error is retried next render.
     // A gateway that blocks the probe without CORS headers (Fedlex) looks like a CORS error; this runs only after the
@@ -1437,6 +1468,10 @@ function textPattern(s, node, i) {
   // Virtuoso needs bif:contains to follow a plain triple pattern binding its object. A property-path alternation
   // (a|b|c) works when sent directly, but UB's SPARQL-FED re-serialization of it is rejected remotely (SP031), so
   // label scope uses a predicate variable restricted with IN (…) instead — valid both directly and through the proxy.
+  // Search by meaning: the literal's nearest neighbours in the vector index, each with a similarity score (?vscN).
+  if (node.scope === 'vector' && pr === 'virtuoso' && vecOn()) {
+    return s + ' ?txtp' + (i + 1) + ' ' + o + ' . ' + o + ' bif:knnSimilar ' + litStr(t) + ' OPTION (SCORE ?vsc' + (i + 1) + ') .';
+  }
   if (pr === 'virtuoso' && !ftiOff.has(settings.ep)) {
     const tp = '?txtp' + (i + 1);
     return s + ' ' + tp + ' ' + o + ' . ' + o + " bif:contains '" + ftExpr(t) + "' ." +
@@ -1495,6 +1530,7 @@ function whereBody(bound, skip) {
 }
 const sel = (proj, body, tail) => prologue() + 'SELECT ' + proj + '\n' + fromClause() + 'WHERE {\n' + body + '\n}' + (tail ? '\n' + tail : '');
 const page = (lim, off) => 'LIMIT ' + lim + (off ? ' OFFSET ' + off : '');
+const byMeaning = f => { const n = nav.nodes[f]; return !!(n && n.text && n.scope === 'vector' && profile() === 'virtuoso' && vecOn()); };
 const Q = {
   // Virtuoso: rank members by entity rank (IRI_RANK), as FCT does; other engines get plain DISTINCT.
   entitiesPlain: (f, off, lim) => sel('DISTINCT ' + sv(f), whereBody(), page(lim, off)),
@@ -1502,7 +1538,10 @@ const Q = {
   // Blank nodes are excluded, so every sample and type can be linked and described.
   overview: (off, lim) => sel('?type (SAMPLE (?s1) AS ?sample) (COUNT (?s1) AS ?n)', '  ?s1 ' + iriRef(typeProp()) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))', 'GROUP BY ?type ORDER BY DESC (?n) ' + page(lim, off)),
   overviewTotal: () => sel('(COUNT (DISTINCT ?type) AS ?n)', '  ?s1 ' + iriRef(typeProp()) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))'),
-  entities: (f, off, lim) => profile() === 'virtuoso' && !noRank.has(settings.ep)
+  // By meaning: the best similarity score per member, highest first (the vector index does the ranking).
+  entities: (f, off, lim) => byMeaning(f)
+    ? sel(sv(f) + ' (MAX (?vsc' + (f + 1) + ') AS ?score)', whereBody(), 'GROUP BY ' + sv(f) + ' ORDER BY DESC (?score) ' + page(lim, off))
+    : profile() === 'virtuoso' && !noRank.has(settings.ep)
     ? sel(sv(f), whereBody(), 'GROUP BY ' + sv(f) + ' ORDER BY DESC (<LONG::IRI_RANK> (' + sv(f) + ')) ' + page(lim, off))
     : sel('DISTINCT ' + sv(f), whereBody(), page(lim, off)),
   count: f => sel('(COUNT (DISTINCT ' + sv(f) + ') AS ?n)', whereBody()),
@@ -1752,6 +1791,7 @@ async function render() {
   const n0 = nav.nodes[0];
   document.getElementById('q').value = n0 && n0.text || '';
   document.getElementById('scope').value = n0 && n0.scope || 'label';
+  syncScopeOptions();
   if (hasSets && !nav.nodes[nav.focus]) nav.focus = nav.nodes.length - 1;
   renderTabs();
   if (hasSets) {
@@ -1821,7 +1861,7 @@ function setTitle(i) {
   if (i === 0) {
     const is = n.conds.find(c => c.t === 'is' && !c.neg);
     if (is) return { k: 'Entity', t: is.v.value, iri: is.v.type === 'uri' ? is.v.value : null };
-    if (n.text) return { k: 'Text match', t: '“' + n.text + '”' };
+    if (n.text) return { k: n.scope === 'vector' && vecOn() ? 'Meaning match' : 'Text match', t: '“' + n.text + '”' };
     const cls = n.conds.find(c => c.t === 'class' && !c.neg);
     if (cls) return { k: 'Type', t: cls.iri, iri: cls.iri };
     return { k: 'Dataset', t: 'All entities' };
@@ -2141,6 +2181,7 @@ async function renderEntities(el, my, signal) {
     });
     if (my !== gen) return;
     const terms = rs.map(r => r[sv(f).slice(1)]).filter(Boolean);
+    const score = new Map(rs.filter(r => r.score && r[sv(f).slice(1)]).map(r => [r[sv(f).slice(1)].value, Number(r.score.value)]));
     cur.entities = terms;
     const iris = terms.filter(t => t.type === 'uri').map(t => t.value);
     wantLabels(iris);
@@ -2154,7 +2195,7 @@ async function renderEntities(el, my, signal) {
         if (t.type !== 'uri') return '<li class="ent"><div class="thumb">“</div><div>' + termHtml(t) + '</div><div class="acts">' + (t.type === 'literal' ? '<button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this value">=</button>' : '') + '</div></li>';
         const c = cards.get(t.value) || {};
         return '<li class="ent">' + thumb(t.value, c, true) +
-          '<div>' + lbl(t.value, null, 'name') + (c.desc ? '<div class="desc">' + esc(c.desc) + '</div>' : '') + '</div>' +
+          '<div>' + lbl(t.value, null, 'name') + (score.has(t.value) ? ' <span class="cnt" title="Similarity to “' + esc(nav.nodes[f].text) + '” (1 = identical meaning)">' + score.get(t.value).toFixed(3) + '</span>' : '') + (c.desc ? '<div class="desc">' + esc(c.desc) + '</div>' : '') + '</div>' +
           '<div class="acts"><button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this entity" aria-label="Narrow to this entity">=</button><button class="mini" data-act="explore" data-iri="' + esc(t.value) + '" title="Start a new trail from this entity" aria-label="Start trail">⇢</button><a class="mini" href="' + esc(t.value) + '" target="_blank" rel="noopener noreferrer" title="Open the IRI itself" aria-label="Open IRI">↗</a></div></li>';
       }).join('') + '</ul>' + pagerSlot('main');
       setPager('main', { count: terms.length });

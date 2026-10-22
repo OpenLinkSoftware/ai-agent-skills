@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.8 — 2026-10-22
+
+- **Search by meaning (vector similarity), only where the endpoint has it.** On connect to a Virtuoso instance the app
+  asks `ASK { ?s ?p ?o . ?o bif:knnSimilar "test" }`: `true` where a vector index is installed, `false` on a Virtuoso
+  without one (a timeout leaves it unknown). Only then does the search scope offer **by meaning (vector similarity)**.
+  Members are ranked by their best `bif:knnSimilar … OPTION (SCORE ?sc)` score, which shows beside each name; the trail
+  chip reads "Meaning match", and facets, pivots and the SPARQL tab work as with any text match. Facet counts cover the
+  nearest matches the index returns, not every literal. A link saved with this scope falls back to a label search on an
+  endpoint without vector support. Never probed on Wikidata, generic SPARQL 1.1 or SPARQL-FED proxied endpoints.
+- **New preset: OpenLink vector demo (DBpedia)** at `https://vec.demo.openlinksw.com/sparql`.
+- **Scripts:** `fct_state.py --vector` makes the current set's text a meaning search (`"scope": "vector"` in the state).
+
 ## 1.0.7 — 2026-10-21
 
 - **Description map is scoped to the entity.** When an entity has no coordinates of its own, the lookup now tries, in
