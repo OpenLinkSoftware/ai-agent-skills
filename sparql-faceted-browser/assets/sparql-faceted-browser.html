@@ -264,6 +264,8 @@ h4.sec { margin: 14px 0 4px; }
 .geo-box .geo-map { height: 280px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface2); z-index: 0; }
 .geo-box .geo-cap { font-size: 12px; color: var(--muted); margin: 6px 2px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .geo-box .leaflet-container { font: inherit; }
+.geo-box.geo-off { opacity: .55; }
+.geo-box.geo-off .geo-map { height: auto; padding: 14px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; background: var(--surface2); cursor: not-allowed; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .geo-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); } }
 :root[data-theme="dark"] .geo-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); }
 .vals .picked { color: var(--accent); font-weight: 700; }
@@ -2311,6 +2313,11 @@ const geoPoint = (lat, lon) => { const a = Number(lat), o = Number(lon); return 
 /* Location patterns shared by the description map and the Map tab. 'direct' looks at the entity itself; 'hop' one
    link further (RINF keeps an operational point's coordinates on its era:netReference), reporting the link in ?hop. */
 // o.kinds limits the branches to those a first load found ('ll' lat/long, 'wkt', 'pt'); o.via fixes the hop predicate.
+// Links that only say "mentioned near", never "located at": following them plots unrelated places (DBpedia Paris →
+// every place its Wikipedia article links to). owl:sameAs has its own step in showGeo.
+const HOP_SKIP = ['http://dbpedia.org/ontology/wikiPageWikiLink', 'http://dbpedia.org/ontology/wikiPageRedirects', 'http://dbpedia.org/ontology/wikiPageDisambiguates',
+  'http://dbpedia.org/ontology/wikiPageExternalLink', 'http://dbpedia.org/property/wikiPageUsesTemplate', 'http://www.w3.org/2002/07/owl#sameAs',
+  'http://xmlns.com/foaf/0.1/primaryTopic', 'http://xmlns.com/foaf/0.1/isPrimaryTopicOf'];
 function geoBlock(x, hop, o = {}) {
   const G = NS.geo, S = 'http://schema.org/', SS = 'https://schema.org/';
   const n = hop ? '?gn' : x, k = o.kinds, want = kind => !k || k.has(kind);
@@ -2323,7 +2330,7 @@ function geoBlock(x, hop, o = {}) {
   if (!hop && want('ll')) [S, SS].forEach(ns => parts.push('{ ' + n + ' <' + ns + 'latitude> ?lat ; <' + ns + 'longitude> ?lon }', '{ ' + n + ' <' + ns + 'geo> ?sg . ?sg <' + ns + 'latitude> ?lat ; <' + ns + 'longitude> ?lon }'));
   const b = parts.join('\n  UNION ');
   if (!hop) return '  { ' + b + ' }';
-  const link = o.via ? '  ' + x + ' ' + iriRef(o.via) + ' ?gn . BIND (' + iriRef(o.via) + ' AS ?hop)' : '  ' + x + ' ?hop ?gn . FILTER (isIRI (?gn) && ?hop != <' + GSP + 'hasGeometry>)';
+  const link = o.via ? '  ' + x + ' ' + iriRef(o.via) + ' ?gn . BIND (' + iriRef(o.via) + ' AS ?hop)' : '  ' + x + ' ?hop ?gn . FILTER (isIRI (?gn) && ?hop != <' + GSP + 'hasGeometry> && ?hop NOT IN (' + HOP_SKIP.map(iriRef).join(', ') + '))';
   return link + '\n  { ' + b + ' }';
 }
 function rowGeo(r) {
@@ -2757,10 +2764,30 @@ async function showGeo(e, my, signal) {
   if (!geoCache.has(key)) geoCache.set(key, sparql(q, { quiet: true }).then(rows, err => { geoCache.delete(key); throw err; }));
   let rs;
   try { rs = await geoCache.get(key); } catch { return; }
-  if (!rs.length) {   // nothing on the entity itself: look one link further (e.g. a RINF operational point's netReference)
-    const k2 = key + '|hop', q2 = sel('?lat ?lon ?wkt ?pt ?hop', geoBlock(iriRef(e), true), 'LIMIT 20');
-    if (!geoCache.has(k2)) geoCache.set(k2, sparql(q2, { quiet: true }).then(rows, err => { geoCache.delete(k2); throw err; }));
-    try { rs = (await geoCache.get(k2)).map(r => Object.assign({ src: { value: 'via ' + labelOf(r.hop.value) } }, r)); } catch { return; }
+  // Nothing on the entity itself. In order: the same thing under another IRI on this endpoint (owl:sameAs), its Wikidata
+  // twin's P625 (DBpedia keeps no coordinates on many places, e.g. Paris), then one link further for a purposeful link
+  // (a RINF operational point's netReference); HOP_SKIP keeps mere page links such as wikiPageWikiLink out of that last step.
+  const once = (k, run) => { if (!geoCache.has(k)) geoCache.set(k, run().catch(err => { geoCache.delete(k); throw err; })); return geoCache.get(k); };
+  if (!rs.length) {
+    const qs = sel('?lat ?lon ?wkt ?pt ?hop', geoBlock(x, true, { via: 'http://www.w3.org/2002/07/owl#sameAs' }), 'LIMIT 20');
+    try { rs = (await once(key + '|same', () => sparql(qs, { quiet: true }).then(rows))).map(r => Object.assign({ src: { value: 'via owl:sameAs' } }, r)); } catch { return; }
+  }
+  const WDQ = 'https://query.wikidata.org/sparql';
+  if (!rs.length && !/wikidata\.org/.test(settings.ep)) {
+    try {
+      const twins = await once(key + '|wd', async () => {
+        const qw = sel('?w', '  ' + x + ' <http://www.w3.org/2002/07/owl#sameAs> ?w . FILTER (STRSTARTS (STR (?w), "http://www.wikidata.org/entity/Q"))', 'LIMIT 5');
+        const ws = rows(await sparql(qw, { quiet: true })).map(r => r.w.value);
+        if (!ws.length) return [];
+        const qp = 'SELECT ?e ?wkt WHERE { VALUES ?e { ' + ws.map(iriRef).join(' ') + ' } ?e <http://www.wikidata.org/prop/direct/P625> ?wkt } LIMIT 20';
+        return rows(await sparql(qp, { quiet: true, ep: WDQ, noPragma: true }));
+      });
+      rs = twins.map(r => ({ wkt: r.wkt, src: { value: 'Wikidata P625 via owl:sameAs' } }));
+    } catch { /* Wikidata unreachable: fall through to the one-hop step */ }
+  }
+  if (!rs.length) {
+    const q2 = sel('?lat ?lon ?wkt ?pt ?hop', geoBlock(x, true), 'LIMIT 20');
+    try { rs = (await once(key + '|hop', () => sparql(q2, { quiet: true }).then(rows))).map(r => Object.assign({ src: { value: 'via ' + labelOf(r.hop.value) } }, r)); } catch { return; }
   }
   if (signal.aborted || nav.ent !== e) return;
   const geos = [], srcs = new Set(), keys = new Set();
@@ -2775,7 +2802,14 @@ async function showGeo(e, my, signal) {
     if (g) srcs.add(r.src.value);
   });
   const box = document.getElementById('geoBox');
-  if (!geos.length || !box || !box.hidden) return;
+  if (!geos.length) {   // no coordinates anywhere we looked: show the map greyed out rather than leaving it out silently
+    if (box && box.hidden) {
+      box.hidden = false; box.classList.add('geo-off');
+      box.innerHTML = '<h4 class="sec">Location</h4><div class="geo-map" aria-disabled="true" role="img" aria-label="Map unavailable">🗺 No coordinates found for this entity (checked its own properties, owl:sameAs twins and Wikidata P625).</div>';
+    }
+    return;
+  }
+  if (!box || !box.hidden) return;
   const first = geos.find(g => g.type === 'Point') || geos[0];
   const [lon, lat] = first.type === 'Point' ? first.coordinates : (function f(a) { return typeof a[0] === 'number' ? a : f(a[0]); })(first.coordinates);
   const osm = 'https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=15/' + lat + '/' + lon;
