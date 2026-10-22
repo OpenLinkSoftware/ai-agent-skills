@@ -20,6 +20,7 @@ Subcommands
 OPS are applied left to right, so filters always attach to the most recent set:
     --text "words"           text match on labels (start a set, or add text to the current one)
     --any-literal            make the current set's text match any literal, not just labels
+    --vector                 match the current set's text by meaning (vector similarity; Virtuoso with a vector index)
     --type IRI|CURIE         member must have this type          (--not-type to exclude)
     --pv P=V                 property P has value V              (--not-pv to exclude)
                              V: IRI, CURIE, <IRI>, "literal", "literal"@en, "5"^^xsd:integer, or a bare number
@@ -169,7 +170,7 @@ def cur(nav):
     return nav['nodes'][nav['focus']]
 
 
-FILTER_OPS = {'--text', '--any-literal', '--type', '--not-type', '--pv', '--not-pv', '--pv-in', '--pv-or', '--has', '--has-in', '--range', '--entity'}
+FILTER_OPS = {'--text', '--any-literal', '--vector', '--type', '--not-type', '--pv', '--not-pv', '--pv-in', '--pv-or', '--has', '--has-in', '--range', '--entity'}
 
 
 def apply_ops(nav, ops):
@@ -193,6 +194,8 @@ def apply_ops(nav, ops):
             cur(nav)['text'] = arg()
         elif op == '--any-literal':
             cur(nav)['scope'] = 'any'
+        elif op == '--vector':
+            cur(nav)['scope'] = 'vector'
         elif op in ('--type', '--not-type'):
             cur(nav)['conds'].append({'t': 'class', 'iri': expand(arg()), 'neg': 1 if op == '--not-type' else 0})
         elif op in ('--pv', '--not-pv', '--pv-in'):
@@ -325,7 +328,7 @@ def summarize(state, cfg=None, base=None):
             v = n['via']
             bits.append(('things whose %s points at set %d' if v['dir'] == 'in' else 'values of %s from set %d') % (short(v['p']), i))
         if n.get('text'):
-            bits.append('text "%s" in %s' % (n['text'], 'any literal' if n.get('scope') == 'any' else 'labels'))
+            bits.append('text "%s" in %s' % (n['text'], {'any': 'any literal', 'vector': 'meaning (vector similarity)'}.get(n.get('scope'), 'labels')))
         for c in n.get('conds', []):
             neg = 'NOT ' if c.get('neg') else ''
             if c['t'] == 'is':

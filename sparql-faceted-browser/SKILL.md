@@ -80,7 +80,7 @@ The app's model is FCT's query tree, flattened into a chain of sets joined by pi
 
 | Request fragment | Option |
 |---|---|
-| a name or phrase ("Einstein", "machine learning") | `--text "…"` (labels; add `--any-literal` for any text) |
+| a name or phrase ("Einstein", "machine learning") | `--text "…"` (labels; add `--any-literal` for any text, or `--vector` to match by meaning on a Virtuoso with a vector index) |
 | a kind of thing ("films", "cities", "proteins") | `--type CURIE/IRI` (`dbo:Film`, `wd:Q11424` via `--type wd:Q11424` on Wikidata, …) |
 | "directed by Nolan", "in Nigeria" | `--pv P=V` (`--pv dbo:director=dbr:Christopher_Nolan`) |
 | "not …" | `--not-type`, `--not-pv` |
