@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.9 — 2026-10-22
+
+- **Optional short links in Share.** Settings → **Share link shortener** (Off by default) makes Share copy a short link
+  instead of the full one. Choices: URIBurner compressed URIs (`/c/create`, which the page can read only when it is
+  served from linkeddata.uriburner.com), is.gd, v.gd, or a **Custom** https endpoint with `{url}` for the encoded link
+  and an optional JSON field holding the short link (blank: the reply is the link). A short link is made by sending the
+  full link to that service, so nothing is sent while the setting is Off. If shortening fails (service down, or no CORS
+  for this page's origin) the full link is used and the toast says why. tinyurl.com answers only to its own origin, so
+  it needs a relay behind the Custom option.
+
 ## 1.0.8 — 2026-10-22
 
 - **Search by meaning (vector similarity), only where the endpoint has it.** On connect to a Virtuoso instance the app
