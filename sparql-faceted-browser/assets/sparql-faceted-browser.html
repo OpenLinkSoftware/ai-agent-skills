@@ -714,6 +714,24 @@ footer.site a, #about a { color: var(--accent); }
         <option value="raw">Raw list of every entity</option>
       </select>
     </label>
+    <label>Share link shortener
+      <select class="field" name="shortener">
+        <option value="off">Off — share the full link</option>
+        <option value="ub">URIBurner compressed URIs (linkeddata.uriburner.com/c/ — works when this page is served from linkeddata.uriburner.com)</option>
+        <option value="isgd">is.gd</option>
+        <option value="vgd">v.gd</option>
+        <option value="custom">Custom endpoint…</option>
+      </select>
+      <small style="color:var(--muted)">A short link is made by sending the full link, which holds the endpoint, search text and filters of this view, to that service. Nothing is sent while this is Off.</small>
+    </label>
+    <div class="row2" id="shortenerCustom" hidden>
+      <label>Endpoint (<code>{url}</code> becomes the encoded link)
+        <input class="field" name="shortenerUrl" type="text" placeholder="https://example.org/shorten?url={url}" spellcheck="false">
+      </label>
+      <label>JSON field with the short link (blank: the reply is the link)
+        <input class="field" name="shortenerField" type="text" placeholder="shorturl" spellcheck="false">
+      </label>
+    </div>
     <label>Namespace prefixes (CURIEs shown for IRIs without labels)
       <select class="field" name="prefixes">
         <option value="prefixcc">prefix.cc community list (falls back to Zazuko over HTTPS)</option>
@@ -884,7 +902,7 @@ function localName(iri) {
 }
 
 /* ---------- state ---------- */
-const DEFAULTS = { ep: 'https://linkeddata.uriburner.com/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', infRule: 'auto', sas: 'SAME_AS_OFF', ifp: 'IFP_OFF', sponge: 'off', spongeScope: 'describe', anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto' };
+const DEFAULTS = { ep: 'https://linkeddata.uriburner.com/sparql', profile: 'auto', limit: 25, timeout: 20000, lang: '', prefixes: 'prefixcc', typeProp: '', graph: '', infRule: 'auto', sas: 'SAME_AS_OFF', ifp: 'IFP_OFF', sponge: 'off', spongeScope: 'describe', anytime: true, browseAll: 'sample', proxy: false, dedupe: 'auto', shortener: 'off', shortenerUrl: '', shortenerField: '' };
 let settings = Object.assign({}, DEFAULTS, load('fct.settings') || {});
 // URIBurner is the pinned default: a visit without a view link ('#s=…') always starts there, whatever endpoint was used
 // last. A link carries its own endpoint, and the rest of Settings is still remembered.
@@ -3082,14 +3100,53 @@ function toast(html, sticky) {
   if (!sticky) toastTimer = setTimeout(() => { t.hidden = true; }, 3500);
 }
 // The URL hash already holds the whole view state, so the current address is the share link.
+/* Optional link shortening (Settings → Share link shortener, off by default). Each service is a GET with {url}
+   replaced by the encoded link; the reply is the short link itself or JSON holding it in `field`. The page can read the
+   reply only if the service allows it: is.gd and v.gd send CORS "*"; URIBurner's /c/ is same-origin, so it works from the
+   copy served at linkeddata.uriburner.com (tinyurl.com answers only to its own origin, so it needs a relay: use Custom). */
+const SHORTENERS = {
+  ub: { name: 'URIBurner compressed URIs', url: 'https://linkeddata.uriburner.com/c/create?uri={url}&res=json', field: 'c_uri' },
+  isgd: { name: 'is.gd', url: 'https://is.gd/create.php?format=json&url={url}', field: 'shorturl' },
+  vgd: { name: 'v.gd', url: 'https://v.gd/create.php?format=json&url={url}', field: 'shorturl' }
+};
+function shortenerDef() {
+  const id = settings.shortener;
+  if (!id || id === 'off') return null;
+  if (id === 'custom') {
+    const u = (settings.shortenerUrl || '').trim();
+    if (!/^https:\/\/\S*\{url\}/.test(u)) return { err: 'the custom endpoint must be an https URL containing {url}' };
+    let host = ''; try { host = new URL(u.replace('{url}', 'x')).host; } catch { return { err: 'the custom endpoint is not a valid URL' }; }
+    return { name: host, url: u, field: (settings.shortenerField || '').trim() };
+  }
+  return SHORTENERS[id] || null;
+}
+async function shortenLink(def, url) {
+  const r = await fetch(def.url.replace('{url}', encodeURIComponent(url)), { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  let t = (await r.text()).trim();
+  if (def.field) t = def.field.split('.').reduce((o, k) => o == null ? o : o[k], JSON.parse(t));
+  if (typeof t !== 'string' || !/^https?:\/\/\S+$/.test(t)) throw new Error('the reply holds no short link');
+  return t;
+}
 async function shareView() {
-  const url = location.href;
+  let url = location.href, note = '';
+  const def = shortenerDef();
+  if (def && def.err) note = ' Not shortened: ' + esc(def.err) + '.';
+  else if (def) {
+    toast('Shortening with ' + esc(def.name) + '…', true);
+    try { url = await shortenLink(def, url); note = ' (shortened with ' + esc(def.name) + ')'; }
+    catch (e) {
+      // a blocked cross-origin reply surfaces as a TypeError with no detail
+      note = ' Not shortened with ' + esc(def.name) + ': ' + (e instanceof TypeError ? 'the service did not answer this page (network or CORS)' : esc(e.message)) + '. Full link used.';
+    }
+  }
   if (navigator.share && matchMedia('(pointer: coarse)').matches) {
     try { await navigator.share({ title: document.title, url }); return; } catch (e) { if (e.name === 'AbortError') return; }
   }
-  try { await navigator.clipboard.writeText(url); toast('Link to this view copied to the clipboard.'); }
+  const ok = note.startsWith(' (');   // ' (shortened with …)' on success; otherwise the note says why the full link is used
+  try { await navigator.clipboard.writeText(url); toast('Link to this view copied to the clipboard' + (ok ? note + '.' : '.' + note), !ok && !!note); }
   catch {
-    toast('Copy this link to share the view:<input readonly value="' + esc(url) + '" aria-label="Link to this view">', true);
+    toast('Copy this link to share the view' + (ok ? note : '') + ':<input readonly value="' + esc(url) + '" aria-label="Link to this view">' + (ok || !note ? '' : '<small>' + note.trim() + '</small>'), true);
     const i = document.querySelector('#toast input'); i.focus(); i.select();
     setTimeout(() => { document.getElementById('toast').hidden = true; }, 12000);
   }
@@ -3385,6 +3442,7 @@ document.getElementById('endpoint').addEventListener('input', paintStatus);
 
 const dlg = document.getElementById('settings');
 const sform = document.getElementById('settingsForm');
+sform.elements.shortener.addEventListener('change', e => { document.getElementById('shortenerCustom').hidden = e.target.value !== 'custom'; });
 document.getElementById('settingsBtn').addEventListener('click', () => {
   ['limit', 'timeout', 'lang', 'typeProp', 'graph'].forEach(k => sform.elements[k].value = settings[k]);
   fillVirt();
@@ -3392,6 +3450,10 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
   sform.elements.browseAll.value = settings.browseAll || 'sample';
   sform.elements.proxy.checked = !!settings.proxy;
   sform.elements.dedupe.value = settings.dedupe || 'auto';
+  sform.elements.shortener.value = settings.shortener || 'off';
+  sform.elements.shortenerUrl.value = settings.shortenerUrl || '';
+  sform.elements.shortenerField.value = settings.shortenerField || '';
+  document.getElementById('shortenerCustom').hidden = sform.elements.shortener.value !== 'custom';
   sform.elements.lang.placeholder = 'browser default: ' + browserLang();
   sform.elements.prefixes.value = settings.prefixes || 'prefixcc';
   document.getElementById('prefixStatus').textContent = prefixStatus;
@@ -3455,6 +3517,9 @@ dlg.addEventListener('close', () => {
   settings.anytime = sform.elements.anytime.checked;
   settings.browseAll = sform.elements.browseAll.value;
   settings.dedupe = sform.elements.dedupe.value;
+  settings.shortener = sform.elements.shortener.value;
+  settings.shortenerUrl = sform.elements.shortenerUrl.value.trim();
+  settings.shortenerField = sform.elements.shortenerField.value.trim();
   if (hashCfg.lang) { hashCfg = {}; if (nav) writeHash(true); else history.replaceState(null, '', location.pathname + location.search); }
   if (settings.proxy !== sform.elements.proxy.checked) { settings.proxy = sform.elements.proxy.checked; conn.ep = null; conn.proxyFor = null; }   // re-handshake
   const prefixesChanged = sform.elements.prefixes.value !== (settings.prefixes || 'prefixcc');
