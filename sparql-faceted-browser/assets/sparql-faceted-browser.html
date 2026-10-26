@@ -1588,10 +1588,15 @@ const Q = {
        SAMPLE()d to one per property with a count; other literals keep every value;
      mode 'lang' (dedupe off, any engine): every literal value is kept;
      in both, literals are limited to the preferred language or untagged. mode 'all' ("All values & languages"): no filter. */
+  // The branches of 'sample' can both return the same statement (with the subproperty inference rule a literal property
+  // can pass the annotation test in one branch and not in the other: SEC EDGAR observations showed value, audited and
+  // unit twice), so identical (?dir ?p ?o) rows are grouped and the count column is SAMPLE()d from them.
   describeUnion: (e, mode) => mode === 'sample'
-    ? '  { { SELECT ?p (SAMPLE (?lo) AS ?o) (COUNT (?lo) AS ?n) WHERE {\n      ' + iriRef(e) + ' ?p ?lo .\n      FILTER (isLiteral (?lo) && ' + annotTest() + ' && ' + langOk('?lo') + ')\n    } GROUP BY ?p } BIND ("out" AS ?dir) }\n' +
+    ? '  { SELECT ?dir ?p ?o (SAMPLE (?n1) AS ?n) WHERE {\n' +
+      '  { { SELECT ?p (SAMPLE (?lo) AS ?o) (COUNT (?lo) AS ?n1) WHERE {\n      ' + iriRef(e) + ' ?p ?lo .\n      FILTER (isLiteral (?lo) && ' + annotTest() + ' && ' + langOk('?lo') + ')\n    } GROUP BY ?p } BIND ("out" AS ?dir) }\n' +
       '  UNION { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || (!' + annotTest() + ' && ' + langOk('?o') + ')) BIND ("out" AS ?dir) }\n' +
-      '  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
+      '  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }\n' +
+      '  } GROUP BY ?dir ?p ?o }'
     : mode === 'lang'
     ? '  { ' + iriRef(e) + ' ?p ?o . FILTER (!isLiteral (?o) || ' + langOk('?o') + ') BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }'
     : '  { ' + iriRef(e) + ' ?p ?o . BIND ("out" AS ?dir) }\n  UNION { ?o ?p ' + iriRef(e) + ' . BIND ("in" AS ?dir) }',
