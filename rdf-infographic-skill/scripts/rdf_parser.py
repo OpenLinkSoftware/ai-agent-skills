@@ -626,8 +626,14 @@ def extract_narrative(rdf_path: str | Path, base_iri: str) -> dict:
                     pass
                 break
 
+            # schema:itemListOrder schema:ItemListUnordered on a section marks its
+            # children as a set (cards in authored schema:position order), not a
+            # sequence, so a positioned set is not rendered as a numbered timeline.
+            sec_unordered = SCHEMA.ItemListUnordered in set(g.objects(part, SCHEMA.itemListOrder))
+
             if sec_abstract or children or sec_figure:
                 result["sections"].append({
+                    "unordered": sec_unordered,
                     "name": sec_name,
                     "abstract": sec_abstract,
                     "iri": str(part),
@@ -782,7 +788,16 @@ def extract_comparison(rdf_path, base_iri: str = "") -> dict:
     } for su in subj_order]
 
     dims = []
-    for d in sorted(g.subjects(RDF.type, dim_class), key=lambda x: (extract_label(x, g) or str(x))):
+    def _dim_pos(x):
+        # An explicit schema:position is the author's reading order; dimensions
+        # without one keep the deterministic label order.
+        for pv in g.objects(x, SCH.position):
+            try:
+                return int(pv)
+            except (TypeError, ValueError):
+                pass
+        return 9999
+    for d in sorted(g.subjects(RDF.type, dim_class), key=lambda x: (_dim_pos(x), extract_label(x, g) or str(x))):
         cells = {}
         for pos in positions:
             if pos["dim"] == d:
@@ -812,4 +827,17 @@ def extract_comparison(rdf_path, base_iri: str = "") -> dict:
             # the SOURCE) so a rendering can never conflate the two.
             "gap": str(next(iter(g.objects(d, SCH.disambiguatingDescription)), "")),
         })
-    return {"subjects": subjects, "dimensions": dims}
+    # Optional author framing, read from the main article by predicate local name, so a
+    # comparison between complementary things need not be presented as a rivalry.
+    meta = {}
+    main = None
+    for cand in g.subjects(RDF.type, SCH.Article):
+        main = cand
+        break
+    if main is not None:
+        for p_, o_ in g.predicate_objects(main):
+            ln = local(p_)
+            if ln in ("comparisonTitle", "comparisonEyebrow", "comparisonLead",
+                      "convergentLabel", "divergentLabel", "dimensionsLabel"):
+                meta[ln] = str(o_)
+    return {"subjects": subjects, "dimensions": dims, "meta": meta}

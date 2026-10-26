@@ -37,10 +37,42 @@ def make_resolver_link(iri: str, resolver_pattern: str = "https://linkeddata.uri
     return resolver_pattern + quote(iri, safe="")
 
 
+_USED_FRAG_IDS: set = set()
+
+
+def frag_id(iri: str, fallback: str) -> str:
+    """Stable, unique, lowercase kebab-case fragment id from an entity IRI local name.
+
+    Never derived from a counter when an IRI exists (SKILL.md: Section Anchors and URL
+    Fragment Identifiers). A leading 'sec' prefix is dropped (secDoors -> doors).
+    """
+    local = re.split(r"[#/]", str(iri or "").rstrip("/#"))[-1] if iri else ""
+    local = re.sub(r"^sec(?=[A-Z])", "", local)
+    s = re.sub(r"([a-z])([A-Z])", r"\1-\2", local)
+    s = re.sub(r"([A-Za-z])(\d)", r"\1-\2", s)
+    s = re.sub(r"[^A-Za-z0-9]+", "-", s).strip("-").lower()
+    if not s:
+        s = fallback
+    if not re.match(r"[a-z]", s):
+        s = "x-" + s
+    base, n = s, 2
+    while s in _USED_FRAG_IDS:
+        s = f"{base}-{n}"
+        n += 1
+    _USED_FRAG_IDS.add(s)
+    return s
+
+
+def frag_anchor(fid: str) -> str:
+    """The hover/focus '¶' fragment link; a real <a href> so copy-link-address and no-script work."""
+    return (f'<a class="headline-anchor" href="#{fid}" aria-label="Copy link to this section">'
+            f'&#182;</a>')
+
+
 def make_section_html(section_id: str, title: str, inner_html: str) -> str:
     return (
         f'<section class="section section-alt" id="{section_id}">'
-        f'<h2>{title}<a class="headline-anchor" href="#{section_id}" aria-label="Link to this section">¶</a></h2>'
+        f'<h2>{title}<a class="headline-anchor" href="#{section_id}" aria-label="Copy link to this section">&#182;</a></h2>'
         f'{inner_html}'
         f'</section>'
     )
@@ -81,8 +113,10 @@ def build_sample_query_cards(source_code: list[dict], resolver_pattern: str) -> 
         comment = escape(item["comment"]) if item["comment"] else ""
         resolver_href = make_resolver_link(iri, resolver_pattern)
         comment_html = f'<p style="font-size:0.83rem;color:var(--text-secondary);margin-top:8px">{comment}</p>' if comment else ""
+        _m = re.match(r"\s*(query\s*\w+)", item["name"], re.I)
+        card_id = re.sub(r"\s+", "-", _m.group(1).lower()) if _m else f"sample-query-{idx + 1}"
         cards.append(
-            f'<details class="sparql-card" style="margin-bottom:12px">'
+            f'<details class="sparql-card" id="{card_id}" style="margin-bottom:12px">'
             f'<summary class="sparql-card-header"><a href="{resolver_href}" target="_blank" rel="noopener noreferrer">{name}</a></summary>'
             f'<div class="sparql-body">'
             f'<pre class="sparql-code" style="white-space:pre-wrap;overflow-x:auto;padding:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;font-size:0.85rem;margin:8px 0"><code>{text_escaped}</code></pre>'
@@ -143,7 +177,7 @@ def render_synopsis_deck(syn: dict, deck: dict, resolver_pattern: str) -> str:
     )
     heading = (
         '<h2 class="syn-heading" id="synopsis-heading">Synopsis'
-        '<a class="headline-anchor" href="#synopsis" aria-label="Link to this section">&#182;</a></h2>'
+        '<a class="headline-anchor" href="#synopsis" aria-label="Copy link to this section">&#182;</a></h2>'
     )
 
     abstract = syn.get("abstract") or ""
@@ -264,6 +298,8 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     reader has already explored it — see preferences.ttl
     step-explorerPrecedesReference / howto/explorer-precedes-reference.ttl.
     """
+    _USED_FRAG_IDS.clear()
+    _USED_FRAG_IDS.update({"hero", "synopsis", "comparison", "howto", "faq", "glossary", "kg-explorer", "sparql-explorer", "footer", "screens"})
     narrative = extract_narrative(rdf_path, base_iri)
     nav_links = [
         {"href": "#hero", "label": "Overview"},
@@ -305,18 +341,18 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
             sections.append("silences")
         html_parts.append(render_narrative_section(
             "comparison",
-            "Comparison Matrix",
+            _comparison_title(cmp_data),
             render_comparison(cmp_data, resolver_pattern),
-            eyebrow="HEAD TO HEAD",
+            eyebrow=(cmp_data.get("meta") or {}).get("comparisonEyebrow", "HEAD TO HEAD"),
         ))
         nav_links.append({"href": "#comparison", "label": "Comparison"})
         sections.append("comparison")
 
     if has_sections:
         for idx, sec in enumerate(narrative["sections"], 1):
-            sec_id = f"analysis-{idx}"
-            sec_name = escape(sec["name"])
             sec_iri = sec["iri"]
+            sec_id = frag_id(sec_iri, f"analysis-{idx}")
+            sec_name = escape(sec["name"])
             sec_abstract = escape(sec["abstract"]) if sec["abstract"] else ""
             inner = f'<p style="font-size:0.98rem;line-height:1.7;color:var(--text-secondary)">{sec_abstract}</p>' if sec_abstract else ""
             # Inline SVG figure (trusted author-controlled markup from a
@@ -360,7 +396,7 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
                 # RDF still drives the choice, only the visual treatment
                 # changes. See howto/ordered-section-timeline.ttl.
                 positions = [item.get("position") for item in sec["items"]]
-                is_ordered = len(sec["items"]) > 1 and all(
+                is_ordered = len(sec["items"]) > 1 and not sec.get("unordered") and all(
                     isinstance(p, int) and p != 9999 for p in positions
                 )
                 if is_ordered:
@@ -370,11 +406,12 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
                         i_name = escape(item["name"])
                         i_desc = escape(item["description"]) if item["description"] else ""
                         i_pos = item.get("position")
+                        t_id = frag_id(i_iri, f"{sec_id}-step-{i_pos}")
                         inner += (
-                            f'<div class="timeline-item numbered">'
+                            f'<div class="timeline-item numbered" id="{t_id}">'
                             f'<div class="timeline-marker">{i_pos}</div>'
                             f'<div class="timeline-content">'
-                            f'<h4><a href="{make_resolver_link(i_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{i_name}</a></h4>'
+                            f'<h4><a href="{make_resolver_link(i_iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">{i_name}</a>{frag_anchor(t_id)}</h4>'
                             f'<p>{i_desc}</p></div></div>'
                         )
                     inner += '</div>'
@@ -414,7 +451,7 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
             html_parts.append(
                 f'<section class="section section-alt" id="{sec_id}">'
                 f'<div class="sec-head"><span class="sec-eyebrow">Section {idx}</span>'
-                f'<h2 id="{sec_id}-heading">{title_html}<a class="headline-anchor" href="#{sec_id}" aria-label="Link to this section">¶</a></h2>'
+                f'<h2 id="{sec_id}-heading">{title_html}<a class="headline-anchor" href="#{sec_id}" aria-label="Copy link to this section">&#182;</a></h2>'
                 f'<span class="sec-rule" aria-hidden="true"></span></div>'
                 f'{inner}'
                 f'</section>'
@@ -452,11 +489,12 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
                 desc = escape(step["description"]) if step["description"] else ""
                 link_open = f'<a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if iri else ""
                 link_close = "</a>" if iri else ""
+                h_id = frag_id(iri, f"howto-step-{i}")
                 list_html += (
-                    f'<div class="howto-step anim-fade">'
+                    f'<div class="howto-step anim-fade" id="{h_id}">'
                     f'<div class="howto-num">{i}</div>'
                     f'<div class="howto-content">'
-                    f'<h4>{link_open}{s}{link_close}</h4>'
+                    f'<h4>{link_open}{s}{link_close}{frag_anchor(h_id)}</h4>'
                     f'<p>{desc}</p></div></div>'
                 )
             return list_html + "</div>"
@@ -480,9 +518,10 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
                 giri = group["iri"]
                 glink_open = f'<a href="{make_resolver_link(giri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if giri else ""
                 glink_close = "</a>" if giri else ""
-                items_html += '<div class="howto-group anim-fade">'
+                g_id = frag_id(giri, "howto-guide")
+                items_html += f'<div class="howto-group anim-fade" id="{g_id}">'
                 if gname:
-                    items_html += f'<h3 class="howto-group-title">{glink_open}{gname}{glink_close}</h3>'
+                    items_html += f'<h3 class="howto-group-title">{glink_open}{gname}{glink_close}{frag_anchor(g_id)}</h3>'
                 if gdesc:
                     items_html += f'<p class="howto-group-desc">{gdesc}</p>'
                 items_html += _render_howto_steps(group["steps"])
@@ -499,9 +538,10 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
             a = escape(faq["answer"])
             link_open = f'<a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if iri else ""
             link_close = "</a>" if iri else ""
+            f_id = frag_id(iri, "faq-item")
             items_html += (
-                f'<div class="faq-item anim-fade">'
-                f'<div class="faq-question">{link_open}{q}{link_close}<span class="faq-chevron">▼</span></div>'
+                f'<div class="faq-item anim-fade" id="{f_id}">'
+                f'<div class="faq-question">{link_open}{q}{link_close}{frag_anchor(f_id)}<span class="faq-chevron">▼</span></div>'
                 f'<div class="faq-answer"><p>{a}</p></div>'
                 f'</div>'
             )
@@ -517,9 +557,10 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
             defn = escape(g["definition"])
             link_open = f'<a href="{make_resolver_link(iri, resolver_pattern)}" target="_blank" rel="noopener noreferrer">' if iri else ""
             link_close = "</a>" if iri else ""
+            t_id = frag_id(iri, "glossary-term")
             items_html += (
-                f'<div class="glossary-term">'
-                f'<h4>{link_open}{term}{link_close}</h4>'
+                f'<div class="glossary-term" id="{t_id}">'
+                f'<h4>{link_open}{term}{link_close}{frag_anchor(t_id)}</h4>'
                 f'<p>{defn}</p></div>'
             )
         items_html += "</div>"
@@ -552,6 +593,16 @@ def render_narrative(rdf_path: str | Path, base_iri: str, resolver_pattern: str)
     return "\n".join(html_parts), "\n".join(html_parts_ref), nav_links, sections
 
 
+def _comparison_title(cmp_data: dict) -> str:
+    """Section title derived from the compared subjects, so it names what is compared."""
+    subs = cmp_data.get("subjects", [])
+    if (cmp_data.get("meta") or {}).get("comparisonTitle"):
+        return cmp_data["meta"]["comparisonTitle"]
+    if len(subs) == 2:
+        return f'{subs[0]["name"]} and {subs[1]["name"]}, Side by Side'
+    return "Comparison Matrix"
+
+
 def comparison_stats(cmp_data: dict) -> dict:
     """Headline counts for the hero rail, derived rather than authored."""
     dims = cmp_data.get("dimensions", [])
@@ -563,6 +614,7 @@ def comparison_stats(cmp_data: dict) -> dict:
         "convergent": sum(1 for d in dims if d.get("relation") == "convergent"),
         "divergent": sum(1 for d in dims if d.get("relation") == "divergent"),
         "unaddressed": sum(1 for d in dims if len(d.get("cells", {})) < len(subs)),
+        "_labels": cmp_data.get("meta") or {},
     }
 
 
@@ -574,17 +626,20 @@ def render_hero_stats(stats: dict) -> str:
     """
     if not stats:
         return ""
+    lab = stats.get("_labels") or {}
     items = [
-        ("dimensions", "dimensions compared", "neutral"),
-        ("convergent", "convergent", "conv"),
-        ("divergent", "divergent", "div"),
+        ("dimensions", lab.get("dimensionsLabel", "dimensions compared"), "neutral"),
+        ("convergent", lab.get("convergentLabel", "convergent"), "conv"),
+        ("divergent", lab.get("divergentLabel", "divergent"), "div"),
         ("unaddressed", "unaddressed", "sil"),
     ]
+    # A zero count says nothing about the comparison, so only the total and
+    # the non-zero findings get a tile.
     cells = "".join(
         f'<div class="hero-stat hero-stat-{cls}">'
         f'<span class="hero-stat-num" data-count="{stats[k]}">{stats[k]}</span>'
         f'<span class="hero-stat-label">{label}</span></div>'
-        for k, label, cls in items if k in stats
+        for k, label, cls in items if k in stats and (k == "dimensions" or stats[k] > 0)
     )
     return f'<div class="hero-stats" role="group" aria-label="Comparison findings">{cells}</div>'
 
@@ -688,13 +743,16 @@ def render_comparison(cmp_data: dict, resolver_pattern: str) -> str:
     n_div = sum(1 for d in dims if d.get("relation") == "divergent")
 
     out = ['<div class="comparison-wrap" data-comparison-layout="responsive">']
-    out.append(
-        '<div class="comp-summary">'
-        f'<span class="comp-chip comp-chip-conv">{n_conv} convergent</span>'
-        f'<span class="comp-chip comp-chip-div">{n_div} divergent</span>'
-        f'<span class="comp-chip comp-chip-sil">{n_sil} unaddressed</span>'
-        '</div>'
+    meta = cmp_data.get("meta") or {}
+    rel_label = {"convergent": meta.get("convergentLabel", "convergent"), "divergent": meta.get("divergentLabel", "divergent")}
+    chips = "".join(
+        f'<span class="comp-chip comp-chip-{c}">{n} {escape(label)}</span>'
+        for c, n, label in (("conv", n_conv, rel_label["convergent"]), ("div", n_div, rel_label["divergent"]), ("sil", n_sil, "unaddressed"))
+        if n > 0
     )
+    if meta.get("comparisonLead"):
+        out.append(f'<p class="comp-lead" style="font-size:1.02rem;line-height:1.7;color:var(--text-secondary);max-width:75ch;margin:0 0 1rem">{escape(meta["comparisonLead"])}</p>')
+    out.append(f'<div class="comp-summary">{chips}</div>')
 
     # --- table view (>=901px) ---
     out.append('<div class="comparison-table-view" role="region" aria-label="Comparison matrix for larger screens">')
@@ -708,7 +766,7 @@ def render_comparison(cmp_data: dict, resolver_pattern: str) -> str:
         out.append(f'<tr data-relation="{escape(rel)}">')
         note = f'<span class="comp-dim-note">{escape(dim["note"])}</span>' if dim.get("note") else ""
         out.append(f'<th scope="row">{elink(dim["iri"], dim["name"])}'
-                   f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel)}</span>{note}'
+                   f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel_label.get(rel, rel))}</span>{note}'
                    f'{cites(dim)}</th>')
         for sub in subs:
             out.append(f'<td>{cell(dim, sub)}</td>')
@@ -735,7 +793,7 @@ def render_comparison(cmp_data: dict, resolver_pattern: str) -> str:
             # per-subject truth.
             rel_badge = ""
             if rel and not (rel == "unaddressed" and sub["iri"] in dim["cells"]):
-                rel_badge = f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel)}</span>'
+                rel_badge = f'<span class="comp-rel comp-rel-{escape(rel)}">{escape(rel_label.get(rel, rel))}</span>'
             out.append(f'<div class="comp-row-label">{elink(dim["iri"], dim["name"])}'
                        f'{rel_badge}</div>')
             if sub is subs[0]:
@@ -758,13 +816,13 @@ def render_narrative_section(section_id: str, title: str, inner_html: str, eyebr
         head = (
             f'<div class="sec-head"><span class="sec-eyebrow">{escape(eyebrow)}</span>'
             f'<h2 id="{section_id}-heading">{escape(title)}'
-            f'<a class="headline-anchor" href="#{section_id}" aria-label="Link to this section">¶</a></h2>'
+            f'<a class="headline-anchor" href="#{section_id}" aria-label="Copy link to this section">&#182;</a></h2>'
             f'<span class="sec-rule" aria-hidden="true"></span></div>'
         )
     else:
         head = (
             f'<h2 id="{section_id}-heading">{escape(title)}'
-            f'<a class="headline-anchor" href="#{section_id}" aria-label="Link to this section">¶</a></h2>'
+            f'<a class="headline-anchor" href="#{section_id}" aria-label="Copy link to this section">&#182;</a></h2>'
         )
     return f'<section class="section section-alt" id="{section_id}">{head}{inner_html}</section>'
 

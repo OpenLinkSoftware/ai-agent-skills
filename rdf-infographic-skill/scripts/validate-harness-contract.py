@@ -252,14 +252,38 @@ def main() -> int:
     require_any(html, ['theme-toggle', 'id="theme-btn"', 'themeCycle', 'toggleTheme', 'id="fnav-theme"'], "Page theme toggle missing", failures)
 
     require_any(html, ['id="kg-explorer"', 'id="kg"', 'Knowledge Graph Explorer'], "KG Explorer missing", failures)
-    # KG Explorer / SPARQL Workbench are always-visible sections, NOT wrapped
-    # in a section-level <details> accordion (removed 2026-08-12 per explicit
-    # user request — the collapsed-by-default treatment was itself flagged as
-    # unwanted, superseding the prior aesthetics-motivated accordion rule).
-    # Individual .sparql-card sample-query accordions inside the workbench are
-    # unaffected and still closed-by-default.
-    forbid_regex(html, re.escape('<details class="section-accordion" id="kg-explorer-accordion">'), "KG Explorer must NOT be wrapped in a section-level accordion (removed by explicit user request)", failures)
-    forbid_regex(html, re.escape('<details class="section-accordion" id="sparql-explorer-accordion">'), "SPARQL Workbench must NOT be wrapped in a section-level accordion (removed by explicit user request)", failures)
+    # KG Explorer / SPARQL Workbench are collapsible section-level accordions,
+    # CLOSED by default (preferences.ttl Step 307, 2026-09-24, reversing Step 194;
+    # SKILL.md contract item 16). The section ids stay on the inner <section>.
+    for _sid, _aid in (("kg-explorer", "kg-explorer-accordion"), ("sparql-explorer", "sparql-explorer-accordion")):
+        require_regex(html, rf'<details class="section-accordion" id="{_aid}">\s*<summary', f"#{_sid} must be wrapped in a section-level <details class=\"section-accordion\" id=\"{_aid}\"> with a <summary> (Step 307)", failures)
+        forbid_regex(html, rf'<details class="section-accordion" id="{_aid}"[^>]*\bopen\b', f"#{_sid} accordion must be CLOSED by default (no `open` attribute)", failures)
+    # Fragment ids and copy-to-clipboard links (preferences.ttl Steps 70 and 336; SKILL.md "Section Anchors").
+    # Sections and sub-sections (FAQ questions, HowTo steps and groups, glossary terms, timeline items) each
+    # carry a stable kebab-case id and a real <a class="headline-anchor" href="#id">; card titles are not sections.
+    no_anchor = [m.group(1) for m in re.finditer(r'<section\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)</section>', html)
+                 if re.search(r'<h2\b', m.group(2)) and 'class="headline-anchor"' not in re.search(r'<h2\b[\s\S]*?</h2>', m.group(2)).group(0)]
+    if no_anchor:
+        failures.append("Section heading without a fragment link (a.headline-anchor): " + ", ".join(no_anchor[:6]))
+    ids_checked = []
+    for cls in ("faq-item", "howto-step", "howto-group", "glossary-term", "timeline-item"):
+        total = len(re.findall(rf'<div class="{cls}[ "]', html))
+        with_id = re.findall(rf'<div class="{cls}[^"]*" id="([^"]+)"', html)
+        if total != len(with_id):
+            failures.append(f"{total - len(with_id)} of {total} .{cls} sub-sections have no fragment id")
+        ids_checked += with_id
+        if total and len(re.findall(rf'<div class="{cls}[^"]*" id="[^"]+">[\s\S]*?class="headline-anchor"', html)) < total:
+            failures.append(f".{cls} sub-sections are missing their fragment link (a.headline-anchor)")
+    ids_checked += re.findall(r'<section\b[^>]*\bid="([^"]+)"', html)
+    bad_ids = [i for i in ids_checked if not re.fullmatch(r"[a-z][a-z0-9-]*", i)]
+    if bad_ids:
+        failures.append("Fragment ids must be lowercase kebab-case, starting with a letter: " + ", ".join(bad_ids[:6]))
+    dupes = sorted({i for i in ids_checked if ids_checked.count(i) > 1})
+    if dupes:
+        failures.append("Duplicate fragment ids: " + ", ".join(dupes[:6]))
+    for needle, label in (("navigator.clipboard.writeText", "clipboard write"), ("execCommand('copy')", "execCommand fallback"),
+                          ("Link copied", "'Link copied' cue text"), ('id="fragCopyCue"', "the live-region copy cue element")):
+        require(html, needle, f"Fragment-link copy handler is missing its {label} (Steps 70 and 336)", failures)
     require_any(html, ['id="kgControlsToggle"', 'id="nav-toggle"', 'btn-basic', 'btn-advanced'], "KG controls/mode controls missing", failures)
     require_any_regex(html, [r'id="kgToolbar" hidden', r'#nav-body\{[^}]*max-height:0', r'id="settings-panel"\s+style="display:none', r'#settings-panel\{display:none', r'\[data-advanced-control\]\{display:none\}', r'#kg-settings\{[^}]*right:-\d'], "KG controls/settings are not clearly closed by default", failures)
     require_any(html, ['id="settingsPanel" hidden', 'id="settings-panel"', 'settingsPanel.hidden=true', 'id="kg-settings"'], "Advanced settings panel missing", failures)

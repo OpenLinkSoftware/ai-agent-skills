@@ -197,6 +197,15 @@ You can provide RDF in any of these formats:
 
 See `references/rdf-formats.md` for format specifications and examples.
 
+**Authoring hints the generator honours** (so no per-document post-processing is needed):
+
+- `schema:position` on each `ComparisonDimension` sets the matrix row order; without it rows sort by name.
+- A two-subject comparison is titled "{A} and {B}, Side by Side"; zero-count chips and hero tiles are omitted.
+- To frame a comparison between complementary (not rival) things, set these on the main article: `comparisonTitle`, `comparisonEyebrow`, `comparisonLead` (a paragraph shown above the matrix), `convergentLabel`, `divergentLabel` and `dimensionsLabel`. They are read by predicate local name and fall back to the generic wording when absent.
+- `schema:itemListOrder schema:ItemListUnordered` on a section renders its children as cards in `schema:position` order instead of a numbered timeline.
+- Sample-query cards get ids `query-N` from names beginning "Query N", so in-text links can target them.
+- A `schema:image` SVG literal may hold two variants, `class="fig-desktop"` and `class="fig-mobile"`, switched at 700px.
+
 ### 2. Define Infographic Parameters
 
 Provide or derive the following from your RDF data:
@@ -390,6 +399,7 @@ See `references/design-patterns.md` for detailed design system guidelines.
 - Fragment IDs MUST be stable across regenerations of the same content — derive them from the section heading text (slugified) or the RDF entity IRI local name, never from auto-incrementing counters, timestamps, or random values.
 - The URL fragment MUST resolve natively: `<a href="#id">` scrolls to the correct section without JavaScript dependency (`html { scroll-behavior: smooth; }` is sufficient).
 - Heading hover shows visible 🔗 icon that copies the full page URL with the fragment to clipboard.
+- **Generator behaviour (implemented, and checked by `validate-harness-contract.py`):** every section heading, plus FAQ questions, HowTo steps and groups, glossary terms and timeline items, gets an id taken from its entity IRI local name in lowercase kebab-case (never a counter) and a real `<a class="headline-anchor" href="#id">&para;</a>`. One delegated click handler moves to the target, opens any closed `<details>` around it, copies the full URL and shows a "Link copied" cue for 1.6 s, with an `execCommand` fallback. Card and stat-tile titles are not sections (preferences.ttl Step 336).
 - **Enables shareable section references** — both via the 🔗 copy mechanism and by direct URL fragment navigation (e.g., `page.html#faq-what-is-opal`).
 
 #### Entity Linking

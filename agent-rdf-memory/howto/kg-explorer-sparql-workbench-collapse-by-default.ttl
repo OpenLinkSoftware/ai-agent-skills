@@ -34,8 +34,8 @@
 
 :step-validatorNote a schema:HowToStep ;
     schema:position 3 ;
-    schema:name "Validator note: the two 'must NOT be wrapped in a section-level accordion' forbid gates now fail INTENTIONALLY"@en ;
-    schema:text "validate-harness-contract.py forbids <details class=\"section-accordion\" id=\"kg-explorer-accordion\"> and <details class=\"section-accordion\" id=\"sparql-explorer-accordion\"> (added by Step 194). Artifacts built to Step 307 will report exactly those two FAILs. Treat them as expected when the current standing preference is collapsed-by-default — the direct, current user instruction takes precedence over that prior self-recorded gate — but every OTHER harness check must still pass (0 console errors, 0 failed requests, 0 orphan nodes, resolver links, section order, etc.)."@en ;
+    schema:name "Validator note: as of 2026-10-21 the template and validator follow this step, so the two former forbid gates are now require gates"@en ;
+    schema:text "Between 2026-09-24 and 2026-10-21 validate-harness-contract.py still forbade <details class=\"section-accordion\" id=\"kg-explorer-accordion\"> and its sparql-explorer twin (added by Step 194), and base_template.html still emitted always-visible sections, so artifacts built to this step reported two expected FAILs. Both were corrected on 2026-10-21 (preferences.ttl Step 350): the template emits the closed accordions and the validator now requires each accordion with a summary and no open attribute. A current artifact must pass the full validator with no expected failures."@en ;
     onto:hasTrigger onto:triggerArtifactGeneration .
 
 :step-history a schema:HowToStep ;

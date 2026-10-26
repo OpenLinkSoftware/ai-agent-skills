@@ -86,16 +86,16 @@
 
 <!-- KG Explorer and SPARQL Workbench follow reference sections (preferences.ttl step-sparqlWorkbenchPlacement) -->
 
-<!-- KG Explorer — always-visible section (no accordion); id="kg-explorer"
+<!-- KG Explorer — collapsible section CLOSED BY DEFAULT (preferences.ttl Step 307); id="kg-explorer" sits on the inner section
      kept unchanged so nav anchors, CSS (#kg-explorer.kg-active) and JS
      (getElementById) all keep working exactly as before. -->
-<section class="section section-alt" id="kg-explorer">
-  <h2 class="section-heading-flex">
+<details class="section-accordion" id="kg-explorer-accordion">
+  <summary class="section-accordion-summary">
     <span class="section-accordion-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.4"/><circle cx="19" cy="6" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="6" cy="19" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M7.1 7.4 10.3 10.6M16.9 7.4 13.7 10.6M10.5 13.9 7.6 17.6M13.5 13.9 16.4 17.6"/></svg></span>
-    <span>Knowledge Graph Explorer</span>
+    <span class="section-accordion-title">Knowledge Graph Explorer</span><a class="headline-anchor" href="#kg-explorer" aria-label="Copy link to this section">&#182;</a>
     <span class="section-accordion-stat">{{ kg_node_count }} nodes &middot; {{ kg_link_count }} links</span>
-    <a class="headline-anchor" href="#kg-explorer" aria-label="Link to this section">¶</a>
-  </h2>
+  </summary>
+<section class="section section-alt" id="kg-explorer">
   <p style="margin-top:0">Interactive graph visualization derived from the companion RDF. Click nodes to resolve, drag to explore. <span style="font-size:12px;color:var(--text-secondary)">Graph data embedded from companion RDF at generation time.</span></p>
 
   <div id="kg-pane">
@@ -168,17 +168,18 @@
     </div>
   </div>
 </section>
+</details>
 
-<!-- SPARQL Workbench — always-visible section (no accordion), single SPARQL
+<!-- SPARQL Workbench — collapsible section CLOSED BY DEFAULT (Step 307), single SPARQL
      surface (no redundant footer "Explore KG" CTA). id="sparql-explorer"
      kept unchanged so nav anchors and existing JS/CSS are untouched. -->
-<section class="section section-alt" id="sparql-explorer">
-  <h2 class="section-heading-flex">
+<details class="section-accordion" id="sparql-explorer-accordion">
+  <summary class="section-accordion-summary">
     <span class="section-accordion-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 9h10M4 13h16M4 17h7"/><path d="M19 13v8m-3.5-3.5L19 21l3.5-3.5" stroke-width="2"/></svg></span>
-    <span>SPARQL Workbench</span>
+    <span class="section-accordion-title">SPARQL Workbench</span><a class="headline-anchor" href="#sparql-explorer" aria-label="Copy link to this section">&#182;</a>
     <span class="section-accordion-stat">{{ sparql_query_label }}</span>
-    <a class="headline-anchor" href="#sparql-explorer" aria-label="Link to this section">¶</a>
-  </h2>
+  </summary>
+<section class="section section-alt" id="sparql-explorer">
   <p style="margin-top:0">Query this knowledge graph on URIBurner. The editor opens on the canonical SAMPLE entity-type summary (DAV named graph). Pick a recipe, edit freely, then run live or copy.</p>
   {{ sample_query_cards_html }}
   <div class="sparql-card">
@@ -212,12 +213,13 @@
     </div>
   </div>
 </section>
+</details>
 
 <!-- Attribution Footer — polished stock shell (prior-artifact-footer-polish-gate) -->
 <section class="footer-attribution" id="footer">
   <div class="footer-inner">
     <p class="footer-kicker">Provenance</p>
-    <h2>Attribution &amp; Provenance<a class="headline-anchor" href="#footer" aria-label="Link to this section">¶</a></h2>
+    <h2 id="footer-heading">Attribution &amp; Provenance<a class="headline-anchor" href="#footer" aria-label="Copy link to this section">&#182;</a></h2>
     <p class="footer-lead">Where this knowledge graph came from, how it was built, and the tools that produced this page. Live SPARQL exploration is in the <a href="#sparql-explorer">SPARQL Workbench</a> section above.</p>
 
     <div class="attr-grid">
@@ -464,6 +466,42 @@ const kgData = {{ kgdata_json }};
   document.querySelectorAll('.anim-fade').forEach(function(el) { observer.observe(el); });
 })();
 
+// Fragment links: every section and sub-section heading carries a real anchor link (class headline-anchor) that names its target.
+// One delegated listener (capture phase, so it also stops a FAQ question or accordion summary from toggling):
+// move to the target, open any closed <details> around it, copy the full URL and show "Link copied" for 1.6 s.
+// preferences.ttl Steps 70 and 336, howto/section-permalinks-copy-link.ttl.
+(function(){
+  var timer = null;
+  function show(msg){ var cue = document.getElementById('fragCopyCue'); if(!cue) return; cue.textContent = msg; cue.classList.add('show'); clearTimeout(timer); timer = setTimeout(function(){ cue.classList.remove('show'); }, 1600); }
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0'; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta); return ok;
+  }
+  function copy(text){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(function(){ return true; }, function(){ return fallbackCopy(text); });
+    }
+    return Promise.resolve(fallbackCopy(text));
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a.headline-anchor');
+    if (!a) return;
+    var href = a.getAttribute('href');
+    if (!href || href.charAt(0) !== '#') return;
+    e.preventDefault(); e.stopPropagation();
+    var id = decodeURIComponent(href.slice(1)), target = document.getElementById(id);
+    var url = location.href.split('#')[0] + href;
+    if (target) {
+      for (var d = target.closest('details'); d; d = d.parentElement && d.parentElement.closest('details')) { d.open = true; }
+      try { history.pushState(null, '', href); } catch (err) { location.hash = href; }
+      target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    copy(url).then(function(ok){ show(ok ? 'Link copied' : 'Link is in the address bar'); });
+  }, true);
+})();
+
 // Auto-open any <details> ancestor of a same-page anchor target (nav links,
 // pilcrow headline-anchors) so navigating to a fragment nested inside a
 // collapsed <details> (e.g. an individual .sparql-card sample query) doesn't
@@ -602,5 +640,6 @@ const kgData = {{ kgdata_json }};
   }
 })();
 </script>
+<div id="fragCopyCue" role="status" aria-live="polite"></div>
 </body>
 </html>

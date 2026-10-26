@@ -3890,3 +3890,21 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/first-mention-hyperlinks.ttl>,
         <howto/first-mention-hyperlinks.ttl#step-definition>,
         <howto/concept-entity-hyperlinking.ttl> .
+
+# ── Step 350: a generator or validator that contradicts the newest step is fixed at source ──
+:step-validatorSupersededByNewerStep a schema:HowToStep ;
+    schema:position "350"^^xsd:integer ;
+    schema:name "Before trusting a generator or validator on any rule, grep preferences.ttl for the newest step on that topic; when the tool contradicts a newer step, fix the tool at source and record it, never work around it per document"@en ;
+    schema:text "Caught 2026-10-20: the KG Explorer and SPARQL Workbench shipped always-visible against Step 307 (closed-by-default section accordions) because only the head of preferences.ttl was read and the template and validate-harness-contract.py still followed Step 194, so a green validator hid the gap. Read the newest matching step, compare the validator's require and forbid gates with it, and if they disagree edit the template and validator, regenerate and verify in a browser. Per-document post-processing is only for document-specific copy and design; recurring fixes (comparison order and labels, zero-count chips, unordered card sets, query card ids, hero link colours, figure variant CSS) belong in the generator. Chain build, patch, copy and validate so a failed step stops publication."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/generator-validator-vs-newest-step.ttl>,
+        <howto/kg-explorer-sparql-workbench-collapse-by-default.ttl>,
+        :step-kgSparqlCollapseByDefault .
+
+# ── Step 351: generated pages emit fragment ids and copy links for every section and sub-section, and the validator checks them ──
+:step-generatedPageFragmentLinks a schema:HowToStep ;
+    schema:position "351"^^xsd:integer ;
+    schema:name "rdf-infographic-skill pages give every section and sub-section a kebab-case id from the entity IRI and a real fragment link that copies the full URL with a 'Link copied' cue; validate-harness-contract.py fails a page without them"@en ;
+    schema:text "Caught 2026-10-26 on the Virtuoso SaaS Buyer Guide: the page had section ids and pilcrow links but sub-sections (FAQ questions, HowTo steps, glossary terms, timeline items) had none, no link copied anything, section ids were counters (analysis-N), and the validator did not test any of it, although Steps 70 and 336 and SKILL.md already required it. Implemented at source in html_assembler.py, base_template.html and styles.css: ids come from the IRI local name (secDoors becomes doors), every h2 and sub-section heading carries a.headline-anchor, one capture-phase delegated handler navigates, opens closed details, copies the full URL (clipboard API, execCommand fallback) and shows 'Link copied' for 1.6 s without toggling a FAQ question or accordion, and scroll-margin-top clears the sticky nav. Card and stat-tile titles are not sections. Test with a real click, not a programmatic one, and check the handler finds its cue element after the DOM is built."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso :step-headingFragmentIds .
