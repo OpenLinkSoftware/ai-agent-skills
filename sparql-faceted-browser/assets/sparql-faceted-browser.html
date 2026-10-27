@@ -300,7 +300,14 @@ h4.sec { margin: 14px 0 4px; }
 textarea.q { display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 4.5em; color: var(--text); }
 textarea.q:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 .q-item.edited h4::after { content: 'edited'; font-size: 11px; font-weight: 500; color: var(--warn); border: 1px solid currentColor; border-radius: 999px; padding: 0 6px; }
-.q-item h4 .q-acts { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; }
+.q-item > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.q-item > summary::-webkit-details-marker { display: none; }
+.q-item > summary::before { content: '▸'; color: var(--muted); font-size: 15px; line-height: 1; width: 12px; transition: transform .15s; }
+.q-item[open] > summary::before { transform: rotate(90deg); }
+.q-item > summary:hover { background: var(--surface2); }
+.q-item > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.q-item .q-bar { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin: 8px 0 0; }
+@media (prefers-reduced-motion: reduce) { .q-item > summary::before { transition: none; } }
 .run-btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 6px; padding: 0 10px; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 22px; cursor: pointer; white-space: nowrap; }
 .run-btn:hover { filter: brightness(1.08); }
 .run-btn:disabled { opacity: .6; cursor: progress; }
@@ -3295,6 +3302,13 @@ function prettySparql(src, curieOf) {
 }
 const prettyCache = new Map();
 const prettyQ = q => { if (!prettyCache.has(q)) { let r; try { r = prettySparql(q, curie); } catch { r = q; } prettyCache.set(q, r); } return prettyCache.get(q); };
+// Which query panels are open, by name; cleared each time the SPARQL tab is opened so that only the first one starts open.
+const qOpen = new Map();
+document.addEventListener('toggle', ev => {
+  const d = ev.target; if (!d.classList || !d.classList.contains('q-item')) return;
+  const name = [...queryLog.keys()][+d.dataset.k];
+  if (name != null) qOpen.set(name, d.open);
+}, true);
 function renderSparql(el) {
   const items = [...queryLog.entries()];
   el.innerHTML = viewHead('Generated SPARQL', 'Each panel is one query against ' + esc(settings.ep) + ' (profile: ' + esc(profile()) + ')' + (proxied() ? ', sent through the URIBurner SPARQL-FED proxy as SELECT * WHERE { SERVICE &lt;endpoint&gt; { … } }' : '') + '. Labels, descriptions and thumbnails are fetched by small VALUES queries. Edit any query and press Run to see its results here.') + '<div class="content">' + (items.length ? items.map(([name, q], k) => {
@@ -3303,11 +3317,13 @@ function renderSparql(el) {
     const shown = prettyQ(q), ed = qEdits.get(name), text = ed && ed.base === q ? ed.text : shown;
     if (ed && ed.base !== q) qEdits.delete(name);
     const lines = text.split('\n').length;
-    return '<div class="q-item' + (text !== shown ? ' edited' : '') + '" data-k="' + k + '"><h4>' + esc(name) + ' ' + metaHtml + '<span class="q-acts">' +
+    const open = qOpen.has(name) ? qOpen.get(name) : k === 0;   // only the first query is expanded until the user opens another
+    return '<details class="q-item' + (text !== shown ? ' edited' : '') + '" data-k="' + k + '"' + (open ? ' open' : '') + '><summary><h4>' + esc(name) + ' ' + metaHtml + '</h4></summary>' +
+      '<div class="q-bar">' +
       '<button class="run-btn" data-act="runq" data-k="' + k + '" title="Run this query here and show the results below (⌘/Ctrl+Enter in the query)"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 0l9 5-9 5z"/></svg>Run</button>' +
       '<button class="mini" data-act="copy" data-k="' + k + '">Copy</button>' +
-      '<a class="mini q-ext" href="' + esc(endpointUrl(text)) + '" target="_blank" rel="noopener noreferrer" title="Open the endpoint’s own result page in a new tab">Endpoint ↗</a></span></h4>' +
-      '<textarea class="q" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="SPARQL query: ' + esc(name) + '" rows="' + Math.min(Math.max(lines, 3), 24) + '">' + esc(text) + '</textarea><div class="q-out" aria-live="polite"></div></div>';
+      '<a class="mini q-ext" href="' + esc(endpointUrl(text)) + '" target="_blank" rel="noopener noreferrer" title="Open the endpoint’s own result page in a new tab">Endpoint ↗</a></div>' +
+      '<textarea class="q" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="SPARQL query: ' + esc(name) + '" rows="' + Math.min(Math.max(lines, 3), 24) + '">' + esc(text) + '</textarea><div class="q-out" aria-live="polite"></div></details>';
   }).join('') : '<div class="empty">No queries yet.</div>') + '</div>';
 }
 
@@ -3629,7 +3645,7 @@ const actions = {
   explorePivot: d => { newNav([entityNode(d.iri), { via: { p: d.p, dir: d.dir }, text: '', scope: 'label', conds: [] }]); go(false); },
   zoom: d => openLightbox(d.src, d.iri),
   rerun: () => render(),
-  tab: d => mutate(n => { n.view = d.view; n.off = 0; }, { keepView: true }),
+  tab: d => { if (d.view === 'sparql') qOpen.clear(); mutate(n => { n.view = d.view; n.off = 0; }, { keepView: true }); },
   pg: d => {
     const { off, lim } = pgState(d.id), info = pagerInfo.get(d.id) || {};
     const last = typeof info.total === 'number' ? Math.max(0, Math.floor((info.total - 1) / lim) * lim) : off;
@@ -3851,8 +3867,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.16 — 2026-10-27"): bump both with every release.
-const APP_VERSION = '1.0.16', APP_BUILT = '2026-10-27';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.17 — 2026-10-27"): bump both with every release.
+const APP_VERSION = '1.0.17', APP_BUILT = '2026-10-27';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;

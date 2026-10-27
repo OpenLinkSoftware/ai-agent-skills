@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.17 — 2026-10-27
+
+- **SPARQL tab panels collapse.** Each query is a collapsible section headed by its name and timing; only the first is
+  expanded when the tab is opened, and opening another keeps it open until you leave the tab. Run, Copy and Endpoint ↗
+  sit at the top of the open section.
+
 ## 1.0.16 — 2026-10-27
 
 - **SPARQL tab: prefixed names and standard layout.** Each generated query is shown with its IRIs as CURIEs and a
