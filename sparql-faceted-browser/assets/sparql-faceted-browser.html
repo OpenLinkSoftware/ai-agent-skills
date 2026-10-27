@@ -556,6 +556,9 @@ footer.site a, #about a { color: var(--accent); }
     <option value="label">in labels &amp; names</option>
     <option value="any">in any literal</option>
     <option value="vector" hidden disabled>by meaning (vector similarity)</option>
+    <option value="fuzzy-jw" hidden disabled>fuzzy: Jaro-Winkler (typos in names)</option>
+    <option value="fuzzy-lev" hidden disabled>fuzzy: Levenshtein (edit distance, short codes)</option>
+    <option value="fuzzy-ng" hidden disabled>fuzzy: N-gram cosine (accents, partial words)</option>
   </select>
   <button class="btn primary" type="submit">Search</button>
   <button class="btn" type="button" data-act="browseAll" title="Explore the whole dataset: its entity types, each with a sample entity and a count">Explore</button>
@@ -1002,31 +1005,47 @@ async function probeFti(ep) {
 const ENGINE_Q = 'SELECT (bif:sys_stat("st_dbms_name") AS ?server) (bif:sys_stat("st_dbms_ver") AS ?version) WHERE {}';
 const engineInfo = new Map();   // endpoint -> { name, version }
 const engineVer = () => { const i = profile() === 'virtuoso' && engineInfo.get(settings.ep); return i && i.version ? ' ' + i.version : ''; };
-/* Vector similarity search (bif:knnSimilar) exists only on newer Virtuoso instances with a vector index. One ASK per
-   connect tells them apart: true where it is installed, false (HTTP 200) on a Virtuoso without it. The probe leaves out
-   OPTION (SCORE ...), which a Virtuoso without vector support rejects with SP031 instead of answering. The scope option
-   "by meaning" appears only while the endpoint's answer is true; a timeout or network error leaves it unknown (hidden). */
-const vecState = new Map();   // endpoint -> true | false
+/* Two Virtuoso extensions that only some instances have; each is found out with one ASK per connect and its scope
+   options stay hidden until the endpoint says true (a timeout or network error leaves it unknown, hidden).
+   - Vector similarity search (bif:knnSimilar) needs a vector index. A Virtuoso without it answers the bare ASK with
+     false (HTTP 200); OPTION (SCORE ...) is left out because it makes such a server fail with SP031.
+   - Fuzzy matching, bif:contains ... OPTION (FUZZY 'jaro_winkler' | 'levenshtein' | 'ngram_cosine', FUZZY_THRESHOLD t,
+     SIMILARITY ?s | DISTANCE ?d [, FUZZY_N n]), is a syntax extension: an instance without it rejects the ASK with
+     HTTP 400 SP030, so an HTTP error means off. */
+const vecState = new Map();     // endpoint -> true | false
+const fuzzyState = new Map();   // endpoint -> true | false
 const vecOn = () => vecState.get(settings.ep) === true;
+const fuzzyOn = () => fuzzyState.get(settings.ep) === true;
+// Fuzzy scopes: algorithm, the thresholds the OpenLink demo queries use, and whether the score is a similarity (high
+// is best) or an edit distance (low is best).
+const FUZZY = {
+  'fuzzy-jw': { name: 'Jaro-Winkler', opt: "FUZZY 'jaro_winkler', FUZZY_THRESHOLD 0.9", out: 'SIMILARITY', asc: false },
+  'fuzzy-lev': { name: 'Levenshtein', opt: "FUZZY 'levenshtein', FUZZY_THRESHOLD 0.6", out: 'DISTANCE', asc: true },
+  'fuzzy-ng': { name: 'N-gram cosine', opt: "FUZZY 'ngram_cosine', FUZZY_THRESHOLD 0.4, FUZZY_N 2", out: 'SIMILARITY', asc: false }
+};
+const scopeOn = sc => sc === 'vector' ? vecOn() : FUZZY[sc] ? fuzzyOn() : true;
 function syncScopeOptions() {
-  const sc = document.getElementById('scope'), o = sc && sc.querySelector('option[value="vector"]');
-  if (!o) return;
-  o.hidden = o.disabled = !vecOn();
-  if (!vecOn() && sc.value === 'vector') sc.value = 'label';
+  const sc = document.getElementById('scope');
+  if (!sc) return;
+  sc.querySelectorAll('option').forEach(o => { if (o.value === 'vector' || FUZZY[o.value]) o.hidden = o.disabled = !scopeOn(o.value); });
+  if (!scopeOn(sc.value)) sc.value = 'label';
 }
 async function probeVec(ep) {
-  const before = vecState.get(ep);
-  try {
-    const j = await sparql('ASK { ?s ?p ?o . ?o bif:knnSimilar "test" }', { quiet: true, timeout: 60000, noPragma: true });
-    vecState.set(ep, j && j.boolean === true);
-  } catch (e) { if (/^HTTP /.test(e.message)) vecState.set(ep, false); else vecState.delete(ep); }
+  const was = { v: vecState.get(ep), f: fuzzyState.get(ep) };
+  const ask = async (q, map) => {
+    try { map.set(ep, (await sparql(q, { quiet: true, timeout: 60000, noPragma: true })).boolean === true); }
+    catch (e) { if (/^HTTP /.test(e.message)) map.set(ep, false); else map.delete(ep); }
+  };
+  await Promise.all([ask('ASK { ?s ?p ?o . ?o bif:knnSimilar "test" }', vecState),
+    ask("ASK { ?s ?p ?o . ?o bif:contains \"'test'\" OPTION (FUZZY 'jaro_winkler', FUZZY_THRESHOLD 0.9) }", fuzzyState)]);
   syncScopeOptions();
-  // A link saved with "by meaning" was first drawn as a label search while the probe ran: draw it again once it is on.
-  if (before !== true && vecState.get(ep) === true && ep === settings.ep && nav && nav.nodes.some(n => n.text && n.scope === 'vector')) render();
+  // A link saved with one of these scopes was first drawn as a label search while the probes ran: draw it again once it is on.
+  const late = n => n.text && ((n.scope === 'vector' && was.v !== true && vecState.get(ep) === true) || (FUZZY[n.scope] && was.f !== true && fuzzyState.get(ep) === true));
+  if (ep === settings.ep && nav && nav.nodes.some(late)) { resetCaches(); render(); }   // cached results are those of the label search
 }
 async function detectProfile() {
   const fresh = settings.profile === 'auto' && !resolvedProfile;
-  if (fresh) vecState.delete(settings.ep);
+  if (fresh) { vecState.delete(settings.ep); fuzzyState.delete(settings.ep); }
   await detectProfile0();
   if (settings.profile === 'virtuoso') probeVec(settings.ep);   // engine chosen by hand in Settings: no auto-detection ran
   syncScopeOptions();
@@ -1510,6 +1529,12 @@ function textPattern(s, node, i) {
   if (node.scope === 'vector' && pr === 'virtuoso' && vecOn()) {
     return s + ' ?txtp' + (i + 1) + ' ' + o + ' . ' + o + ' bif:knnSimilar ' + litStr(t) + ' OPTION (SCORE ?vsc' + (i + 1) + ') .';
   }
+  // Fuzzy match on the label properties: the score (?fzN) is a similarity or an edit distance, depending on the algorithm.
+  if (FUZZY[node.scope] && pr === 'virtuoso' && fuzzyOn()) {
+    const z = FUZZY[node.scope], tp = '?txtp' + (i + 1), phrase = t.replace(/["'\\]/g, ' ').replace(/\s+/g, ' ').trim();
+    return s + ' ' + tp + ' ' + o + ' . ' + o + ' bif:contains ' + litStr("'" + phrase + "'") + ' OPTION (' + z.opt + ', ' + z.out + ' ?fz' + (i + 1) + ') .' +
+      ' FILTER (' + tp + ' IN (' + usable(LABEL_PROPS).map(P).join(', ') + '))';
+  }
   if (pr === 'virtuoso' && !ftiOff.has(settings.ep)) {
     const tp = '?txtp' + (i + 1);
     return s + ' ' + tp + ' ' + o + ' . ' + o + " bif:contains '" + ftExpr(t) + "' ." +
@@ -1568,7 +1593,14 @@ function whereBody(bound, skip) {
 }
 const sel = (proj, body, tail) => prologue() + 'SELECT ' + proj + '\n' + fromClause() + 'WHERE {\n' + body + '\n}' + (tail ? '\n' + tail : '');
 const page = (lim, off) => 'LIMIT ' + lim + (off ? ' OFFSET ' + off : '');
-const byMeaning = f => { const n = nav.nodes[f]; return !!(n && n.text && n.scope === 'vector' && profile() === 'virtuoso' && vecOn()); };
+// Searches that score their matches rank by that score: { var, agg, dir } for the focused set, else null.
+const rankBy = f => {
+  const n = nav.nodes[f];
+  if (!n || !n.text || profile() !== 'virtuoso') return null;
+  if (n.scope === 'vector' && vecOn()) return { v: '?vsc' + (f + 1), agg: 'MAX', dir: 'DESC' };
+  if (FUZZY[n.scope] && fuzzyOn()) return { v: '?fz' + (f + 1), agg: FUZZY[n.scope].asc ? 'MIN' : 'MAX', dir: FUZZY[n.scope].asc ? 'ASC' : 'DESC' };
+  return null;
+};
 const Q = {
   // Virtuoso: rank members by entity rank (IRI_RANK), as FCT does; other engines get plain DISTINCT.
   entitiesPlain: (f, off, lim) => sel('DISTINCT ' + sv(f), whereBody(), page(lim, off)),
@@ -1577,8 +1609,8 @@ const Q = {
   overview: (off, lim) => sel('?type (SAMPLE (?s1) AS ?sample) (COUNT (?s1) AS ?n)', '  ?s1 ' + iriRef(typeProp()) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))', 'GROUP BY ?type ORDER BY DESC (?n) ' + page(lim, off)),
   overviewTotal: () => sel('(COUNT (DISTINCT ?type) AS ?n)', '  ?s1 ' + iriRef(typeProp()) + ' ?type .\n  FILTER (!isBlank (?s1) && !isBlank (?type))'),
   // By meaning: the best similarity score per member, highest first (the vector index does the ranking).
-  entities: (f, off, lim) => byMeaning(f)
-    ? sel(sv(f) + ' (MAX (?vsc' + (f + 1) + ') AS ?score)', whereBody(), 'GROUP BY ' + sv(f) + ' ORDER BY DESC (?score) ' + page(lim, off))
+  entities: (f, off, lim) => rankBy(f)
+    ? sel(sv(f) + ' (' + rankBy(f).agg + ' (' + rankBy(f).v + ') AS ?score)', whereBody(), 'GROUP BY ' + sv(f) + ' ORDER BY ' + rankBy(f).dir + ' (?score) ' + page(lim, off))
     : profile() === 'virtuoso' && !noRank.has(settings.ep)
     ? sel(sv(f), whereBody(), 'GROUP BY ' + sv(f) + ' ORDER BY DESC (<LONG::IRI_RANK> (' + sv(f) + ')) ' + page(lim, off))
     : sel('DISTINCT ' + sv(f), whereBody(), page(lim, off)),
@@ -1904,7 +1936,7 @@ function setTitle(i) {
   if (i === 0) {
     const is = n.conds.find(c => c.t === 'is' && !c.neg);
     if (is) return { k: 'Entity', t: is.v.value, iri: is.v.type === 'uri' ? is.v.value : null };
-    if (n.text) return { k: n.scope === 'vector' && vecOn() ? 'Meaning match' : 'Text match', t: '“' + n.text + '”' };
+    if (n.text) return { k: n.scope === 'vector' && vecOn() ? 'Meaning match' : FUZZY[n.scope] && fuzzyOn() ? 'Fuzzy match (' + FUZZY[n.scope].name + ')' : 'Text match', t: '“' + n.text + '”' };
     const cls = n.conds.find(c => c.t === 'class' && !c.neg);
     if (cls) return { k: 'Type', t: cls.iri, iri: cls.iri };
     return { k: 'Dataset', t: 'All entities' };
@@ -2188,6 +2220,12 @@ async function renderOverview(el, my, signal) {
   }
 }
 
+// The score beside a member of a ranked search: similarity (1 = identical) or, for Levenshtein, the number of edits.
+function scoreBadge(node, v) {
+  const z = FUZZY[node.scope], q = esc(node.text);
+  if (z && z.asc) return ' <span class="cnt" title="Edit distance from “' + q + '” (0 = identical; Levenshtein)">' + v + (v === 1 ? ' edit' : ' edits') + '</span>';
+  return ' <span class="cnt" title="' + (z ? z.name + ' similarity' : 'Similarity') + ' to “' + q + '” (1 = ' + (z ? 'identical' : 'identical meaning') + ')">' + v.toFixed(3) + '</span>';
+}
 async function renderEntities(el, my, signal) {
   const f = focus();
   const st = setTitle(f);
@@ -2238,7 +2276,7 @@ async function renderEntities(el, my, signal) {
         if (t.type !== 'uri') return '<li class="ent"><div class="thumb">“</div><div>' + termHtml(t) + '</div><div class="acts">' + (t.type === 'literal' ? '<button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this value">=</button>' : '') + '</div></li>';
         const c = cards.get(t.value) || {};
         return '<li class="ent">' + thumb(t.value, c, true) +
-          '<div>' + lbl(t.value, null, 'name') + (score.has(t.value) ? ' <span class="cnt" title="Similarity to “' + esc(nav.nodes[f].text) + '” (1 = identical meaning)">' + score.get(t.value).toFixed(3) + '</span>' : '') + (c.desc ? '<div class="desc">' + esc(c.desc) + '</div>' : '') + '</div>' +
+          '<div>' + lbl(t.value, null, 'name') + (score.has(t.value) ? scoreBadge(nav.nodes[f], score.get(t.value)) : '') + (c.desc ? '<div class="desc">' + esc(c.desc) + '</div>' : '') + '</div>' +
           '<div class="acts"><button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this entity" aria-label="Narrow to this entity">=</button><button class="mini" data-act="explore" data-iri="' + esc(t.value) + '" title="Start a new trail from this entity" aria-label="Start trail">⇢</button><a class="mini" href="' + esc(t.value) + '" target="_blank" rel="noopener noreferrer" title="Open the IRI itself" aria-label="Open IRI">↗</a></div></li>';
       }).join('') + '</ul>' + pagerSlot('main');
       setPager('main', { count: terms.length });
@@ -3580,8 +3618,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.13 — 2026-10-26"): bump both with every release.
-const APP_VERSION = '1.0.13', APP_BUILT = '2026-10-26';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.14 — 2026-10-27"): bump both with every release.
+const APP_VERSION = '1.0.14', APP_BUILT = '2026-10-27';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;

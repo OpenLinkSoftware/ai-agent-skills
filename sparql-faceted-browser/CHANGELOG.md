@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.14 — 2026-10-27
+
+- **Fuzzy search in the search-scope menu, only where the endpoint has it.** Three entries — **fuzzy: Jaro-Winkler**
+  (typos in names, threshold 0.9), **fuzzy: Levenshtein** (edit distance, short codes such as tickers, threshold 0.6)
+  and **fuzzy: N-gram cosine** (accents and partial words, threshold 0.4, 2-grams) — run
+  `bif:contains … OPTION (FUZZY '…', FUZZY_THRESHOLD t, SIMILARITY ?s | DISTANCE ?d)` over the label properties, as in
+  OpenLink's vec demo queries ("Chappelle Roan" finds Chappell Roan, "AAPLE" finds AAPL, "Kylian Mbappe" finds Kylian
+  Mbappé). Members are ranked by the score, which shows beside each name (a similarity, or "1 edit" / "2 edits").
+  An ASK on connect (`… OPTION (FUZZY 'jaro_winkler', FUZZY_THRESHOLD 0.9)`) decides whether the entries appear: a
+  Virtuoso without the extension rejects the syntax (HTTP 400, SP030), which counts as off. A saved link with a fuzzy
+  scope falls back to a label search on such an endpoint. Together with the vector probe, a link saved with either kind
+  of scope is redrawn once its probe answers, with the result cache cleared first.
+- **Scripts:** `fct_state.py --fuzzy jaro-winkler|levenshtein|ngram` sets the current set's text to a fuzzy match.
+
 ## 1.0.13 — 2026-10-26
 
 - **About lists the source code.** A **Source code** row links the app's GitHub directory
