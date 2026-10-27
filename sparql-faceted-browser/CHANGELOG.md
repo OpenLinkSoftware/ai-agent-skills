@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.11 — 2026-10-26
+
+- **New preset: data.bnf.fr (Bibliothèque nationale de France)** under Libraries & humanities, at
+  `https://data.bnf.fr/sparql`. It is a Virtuoso endpoint with CORS for any origin. The address
+  `https://data.bnf.fr/sparql/` (with the slash) is the BnF query-editor page and returns 404 to queries, so the preset
+  uses the version without it.
+
 ## 1.0.10 — 2026-10-26
 
 - **Descriptions no longer list the same value twice.** On Virtuoso with the subproperty inference rule, a literal property

@@ -11,6 +11,7 @@ on 2026-10-14. The skill accepts any other endpoint through `--ep`.
 | https://wikidata.demo.openlinksw.com/sparql | Wikidata, OpenLink instance | Virtuoso | Sends CORS headers for any origin since 2026-10-16, so the app connects directly |
 | https://demo.openlinksw.com/sparql | OpenLink demo server | Virtuoso | Added 2026-10-17. CORS for any origin. A mixed demo store (Transfermarkt players, TCRD genes, NFL plays, LUBM, UMLS…) |
 | https://vec.demo.openlinksw.com/sparql | OpenLink vector demo (DBpedia) | Virtuoso | Added 2026-10-22. CORS echoes the requesting origin. Has a vector index, so the **by meaning** search scope (`bif:knnSimilar`) appears; the first query after idle can take ~19 s |
+| https://data.bnf.fr/sparql | data.bnf.fr (Bibliothèque nationale de France) | Virtuoso | Added 2026-10-26. CORS for any origin. The endpoint URL has no trailing slash: `/sparql/` is the query-editor web page and answers 404 to queries. Concepts, works (RDA), persons and organisations with `skos:prefLabel` |
 | https://sparql.uniprot.org/sparql | UniProt | Generic SPARQL 1.1 | No Anytime; descriptions are not folded |
 | https://publications.europa.eu/webapi/rdf/sparql | EU Publications Office | detected at run time | No CORS: the app needs the proxy |
 | https://data.europa.eu/sparql | EU data portal (Cordis) | detected at run time | |
