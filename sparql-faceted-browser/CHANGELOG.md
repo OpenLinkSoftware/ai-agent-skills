@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.16 — 2026-10-27
+
+- **SPARQL tab: prefixed names and standard layout.** Each generated query is shown with its IRIs as CURIEs and a
+  sorted `PREFIX` block (prefixes from the app's list; an entity or graph IRI that has none gets a short prefix named
+  after its host, such as `sec:` or `bnf:`), `DEFINE` lines first, keywords upper-cased, function calls written
+  `COUNT(?x)`, and one clause, block or triple pattern per line with two-space indentation (`WHERE {`, `} UNION {`,
+  `;` continuation lines). Long `IN (…)` lists, `OPTION (…)` clauses and `&&` / `||` chains break one item per line.
+  The text means exactly what the query sent means (the tokens are the same; a checker confirms that for sample
+  queries), Run, Copy and Endpoint ↗ use the text shown, and edits are still kept per panel.
+- **Presets dropped:** `https://datos.bcn.cl/sparql` (BCN, Chile) and `https://www1.siop.planejamento.gov.br/sparql/`
+  (SIOP, Brazil), with their sample entries and rows in `references/endpoints.md`.
+
 ## 1.0.15 — 2026-10-27
 
 - **Share copies the link in one click.** When the browser refused the clipboard write, Share showed the link in a box
