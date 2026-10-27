@@ -3191,28 +3191,54 @@ async function shortenLink(def, url) {
   if (typeof t !== 'string' || !/^https?:\/\/\S+$/.test(t)) throw new Error('the reply holds no short link');
   return t;
 }
-async function shareView() {
+// Builds the link to share: shortened when Settings ask for it, else the address as it is; `ok` is true when it was shortened.
+async function shareLink() {
   let url = location.href, note = '';
   const def = shortenerDef();
   if (def && def.err) note = ' Not shortened: ' + esc(def.err) + '.';
   else if (def) {
-    toast('Shortening with ' + esc(def.name) + '…', true);
     try { url = await shortenLink(def, url); note = ' (shortened with ' + esc(def.name) + ')'; }
     catch (e) {
       // a blocked cross-origin reply surfaces as a TypeError with no detail
       note = ' Not shortened with ' + esc(def.name) + ': ' + (e instanceof TypeError ? 'the service did not answer this page (network or CORS)' : esc(e.message)) + '. Full link used.';
     }
   }
+  return { url, note, ok: note.startsWith(' (') };   // ' (shortened with …)' on success; otherwise the note says why the full link is used
+}
+// Last-resort copy for browsers that refuse the async clipboard: select a text field and run the old copy command.
+function legacyCopy(text, field) {
+  const own = !field;
+  field = field || Object.assign(document.createElement('textarea'), { value: text });
+  if (own) { field.style.cssText = 'position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(field); }
+  field.focus(); field.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { /* not allowed here */ }
+  if (own) field.remove();
+  return ok;
+}
+/* One click shares: the link is built (and shortened if asked) and copied to the clipboard in the same action. The copy
+   is started inside the click, with the link still being prepared, as a ClipboardItem holding a promise; browsers that
+   lose the click's permission while a shortening request runs (Safari, Firefox) would otherwise refuse a copy made
+   afterwards. Where that is unsupported the plain clipboard write, then the old copy command, are tried; only when all
+   refuse is the link shown, selected, with a Copy button. On touch devices the system share sheet opens as well. */
+async function shareView() {
+  const def = shortenerDef();
+  if (def && !def.err) toast('Shortening with ' + esc(def.name) + '…', true);
+  const work = shareLink();
+  let copied = false;
+  if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+    try { await navigator.clipboard.write([new ClipboardItem({ 'text/plain': work.then(r => new Blob([r.url], { type: 'text/plain' })) })]); copied = true; } catch { /* try the next way */ }
+  }
+  const { url, note, ok } = await work;
+  if (!copied && navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(url); copied = true; } catch { /* try the next way */ } }
+  if (!copied) copied = legacyCopy(url);
   if (navigator.share && matchMedia('(pointer: coarse)').matches) {
-    try { await navigator.share({ title: document.title, url }); return; } catch (e) { if (e.name === 'AbortError') return; }
+    try { await navigator.share({ title: document.title, url }); if (copied) toast('Link to this view copied to the clipboard' + (ok ? note : '') + '.'); return; } catch (e) { if (e.name === 'AbortError') return; }
   }
-  const ok = note.startsWith(' (');   // ' (shortened with …)' on success; otherwise the note says why the full link is used
-  try { await navigator.clipboard.writeText(url); toast('Link to this view copied to the clipboard' + (ok ? note + '.' : '.' + note), !ok && !!note); }
-  catch {
-    toast('Copy this link to share the view' + (ok ? note : '') + ':<input readonly value="' + esc(url) + '" aria-label="Link to this view">' + (ok || !note ? '' : '<small>' + note.trim() + '</small>'), true);
-    const i = document.querySelector('#toast input'); i.focus(); i.select();
-    setTimeout(() => { document.getElementById('toast').hidden = true; }, 12000);
-  }
+  if (copied) { toast('Link to this view copied to the clipboard' + (ok ? note + '.' : '.' + note), !ok && !!note); return; }
+  toast('The browser blocked copying. The link is selected: press Copy' + (ok ? note : '') + ':<input readonly value="' + esc(url) + '" aria-label="Link to this view"> <button class="mini" data-act="copyShare">Copy</button>' + (ok || !note ? '' : '<small>' + note.trim() + '</small>'), true);
+  const i = document.querySelector('#toast input'); i.focus(); i.select();
+  setTimeout(() => { document.getElementById('toast').hidden = true; }, 20000);
 }
 
 /* ---------- Export: RDF data dumps of the current view (Turtle / JSON-LD) ----------
@@ -3428,6 +3454,13 @@ const actions = {
   exportMenu: () => toggleExportMenu(),
   export: d => { toggleExportMenu(false); exportView(d.fmt, d.scope); },
   runq: (d, el) => runLogged(el.closest('.q-item')),
+  copyShare: async () => {
+    const i = document.querySelector('#toast input'); if (!i) return;
+    let ok = false;
+    try { await navigator.clipboard.writeText(i.value); ok = true; } catch { ok = legacyCopy(i.value, i); }
+    toast(ok ? 'Link to this view copied to the clipboard.' : 'Copying is blocked here: press Ctrl/Cmd+C on the selected link.', !ok);
+    if (!ok) { const j = document.querySelector('#toast input'); if (j) { j.focus(); j.select(); } }
+  },
   copy: (d, el) => {
     const ta = el.closest('.q-item') && el.closest('.q-item').querySelector('textarea.q');
     const q = ta ? ta.value : [...queryLog.values()][+d.k];
@@ -3618,8 +3651,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.14 — 2026-10-27"): bump both with every release.
-const APP_VERSION = '1.0.14', APP_BUILT = '2026-10-27';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.15 — 2026-10-27"): bump both with every release.
+const APP_VERSION = '1.0.15', APP_BUILT = '2026-10-27';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;

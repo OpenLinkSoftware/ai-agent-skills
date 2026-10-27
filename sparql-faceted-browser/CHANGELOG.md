@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.15 — 2026-10-27
+
+- **Share copies the link in one click.** When the browser refused the clipboard write, Share showed the link in a box
+  and left you to select and copy it. The copy now starts inside the click, with the link (shortened if asked) still
+  being prepared, as a `ClipboardItem` holding a promise, so browsers that drop the click's permission while the
+  shortening request runs (Safari, Firefox) no longer refuse it. Where that is unsupported, the plain clipboard write
+  and then the old copy command are tried; only if all refuse does the page show the selected link with a **Copy**
+  button. On touch devices the share sheet still opens, and the link is copied as well.
+
 ## 1.0.14 — 2026-10-27
 
 - **Fuzzy search in the search-scope menu, only where the endpoint has it.** Three entries — **fuzzy: Jaro-Winkler**
