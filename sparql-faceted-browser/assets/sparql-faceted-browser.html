@@ -415,6 +415,7 @@ footer.site a, #about a { color: var(--accent); }
 #about dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; }
 #about dt { color: var(--muted); }
 #about dd { margin: 0; overflow-wrap: anywhere; }
+#about dd svg.gh { width: 15px; height: 15px; vertical-align: -2px; margin-right: 6px; fill: currentColor; }
 #about h3 { margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 #about p { margin: 0; }
 #about menu { display: flex; justify-content: flex-end; margin: 0; padding: 0; }
@@ -617,6 +618,7 @@ footer.site a, #about a { color: var(--accent); }
     <p class="tagline">Every fact one click from the next — an OpenLink Software HyperData showcase, built on nothing but SPARQL.</p>
     <dl>
       <dt>Version</dt><dd id="aboutVersion"></dd>
+      <dt>Source code</dt><dd><a href="https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/sparql-faceted-browser" target="_blank" rel="noopener noreferrer" title="The source of this app on GitHub"><svg class="gh" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>OpenLinkSoftware/ai-agent-skills › sparql-faceted-browser</a></dd>
       <dt>Endpoint</dt><dd id="aboutEp"></dd>
       <dt>Engine</dt><dd id="aboutEngine"></dd>
       <dt>Anytime queries</dt><dd id="aboutAnytime"></dd>
@@ -629,7 +631,7 @@ footer.site a, #about a { color: var(--accent); }
     <h3>Lineage</h3>
     <p>Modelled on the OpenLink Faceted Browser (FCT) query tree — text → types → property values → pivots — and rebuilt to speak only SPARQL over HTTP, so it works against any endpoint that allows cross-origin requests. Engine-specific features such as Anytime queries and <code>bif:contains</code> text search apply when the endpoint is <a href="https://virtuoso.openlinksw.com/" target="_blank" rel="noopener noreferrer">OpenLink Virtuoso</a>. State lives in the URL, so every view can be bookmarked and shared.</p>
     <h3>Credits</h3>
-    <p>Generated with <a href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Claude Code</a> (Claude Opus 5.5).</p>
+    <p>Designed and debugged by <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a>, with code generating assistance from Anthropic&rsquo;s <a href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Claude Code</a> (Claude Opus 5.5).</p>
     <p>Data on this page is owned by its respective rights holders.<br>SPARQL Faceted Browser Copyright &copy; <span class="cyear">2026</span> <a href="https://www.openlinksw.com" target="_blank" rel="noopener noreferrer">OpenLink Software</a></p>
     <menu><button class="btn primary" value="close">Close</button></menu>
   </form>
@@ -995,6 +997,11 @@ async function probeFti(ep) {
     if (!rows(k).length) ftiOff.add(ep);
   } catch { /* unknown: keep bif:contains */ }
 }
+/* Engine probe: Virtuoso answers its own name and version through bif:sys_stat; other engines reject bif: calls. The
+   version is shown in the connection status. */
+const ENGINE_Q = 'SELECT (bif:sys_stat("st_dbms_name") AS ?server) (bif:sys_stat("st_dbms_ver") AS ?version) WHERE {}';
+const engineInfo = new Map();   // endpoint -> { name, version }
+const engineVer = () => { const i = profile() === 'virtuoso' && engineInfo.get(settings.ep); return i && i.version ? ' ' + i.version : ''; };
 /* Vector similarity search (bif:knnSimilar) exists only on newer Virtuoso instances with a vector index. One ASK per
    connect tells them apart: true where it is installed, false (HTTP 200) on a Virtuoso without it. The probe leaves out
    OPTION (SCORE ...), which a Virtuoso without vector support rejects with SP031 instead of answering. The scope option
@@ -1032,9 +1039,21 @@ async function detectProfile0() {
   // endpoints use the generic SPARQL 1.1 profile straight away (measured 2026-10-15 on datos.bcn.cl and SIOP).
   if (proxied()) { resolvedProfile = 'generic'; return; }
   try {
-    // bif: built-ins exist only in Virtuoso; any other engine rejects this query.
-    const j = await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000, noPragma: true });
-    resolvedProfile = rows(j).length ? 'virtuoso' : 'generic';
+    // bif: built-ins exist only in Virtuoso; any other engine rejects this query. It also reports the server name and version.
+    const ep = settings.ep;
+    let r = null;
+    try {
+      r = rows(await sparql(ENGINE_Q, { quiet: true, timeout: 15000, noPragma: true }))[0] || null;
+    } catch (e) {
+      // sys_stat refused (a locked-down Virtuoso may allow other built-ins): the older probe still tells it is Virtuoso, without a version
+      if (!/^HTTP /.test(e.message)) throw e;
+      const k = rows(await sparql('SELECT ?x WHERE { BIND (bif:length ("ab") AS ?x) }', { quiet: true, timeout: 15000, noPragma: true }));
+      if (k.length) r = { server: { value: 'Virtuoso' } };
+    }
+    if (r && r.server && /virtuoso/i.test(r.server.value)) {
+      resolvedProfile = 'virtuoso';
+      engineInfo.set(ep, { name: r.server.value.replace(/\s+/g, ' ').trim(), version: r.version ? r.version.value : '' });
+    } else resolvedProfile = 'generic';
     if (resolvedProfile === 'virtuoso') { await probeFti(settings.ep); probeVec(settings.ep); }
   } catch (e) {
     // Only an actual rejection of the bif: query means "not Virtuoso"; a timeout or network error is retried next render.
@@ -1059,10 +1078,10 @@ const conn = { state: 'idle', ep: null, profile: null, msg: '', phase: '', pendi
 function paintStatus() {
   const s = conn.state;
   const text = s === 'pending' ? (conn.phase || 'SPARQL handshake…') : s === 'err' ? 'Connection failed' :
-    s === 'ok' ? (inflight ? inflight + ' running' : 'Connected · ' + profile() + (proxied() ? ' · via proxy' : '')) : 'Not connected';
+    s === 'ok' ? (inflight ? inflight + ' running' : 'Connected · ' + profile() + engineVer() + (proxied() ? ' · via proxy' : '')) : 'Not connected';
   const el = document.getElementById('status');
   el.className = 'status ' + s + (s === 'ok' && inflight ? ' busy' : '');
-  el.title = s === 'ok' && inflight ? 'Connected · ' + profile() + (proxied() ? ' via the UB proxy' : '') + ' — click to stop the ' + inflight + ' running quer' + (inflight === 1 ? 'y' : 'ies') : (conn.msg || text);
+  el.title = s === 'ok' && inflight ? 'Connected · ' + profile() + engineVer() + (proxied() ? ' via the UB proxy' : '') + ' — click to stop the ' + inflight + ' running quer' + (inflight === 1 ? 'y' : 'ies') : (conn.msg || text);
   const stop = document.getElementById('stopBtn');
   if (stop) stop.hidden = !(s === 'ok' && inflight);
   // the 'Connected · ' prefix is its own span so phones can drop it (the green dot already says connected)
@@ -1166,7 +1185,7 @@ function handshake() {
       await detectProfile();
       if (settings.ep !== ep) return false;
       conn.ep = ep; conn.profile = settings.profile;
-      setConn('ok', 'Connected to ' + ep + (ep !== asked ? ' (discovered from ' + asked + ')' : '') + (proxied() ? ' through the URIBurner SPARQL-FED proxy (the endpoint sends no CORS headers; named-graph scope is not applied)' : '') + ' in ' + Math.round(performance.now() - t0) + ' ms · engine profile: ' + profile());
+      setConn('ok', 'Connected to ' + ep + (engineInfo.has(ep) && profile() === 'virtuoso' ? ' — ' + (engineInfo.get(ep).name + ' ' + engineInfo.get(ep).version).trim() : '') + (ep !== asked ? ' (discovered from ' + asked + ')' : '') + (proxied() ? ' through the URIBurner SPARQL-FED proxy (the endpoint sends no CORS headers; named-graph scope is not applied)' : '') + ' in ' + Math.round(performance.now() - t0) + ' ms · engine profile: ' + profile());
       return true;
     } catch (e) {
       if (settings.ep !== ep) return false;
@@ -3561,7 +3580,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-const APP_VERSION = '1.0', APP_BUILT = '2026-10-15';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.13 — 2026-10-26"): bump both with every release.
+const APP_VERSION = '1.0.13', APP_BUILT = '2026-10-26';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;

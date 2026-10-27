@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.13 — 2026-10-26
+
+- **About lists the source code.** A **Source code** row links the app's GitHub directory
+  (OpenLinkSoftware/ai-agent-skills › sparql-faceted-browser), with the GitHub mark.
+- **About shows the real version.** The Version row read "1.0 · built 2026-10-15" since the first release; it now
+  matches the newest changelog heading. `APP_VERSION` and `APP_BUILT` sit next to a reminder to bump them with each release.
+- **About credits reworded:** "Designed and debugged by OpenLink Software, with code generating assistance from
+  Anthropic's Claude Code (Claude Opus 5.5)."
+
+## 1.0.12 — 2026-10-26
+
+- **Engine probe reports the Virtuoso version.** Connecting now asks `bif:sys_stat("st_dbms_name")` and
+  `bif:sys_stat("st_dbms_ver")` instead of `bif:length`, so one query both identifies Virtuoso and gives its release,
+  which the connection status shows (for example "Connected · virtuoso 08.03.3335"; the tooltip has the server name).
+  If a locked-down Virtuoso refuses `sys_stat`, the old `bif:length` probe still identifies it, without a version.
+  Vector-index support is still detected by its own ASK, since the version does not predict it.
+
 ## 1.0.11 — 2026-10-26
 
 - **New preset: data.bnf.fr (Bibliothèque nationale de France)** under Libraries & humanities, at
