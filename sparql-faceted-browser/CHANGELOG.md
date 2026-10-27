@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.10 — 2026-10-26
+
+- **Descriptions no longer list the same value twice.** On Virtuoso with the subproperty inference rule, a literal property
+  could pass the annotation test in one branch of the description query and not in the other, so the same statement came
+  back twice (SEC EDGAR financial observations showed `value`, `audited`, and `unit` doubled). In de-duplicate mode, the
+  rows are now grouped on direction, property, and value, with the count `SAMPLE()`d, so the page count and the
+  statement total agree.
+
 ## 1.0.9 — 2026-10-22
 
 - **Optional short links in Share.** Settings → **Share link shortener** (Off by default) makes Share copy a short link
