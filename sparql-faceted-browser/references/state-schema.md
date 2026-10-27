@@ -44,7 +44,7 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 ### NODE: one set
 
 ```json
-{ "via": null | { "p": IRI, "dir": "out" | "in" }, "text": "", "scope": "label" | "any" | "vector", "conds": [ COND, ... ] }
+{ "via": null | { "p": IRI, "dir": "out" | "in" }, "text": "", "scope": "label" | "any" | "vector" | "fuzzy-jw" | "fuzzy-lev" | "fuzzy-ng", "conds": [ COND, ... ] }
 ```
 
 - `via`: how this set is reached from the previous one.
@@ -53,6 +53,7 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 - `text`: free-text match.
   - `scope: "label"` searches the label properties: rdfs:label, skos:prefLabel, schema:name, foaf:name, dcterms:title and dc:title.
   - `scope: "any"` searches any literal.
+  - `scope: "fuzzy-jw"`, `"fuzzy-lev"`, `"fuzzy-ng"` match the label properties approximately (Jaro-Winkler, Levenshtein, N-gram cosine through `bif:contains … OPTION (FUZZY …)`), on a Virtuoso that has the extension (vec.demo.openlinksw.com does); elsewhere the app falls back to `label`.
   - `scope: "vector"` ranks literals by meaning with `bif:knnSimilar`, on a Virtuoso with a vector index only (the app probes with an ASK on connect and falls back to `label` elsewhere).
 
 ### COND: one filter on a set

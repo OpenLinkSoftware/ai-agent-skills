@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.0.14 — 2026-10-27
+
+- **Fuzzy search in the search-scope menu, only where the endpoint has it.** Three entries — **fuzzy: Jaro-Winkler**
+  (typos in names, threshold 0.9), **fuzzy: Levenshtein** (edit distance, short codes such as tickers, threshold 0.6)
+  and **fuzzy: N-gram cosine** (accents and partial words, threshold 0.4, 2-grams) — run
+  `bif:contains … OPTION (FUZZY '…', FUZZY_THRESHOLD t, SIMILARITY ?s | DISTANCE ?d)` over the label properties, as in
+  OpenLink's vec demo queries ("Chappelle Roan" finds Chappell Roan, "AAPLE" finds AAPL, "Kylian Mbappe" finds Kylian
+  Mbappé). Members are ranked by the score, which shows beside each name (a similarity, or "1 edit" / "2 edits").
+  An ASK on connect (`… OPTION (FUZZY 'jaro_winkler', FUZZY_THRESHOLD 0.9)`) decides whether the entries appear: a
+  Virtuoso without the extension rejects the syntax (HTTP 400, SP030), which counts as off. A saved link with a fuzzy
+  scope falls back to a label search on such an endpoint. Together with the vector probe, a link saved with either kind
+  of scope is redrawn once its probe answers, with the result cache cleared first.
+- **Scripts:** `fct_state.py --fuzzy jaro-winkler|levenshtein|ngram` sets the current set's text to a fuzzy match.
+
+## 1.0.13 — 2026-10-26
+
+- **About lists the source code.** A **Source code** row links the app's GitHub directory
+  (OpenLinkSoftware/ai-agent-skills › sparql-faceted-browser), with the GitHub mark.
+- **About shows the real version.** The Version row read "1.0 · built 2026-10-15" since the first release; it now
+  matches the newest changelog heading. `APP_VERSION` and `APP_BUILT` sit next to a reminder to bump them with each release.
+- **About credits reworded:** "Designed and debugged by OpenLink Software, with code generating assistance from
+  Anthropic's Claude Code (Claude Opus 5.5)."
+
+## 1.0.12 — 2026-10-26
+
+- **Engine probe reports the Virtuoso version.** Connecting now asks `bif:sys_stat("st_dbms_name")` and
+  `bif:sys_stat("st_dbms_ver")` instead of `bif:length`, so one query both identifies Virtuoso and gives its release,
+  which the connection status shows (for example "Connected · virtuoso 08.03.3335"; the tooltip has the server name).
+  If a locked-down Virtuoso refuses `sys_stat`, the old `bif:length` probe still identifies it, without a version.
+  Vector-index support is still detected by its own ASK, since the version does not predict it.
+
+## 1.0.11 — 2026-10-26
+
+- **New preset: data.bnf.fr (Bibliothèque nationale de France)** under Libraries & humanities, at
+  `https://data.bnf.fr/sparql`. It is a Virtuoso endpoint with CORS for any origin. The address
+  `https://data.bnf.fr/sparql/` (with the slash) is the BnF query-editor page and returns 404 to queries, so the preset
+  uses the version without it.
+
+## 1.0.10 — 2026-10-26
+
+- **Descriptions no longer list the same value twice.** On Virtuoso with the subproperty inference rule, a literal property
+  could pass the annotation test in one branch of the description query and not in the other, so the same statement came
+  back twice (SEC EDGAR financial observations showed `value`, `audited` and `unit` doubled). In de-duplicate mode the
+  rows are now grouped on direction, property and value, with the count `SAMPLE()`d, so the page count and the
+  statement total agree.
+
 ## 1.0.9 — 2026-10-22
 
 - **Optional short links in Share.** Settings → **Share link shortener** (Off by default) makes Share copy a short link
