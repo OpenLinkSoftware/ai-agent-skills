@@ -97,7 +97,7 @@ RSS 2.0, Atom 1.0, and AtomPub are generated automatically from the same post li
 
 Posts can carry a `schema:category` tag (shown as a filterable facet in the sidebar) and a pin (`schema:position`) to feature a post ahead of normal recency — both editable from the admin dashboard, or via `templates/register-weblog-pinning-tool.sql` for agent-driven pinning.
 
-Categories can also be **derived from each post's content**: `scripts/publish_with_metadata.py` tags posts as it uploads them, and `templates/register-category-refresh-scheduler.sql` installs `WEBLOG_DAV_REFRESH_CATEGORIES`, which tags any post that has no category yet (run once, or on a schedule for posts copied in by other means). Existing categories are never overwritten.
+Categories can also be **derived from each post's content**: `scripts/publish_with_metadata.py` tags posts as it uploads them, and `templates/register-category-refresh-scheduler.sql` installs `WEBLOG_DAV_REFRESH_CATEGORIES`, which tags any post that has no category yet (run once, or on a schedule for posts copied in by other means). A post gets a label only when it is about that topic: a whole-word term in its title, meta description, or first heading, or one repeated at least 20 times in the visible text. Curated categories are never overwritten. Where a weblog already uses its own label set, automatic labels are renamed to the matching curated label (for example, "Knowledge Graphs" becomes "Knowledge Graphs & Linked Data"), so the two don't appear side-by-side as near-duplicate facets. Loading the file also runs the server's existing category jobs once, re-tagging posts whose labels were all assigned automatically.
 
 ## Upgrades are never destructive
 

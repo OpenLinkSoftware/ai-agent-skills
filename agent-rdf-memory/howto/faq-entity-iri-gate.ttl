@@ -76,13 +76,13 @@ If entities exist, collect their hash IRIs (e.g., `:faq-context-interoperability
     schema:position 3 ;
     schema:name "Derive the full absolute entity IRI for each schema:Question"@en ;
     schema:text """The companion TTL's base IRI is the DAV path IRI, e.g.:
-`https://linkeddata.uriburner.com/DAV/demos/daas/{stem}.ttl`
+`{default-resolver-server}/DAV/demos/daas/{stem}.ttl`
 
 The hash IRI `:faq-{slug}` (from `@prefix : <#>`) resolves to:
-`https://linkeddata.uriburner.com/DAV/demos/daas/{stem}.ttl#faq-{slug}`
+`{default-resolver-server}/DAV/demos/daas/{stem}.ttl#faq-{slug}`
 
 Percent-encode this full IRI for use in the resolver pattern:
-`https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2F{stem}.ttl%23faq-{slug}`
+`{default-resolver-server}/describe/?url=https%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2F{stem}.ttl%23faq-{slug}`
 
 **RULE:** Derive the resolver URL by percent-encoding the absolute entity IRI. Never substitute a DBpedia, Wikidata, or W3C IRI — even if the FAQ question is about a concept those sources define. The FAQ question is a `schema:Question` entity in the companion RDF, not the concept the question is about."""@en .
 
@@ -95,7 +95,7 @@ Percent-encode this full IRI for use in the resolver pattern:
 
 ```html
 <div class="faq-q" role="button" tabindex="0">
-  <a href="https://linkeddata.uriburner.com/describe/?url={percent-encoded-question-entity-iri}"
+  <a href="{default-resolver-server}/describe/?url={percent-encoded-question-entity-iri}"
      target="_blank" rel="noopener noreferrer"
      onclick="event.stopPropagation()">
     Question text here

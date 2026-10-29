@@ -9,10 +9,20 @@
     schema:name "Entity Registry: Organizations"@en ;
     schema:description "Canonical schema:Organization entity IRIs for companies and institutions recurring across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving an organization entity, and MUST register newly resolved organization IRIs here rather than only in session files."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-09-03T16:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-28T16:57:41Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :openlinkSoftware,
-        :afterQuery, :sapSE, :yCombinator, :forbes, :spaceX, :spaceXAI, :oIGlass, :huggingFace ;
+        :afterQuery, :sapSE, :yCombinator, :forbes, :spaceX, :spaceXAI, :oIGlass, :huggingFace,
+        :org8090, :ey, :mach33, :tie, :bissell, :shadowtechSolutions, :redOakDevelopment, :databricks, :nvidia, :apple, :googleCloud, :microsoft, :servicenow,
+        :aws, :snowflake, :openai, :perplexityAI, :uber, :ibm, :alibabaCloud, :alibabaGroup, :mattr, :bankOfNewZealand, :anzGroup, :anzNewZealand, :westpacNewZealand,
+        :cwgPlc, :bankOfAmerica, :signalAllianceTechnologyHolding, :wragbyBusinessSolutionsTechnologies, :edmAssociation, :wellsFargo, :hypercubeLtd, :infowareLimited,
+        :objectManagementGroup, :glasswingVentures, :volitionCapital, :chiliPiper, :oncehub, :calCom, :motion, :calendly, :savvycal, :reclaimAi, :capitalOne,
+        :citi, :cursor, :appen, :meta, :definedAi, :scaleAI, :fivetran, :positPBC, :ducklabs, :motherduck, :spiceAI, :cwi, :gizmodata, :queryFarm, :sPGlobal,
+        :goldmanSachs, :cognizone, :statnett, :aiTechnologies, :astrazeneca, :enterpriseKnowledge, :doppelmayr, :accenture, :europeanUnionAgencyForRailways,
+        :bitbang, :dnv, :contentRules, :roche, :avalara, :americanSpeechLanguageHearingAssociation, :altuent, :iiug, :idug, :jpmorganchase, :mercor, :legora,
+        :metacognitionAI, :morganStanley, :paystack, :smileID, :systemspecs, :youverify, :flutterwave, :prembly, :mono, :anchor, :deloitte, :pwc, :kpmg,
+        :evercore, :quartr, :crunchbase, :lseg, :daloopa, :pitchbook, :shopify, :polywood, :bruntWorkwear, :aldoGroup, :abbottLyon, :redmond, :snocks,
+        :davidSBridal, :keen, :maggyLondon, :stripe, :lovable, :squarespace, :decagon, :tekion, :elevenlabs, :browserbase, :etsy, :fanatics, :stratechery ;
     rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl> .
 
@@ -262,3 +272,1418 @@
     owl:sameAs <http://dbpedia.org/resource/Harvey_(software)> ;
     rdfs:comment "Canonical entity IRI is DBpedia Harvey_(software) (dbpedia.org/page/Harvey_(software) HTTP 200, og:description 'AI services for legal teams', verified 2026-09-04 — disambiguated from dbr:Harvey_(company) and dbr:Harvey_AI, both 404, and from the historical-figure/other Harvey entries). First registered 2026-09-04 from Seema Amble's X post 'The Incumbents Are Coming'. Local name :harveyAI is a registry index label only."@en ;
     schema:dateCreated "2026-09-04T00:00:00Z"^^xsd:dateTime .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── IBP brief contact backfill: employer organizations (2026-09-28) ─────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── 8090 Solutions (8090.ai) ──────────────────────────────────────────────
+#
+# Canonical IRI: https://www.8090.ai/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:org8090 a schema:Organization ;
+    schema:name "8090 Solutions (8090.ai)"@en ;
+    schema:url "https://www.8090.ai/" ;
+    owl:sameAs <https://www.8090.ai/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 12 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md). Local name :org8090 is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── EY (Ernst & Young) ────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Ernst_&_Young
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:ey a schema:Organization ;
+    schema:name "EY (Ernst & Young)"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Ernst_&_Young> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 3 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md, attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/notes-enhanced/systems-integrators/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/systems-integrators/contacts-2026-09-27.md). Local name :ey is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Mach33 ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:mach33 a schema:Organization ;
+    schema:name "Mach33"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md). Local name :mach33 is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Tie ───────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:tie a schema:Organization ;
+    schema:name "Tie"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md). Local name :tie is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── BISSELL ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Bissell
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:bissell a schema:Organization ;
+    schema:name "BISSELL"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Bissell> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md). Local name :bissell is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── ShadowTech Solutions ──────────────────────────────────────────────────
+#
+# Canonical IRI: https://shadowtechsolutions.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:shadowtechSolutions a schema:Organization ;
+    schema:name "ShadowTech Solutions"@en ;
+    schema:url "https://shadowtechsolutions.com/" ;
+    owl:sameAs <https://shadowtechsolutions.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md). Local name :shadowtechSolutions is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Red Oak Development ───────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.redoakdev.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:redOakDevelopment a schema:Organization ;
+    schema:name "Red Oak Development"@en ;
+    schema:url "https://www.redoakdev.com/" ;
+    owl:sameAs <https://www.redoakdev.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: 8090-ai-engagement-plan-2026-08-27.md). Local name :redOakDevelopment is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Databricks ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/company/databricks#this (already used as schema:worksFor target in entities/people.ttl)
+#
+
+:databricks a schema:Organization ;
+    schema:name "Databricks"@en ;
+    owl:sameAs <https://linkedin.com/company/databricks#this> ;
+    rdfs:comment "Canonical entity IRI reused unchanged from existing schema:worksFor links in entities/people.ttl. Referenced by 6 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/gtm/bizdev-plan-brief-2026-09-28.md, attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/sp-global-energy/contacts-2026-09-26.md). Local name :databricks is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── NVIDIA ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/company/nvidia#this (already used as schema:worksFor target in entities/people.ttl)
+#
+
+:nvidia a schema:Organization ;
+    schema:name "NVIDIA"@en ;
+    owl:sameAs <https://linkedin.com/company/nvidia#this> ;
+    rdfs:comment "Canonical entity IRI reused unchanged from existing schema:worksFor links in entities/people.ttl. Referenced by 9 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, openlink-ai-partners-2026-08-27.md, openlink-partner-contact-maps-2026-08-27.md). Local name :nvidia is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Apple ─────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Apple_Inc.
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:apple a schema:Organization ;
+    schema:name "Apple"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Apple_Inc.> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 3 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, openlink-ai-partners-2026-08-27.md, openlink-partner-contact-maps-2026-08-27.md). Local name :apple is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Google Cloud ──────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Google_Cloud_Platform
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:googleCloud a schema:Organization ;
+    schema:name "Google Cloud"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Google_Cloud_Platform> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 8 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, openlink-ai-partners-2026-08-27.md, openlink-partner-contact-maps-2026-08-27.md). Local name :googleCloud is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Microsoft ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Microsoft (already used as schema:worksFor target in entities/people.ttl)
+#
+
+:microsoft a schema:Organization ;
+    schema:name "Microsoft"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Microsoft> ;
+    rdfs:comment "Canonical entity IRI reused unchanged from existing schema:worksFor links in entities/people.ttl. Referenced by 6 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md). Local name :microsoft is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── ServiceNow ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/ServiceNow
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:servicenow a schema:Organization ;
+    schema:name "ServiceNow"@en ;
+    owl:sameAs <http://dbpedia.org/resource/ServiceNow> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md). Local name :servicenow is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Amazon Web Services ───────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Amazon_Web_Services
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:aws a schema:Organization ;
+    schema:name "Amazon Web Services"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Amazon_Web_Services> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/notes-enhanced/systems-integrators/contacts-2026-09-27.md, ducklabs-aws-partner-map-2026-08-29.md). Local name :aws is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Snowflake ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Snowflake_Inc.
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:snowflake a schema:Organization ;
+    schema:name "Snowflake"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Snowflake_Inc.> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md). Local name :snowflake is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── OpenAI ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/company/openai#this (already used as schema:worksFor target in entities/people.ttl)
+#
+
+:openai a schema:Organization ;
+    schema:name "OpenAI"@en ;
+    owl:sameAs <https://linkedin.com/company/openai#this> ;
+    rdfs:comment "Canonical entity IRI reused unchanged from existing schema:worksFor links in entities/people.ttl. Referenced by 13 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, openai-chatgpt-fs-bank-partners-2026-09-14.md, openlink-ai-partners-2026-08-27.md, openlink-partner-contact-maps-2026-08-27.md). Local name :openai is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Perplexity AI ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Perplexity_AI
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:perplexityAI a schema:Organization ;
+    schema:name "Perplexity AI"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Perplexity_AI> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md). Local name :perplexityAI is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Uber ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Uber
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:uber a schema:Organization ;
+    schema:name "Uber"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Uber> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md). Local name :uber is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── IBM ───────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/IBM
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:ibm a schema:Organization ;
+    schema:name "IBM"@en ;
+    owl:sameAs <http://dbpedia.org/resource/IBM> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/ai-platform-partners/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/ai-platform-partners/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md). Local name :ibm is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Alibaba Cloud ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Alibaba_Cloud
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:alibabaCloud a schema:Organization ;
+    schema:name "Alibaba Cloud"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Alibaba_Cloud> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 8 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/alibaba/contacts-2026-09-24.md, attack-plans/alibaba/opportunity-brief-2026-09-24.md, attack-plans/gtm/bizdev-plan-brief-2026-09-28.md). Local name :alibabaCloud is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Alibaba Group ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Alibaba_Group
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:alibabaGroup a schema:Organization ;
+    schema:name "Alibaba Group"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Alibaba_Group> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/alibaba/contacts-2026-09-24.md, attack-plans/alibaba/opportunity-brief-2026-09-24.md). Local name :alibabaGroup is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── MATTR ─────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://mattr.global/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:mattr a schema:Organization ;
+    schema:name "MATTR"@en ;
+    schema:url "https://mattr.global/" ;
+    owl:sameAs <https://mattr.global/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/bnz-digital-identity/contacts-2026-09-22.md, attack-plans/bnz-digital-identity/opportunity-brief-2026-09-22.md). Local name :mattr is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Bank of New Zealand ───────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Bank_of_New_Zealand
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:bankOfNewZealand a schema:Organization ;
+    schema:name "Bank of New Zealand"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Bank_of_New_Zealand> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/bnz-digital-identity/contacts-2026-09-22.md, attack-plans/bnz-digital-identity/opportunity-brief-2026-09-22.md). Local name :bankOfNewZealand is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── ANZ Group ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/ANZ_(bank)
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:anzGroup a schema:Organization ;
+    schema:name "ANZ Group"@en ;
+    owl:sameAs <http://dbpedia.org/resource/ANZ_(bank)> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/bnz-digital-identity/contacts-2026-09-22.md, attack-plans/bnz-digital-identity/opportunity-brief-2026-09-22.md). Local name :anzGroup is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── ANZ New Zealand ───────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/ANZ_Bank_New_Zealand
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:anzNewZealand a schema:Organization ;
+    schema:name "ANZ New Zealand"@en ;
+    owl:sameAs <http://dbpedia.org/resource/ANZ_Bank_New_Zealand> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/bnz-digital-identity/contacts-2026-09-22.md, attack-plans/bnz-digital-identity/opportunity-brief-2026-09-22.md). Local name :anzNewZealand is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Westpac New Zealand ───────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.westpac.co.nz/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:westpacNewZealand a schema:Organization ;
+    schema:name "Westpac New Zealand"@en ;
+    schema:url "https://www.westpac.co.nz/" ;
+    owl:sameAs <https://www.westpac.co.nz/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/bnz-digital-identity/contacts-2026-09-22.md, attack-plans/bnz-digital-identity/opportunity-brief-2026-09-22.md). Local name :westpacNewZealand is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── CWG Plc ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/CWG_Plc
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:cwgPlc a schema:Organization ;
+    schema:name "CWG Plc"@en ;
+    owl:sameAs <http://dbpedia.org/resource/CWG_Plc> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/banking-by-industry/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :cwgPlc is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Bank of America ───────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Bank_of_America
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:bankOfAmerica a schema:Organization ;
+    schema:name "Bank of America"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Bank_of_America> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 7 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/banking-by-industry/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :bankOfAmerica is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Signal Alliance Technology Holding ────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:signalAllianceTechnologyHolding a schema:Organization ;
+    schema:name "Signal Alliance Technology Holding"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/banking-by-industry/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :signalAllianceTechnologyHolding is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Wragby Business Solutions & Technologies ──────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:wragbyBusinessSolutionsTechnologies a schema:Organization ;
+    schema:name "Wragby Business Solutions & Technologies"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/banking-by-industry/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :wragbyBusinessSolutionsTechnologies is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── EDM Association ───────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:edmAssociation a schema:Organization ;
+    schema:name "EDM Association"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/jpmorgan/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :edmAssociation is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Wells Fargo ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Wells_Fargo
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:wellsFargo a schema:Organization ;
+    schema:name "Wells Fargo"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Wells_Fargo> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 23 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/banking-by-industry/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md, attack-plans/us-banks/wells-fargo/attack-plan-2026-09-26.md, attack-plans/us-banks/wells-fargo/contacts-2026-09-26.md). Local name :wellsFargo is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Hypercube Ltd ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:hypercubeLtd a schema:Organization ;
+    schema:name "Hypercube Ltd"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/jpmorgan/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/business-development-assistant-scout-jpm.md). Local name :hypercubeLtd is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── InfoWARE Limited ──────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:infowareLimited a schema:Organization ;
+    schema:name "InfoWARE Limited"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/banking-by-industry/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :infowareLimited is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Object Management Group ───────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Object_Management_Group
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:objectManagementGroup a schema:Organization ;
+    schema:name "Object Management Group"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Object_Management_Group> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/banking-by-industry/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md). Local name :objectManagementGroup is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Glasswing Ventures ────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/company/glasswing-ventures#this (already used as schema:worksFor target in entities/people.ttl)
+#
+
+:glasswingVentures a schema:Organization ;
+    schema:name "Glasswing Ventures"@en ;
+    owl:sameAs <https://linkedin.com/company/glasswing-ventures#this> ;
+    rdfs:comment "Canonical entity IRI reused unchanged from existing schema:worksFor links in entities/people.ttl. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: boston-early-vc-tracking-2026-09-14.md). Local name :glasswingVentures is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Volition Capital ──────────────────────────────────────────────────────
+#
+# Canonical IRI: https://linkedin.com/company/volition-capital#this (already used as schema:worksFor target in entities/people.ttl)
+#
+
+:volitionCapital a schema:Organization ;
+    schema:name "Volition Capital"@en ;
+    owl:sameAs <https://linkedin.com/company/volition-capital#this> ;
+    rdfs:comment "Canonical entity IRI reused unchanged from existing schema:worksFor links in entities/people.ttl. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: boston-early-vc-tracking-2026-09-14.md). Local name :volitionCapital is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Chili Piper ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.chilipiper.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:chiliPiper a schema:Organization ;
+    schema:name "Chili Piper"@en ;
+    schema:url "https://www.chilipiper.com/" ;
+    owl:sameAs <https://www.chilipiper.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 5 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :chiliPiper is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── OnceHub ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.oncehub.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:oncehub a schema:Organization ;
+    schema:name "OnceHub"@en ;
+    schema:url "https://www.oncehub.com/" ;
+    owl:sameAs <https://www.oncehub.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :oncehub is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Cal.com ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://cal.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:calCom a schema:Organization ;
+    schema:name "Cal.com"@en ;
+    schema:url "https://cal.com/" ;
+    owl:sameAs <https://cal.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :calCom is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Motion (usemotion) ────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.usemotion.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:motion a schema:Organization ;
+    schema:name "Motion (usemotion)"@en ;
+    schema:url "https://www.usemotion.com/" ;
+    owl:sameAs <https://www.usemotion.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :motion is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Calendly ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Calendly
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:calendly a schema:Organization ;
+    schema:name "Calendly"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Calendly> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 5 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :calendly is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── SavvyCal ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://savvycal.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:savvycal a schema:Organization ;
+    schema:name "SavvyCal"@en ;
+    schema:url "https://savvycal.com/" ;
+    owl:sameAs <https://savvycal.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :savvycal is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Reclaim.ai ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://reclaim.ai/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:reclaimAi a schema:Organization ;
+    schema:name "Reclaim.ai"@en ;
+    schema:url "https://reclaim.ai/" ;
+    owl:sameAs <https://reclaim.ai/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: calendly-scheduler-partner-track-2026-09-09.md). Local name :reclaimAi is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Capital One ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Capital_One
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:capitalOne a schema:Organization ;
+    schema:name "Capital One"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Capital_One> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 11 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: capital-one-partner-contact-map-2026-08-27.md). Local name :capitalOne is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Citigroup ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Citigroup
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:citi a schema:Organization ;
+    schema:name "Citigroup"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Citigroup> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 24 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/jpmorgan/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/jpmorgan/contacts-2026-09-27.md, attack-plans/us-banks/citi/attack-plan-2026-09-26.md, attack-plans/us-banks/citi/contacts-2026-09-26.md). Local name :citi is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Anysphere (Cursor) ────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Anysphere
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:cursor a schema:Organization ;
+    schema:name "Anysphere (Cursor)"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Anysphere> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 5 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openlink-ai-partners-2026-08-27.md, openlink-partner-contact-maps-2026-08-27.md). Local name :cursor is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Appen ─────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Appen_(company)
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:appen a schema:Organization ;
+    schema:name "Appen"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Appen_(company)> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/data-products/defined-appen-scale-contacts-2026-09-20.md). Local name :appen is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Meta Platforms ────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Meta_Platforms
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:meta a schema:Organization ;
+    schema:name "Meta Platforms"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Meta_Platforms> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 8 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/data-products/defined-appen-scale-contacts-2026-09-20.md, attack-plans/meta-muse/meta-muse-acquire-ibp-2026-09-16.md). Local name :meta is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Defined.ai ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://defined.ai/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:definedAi a schema:Organization ;
+    schema:name "Defined.ai"@en ;
+    schema:url "https://defined.ai/" ;
+    owl:sameAs <https://defined.ai/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/data-products/defined-appen-scale-contacts-2026-09-20.md). Local name :definedAi is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Scale AI ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Scale_AI
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:scaleAI a schema:Organization ;
+    schema:name "Scale AI"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Scale_AI> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 5 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/data-products/defined-appen-scale-contacts-2026-09-20.md). Local name :scaleAI is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Fivetran ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:fivetran a schema:Organization ;
+    schema:name "Fivetran"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :fivetran is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Posit PBC ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Posit_PBC
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:positPBC a schema:Organization ;
+    schema:name "Posit PBC"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Posit_PBC> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :positPBC is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── DuckLabs ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://ducklabs.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:ducklabs a schema:Organization ;
+    schema:name "DuckLabs"@en ;
+    schema:url "https://ducklabs.com/" ;
+    owl:sameAs <https://ducklabs.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :ducklabs is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── MotherDuck ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://motherduck.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:motherduck a schema:Organization ;
+    schema:name "MotherDuck"@en ;
+    schema:url "https://motherduck.com/" ;
+    owl:sameAs <https://motherduck.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 3 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :motherduck is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Spice AI ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:spiceAI a schema:Organization ;
+    schema:name "Spice AI"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :spiceAI is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Centrum Wiskunde & Informatica (CWI) ──────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Centrum_Wiskunde_&_Informatica
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:cwi a schema:Organization ;
+    schema:name "Centrum Wiskunde & Informatica (CWI)"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Centrum_Wiskunde_&_Informatica> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :cwi is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── GizmoData ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:gizmodata a schema:Organization ;
+    schema:name "GizmoData"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :gizmodata is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Query.Farm ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:queryFarm a schema:Organization ;
+    schema:name "Query.Farm"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: ducklabs-aws-partner-map-2026-08-29.md). Local name :queryFarm is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── S&P Global ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/S&P_Global
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:sPGlobal a schema:Organization ;
+    schema:name "S&P Global"@en ;
+    owl:sameAs <http://dbpedia.org/resource/S&P_Global> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 13 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md, attack-plans/gtm/bizdev-plan-brief-2026-09-28.md, attack-plans/sp-global-energy/contacts-2026-09-26.md). Local name :sPGlobal is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Goldman Sachs ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Goldman_Sachs
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:goldmanSachs a schema:Organization ;
+    schema:name "Goldman Sachs"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Goldman_Sachs> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 21 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/us-banks/goldman-sachs/attack-plan-2026-09-26.md, attack-plans/us-banks/goldman-sachs/contacts-2026-09-26.md). Local name :goldmanSachs is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Cognizone ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.cognizone.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:cognizone a schema:Organization ;
+    schema:name "Cognizone"@en ;
+    schema:url "https://www.cognizone.com/" ;
+    owl:sameAs <https://www.cognizone.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :cognizone is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Statnett ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Statnett
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:statnett a schema:Organization ;
+    schema:name "Statnett"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Statnett> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :statnett is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── AI Technologies ───────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:aiTechnologies a schema:Organization ;
+    schema:name "AI Technologies"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :aiTechnologies is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── AstraZeneca ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/AstraZeneca
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:astrazeneca a schema:Organization ;
+    schema:name "AstraZeneca"@en ;
+    owl:sameAs <http://dbpedia.org/resource/AstraZeneca> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :astrazeneca is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Enterprise Knowledge ──────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:enterpriseKnowledge a schema:Organization ;
+    schema:name "Enterprise Knowledge"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :enterpriseKnowledge is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Doppelmayr ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Doppelmayr
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:doppelmayr a schema:Organization ;
+    schema:name "Doppelmayr"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Doppelmayr> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :doppelmayr is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Accenture ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Accenture
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:accenture a schema:Organization ;
+    schema:name "Accenture"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Accenture> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md, attack-plans/notes-enhanced/jpmorgan/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/notes-enhanced/notes-writeback/business-development-assistant-scout-jpm.md, attack-plans/notes-enhanced/systems-integrators/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/syste). Local name :accenture is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── European Union Agency for Railways ────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/European_Union_Agency_for_Railways
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:europeanUnionAgencyForRailways a schema:Organization ;
+    schema:name "European Union Agency for Railways"@en ;
+    owl:sameAs <http://dbpedia.org/resource/European_Union_Agency_for_Railways> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :europeanUnionAgencyForRailways is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── BitBang ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.bitbang.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:bitbang a schema:Organization ;
+    schema:name "BitBang"@en ;
+    schema:url "https://www.bitbang.com/" ;
+    owl:sameAs <https://www.bitbang.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :bitbang is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── DNV ───────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/DNV
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:dnv a schema:Organization ;
+    schema:name "DNV"@en ;
+    owl:sameAs <http://dbpedia.org/resource/DNV> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :dnv is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Content Rules ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:contentRules a schema:Organization ;
+    schema:name "Content Rules"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :contentRules is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Roche ─────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Roche
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:roche a schema:Organization ;
+    schema:name "Roche"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Roche> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :roche is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Avalara ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.avalara.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:avalara a schema:Organization ;
+    schema:name "Avalara"@en ;
+    schema:url "https://www.avalara.com/" ;
+    owl:sameAs <https://www.avalara.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :avalara is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── American Speech-Language-Hearing Association ──────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:americanSpeechLanguageHearingAssociation a schema:Organization ;
+    schema:name "American Speech-Language-Hearing Association"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :americanSpeechLanguageHearingAssociation is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Altuent ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:altuent a schema:Organization ;
+    schema:name "Altuent"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/graphwise-summit/non-graphwise-linkedin-sweep-2026-09-17.md). Local name :altuent is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── International Informix Users Group (IIUG) ─────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/International_Informix_Users_Group
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:iiug a schema:Organization ;
+    schema:name "International Informix Users Group (IIUG)"@en ;
+    owl:sameAs <http://dbpedia.org/resource/International_Informix_Users_Group> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 10 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/user-groups/iiug-idug-boards-2026-09.md). Local name :iiug is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── International Db2 Users Group (IDUG) ──────────────────────────────────
+#
+# Canonical IRI: https://www.idug.org/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:idug a schema:Organization ;
+    schema:name "International Db2 Users Group (IDUG)"@en ;
+    schema:url "https://www.idug.org/" ;
+    owl:sameAs <https://www.idug.org/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 13 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/user-groups/iiug-idug-boards-2026-09.md). Local name :idug is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── JPMorganChase ─────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/JPMorgan_Chase
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:jpmorganchase a schema:Organization ;
+    schema:name "JPMorganChase"@en ;
+    owl:sameAs <http://dbpedia.org/resource/JPMorgan_Chase> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 19 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/jpmorgan/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/jpmorgan/contacts-2026-09-27.md, attack-plans/notes-enhanced/notes-writeback/ai-data-opportunities-research-by-industry.md, attack-plans/notes-enhanced/notes-writeback/business-development-assistant-scout-jpm.md, attack-plans/us-banks/citi/attack-plan-2026-09-26.md, at). Local name :jpmorganchase is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Mercor ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://www.mercor.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:mercor a schema:Organization ;
+    schema:name "Mercor"@en ;
+    schema:url "https://www.mercor.com/" ;
+    owl:sameAs <https://www.mercor.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/data-products/llm-training-data-marketplace-2026-09-09.md). Local name :mercor is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Legora ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://legora.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:legora a schema:Organization ;
+    schema:name "Legora"@en ;
+    schema:url "https://legora.com/" ;
+    owl:sameAs <https://legora.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 8 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: legora-brief-raw.md). Local name :legora is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Metacognition AI ──────────────────────────────────────────────────────
+#
+# Canonical IRI: https://metacognitionai.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:metacognitionAI a schema:Organization ;
+    schema:name "Metacognition AI"@en ;
+    schema:url "https://metacognitionai.com/" ;
+    owl:sameAs <https://metacognitionai.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 3 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/metacognition/metacognition-ai-ibp-2026-09-16.md). Local name :metacognitionAI is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Morgan Stanley ────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Morgan_Stanley
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:morganStanley a schema:Organization ;
+    schema:name "Morgan Stanley"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Morgan_Stanley> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 22 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/us-banks/morgan-stanley/attack-plan-2026-09-26.md, attack-plans/us-banks/morgan-stanley/contacts-2026-09-26.md, openai-chatgpt-fs-bank-partners-2026-09-14.md). Local name :morganStanley is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Paystack ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Paystack
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:paystack a schema:Organization ;
+    schema:name "Paystack"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Paystack> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 9 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md, attack-plans/africa/paystack-index-ibp-2026-09-24.md). Local name :paystack is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Smile ID ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://smile.id/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:smileID a schema:Organization ;
+    schema:name "Smile ID"@en ;
+    schema:url "https://smile.id/" ;
+    owl:sameAs <https://smile.id/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :smileID is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── SystemSpecs (Remita) ──────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/SystemSpecs
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:systemspecs a schema:Organization ;
+    schema:name "SystemSpecs (Remita)"@en ;
+    owl:sameAs <http://dbpedia.org/resource/SystemSpecs> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :systemspecs is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Youverify ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://youverify.co/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:youverify a schema:Organization ;
+    schema:name "Youverify"@en ;
+    schema:url "https://youverify.co/" ;
+    owl:sameAs <https://youverify.co/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :youverify is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Flutterwave ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Flutterwave
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:flutterwave a schema:Organization ;
+    schema:name "Flutterwave"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Flutterwave> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :flutterwave is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Prembly ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://prembly.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:prembly a schema:Organization ;
+    schema:name "Prembly"@en ;
+    schema:url "https://prembly.com/" ;
+    owl:sameAs <https://prembly.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :prembly is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Mono (open banking, Nigeria) ──────────────────────────────────────────
+#
+# Canonical IRI: https://mono.co/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:mono a schema:Organization ;
+    schema:name "Mono (open banking, Nigeria)"@en ;
+    schema:url "https://mono.co/" ;
+    owl:sameAs <https://mono.co/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :mono is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Anchor (Nigeria banking-as-a-service) ─────────────────────────────────
+#
+# Canonical IRI: https://getanchor.co/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:anchor a schema:Organization ;
+    schema:name "Anchor (Nigeria banking-as-a-service)"@en ;
+    schema:url "https://getanchor.co/" ;
+    owl:sameAs <https://getanchor.co/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: africscout/nigeria-fintech-ibp-map-2026-09-24.md, attack-plans/africa/nigeria-fintech-ibp-wedges-2026-09-24.md). Local name :anchor is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Deloitte ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Deloitte
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:deloitte a schema:Organization ;
+    schema:name "Deloitte"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Deloitte> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/notes-enhanced/systems-integrators/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/systems-integrators/contacts-2026-09-27.md). Local name :deloitte is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── PwC ───────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/PwC
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:pwc a schema:Organization ;
+    schema:name "PwC"@en ;
+    owl:sameAs <http://dbpedia.org/resource/PwC> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/notes-enhanced/systems-integrators/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/systems-integrators/contacts-2026-09-27.md). Local name :pwc is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── KPMG ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/KPMG
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:kpmg a schema:Organization ;
+    schema:name "KPMG"@en ;
+    owl:sameAs <http://dbpedia.org/resource/KPMG> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: attack-plans/notes-enhanced/README.md, attack-plans/notes-enhanced/notes-writeback/ai-leads-in-general.md, attack-plans/notes-enhanced/systems-integrators/attack-plan-2026-09-27.md, attack-plans/notes-enhanced/systems-integrators/contacts-2026-09-27.md). Local name :kpmg is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Evercore ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Evercore
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:evercore a schema:Organization ;
+    schema:name "Evercore"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Evercore> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openai-chatgpt-fs-bank-partners-2026-09-14.md). Local name :evercore is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Quartr ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://quartr.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:quartr a schema:Organization ;
+    schema:name "Quartr"@en ;
+    schema:url "https://quartr.com/" ;
+    owl:sameAs <https://quartr.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openai-chatgpt-fs-data-partners-2026-09-14.md). Local name :quartr is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Crunchbase ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Crunchbase
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:crunchbase a schema:Organization ;
+    schema:name "Crunchbase"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Crunchbase> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 5 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openai-chatgpt-fs-data-partners-2026-09-14.md). Local name :crunchbase is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── LSEG ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/London_Stock_Exchange_Group
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:lseg a schema:Organization ;
+    schema:name "LSEG"@en ;
+    owl:sameAs <http://dbpedia.org/resource/London_Stock_Exchange_Group> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openai-chatgpt-fs-data-partners-2026-09-14.md). Local name :lseg is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Daloopa ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://daloopa.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:daloopa a schema:Organization ;
+    schema:name "Daloopa"@en ;
+    schema:url "https://daloopa.com/" ;
+    owl:sameAs <https://daloopa.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 4 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openai-chatgpt-fs-data-partners-2026-09-14.md). Local name :daloopa is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── PitchBook ─────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://pitchbook.com/#this
+# Priority ladder: DBpedia/Wikidata/LinkedIn company not verified this pass → homepage #this (homepage taken from the IBP source brief)
+#
+
+:pitchbook a schema:Organization ;
+    schema:name "PitchBook"@en ;
+    schema:url "https://pitchbook.com/" ;
+    owl:sameAs <https://pitchbook.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the homepage #this form; the homepage URL appears in the IBP source brief(s). DBpedia/Wikidata/LinkedIn company IRIs were not verified in this pass. Referenced by 3 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: openai-chatgpt-fs-data-partners-2026-09-14.md). Local name :pitchbook is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Shopify ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Shopify
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:shopify a schema:Organization ;
+    schema:name "Shopify"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Shopify> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 9 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :shopify is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── POLYWOOD ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:polywood a schema:Organization ;
+    schema:name "POLYWOOD"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :polywood is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── BRUNT Workwear ────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:bruntWorkwear a schema:Organization ;
+    schema:name "BRUNT Workwear"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :bruntWorkwear is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── ALDO Group ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:aldoGroup a schema:Organization ;
+    schema:name "ALDO Group"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :aldoGroup is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Abbott Lyon ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:abbottLyon a schema:Organization ;
+    schema:name "Abbott Lyon"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :abbottLyon is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Redmond (Shopify merchant) ────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:redmond a schema:Organization ;
+    schema:name "Redmond (Shopify merchant)"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :redmond is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── SNOCKS ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:snocks a schema:Organization ;
+    schema:name "SNOCKS"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :snocks is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── David's Bridal ────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/David's_Bridal
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:davidSBridal a schema:Organization ;
+    schema:name "David's Bridal"@en ;
+    owl:sameAs <http://dbpedia.org/resource/David's_Bridal> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 2 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :davidSBridal is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── KEEN ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Keen_(shoe_company)
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:keen a schema:Organization ;
+    schema:name "KEEN"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Keen_(shoe_company)> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :keen is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Maggy London ──────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:maggyLondon a schema:Organization ;
+    schema:name "Maggy London"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: shopify-engagement-plan-2026-08-27.md). Local name :maggyLondon is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Stripe ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Stripe,_Inc.
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:stripe a schema:Organization ;
+    schema:name "Stripe"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Stripe,_Inc.> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 8 person entries added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :stripe is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Lovable ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:lovable a schema:Organization ;
+    schema:name "Lovable"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :lovable is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Squarespace ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Squarespace
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:squarespace a schema:Organization ;
+    schema:name "Squarespace"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Squarespace> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :squarespace is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Decagon ───────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:decagon a schema:Organization ;
+    schema:name "Decagon"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :decagon is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Tekion ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:tekion a schema:Organization ;
+    schema:name "Tekion"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :tekion is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── ElevenLabs ────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/ElevenLabs
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:elevenlabs a schema:Organization ;
+    schema:name "ElevenLabs"@en ;
+    owl:sameAs <http://dbpedia.org/resource/ElevenLabs> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :elevenlabs is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Browserbase ───────────────────────────────────────────────────────────
+#
+# Canonical IRI: none verified — registry-local IRI (no DBpedia resource found; no homepage/LinkedIn company URL in the source briefs)
+#
+
+:browserbase a schema:Organization ;
+    schema:name "Browserbase"@en ;
+    rdfs:comment "No canonical platform IRI could be verified from the source briefs (no DBpedia resource, no homepage or LinkedIn company URL in the briefs); registry-local IRI used per howto/canonical-entity-iri-denotation.ttl (document-local IRI only when no platform IRI is available). Upgrade to a verified canonical IRI when one is confirmed. Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :browserbase is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Etsy ──────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Etsy
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:etsy a schema:Organization ;
+    schema:name "Etsy"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Etsy> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :etsy is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Fanatics ──────────────────────────────────────────────────────────────
+#
+# Canonical IRI: http://dbpedia.org/resource/Fanatics,_Inc.
+# Priority ladder: DBpedia (1st) — resource verified 2026-09-28 via dbpedia.org SPARQL (labelled, non-redirect resource)
+#
+
+:fanatics a schema:Organization ;
+    schema:name "Fanatics"@en ;
+    owl:sameAs <http://dbpedia.org/resource/Fanatics,_Inc.> ;
+    rdfs:comment "Canonical entity IRI is the DBpedia resource (verified 2026-09-28: labelled, non-redirect resource on dbpedia.org). Referenced by 1 person entry added to entities/people.ttl in the 2026-09-28 IBP brief contact backfill (source briefs: stripe-engagement-plan-2026-08-27.md). Local name :fanatics is a registry index label only."@en ;
+    schema:dateCreated "2026-09-28T15:30:00Z"^^xsd:dateTime .
+
+# ── Stratechery ────────────────────────────────────────────────────────────────
+#
+# Canonical IRI: https://stratechery.com/#this
+# Priority ladder: homepage #this (official Stratechery homepage and About page)
+#
+
+:stratechery a schema:Organization ;
+    schema:name "Stratechery"@en ;
+    schema:description "Stratechery by Ben Thompson — a publication about the business, strategy, and impact of technology."@en ;
+    schema:url <https://stratechery.com/> ;
+    owl:sameAs <https://stratechery.com/#this> ;
+    rdfs:comment "Canonical entity IRI is the official homepage #this form, verified from https://stratechery.com/ and https://stratechery.com/about/ on 2026-09-28. Local name :stratechery is a registry index label only. First registered 2026-09-28 by ibps."@en ;
+    schema:dateCreated "2026-09-28T16:57:41Z"^^xsd:dateTime .

@@ -56,7 +56,7 @@ If no stored preference exists (first session), present this elicitation:
 
   "Memory loading preference:
    (1) File reads  [default — no Virtuoso required]
-   (2) SPARQL — localhost:8890/sparql  [local Virtuoso, file:// URIs]
+   (2) SPARQL — localhost:8890/sparql/  [local Virtuoso, file:// URIs]
    (3) SPARQL — other endpoint / other URI"
 
 File reads (option 1) is the pre-selected default. It is overridden if the user actively chooses SPARQL or any other method via elicitation. The elicitation occurs on every first session — the default does not silently apply without presenting the choice.
@@ -170,13 +170,13 @@ Virtuoso is a quad store and the default graph union may return stale or unrelat
     schema:text """{preferences-ttl-url} = "file://{REPO_ROOT}/agent-rdf-memory/preferences.ttl"
 {core-ttl-url}        = "file://{REPO_ROOT}/agent-rdf-memory/core.ttl"
 
-These are the standard values for local Virtuoso at localhost:8890/sparql. The user substitutes a different URI only if the default file:// path does not match their setup (e.g., different filesystem root, DAV upload, or remote public URL). The Sponger fetches file:// URIs from the local filesystem and loads them as named graphs. The named graph IRI is the file:// URI itself — use FROM <file:///…/preferences.ttl> in all queries."""@en .
+These are the standard values for local Virtuoso at localhost:8890/sparql/. The user substitutes a different URI only if the default file:// path does not match their setup (e.g., different filesystem root, DAV upload, or remote public URL). The Sponger fetches file:// URIs from the local filesystem and loads them as named graphs. The named graph IRI is the file:// URI itself — use FROM <file:///…/preferences.ttl> in all queries."""@en .
 
 # ── Registered Endpoints ──────────────────────────────────────────────────────
 
 :EndpointLocalVirtuoso a schema:EntryPoint ;
     schema:name "Local Virtuoso SPARQL Endpoint"@en ;
-    schema:url <http://localhost:8890/sparql> ;
+    schema:url <http://localhost:8890/sparql/> ;
     schema:description "Default local Virtuoso instance. Available when the user runs Virtuoso locally."@en .
 
 :EndpointURIBurner a schema:EntryPoint ;

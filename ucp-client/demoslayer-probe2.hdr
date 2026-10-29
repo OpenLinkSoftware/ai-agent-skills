@@ -1,0 +1,12 @@
+HTTP/1.1 402 Payment Required
+Server: Virtuoso/08.03.3335 (Linux) x86_64-generic-linux-glibc2.12  VDB
+Connection: Keep-Alive
+Date: Wed, 02 Sep 2026 00:36:41 GMT
+Accept-Ranges: bytes
+Content-Type: application/problem+json
+WWW-Authenticate: Payment id="_uL62Hyu0qIPPV-uxiyWubKfL4qfLaio-AyTrnjh7u0", realm="linkeddata.uriburner.com", method="stripe", intent="charge", request="eyJhbW91bnQiOjI5OSwiY3VycmVuY3kiOiJ1c2QiLCJleHRlcm5hbElkIjoiaHR0cDovL2RhdGEub3Blbmxpbmtzdy5jb20vb3Bsd2ViL29mZmVyL0RlbW9GaWxlQWNjZXNzT2ZmZXIxVVJJQnVybmVyI3RoaXMiLCJtZXRob2REZXRhaWxzIjp7Im5ldHdvcmtJZCI6ImludGVybmFsIiwicGF5bWVudE1ldGhvZFR5cGVzIjpbImNhcmQiLCJsaW5rIl19LCJyZWNpcGllbnQiOiJodHRwczovL3Nob3Aub3Blbmxpbmtzdy5jb20vIn0", description="2026 FIFA World Cup Country & Player Guide Meshup Infographic (HTML) — File Access on URIBurner", expires="2026-09-02T00:46:41.306022Z"
+Link: <http://data.openlinksw.com/oplweb/offer/DemoFileAccessOffer1URIBurner#this>; rel="https://schema.org/offers"; type="text/turtle"; title="2026 FIFA World Cup Country &amp; Player Guide Meshup Infographic (HTML) â File Access on URIBurner"; seller="https://shop.openlinksw.com#this"
+WWW-Authenticate: Payment id="yyPzox4_VAuSH36Q8mLNKcL1xgEVsbGocG6UXfi7o98", realm="linkeddata.uriburner.com", method="stripe", intent="charge", request="eyJhbW91bnQiOjI5OSwiY3VycmVuY3kiOiJ1c2QiLCJleHRlcm5hbElkIjoiaHR0cDovL2RhdGEub3Blbmxpbmtzdy5jb20vb3Bsd2ViL29mZmVyL0RlbW9GaWxlQWNjZXNzT2ZmZXIxVVJJQnVybmVyI3RoaXMiLCJtZXRob2REZXRhaWxzIjp7Im5ldHdvcmtJZCI6ImludGVybmFsIiwicGF5bWVudE1ldGhvZFR5cGVzIjpbImNhcmQiLCJsaW5rIl19LCJyZWNpcGllbnQiOiJodHRwczovL29kcy1xYS5vcGVubGlua3N3LmNvbS9zaG9wLyJ9", description="2026 FIFA World Cup Country & Player Guide Meshup Infographic (HTML) — File Access on URIBurner", expires="2026-09-02T00:46:41.306022Z"
+Link: <http://data.openlinksw.com/oplweb/offer/DemoFileAccessOffer1URIBurner#this>; rel="https://schema.org/offers"; type="text/turtle"; title="2026 FIFA World Cup Country &amp; Player Guide Meshup Infographic (HTML) â File Access on URIBurner"; seller="https://ods-qa.openlinksw.com/shop#this"
+Content-Length: 0
+

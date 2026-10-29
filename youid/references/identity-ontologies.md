@@ -22,7 +22,8 @@ This reference documents the semantic web ontologies and vocabularies used in Yo
 | `skos` | `http://www.w3.org/2004/02/skos/core#` | SKOS — concept labels |
 | `acl` | `http://www.w3.org/ns/auth/acl#` | Web Access Control |
 | `ldp` | `http://www.w3.org/ns/ldp#` | Linked Data Platform |
-| `as` | `http://www.w3.org/ns/activitystreams#` | Activity Streams |
+| `as` | `http://www.w3.org/ns/activitystreams#` | Activity Streams (`as:alsoKnownAs` is the RDF term behind DID `alsoKnownAs`) |
+| `sec` | `https://w3id.org/security#` | W3C Security / CID v1 — `sec:Multikey`, `sec:publicKeyMultibase` (datatype `sec:multibase`), `sec:controller`, `sec:verificationMethod`; used for did:nostr keys (see `did-nostr.md`) |
 
 ## Core Ontologies
 

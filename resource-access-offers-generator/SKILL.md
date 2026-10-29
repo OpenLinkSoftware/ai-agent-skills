@@ -264,6 +264,9 @@ Notes:
 - offer-level product family: Every Offer (all four offer types) MUST carry its own `skos:related` — separate from, and in addition to, any `skos:related` already required on the Product/License — whose object is a **blank node** with exactly one `oplpro:hasFamily` triple pointing at a fixed product-family IRI, chosen by which `oplofr:isMemberOf` OfferGroup the offer belongs to: `OfferGroupFileAccess` or `OfferGroupGraphAccess` → `skos:related [ oplpro:hasFamily <http://data.openlinksw.com/oplweb/product_family/loac#this> ]`; `OfferGroupApiAccess` or `OfferGroupChatService` → `skos:related [ oplpro:hasFamily <http://data.openlinksw.com/oplweb/product_family/opal#this> ]`. This is confirmed by every current prior-art file across all four offer types. The SHACL gate enforces it per type on each `*OfferShape` with `sh:nodeKind sh:BlankNode` (a named-IRI object, the shape otherwise used for Product/License `skos:related`, now fails here) plus a nested `sh:hasValue` check on `oplpro:hasFamily` for the type-appropriate family IRI.
 ## GATE: 0 FAIL
 `python3 scripts/validate-offers-shacl.py output.ttl --type {file|graph|api|chatservice}` — must pass before delivery.
+## Server-Side Generation (ProtectedOffer DET)
+Virtuoso's `ProtectedOffer` DAV DET applies the File Access contract automatically on upload, then notifies the instance admin so the offer can be loaded into each shop. See `references/det-integration.md`.
+**Known gap:** the three `prompts/*-offer-prompt.md` files are empty (0 bytes). Until they are written, `SKILL.md` and `shacl/` are the operative contract.
 ## Loading into Shop
 ```sql
 SPARQL define get:soft "no-sponge" LOAD <file:///path/to/output.ttl> INTO <urn:opl:shop:offering:sponging:cache:official> ;

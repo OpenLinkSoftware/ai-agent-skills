@@ -342,7 +342,7 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
 
 :endpointUrlTemplate a owl:DatatypeProperty ;
     rdfs:label "endpoint URL template"@en ;
-    rdfs:comment "Templated SPARQL endpoint URL. https://{CNAME}/sparql is the general endpoint pattern, including localhost when HTTPS is selected; http://localhost:8890/sparql is a local-only Virtuoso endpoint pattern and must not be generalized to non-local CNAME values."@en ;
+    rdfs:comment "Templated SPARQL endpoint URL. https://{CNAME}/sparql is the general endpoint pattern, including localhost when HTTPS is selected; http://localhost:8890/sparql/ is a local-only Virtuoso endpoint pattern and must not be generalized to non-local CNAME values."@en ;
     rdfs:domain :EndpointTemplate ;
     rdfs:range xsd:string ;
     rdfs:isDefinedBy :memoryOntology .
@@ -390,9 +390,9 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
 
 :AgentRdfMemoryEndpointTemplate a :EndpointTemplate ;
     schema:name "Agent RDF Memory SPARQL endpoint template"@en ;
-    schema:description "Bind {CNAME} to the selected target. Public harness templates remain endpoint-neutral; private overlays may define a user-specific endpoint order. Use https://{CNAME}/sparql as the general HTTPS pattern, including localhost when HTTPS is selected. Use http://localhost:8890/sparql only for the local Virtuoso 8890 endpoint; port 8890 is not a general CNAME template. Do not hardcode localhost in reusable harness queries unless that endpoint has been selected for the current run. For local Virtuoso RDF Import DET loads, discover named graph IRIs with SAMPLE() aggregation and expect graph IRIs such as urn:dav:/DAV/home/kidehen/rdf-import-test/{file}.ttl while entity IRIs use http:/DAV/home/kidehen/rdf-import-test/{file}.ttl#... ."@en ;
+    schema:description "Bind {CNAME} to the selected target. Public harness templates remain endpoint-neutral; private overlays may define a user-specific endpoint order. Use https://{CNAME}/sparql as the general HTTPS pattern, including localhost when HTTPS is selected. Use http://localhost:8890/sparql/ only for the local Virtuoso 8890 endpoint; port 8890 is not a general CNAME template. Do not hardcode localhost in reusable harness queries unless that endpoint has been selected for the current run. For local Virtuoso RDF Import DET loads, discover named graph IRIs with SAMPLE() aggregation and expect graph IRIs such as urn:dav:/DAV/home/kidehen/rdf-import-test/{file}.ttl while entity IRIs use http:/DAV/home/kidehen/rdf-import-test/{file}.ttl#... ."@en ;
     :endpointUrlTemplate "https://{CNAME}/sparql" ;
-    :endpointUrlTemplate "http://localhost:8890/sparql" ;
+    :endpointUrlTemplate "http://localhost:8890/sparql/" ;
     :graphBaseTemplate "https://{CNAME}/DAV/home/kidehen/ai-related/" ;
     :graphBaseTemplate "urn:dav:/DAV/home/{USER}/rdf-import-test/" ;
     :entityBaseTemplate "http:/DAV/home/{USER}/rdf-import-test/" .

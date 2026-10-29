@@ -95,6 +95,18 @@ All URL variables are derived from a user-provided base URL (the directory where
 | `relList_micro` | `<link itemprop="owl:sameAs"...>` | Microdata sameAs |
 | `relList_micro_schema` | `<link itemprop="schema:sameAs"...>` | Microdata schema:sameAs |
 
+## did:nostr Variables (set by `generate_identity.sh -N <id> -R same|agent`)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `nostr_did` | `did:nostr:124c0f…fdd2` | Conditional-block flag + DID IRI (enables the Multikey block and the card section) |
+| `nostr_npub` | `npub1zfxql2…` | NIP-19 display form; `schema:identifier` of the DID; vCard `nostr:` URI |
+| `nostr_hex` | `124c0f…fdd2` | Canonical 64-hex x-only public key |
+| `nostr_multibase` | `fe70102124c0f…` | `sec:publicKeyMultibase` value |
+| `nostr_same` | `1` | Mode `same` → `<webid> owl:sameAs <nostr_did>` lines |
+| `nostr_agent` | `1` | Mode `agent` → `<webid> oplcert:hasIdentityDelegate <nostr_did>` lines |
+| `nostr_relation_label` | `Same agent as this WebID (owl:sameAs)` | Human label on the card |
+
 ## OPAL Widget Variables
 
 | Variable | Example | Description |

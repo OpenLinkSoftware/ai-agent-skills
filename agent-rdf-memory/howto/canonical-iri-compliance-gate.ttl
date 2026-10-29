@@ -125,9 +125,9 @@ If any search succeeds, the entity is NOT an exception and must use the canonica
     onto:hasTrigger onto:triggerPreferencesUpdate ;
     schema:text """After changing entity IRIs in the RDF, every HTML entity-link that referenced the old IRI must be updated:
 
-1. Each `<a class="entity-link" href="https://linkeddata.uriburner.com/describe/?url={url-encoded-iri}">` must point to the new canonical IRI.
+1. Each `<a class="entity-link" href="{default-resolver-server}/describe/?url={url-encoded-iri}">` must point to the new canonical IRI.
 2. URL-encode the canonical IRI: replace `://` with `%3A%2F%2F`, `/` with `%2F`, `#` with `%23`.
-3. Use the pattern: `https://linkeddata.uriburner.com/describe/?url={url-encoded-canonical-iri}`
+3. Use the pattern: `{default-resolver-server}/describe/?url={url-encoded-canonical-iri}`
 4. Verify each updated URL resolves (returns HTTP 200) before considering the task complete.
 5. Only update entity-links for organizations, persons, and software — document-local entities (FAQ Q&A, HowTo steps, glossary terms, concepts) stay on document-local IRIs.
 

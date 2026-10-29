@@ -1,0 +1,71 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/rdf-view-rewrite-rules-mandatory.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 312. Any inline SPARQL or SPASQL demo over an RDF View is incomplete until URL rewrite rules have been created so the view's entity IRIs resolve; the rules are part of the deployment, not an optional extra."@en ;
+    schema:dateCreated "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Create and verify URL rewrite rules for every RDF View demo"@en ;
+    schema:description "Turns an RDF View whose IRIs are only strings in query results into one whose entity IRIs resolve, so a reader can follow the IRI that a SPARQL or SPASQL result returns."@en ;
+    schema:step :step-rule, :step-generate, :step-deploy, :step-verifySeparately, :step-publishThem, :step-incident, :step-describePattern, :step-resultFormatLinks ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewRewriteRulesMandatory>,
+        <rdf-views-verification-hyperlinks.ttl>,
+        <sparql-example-query-iri-in-solution.ttl>,
+        <sql-ddl-batch-script-and-verification.ttl> .
+
+:step-rule a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Mandatory: whenever an RDF View demo with inline SPARQL or SPASQL is requested, create the rewrite rules as part of the deployment"@en ;
+    schema:text """Stated by Kingsley 2026-09-30: for inline SPARQL or SPASQL demos over RDF Views the rewrite rules are mandatory, meaning they MUST be created, not offered. The deployment is: tables, rows, IRI classes, ontology, quad map, grants AND rewrite rules. A view without them returns correct query results whose IRIs answer 404, which defeats the reason for projecting IRIs at all (Step 258 and Step 311 make the IRI a super-key; the super-key only works if it resolves). No request wording reduces this: 'quick demo', 'just the queries' and 'sample data' all still require it."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewRewriteRulesMandatory> .
+
+:step-generate a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Generate the script with RDFVIEW_GENERATE_DATA_RULES, using the same path segment as the IRI classes"@en ;
+    schema:text """GET {host}/chat/functions/RDFVIEW_GENERATE_DATA_RULES?iri_path_segment={Segment}&include_ontology_rules=1 (scalar parameters work over REST; the array-parameter RDFVIEW_FROM_TABLES generators do not). The segment must equal the path used in the CREATE IRI CLASS patterns and the graph name, e.g. ScaleKG for http://host/ScaleKG/region/%d#this and graph http://host/ScaleKG#. The response is a SOAP envelope; take the CallReturn text and decode the XML entities. Leave the %% escapes and the ^{URIQADefaultHost}^ macro exactly as returned. include_ontology_rules=1 also produces the /schemas/{Segment} vhost so the vocabulary IRIs resolve."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewRewriteRulesMandatory> .
+
+:step-describePattern a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Required describe URL pattern: /describe/?uri={encoded entity IRI}&graph={encoded view graph IRI}"@en ;
+    schema:text """Stated by Kingsley 2026-09-30 with an example: https://demo.openlinksw.com/describe/?uri=http%3A%2F%2Fdemo.openlinksw.com%2FScaleKG%2Ftenant%2F1%23this&graph=http%3A%2F%2Fdemo.openlinksw.com%2FScaleKG%23 . The parameter is uri (not url), every reserved character in both values is percent-encoded (including the slashes after http%3A), and the graph parameter names the RDF View's generated named graph so the description is scoped to it. The generator's own output does NOT produce this: it emits url=, leaves slashes unencoded and appends distinct=0. After generating, edit the describe rules before deploying: in the data rules use 'uri=http%%3A%%2F%%2F^{URIQADefaultHost}^%U%%23this&graph=http%%3A%%2F%%2F^{URIQADefaultHost}^%%2F{Segment}%%23'; in the vocabulary rule use 'uri=http%%3A%%2F%%2F^{URIQADefaultHost}^%U&graph=http%%3A%%2F%%2F^{URIQADefaultHost}^%%2Fschemas%%2F{Segment}%%2F'. Redefining a rule under its existing name replaces it (the second argument, 1, is force). Verify by reading the Location header of GET {entity IRI} and comparing it character for character with the required pattern; the scheme may differ (http) because the site upgrades it."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewRewriteRulesMandatory> .
+
+:step-resultFormatLinks a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Run links for RDF View demos request text/html, because text/x-html+tr links every IRI to an unscoped /describe/?url="@en ;
+    schema:text """Found 2026-09-30 when Kingsley ran a published SELECT link and dereferenced a result IRI: the endpoint's text/x-html+tr formatter renders each IRI as /describe/?url={IRI} with no graph parameter, whatever default-graph-uri, named-graph-uri or FROM the query carries, and that link never passes through the rewrite rules. The plain text/html format renders the IRI itself as the href, so a click goes entity IRI, 303, /describe/?uri=...&graph=... (the required pattern). For RDF View demos whose IRIs have graph-scoped rewrite rules, build SELECT run links with format=text%2Fhtml; this is a deliberate exception to the default of text/x-html+tr for SELECT in virtuoso-sparql-formats.ttl, which stays the default everywhere else. DESCRIBE and CONSTRUCT keep text/x-html-nice-turtle. The formatter is server code, not configurable per graph, and changing shared server behaviour is out of scope. Verify by fetching every published run link, extracting the entity hrefs, and dereferencing samples against the exact pattern; ScaleKG 12 of 12 sampled, plus the ontology class IRIs. Say on the page why the plain table is requested."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewRewriteRulesMandatory>, <virtuoso-sparql-formats.ttl> .
+
+:step-deploy a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Check nothing already uses the names, then run each returned statement"@en ;
+    schema:text """First confirm there is no existing vhost or rule: SELECT HP_LPATH FROM DB.DBA.HTTP_PATH WHERE lower(HP_LPATH) LIKE '/{segment}%' and SELECT URR_RULE FROM DB.DBA.URL_REWRITE_RULE WHERE lower(URR_RULE) LIKE '{segment}%'. Split the script on a semicolon followed by DB.DBA., since one boundary has no newline, and run each statement through SELECT exec('...') with single quotes doubled, in order: rules, rule list, VHOST_REMOVE, VHOST_DEFINE, for the data path and again for the schema path. On the 2026-09-30 ScaleKG deployment this was 14 statements and all succeeded. VHOST_REMOVE on a path that does not exist is harmless."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewRewriteRulesMandatory> .
+
+:step-verifySeparately a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Verify each resolution path separately and claim only those that work"@en ;
+    schema:text """Test (a) the entity IRI with Accept text/html: expect a 303 to /describe/?url=... and a 200 after following it; (b) a DESCRIBE of the entity through /sparql, which returns the triples; (c) the ontology IRI the same way; (d) Accept text/turtle on the bare IRI, which returned 406 on demo.openlinksw.com for both MovieKG and ScaleKG, so do not claim RDF content negotiation on the IRI unless it is seen to work. Reply with clickable sample entity IRIs per Step 279. Never write 'resolves' in a page, table or FAQ before (a) and (b) have been run.
+
+COVERAGE, added 2026-09-30 after Kingsley asked whether resolution was verified against the demo query solutions: test EVERY entity in the view (SELECT DISTINCT ?s WHERE { ?s a ?c }), not a sample, and separately confirm the IRIs the published queries return are a subset. For each: GET the entity IRI without following redirects, require a 303, require the Location header to equal the required describe pattern exactly, then follow it and require 200. ScaleKG: 67 of 67, including all 40 IRIs in the query solutions. A 200 proves only that a page loads, so also read one entity's content: demo.openlinksw.com's /describe/ first shows an 'Open this link?' confirmation form on direct arrival (POST h=1 to continue), and only after it does the entity appear. POST h=1 with curl -L to read it, and look for the entity's own literals (name, edition, RAM). Say in the page that the confirmation step exists."""@en ;
+    rdfs:seeAlso <rdf-views-verification-hyperlinks.ttl>, <../preferences.ttl#step-rdfViewRewriteRulesMandatory> .
+
+:step-publishThem a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Publish the rules with the demo: a card, a HowTo step and a part of the batch script"@en ;
+    schema:text """The generated script is shown as its own card beside the IRI-class and quad-map cards, added to the consolidated batch script as a final part, and listed as a step in the reproduction HowTo, so a reader who copies the deployment gets resolvable IRIs too. State the two verified paths, and the 406 where observed, in the page's FAQ and findings."""@en ;
+    rdfs:seeAlso <sql-ddl-batch-script-and-verification.ttl>, <../preferences.ttl#step-rdfViewRewriteRulesMandatory> .
+
+:step-incident a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Incident record: ScaleKG delivered with IRIs that returned 404 while the page said they resolve"@en ;
+    schema:text """2026-09-30, Neo4j 'Scale AI into production' meshup. The tables, quad map, grants and eight verified queries were delivered, and the page stated that every entity IRI resolves to a description page. No rewrite rules had been created and the IRIs returned 404; nothing had been tested. Kingsley asked whether the rules had been deployed. The earlier Snowflake/MovieKG session had done it, but it was not recorded as a requirement, so it was not carried forward. Fixed same session: 14 statements deployed, both paths verified, rules added to the page. Recorded here so the rule is a standing requirement rather than something recalled from a prior session."""@en ;
+    rdfs:seeAlso <../sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl> .

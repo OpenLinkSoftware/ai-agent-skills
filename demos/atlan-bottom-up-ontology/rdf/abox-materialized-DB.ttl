@@ -1,0 +1,154 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix DB: <http://demo.openlinksw.com/schemas/DB/> .
+
+<http://demo.openlinksw.com/DB/cc_source/source_id/1#this> a DB:cc_source ;
+  DB:source_id 1 ;
+  DB:name "Cloud Warehouse" ;
+  DB:system_type "warehouse" ;
+  DB:description "Analyst SQL in the cloud warehouse" .
+
+<http://demo.openlinksw.com/DB/cc_source/source_id/2#this> a DB:cc_source ;
+  DB:source_id 2 ;
+  DB:name "CRM" ;
+  DB:system_type "crm" ;
+  DB:description "Deal-desk / CRM opportunity fields" .
+
+<http://demo.openlinksw.com/DB/cc_source/source_id/3#this> a DB:cc_source ;
+  DB:source_id 3 ;
+  DB:name "BI Tool" ;
+  DB:system_type "bi" ;
+  DB:description "Dashboard formulas" .
+
+<http://demo.openlinksw.com/DB/cc_source/source_id/4#this> a DB:cc_source ;
+  DB:source_id 4 ;
+  DB:name "Metadata Catalog" ;
+  DB:system_type "catalog" ;
+  DB:description "Catalogued metric definitions" .
+
+<http://demo.openlinksw.com/DB/cc_entity/entity_id/1#this> a DB:cc_entity ;
+  DB:entity_id 1 ;
+  DB:preferred_label "Opportunity" ;
+  DB:description "A sales opportunity / deal" .
+
+<http://demo.openlinksw.com/DB/cc_entity/entity_id/2#this> a DB:cc_entity ;
+  DB:entity_id 2 ;
+  DB:preferred_label "Account" ;
+  DB:description "A customer or prospect account" .
+
+<http://demo.openlinksw.com/DB/cc_entity_alt_label/entity_id/1/alt_label/Deal#this> a DB:cc_entity_alt_label ;
+  DB:entity_id 1 ;
+  DB:alt_label "Deal" .
+
+<http://demo.openlinksw.com/DB/cc_entity_alt_label/entity_id/1/alt_label/Opp#this> a DB:cc_entity_alt_label ;
+  DB:entity_id 1 ;
+  DB:alt_label "Opp" .
+
+<http://demo.openlinksw.com/DB/cc_entity_alt_label/entity_id/2/alt_label/Company#this> a DB:cc_entity_alt_label ;
+  DB:entity_id 2 ;
+  DB:alt_label "Company" .
+
+<http://demo.openlinksw.com/DB/cc_entity_alt_label/entity_id/2/alt_label/Customer#this> a DB:cc_entity_alt_label ;
+  DB:entity_id 2 ;
+  DB:alt_label "Customer" .
+
+<http://demo.openlinksw.com/DB/cc_metric/metric_id/1#this> a DB:cc_metric ;
+  DB:metric_id 1 ;
+  DB:entity_id 1 ;
+  DB:preferred_label "Win Rate" ;
+  DB:description "Share of opportunities that closed won — contested definition" .
+
+<http://demo.openlinksw.com/DB/cc_claim/claim_id/1#this> a DB:cc_claim ;
+  DB:claim_id 1 ;
+  DB:claim_kind "definition" ;
+  DB:subject_ref "metric:1" ;
+  DB:definition_text "closed_won / all closed opportunities" ;
+  DB:source_id 1 ;
+  DB:confidence "0.82"^^xsd:decimal ;
+  DB:valid_from "2024-01-01"^^xsd:date ;
+  DB:valid_to "2025-06-30"^^xsd:date ;
+  DB:status "superseded" .
+
+<http://demo.openlinksw.com/DB/cc_claim/claim_id/2#this> a DB:cc_claim ;
+  DB:claim_id 2 ;
+  DB:claim_kind "definition" ;
+  DB:subject_ref "metric:1" ;
+  DB:definition_text "closed_won / closed opportunities that reached qualification (exclude never-qualified)" ;
+  DB:source_id 2 ;
+  DB:confidence "0.91"^^xsd:decimal ;
+  DB:valid_from "2025-07-01"^^xsd:date ;
+  DB:status "approved" .
+
+<http://demo.openlinksw.com/DB/cc_claim/claim_id/3#this> a DB:cc_claim ;
+  DB:claim_id 3 ;
+  DB:claim_kind "definition" ;
+  DB:subject_ref "metric:1" ;
+  DB:definition_text "closed_won / closed new-business opportunities only" ;
+  DB:source_id 3 ;
+  DB:confidence "0.74"^^xsd:decimal ;
+  DB:valid_from "2025-01-01"^^xsd:date ;
+  DB:status "candidate" .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/1#this> a DB:cc_opportunity ;
+  DB:opp_id 1 ;
+  DB:account_name "Acme" ;
+  DB:stage "closed_won" ;
+  DB:amount "100000"^^xsd:decimal ;
+  DB:is_new_business 1 ;
+  DB:reached_qualification 1 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/2#this> a DB:cc_opportunity ;
+  DB:opp_id 2 ;
+  DB:account_name "BetaCo" ;
+  DB:stage "closed_lost" ;
+  DB:amount "50000"^^xsd:decimal ;
+  DB:is_new_business 1 ;
+  DB:reached_qualification 1 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/3#this> a DB:cc_opportunity ;
+  DB:opp_id 3 ;
+  DB:account_name "Gamma" ;
+  DB:stage "closed_lost" ;
+  DB:amount "30000"^^xsd:decimal ;
+  DB:is_new_business 0 ;
+  DB:reached_qualification 0 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/4#this> a DB:cc_opportunity ;
+  DB:opp_id 4 ;
+  DB:account_name "Delta" ;
+  DB:stage "closed_won" ;
+  DB:amount "80000"^^xsd:decimal ;
+  DB:is_new_business 1 ;
+  DB:reached_qualification 1 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/5#this> a DB:cc_opportunity ;
+  DB:opp_id 5 ;
+  DB:account_name "Epsilon" ;
+  DB:stage "closed_lost" ;
+  DB:amount "20000"^^xsd:decimal ;
+  DB:is_new_business 0 ;
+  DB:reached_qualification 1 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/6#this> a DB:cc_opportunity ;
+  DB:opp_id 6 ;
+  DB:account_name "Zeta" ;
+  DB:stage "open" ;
+  DB:amount "90000"^^xsd:decimal ;
+  DB:is_new_business 1 ;
+  DB:reached_qualification 1 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/7#this> a DB:cc_opportunity ;
+  DB:opp_id 7 ;
+  DB:account_name "Eta" ;
+  DB:stage "closed_won" ;
+  DB:amount "40000"^^xsd:decimal ;
+  DB:is_new_business 0 ;
+  DB:reached_qualification 1 .
+
+<http://demo.openlinksw.com/DB/cc_opportunity/opp_id/8#this> a DB:cc_opportunity ;
+  DB:opp_id 8 ;
+  DB:account_name "Theta" ;
+  DB:stage "closed_lost" ;
+  DB:amount "15000"^^xsd:decimal ;
+  DB:is_new_business 1 ;
+  DB:reached_qualification 0 .

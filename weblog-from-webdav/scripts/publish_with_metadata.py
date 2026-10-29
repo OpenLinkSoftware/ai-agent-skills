@@ -71,22 +71,57 @@ def detect_fifa_player_categories(text: str) -> list[str]:
     return cats
 
 
+# Kept in step with DB.DBA.WEBLOG_DAV_GENERIC_SIGNALS and the generic branch
+# of DB.DBA.WEBLOG_DAV_INFER_CATEGORIES in
+# templates/register-category-refresh-scheduler.sql, so a post tagged at
+# upload gets the same labels the scheduled refresh would give it.
+GENERIC_SIGNALS = [
+    ("Semantic Web, RDF, & Linked Data", ("linked data", "semantic web", "rdf", "ontology", "ontologies")),
+    ("Knowledge Graphs", ("knowledge graph", "knowledge graphs")),
+    ("AI Agents & LLMs", ("ai", "agent", "agents", "ai agent", "ai agents", "agentic", "llm", "llms",
+                          "chatgpt", "gpt", "claude", "anthropic", "openai", "gemini")),
+    ("APIs, Protocols, & Agent Skills", ("api", "apis", "rest api", "oauth", "mcp", "a2a", "agent skill", "agent skills")),
+    ("Virtuoso Platform", ("virtuoso", "webdav", "vsp", "sparql", "spasql", "sql", "uriburner")),
+    ("Analytics & Data Engineering", ("analytics", "data engineering", "etl", "elt", "lakehouse", "data warehouse")),
+    ("Identity, Security, & Privacy", ("security", "privacy", "webid", "identity", "certificate", "authentication")),
+    ("Cloud Storage & S3", ("s3", "bucket", "object storage", "cloud storage")),
+    ("FIFA World Cup & Football", ("fifa", "world cup", "football", "soccer")),
+]
+BODY_HITS_REQUIRED = 20
+
+
+def _category_norm(text: str) -> str:
+    text = re.sub(r"<[^>]*>", " ", text)
+    text = re.sub(r"&[A-Za-z#0-9]+;", " ", text)
+    return " " + re.sub(r"[^a-z0-9]+", " ", text.lower()) + " "
+
+
+def _strip_blocks(lower_html: str, tag: str) -> str:
+    return re.sub(r"<%s(?=[\s>/]).*?(?:</%s>|\Z)" % (tag, tag), " ", lower_html, flags=re.S)
+
+
 def detect_generic_categories(text: str) -> list[str]:
-    lower = text.lower()
+    # A label only when the post is about it: a whole-word term in the title,
+    # meta description or first <h1>, or at least BODY_HITS_REQUIRED
+    # whole-word hits in the visible body. Substring tests over the whole
+    # page tagged nearly every post with every label.
+    def first(pattern: str) -> str:
+        match = re.search(pattern, text, re.I | re.S)
+        return match.group(1) if match else ""
+
+    about = _category_norm(" ".join((
+        first(r"<title[^>]*>(.*?)</title>"),
+        first(r"<meta[^>]+name=[\"']description[\"'][^>]*content=[\"']([^\"']*)"),
+        first(r"<h1[^>]*>(.*?)</h1>"),
+    )))
+    body = text.lower()
+    for tag in ("head", "script", "style", "footer", "pre", "code"):
+        body = _strip_blocks(body, tag)
+    body = _category_norm(body)
     cats: list[str] = []
-    signals = [
-        ("Semantic Web, RDF & Linked Data", ("linked data", "semantic web", "rdf", "ontology")),
-        ("Knowledge Graphs", ("knowledge graph", "knowledge graphs", "entity", "relationship")),
-        ("AI Agents & LLMs", ("ai agent", "agentic", "llm", "chatgpt", "gpt")),
-        ("APIs, Protocols & Agent Skills", ("api", "rest", "oauth", "mcp", "a2a", "skill")),
-        ("Virtuoso Platform", ("virtuoso", "webdav", "vsp", "sparql", "spasql", "sql")),
-        ("Analytics & Data Engineering", ("analytics", "data engineering", "etl", "elt", "lakehouse")),
-        ("Identity, Security & Privacy", ("security", "privacy", "webid", "identity", "certificate")),
-        ("Cloud Storage & S3", ("s3", "bucket", "object storage", "cloud storage")),
-        ("FIFA World Cup & Football", ("fifa", "world cup", "football", "soccer")),
-    ]
-    for label, tokens in signals:
-        if any(token in lower for token in tokens):
+    for label, terms in GENERIC_SIGNALS:
+        if any(f" {term} " in about for term in terms) or \
+                sum(body.count(f" {term} ") for term in terms) >= BODY_HITS_REQUIRED:
             add_cat(cats, label)
     if not cats:
         add_cat(cats, "WebDAV Published Documents")

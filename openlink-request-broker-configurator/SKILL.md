@@ -196,6 +196,26 @@ curl -s -u <uid>:<pwd> http://localhost:8000/scripts/brklic
 
 **Success detection:** POST responses contain "Configuration Updated" on success, "Sorry, this operation failed" on error.
 
+### C8. Agent Binary Versions
+
+Every DB agent binary reports its own version banner, same pattern as `oplrqb +version`. Resolve `<agent>` from the `Program` value in the relevant `[generic_<name>]` rulebook section (e.g. `odbc_mv`, `sqlite_mv`, `jdbc90_mv`):
+
+```bash
+# macOS (Linux: /opt/openlink/bin/<agent>)
+"/Library/Application Support/openlink/bin/<agent>" +version 2>&1 | head -4
+
+# Equivalents — all emit the same banner:
+"/Library/Application Support/openlink/bin/<agent>" "-?" 2>&1 | head -4
+"/Library/Application Support/openlink/bin/<agent>" --version 2>&1 | head -4
+```
+
+Verified examples:
+- `odbc_mv +version` → `ODBC Database Agent, Version 1.25 as of Wed Sep 09 2026 (Release 10.0, g04357c896)`
+- `sqlite_mv +version` → `SQLite Database Agent (multi threaded), Version 1.0 as of Wed Sep 02 2026`
+- `jdbc90_mv +version` → `JDBC Database Agent (JDK 90)(multi threaded), Version 1.46 as of Wed Aug 19 2026`
+
+There is no www_sv endpoint for agent versions — always query the binary directly. Compare the `Release` / git-hash segment against the broker banner to confirm a consistent build train.
+
 ---
 
 ## Mode A — Direct File Operations (Fallback)
@@ -505,6 +525,7 @@ echo 'USERNAME ALL=(ALL) NOPASSWD: /path/to/oplshut' | sudo tee /etc/sudoers.d/o
 | Edit agent settings | POST to `brkagents` | Edit `[generic_<name>]` section |
 | View broker log | `curl .../brklog` | `tail` the log file |
 | Version | `curl .../brkver` | `oplrqb +version` |
+| Agent version | n/a — query binary directly (C8) | `<agent>_mv +version` (also `-?`, `--version`) |
 | Reload rulebook | `curl .../brkinit` | `oplshut +reinit` |
 | Full restart | Stop + start | `oplshut +yes` → `oplrqb &` |
 | Validate edits | Automatic (www_sv) | `inicheck oplrqb.ini` |
@@ -538,7 +559,7 @@ When invoked:
 
 1. Run Step 0 — detect OS, check www_sv, resolve rulebook path
 2. If www_sv binary found but not running: offer to start it
-3. Report: mode, OS, rulebook path, broker version, listen port
+3. Report: mode, OS, rulebook path, broker version, listen port (plus agent binary versions via C8 on request)
 4. Prompt www_sv credentials if Mode C (session only)
 5. Ask what to do:
    - **Configure ODBC Agents** → run ODBC wizard (Steps ODBC-1 through ODBC-5)
@@ -554,4 +575,4 @@ When invoked:
 ---
 
 ## Version
-**1.0.0** — Initial release. ODBC and JDBC agent configuration wizards with host DSN discovery and JDBC driver auto-detection. Full rule book management via www_sv HTTP (Mode C) and direct file access (Mode A). macOS and Linux support.
+**1.1.0** — Added agent binary version detection (C8: `<agent>_mv +version` / `-?` / `--version`, verified against odbc_mv, sqlite_mv, jdbc90_mv).

@@ -31,7 +31,7 @@ python3 scripts/publish_with_metadata.py \
   --base-url "https://www.openlinksw.com/DAV/www2.openlinksw.com/data/html/" \
   --file ./2026-07-22-example-post.html \
   --profile auto \
-  --category "Semantic Web, RDF & Ontologies; AI Engineering & LLMs" \
+  --category "Semantic Web, RDF, & Ontologies; AI Engineering & LLMs" \
   --cert-type P12 \
   --cert "$P12_FILE:$P12_PASSWORD" \
   --cacert "$CA_BUNDLE" \

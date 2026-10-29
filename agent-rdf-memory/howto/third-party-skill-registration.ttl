@@ -1,0 +1,48 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:HowTo ;
+    schema:about :thirdPartySkillRegistration ;
+    schema:name "Registering a Third-Party Agent Skill (install locations, code review, gitignore, canonical IRI)"@en ;
+    schema:description "What 'register this skill <github-url>' means operationally: review the upstream code, install it into the local registries, keep it out of the public OpenLinkSoftware repo with a .gitignore entry, and record the entity in entities/tools.ttl under its UPSTREAM IRI. Established 2026-09-28 registering Barty-Bart/motion-graphics' motion-broll skill."@en ;
+    schema:dateCreated "2026-09-28T20:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-28T20:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:step :step-reviewFirst, :step-installLocations, :step-gitignoreNotVendor,
+        :step-upstreamIri, :step-prerequisites ;
+    rdfs:seeAlso <../preferences.ttl#step-thirdPartySkillRegistration>,
+        <../entities/tools.ttl>,
+        <canonical-entity-iri-denotation.ttl>,
+        <skill-invocation.ttl> .
+
+:thirdPartySkillRegistration a schema:DefinedTerm ;
+    schema:name "Third-party skill registration"@en ;
+    schema:description "Installing an agent skill authored outside the OpenLinkSoftware ai-agent-skills repository into the local skill registries, without vendoring it into that repository."@en .
+
+:step-reviewFirst a schema:HowToStep ;
+    schema:position 1 ;
+    schema:name "Read the upstream license and scan the code for network, credential and process calls BEFORE installing"@en ;
+    schema:text "A registered skill is loaded into every agent that reads the registry, so review it first: record the license and the exact commit installed, then grep for curl/wget/requests/urllib/fetch, subprocess/os.system/child_process/eval, and package installs. Report what it does (for motion-broll: ffmpeg/ffprobe, Playwright/Chromium, Google Fonts in templates, and a setup.sh that pip-installs numpy with --user falling back to --break-system-packages) rather than installing silently."@en .
+
+:step-installLocations a schema:HowToStep ;
+    schema:position 2 ;
+    schema:name "Install to the repo directory plus ~/.codex/skills and ~/.vibe/skills — the other three registries are symlinks to the repo directory"@en ;
+    schema:text "~/.claude/skills, ~/.qwen/skills and ~/.gemini/skills are symlinks to /Users/kidehen/Documents/Management/Development/ai-agent-skills, so one copy in the repo directory serves all three; ~/.codex/skills and ~/.vibe/skills are real directories and need their own copy. This is the only reason third-party code sits in the repo directory at all. Use the skill's own directory name (motion-broll), not the repository name, and rsync -a --exclude '.DS_Store'. Claude Code picks the skill up in the current session, without a restart."@en .
+
+:step-gitignoreNotVendor a schema:HowToStep ;
+    schema:position 3 ;
+    schema:name "Add a /skill-name/ line to the repo .gitignore; never commit third-party skills into the public repo without an explicit vendoring decision"@en ;
+    schema:text "Kingsley, 2026-09-28, choosing between gitignore / leave-untracked / vendor-and-commit for motion-broll: gitignore it. Leaving it merely untracked (as browser-automation, game-development and monid still are) relies on nobody running 'git add -A'. Vendoring — committing with upstream attribution and license text — stays available but needs the user's explicit decision per skill."@en .
+
+:step-upstreamIri a schema:HowToStep ;
+    schema:position 4 ;
+    schema:name "Register the entity in entities/tools.ttl under the UPSTREAM GitHub IRI + #this, never an ai-agent-skills IRI"@en ;
+    schema:text "Using https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/{skill}#this for a third-party skill would misattribute someone else's work to this repo. Mint {upstream-repo-path}#this instead, and carry schema:license, schema:codeRepository, schema:softwareRequirements, the installed commit SHA in rdfs:comment, and the skill in the document's schema:about list."@en ;
+    rdfs:seeAlso <canonical-entity-iri-denotation.ttl> .
+
+:step-prerequisites a schema:HowToStep ;
+    schema:position 5 ;
+    schema:name "Verify the skill's stated prerequisites on this machine and report versions"@en ;
+    schema:text "Check each requirement the skill names and report the measured versions, including codec- or feature-level checks rather than the binary alone: motion-broll needs Node 18+, Python 3 and ffmpeg with ProRes, verified 2026-09-28 as node v22.22.3, Python 3.14.4 and ffmpeg 8.0.1 carrying prores/prores_aw/prores_ks."@en .

@@ -1,0 +1,288 @@
+@base <https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/> .
+@prefix schema: <http://schema.org/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix dbo:   <http://dbpedia.org/ontology/> .
+@prefix dbr:   <http://dbpedia.org/resource/> .
+@prefix wd:    <http://www.wikidata.org/entity/> .
+
+##############################################################################
+# Article knowledge graph — Emily Winks / Atlan Context & Chaos (2026-09-04)
+# Virtuoso showcase companion. Document-local hashes for unsure concepts.
+##############################################################################
+
+<#article>
+  a schema:Article, schema:BlogPosting ;
+  schema:headline "AI Ontology: Bottom-Up Doesn't Mean Starting From Scratch" ;
+  schema:url <https://atlan.com/context-and-chaos/issue/ai-ontology-bottom-up-doesnt-mean-starting-from-scratch/> ;
+  schema:datePublished "2026-09-04"^^xsd:date ;
+  schema:inLanguage "en-US" ;
+  schema:description "We mined 32,237 claims into a business ontology. Every claim carried a source and a confidence score. Not one could say when it stopped being true." ;
+  schema:author <#person-emily-winks> ;
+  schema:publisher <#org-atlan> ;
+  schema:isPartOf <#series-context-and-chaos> ;
+  schema:about <#term-ontology>, <#term-claim>, <#term-skos>, <#term-owl>, <#term-shacl>,
+                <#term-reification>, <#term-named-graph>, <#term-validity-interval>,
+                <#term-win-rate>, <#term-provenance>, <#term-knowledge-graph> ;
+  schema:mentions <#claim-winrate-closed-won>, <#claim-winrate-exclude-unqualified>,
+                   <#claim-winrate-new-business> ;
+  schema:keywords "ontology", "bottom-up mining", "validity interval", "win rate",
+                   "SKOS", "OWL", "SHACL", "reification", "named graphs", "RDF-star" ;
+  dct:subject <#term-ontology> ;
+  prov:wasAttributedTo <#person-emily-winks> .
+
+<#person-emily-winks>
+  a schema:Person ;
+  schema:name "Emily Winks" ;
+  schema:url <https://atlan.com/authors/emily-winks/> ;
+  schema:jobTitle "Data Governance" ;
+  schema:worksFor <#org-atlan> ;
+  schema:sameAs <https://www.linkedin.com/in/emily-winks/> .
+
+<#org-atlan>
+  a schema:Organization ;
+  schema:name "Atlan" ;
+  schema:url <https://atlan.com/> ;
+  schema:sameAs <https://en.wikipedia.org/wiki/Atlan_(software)> .
+
+<#series-context-and-chaos>
+  a schema:CreativeWorkSeries ;
+  schema:name "Context & Chaos" ;
+  schema:url <https://atlan.com/context-and-chaos/> ;
+  schema:publisher <#org-atlan> .
+
+##############################################################################
+# DefinedTerms — prefer well-known IRIs; document-local when unsure
+##############################################################################
+
+<#term-ontology>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Ontology" ;
+  skos:prefLabel "Ontology"@en ;
+  schema:description "Formal representation of concepts, relationships, and constraints in a domain." ;
+  schema:sameAs dbr:Ontology_(information_science), wd:Q324254 ;
+  owl:sameAs dbr:Ontology_(information_science) .
+
+<#term-knowledge-graph>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Knowledge graph" ;
+  skos:prefLabel "Knowledge graph"@en ;
+  schema:description "Graph-structured representation of entities and relationships for retrieval and reasoning." ;
+  schema:sameAs dbr:Knowledge_graph, wd:Q33002955 .
+
+<#term-rdf>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Resource Description Framework" ;
+  skos:prefLabel "RDF"@en ;
+  schema:sameAs dbr:Resource_Description_Framework, wd:Q54872 .
+
+<#term-sparql>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "SPARQL" ;
+  skos:prefLabel "SPARQL"@en ;
+  schema:description "Query language for RDF." ;
+  schema:sameAs dbr:SPARQL, wd:Q54871 .
+
+<#term-skos>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Simple Knowledge Organization System" ;
+  skos:prefLabel "SKOS"@en ;
+  schema:description "W3C vocabulary for concepts, preferred/alternate labels, and concept schemes." ;
+  schema:sameAs dbr:Simple_Knowledge_Organization_System, wd:Q2288360 .
+
+<#term-owl>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Web Ontology Language" ;
+  skos:prefLabel "OWL"@en ;
+  schema:description "W3C language for axioms and constraints that reasoners can check." ;
+  schema:sameAs dbr:Web_Ontology_Language, wd:Q826165 .
+
+<#term-shacl>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Shapes Constraint Language" ;
+  skos:prefLabel "SHACL"@en ;
+  schema:description "W3C language for validating RDF graphs against shapes." ;
+  schema:sameAs dbr:SHACL, wd:Q29377880 .
+
+<#term-reification>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Reification" ;
+  skos:prefLabel "Reification"@en ;
+  schema:description "Treating a statement/claim as an entity so further statements (source, confidence, time) can be attached — akin to RDF-star / RDF 1.2 reifiers." ;
+  schema:sameAs dbr:Reification_(computer_science) .
+
+<#term-named-graph>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Named graph" ;
+  skos:prefLabel "Named graph"@en ;
+  schema:description "Addressable partition of RDF assertions used for provenance, authority, and access boundaries." ;
+  schema:sameAs dbr:Named_graph, wd:Q6966323 .
+
+<#term-validity-interval>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Validity interval" ;
+  skos:prefLabel "Validity interval"@en ;
+  schema:description "The temporal window (validFrom–validTo) during which a claim or definition holds — the missing dimension in the article's mined claims." ;
+  # No confident DBpedia/Wikidata IRI — keep document-local
+  skos:related <#term-provenance>, <#term-claim> .
+
+<#term-win-rate>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Win rate" ;
+  skos:prefLabel "Win rate"@en ;
+  schema:description "Sales metric with competing local definitions (closed-won/all-closed; exclude never-qualified; new-business only)." ;
+  skos:related <#term-claim> .
+
+<#term-claim>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Claim" ;
+  skos:prefLabel "Claim"@en ;
+  schema:description "Mined assertion about meaning (entity, metric, property, relationship, or definition) carrying source and confidence; should also carry validity interval." ;
+  skos:related <#term-reification>, <#term-provenance>, <#term-validity-interval> .
+
+<#term-provenance>
+  a schema:DefinedTerm, skos:Concept ;
+  schema:name "Provenance" ;
+  skos:prefLabel "Provenance"@en ;
+  schema:description "Record of where a claim came from and how it was derived — alignable to PROV and Dublin Core." ;
+  schema:sameAs dbr:Provenance, wd:Q177257 .
+
+##############################################################################
+# Experiment quantitative values
+##############################################################################
+
+<#qv-claims>
+  a schema:QuantitativeValue ;
+  schema:name "Claims mined" ;
+  schema:value 32237 ;
+  schema:unitText "claims" ;
+  schema:description "Total claims mined from warehouse, CRM, BI, and catalog." .
+
+<#qv-entities>
+  a schema:QuantitativeValue ;
+  schema:name "Entities reconciled" ;
+  schema:value 14 ;
+  schema:unitText "entities" .
+
+<#qv-metrics>
+  a schema:QuantitativeValue ;
+  schema:name "Metrics reconciled" ;
+  schema:value 79 ;
+  schema:unitText "metrics" .
+
+<#qv-properties>
+  a schema:QuantitativeValue ;
+  schema:name "Properties reconciled" ;
+  schema:value 61 ;
+  schema:unitText "properties" .
+
+<#qv-relationships>
+  a schema:QuantitativeValue ;
+  schema:name "Relationships reconciled" ;
+  schema:value 35 ;
+  schema:unitText "relationships" .
+
+<#article> schema:about <#qv-claims>, <#qv-entities>, <#qv-metrics>,
+                         <#qv-properties>, <#qv-relationships> .
+
+##############################################################################
+# Competing win-rate Claims (source + confidence + validity interval)
+# — the article had source+confidence; demo adds validFrom/validTo
+##############################################################################
+
+<#claim-winrate-closed-won>
+  a schema:Claim, <#ClaimType> ;
+  schema:name "Win rate = closed-won / all closed opportunities" ;
+  schema:text "Win rate computed as count of closed-won opportunities divided by all closed opportunities." ;
+  schema:claimReviewed "Win Rate definition (warehouse SQL)" ;
+  schema:appearance <#article> ;
+  schema:author <#src-warehouse> ;
+  schema:about <#term-win-rate> ;
+  <#confidence> 0.82 ;
+  schema:validFrom "2024-01-01"^^xsd:date ;
+  schema:validThrough "2025-06-30"^^xsd:date ;
+  prov:wasDerivedFrom <#src-warehouse> ;
+  dct:source <#src-warehouse> .
+
+<#claim-winrate-exclude-unqualified>
+  a schema:Claim, <#ClaimType> ;
+  schema:name "Win rate excludes never-qualified deals" ;
+  schema:text "Win rate computed as closed-won over closed opportunities that reached qualification; deals that never qualified are excluded." ;
+  schema:claimReviewed "Win Rate definition (CRM / deal desk)" ;
+  schema:appearance <#article> ;
+  schema:author <#src-crm> ;
+  schema:about <#term-win-rate> ;
+  <#confidence> 0.91 ;
+  schema:validFrom "2024-07-01"^^xsd:date ;
+  schema:validThrough "2026-03-31"^^xsd:date ;
+  prov:wasDerivedFrom <#src-crm> ;
+  dct:source <#src-crm> .
+
+<#claim-winrate-new-business>
+  a schema:Claim, <#ClaimType> ;
+  schema:name "Win rate = new-business pipeline only" ;
+  schema:text "Win rate counts only new-business opportunities; renewals and expansions excluded." ;
+  schema:claimReviewed "Win Rate definition (BI dashboard)" ;
+  schema:appearance <#article> ;
+  schema:author <#src-bi> ;
+  schema:about <#term-win-rate> ;
+  <#confidence> 0.74 ;
+  schema:validFrom "2025-01-01"^^xsd:date ;
+  # still current — open-ended
+  prov:wasDerivedFrom <#src-bi> ;
+  dct:source <#src-bi> .
+
+<#ClaimType>
+  a rdfs:Class ;
+  rdfs:label "Claim (document-local type)" ;
+  rdfs:comment "Document-local class for mined definition claims; aligns in spirit to RDF-star reifiers." ;
+  rdfs:seeAlso <#term-claim>, <#term-reification> .
+
+<#confidence>
+  a rdf:Property ;
+  rdfs:label "confidence" ;
+  rdfs:comment "Evidence strength score in [0,1] attached to a claim." ;
+  rdfs:domain <#ClaimType> ;
+  rdfs:range xsd:decimal .
+
+<#src-warehouse>
+  a schema:SoftwareApplication, prov:Entity ;
+  schema:name "Cloud warehouse" ;
+  schema:applicationCategory "DataWarehouse" ;
+  schema:description "Source system type: warehouse — SQL definitions mined for win rate." .
+
+<#src-crm>
+  a schema:SoftwareApplication, prov:Entity ;
+  schema:name "CRM" ;
+  schema:applicationCategory "CRM" ;
+  schema:description "Source system type: CRM — deal-desk / opportunity definitions." .
+
+<#src-bi>
+  a schema:SoftwareApplication, prov:Entity ;
+  schema:name "BI tool" ;
+  schema:applicationCategory "BusinessIntelligence" ;
+  schema:description "Source system type: BI — dashboard formulas." .
+
+<#src-catalog>
+  a schema:SoftwareApplication, prov:Entity ;
+  schema:name "Metadata catalog" ;
+  schema:applicationCategory "DataCatalog" ;
+  schema:description "Source system type: catalog — glossary and lineage evidence." .
+
+<#thesis>
+  a schema:Quotation ;
+  schema:text "Discover meaning locally. Do not reinvent how meaning is represented." ;
+  schema:isPartOf <#article> ;
+  schema:creator <#person-emily-winks> .
+
+<#gap-time>
+  a schema:Thing ;
+  schema:name "Missing validity interval" ;
+  schema:description "Claims had source and confidence but no validFrom/validTo — the fourth old argument the design lacked." ;
+  schema:about <#term-validity-interval> ;
+  schema:isPartOf <#article> .

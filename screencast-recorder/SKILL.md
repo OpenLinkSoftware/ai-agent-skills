@@ -1,6 +1,6 @@
 ---
 name: "screencast-recorder"
-description: "Record screencast videos of web application interactions using shot-scraper video. Use when the user says: record a screencast, record a video demo, make a walkthrough of, record this session, record what you just did, add voice-over narration, or mix narration into a screencast. Handles mTLS-authenticated endpoints (linkeddata.uriburner.com:5443), local dev server demos, after-the-fact recording from curl session history, optional OpenAI TTS MP3 generation, dual-format storyboards (YAML/RDF Turtle), and DEFAULT distribution HTML that MUST embed the primary MP4 via HTML5 video (never download-only). Male default voice: onyx."
+description: "Record screencast videos of web application interactions using shot-scraper video. Use when the user says: record a screencast, record a video demo, make a walkthrough of, record this session, record what you just did, add voice-over narration, or mix narration into a screencast. Handles mTLS-authenticated endpoints (linkeddata.uriburner.com:5443), local dev server demos, after-the-fact recording from curl session history, optional text-to-speech MP3 generation, dual-format storyboards (YAML/RDF Turtle), and DEFAULT distribution HTML that MUST embed the primary MP4 via HTML5 video (never download-only). Default narration voice: Grok/xAI leo (OpenAI onyx and offline Piper are alternatives)."
 ---
 
 Record WebM/MP4 screencasts of browser interactions using `shot-scraper video`. Accepts YAML storyboards natively or RDF Turtle via the `ttl-to-yaml.py` converter.
@@ -161,7 +161,31 @@ test -f "{SCREENCAST_DIR}/{filename}-with-voiceover.mp4" || test -f "{SCREENCAST
 
 When the user wants voice-over narration, generate a standalone MP3 first and ask the user to approve the voice quality before modifying the screencast.
 
-Use `scripts/screencast-openai-voiceover.py` when the user wants an OpenAI TTS narration track:
+#### Default: Grok/xAI voice `leo`
+
+The default narration voice is **leo**, through the Grok/xAI text-to-speech endpoint `https://api.x.ai/v1/tts` (set 2026-10-07, `preferences.ttl` Step 323). Use another voice only when the user names one in that session. `rex` is the fallback if `leo` is unavailable; say so if you use it.
+
+Use `scripts/screencast-grok-voiceover.py`. For a whole screencast, write one text file per scene (`narration-scenes/00-intro.txt`, `01-...txt`) and generate a clip per scene, a timing plan, and a standalone voice track in one go:
+
+```bash
+python3 scripts/screencast-grok-voiceover.py \
+  --scenes-dir narration-scenes --out-dir vo \
+  --plan vo-plan.json --track "{SCREENCAST_DIR}/{filename}-voiceover.mp3"
+```
+
+For a single narration file: `--text-file narration.txt --output "{SCREENCAST_DIR}/{filename}-voiceover.mp3"`.
+
+- **Key:** the script reads `XAI_API_KEY` from the environment, and if that is unset it reads the single `export XAI_API_KEY=` line from the user's `~/.zshrc` (a non-interactive shell does not load that file). Never print, log, store, or write the key anywhere, and send it only to `api.x.ai`.
+- **Sandboxed shells:** `api.x.ai` may need to be allowed for the command to reach the network.
+- **Scene timing:** each scene lasts its clip plus `--tail` seconds (default 1.0), written to the plan. Re-time the recording to those lengths rather than freezing the last frame when the visual is an animation; freeze the last frame only when the video is a fixed recording that cannot be re-timed.
+- **Pronunciation:** apply the phonetic spellings in `preferences.ttl` Step 175 and `howto/screencast-recording.ttl` (for example LOAC is pronounced "lock"; ACP, UCP and MPP are spoken letter by letter).
+- Record the voice in a `TTS.txt` beside the clips, for example: `TTS: Grok/xAI api.x.ai/v1/tts voice=leo text_normalization=true`.
+
+The voice-quality approval gate below still applies.
+
+#### Alternative: OpenAI TTS
+
+Use `scripts/screencast-openai-voiceover.py` only when the user asks for an OpenAI voice or the Grok endpoint is unreachable:
 
 ```bash
 python3 scripts/screencast-openai-voiceover.py \
@@ -171,13 +195,11 @@ python3 scripts/screencast-openai-voiceover.py \
   --instructions "Speak as a calm, confident technical narrator. Keep the pace measured and clear."
 ```
 
-Default voice for male narration is **onyx**; use **coral** (or another OpenAI TTS voice) only when the user requests a different voice.
-
-The script requires `OPENAI_API_KEY` and the Python `openai` package. If local Python dependencies are broken, tell the user clearly and either repair the environment with approval or ask them to provide an externally generated MP3.
+For OpenAI narration, **onyx** is the male voice; use **coral** (or another OpenAI TTS voice) only when the user requests it. This script requires `OPENAI_API_KEY` and the Python `openai` package. If local Python dependencies are broken, tell the user clearly and either repair the environment with approval or ask them to provide an externally generated MP3.
 
 #### Fallback: local/offline narration via Piper
 
-If OpenAI TTS is unreachable (no API key, out of quota, network down) and the user wants to proceed without waiting, offer `scripts/screencast-piper-voiceover.py` as a local, offline alternative. It is an **optional dependency** -- nothing installs at skill-load time. The script installs `piper-tts` (pip) and downloads the requested voice model (one-time, ~50-120MB depending on quality tier) only when actually run, and only if not already cached under `~/.cache/piper-voices/`.
+If the cloud TTS options (Grok/xAI, then OpenAI) are unreachable (no API key, out of quota, network down) and the user wants to proceed without waiting, offer `scripts/screencast-piper-voiceover.py` as a local, offline alternative. It is an **optional dependency** -- nothing installs at skill-load time. The script installs `piper-tts` (pip) and downloads the requested voice model (one-time, ~50-120MB depending on quality tier) only when actually run, and only if not already cached under `~/.cache/piper-voices/`.
 
 ```bash
 python3 scripts/screencast-piper-voiceover.py \
@@ -188,7 +210,7 @@ python3 scripts/screencast-piper-voiceover.py \
 
 Default voice for male narration is **en_US-ryan-high** (highest quality tier). Other male options: `en_US-norman-medium`, `en_US-bryce-medium`, `en_US-hfc_male-medium`, `en_GB-alan-medium`, `en_GB-northern_english_male-medium`. Full voice list: https://huggingface.co/rhasspy/piper-voices/tree/main/en
 
-**Known limitation, state this to the user before using it:** Piper has no style/instructions prompt -- it is fixed-voice, fixed-prosody synthesis. There is no way to ask for "steady, unhurried power" or any other delivery style the way the OpenAI path's `--instructions` allows. The script's defaults (`--length-scale 1.05`, `--noise-scale 0.5`, `--noise-w-scale 0.6`, all tuned down/up from Piper's own stock defaults of 1.0/0.667/0.8) are the closest numeric PROXY for a steady, measured delivery -- flatter variation and a touch slower pace -- but this is an approximation, not real style control. It cannot add emphasis, warmth, urgency, or any other directed quality; the voice choice itself carries most of the tone. If the user needs precise, describable style control, OpenAI TTS (or another cloud provider) remains the better fit -- Piper is for when a narration is needed and no cloud TTS is reachable, not a drop-in style-equivalent replacement.
+**Known limitation, state this to the user before using it:** Piper has no style/instructions prompt -- it is fixed-voice, fixed-prosody synthesis. There is no way to ask for "steady, unhurried power" or any other delivery style the way the OpenAI path's `--instructions` allows. The script's defaults (`--length-scale 1.05`, `--noise-scale 0.5`, `--noise-w-scale 0.6`, all tuned down/up from Piper's own stock defaults of 1.0/0.667/0.8) are the closest numeric PROXY for a steady, measured delivery -- flatter variation and a touch slower pace -- but this is an approximation, not real style control. It cannot add emphasis, warmth, urgency, or any other directed quality; the voice choice itself carries most of the tone. If the user needs precise, describable style control, OpenAI TTS (which accepts an instructions prompt) or another cloud provider remains the better fit -- Piper is for when a narration is needed and no cloud TTS is reachable, not a drop-in style-equivalent replacement.
 
 The upstream project (`OHF-Voice/piper1-gpl`) is GPL-3.0 licensed. That is not a practical concern for local, personal use of the installed tool, but do not bundle/redistribute the package or voice models as part of a shipped product without checking license compatibility first.
 

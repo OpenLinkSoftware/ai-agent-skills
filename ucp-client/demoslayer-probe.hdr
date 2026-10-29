@@ -1,0 +1,9 @@
+HTTP/1.1 302 Found
+Server: Virtuoso/08.03.3335 (Linux) x86_64-generic-linux-glibc2.12  VDB
+Connection: Keep-Alive
+Content-Type: text/html; charset=UTF-8
+Date: Wed, 02 Sep 2026 00:36:25 GMT
+Accept-Ranges: bytes
+Location: https://linkeddata.uriburner.com:5443/DAV/demos/daas_paid/world-cup-2026-country-player-guide-meshup-gpt5-chat-1.html?k=54309b6c-a666-11f1-86a8-abd8205a52b3
+Content-Length: 0
+

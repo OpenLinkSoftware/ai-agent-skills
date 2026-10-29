@@ -22,12 +22,13 @@ Modes:
             Credentials: -u dba:  -> curl prompts for the password (never in argv/logs).
 
 Local store (canonical source of truth) defaults to the master repo path; override with --store.
-Endpoint defaults to http://localhost:8890/sparql (SPARQL) and .../sparql-graph-crud-auth (CRUD).
+Endpoint defaults to http://localhost:8890/sparql/ (SPARQL) and .../sparql-graph-crud-auth (CRUD).
 """
 import argparse, os, re, subprocess, sys, tempfile, urllib.parse, urllib.request
+import pathlib
 
 STORE   = "/Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory"
-SPARQL  = "http://localhost:8890/sparql"
+SPARQL  = "http://localhost:8890/sparql/"  # trailing slash: bare /sparql returns 301, which breaks POST
 CRUD    = "http://localhost:8890/sparql-graph-crud-auth"
 G_BASE  = "urn:dav:/DAV/home/kidehen/agent-rdf-memory/"
 INDEX_G = G_BASE + "index.ttl"
@@ -43,16 +44,98 @@ def session_files(store, only=None):
         return [p] if os.path.exists(p) else []
     return sorted(os.path.join(d, f) for f in os.listdir(d) if f.endswith(".ttl"))
 
-def local_state(path):
+def local_state(path, base=None):
     txt = open(path, encoding="utf-8", errors="replace").read()
     dm = DM_RE.search(txt)
     n = None
     try:
         import rdflib
-        n = len(rdflib.Graph().parse(data=txt, format="turtle"))
+        # rdflib cannot resolve relative IRIs against a urn: base, so parse against the file URI (same count as the store)
+        n = len(rdflib.Graph().parse(data=txt, format="turtle", publicID=pathlib.Path(path).resolve().as_uri()))
     except Exception:
         n = None  # rdflib missing or file malformed -> count unknown, not 0
     return {"dateModified": dm.group(1) if dm else None, "triples": n}
+
+def _canon_iri(v):
+    """Virtuoso resolves '..' above the graph root to urn:/ while the local parse keeps urn:dav:/.
+    Both name the same resource; compare them under one prefix."""
+    if v.startswith("urn:dav:/"):
+        return "urn:/" + v[len("urn:dav:/"):]
+    return v
+
+def _canon_literal(lex, dt):
+    """Compare typed literals by value, not spelling (Virtuoso returns boolean 1 and +00:00 vs Z differ)."""
+    if dt.endswith("#duration"):
+        # Virtuoso stores PT70S as the number 70.0 (seconds); compare both as seconds
+        import re as _re
+        m = _re.fullmatch(r"P(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)", lex.strip())
+        if m:
+            h, mi, se = (float(x) if x else 0.0 for x in m.groups())
+            return repr(h * 3600 + mi * 60 + se)
+        try:
+            return repr(float(lex))
+        except ValueError:
+            return lex
+    if not dt or dt.endswith("#string"):
+        # Turtle may spell astral characters as \uD83D\uDD17 surrogate pairs; the store holds the decoded character
+        try:
+            return lex.encode("utf-16", "surrogatepass").decode("utf-16")
+        except UnicodeError:
+            return lex
+    try:
+        import rdflib
+        v = rdflib.Literal(lex, datatype=rdflib.URIRef(dt)).toPython()
+        if isinstance(v, bool):
+            return "bool:%s" % str(v).lower()
+        if hasattr(v, "isoformat"):
+            if getattr(v, "tzinfo", None) is None:
+                return v.isoformat()
+            from datetime import timezone
+            return v.astimezone(timezone.utc).replace(tzinfo=None).isoformat()
+        if isinstance(v, (int, float)):
+            return repr(v)
+        return str(v)
+    except Exception:
+        return lex
+
+def _norm_remote(b):
+    kind = {"uri": "uri", "bnode": "bnode"}.get(b["type"], "literal")
+    if kind == "bnode":
+        return ("bnode", "_", "", "")   # labels are reassigned on load; compare blank nodes structurally, not by label
+    if kind != "literal":
+        return (kind, _canon_iri(b["value"]), "", "")
+    dt = b.get("datatype", "")
+    return ("literal", _canon_literal(b["value"], dt), dt, b.get("xml:lang", ""))
+
+DAV_HTTP_BASE = "http://dav.invalid/"   # rdflib cannot resolve relative IRIs against urn:; this stand-in has the same path
+
+def _norm_local(t, _unused_base, _unused_graph):
+    import rdflib
+    if isinstance(t, rdflib.Literal):
+        dt = str(t.datatype) if t.datatype else ""
+        return ("literal", _canon_literal(str(t), dt), dt, t.language or "")
+    if isinstance(t, rdflib.BNode):
+        return ("bnode", "_", "", "")
+    v = str(t)
+    if v.startswith(DAV_HTTP_BASE):
+        v = "urn:dav:/" + v[len(DAV_HTTP_BASE):]   # back to the store's IRI form
+    return ("uri", _canon_iri(v), "", "")
+
+def content_diff(endpoint, g, path):
+    """Triple-set comparison (not just counts): returns (only_local, only_remote) sizes,
+    or None when the local file cannot be parsed. Catches value-only edits."""
+    import rdflib
+    # Resolve relative IRIs exactly as Virtuoso did on load: against the graph IRI's path
+    base = DAV_HTTP_BASE + g[len("urn:dav:/"):] if g.startswith("urn:dav:/") else g
+    try:
+        loc = rdflib.Graph().parse(data=open(path, encoding="utf-8", errors="replace").read(), format="turtle", publicID=base)
+    except Exception:
+        return None
+    local = {tuple(_norm_local(t, None, None) for t in tr) for tr in loc}
+    q = f"SELECT ?s ?p ?o WHERE {{ GRAPH <{g}> {{ ?s ?p ?o }} }}"
+    rows = bindings(sparql(endpoint, q))
+    remote = {(_norm_remote(r["s"]), _norm_remote(r["p"]), _norm_remote(r["o"])) for r in rows}
+    return (len(local - remote), len(remote - local))
 
 def build_preamble(store):
     from collections import Counter
@@ -127,7 +210,7 @@ def check(args):
         for f in files:
             rel = os.path.relpath(f, args.store).replace(os.sep, "/")
             g = graph_iri(rel)
-            loc = local_state(f)
+            loc = local_state(f, base=g)
             try:
                 exists = count(endpoint=args.endpoint, g=g) if ask(args.endpoint, f"ASK {{ GRAPH <{g}> {{ ?s ?p ?o }} }}") else 0
             except Exception:
@@ -136,10 +219,15 @@ def check(args):
                 verdict = "GRAPH_MISSING"; n_missing += 1
             else:
                 gdm = graph_dm(args.endpoint, g)
+                diff = content_diff(args.endpoint, g, f)
                 if gdm is not None and loc["dateModified"] is not None and gdm != loc["dateModified"]:
                     verdict = f"STALE (dm graph={gdm} local={loc['dateModified']})"
                 elif loc["triples"] is not None and exists != loc["triples"]:
                     verdict = f"STALE (triples graph={exists} local={loc['triples']})"
+                elif diff is None:
+                    verdict = "UNPARSEABLE (local file)"
+                elif diff != (0, 0):
+                    verdict = f"STALE (content: +{diff[0]} local-only, +{diff[1]} store-only)"
                 else:
                     verdict = "IN_SYNC"
             idx = indexed(args.endpoint, g) if exists else False
@@ -167,11 +255,13 @@ def deltas(args):
             print(f"ENDPOINT UNREACHABLE: {args.endpoint}"); sys.exit(3)
         if exists == 0:
             out.append((rel, g, f, "GRAPH_MISSING")); continue
-        loc, gdm = local_state(f), graph_dm(args.endpoint, g)
+        loc, gdm = local_state(f, base=g), graph_dm(args.endpoint, g)
+        diff = content_diff(args.endpoint, g, f)
         stale = (gdm is not None and loc["dateModified"] is not None and gdm != loc["dateModified"]) or \
-                (loc["triples"] is not None and exists != loc["triples"])
+                (loc["triples"] is not None and exists != loc["triples"]) or \
+                (diff is not None and diff != (0, 0))
         if stale:
-            out.append((rel, g, f, f"STALE (dm {gdm}->{loc['dateModified']})"))
+            out.append((rel, g, f, f"STALE (dm {gdm}->{loc['dateModified']}, content {diff})"))
     return out
 
 def sync_sql(args):

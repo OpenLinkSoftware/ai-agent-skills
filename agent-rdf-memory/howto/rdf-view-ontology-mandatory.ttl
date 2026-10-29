@@ -1,0 +1,57 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/rdf-view-ontology-mandatory.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 313. Every RDF View demo ships an ontology covering the terms the view's graph uses, loaded next to the view, checked for coverage against the live graph, and presented as a deliverable."@en ;
+    schema:dateCreated "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-30T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://www.linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Ship an ontology with every RDF View demo"@en ;
+    schema:description "An RDF View projects tables into classes and properties; the ontology is the published meaning of those terms. Without it the IRIs the view emits denote nothing a reader or reasoner can look up."@en ;
+    schema:step :step-rule, :step-author, :step-loadAndRules, :step-coverageCheck, :step-present, :step-incident ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewOntologyMandatory>,
+        <rdf-view-rewrite-rules-mandatory.ttl>,
+        <ontology-cross-reference-gate.ttl>,
+        <owl-property-characterization.ttl> .
+
+:step-rule a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Mandatory: generate an ontology for the terms used in the view's graph, as a named deliverable"@en ;
+    schema:text """Stated by Kingsley 2026-09-30: an RDF View exercise must produce an ontology for the terms used in the view's graph, and this belongs in the preferences. The ontology is a deliverable beside the SQL, the quad map and the rewrite rules, not an internal artefact. Applies whenever an RDF View demo, inline SPARQL or SPASQL demo, or RDF View write-up is requested."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewOntologyMandatory> .
+
+:step-author a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Author it: one class per mapped entity, one property per mapped predicate, each with label, comment, domain, range and isDefinedBy"@en ;
+    schema:text """Hand-authoring beat the REST generators on the ScaleKG and MovieKG runs, because RDFVIEW_ONTOLOGY_FROM_TABLES cannot take its array parameter over REST and its column-derived names are poor; the OpenLink generators remain an option where available. The ontology is its own entity (an owl:Ontology at the namespace IRI) distinct from the document describing it. Reuse shared terms by subclassing or subproperty rather than re-minting: schema:Organization, schema:Place, schema:Dataset, schema:SoftwareApplication, the corpus registry's cdx: terms. Add hierarchy only where it earns an entailment demonstration (a DataAsset superclass, a dependsOn superproperty). Follow ontology-cross-reference-gate and owl-property-characterization for every minted term."""@en ;
+    rdfs:seeAlso <ontology-cross-reference-gate.ttl>, <owl-property-characterization.ttl> .
+
+:step-loadAndRules a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Load it into its own named graph and derive the rule set"@en ;
+    schema:text """Load the Turtle into http://{host}/schemas/{Segment}/ with DB.DBA.TTLP(text, base, graph) and call DB.DBA.rdfs_rule_set('urn:{segment}:inference', that graph). The same path is served by the /schemas/{Segment} vhost that include_ontology_rules=1 produces, so the vocabulary IRIs resolve. Include the TTLP and rdfs_rule_set calls in the consolidated batch script."""@en ;
+    rdfs:seeAlso <rdf-view-rewrite-rules-mandatory.ttl> .
+
+:step-coverageCheck a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Prove coverage against the live graph and report the numbers"@en ;
+    schema:text """Query the view's graph for SELECT DISTINCT ?p and SELECT DISTINCT ?c (from ?s a ?c), query the ontology graph for every declared owl:Class, owl:ObjectProperty and owl:DatatypeProperty, and diff. Ignore rdf: and schema: terms the view borrows. Required result: nothing used but undeclared. Terms declared but unused are acceptable only when they are deliberate super-terms. ScaleKG 2026-09-30: 32 properties and 10 classes used, none undeclared, two unused super-terms (DataAsset, dependsOn)."""@en ;
+    rdfs:seeAlso <live-sparql-verification-against-loaded-graph.ttl> .
+
+:step-present a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Present it: a card with the Turtle, a saved file, a batch-script part, a HowTo step and the coverage claim"@en ;
+    schema:text """Save the file as {slug}-ontology-{llm-id}-{n}.ttl under {model-root}/rdf/ beside the collection TTL; show the Turtle in its own copyable card in the page, in the order the build needs it (after the IRI classes, before the quad map); add it to the batch script; include a reproduction HowTo step; link the collection TTL's ontology dataset entity to the file; and state the coverage numbers in the ontology's description."""@en ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfViewOntologyMandatory>, <artifact-routing.ttl> .
+
+:step-incident a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Incident record: ScaleKG had an ontology but it was not presented as a deliverable"@en ;
+    schema:text """2026-09-30, Neo4j 'Scale AI into production' meshup. A 268-triple TBox was authored, loaded and used for entailment, and saved to rdf/, but the page showed it only as a statistic tile and a HowTo step, with no card, no coverage claim and no load in the batch script, and no standing rule required it. Kingsley asked whether an ontology had been generated. Fixed the same session with a card, a batch-script part, a coverage check and this rule."""@en ;
+    rdfs:seeAlso <../sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl> .

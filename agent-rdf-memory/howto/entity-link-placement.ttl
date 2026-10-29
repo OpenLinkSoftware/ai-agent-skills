@@ -90,7 +90,7 @@ No other differences from Mode A for the linking mechanics. The same resolver UR
 
 2. **Coverage (Mode B):** Every entity in the RDF that appears in HTML body prose must be linked at every occurrence.
 
-3. **Resolver correctness:** The href must use the pattern `https://linkeddata.uriburner.com/describe/?url={url-encoded-entity-iri}`. The encoded IRI must match the entity's IRI in the RDF exactly (including #this fragments for canonical platform IRIs).
+3. **Resolver correctness:** The href must use the pattern `{default-resolver-server}/describe/?url={url-encoded-entity-iri}`. The encoded IRI must match the entity's IRI in the RDF exactly (including #this fragments for canonical platform IRIs).
 
 4. **Display text match:** The visible text of the `<a>` element must match the entity's `schema:name` (case-insensitive, substring-acceptable).
 

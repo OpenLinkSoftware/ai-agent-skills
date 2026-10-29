@@ -1,0 +1,171 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/benchmark-report-story-template.ttl"@en ;
+    schema:description "Companion for preferences.ttl Step 318. Records the 2026-10-03 Virtuoso 7 / Virtuoso 8 / QLever benchmark story page as the standing template for every future benchmark or head-to-head performance report."@en ;
+    schema:dateCreated "2026-10-03T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-10-03T00:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Benchmark report template: the editorial story page (scoreboard, winner mosaic, race replay, latency curves, workload tug-of-war)"@en ;
+    schema:description "Kingsley asked on 2026-10-03 that the second benchmark variant, the editorial story page built for a competition entry, be recorded as the preferences template for future benchmark reports. The ten steps below capture what makes it the template: its narrative arc, section sequence, palette, reactivity, statistical honesty, routing, and verification. The earlier dense analytics dashboard stays available as a secondary variant for readers who want a control-heavy workbench."@en ;
+    schema:step :step-templateOfRecord, :step-narrativeArc, :step-sectionSequence, :step-enginePalette,
+        :step-reactivityContract, :step-statisticalHonesty, :step-neutralWording, :step-routingAndData,
+        :step-verification, :step-adaptingTheTemplate, :step-resultExplainers, :step-queryDefinitionLinks,
+        :step-queryHelptext, :step-nWayParity, :step-headingFragments, :step-newEdition, :step-raceQueryTab, :step-resultTypeGrouping, :step-engineSubsetEdition ;
+    schema:workExample :workExample-storyTemplate, :workExample-denseVariant, :workExample-v2 ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate>,
+        <ui-ux-expert-persona.ttl>, <artifact-routing.ttl> .
+
+:workExample-storyTemplate a schema:CreativeWork ;
+    schema:name "Template of record: Virtuoso vs QLever benchmark story (Claude Sonnet 5.5, 2026-10-03)"@en ;
+    schema:encodingFormat "text/html" ;
+    schema:url <../../../../../LLMs/Claude%20Generated/webpages/virtuoso-vs-qlever-benchmark-story-claude_sonnet_5_5.html> ;
+    schema:description "Single self-contained HTML file with no network dependencies. The data is one whitespace-delimited RAW block, and every figure, headline and takeaway is computed from it in the browser."@en .
+
+:workExample-denseVariant a schema:CreativeWork ;
+    schema:name "Secondary variant: dense analytics dashboard (Claude Sonnet 5.5, 2026-10-02)"@en ;
+    schema:encodingFormat "text/html" ;
+    schema:url <../../../../../LLMs/Claude%20Generated/webpages/virtuoso-vs-qlever-benchmark-dashboard-claude_sonnet_5_5.html> ;
+    schema:description "Control-heavy workbench with a per-query dot plot, brushable scatter, speed-up profile, category panel and sortable table. Use it when the reader wants to filter and interrogate, not follow a story."@en .
+
+# ── Step 1 ───────────────────────────────────────────────────────────────────
+
+:step-templateOfRecord a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Start every benchmark or head-to-head performance report from the story template, not from a blank page"@en ;
+    schema:text "When the task is a benchmark, performance comparison, or timing report between two or more systems, open :workExample-storyTemplate first and build from its structure, CSS tokens and script. Offer the dense variant (:workExample-denseVariant) only as a companion when the reader needs a filterable workbench. A user-named alternative design overrides this default."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration .
+
+# ── Step 2 ───────────────────────────────────────────────────────────────────
+
+:step-narrativeArc a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "The page follows a reader question, a tension, an evidence sequence, a decisive insight and an exploration surface; the headline is computed from the data, never hard-coded"@en ;
+    schema:text "Question: which engine should I pick. Tension: the answer depends on the workload. Evidence: mosaic, latency curves, workload bars. Insight: the computed lede sentence naming the overall leader and the largest counter-example. Exploration: the race replay and the filters. The h1 is conditional: say no engine wins everywhere only when more than one engine has outright wins, and say a single engine wins every query when only one does."@en ;
+    rdfs:seeAlso <ui-ux-expert-persona.ttl> .
+
+# ── Step 3 ───────────────────────────────────────────────────────────────────
+
+:step-sectionSequence a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Section order: scoreboard hero, swing callouts, Act I mosaic with race, Act II latency curves with percentile cards, Act III workload tug-of-war with takeaways, collapsible data table, honest notes"@en ;
+    schema:text "Hero: typographic win counts with count-up tweening plus a stacked share bar. Swing callouts: the largest advantage in each direction for the selected pair and the largest absolute gap, each with a Race this query action. Act I: one tile per query grouped by category, saturation showing margin, engine shape inside each tile, beside a sticky race panel. Act II: cumulative completion curves with a hover readout and p50, p90 and worst-case cards. Act III: per-family geometric-mean time for EVERY shown engine in a Margins chart that mirrors the pair view: families grouped under a header per winning engine (win count and photo-finish count), one bar per family showing the winner's lead (how many times as long the next best engine needs, with that engine named and the third engine in the hover text), a photo-finish flag when the runner-up is within 10%, and a Times toggle that switches to per-engine panels of absolute geometric-mean time (three side by side from 720 px, stacked below), with the family row shared for hover and click, plus takeaway cards that give the margin over the runner-up and where each engine is farthest behind, toggles for every pair (VOS 7 vs Virtuoso 8, VOS 7 vs QLever, Virtuoso 8 vs QLever) beside an All three default, a one-line summary above the bars (fastest-in counts for all three, quicker-in counts and ties for a pair), pair buttons disabled when an engine is hidden, and no separate global pair selector, and one takeaway card per engine. Every comparison panel defaults to all engines; a pair view is only ever a toggle, because a default pair silently drops the third contestant (caught 2026-10-04, when Virtuoso 8 was missing from this panel). Then Act IV, the tagged explainers (step 11), then a collapsed sortable table with CSV export, then a notes block. A reading guide strip sits above the callouts."@en .
+
+# ── Step 4 ───────────────────────────────────────────────────────────────────
+
+:step-enginePalette a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Engines take categorical slots 1 to 3 (blue, orange, aqua) validated all-pairs in both themes, each with its own marker shape; text never wears a series colour"@en ;
+    schema:text "Light #2a78d6, #eb6834, #1baf7a; dark #3987e5, #d95926, #199e70, validated with the dataviz skill's validate_palette.js using --pairs all against the #fcfcfb and #1a1a19 surfaces. The aqua light value is below 3:1 contrast, so the legend, shapes (circle, square, diamond) and the data table provide the required relief. With more than three engines, fold the tail into Other or facet; never generate a fourth hue. Numerals and labels use the ink tokens; colour appears on marks and swatches."@en .
+
+# ── Step 5 ───────────────────────────────────────────────────────────────────
+
+:step-reactivityContract a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "One state object drives every panel: engine toggles, compare-pair selectors, category isolation and search recompute everything, with tweened numerals and reduced-motion respected"@en ;
+    schema:text "Keep a single state object and a render function per panel. Controls: engine chips acting as the legend, two compare selectors (the pair may never be the same engine), category chips and tile-group headings and tug-of-war rows all toggling the same category set, and a query search that dims non-matches. Animate numerals and bars only when prefers-reduced-motion is not set. Every chart has an accessible text equivalent in the data table."@en .
+
+# ── Step 6 ───────────────────────────────────────────────────────────────────
+
+:step-statisticalHonesty a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Geometric means use only queries every shown engine completed; timeouts are excluded there and shown as unfinished; ratio callouts ignore pairs where both engines finish under 50 ms"@en ;
+    schema:text "Completion curves divide by all queries so a timeout leaves the curve short of 100% and the percentile card reads DNF. The notes block states that run counts, cache state and hardware were not supplied when that is true, and that small gaps may be noise. Never claim more than the supplied numbers support."@en .
+
+# ── Step 7 ───────────────────────────────────────────────────────────────────
+
+:step-neutralWording a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Wording stays neutral and edition-accurate; the page reports what the data shows, including results that favour the other engine"@en ;
+    schema:text "Name editions precisely (Virtuoso Open Source 7, Virtuoso 8.x Commercial Edition, QLever). The computed lede and takeaways name the actual leader and the actual counter-example whichever engine they favour."@en .
+
+# ── Step 8 ───────────────────────────────────────────────────────────────────
+
+:step-routingAndData a schema:HowToStep ;
+    schema:position "8"^^xsd:integer ;
+    schema:name "Save to {model-root}/webpages/ as {slug}-benchmark-story-{llm-id}.html, embed the data as one RAW block, and derive every count from it"@en ;
+    schema:text "Route by the active model identity per artifact-routing.ttl, with the model id (not the agent environment) in the filename stem. Embed the measurements as one whitespace-delimited block of name and times, with the word timeout for a missing result, and compute the query count, category list, headline and every statistic from it. The first dashboard shipped a hard-coded 99 for what was 105 queries, so no figure may be typed by hand."@en ;
+    rdfs:seeAlso <artifact-routing.ttl> .
+
+# ── Step 9 ───────────────────────────────────────────────────────────────────
+
+:step-verification a schema:HowToStep ;
+    schema:position "9"^^xsd:integer ;
+    schema:name "Verify in a browser over http before delivery, and report what was not tested"@en ;
+    schema:text "The in-app browser pane cannot drive file: pages, so serve the webpages folder with a throwaway local server, load the page, confirm the console is clean, and screenshot the hero, mosaic, race, latency curves and tug-of-war. Exercise at least one filter, one pinned query and a pair change. Stop the server afterwards. The final report lists any check not performed, such as dark mode, the phone-width layout, or drag and hover behaviour."@en .
+
+# ── Step 10 ──────────────────────────────────────────────────────────────────
+
+:step-adaptingTheTemplate a schema:HowToStep ;
+    schema:position "10"^^xsd:integer ;
+    schema:name "Adapt by replacing the engine list, the RAW data block and the category function; leave the layout, tokens and panels alone"@en ;
+    schema:text "The ENG array, the RAW block and catOf() are the only data-specific code. Keep the CSS custom properties, section order and render functions unchanged. Known defects fixed in the template: a garbled engine subtitle in the scoreboard (the long-name replacement trick breaks when a name is not a prefix of the long name), and the hard-coded query count above. A report with more than three engines or no timeouts still uses the same panels."@en .
+
+:workExample-v2 a schema:CreativeWork ;
+    schema:name "Story page v2 edition, with the explainer legend structure (Claude Sonnet 5.5, 2026-10-04)"@en ;
+    schema:encodingFormat "text/html" ;
+    schema:url <../../../../../LLMs/Claude%20Generated/webpages/virtuoso-vs-qlever-benchmark-story-v2-claude_sonnet_5_5.html> ;
+    schema:description "The first page built to this template with revised Virtuoso 8 figures and with the reading guide, plain-language callout cards and Act IV explainers. Use it as the reference for step 11."@en .
+
+# ── Step 11 ──────────────────────────────────────────────────────────────────
+
+:step-engineSubsetEdition a schema:HowToStep ;
+    schema:position "19"^^xsd:integer ;
+    schema:name "An engine-subset edition removes the other engines from the data, scoreboard, explainers and wording, and makes the pair view the main Act III chart"@en ;
+    schema:text "Copy the newest full edition to a new file whose slug names the engines (vos-vs-qlever-benchmark-story-v4-…). Remove the unused engines from the engine list, the state, the RAW block, the CSS variables and the hero grid (two columns for two engines), and delete explainers that belong to a removed engine together with their one-line reasons and their reading-guide kind. With exactly two engines the pair view is the natural chart: Act III defaults to the diverging speed-up bars with By family or By result type and Speed-up or Times switches, and the all-engines margins view and the pair buttons are not offered. Replace wording that assumes a third engine: the next best engine becomes the other engine or is named, and Summary of all N becomes Summary. Keep the result types, the helptext chips, the race tabs, the heading anchors and the other explainers unchanged. State in the notes which engine was left out and why. The headline of a two-engine edition is the title the user gives, not the computed no-engine-wins sentence (user-set on 2026-10-05: Virtuoso Open Source (VOS) vs QLever); it is used for both the page title and the h1, stays fixed when an engine is toggled, and the lede beneath it keeps the computed leader and share but uses the user's wording (2026-10-05: VOS 7 is fastest on 67% of these queries, and where it isn't this report explains why). A lede that promises explanations must be checked against the explainer coverage and any gap reported to the user. The user also reordered this edition on 2026-10-05 so Who wins where is section I, How fast is a typical query II, Every query, one tile III and Why the numbers look like this IV; the section ids (act1 to act4) were kept so scroll targets and links did not change, and the numerals follow the visual order. Intro text copied from a three-engine edition must be re-read for wording that no longer applies. The notes of this edition were replaced on 2026-10-05 by the user's proofread bullets: edition scope, the two-socket test machine, the shared run conditions (numactl interleave, warmup.sql, three skipped queries) and the VOS INI flags shown as a preformatted block that is byte-identical to what was supplied. When a notes statement changes what the page covers (here: all runs skipped number-of-subjects, number-of-predicates and number-of-objects, so 102 queries), check the page against it and raise any mismatch with the user instead of silently changing the data or the claim. Outcome on 2026-10-05: the user asked for the contradictory prose to be removed, so in the VOS vs QLever edition the notes heading became Reading this objectively (id notes-heading unchanged) and two sentences were deleted, the skipped-queries and 102-queries statement and the first-touch page-placement sentence; the page itself still shows all 105 queries. Other editions keep the heading Reading this honestly. The test machine bullet was then replaced (2026-10-05) by the user's supplied spec, laid out as a nested list: 2 × Intel Xeon E5-2630 with 6 cores at 2.30 GHz each (12 cores, 24 threads), 192 GB from 3 × Corsair XMS3 DIMM kits of 64 GB (DDR3-1333), CentOS release 6.2 (Final), ext2 on SSDs. This corrected the earlier 96 GB figure; the earlier per-socket memory and two-times remote-memory sentence was kept inside the memory item. A hardware correction that changes a figure shown earlier must be reported to the user as a correction. First mentions of the two projects are linked once, in running prose and never in headings, under preferences.ttl Step 322 (howto/first-mention-hyperlinks.ttl). In this edition the title heading is plain text, the lede links the leading engine and the first callout sentence links the other, through one helper that links a name the first time and is reset at the start of every render, so rescoping the page keeps exactly one link per name. A first attempt that linked the heading was corrected by the user on 2026-10-06. Verify that no visible text names the removed engine except that note, that the class counts and the pair summary still agree with the full edition, and that the page has no errors."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-resultTypeGrouping a schema:HowToStep ;
+    schema:position "18"^^xsd:integer ;
+    schema:name "Group queries by result type read from the query text, not by usage scenario or measured speed, when the benchmark is read-only"@en ;
+    schema:text "A read-only suite cannot support transactional or scenario profiles (an OLTP profile was proposed and withdrawn by the user), and a scenario weighting needs a mapping nobody supplied. Classify instead by what each query returns, parsed from the embedded SPARQL: A whole-dataset totals (the source group is statistics), B counts over a pattern (COUNT in the SELECT, no GROUP BY, no plain variables), C aggregates over values (GROUP BY or SUM, MIN, MAX, AVG, SAMPLE, GROUP_CONCAT), D rows returned (plain variables with a LIMIT). For the 105 DBLP queries this gives 6, 68, 26 and 5, checked against an independent Python parse. A and B are the count-oriented queries, C and D the non-count ones; group-by queries that count within groups return several rows and belong to C. The page offers result-type chips plus Counts and Non-count shortcuts that rescope the whole page like the family chips do, a Tiles by Family or Result type switch, a By family or By result type switch in Act III covering the margins, times and pair views (in result-type mode the family and type filters do not narrow the view, only search does), a Type column in the data table, and an explainer that states the rules, the LIMIT sizes, a live per-type table of geometric means and wins, and a collapsed list of every query with its type. Implications are stated only as what the query text implies and what the run measured; any reason for a gap needs a cited source or is left out. The page says the times are single sequential runs against a read-only suite. Keep the raw key in data attributes and apply labels only for display, because a label substituted into a data attribute broke row clicks once."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-raceQueryTab a schema:HowToStep ;
+    schema:position "17"^^xsd:integer ;
+    schema:name "The race card has two tabs, Explanation and Query text, so the SPARQL executed in the race sits beside the explained or unexplained block"@en ;
+    schema:text "Under the verdict and replay controls, the race card shows a two-item tablist. The first tab holds the explanation block exactly as before (tag, short reason and link, several explainers stacked, or the dashed unexplained box) and is labelled Explanation when one exists or Unexplained when none does. The second tab, Query text, shows the query's group tag, description, the full indented, syntax-coloured benchmark SPARQL, a Copy button, links to the exact benchmark-file line and the template lines, and a note that the text is the benchmark's definition at a pinned commit and that the engines' own logs were not captured. The chosen tab persists as other tiles are clicked and does not restart the race. Tabs are real ARIA tabs with arrow-key, Home and End support. The tile tooltip, tile click behaviour and every chip popover are unchanged; the user asked for this single addition and declined the other options (richer tile hover, pinned card on tile click). A sticky race card is capped to the viewport height and scrolls inside itself, so a long query cannot push its controls out of reach."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-newEdition a schema:HowToStep ;
+    schema:position "16"^^xsd:integer ;
+    schema:name "A new edition (v3, v4 …) copies the latest page, swaps the data by parsing the supplied table, and rewrites the explainers from the supplied notes"@en ;
+    schema:text "Copy the newest edition to a new -vN file name. Parse the times straight from the user's markdown or table with a script, never retype them, ignoring the delta columns because the page recomputes them, and assert that query names and order equal the previous edition. Report how many values changed per engine (v3: 95 VOS 7 and 99 Virtuoso 8 values changed, 0 of 105 QLever values). Update the edition labels (nav, eyebrow, title, description, notes). Replace the engineering explainer from the supplied notes, keeping their figures as written but saying that the list figures come from the notes and the tables show the measured run, and report any place where the notes' prose disagrees with their own table instead of silently choosing one. Give each changed behaviour a live evidence table drawn from the data block and a one-line per-query reason for the callout cards, race panel and popovers; several explainers may apply to one query. Keep explainers that are still true, check static numbers (ranges, scope words) against the new data, and name the machine, build and commit exactly as given. Session file: use the -N suffix when another session of the same model and environment already wrote one that day."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-headingFragments a schema:HowToStep ;
+    schema:position "15"^^xsd:integer ;
+    schema:name "Every section heading is an h2 with its own stable id and a hover anchor that copies the fragment link (preferences.ttl Step 85); this template page inherits it"@en ;
+    schema:text "Each section heading (the four acts, The full data, Reading this honestly) is an h2 carrying a descriptive id of its own (tiles-heading, typical-heading, winners-heading, why-heading, data-heading, notes-heading), distinct from the wrapping section's id, and a child a.heading-anchor containing a link icon that is hidden until the heading is hovered or focused (always faintly visible on touch devices) and copies the full fragment URL through the clipboard API with a textarea fallback when that call is rejected, then shows Copied. Explainer card titles are h3 with an id and an anchor to their article id. A heading inside a details summary must not toggle the details when its anchor is clicked. Headings need a scroll margin so the sticky bar does not cover the target. Check by listing every heading, its id, duplicates and anchor targets. The step was missed on the first build of this page and found by the user, which means a template page is not exempt from the standing skills contract: re-read preferences.ttl Steps 70 to 90 before building any page."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-headingFragmentIds> .
+
+:step-nWayParity a schema:HowToStep ;
+    schema:position "14"^^xsd:integer ;
+    schema:name "A comparison of three or more engines must carry every feature of the two-engine comparison; generalise the pair view's structure, never fall back to raw values"@en ;
+    schema:text "The pair view tells the reader who wins, in which direction, by how much, which families are ties, and where each side leads. The all-engine view must tell the same: direction and size of advantage per family (a ratio, with the winner as baseline), grouping by winner, ties flagged by the same 10 percent rule, ranking, and takeaways for both strengths and weaknesses. A single signed centre axis only exists for two engines; for n engines group the families under their winning engine and draw one lead bar per family, as the pair chart draws one bar per family (the user chose this on 2026-10-04 over three aligned pair panels and over a reference-engine centre line). Absolute times are a secondary toggle, not the default. Caught 2026-10-04 after two rounds in which the all-three view showed only absolute times; the user asked why a pair could be shown with winners grouped by product and three could not, and there was no technical reason."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-queryHelptext a schema:HowToStep ;
+    schema:position "13"^^xsd:integer ;
+    schema:name "Query text appears as helptext: a SPARQL chip beside each query name previews on hover or focus, pins on click, and shows the concrete query with its times and sources"@en ;
+    schema:text "Embed the concrete queries from the benchmark's own per-dataset file at a pinned commit (DBLP for the Virtuoso 7, Virtuoso 8 and QLever report: benchmarks/dblp.benchmark.tsv), not the placeholder templates, after the user confirms the dataset. Pretty-print each one-line query with a tokenizer that keeps comparison operators and check that it equals the original once whitespace is removed; parse every query with a SPARQL parser; check descriptions against the template file. The popover is one shared element: hover or keyboard focus shows a short preview (name, description, first lines); click pins the full card with indented, syntax-coloured SPARQL, the engine times with the winner in bold, the explainer tag with a link, a Copy button, links to the exact benchmark-file line and template lines, and the dataset and commit; Esc, outside click or the close button dismiss it; at 640 px and below it becomes a bottom sheet; touch devices skip hover and use click. Group chips open a list of that group's queries with their descriptions, each one racing on click. Syntax colours use theme tokens only, never engine colours. Chips are real buttons with aria-expanded, and clicks on them never re-pin the row they sit in."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-queryDefinitionLinks a schema:HowToStep ;
+    schema:position "12"^^xsd:integer ;
+    schema:name "Every query name and every workload group links to its definition in the benchmark's own source, pinned to a commit"@en ;
+    schema:text "Find where the benchmark defines its queries before linking, and check the page the user names actually lists them: the QLever wiki performance page lists only DBLP and Wikidata endpoint comparisons, not these queries, while ad-freiburg/sparqloscope query-templates.yaml carries a name, description and group for each of the 105. Pin links to a commit SHA, with a line range per query (blob/<sha>/query-templates.yaml#L485-L490) and a range per official group, after checking that the line at each range start reads the query's own name line. Show a definition link beside the query name in the race panel, callouts, the data table and evidence tables, and a group link under each mosaic heading. Links open in a new tab and must not trigger the row's own click action. A report category that does not match an official group (Regex maps to range-filter, Numeric spans numeric-function and filter, String functions includes one ungrouped query) shows the official group names beside it, not a renamed category. Cite sources in the method explainer and label unrelated pages as such."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .
+
+:step-resultExplainers a schema:HowToStep ;
+    schema:position "11"^^xsd:integer ;
+    schema:name "Every headline callout is self-explaining, and every why-it-happened note sits in a tagged explainer reached from a reading guide"@en ;
+    schema:text "Callout cards carry a plain sentence label (one card per shown engine, “X's biggest win”, chosen by margin over the runner-up on queries where the runner-up takes 50 ms or more, with every shown engine in the bars), a headline that shows the two times side by side in human units (8.0 ms vs 8 min 11 s) and never a bare multiple such as 61,350× faster, which is unreadable and ambiguous (times as fast or percent faster), a sentence that gives the multiple only in words and rounded (needs about 61,000 times as long) with the exact division in small print (491 s ÷ 8.0 ms = 61,350×), and a two-bar comparison per engine on a log scale whose grid steps are labelled (10ms, 100ms, 1s, 10s, 100s) with a note that each step is 10× longer, the winner in bold. The explanation sits INSIDE the card, not behind a link: the matching explainer's short text under its tag, with a link to the full explainer, or a dashed Unexplained box saying no explanation is recorded yet. Never leave a callout without one of the two. Each query has one winner, so per-engine cards cannot repeat a query. State every margin as “the next best needs N times as long” or as two times; never as “N× faster” or “N× ahead”, in callouts, the lede, race verdicts, tooltips or table headers. The Compare selectors are labelled Pair view and drive only the two-engine toggle in Act III. Guard every runner-up lookup: a query may have only one finisher (a timeout on the others). A reading guide strip above them defines the speed-up, the bar scale, the engine markers and three explainer tags: Architecture, Method, Follow-up. Act IV holds one card per explainer, each wearing one tag, each followed by a table of the measured queries it covers, with times computed from the data block. Callouts and the race panel link to the matching explainer; static prose may quote a figure only when it is computed from the data. Write explainers in plain language: short sentences, one idea per paragraph, a bold lead-in per paragraph, everyday comparisons (an index at the back of a book), jargon either dropped or explained in place, and every claim of size or scope checked against the data block; lists of engineering changes are laid out as one block per change with a bold plain title, the setting name in a quiet line under it, one or two sentences on what it does, and a shaded Effect line giving the measured before and after as down from, with nested bullets for grouped items, instead of one dense bullet that packs setting, mechanism and figures together (one draft said queries took minutes when some took seconds; another widened a source's two-large-predicate join result into joins are faster in QLever, which the star-join rows contradict). A plain rewrite must keep the source's scope, and an explainer with no recorded reason says so. When the user says a reason can be confirmed from a project's source code, read that code (a sparse clone at a recorded commit works) and cite commit-pinned, line-ranged links, stating what the code shows and what was not checked, such as the execution plan for the specific query; do not add an unsourced interpretation. Method notes (warm versus cold, cache handling) and engineering follow-ups (what to profile next) belong in explainers too, not in a footer."@en ;
+    rdfs:seeAlso <../preferences.ttl#step-benchmarkReportStoryTemplate> .

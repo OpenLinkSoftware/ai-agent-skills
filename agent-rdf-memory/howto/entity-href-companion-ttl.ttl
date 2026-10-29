@@ -16,7 +16,7 @@
     schema:position 1 ;
     schema:name "Derive the DAV base IRI from the skills contract"@en ;
     schema:text """Read the DAV path pattern from rdf-infographic-skill/SKILL.md or kg-generator/SKILL.md:
-  https://linkeddata.uriburner.com/DAV/demos/daas/{filename}.ttl
+  {default-resolver-server}/DAV/demos/daas/{filename}.ttl
 
 Substitute the companion TTL filename (no path, no leading slash).
 NEVER ask the user for this path — it is derivable from the skills contract."""@en .
@@ -39,15 +39,15 @@ If the entity does NOT exist → add it to the companion TTL first, then link.""
     schema:position 3 ;
     schema:name "Build the resolver-wrapped href"@en ;
     schema:text """Resolver pattern:
-  https://linkeddata.uriburner.com/describe/?url={url-encoded-entity-IRI}
+  {default-resolver-server}/describe/?url={url-encoded-entity-IRI}
 
 Entity IRI = DAV base IRI + '#' + hash fragment
 Example:
-  base:    https://linkeddata.uriburner.com/DAV/demos/daas/okf-vs-rdf-linked-data-comparison.ttl
+  base:    {default-resolver-server}/DAV/demos/daas/okf-vs-rdf-linked-data-comparison.ttl
   entity:  #DimIdentity
-  full:    https://linkeddata.uriburner.com/DAV/demos/daas/okf-vs-rdf-linked-data-comparison.ttl#DimIdentity
+  full:    {default-resolver-server}/DAV/demos/daas/okf-vs-rdf-linked-data-comparison.ttl#DimIdentity
   encoded: https%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2Fokf-vs-rdf-linked-data-comparison.ttl%23DimIdentity
-  href:    https://linkeddata.uriburner.com/describe/?url=https%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2Fokf-vs-rdf-linked-data-comparison.ttl%23DimIdentity
+  href:    {default-resolver-server}/describe/?url=https%3A%2F%2Flinkeddata.uriburner.com%2FDAV%2Fdemos%2Fdaas%2Fokf-vs-rdf-linked-data-comparison.ttl%23DimIdentity
 
 NEVER fabricate resolver URLs. Compute the percent-encoding manually or with a tool."""@en .
 
@@ -69,7 +69,7 @@ INTENTIONAL external IRIs (leave unchanged):
 :step5 a schema:HowToStep ;
     schema:position 5 ;
     schema:name "BLOCKING CHECK — bare-fragment hrefs silently resolve to nothing; verify before calling any document done"@en ;
-    schema:text """Recurred 2026-07-02: a full report (FAQ, Glossary, HowTo — 41 static hrefs, plus 2 more in KG-explorer JS) was built with the resolver *wrapper* applied correctly everywhere, but the ?url= parameter itself was only ever '%23{fragment}' (a bare fragment, no scheme/host/path) — e.g. describe/?url=%23q0 decodes to describe/?url=#q0, which is meaningless input to the resolver. This is easy to miss: every link LOOKS resolver-wrapped at a glance (same https://linkeddata.uriburner.com/describe/?url= prefix), and the document may already use the correct absolute DAV base elsewhere (SPARQL FROM clause, KG-explorer data-graph-iri) without that base ever being applied to entity hrefs. Do not assume applying the wrapper means the href is well-formed — decode and check.
+    schema:text """Recurred 2026-07-02: a full report (FAQ, Glossary, HowTo — 41 static hrefs, plus 2 more in KG-explorer JS) was built with the resolver *wrapper* applied correctly everywhere, but the ?url= parameter itself was only ever '%23{fragment}' (a bare fragment, no scheme/host/path) — e.g. describe/?url=%23q0 decodes to describe/?url=#q0, which is meaningless input to the resolver. This is easy to miss: every link LOOKS resolver-wrapped at a glance (same {default-resolver-server}/describe/?url= prefix), and the document may already use the correct absolute DAV base elsewhere (SPARQL FROM clause, KG-explorer data-graph-iri) without that base ever being applied to entity hrefs. Do not assume applying the wrapper means the href is well-formed — decode and check.
 
 This is now a MANDATORY BLOCKING CHECK, not an optional post-edit nicety, run before delivering any HTML infographic with resolver-linked entities:
   grep -c 'describe/?url=%23' file.html   # MUST be 0 — any match is a bare-fragment href with no base IRI
@@ -91,7 +91,7 @@ If counts are wrong, re-read the companion TTL and repeat Steps 2–3."""@en .
 
 RULE: when a person or organization already has an entity IRI in the companion TTL, its FIRST occurrence in reading order (hero > intro > body, before KG Explorer) must be the resolver-linked one, not a later occurrence. A later duplicate link does not fix an earlier unlinked mention — a reader encountering the name for the first time gets no link.
 
-BLOCKING CHECK before delivery: for every named schema:Person / schema:Organization in the companion TTL, grep the HTML body (excluding <script> blocks) for that entity's literal name text, take the FIRST match, and confirm it is inside an <a href="https://linkeddata.uriburner.com/describe/?url=..."> anchor. If the first match is plain text, fix that occurrence — do not just confirm a link exists somewhere later in the document."""@en .
+BLOCKING CHECK before delivery: for every named schema:Person / schema:Organization in the companion TTL, grep the HTML body (excluding <script> blocks) for that entity's literal name text, take the FIRST match, and confirm it is inside an <a href="{default-resolver-server}/describe/?url=..."> anchor. If the first match is plain text, fix that occurrence — do not just confirm a link exists somewhere later in the document."""@en .
 
 :step7 a schema:HowToStep ;
     schema:position 7 ;

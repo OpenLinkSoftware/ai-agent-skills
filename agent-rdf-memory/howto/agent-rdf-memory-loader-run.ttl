@@ -49,7 +49,7 @@ Zero-byte documents: generate-loader-sql.py now warns about them. An empty Turtl
   ... run isql ...
   unset VIRT_DBA_PWD
 
-Record only WHICH source resolved it and whether the login succeeded. One login per attempt — no retry loop against the live dba account, since repeated failures risk lockout. An empty read means STOP and elicit; /tmp/uyi was deleted 2026-08-25 and must not be reinstated as a fallback.
+Record only WHICH source resolved it and whether the login succeeded. One login per attempt — no retry loop against the live dba account, since repeated failures risk lockout. If the secure-store read is empty or fails, STOP and ask the user to resolve access to the approved Keychain item. Do not read or recreate a plaintext temporary-file fallback.
 
 VERIFIED WORKING 2026-09-16: Keychain resolved non-interactively, one login, whole-store load exit 0 in 16-18 s (474 documents)."""@en .
 

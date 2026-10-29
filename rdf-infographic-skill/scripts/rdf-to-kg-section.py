@@ -310,7 +310,7 @@ _HTML = """\
       <button id="btn-core" class="active" onclick="setDensity('core')">Core</button>
       <button id="btn-full"               onclick="setDensity('full')">Full</button>
       <div class="sep"></div>
-      <input type="search" id="kg-search" placeholder="Search nodes…" oninput="render()">
+      <input type="search" id="kg-search" placeholder="Search nodes…" oninput="render()" />
       <span class="kg-stats" id="kg-stats">— nodes / — links</span>
       <div class="ml-auto">
         <button onclick="centerGraph()" title="Center graph">⊙</button>
@@ -331,21 +331,21 @@ _HTML = """\
       <div class="kg-sg">
         <label>Charge strength</label>
         <input type="range" id="charge-slider" min="-800" max="-50" value="-400"
-               oninput="document.getElementById('charge-val').textContent=this.value;updatePhysics()">
+               oninput="document.getElementById('charge-val').textContent=this.value;updatePhysics()" />
         <span class="rval">Value: <span id="charge-val">-400</span></span>
       </div>
       <div class="kg-sg">
         <label>Link distance</label>
         <input type="range" id="dist-slider" min="30" max="300" value="90"
-               oninput="document.getElementById('dist-val').textContent=this.value+'px';updatePhysics()">
+               oninput="document.getElementById('dist-val').textContent=this.value+'px';updatePhysics()" />
         <span class="rval">Value: <span id="dist-val">90px</span></span>
       </div>
       <div class="kg-sg">
         <label style="display:flex;align-items:center;gap:6px;text-transform:none;font-size:.78rem">
-          <input type="checkbox" id="physics-enabled" checked onchange="updatePhysics()"> Enable physics
+          <input type="checkbox" id="physics-enabled" checked="checked" onchange="updatePhysics()" /> Enable physics
         </label>
       </div>
-      <div class="kg-sg" data-advanced-control style="display:none">
+      <div class="kg-sg" data-advanced-control="true" style="display:none">
         <label>Predicate display</label>
         <select id="pred-display" onchange="render()">
           <option value="labels">Labels</option>
@@ -375,7 +375,7 @@ _HTML = """\
           <button class="kg-btn" onclick="setNodeTypeAll(false)" style="font-size:.68rem;padding:3px 8px">None</button>
         </div>
       </div>
-      <div class="kg-sg" data-advanced-control style="display:none">
+      <div class="kg-sg" data-advanced-control="true" style="display:none">
         <label>Predicates</label>
         <div id="pred-filters"></div>
         <div style="display:flex;gap:6px;margin-top:5px">
@@ -383,10 +383,10 @@ _HTML = """\
           <button class="kg-btn" onclick="setPredAll(false)" style="font-size:.68rem;padding:3px 8px">None</button>
         </div>
       </div>
-      <div class="kg-sg" data-advanced-control style="display:none">
+      <div class="kg-sg" data-advanced-control="true" style="display:none">
         <label>Literal / label filter</label>
         <div class="literal-row">
-          <input type="text" id="literal-filter" placeholder="Filter by label…" oninput="render()">
+          <input type="text" id="literal-filter" placeholder="Filter by label…" oninput="render()" />
         </div>
       </div>
     </div>
@@ -538,7 +538,7 @@ function render(){{
       .clickDistance(6)
       .on('start', (e,d) => {{ if(!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; }})
       .on('drag',  (e,d) => {{ d.fx=e.x; d.fy=e.y; }})
-      .on('end',   (e,d) => {{ if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }}));
+      .on('end',   (e,d) => {{ if(!e.active) simulation.alphaTarget(0); }}));
 
   nodesG.append('circle')
     .attr('r',            d => d.radius || 18)
@@ -552,9 +552,9 @@ function render(){{
     .attr('text-anchor','middle').attr('dy','0.35em')
     .attr('pointer-events','none');
 
-  nodesG.on('click', (e,d) => {{ openInResolver(d.id); }});
+  nodesG.on('click', (e,d) => {{ window.open(d.id, '_blank', 'noopener,noreferrer'); }});
   nodesG.on('dblclick', (e,d) => {{ delete d.fx; delete d.fy; simulation.alpha(0.3).restart(); }});
-  nodesG.append('title').text(d => d.label + (d.desc ? '\n'+d.desc : ''));
+  nodesG.append('title').text(d => d.label + (d.desc ? '\\n'+d.desc : ''));
 
   /* Physics */
   const physEnabled = (document.getElementById('physics-enabled') || {{checked:true}}).checked;

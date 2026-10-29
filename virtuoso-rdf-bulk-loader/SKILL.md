@@ -59,3 +59,7 @@ Generate a ready-to-run isql `.sql` from a local folder of RDF files. Two modes:
 - **Idempotency**: `ld_dir` does not double-load identical files; `rdf_loader_run()` may be re-run safely. `--clear` makes full re-runs replace the graph.
 - **Troubleshooting**: load failures, permission issues, DAV paths, and named-graph management — see the `virtuoso-rdf-loader` skill (ld_dir + rdf_loader_run deep-dive).
 - This skill is the generator generalization of the agent-rdf-memory loader (`agent-rdf-memory/scripts/generate-loader-sql.py`); that store's `refresh-loader.sh` is the same pattern in action.
+
+## Safe Virtuoso ISQL Error Output
+
+Whenever this workflow invokes OpenLink's native Virtuoso `isql` client, pass the bare client option `COMMAND_TEXT_ON_ERROR=OFF`, for example `isql {host}:{port} {user} {password} COMMAND_TEXT_ON_ERROR=OFF {script.sql}`. Place it before SQL input, script arguments, or `-i`. `OFF` maps to the client's internal value `0` and prevents the client from appending the full failed command to error output. The client accepts `OFF`/`ON`; literal `0` is rejected. Do not use `-u` for this setting (`-u` populates the `U` argument array). This does not redact secrets from server diagnostics, shell history, or process arguments, so keep credentials out of SQL text and logs. Do not apply this Virtuoso-specific option to unixODBC/iODBC `isql` clients.

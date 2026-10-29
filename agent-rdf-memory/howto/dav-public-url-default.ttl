@@ -6,7 +6,7 @@
 
 <> a schema:HowTo ;
     schema:name "DAV-Hosted URL Is the Default Public Rendition for Cross-Document Links"@en ;
-    schema:description "When a generated HTML or Markdown artifact links to a DIFFERENT generated document (not its own companion .ttl/.md/.html triplet), the default target is the public https://linkeddata.uriburner.com/DAV/demos/daas/{filename} URL for that other document — never a filesystem-relative path or a file: URL — unless the user explicitly overrides the destination for that link. Found 2026-07-14 in reverse-information-paradox-claude_sonnet_5-1.html: a cross-article link used a bare filesystem-relative href that silently resolved to a file:///Users/... path once opened from disk — a link that only works on the machine that generated it. The user caught it and asked why the link wasn't the public DAV form instead."@en ;
+    schema:description "When a generated HTML or Markdown artifact links to a DIFFERENT generated document (not its own companion .ttl/.md/.html triplet), the default target is the public {default-resolver-server}/DAV/demos/daas/{filename} URL for that other document — never a filesystem-relative path or a file: URL — unless the user explicitly overrides the destination for that link. Found 2026-07-14 in reverse-information-paradox-claude_sonnet_5-1.html: a cross-article link used a bare filesystem-relative href that silently resolved to a file:///Users/... path once opened from disk — a link that only works on the machine that generated it. The user caught it and asked why the link wasn't the public DAV form instead."@en ;
     schema:dateCreated "2026-07-14T00:00:00Z"^^xsd:dateTime ;
     schema:dateModified "2026-07-18T00:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
@@ -25,8 +25,8 @@
 
 :step-davUrlForCrossDocument a schema:HowToStep ;
     schema:position 2 ;
-    schema:name "Default cross-document links to https://linkeddata.uriburner.com/DAV/demos/daas/{filename}#{fragment}"@en ;
-    schema:text """Links to a DIFFERENT document default to the public DAV-hosted URL: https://linkeddata.uriburner.com/DAV/demos/daas/{filename-with-extension}#{fragment}. This is the same DAV path convention already used for SPARQL GRAPH IRIs in the kg-generator/rdf-infographic-skill contract (Document IRI vs SPARQL GRAPH IRI section) — reuse it here for ordinary browsable hyperlinks too, not only SPARQL FROM clauses.
+    schema:name "Default cross-document links to {default-resolver-server}/DAV/demos/daas/{filename}#{fragment}"@en ;
+    schema:text """Links to a DIFFERENT document default to the public DAV-hosted URL: {default-resolver-server}/DAV/demos/daas/{filename-with-extension}#{fragment}. This is the same DAV path convention already used for SPARQL GRAPH IRIs in the kg-generator/rdf-infographic-skill contract (Document IRI vs SPARQL GRAPH IRI section) — reuse it here for ordinary browsable hyperlinks too, not only SPARQL FROM clauses.
 
 WHY DAV, NOT A RELATIVE PATH: a relative path is only valid inside the exact local folder layout that existed at generation time. It breaks the moment the HTML is opened from a different location, shared standalone, or the linked document hasn't been (or won't be) placed at that exact relative offset. The DAV URL is the actual public, dereferenceable location these documents are uploaded to — it works regardless of where the linking document itself is opened from.
 

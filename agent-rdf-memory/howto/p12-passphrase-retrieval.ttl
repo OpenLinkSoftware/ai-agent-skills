@@ -6,53 +6,38 @@
 
 <> a schema:CreativeWork ;
     schema:name "howto/p12-passphrase-retrieval.ttl"@en ;
-    schema:description "Resolution chain for the principal YouID PKCS#12 unlock passphrase: macOS Keychain item uriburner-p12 (LIVE as of 2026-08-18, migrated from /tmp/uyi with the user's permission), /tmp/uyi as documented fallback while it still exists, user elicitation last. RENAMED 2026-08-18 from p12-passphrase-uyi-file.ttl to p12-passphrase-retrieval.ttl — the old name was filesystem-fallback-specific and stopped fitting once Keychain became primary and a cross-platform (keyring-package) path was added; all referencing files (core.ttl, preferences.ttl, sibling howto files) were updated to the new name, git mv preserved history. IMPORTANT SCOPE NOTE (2026-08-18): the client in this environment (curl 8.7.1 / LibreSSL 3.3.6) can only consume a client certificate as a FILE — a SecureTransport version banner is not evidence that --cert accepts a Keychain identity name/SHA-1 directly, and testing proved it does not (curl error 58, could not load PEM client certificate). So Keychain here holds the PASSPHRASE that unlocks the standing .p12 FILE, not the certificate/identity itself; the .p12 file remains required. NOTE 2026-08-25: /tmp/uyi has been DELETED at the user's instruction; its last contents were UB_PWD only (no DBA_PWD, no p12 value), so no secret was stranded. Every /tmp/uyi fallback described below is HISTORICAL — the Keychain items are now the sole sources."@en ;
+    schema:description "Procedure for resolving the principal YouID PKCS#12 passphrase from an approved native secret store only. On this macOS host, the sole source is the uriburner-p12 Keychain item; the client certificate itself remains the .p12 file. If secure-store access is unavailable, stop and ask the user to resolve or configure it. The former temporary-file credential procedure was retired and is not a fallback. This file was renamed from p12-passphrase-uyi-file.ttl on 2026-08-18; that legacy name is retained only in historical records."@en ;
     schema:dateCreated "2026-07-30T16:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-28T22:32:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :howto .
 
 :howto a schema:HowTo ;
-    schema:name "Resolve the principal PKCS#12 passphrase — Keychain first, /tmp/uyi fallback, cross-platform via Python keyring"@en ;
-    schema:description "Procedure for unlocking the principal link-in-bio-credentials-5 cert.p12. Source order changed 2026-08-18 after the agent observed that /tmp/uyi is mode -rw-r--r-- (world-readable plaintext) in a shared, cleanup-prone directory; macOS Keychain is encrypted at rest and ACL-scoped, so it is now the primary source on macOS. The `security` CLI is macOS-only; :step-crossPlatformKeyring covers Linux/Windows equivalents."@en ;
-    schema:step :step-sourceChain, :step-keychainPrimary, :step-uyiFallback,
+    schema:name "Resolve the principal PKCS#12 passphrase from an approved native secret store; never use a temporary plaintext fallback"@en ;
+    schema:description "Unlocking the principal link-in-bio-credentials-5 cert.p12 requires the approved native secret store for its passphrase. macOS uses Keychain; Linux and Windows may use a verified native keyring backend. If the secure store is absent, empty, or inaccessible, stop and ask the user to resolve access. Plaintext temporary files are never fallback sources."@en ;
+    schema:step :step-sourceChain, :step-keychainPrimary, :step-noTempCredentialFallback,
         :step-canonicalSnippet, :step-unlock, :step-redact, :step-curlUsesP12Path,
         :step-neverProbeProductionCredentialNames, :step-crossPlatformKeyring,
         :step-agentP12DistinctItem ;
-    rdfs:seeAlso <../preferences.ttl#step-p12PassphraseUyiFile>,
-        <../preferences.ttl#step-p12PassphraseKeychainFirst>,
+    rdfs:seeAlso <../preferences.ttl#step-p12PassphraseKeychainFirst>,
         <../core.ttl>,
         <credential-location-session-start.ttl>,
         <remote-webdav-upload.ttl>,
         <remote-resource-removal.ttl>,
         <verified-identity.ttl> .
 
-# ── Step 1: the three-source chain ───────────────────────────────────────────
+# ── Step 1: resolve only through approved secure storage ─────────────────────
 
 :step-sourceChain a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
-    schema:name "Resolve the passphrase from three sources in strict priority order — never guess, never hardcode"@en ;
-    schema:text """SOURCE 1 — macOS Keychain (primary, 2026-08-18 onward):
-  service = uriburner-p12, account = $USER, read with `security ... -w`.
-
-SOURCE 2 — /tmp/uyi KEY=VALUE file (fallback, legacy):
-  First non-empty line, VALUE only (see :step-uyiFallback for the exact parse).
-
-SOURCE 3 — Elicit from the user (last resort):
-  "I cannot resolve the PKCS#12 passphrase from Keychain or /tmp/uyi. Where should I read it from?"
-  Do not proceed with any mTLS operation until answered.
-
-Fall through silently from 1 to 2 (a missing keychain item is a normal, expected
-condition until the user creates it — not an error to report). Fall through from
-2 to 3 only when the file is absent or unparseable. This mirrors the same
-local-first / fallback / elicit shape as model-identity-resolution.ttl and the
-credentials-root gate."""@en .
+    schema:name "Resolve the passphrase from the approved native secret store; stop if it is unavailable"@en ;
+    schema:text """On macOS, read the principal passphrase only from Keychain service uriburner-p12 and account $USER. On Linux or Windows, use a verified native secret-store backend as described in :step-crossPlatformKeyring. If the secure store is missing, empty, unreadable, or errors, stop and ask the user to resolve that secure-store access before any authenticated operation. Never fall through to a temporary file, environment file, or other plaintext copy."""@en .
 
 # ── Step 2: Keychain as primary ──────────────────────────────────────────────
 
 :step-keychainPrimary a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
-    schema:name "SOURCE 1 — macOS Keychain item uriburner-p12, created with -T /usr/bin/security so reads are non-interactive"@en ;
+    schema:name "SOLE macOS source — Keychain item uriburner-p12, created with -T /usr/bin/security"@en ;
     schema:text """WHY THIS IS PRIMARY (observed 2026-08-18): /tmp/uyi is mode -rw-r--r-- — world-readable plaintext holding a live credential, in a directory exposed to every local account, cleanup tooling, and backup agents. Keychain is encrypted at rest and ACL-scoped. Strict improvement.
 
 CREATION — the USER runs this; the passphrase must never pass through the agent or appear in an agent-issued command line. The bare -w (no value) prompts interactively:
@@ -67,37 +52,35 @@ GUI-PROMPT GUARD — when reading any keychain item the agent did not create (br
   perl -e 'alarm 8; exec @ARGV' security find-generic-password -s SERVICE -a "$USER" -w
 Note that `timeout` is NOT available on stock macOS — perl's alarm is the portable guard.
 
-VERIFIED 2026-08-18 END-TO-END with the REAL item and the REAL cert: value migrated from /tmp/uyi into the uriburner-p12 keychain item (agent-written, since the value was already known from the documented fallback — no interactive add was needed this time); read back non-interactively; used to unlock cert.p12 via openssl (subject confirmed); used to complete an authenticated HTTP 200 call against linkeddata.uriburner.com:5443. The item persists alongside /tmp/uyi (belt-and-braces) until the user explicitly removes the file.
+HISTORICAL VERIFICATION 2026-08-18: the passphrase was migrated into the uriburner-p12 Keychain item, read back non-interactively, used to unlock cert.p12, and used for an authenticated HTTP 200 call against linkeddata.uriburner.com:5443. The temporary hand-off file was later deleted; it is not a current or permitted source.
 
 SCOPE, RE-CONFIRMED: this migration is passphrase-only. --cert continues to take the .p12 FILE PATH, not a keychain identity reference — see the CreativeWork-level description note above for why a keychain identity route was investigated and rejected for this curl build."""@en .
 
-# ── Step 3: the /tmp/uyi fallback parse (unchanged, still authoritative) ─────
+# ── Step 3: prohibit temporary plaintext credential fallbacks ────────────────
 
-:step-uyiFallback a schema:HowToStep ;
+:step-noTempCredentialFallback a schema:HowToStep ;
     schema:position "3"^^xsd:integer ;
-    schema:name "SOURCE 2 — /tmp/uyi is KEY=VALUE per line; use the VALUE of the FIRST pair, never the whole line"@en ;
-    schema:text """FILE FORMAT (learned 2026-07-30 after an unlock failure; still exactly correct as the fallback):
-
-- Each non-empty line is a KEY=VALUE pair (exactly one '=' separating key from value).
-- The principal cert.p12 passphrase is the VALUE of the FIRST key pair:
-    first_line.split('=', 1)[1].strip()
-- Do NOT use the whole first line as the passphrase (includes key and '=' -> Mac verify error: invalid password).
-- Do NOT use the key (left of '=') as the passphrase.
-- A second line may hold another KEY=VALUE pair for a different secret; only use it when the user explicitly points at that pair.
-- Observed key name as of 2026-08-18: P12_PWD. Parse positionally (first pair) rather than matching that literal, so a renamed key does not break the read.
-
-PROHIBITED: treating each line as a bare password string; concatenating lines; logging values."""@en .
+    schema:name "Never read or recreate a temporary plaintext file as an alternate credential source"@en ;
+    schema:text """The temporary credential hand-off used historically was deleted on 2026-08-25. Do not recreate it, read it, or substitute another plaintext temporary file. Do not treat a missing or inaccessible Keychain/native keyring item as permission to use a file fallback. Stop and ask the user to restore secure-store access or configure an approved native secret store. Do not ask the user to paste the passphrase into chat."""@en .
 
 # ── Step 4: the canonical fallback-safe snippet ──────────────────────────────
 
 :step-canonicalSnippet a schema:HowToStep ;
     schema:position "4"^^xsd:integer ;
-    schema:name "Canonical one-liner: read the Keychain item (the /tmp/uyi fallback limb was removed 2026-08-25 when that file was deleted)"@en ;
-    schema:text """Use this verbatim wherever MTLS_PKCS12_PW is needed:
+    schema:name "Canonical Keychain-only lookup; stop if access is unavailable"@en ;
+    schema:text """Use this guarded lookup wherever MTLS_PKCS12_PW is needed:
 
-  export MTLS_PKCS12_PW="$(security find-generic-password -s uriburner-p12 -a "$USER" -w)"
+  MTLS_PKCS12_PW="$(security find-generic-password -s uriburner-p12 -a "$USER" -w)" || {
+    echo "Keychain lookup failed; stop and ask the user to resolve secure-store access." >&2
+    exit 1
+  }
+  if [ -z "$MTLS_PKCS12_PW" ]; then
+    echo "Keychain returned no passphrase; stop and ask the user to resolve secure-store access." >&2
+    exit 1
+  fi
+  export MTLS_PKCS12_PW
 
-HISTORICAL: this one-liner previously carried a `|| python3 -c ...Path('/tmp/uyi')...` fallback limb. /tmp/uyi was DELETED 2026-08-25 at the user's instruction, so that limb was removed — it can only ever resolve empty now, and silently returning an empty passphrase is worse than failing loudly. If the Keychain read yields nothing, STOP and elicit from the user; do not synthesize a replacement fallback path.
+If the Keychain read returns exit 44, STOP and ask the user to resolve access to the existing item. Do not recreate or overwrite the item, search for a temporary plaintext copy, or substitute another credential.
 
 Always `unset MTLS_PKCS12_PW` when the operation completes. Never echo it, never pass it as a literal on a command line that gets logged or shown to the user, never write it into a file, RDF memory, or the transcript."""@en .
 
@@ -121,7 +104,7 @@ Delete any temporary PEM after use."""@en .
 :step-redact a schema:HowToStep ;
     schema:position "6"^^xsd:integer ;
     schema:name "Never store the passphrase in RDF memory, reports, or chat"@en ;
-    schema:text "Record only WHICH source resolved it (keychain / uyi / elicited) and whether unlock succeeded. Never copy the value into preferences.ttl, session TTL, howto files, commit messages, or chat. When demonstrating a credential file to the user, print permissions and byte count, never contents."@en .
+    schema:text "Record only whether the approved native secret store resolved the passphrase and whether unlock succeeded. If retrieval fails, record the failure without the value. Never copy the value into preferences.ttl, session TTL, howto files, commit messages, or chat. When demonstrating a credential file to the user, print permissions and byte count, never contents."@en .
 
 # ── Step 7: curl/iSQL consume the p12 directly ───────────────────────────────
 
@@ -139,7 +122,7 @@ Delete any temporary PEM after use."""@en .
 :step-neverProbeProductionCredentialNames a schema:HowToStep ;
     schema:position "8"^^xsd:integer ;
     schema:name "NEVER use a real credential's service/account name as a test or probe fixture — a keychain add with -U overwrites and a delete destroys the user's live secret"@en ;
-    schema:text """Agent error, 2026-08-18. While demonstrating that keychain reads take precedence over the /tmp/uyi fallback, the agent ran, against the REAL service name:
+    schema:text """Agent error, 2026-08-18. While validating the Keychain retrieval procedure, the agent ran, against the REAL service name:
   security add-generic-password -U -s uriburner-p12 ... -w "SENTINEL-not-real"
   security delete-generic-password -s uriburner-p12 ...
 
@@ -149,7 +132,7 @@ RULE: any probe, syntax test, or precedence demonstration MUST use a clearly nam
 
 COROLLARY: -U on any credential store is a write-with-overwrite, not an idempotent create. Treat it with the same care as rm. Prefer verifying precedence by reading two DIFFERENT namespaced items rather than by mutating the real one.
 
-RECOVERY when this happens: the p12 file and the /tmp/uyi fallback are untouched, so no access is lost — the fallback chain keeps working. The user simply re-creates the keychain item. Say so plainly rather than leaving them to wonder whether the credential itself was compromised."""@en .
+RECOVERY: do not attempt authentication from a temporary-file credential source. Ask the user to verify or restore access to the existing Keychain item. Do not recreate, overwrite, or substitute a production credential without explicit authorization."""@en .
 
 # ── Step 9: cross-platform fallback when not on macOS ────────────────────────
 
@@ -165,7 +148,7 @@ CROSS-PLATFORM REPLACEMENT — Python `keyring` package (pip install keyring). O
 
 Backend routing is automatic:
   - macOS   -> Keychain (same store `security` reads — a keyring-created item and a security-created item are interchangeable)
-  - Linux   -> Secret Service (GNOME Keyring / KWallet via D-Bus, `keyring.backends.SecretService`); on a headless box with no keyring daemon running, keyring falls through to a plaintext/failing backend — check `keyring.get_keyring()` and prefer the /tmp/uyi-style KEY=VALUE file pattern deliberately on such hosts rather than assuming a secret store exists
+  - Linux   -> Secret Service (GNOME Keyring / KWallet via D-Bus, `keyring.backends.SecretService`); verify the selected backend is a native secure store. If no secure keyring service is running, stop and ask the user to configure one; never write or read a plaintext credential file
   - Windows -> Credential Manager / DPAPI (`keyring.backends.Windows`)
 
 CANONICAL CROSS-PLATFORM SNIPPET (replaces the macOS-only one-liner in :step-canonicalSnippet when the host is not confirmed macOS):
@@ -174,7 +157,7 @@ CANONICAL CROSS-PLATFORM SNIPPET (replaces the macOS-only one-liner in :step-can
     echo "keyring lookup failed — elicit the passphrase from the user" >&2
   fi
 
-(The second limb formerly read /tmp/uyi; that file was deleted 2026-08-25 and the branch now fails loudly instead.)
+If the native keyring lookup returns no value or errors, stop and ask the user to resolve secure-store access. No file-based credential fallback is permitted.
 
 CURL BACKEND CAVEAT ON WINDOWS — do not assume a file-less route exists there either. curl.exe CAN be built against SChannel (Windows' native TLS stack), and an SChannel build genuinely does support referencing a certificate from the Windows store by thumbprint via --cert, with no file and no PKCS#12 at all — a real difference from this session's LibreSSL-backed macOS curl. But do not assume the curl binary actually present is that build: curl shipped via git-bash/MSYS2 and via the official curl.se Windows releases is commonly OpenSSL-backed, file-path-only, same limitation as here. Check with `curl -V` AND THEN TEST the exact operation before asserting either way — the SecureTransport-banner-was-misleading lesson from :step-testResult in keychain-identity-vs-p12-file-curl.ttl applies identically to an SChannel banner claim.
 
@@ -194,6 +177,6 @@ CREATE (user runs this themselves; bare -w prompts interactively):
 READ:
   security find-generic-password -s uriburner-agent-p12 -a "$USER" -w
 
-MIGRATION PATH ACTUALLY USED 2026-08-31: the user dropped the value into /tmp/uyi (same throwaway-file pattern as the historical principal-p12 migration) rather than typing it interactively, and told the agent to discard the file after each read — this is a one-off convenience, not a reinstated standing fallback; :step-uyiFallback's SOURCE 2 status remains historical/removed for the PRIMARY chain. A first attempt failed: the value sat under key AGENT_P12_PWD and produced "Mac verify error: invalid password" against openssl. The user corrected it under a different key, AGENT_PWD, on retry, which verified successfully — subject CN=Kingsley Idehen's Agent, valid 2026-06-18 to 2027-06-18. LESSON: an /tmp/uyi-sourced value that fails openssl Mac verification is a wrong/stale value, not a tool bug — ask the user to re-check and re-supply rather than retrying variations (no -legacy guessing, no empty-passphrase probing) or silently trying other keys in the file.
+HISTORICAL MIGRATION NOTE (2026-08-31): the user once supplied a one-time migration value through a temporary hand-off file and directed its immediate deletion. This was a past event, not an approved retrieval method; temporary plaintext files must not be recreated or used for credential retrieval. A first attempt failed: the value sat under key AGENT_P12_PWD and produced "Mac verify error: invalid password" against openssl. The user corrected it under a different key, AGENT_PWD, on retry, which verified successfully — subject CN=Kingsley Idehen's Agent, valid 2026-06-18 to 2027-06-18. LESSON: an /tmp/uyi-sourced value that fails openssl Mac verification is a wrong/stale value, not a tool bug — ask the user to re-check and re-supply rather than retrying variations (no -legacy guessing, no empty-passphrase probing) or silently trying other keys in the file.
 
 Same redaction discipline as :step-redact applies: never print, log, or persist the value; unset the env var after use."""@en .

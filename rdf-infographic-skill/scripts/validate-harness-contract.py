@@ -179,6 +179,41 @@ def validate_rdf(path: str | None, fmt: str, failures: list[str]) -> None:
         fail(f"RDF parse failed for {path}: {exc}", failures)
 
 
+def check_anchor_targets(html: str, failures: list[str]) -> None:
+    """Every in-page href="#x" must resolve to an element id="x" in the same document.
+    A nav link to a missing id silently does nothing (caught 2026-10-08 on the Jessica meshup)."""
+    hrefs = {h for h in re.findall(r'href="#([^"]+)"', html) if h}
+    ids = set(re.findall(r'\bid="([^"]+)"', html))
+    missing = sorted(h for h in hrefs if h not in ids)
+    if missing:
+        fail(f"In-page links point to missing ids: {', '.join(missing[:8])}", failures)
+
+
+def check_exploration_disclosures(html: str, failures: list[str]) -> None:
+    """Harness contract item 16: the KG Explorer and SPARQL Workbench must sit inside a
+    native <details> that is closed by default (no `open` attribute). Each tool is
+    located by a marker element: id="kg-explorer" (Explorer) and id="sparqlBtn" (Workbench)."""
+    markers = {"kg-explorer": 'id="kg-explorer"', "sparqlBtn": 'id="sparqlBtn"'}
+    tokens = list(re.finditer(r'<details\b[^>]*>|</details>|id="kg-explorer"|id="sparqlBtn"', html))
+    stack: list[bool] = []  # True when the details element is closed by default
+    found: dict[str, bool] = {}
+    for m in tokens:
+        tok = m.group(0)
+        if tok.startswith("<details"):
+            stack.append("open" not in tok.split(">")[0].split())
+        elif tok == "</details>":
+            if stack:
+                stack.pop()
+        else:
+            key = "kg-explorer" if tok == 'id="kg-explorer"' else "sparqlBtn"
+            found[key] = any(stack)
+    for key, label in (("kg-explorer", "KG Explorer"), ("sparqlBtn", "SPARQL Workbench")):
+        if key not in found:
+            continue  # tool not present on this page
+        if not found[key]:
+            fail(f"{label} must sit inside a closed-by-default <details> (harness contract item 16)", failures)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("html")
@@ -212,9 +247,9 @@ def main() -> int:
     require(html, 'rel="alternate"', "POSH alternate link missing", failures)
     require(html, 'application/ld+json', "Embedded JSON-LD missing", failures)
 
-    require_any(html, ['class="section-nav"', 'id="nav-panel"', 'aria-label="Section navigation"'], "Navigation panel missing", failures)
-    require_any_regex(html, [r'class="nav-toggle"[^>]*(aria-label="Expand navigation"|title="Expand)', r'id="nav-toggle"', r'toggleNav\('], "Navigation collapsed expand toggle missing", failures)
-    require_any(html, ['theme-toggle', 'id="theme-btn"', 'themeCycle', 'toggleTheme'], "Page theme toggle missing", failures)
+    require_any(html, ['class="section-nav"', 'id="nav-panel"', 'aria-label="Section navigation"', 'id="fnav"'], "Navigation panel missing", failures)
+    require_any_regex(html, [r'class="nav-toggle"[^>]*(aria-label="Expand navigation"|title="Expand)', r'id="nav-toggle"', r'toggleNav\(', r'id="fnav-toggle"'], "Navigation collapsed expand toggle missing", failures)
+    require_any(html, ['theme-toggle', 'id="theme-btn"', 'themeCycle', 'toggleTheme', 'id="fnav-theme"'], "Page theme toggle missing", failures)
 
     require_any(html, ['id="kg-explorer"', 'id="kg"', 'Knowledge Graph Explorer'], "KG Explorer missing", failures)
     # KG Explorer / SPARQL Workbench are always-visible sections, NOT wrapped
@@ -226,8 +261,8 @@ def main() -> int:
     forbid_regex(html, re.escape('<details class="section-accordion" id="kg-explorer-accordion">'), "KG Explorer must NOT be wrapped in a section-level accordion (removed by explicit user request)", failures)
     forbid_regex(html, re.escape('<details class="section-accordion" id="sparql-explorer-accordion">'), "SPARQL Workbench must NOT be wrapped in a section-level accordion (removed by explicit user request)", failures)
     require_any(html, ['id="kgControlsToggle"', 'id="nav-toggle"', 'btn-basic', 'btn-advanced'], "KG controls/mode controls missing", failures)
-    require_any_regex(html, [r'id="kgToolbar" hidden', r'#nav-body\{[^}]*max-height:0', r'id="settings-panel"\s+style="display:none', r'#settings-panel\{display:none'], "KG controls/settings are not clearly closed by default", failures)
-    require_any(html, ['id="settingsPanel" hidden', 'id="settings-panel"', 'settingsPanel.hidden=true'], "Advanced settings panel missing", failures)
+    require_any_regex(html, [r'id="kgToolbar" hidden', r'#nav-body\{[^}]*max-height:0', r'id="settings-panel"\s+style="display:none', r'#settings-panel\{display:none', r'\[data-advanced-control\]\{display:none\}', r'#kg-settings\{[^}]*right:-\d'], "KG controls/settings are not clearly closed by default", failures)
+    require_any(html, ['id="settingsPanel" hidden', 'id="settings-panel"', 'settingsPanel.hidden=true', 'id="kg-settings"'], "Advanced settings panel missing", failures)
     require_any(html, ['data-mode="Basic"', 'btn-basic', "switchMode('basic')"], "Basic mode toggle missing", failures)
     require_any(html, ['data-mode="Advanced"', 'btn-advanced', "switchMode('advanced')"], "Advanced mode toggle missing", failures)
     require_any(html, ['data-density="Core"', 'density-core', "setDensity('core')"], "Core density toggle missing", failures)
@@ -283,6 +318,9 @@ def main() -> int:
             require(html, '<details class="sparql-card"', "SPARQL query examples must render as closed-by-default <details class=\"sparql-card\"> accordions, not always-open <div> blocks", failures)
             forbid_regex(html, r'<details class="sparql-card"[^>]*\bopen\b', "Sample-query <details> accordion must NOT carry an `open` attribute (closed by default)", failures)
 
+    check_exploration_disclosures(html, failures)
+    check_anchor_targets(html, failures)
+
     # Synopsis lede/body gate: a synopsis section with a spotlight panel and
     # CTA but no narrative prose reads as broken/sparse (a big mostly-empty
     # card). This happens when the main entity has no schema:abstract,
@@ -304,6 +342,18 @@ def main() -> int:
         "Extraction provenance",
     ]:
         require(html, label, f"Attribution item missing: {label}", failures)
+
+    # Exactly one attribution/provenance surface per page (agent-rdf-memory
+    # preferences.ttl Step 186, and Step 196's own noted gap: this validator
+    # checked required CONTENT but never checked for this specific layout
+    # redundancy, so a stale copied template — or kg-generator's own former
+    # "About Section Template" boilerplate — silently reintroduced a second
+    # mid-page <section id="about">"About This Page"</section> duplicating
+    # the footer's attribution grid at least three times (2026-08-04 copy,
+    # 2026-08-13 copy, and the canonical competitive-analysis-head-to-head
+    # template itself, fixed 2026-09-12). "About"/provenance content belongs
+    # ONLY in the footer's attribution cards.
+    forbid_regex(html, r'<section[^>]*\bid="about"', "A standalone mid-page <section id=\"about\"> was found — 'About This Page' / provenance content must be folded into the footer's attribution grid, never a second surface (see agent-rdf-memory/preferences.ttl Step 186)", failures)
 
     check_harness_class_styling(html, failures)
 

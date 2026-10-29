@@ -1,0 +1,89 @@
+# =============================================================================
+# 07_sparql_samples.rq — Pure SPARQL against http://localhost:8890/atlan-cc#
+# Endpoint: http://localhost:8890/sparql
+# =============================================================================
+
+# --- Q1: Competing win-rate claims ---
+PREFIX :     <http://localhost:8890/schemas/atlan-cc/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?claim ?def ?confidence ?validFrom ?validTo ?status ?sourceLabel
+FROM <http://localhost:8890/atlan-cc#>
+WHERE {
+  ?claim a :Claim ;
+         :subjectRef "metric:1" ;
+         :definitionText ?def ;
+         :confidence ?confidence ;
+         :validFrom ?validFrom ;
+         :status ?status ;
+         :derivedFrom ?src .
+  OPTIONAL { ?claim :validTo ?validTo }
+  OPTIONAL { ?src skos:prefLabel ?sourceLabel }
+}
+ORDER BY DESC(?confidence)
+
+# --- Q2: Valid as-of 2025-03-15 ---
+PREFIX :     <http://localhost:8890/schemas/atlan-cc/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?claim ?def ?confidence ?validFrom ?validTo ?sourceLabel
+FROM <http://localhost:8890/atlan-cc#>
+WHERE {
+  ?claim a :Claim ;
+         :subjectRef "metric:1" ;
+         :claimKind "definition" ;
+         :definitionText ?def ;
+         :confidence ?confidence ;
+         :validFrom ?validFrom ;
+         :derivedFrom ?src .
+  OPTIONAL { ?claim :validTo ?validTo }
+  OPTIONAL { ?src skos:prefLabel ?sourceLabel }
+  FILTER (?validFrom <= "2025-03-15"^^xsd:date)
+  FILTER (!BOUND(?validTo) || ?validTo >= "2025-03-15"^^xsd:date)
+}
+ORDER BY DESC(?confidence)
+
+# --- Q3: Closed opportunities (facts for win-rate) ---
+PREFIX : <http://localhost:8890/schemas/atlan-cc/>
+
+SELECT ?opp ?account ?stage ?amount ?isNewBusiness ?reachedQualification
+FROM <http://localhost:8890/atlan-cc#>
+WHERE {
+  ?opp a :Opportunity ;
+       :accountName ?account ;
+       :stage ?stage ;
+       :amount ?amount ;
+       :isNewBusiness ?isNewBusiness ;
+       :reachedQualification ?reachedQualification .
+  FILTER (?stage IN ("closed-won", "closed-lost", "disqualified"))
+}
+ORDER BY ?stage ?opp
+
+# --- Q4: SKOS labels on entities ---
+PREFIX :     <http://localhost:8890/schemas/atlan-cc/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?entity ?pref (GROUP_CONCAT(?alt; separator=", ") AS ?alts)
+FROM <http://localhost:8890/atlan-cc#>
+WHERE {
+  ?entity a :Entity ;
+          skos:prefLabel ?pref .
+  OPTIONAL { ?entity skos:altLabel ?alt }
+}
+GROUP BY ?entity ?pref
+ORDER BY ?pref
+
+# --- Q5: Metrics and their entities ---
+PREFIX :     <http://localhost:8890/schemas/atlan-cc/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?metric ?mLabel ?entity ?eLabel
+FROM <http://localhost:8890/atlan-cc#>
+WHERE {
+  ?metric a :Metric ;
+          skos:prefLabel ?mLabel ;
+          :forEntity ?entity .
+  ?entity skos:prefLabel ?eLabel .
+}

@@ -13,7 +13,7 @@
 :howto a schema:HowTo ;
     schema:name "Give SPASQL worked examples a live SPASQLQB link, not an HTTP SPARQL endpoint link"@en ;
     schema:description "SPASQL is a SQL-client feature (isql/ODBC/JDBC), not an HTTP SPARQL protocol call, so its live-execution surface is the SPASQL Query Builder web tool, not the sparql?query= endpoint."@en ;
-    schema:step :step-incident, :step-pattern, :step-caveat ;
+    schema:step :step-incident, :step-pattern, :step-caveat, :step-signin ;
     rdfs:seeAlso <../preferences.ttl#step-spasqlExampleLiveLink> .
 
 :step-incident a schema:HowToStep ;
@@ -30,3 +30,9 @@
     schema:position "3"^^xsd:integer ;
     schema:name "Caveat: the link only returns real results once the document's own graph is uploaded to its DAV path"@en ;
     schema:text "Same pre-upload caveat as the plain SPARQL Workbench's 'Open live' recipes: a FROM <DAV-graph-IRI> clause 404s/returns empty until that .ttl is actually PUT to that DAV path — state this plainly next to the button rather than implying it already works."@en .
+
+:step-signin a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Add the sign-in notice: demo or vdb, user id and password identical, ABAC-protected instance"@en ;
+    schema:text "Added 2026-10-02. A SPASQL Query Builder link needs a signed-in session on demo.openlinksw.com, so every SPASQL example carries a notice to authenticate as demo or vdb, where the user id and the password are identical, and says the instance is protected by ABAC ACLs. See demo-spasql-signin-notice.ttl and preferences.ttl Step 316."@en ;
+    rdfs:seeAlso <demo-spasql-signin-notice.ttl>, <../preferences.ttl#step-demoSpasqlSigninNotice> .

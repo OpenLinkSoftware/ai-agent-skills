@@ -185,8 +185,16 @@ If not found or not confirmed, prompt:
 For URIBurner / WebID-TLS work, use the **PKCS#12 file path** from `core.ttl` (`:userPrincipalCredentials`), not a PEM extracted into `TMPDIR`:
 
 ```bash
-export MTLS_PKCS12_PW="$(python3 -c "from pathlib import Path; print(Path('/tmp/uyi').read_text().splitlines()[0].split('=',1)[1].strip())")"
 P12="{CREDENTIALS_ROOT}/Templates/YouID/link-in-bio-credentials-5/cert.p12"
+MTLS_PKCS12_PW="$(security find-generic-password -s uriburner-p12 -a "$USER" -w)" || {
+  echo "Keychain lookup failed; stop and ask the user to resolve secure-store access." >&2
+  exit 1
+}
+if [ -z "$MTLS_PKCS12_PW" ]; then
+  echo "Keychain returned no passphrase; stop and ask the user to resolve secure-store access." >&2
+  exit 1
+fi
+export MTLS_PKCS12_PW
 curl -sk --cert-type P12 --cert "$P12" --pass "$MTLS_PKCS12_PW" ...
 unset MTLS_PKCS12_PW
 ```
@@ -628,6 +636,11 @@ When invoked:
 | `references/virtuoso-isql-mtls.md` | Virtuoso iSQL mTLS + WebID flag reference and session guide |
 
 ---
+
+
+## Safe Virtuoso ISQL Error Output
+
+Whenever this workflow invokes OpenLink's native Virtuoso `isql` client, pass the bare client option `COMMAND_TEXT_ON_ERROR=OFF`, for example `isql {host}:{port} {user} {password} COMMAND_TEXT_ON_ERROR=OFF {script.sql}`. Place it before SQL input, script arguments, or `-i`. `OFF` maps to the client's internal value `0` and prevents the client from appending the full failed command to error output. The client accepts `OFF`/`ON`; literal `0` is rejected. Do not use `-u` for this setting (`-u` populates the `U` argument array). This does not redact secrets from server diagnostics, shell history, or process arguments, so keep credentials out of SQL text and logs. Do not apply this Virtuoso-specific option to unixODBC/iODBC `isql` clients.
 
 ## Version
 

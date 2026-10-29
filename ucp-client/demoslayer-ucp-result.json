@@ -1,0 +1,53 @@
+{
+  "resource_url": "https://linkeddata.uriburner.com:5443/DAV/demos/daas_paid/world-cup-2026-country-player-guide-meshup-gpt5-chat-1.html",
+  "identity": {
+    "name": "demoslayer",
+    "webid": "https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/demoslayer-credentials/index.html#netid",
+    "cert_p12": "/Users/kidehen/Documents/Management/Marketing/WebID/Templates/YouID/demoslayer-credentials/cert.p12",
+    "cert_fingerprint": "44:68:A5:D7:FF:C1:72:BE:DD:DF:ED:63:E2:76:AC:C0",
+    "webid_published": false,
+    "webid_public_get": 404
+  },
+  "offer_iri": "http://data.openlinksw.com/oplweb/offer/DemoFileAccessOffer1URIBurner#this",
+  "ucp_item_id": "http://data.openlinksw.com/oplweb/offer/DemoFileAccessOffer1URIBurner#this",
+  "ucp_item_id_source": "schema:Offer IRI (offerNumber KG-HTML-FILE-ACCESS-UB-WORLDCUP-GUIDE was rejected by UCP catalog as no such product id)",
+  "rdf_price": 299,
+  "rdf_currency": "usd",
+  "ucp": {
+    "merchant": "https://ods-qa.openlinksw.com/ucp",
+    "checkout_id": "a54f7fe6-a66a-11f1-b27f-f0569f38fb9f",
+    "checkout_status": "completed",
+    "currency": "usd",
+    "total": 299,
+    "buyer": {
+      "email": "kidehen@openlinksw.com",
+      "first_name": "demoslayer",
+      "last_name": "Agent"
+    },
+    "payment_field_on_session": null
+  },
+  "identity_gate": {
+    "mtls_port": 5443,
+    "hop1": 302,
+    "hop2_with_L": 402,
+    "www_authenticate": "Payment (stripe charge x2: shop.openlinksw.com and ods-qa.openlinksw.com/shop)"
+  },
+  "mpp": {
+    "challenge_recipient": "https://ods-qa.openlinksw.com/shop/",
+    "status": 401,
+    "body": "Permission denied to cert:44:68:A5:D7:FF:C1:72:BE:DD:DF:ED:63:E2:76:AC:C0",
+    "note": "Virtuoso binds ACL to cert fingerprint because the SAN WebID document is unpublished. Payment header is not evaluated."
+  },
+  "webid_publish": {
+    "target": "https://kingsley.idehen.net/DAV/home/kidehen/Public/YouID/demoslayer-credentials/",
+    "mkcol": "401 Digest realm=DAV (WebID-TLS cert accepted for GET of public parent, not for MKCOL/PUT)",
+    "port_5443": "connection timed out",
+    "blocker": "Need DAV Digest credentials for kingsley.idehen.net, or a manual ODS upload of index.html, profile.ttl, profile.jsonld, public_key.ttl"
+  },
+  "warnings": [
+    "UCP checkout completed independently of DAV entitlement. A completed checkout is not a 200 on the resource.",
+    "Do not treat MPP 401 as a payment failure; it is an identity-document failure.",
+    "Never PUT cert.p12/private key to DAV."
+  ],
+  "updated_at": "2026-09-02T01:12:00Z"
+}

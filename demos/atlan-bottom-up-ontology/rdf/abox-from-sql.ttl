@@ -1,0 +1,110 @@
+@prefix a: <http://localhost:8890/schemas/atlan-cc/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<http://localhost:8890/atlan-cc/source/1#this> a a:Source ;
+  a:preferredLabel "Cloud Warehouse" ;
+  a:systemType "warehouse" .
+<http://localhost:8890/atlan-cc/source/1#this> rdfs:comment "Analyst SQL in the cloud warehouse" .
+<http://localhost:8890/atlan-cc/source/2#this> a a:Source ;
+  a:preferredLabel "CRM" ;
+  a:systemType "crm" .
+<http://localhost:8890/atlan-cc/source/2#this> rdfs:comment "Deal-desk / CRM opportunity fields" .
+<http://localhost:8890/atlan-cc/source/3#this> a a:Source ;
+  a:preferredLabel "BI Tool" ;
+  a:systemType "bi" .
+<http://localhost:8890/atlan-cc/source/3#this> rdfs:comment "Dashboard formulas" .
+<http://localhost:8890/atlan-cc/source/4#this> a a:Source ;
+  a:preferredLabel "Metadata Catalog" ;
+  a:systemType "catalog" .
+<http://localhost:8890/atlan-cc/source/4#this> rdfs:comment "Catalogued metric definitions" .
+<http://localhost:8890/atlan-cc/entity/1#this> a a:Entity ;
+  a:preferredLabel "Opportunity" ;
+  skos:prefLabel "Opportunity" .
+<http://localhost:8890/atlan-cc/entity/1#this> rdfs:comment "A sales opportunity / deal" .
+<http://localhost:8890/atlan-cc/entity/2#this> a a:Entity ;
+  a:preferredLabel "Account" ;
+  skos:prefLabel "Account" .
+<http://localhost:8890/atlan-cc/entity/2#this> rdfs:comment "A customer or prospect account" .
+<http://localhost:8890/atlan-cc/entity/1#this> a:altLabel "Deal" ; skos:altLabel "Deal" .
+<http://localhost:8890/atlan-cc/entity/1#this> a:altLabel "Opp" ; skos:altLabel "Opp" .
+<http://localhost:8890/atlan-cc/entity/2#this> a:altLabel "Company" ; skos:altLabel "Company" .
+<http://localhost:8890/atlan-cc/entity/2#this> a:altLabel "Customer" ; skos:altLabel "Customer" .
+<http://localhost:8890/atlan-cc/metric/1#this> a a:Metric ;
+  a:preferredLabel "Win Rate" ;
+  a:forEntity <http://localhost:8890/atlan-cc/entity/1#this> .
+<http://localhost:8890/atlan-cc/metric/1#this> rdfs:comment "Share of opportunities that closed won — contested definition" .
+<http://localhost:8890/atlan-cc/claim/1#this> a a:Claim ;
+  a:claimKind "definition" ;
+  a:subjectRef "metric:1" ;
+  a:definitionText "closed_won / all closed opportunities" ;
+  a:confidence "0.82"^^xsd:decimal ;
+  a:validFrom "2024-01-01"^^xsd:date ;
+  a:validTo "2025-06-30"^^xsd:date ;
+  a:status "superseded" ;
+  a:derivedFrom <http://localhost:8890/atlan-cc/source/1#this> .
+<http://localhost:8890/atlan-cc/claim/2#this> a a:Claim ;
+  a:claimKind "definition" ;
+  a:subjectRef "metric:1" ;
+  a:definitionText "closed_won / closed opportunities that reached qualification (exclude never-qualified)" ;
+  a:confidence "0.91"^^xsd:decimal ;
+  a:validFrom "2025-07-01"^^xsd:date ;
+  a:status "approved" ;
+  a:derivedFrom <http://localhost:8890/atlan-cc/source/2#this> .
+<http://localhost:8890/atlan-cc/claim/3#this> a a:Claim ;
+  a:claimKind "definition" ;
+  a:subjectRef "metric:1" ;
+  a:definitionText "closed_won / closed new-business opportunities only" ;
+  a:confidence "0.74"^^xsd:decimal ;
+  a:validFrom "2025-01-01"^^xsd:date ;
+  a:status "candidate" ;
+  a:derivedFrom <http://localhost:8890/atlan-cc/source/3#this> .
+<http://localhost:8890/atlan-cc/opportunity/1#this> a a:Opportunity ;
+  a:preferredLabel "Acme" ;
+  a:stage "closed_won" ;
+  a:amount "100000"^^xsd:decimal ;
+  a:isNewBusiness "1"^^xsd:boolean ;
+  a:reachedQualification "1"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/2#this> a a:Opportunity ;
+  a:preferredLabel "BetaCo" ;
+  a:stage "closed_lost" ;
+  a:amount "50000"^^xsd:decimal ;
+  a:isNewBusiness "1"^^xsd:boolean ;
+  a:reachedQualification "1"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/3#this> a a:Opportunity ;
+  a:preferredLabel "Gamma" ;
+  a:stage "closed_lost" ;
+  a:amount "30000"^^xsd:decimal ;
+  a:isNewBusiness "0"^^xsd:boolean ;
+  a:reachedQualification "0"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/4#this> a a:Opportunity ;
+  a:preferredLabel "Delta" ;
+  a:stage "closed_won" ;
+  a:amount "80000"^^xsd:decimal ;
+  a:isNewBusiness "1"^^xsd:boolean ;
+  a:reachedQualification "1"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/5#this> a a:Opportunity ;
+  a:preferredLabel "Epsilon" ;
+  a:stage "closed_lost" ;
+  a:amount "20000"^^xsd:decimal ;
+  a:isNewBusiness "0"^^xsd:boolean ;
+  a:reachedQualification "1"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/6#this> a a:Opportunity ;
+  a:preferredLabel "Zeta" ;
+  a:stage "open" ;
+  a:amount "90000"^^xsd:decimal ;
+  a:isNewBusiness "1"^^xsd:boolean ;
+  a:reachedQualification "1"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/7#this> a a:Opportunity ;
+  a:preferredLabel "Eta" ;
+  a:stage "closed_won" ;
+  a:amount "40000"^^xsd:decimal ;
+  a:isNewBusiness "0"^^xsd:boolean ;
+  a:reachedQualification "1"^^xsd:boolean .
+<http://localhost:8890/atlan-cc/opportunity/8#this> a a:Opportunity ;
+  a:preferredLabel "Theta" ;
+  a:stage "closed_lost" ;
+  a:amount "15000"^^xsd:decimal ;
+  a:isNewBusiness "1"^^xsd:boolean ;
+  a:reachedQualification "0"^^xsd:boolean .

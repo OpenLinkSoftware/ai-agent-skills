@@ -615,6 +615,22 @@
     </details>
   </section>
 
+!!{nostr_did}
+  <!-- ═══ NOSTR IDENTITY (did:nostr) ═══ -->
+  <section class="card" id="nostr-identity">
+    <div class="card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4M18 5l2 2M15 8l2 2"/></svg>
+      Nostr Identity
+    </div>
+    <div class="card-body">
+      <div class="fingerprint-box"><span class="fp-label">Relation</span> %{nostr_relation_label}</div>
+      <div class="fingerprint-box" style="margin-top:6px"><span class="fp-label">DID</span> <span class="nostr-did">%{nostr_did}</span></div>
+      <div class="fingerprint-box" style="margin-top:6px"><span class="fp-label">npub</span> <span class="nostr-npub">%{nostr_npub}</span></div>
+      <div class="fingerprint-box" style="margin-top:6px"><span class="fp-label">Multikey (secp256k1)</span> <span class="nostr-multibase">%{nostr_multibase}</span></div>
+    </div>
+  </section>
+!!.
+
   <!-- ═══ SOCIAL PROFILES ═══ -->
   <section class="card">
     <div class="card-header">

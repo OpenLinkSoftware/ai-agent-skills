@@ -1942,3 +1942,104 @@
         <howto/pragma-ab-toggle-variant.ttl> .
 
 :sessionIndex schema:itemListElement :session20260918ClaudeOpus5ClaudeCodeQueryScopedReasoning .
+
+# ── 2026-09-28: Claude Opus 5 + Claude Code — registered the third-party motion-broll skill ──
+
+:session20260928ClaudeOpus5ClaudeCodeMotionBrollRegistration a schema:ListItem ;
+    schema:position 1187 ;
+    schema:item <sessions/2026-09-28-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-09-28 (Claude Opus 5 + Claude Code — registered the third-party motion-broll skill)"@en ;
+    schema:description "Inspected and code-reviewed Barty-Bart/motion-graphics (MIT), installed skills/motion-broll into the repo directory plus ~/.codex/skills and ~/.vibe/skills, left untracked like other third-party skills, and registered :motionBrollSkill in entities/tools.ttl under its upstream GitHub IRI."@en ;
+    rdfs:seeAlso <sessions/2026-09-28-claude_opus_5-claude_code.ttl>,
+        <entities/tools.ttl> .
+
+:sessionIndex schema:itemListElement :session20260928ClaudeOpus5ClaudeCodeMotionBrollRegistration .
+
+# ── 2026-09-30: Claude Sonnet 5.5 + Claude Code — Neo4j 'Scale AI into production' meshup vs Virtuoso + agent-rdf-memory, live ScaleKG demo ──
+
+:session20260930ClaudeSonnet55ClaudeCodeScaleKgMeshup a schema:ListItem ;
+    schema:position 1188 ;
+    schema:item <sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-09-30 (Claude Sonnet 5.5 + Claude Code — Neo4j 'Scale AI into production' meshup vs Virtuoso + agent-rdf-memory, with a live ScaleKG RDF View on demo.openlinksw.com)"@en ;
+    schema:description "Eleven-table SQL estate, 347-triple RDF View, 268-triple TBox and eight verified SPARQL/SPASQL/SQL queries on demo.openlinksw.com; nullable-FK quad-map guard, SQ142 with DISTINCT+ORDER BY+inference, sub-property entailment not firing over a view, Query Builder sign-in, and the sandbox/output-root copy pattern."@en ;
+    rdfs:seeAlso <sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl>,
+        <howto/sql-ddl-batch-script-and-verification.ttl> .
+
+:sessionIndex schema:itemListElement :session20260930ClaudeSonnet55ClaudeCodeScaleKgMeshup .
+
+# ── 2026-09-18: DeepSeek V4 Pro + dsh — Meta 'An Organizational Second Brain' meshup vs agent-rdf-memory (tacit knowledge → Semantic Web generation) ──
+
+:session20260918DeepSeekV4ProDshSecondBrainMeshup a schema:ListItem ;
+    schema:position 1182 ;
+    schema:item <sessions/2026-09-18-deepseek_v4pro-dsh-3.ttl> ;
+    schema:name "Session 2026-09-18 (DeepSeek V4 Pro + dsh — Meta 'An Organizational Second Brain' meshup vs agent-rdf-memory: tacit knowledge → Semantic Web generation)"@en ;
+    schema:description "Turtle + HTML collection from https://engineering.fb.com/2026/09/02/ml-applications/organizational-second-brain-ai-learns-from-experts/ — 'An Organizational Second Brain: Building an AI That Learns From Experts' (Shaurya Sengar, Jason Nawrocki, Jay Shah, Prashant Kommireddi, Engineering at Meta, 2026-09-02). Mesh angle: the article's four-layer tacit-knowledge architecture (knowledge system / reasoning recipes / evaluation framework / self-improvement flywheel) mapped onto agent-rdf-memory as a Semantic Web realization (RDF named graphs = knowledge files; ontology.ttl + entities/ = vocabulary; preferences.ttl schema:HowTo = recipes; validate-*.py gates = gateway files; SPARQL context routing = routing index; sessions/ + index.ttl = flywheel). 867-triple Turtle (osb: vocabulary + :secondBrainOntology, 12 cdx:ComparisonDimension, 8 mesh mappings, 12 FAQ, 12 glossary, 6 HowToStep, 11 SPARQL recipes each projecting an IRI variable) + single-file HTML. Reuse-first port from the neo4j-nams 2-way shell (re-brand neo4j→meta), NOT hand-rolled D3. validate-harness-contract.py PASS 0 failures; validate-kg-compliance.sh 20/20; rdflib PARSE OK; browser smoke test 0 console errors, 61 nodes/85 links core. Deliverables: rdf/ + webpages/organizational-second-brain-deepseek_v4pro-1.{ttl,html} + build_second_brain_meshup.py. Session records onto:usedFileReads + onto:usedSparqlEndpoint <http://localhost:8890/sparql>."@en ;
+    rdfs:seeAlso <sessions/2026-09-18-deepseek_v4pro-dsh-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20260918DeepSeekV4ProDshSecondBrainMeshup .
+
+# ── 2026-09-26: Claude Opus 5.5 + Claude Code — ProtectedOffer DAV DET (offer generation + admin notification on upload) ──
+
+:session20260926ClaudeOpus55ClaudeCodeProtectedOfferDet a schema:ListItem ;
+    schema:position 1185 ;
+    schema:item <sessions/2026-09-26-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-09-26 (Claude Opus 5.5 + Claude Code — ProtectedOffer DAV DET: File Access offer generated on upload, buyer-only VAL rule, admin notice for shop upload)"@en ;
+    schema:description "DET_ProtectedOffer.sql (Conductor and briefcase) with Conductor wiring. Tested live on the local instance: public read stripped on upload, offer generated, 8/8 in-database checks pass, VAL rule at scope oplacl:Dav, anonymous GET returns 401, SHACL PASS with 0 violations. Added resource-access-offers-generator/references/det-integration.md and flagged the empty prompts/*.md."@en ;
+    rdfs:seeAlso <sessions/2026-09-26-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20260926ClaudeOpus55ClaudeCodeProtectedOfferDet .
+
+# ── 2026-09-20: Claude Opus 5 + Claude Code — Snowflake ontology/KG/semantic-layer meshup vs Virtuoso RDF Views; live MovieKG deployment on demo.openlinksw.com ──
+
+:session20260920ClaudeOpus5ClaudeCodeSnowflakeSemanticLayerMeshup a schema:ListItem ;
+    schema:position 1183 ;
+    schema:item <sessions/2026-09-20-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-09-20 (Claude Opus 5 + Claude Code — Snowflake five-layer ontology/KG/semantic-layer meshup vs Virtuoso RDF Views + agent-rdf-memory, with a live MovieKG RDF View deployed on demo.openlinksw.com)"@en ;
+    schema:description "Turtle + JSON-LD + HTML collection from https://snowflakewiki.medium.com/ontology-knowledge-graphs-the-semantic-layer-on-snowflake-the-concepts-2efc606dfeb2 — 'Ontology, Knowledge Graphs & the Semantic Layer on Snowflake — The Concepts' (Snowflake Wiki, Medium, 2026-09-09). Mesh angle: the article's five-layer stack (node/edge tables, VARIANT ontology metadata, auto-generated unifying views, three semantic models, Cortex Agent) mapped layer-by-layer onto Virtuoso (unmoved relational tables, RDFS/OWL TBox in a named graph, declarative quad map, entailment + property paths, hyperlink-addressed agent), plus agent-rdf-memory as the rung above Layer 5. NEW SUPPORTING DATA BUILT LIVE: the article's own movie domain as 13 FK-constrained tables in MovieKG.kidehen on demo.openlinksw.com (181 rows, article identifiers preserved — Hanks 1001, Zemeckis 301, Forrest Gump 2045, Best Picture 1995 = award 100), 217-triple TBox, 7 IRI classes, one ALTER QUAD STORAGE quad map projecting 600 triples into <http://demo.openlinksw.com/MovieKG#>, 78-rule rdfs_rule_set urn:moviekg:inference, public SELECT grants, and Linked Data rewrite rules on /MovieKG. Five queries executed and verified before being written down: plain-SQL Bacon numbers (24 lines, 12 rows), polymorphic Person-by-entailment (5 rows, DISTINCT mandatory), SPARQL property-path Bacon numbers (3 path expressions, same 12 rows), SPASQL box-office-by-genre (9 rows), and SPASQL joining graph-traversal results to the native Studio table (18 rows) — the axis with no Snowflake counterpart. 570-triple Turtle (0 blank nodes, all literals @en), semantically equivalent JSON-LD, 333 KB HTML with 12 comparison accordions and 5 live query cards. validate-harness-contract.py PASS; browser-verified, 0 console errors, 30 nodes / 84 edges / 42 arrowheads, light and dark. Key lessons: XMLA on demo is SELECT-only (SELECT exec('…') is the write route), CREATE IRI CLASS outlives the client timeout without failing, an RDF View 401s until SQL SELECT is granted, and DEFINE input:inference requires SELECT DISTINCT. Open finding: generate_infographic.py's KG Explorer renders no edge labels. POST-DELIVERY CORRECTIONS (prompt 2): (a) the 12 dimensions had shipped as section accordions instead of the contracted responsive dual presentation — rebuilt as .comparison-table-view (4-column sticky-first-column table, per-entity accents, edge badges) plus .comparison-cards-view (3 cards x 12 rows), schema:description added to all 12 dimension instances (TTL now 582 triples), viewport gate passed at 1440px and 390px with zero overflow; logged as howto/responsive-comparison-presentation.ttl#step-accordionIsNotDualPresentation and clause 7 on preferences.ttl#step-responsiveComparisonPresentation. (b) SELECT granted to the demo and vdb accounts as well as SPARQL/PUBLIC, since SPASQL execution resolves under a different principal than the anonymous /sparql endpoint. Session records onto:usedFileReads."@en ;
+    rdfs:seeAlso <sessions/2026-09-20-claude_opus_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20260920ClaudeOpus5ClaudeCodeSnowflakeSemanticLayerMeshup .
+
+# ── 2026-09-19: Claude Opus 5 + Claude Code — ODS login state rebuilt for the openlink-2026 composite skin ──
+
+:session20260919ClaudeOpus5ClaudeCodeOdsLoginState a schema:ListItem ;
+    schema:position 1184 ;
+    schema:item <sessions/2026-09-19-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-09-19 (Claude Opus 5 + Claude Code — ODS logged-in/logged-out state for the openlink-2026 composite skin across three OSDI demo sites)"@en ;
+    schema:description "Restored session state to /openlink/, /openlink-ldp/ and /openlink-vsp-demo/ on oplussol11.intranet.openlinksw.com:8890. An approved rebuild plan (adopt jQuery, port auth/*.vsp, wire the host into ODS) was cut down after probing the live host disproved three of its four premises: the ODS-UI VAD was already installed, /auth/* already served, the registry was already configured (opl_loginPage=/license_generator/login.vsp, opl_cookieName=sid, opl_cookieDomain=.openlinksw.com, opl_shop_uri set), and the demo sites share a vhost with /auth so CORS never applied. Delivered instead as one client-side file: js/ods-session.js fetches /auth/odswidget.vsp same-origin and reads ods_sid state out of it with DOMParser, executing nothing and applying every value via textContent/setAttribute — so the legacy masthead.xslt arrangement's jQuery 1.7.2 document.write bootstrap and #profileBox CSS are not inherited. A purpose-built JSON endpoint was ruled out twice over: /auth is a VAD collection shared with the live www/virtuoso/uda webdev vhosts, and a VSP in a site's own collection is unreachable because osdi_*_catchall funnels every path under /openlink/ into index.vsp. Logged-out path verified live on all three sites (login href retargeted from the widget's own onclick, per-site returnto correct); logged-in path exercised against a fixture built from odswidget.vsp's own logged-in branch, since authenticating was out of bounds. That fixture run caught a real defect: the widget's default avatar for a photoless account 404s on this host, so the img now removes itself on error. Dark-mode active state corrected from --blue to --accent-bright. Committed as inclusion-engine 8633a63. Session records onto:usedFileReads."@en ;
+    rdfs:seeAlso <sessions/2026-09-19-claude_opus_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20260919ClaudeOpus5ClaudeCodeOdsLoginState .
+
+# ── 2026-09-28: DeepSeek V4 Pro + dsh — "Built for Something Else" chain-of-accidents meshup (Mollick X post + sources page) ──
+
+:session20260928DeepSeekV4ProDshBuiltForSomethingElse a schema:ListItem ;
+    schema:position 1186 ;
+    schema:item <sessions/2026-09-28-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-09-28 (DeepSeek V4 Pro + dsh — 'Built for something else' chain-of-accidents meshup: Ethan Mollick's X post + the sources-and-notes page for the Claude Opus 5.5 video essay on how ChatGPT was assembled from parts built for other purposes)"@en ;
+    schema:description "Turtle + JSON-LD + HTML visual-communication competition entry from a two-source meshup: https://built-for-something-else.netlify.app (primary sources-and-notes page for the video 'Built for something else' by Claude Opus 5.5, supervised by Ethan Mollick) + https://x.com/emollick/status/2104415669123174553 (Mollick's sharing post). Content: 9 schema:Clip video segments with 6 'built for' purpose DefinedTerms, 31 schema:Claim verbatim quotes with citations, 16 people + 10 organizations (fully-expanded DBpedia IRIs), 16 cited works, 23-item timeline map, 12-question FAQ, 13-term glossary, 6-step HowTo, 5 SPARQL recipes. 1013-triple Turtle (kg-compliance 15/15, all literals @en, 0 file: IRIs), JSON-LD (@language en), and a self-contained HTML infographic in the Intelligence Network editorial aesthetic (deep-ink hero + inline-SVG chain map + stat band + duality panel + D3 v7 KG Explorer derived from the TTL: 59 nodes/77 links/0 orphans). validate-harness-contract.py PASS 0 failures; node --check valid; browser smoke test 0 console errors, no horizontal overflow, dark/light distinct. Deliverables: rdf/ + webpages/built-for-something-else-deepseek_v4pro-1.{ttl,jsonld,html}. No WebDAV upload requested (generate-only). Session records onto:usedFileReads."@en ;
+    rdfs:seeAlso <sessions/2026-09-28-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20260928DeepSeekV4ProDshBuiltForSomethingElse .
+
+# ── 2026-10-02: DeepSeek V4 Pro + dsh — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory, live custcontext demo ──
+
+:session20261002DeepSeekV4ProDshDatabricksAgenticMarketing a schema:ListItem ;
+    schema:position 1189 ;
+    schema:item <sessions/2026-10-02-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-10-02 (DeepSeek V4 Pro + dsh — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory, with a live customer-context RDF View demo on demo.openlinksw.com)"@en ;
+    schema:description "Three-way meshup of the Databricks post 'Connecting customer context to measurable ROI with agentic marketing': CustomerLake native vs Virtuoso + agent-rdf-memory alternative vs Databricks-via-ODBC to RDF Views. Six-table customer-context schema, 83-triple data + 18-triple vocab graphs materialized on demo.openlinksw.com, anonymous SPARQL + rewrite-rule dereference verified. Key lesson: CREATE IRI CLASS + quad map need FULL-IRI class names and full rdf:type predicate (short names leave orphaned qmv-* metadata)."@en ;
+    rdfs:seeAlso <sessions/2026-10-02-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261002DeepSeekV4ProDshDatabricksAgenticMarketing .
+
+# ── 2026-10-02: Claude Sonnet 5.5 + Claude Code — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory and ODBC-attached tables, live CustomerKG demo ──
+
+:session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup a schema:ListItem ;
+    schema:position 1190 ;
+    schema:item <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-02 (Claude Sonnet 5.5 + Claude Code — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory and Databricks tables attached over ODBC, with a live CustomerKG RDF View on demo.openlinksw.com)"@en ;
+    schema:description "Turtle + HTML collection with a 12-table synthetic estate, 1,160-triple RDF View, 419-triple TBox, rewrite rules (176 entity IRIs resolve) and ten live SQL, SPASQL and SPARQL queries. Lessons: SQ142/SQ200 query shapes to avoid, inference duplicates need SELECT DISTINCT, demo already holds a databricks_odbc DSN whose generated view maps cardNumber, and a parallel DeepSeek session worked the same article."@en ;
+    rdfs:seeAlso <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup .

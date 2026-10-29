@@ -19,7 +19,7 @@
 :stepCompose a schema:HowToStep ;
     schema:position 1 ;
     schema:name "Compose the URL"@en ;
-    schema:text "Build endpoint + url-encoded query using the data-twingler convention: http://localhost:8890/sparql?default-graph-uri=&query={percent-encoded SPARQL}&format=text%2Fx-html%2Btr. The format value text/x-html+tr MUST itself be percent-encoded (text%2Fx-html%2Btr) because '+' in a raw URL decodes to a space. Encode with python3 -c \"import urllib.parse; print(urllib.parse.quote(q, safe=''))\" — never hand-encode."@en .
+    schema:text "Build endpoint + url-encoded query using the data-twingler convention: http://localhost:8890/sparql/?default-graph-uri=&query={percent-encoded SPARQL}&format=text%2Fx-html%2Btr. The format value text/x-html+tr MUST itself be percent-encoded (text%2Fx-html%2Btr) because '+' in a raw URL decodes to a space. Encode with python3 -c \"import urllib.parse; print(urllib.parse.quote(q, safe=''))\" — never hand-encode."@en .
 
 :stepLabel a schema:HowToStep ;
     schema:position 2 ;

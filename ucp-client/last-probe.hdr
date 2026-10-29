@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Server: Virtuoso/08.03.3335 (Linux) x86_64-generic-linux-glibc2.12  VDB
+Connection: close
+Date: Wed, 02 Sep 2026 00:23:12 GMT
+Accept-Ranges: bytes
+ETag: "bda98169ac6b89610f9465c338904b76"
+Last-Modified: Tue, 09 Jun 2026 15:38:19 GMT
+Link: <https://linkeddata.uriburner.com:5443/DAV/demos/daas_paid/world-cup-2026-country-player-guide-meshup-gpt5-chat-1.html,meta>; rel="meta"; title="Metadata File"
+Link: <https://linkeddata.uriburner.com:5443/DAV/demos/daas_paid/world-cup-2026-country-player-guide-meshup-gpt5-chat-1.html,acl>; rel="acl"; title="Access Control File"
+Allow: COPY, DELETE, GET, HEAD, LOCK, MKCOL, MOVE, OPTIONS, PATCH, POST, PROPFIND, PROPPATCH, PUT, TRACE, UNLOCK
+Vary: Accept-Encoding, Access-Control-Request-Headers, Origin
+MS-Author-Via: DAV
+Accept-Post: */*
+Content-Type: text/html; charset=UTF-8
+Transfer-Encoding: chunked
+

@@ -13,13 +13,14 @@
     schema:name "Entity Registry: Tools & Software"@en ;
     schema:description "Canonical schema:SoftwareApplication and schema:SoftwareSourceCode entity IRIs for skills, LLM models, agent environments, and recurring software products across the agent RDF memory system. This is the authoritative single-source-of-truth — agents MUST consult this registry before resolving a tool or software entity."@en ;
     schema:dateCreated "2026-07-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-08-18T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-09-28T19:46:24Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :kgGeneratorSkill, :rdfInfographicSkill, :agentRdfMemoryRepo,
         :claudeSonnet, :gpt5ChatCodex, :deepseekV4Pro, :grok43,
         :bigPickle, :glm, :kimi, :minimax, :qwen,
         :claudeCodeEnv, :openCodeEnv, :chatCodexEnv, :grokCliEnv,
-        :virtuoso, :uriburner, :opal ;
+        :virtuoso, :uriburner, :opal,
+        :motionBrollSkill ;
     rdfs:seeAlso <../preferences.ttl>, <../core.ttl>,
         <../howto/canonical-entity-iri-denotation.ttl> .
 
@@ -276,3 +277,17 @@
     owl:sameAs <https://github.com/OpenLinkSoftware/ai-agent-skills/tree/main/llm-routing-skill#this> ;
     rdfs:comment "Canonical entity IRI. GitHub repository path + #this fragment per SoftwareApplication IRI convention. Registered 2026-08-19; graph ontology namespace llmr: = https://www.openlinksw.com/ontology/llm-routing# (see entities/ontology-terms.ttl)."@en ;
     schema:dateCreated "2026-08-19T00:00:00Z"^^xsd:dateTime .
+
+# ── motion-broll skill (third-party, registered locally) ───────────────────────
+
+:motionBrollSkill a schema:SoftwareApplication ;
+    schema:name "motion-broll"@en ;
+    schema:description "Third-party AI agent skill that turns a talking-head video plus its transcript into motion-graphic B-roll clips timed to the spoken words, in a continuous one-shape style (a single element that morphs without cutting, driven by a cursor, spring motion). Ships a JS motion engine rendered frame-by-frame through Playwright/Chromium, ffmpeg compositing to MP4 and transparent ProRes 4444, and compare/viewer HTML pages. NOT part of the OpenLinkSoftware ai-agent-skills repository: authored by Bart (Barty-Bart), MIT licensed, and kept untracked in the local repo directory in the same way as browser-automation and game-development."@en ;
+    schema:applicationCategory "AI Agent Skill"@en ;
+    schema:license <https://github.com/Barty-Bart/motion-graphics/blob/main/LICENSE> ;
+    schema:url "https://github.com/Barty-Bart/motion-graphics/tree/main/skills/motion-broll" ;
+    schema:codeRepository <https://github.com/Barty-Bart/motion-graphics> ;
+    schema:softwareRequirements "Node 18+, Python 3, ffmpeg with the ProRes encoder; Playwright and Chromium installed on first run into a local motion/ folder"@en ;
+    owl:sameAs <https://github.com/Barty-Bart/motion-graphics/tree/main/skills/motion-broll#this> ;
+    rdfs:comment "Canonical entity IRI: upstream GitHub path + #this per the SoftwareApplication IRI convention — never an ai-agent-skills IRI, which would misattribute a third-party skill. Registered 2026-09-28 from clone e8d610adcf946367430c8b43a97aad8059befaad (upstream commit 2026-09-25) into the repo directory plus ~/.codex/skills and ~/.vibe/skills."@en ;
+    schema:dateCreated "2026-09-28T19:46:24Z"^^xsd:dateTime .

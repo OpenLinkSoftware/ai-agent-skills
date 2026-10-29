@@ -57,7 +57,7 @@ Priority ladder for concept IRIs (when a choice exists):
     schema:text """For each concept entity, add one entity-link hyperlink at the first visible occurrence in the HTML body:
 1. Check DOM order: hero badges → tagline → section headings → body paragraphs → FAQ → glossary → HowTo.
 2. The first occurrence of the concept text in this order gets the link.
-3. Use <a class="entity-link" href="https://linkeddata.uriburner.com/describe/?url={url-encoded-iri}" target="_blank" rel="noopener noreferrer">{concept name}</a>.
+3. Use <a class="entity-link" href="{default-resolver-server}/describe/?url={url-encoded-iri}" target="_blank" rel="noopener noreferrer">{concept name}</a>.
 4. For hero badges, wrap the entire <span> content: <span class="hero-badge"><a class="entity-link" href="...">&#9670; Concept Name</a></span>.
 5. Do NOT add a second entity-link to the same entity later in the document (Mode A default — elicit from user if Mode B is preferred).
 6. Ensure the resolver URL is correctly percent-encoded: # → %23, / → %2F."""@en .
