@@ -1441,14 +1441,15 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_TITLE (IN dav_collection VARCHAR,
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   content := '';
-  for (select subseq (blob_to_string (RES_CONTENT), 0, 8000) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
+  for (select blob_to_string (subseq (RES_CONTENT, 0, case when length (RES_CONTENT) > 2000000 then 2000000 else length (RES_CONTENT) end)) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
   {
     content := _c;
   }
-  t := regexp_match ('<title>[^<]+</title>', content);
+  -- Look for <title> wherever it sits, not only in the first 8000 bytes:
+  -- generated pages can open with a large inline <style> block (the same
+  -- fix as the weblog page's post list in deploy-weblog-skinned.sql).
+  t := regexp_substr ('(?is)<title[^>]*>([^<]*)</title>', content, 1);
   if (t is null) return filename;
-  t := replace (t, '<title>', '');
-  t := replace (t, '</title>', '');
   t := trim (t);
   -- Plain text, every character reference decoded (&#x27; included):
   -- the card HTML-escapes it and the Subject header RFC 2047-encodes it.
@@ -1496,6 +1497,30 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_IS_INFOGRAPHIC (IN lc VARCHAR)
   if (strstr (lc, 'class="section-nav"') is not null) return 1;
   if (strstr (lc, 'id="nav-panel"') is not null) return 1;
   if (strstr (lc, 'aria-label="section navigation"') is not null) return 1;
+  -- Any page with interactive widgets in its body, whichever generator made
+  -- it: those four markers belong to one generator family, so pages from
+  -- others (tab strips, era explorers, faceted browsers, benchmark
+  -- dashboards) were treated as plain articles and their whole <body> --
+  -- skip links, nav, Theme buttons, forms -- went into subscriber emails
+  -- (seven of ten posts in the 2026-10-14 URIBurner digest). 283 of the
+  -- URIBurner weblog's 291 posts carry at least one of these. <svg> is not
+  -- one of them: plain articles use it for icons and logos.
+  {
+    declare head_close INTEGER;
+    declare body_lc VARCHAR;
+    head_close := strstr (lc, '</head>');
+    body_lc := case when head_close is not null then subseq (lc, head_close) else lc end;
+    if (strstr (body_lc, '<button') is not null) return 1;
+    if (strstr (body_lc, '<nav') is not null) return 1;
+    if (strstr (body_lc, '<form') is not null) return 1;
+    if (strstr (body_lc, '<input') is not null) return 1;
+    if (strstr (body_lc, '<select') is not null) return 1;
+    if (strstr (body_lc, '<textarea') is not null) return 1;
+    if (strstr (body_lc, '<canvas') is not null) return 1;
+    if (strstr (body_lc, '<details') is not null) return 1;
+    if (strstr (body_lc, '<iframe') is not null) return 1;
+    if (strstr (body_lc, 'role="tablist"') is not null) return 1;
+  }
   return 0;
 }
 ;
@@ -1553,7 +1578,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_EXCERPT (IN dav_collection VARCHA
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   content := '';
-  for (select blob_to_string (RES_CONTENT) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
+  for (select blob_to_string (subseq (RES_CONTENT, 0, case when length (RES_CONTENT) > 2000000 then 2000000 else length (RES_CONTENT) end)) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
   {
     content := _c;
   }
@@ -1627,15 +1652,24 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_EXCERPT (IN dav_collection VARCHA
     }
     else
     {
+      -- An empty match counts as no match: some pages ship <p class="lede">
+      -- empty and fill it from script, which left '<p></p>' as the email's
+      -- excerpt (two VOS vs QLever benchmark posts, 2026-10-14 digest).
       frag := DB.DBA.WEBLOG_NEWSLETTER_FIND_TAGGED_TEXT (content, lc, '<p class="lede"', '</p>');
+      if (frag is not null and trim (regexp_replace (frag, '<[^>]*>', '', 1, null)) = '')
+        frag := null;
       if (frag is null)
         frag := DB.DBA.WEBLOG_NEWSLETTER_FIND_TAGGED_TEXT (content, lc, '<p class="tagline"', '</p>');
+      if (frag is not null and trim (regexp_replace (frag, '<[^>]*>', '', 1, null)) = '')
+        frag := null;
       if (frag is null)
       {
         h1_close := strstr (lc, '</h1>');
         if (h1_close is not null)
           frag := DB.DBA.WEBLOG_NEWSLETTER_FIND_TAGGED_TEXT (subseq (content, h1_close + 5), subseq (lc, h1_close + 5), '<p', '</p>');
       }
+      if (frag is not null and trim (regexp_replace (frag, '<[^>]*>', '', 1, null)) = '')
+        frag := null;
       if (frag is null)
         frag := '';
       else
@@ -1885,7 +1919,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_POST_META (IN dav_collection VARCHAR, 
   coll := trim (dav_collection);
   if (subseq (coll, length (coll) - 1) <> '/') coll := coll || '/';
   content := '';
-  for (select blob_to_string (RES_CONTENT) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
+  for (select blob_to_string (subseq (RES_CONTENT, 0, case when length (RES_CONTENT) > 2000000 then 2000000 else length (RES_CONTENT) end)) as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || filename) do
   {
     content := _c;
   }
@@ -2964,10 +2998,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     declare posts_rows, categories_datalist VARCHAR;
     declare digest_status_class, digest_status_text, dash_status_class, dash_status_text VARCHAR;
     declare cat_dict any;
+    declare post_count INTEGER;
     posts_rows := '';
     categories_datalist := '';
     cat_dict := dict_new (31);
-    for (select RES_ID as _rid, RES_NAME as _rname
+    post_count := 0;
+    for (select RES_ID as _rid, RES_NAME as _rname, RES_MOD_TIME as _rmod
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
             and RES_NAME not like '._%'
@@ -2975,7 +3011,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
             and RES_NAME <> 'dashboard.html'
           order by RES_NAME asc) do
     {
-      declare _cat, _pos, _pin_target, _pin_label, _pin_badge VARCHAR;
+      declare _cat, _pos, _pin_target, _pin_label, _pin_badge, _title VARCHAR;
       _cat := null;
       _pos := null;
       for (select PROP_VALUE as _v, PROP_NAME as _n from WS.WS.SYS_DAV_PROP
@@ -3010,11 +3046,23 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
       -- bottom: category and pin are independent one-click/one-field
       -- actions right next to the post they act on, and submitting one
       -- never touches the other's value.
+      -- Title, filename and date on every row, plus data-* attributes the
+      -- search / sort / paging script below works from: with ~300 posts a
+      -- single filename-ordered list made a given post hard to find.
+      post_count := post_count + 1;
+      -- Escaped by WEBLOG_HTML_ESC_BYTES and emitted with %s, like the
+      -- labels above: %V re-encoded the UTF-8 bytes of a title, so an em
+      -- dash came out as mojibake.
+      _title := DB.DBA.WEBLOG_HTML_ESC_BYTES (DB.DBA.WEBLOG_NEWSLETTER_POST_TITLE (coll, _rname));
       posts_rows := concat (posts_rows, sprintf (
-        '<tr><td>%V %s</td>' ||
+        '<tr class="post-row" data-name="%V" data-title="%s" data-mod="%s" data-pinned="%d"><td><a class="post-link" href="%s?post=%U" target="_blank" rel="noopener">%s</a> %s<div class="post-file">%V &middot; %s</div></td>' ||
         '<td><form method="post" action="%s" class="row-action row-tag"><input type="hidden" name="admin_action" value="set_post_category"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="post_name" value="%V"/><input type="text" name="category" list="category-options" value="%V" placeholder="Uncategorized"/><button type="submit" class="secondary">Save</button></form></td>' ||
         '<td><form method="post" action="%s" class="row-action"><input type="hidden" name="admin_action" value="set_post_pin"/><input type="hidden" name="admin_token" value="%s"/><input type="hidden" name="post_name" value="%V"/><input type="hidden" name="pinned" value="%s"/><button type="submit" class="secondary">%s</button></form></td></tr>',
-        _rname, _pin_badge,
+        _rname, _title,
+        sprintf ('%04d-%02d-%02d %02d:%02d', year (_rmod), month (_rmod), dayofmonth (_rmod), hour (_rmod), minute (_rmod)),
+        case when _pos = '1' then 1 else 0 end,
+        public_route, _rname, _title, _pin_badge,
+        _rname, sprintf ('%04d-%02d-%02d', year (_rmod), month (_rmod), dayofmonth (_rmod)),
         action_route, admin_token, _rname, coalesce (_cat, ''),
         action_route, admin_token, _rname, _pin_target, _pin_label));
     }
@@ -3027,14 +3075,19 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     tag_schedule_html := sprintf (
       '<section class="panel"><details class="collapsible"><summary class="panel-h2">Tagging &amp; Scheduling</summary><p class="panel-desc">Per-post category/pin metadata, and this collection''s background jobs.</p>' ||
       '<datalist id="category-options">%s</datalist>' ||
-      '<details class="collapsible"><summary class="panel-h3">Post Tags &amp; Pinning</summary><table class="subscribers"><thead><tr><th>Post</th><th>Category</th><th>Pinned</th></tr></thead><tbody>%s</tbody></table></details>' ||
+      '<details class="collapsible"><summary class="panel-h3">Post Tags &amp; Pinning</summary>' ||
+      '<div class="post-tools"><input type="search" id="post-filter" placeholder="Search posts by title or filename" aria-label="Search posts"/>' ||
+      '<select id="post-sort" aria-label="Sort posts"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">Title A&ndash;Z</option><option value="za">Title Z&ndash;A</option></select>' ||
+      '<span id="post-count" class="post-count"></span></div>' ||
+      '<table class="subscribers" id="post-table" data-post-count="%d"><thead><tr><th>Post</th><th>Category</th><th>Pinned</th></tr></thead><tbody>%s</tbody></table>' ||
+      '<nav class="pager" id="post-pager" aria-label="Post pages"><button type="button" class="secondary" data-page="prev">Previous</button><span id="post-page-label"></span><button type="button" class="secondary" data-page="next">Next</button></nav></details>' ||
       '<details class="collapsible"><summary class="panel-h3">Scheduled Jobs</summary>' ||
       '<div class="setting-row"><div class="setting-label">Newsletter digest check <span class="badge %s">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_digest_schedule"/><input type="hidden" name="admin_token" value="%s"/><select name="digest_enabled"><option value="1"%s>On</option><option value="0"%s>Off</option></select><input type="number" name="minutes" min="1" value="%d"/><button type="submit">Save</button></form></div></div>' ||
       '<div class="setting-row"><div class="setting-label">Dashboard auto-refresh <span class="badge %s">%V</span></div><div class="setting-control"><form method="post" action="%s"><input type="hidden" name="admin_action" value="set_dashboard_schedule"/><input type="hidden" name="admin_token" value="%s"/><select name="dash_enabled"><option value="1"%s>On</option><option value="0"%s>Off</option></select><input type="number" name="dash_minutes" min="1" value="%d"/><button type="submit">Save</button></form></div></div>' ||
       '</details>' ||
       '</details></section>',
       categories_datalist,
-      posts_rows,
+      post_count, posts_rows,
       digest_status_class, digest_status_text, action_route, admin_token, case when digest_scheduled = 1 then ' selected="selected"' else '' end, case when digest_scheduled = 0 then ' selected="selected"' else '' end, current_interval,
       dash_status_class, dash_status_text, action_route, admin_token, case when dash_scheduled = 1 then ' selected="selected"' else '' end, case when dash_scheduled = 0 then ' selected="selected"' else '' end, dash_interval);
   }
@@ -3074,6 +3127,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     'html[data-theme="dark"] .theme-switch-thumb{transform:translateX(1.7rem);}html[data-theme="dark"] .theme-switch-track{background:var(--accent-soft);}' ||
     '.row-action{margin:0;}.row-action button{padding:.25rem .6rem;font-size:.78rem;white-space:nowrap;}' ||
     '.row-tag{display:flex;gap:.4rem;align-items:center;}.row-tag input[type="text"]{width:8rem;padding:.25rem .5rem;font-size:.78rem;}' ||
+    '.post-tools{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0 .75rem;}.post-tools input[type="search"]{flex:1 1 14rem;min-width:0;padding:.4rem .6rem;font-size:.84rem;}.post-tools select{padding:.4rem .5rem;font-size:.84rem;}' ||
+    '.post-count{color:var(--muted);font-size:.8rem;}.post-link{font-weight:600;}.post-file{color:var(--muted);font-size:.72rem;margin-top:.15rem;word-break:break-all;}' ||
+    '.pager{display:flex;gap:.75rem;align-items:center;justify-content:flex-end;margin-top:.75rem;font-size:.82rem;color:var(--muted);}.pager button{padding:.3rem .8rem;font-size:.8rem;}.pager button:disabled{opacity:.4;cursor:default;}' ||
     '.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.85rem;margin-bottom:1.75rem;}' ||
     '.stat{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem 1.15rem;}' ||
     '.stat.pending{border-left-color:var(--warn);}.stat.confirmed{border-left-color:var(--ok);}.stat.unsubscribed{border-left-color:var(--danger);}' ||
@@ -3140,6 +3196,16 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     -- from the URL so a reload or bookmark doesn''t keep re-showing it.
     '<script>(function(){var m=new URLSearchParams(location.search).get("admin_msg");if(!m)return;var slot=document.getElementById("admin-banner-slot");if(!slot)return;var b=document.createElement("div");b.className="admin-banner";var t=document.createElement("span");t.textContent=m;var x=document.createElement("button");x.type="button";x.textContent="Dismiss";x.addEventListener("click",function(){b.remove();});b.appendChild(t);b.appendChild(x);slot.appendChild(b);try{history.replaceState(null,"",location.pathname);}catch(e){}})();</script>' ||
     '<script>(function(){var b=document.querySelector("[data-theme-toggle]");if(!b)return;function cur(){var e=document.documentElement.getAttribute("data-theme");if(e==="dark"||e==="light")return e;return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}b.setAttribute("aria-checked",cur()==="dark"?"true":"false");b.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);b.setAttribute("aria-checked",n==="dark"?"true":"false");try{window.localStorage.setItem("weblog-dashboard-theme",n);}catch(e){}});})();</script>' ||
+    -- Post Tags & Pinning: search, sort (pinned posts first, then newest,
+    -- oldest or title) and 25 rows a page. The query, sort and page are
+    -- kept for the browser tab, so a Pin or Save -- which reloads the
+    -- dashboard -- lands back on the same page.
+    '<script>(function(){var tb=document.querySelector("#post-table tbody");if(!tb)return;var rows=Array.prototype.slice.call(tb.querySelectorAll("tr.post-row"));var f=document.getElementById("post-filter"),s=document.getElementById("post-sort"),lab=document.getElementById("post-page-label"),cnt=document.getElementById("post-count"),pager=document.getElementById("post-pager");var per=25,page=1,K="weblog-dashboard-posts";try{var st=JSON.parse(sessionStorage.getItem(K)||"{}");if(st.q)f.value=st.q;if(st.s)s.value=st.s;if(st.p)page=st.p;}catch(e){}' ||
+    'function key(r,m){return (m==="az"||m==="za")?(r.getAttribute("data-title")||"").toLowerCase():(r.getAttribute("data-mod")||"");}' ||
+    'function render(){var q=f.value.trim().toLowerCase(),m=s.value;var list=rows.filter(function(r){return !q||((r.getAttribute("data-title")||"")+" "+(r.getAttribute("data-name")||"")).toLowerCase().indexOf(q)>=0;});list.sort(function(a,b){var pa=+a.getAttribute("data-pinned"),pb=+b.getAttribute("data-pinned");if(pa!==pb)return pb-pa;var ka=key(a,m),kb=key(b,m),c=ka<kb?-1:(ka>kb?1:0);return (m==="new"||m==="za")?-c:c;});' ||
+    'var pages=Math.max(1,Math.ceil(list.length/per));if(page>pages)page=pages;if(page<1)page=1;rows.forEach(function(r){r.hidden=true;});list.forEach(function(r){tb.appendChild(r);});list.slice((page-1)*per,page*per).forEach(function(r){r.hidden=false;});' ||
+    'cnt.textContent=(q?list.length+" of ":"")+rows.length+" posts";lab.textContent="Page "+page+" of "+pages;pager.querySelector("[data-page=prev]").disabled=page<=1;pager.querySelector("[data-page=next]").disabled=page>=pages;try{sessionStorage.setItem(K,JSON.stringify({q:f.value,s:m,p:page}));}catch(e){}}' ||
+    'f.addEventListener("input",function(){page=1;render();});s.addEventListener("change",function(){page=1;render();});pager.addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.disabled)return;page+=b.getAttribute("data-page")==="next"?1:-1;render();});render();})();</script>' ||
     '</body></html>',
     dash_total, dash_pending, dash_confirmed, dash_unsubscribed, analytics_html, controls_html, email_config_html, email_templates_html, import_html, tag_schedule_html, dash_total, dash_rows, cast (now () as varchar));
 
