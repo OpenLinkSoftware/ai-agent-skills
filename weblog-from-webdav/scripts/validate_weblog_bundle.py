@@ -56,6 +56,8 @@ CHECKS = {
         "OPAL registration is best-effort",
     ],
     "templates/deploy-weblog-skinned.sql": [
+        "length (raw_content) < 9000000",
+        "SR072",
         "WEBLOG_DAV_DEPLOY_SKINNED",
         "WEBLOG_DAV_GET_COLLECTION_PROP",
         "weblog:skin",
@@ -226,6 +228,7 @@ CHECKS = {
         "email := lower (trim (email))",
         "max_posts := 10",
         "older post(s) are not shown here",
+        "subseq (RES_CONTENT, 0,",
         "> 85000",
     ],
     "references/skin-authoring-contract.md": [

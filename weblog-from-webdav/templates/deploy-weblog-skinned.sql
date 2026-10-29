@@ -255,9 +255,45 @@ CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_DASHBOARD_PAGE (IN coll VARCHAR)
 
   admin_coll := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:adminCollection', '');
   if (admin_coll <> '' and subseq (admin_coll, length (admin_coll) - 1) <> '/') admin_coll := admin_coll || '/';
-  content := null;
-  for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = concat (admin_coll, 'dashboard.html')) do
-    content := _c;
+  -- dashboard.html is rebuilt by admin actions, subscriber events and its
+  -- optional schedule -- not when a post is published by copying it into
+  -- the collection, so a new post was missing from Post Tags & Pinning
+  -- (found 2026-10-16). Rebuild it first when any post is newer than it,
+  -- or when the post count it lists no longer matches the collection.
+  {
+    declare dash_mod, newest any;
+    declare n_posts, shown integer;
+    declare shown_txt varchar;
+    dash_mod := null;
+    content := null;
+    for (select RES_MOD_TIME as _m, RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = concat (admin_coll, 'dashboard.html')) do
+    {
+      dash_mod := _m;
+      content := _c;
+    }
+    newest := null;
+    n_posts := 0;
+    for (select max (RES_MOD_TIME) as _nm, count (*) as _n from WS.WS.SYS_DAV_RES
+          where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
+            and RES_NAME not like '._%' and RES_NAME <> 'index.vsp' and RES_NAME <> 'dashboard.html') do
+    {
+      newest := _nm;
+      n_posts := _n;
+    }
+    shown := -1;
+    if (content is not null)
+    {
+      shown_txt := regexp_substr ('data-post-count="([0-9]+)"', blob_to_string (content), 1);
+      if (shown_txt is not null) shown := atoi (shown_txt);
+    }
+    if (content is null or (newest is not null and dash_mod is not null and newest > dash_mod) or (shown >= 0 and shown <> n_posts))
+    {
+      DB.DBA.WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (coll);
+      content := null;
+      for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_FULL_PATH = concat (admin_coll, 'dashboard.html')) do
+        content := _c;
+    }
+  }
   if (content is null)
   {
     http_request_status ('HTTP/1.1 404 Not Found');
@@ -922,7 +958,9 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
         else ''application/octet-stream''
       end;
       http_header (sprintf (''Content-Type: %s\r\n'', raw_ctype));
-      if (raw_ext = ''html'' or raw_ext = ''htm'')
+      -- A page past ~9 MB cannot be turned into a string for the sibling-link rewrite
+      -- (SR072); it is streamed unchanged instead.
+      if ((raw_ext = ''html'' or raw_ext = ''htm'') and length (raw_content) < 9000000)
       {
         declare html_text varchar;
         declare sib_name varchar;
@@ -1689,7 +1727,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     ext  := lower (subseq (_name, dpos + 1));
     if (ext = ''html'')
       dict_put (html_stems, stem, 1);
-    s := blob_to_string (_cont);
+    -- Cut the blob BEFORE converting it: blob_to_string() refuses anything past ~10 MB
+    -- (SR072), and one oversized post made the whole listing return HTTP 500. Only the
+    -- head is needed here -- the title and an 8000-byte window.
+    s := blob_to_string (subseq (_cont, 0, case when length (_cont) > 2000000 then 2000000 else length (_cont) end));
     -- Keep 8000 bytes for the title lookup, but starting at <title> when it
     -- sits further in: generated pages can open with a large inline <style>
     -- block, which pushed <title> past a fixed first-8000-byte window and
@@ -1723,7 +1764,10 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     ext  := lower (subseq (_name, dpos + 1));
     if (ext = ''html'')
       dict_put (html_stems, stem, 1);
-    s := blob_to_string (_cont);
+    -- Cut the blob BEFORE converting it: blob_to_string() refuses anything past ~10 MB
+    -- (SR072), and one oversized post made the whole listing return HTTP 500. Only the
+    -- head is needed here -- the title and an 8000-byte window.
+    s := blob_to_string (subseq (_cont, 0, case when length (_cont) > 2000000 then 2000000 else length (_cont) end));
     -- Keep 8000 bytes for the title lookup, but starting at <title> when it
     -- sits further in: generated pages can open with a large inline <style>
     -- block, which pushed <title> past a fixed first-8000-byte window and
