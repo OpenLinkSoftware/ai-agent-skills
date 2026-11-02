@@ -1,0 +1,1301 @@
+{
+  "generatedFrom": "assets/virtuoso-ai-value-prop.html",
+  "generatedAt": "2026-10-20T12:55:12.046Z",
+  "config": {
+    "default": "uriburner",
+    "profiles": {
+      "uriburner": {
+        "label": "URIBurner (default)",
+        "app": "https://linkeddata.uriburner.com/DAV/demos/daas/virtuoso-ai-value-prop.html",
+        "rdfViews": {
+          "host": "demo.openlinksw.com",
+          "sparql": "https://demo.openlinksw.com/sparql",
+          "describe": "https://demo.openlinksw.com/describe/?uri={IRI}&graph={GRAPH}",
+          "spasqlqb": "https://demo.openlinksw.com/spasqlqb/?permlink_e=",
+          "xmla": "https://demo.openlinksw.com/XMLA"
+        },
+        "linkedData": {
+          "sparql": "https://linkeddata.uriburner.com/sparql",
+          "sparqlAuth": "https://linkeddata.uriburner.com/sparql-auth/",
+          "describe": "https://linkeddata.uriburner.com/describe/?url={IRI}"
+        },
+        "opal": {
+          "host": "linkeddata.uriburner.com",
+          "agentCard": "https://linkeddata.uriburner.com/.well-known/agent.json",
+          "widgetBase": "https://virtuoso.openlinksw.com/opal-widget",
+          "chatUi": "https://linkeddata.uriburner.com/chat/"
+        },
+        "facetedBrowser": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html"
+      },
+      "www": {
+        "label": "www.openlinksw.com",
+        "app": null,
+        "rdfViews": {
+          "host": "demo.openlinksw.com",
+          "sparql": "https://demo.openlinksw.com/sparql",
+          "describe": "https://demo.openlinksw.com/describe/?uri={IRI}&graph={GRAPH}",
+          "spasqlqb": "https://demo.openlinksw.com/spasqlqb/?permlink_e=",
+          "xmla": "https://demo.openlinksw.com/XMLA"
+        },
+        "linkedData": {
+          "sparql": "https://linkeddata.uriburner.com/sparql",
+          "sparqlAuth": "https://linkeddata.uriburner.com/sparql-auth/",
+          "describe": "https://www.openlinksw.com/describe/?url={IRI}"
+        },
+        "opal": {
+          "host": "linkeddata.uriburner.com",
+          "agentCard": "https://linkeddata.uriburner.com/.well-known/agent.json",
+          "widgetBase": "https://www.openlinksw.com/opal-widget",
+          "chatUi": "https://linkeddata.uriburner.com/chat/"
+        },
+        "facetedBrowser": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html"
+      }
+    }
+  },
+  "spasqlQueryBuilder": {
+    "permalink": {
+      "v": 1,
+      "url": "/XMLA",
+      "dsn": "DSN=Local_Instance",
+      "uid": "demo",
+      "pwd": "demo",
+      "path": null,
+      "tab": "exec",
+      "idx": null,
+      "fkey": null,
+      "ref": null,
+      "exec": {
+        "sql": "{SQL}"
+      }
+    },
+    "accounts": [
+      "demo",
+      "vdb"
+    ]
+  },
+  "facetedBrowserDefaultApp": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html",
+  "views": [
+    "home",
+    "rdf-views",
+    "ontologies",
+    "sponger",
+    "explore",
+    "agents",
+    "sources"
+  ],
+  "ontologies": {
+    "label": "Generated ontologies",
+    "meta": {
+      "Ontologies": "http://demo.openlinksw.com/schemas/Northwind/ · http://demo.openlinksw.com/schemas/northwind-sqlserver/ · http://demo.openlinksw.com/schemas/csv_northwind/",
+      "Generated from": "the SQL schemas of native Virtuoso SQL tables, Microsoft SQL Server and CSV files"
+    }
+  },
+  "sections": [
+    {
+      "id": "overview",
+      "view": "home",
+      "title": "Your SQL tables, answering as a knowledge graph. Without moving a single row."
+    },
+    {
+      "id": "four-ways",
+      "view": "home",
+      "title": "One Data Space. Four ways in."
+    },
+    {
+      "id": "how-it-works",
+      "view": "home",
+      "title": "Three steps from any ODBC or JDBC database to a knowledge graph"
+    },
+    {
+      "id": "ontologies",
+      "view": "home",
+      "title": "Your schema becomes an ontology. Shared ontologies make it travel."
+    },
+    {
+      "id": "why-virtuoso",
+      "view": "home",
+      "title": "Three facts worth knowing before you choose"
+    },
+    {
+      "id": "access-control",
+      "view": "home",
+      "title": "Your data stays where it lives. So do the rules."
+    },
+    {
+      "id": "questions",
+      "view": "home",
+      "title": "The questions people ask first"
+    },
+    {
+      "id": "get-started",
+      "view": "home",
+      "title": "Run your first query. Most answer in under a second."
+    },
+    {
+      "id": "rdf-views-playground",
+      "view": "rdf-views",
+      "title": "The same tables, asked three ways"
+    },
+    {
+      "id": "datasets",
+      "view": "rdf-views",
+      "title": "Pick a database, then a language"
+    },
+    {
+      "id": "sponger-overview",
+      "view": "sponger",
+      "title": "Point it at a web page. Get back a graph."
+    },
+    {
+      "id": "sponger-examples",
+      "view": "sponger",
+      "title": "Five live examples from two sources"
+    },
+    {
+      "id": "sponge-any-url",
+      "view": "sponger",
+      "title": "Try it on a page of your own"
+    },
+    {
+      "id": "faceted-overview",
+      "view": "explore",
+      "title": "See what is in a dataset before you write a query"
+    },
+    {
+      "id": "explore-query",
+      "view": "explore",
+      "title": "Run the explore query on one dataset"
+    },
+    {
+      "id": "starting-points",
+      "view": "explore",
+      "title": "Open this dataset in the faceted browser"
+    },
+    {
+      "id": "opal-overview",
+      "view": "agents",
+      "title": "An assistant that answers from live queries"
+    },
+    {
+      "id": "how-opal-answers",
+      "view": "agents",
+      "title": "How a question becomes an answer"
+    },
+    {
+      "id": "agent-catalog",
+      "view": "agents",
+      "title": "Agents published on URIBurner"
+    },
+    {
+      "id": "questions-to-try",
+      "view": "agents",
+      "title": "Ask about the data on this site"
+    },
+    {
+      "id": "widget-usage",
+      "view": "agents",
+      "title": "The same widget as virtuoso.openlinksw.com"
+    },
+    {
+      "id": "protocols",
+      "view": "agents",
+      "title": "Other ways to reach the same agents"
+    },
+    {
+      "id": "ontology-overview",
+      "view": "ontologies",
+      "title": "Ontologies generated from your SQL schema, then reused with shared ones"
+    },
+    {
+      "id": "ontology-how",
+      "view": "ontologies",
+      "title": "What gets generated"
+    },
+    {
+      "id": "ontology-examples",
+      "view": "ontologies",
+      "title": "See it on the live server"
+    },
+    {
+      "id": "ontology-make-your-own",
+      "view": "ontologies",
+      "title": "Generate one for your own database"
+    },
+    {
+      "id": "sources-list",
+      "view": "sources",
+      "title": "Where every example comes from"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "northwind",
+      "label": "Virtuoso Northwind",
+      "ep": "demo",
+      "status": null,
+      "meta": {
+        "Database": "Virtuoso native tables (Demo.demo)",
+        "Graphs": "http://demo.openlinksw.com/Northwind# · http://demo.openlinksw.com/demo#",
+        "Ontology": "http://demo.openlinksw.com/schemas/Northwind/",
+        "From posts": "Northwind Sales Performance Dashboard · Entity Type & Sample Entities"
+      },
+      "posts": [
+        "https://www.openlinksw.com/weblog/?post=northwind-dashboard-rdf-views-claude-3.html",
+        "https://www.openlinksw.com/weblog/?post=claude-virtuoso-support-agent-skills-generated-northwind-knowledge-graph.html"
+      ]
+    },
+    {
+      "id": "sqlserver",
+      "label": "SQL Server Northwind",
+      "ep": "demo",
+      "status": null,
+      "meta": {
+        "Database": "Microsoft SQL Server, attached as \"sqlserver\".\"northwind\".*",
+        "Graph": "http://demo.openlinksw.com/northwind-sqlserver#",
+        "Ontology": "http://demo.openlinksw.com/schemas/northwind-sqlserver/",
+        "From posts": "Customer Sales Performance Dashboard · Turn Your Data Into Decisive Knowledge"
+      },
+      "posts": [
+        "https://www.openlinksw.com/weblog/?post=rdf-linked-data-views-sqlserver.html",
+        "https://www.openlinksw.com/weblog/?post=virtuoso-turning-data-into-decisive-knowledge.html"
+      ]
+    },
+    {
+      "id": "postgres",
+      "label": "PostgreSQL",
+      "ep": "demo",
+      "status": null,
+      "meta": {
+        "Database": "PostgreSQL, via JDBC through the OpenLink Multi-Tier driver (DSN postgres_jdbc_mt)",
+        "Graph": "http://demo.openlinksw.com/postgres_postgres_jdbc_mt_codex_20260403#",
+        "Ontology": "http://demo.openlinksw.com/schemas/postgres_postgres_jdbc_mt_codex_20260403/",
+        "From post": "postgres_postgres_jdbc_mt_codex_20260403 Knowledge Graph"
+      },
+      "posts": [
+        "https://www.openlinksw.com/weblog/?post=postgres_postgres_jdbc_mt_codex_linked_data_infographic.html"
+      ]
+    },
+    {
+      "id": "databricks",
+      "label": "Databricks Bakehouse",
+      "ep": "demo",
+      "status": null,
+      "meta": {
+        "Database": "Databricks (the bakehouse sample tables), attached over ODBC as databricks.bakehouse.*",
+        "Mapping": "R2RML, loaded as urn:databricks:bakehouse:r2rml",
+        "Graph": "http://demo.openlinksw.com/databricks-bakehouse-r2rml#",
+        "Ontology": "http://www.databricks.com/bakehouse#",
+        "From posts": "Databricks → Virtual Knowledge Graph with Virtuoso · From Databricks Tables to a Virtual Knowledge Graph (OpenLink Community)"
+      },
+      "posts": [
+        "https://linkeddata.uriburner.com/weblog/?post=databricks-virtuoso-kg-deepseek_v4pro-1.html",
+        "https://community.openlinksw.com/t/from-databricks-tables-to-a-virtual-knowledge-graph-with-virtuoso/6293"
+      ]
+    },
+    {
+      "id": "snowflake",
+      "label": "Snowflake-style estate (ScaleKG)",
+      "ep": "demo",
+      "status": null,
+      "meta": {
+        "Database": "Eleven native Virtuoso SQL tables (ScaleKG.kidehen.*) holding 76 synthetic rows that model a graph-database estate fed by warehouse sources (Snowflake, Databricks and BigQuery): the SQL system of record that Neo4j Virtual Graph reads from Snowflake",
+        "Graph": "http://demo.openlinksw.com/ScaleKG#",
+        "Ontology": "http://demo.openlinksw.com/schemas/ScaleKG/",
+        "From post": "Scale AI into Production: Neo4j's Five Scale Capabilities Meshed with Virtuoso and agent-rdf-memory"
+      },
+      "posts": [
+        "https://linkeddata.uriburner.com/weblog/?post=neo4j-scale-ai-production-vs-virtuoso-agent-rdf-memory-meshup-claude_sonnet_5_5-1.html"
+      ]
+    },
+    {
+      "id": "csv",
+      "label": "CSV Northwind (bonus)",
+      "ep": "demo",
+      "status": null,
+      "meta": {
+        "Database": "CSV files attached as tables",
+        "Graph": "urn:demo.csv:northwind:data",
+        "Ontology": "http://demo.openlinksw.com/schemas/csv_northwind/",
+        "From post": "Conceptual Data Virtualization for SQL and RDF"
+      },
+      "posts": [
+        "https://www.openlinksw.com/weblog/?post=conceptual-data-virtualization-sql-rdf-deepseek_v4flash-1.html"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "id": "nw-sql-customers",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "Customers, straight from the table",
+      "description": "Plain SQL against the Northwind customers table, sent to Virtuoso over XMLA by the Query Builder.",
+      "query": "SELECT TOP 5 CustomerID, CompanyName, ContactName, Country FROM Demo.demo.Customers",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-sql-by-country",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "Customers by country",
+      "description": "An aggregate in SQL. The SPARQL examples below reach the same tables through the RDF View.",
+      "query": "SELECT Country, COUNT(*) AS n FROM Demo.demo.Customers GROUP BY Country ORDER BY 2 DESC",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-sql-alfki-lines",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "One customer's order lines (three-table join)",
+      "description": "The join an RDF View turns into links: customer → order → order line.",
+      "query": "SELECT TOP 5 c.CompanyName, o.OrderID, od.ProductID, od.Quantity, od.UnitPrice FROM Demo.demo.Customers c JOIN Demo.demo.Orders o ON c.CustomerID = o.CustomerID JOIN Demo.demo.\"Order_Details\" od ON o.OrderID = od.OrderID WHERE c.CustomerID = 'ALFKI'",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-spasql-category-sales",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "Sales by category, SPARQL inside SQL",
+      "description": "SPASQL: the RDF View is queried in SPARQL and the result is used as a SQL derived table, so SQL tools see ordinary rows.",
+      "query": "SELECT categoryName, totalSales, units\nFROM (\n  SPARQL\n  PREFIX nw: <http://demo.openlinksw.com/schemas/Northwind/>\n  SELECT ?categoryName\n         (ROUND(SUM(?q * ?p * (1 - ?d))) AS ?totalSales)\n         (SUM(?q) AS ?units)\n  FROM <http://demo.openlinksw.com/Northwind#>\n  WHERE {\n    ?od a nw:Order_Details ;\n        nw:quantity ?q ; nw:unitprice ?p ; nw:discount ?d ;\n        nw:has_products ?product .\n    ?product nw:has_categories ?cat .\n    ?cat nw:categoryname ?categoryName .\n  }\n  GROUP BY ?categoryName\n  ORDER BY DESC(?totalSales)\n) AS x",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-spasql-stock",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "Products in stock, through the RDF View",
+      "description": "The outer WHERE product IS NOT NULL drops an empty row an RDF View can return under LIMIT.",
+      "query": "SELECT product, name, unitsInStock, unitPrice\nFROM (\n  SPARQL\n  PREFIX nw: <http://demo.openlinksw.com/schemas/Northwind/>\n  SELECT ?product ?name ?unitsInStock ?unitPrice\n  FROM <http://demo.openlinksw.com/Northwind#>\n  WHERE {\n    ?product a nw:Products ;\n             nw:productname ?name ;\n             nw:unitsinstock ?unitsInStock ;\n             nw:unitprice ?unitPrice .\n  }\n  ORDER BY DESC(?unitsInStock)\n  LIMIT 10\n) AS x\nWHERE product IS NOT NULL",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-spasql-salesperformance",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "The dashboard post's SalesPerformance query",
+      "description": "The original SPASQL from the dashboard post (abridged here), opened from the post's own short link. That link predates the presets, so the Query Builder may also ask for the user and password: use demo / demo.",
+      "query": "SELECT orderDetail, product, productId, categoryId, orderId,\n       categoryName, totalSales, numberOfOrders, totalUnits, avgPrice\nFROM (\n  SPARQL\n  SELECT ?orderDetail ?product ?category ?categoryId ?productId ?orderId ?categoryName\n         (ROUND(SUM(?quantity * ?unitPrice * (1 - ?discount))) AS ?totalSales)\n         (COUNT(DISTINCT ?orderId) AS ?numberOfOrders)\n         (SUM(?quantity) AS ?totalUnits)\n         (ROUND(AVG(?unitPrice)) AS ?avgPrice)\n  FROM <http://demo.openlinksw.com/Northwind#>\n  WHERE { … Order_Details, Products and Categories … }\n  GROUP BY ?categoryName ?orderDetail ?product ?category ?categoryId ?productId ?orderId\n  ORDER BY DESC(?totalSales)\n) AS SalesPerformance",
+      "verbatimUrl": "https://tinyurl.com/25k2y9pr",
+      "postUrl": null,
+      "abridged": true,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-sparql-stock",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Most-stocked products",
+      "description": "Each product row has a hyperlink of its own; click one to see its description.",
+      "query": "PREFIX nw: <http://demo.openlinksw.com/schemas/Northwind/>\nSELECT ?product ?name ?unitsInStock ?unitPrice\nFROM <http://demo.openlinksw.com/Northwind#>\nWHERE {\n  ?product a nw:Products ;\n           nw:productname ?name ;\n           nw:unitsinstock ?unitsInStock ;\n           nw:unitprice ?unitPrice .\n}\nORDER BY DESC(?unitsInStock)\nLIMIT 10",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": {
+        "label": "Browse Northwind products",
+        "href": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvUHJvZHVjdHMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+        "host": "demo"
+      }
+    },
+    {
+      "id": "nw-sparql-category-sales",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Sales by category",
+      "description": "Joins order lines to products to categories by following links, not foreign-key columns.",
+      "query": "PREFIX nw: <http://demo.openlinksw.com/schemas/Northwind/>\nSELECT ?categoryName\n       (ROUND(SUM(?q * ?p * (1 - ?d))) AS ?totalSales)\n       (SUM(?q) AS ?units)\nFROM <http://demo.openlinksw.com/Northwind#>\nWHERE {\n  ?od a nw:Order_Details ;\n      nw:quantity ?q ; nw:unitprice ?p ; nw:discount ?d ;\n      nw:has_products ?product .\n  ?product nw:has_categories ?cat .\n  ?cat nw:categoryname ?categoryName .\n}\nGROUP BY ?categoryName\nORDER BY DESC(?totalSales)",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-sparql-entity-types",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Entity types in the Demo.demo RDF View",
+      "description": "From the Entity Type & Sample Entities post: 8 types, with a sample of each. This is the shape of the Data Twingler T2 exploration template.",
+      "query": "SELECT ?entityType (SAMPLE(?entity) AS ?sampleEntity) (COUNT(DISTINCT ?entity) AS ?entityCount)\nWHERE { GRAPH <http://demo.openlinksw.com/demo#> { ?entity rdf:type ?entityType ; ?predicate ?obj . } }\nGROUP BY ?entityType ORDER BY DESC(?entityCount)",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "nw-sparql-describe-chai",
+      "dataset": "northwind",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Describe one product",
+      "description": "A DESCRIBE over the RDF View returns every triple about Chai. Run it here for the triples, or open it in the endpoint to see Turtle.",
+      "query": "DESCRIBE <http://demo.openlinksw.com/Northwind/products/ProductID/1#this>\nFROM <http://demo.openlinksw.com/Northwind#>",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": {
+        "label": "Chai in the faceted browser",
+        "href": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOltdLCJmb2N1cyI6LTEsInZpZXciOiJkZXNjcmliZSIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6Imh0dHA6Ly9kZW1vLm9wZW5saW5rc3cuY29tL05vcnRod2luZC9wcm9kdWN0cy9Qcm9kdWN0SUQvMSN0aGlzIiwicGciOnt9LCJhbGxMYW5ncyI6ZmFsc2V9fQ",
+        "host": "demo"
+      }
+    },
+    {
+      "id": "ss-sql-federated-join",
+      "dataset": "sqlserver",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "Federated join: SQL Server + MySQL + Virtuoso",
+      "description": "From the Decisive Knowledge post: customers in SQL Server, orders in MySQL and employees in Virtuoso, joined in one SQL statement. The button opens it with the demo account preset; the post's original link is beside it.",
+      "query": "SELECT \n    A.CustomerID, \n    A.CompanyName,\n    B.OrderID, \n    C.EmployeeID, \n    C.LastName, \n    C.FirstName \nFROM \n    \"sqlserver\".\"northwind\".\"customers\" A \nNATURAL JOIN \n    \"mysql5\".\"northwind\".\"orders\" B \nNATURAL JOIN    \n    \"Demo\".\"demo\".\"employees\" C",
+      "verbatimUrl": null,
+      "postUrl": "https://demo.openlinksw.com/spasqlqb/?permlink_e=%7B%22v%22%3A1%2C%22url%22%3A%22/XMLA%22%2C%22dsn%22%3A%22DSN%3DLocal_Instance%22%2C%22uid%22%3A%22%22%2C%22pwd%22%3A%22%22%2C%22path%22%3Anull%2C%22tab%22%3A%22exec%22%2C%22idx%22%3Anull%2C%22fkey%22%3Anull%2C%22ref%22%3Anull%2C%22exec%22%3A%7B%22sql%22%3A%22SELECT%20%5Cn%20%20%20%20A.CustomerID%2C%20%5Cn%20%20%20%20A.CompanyName%2C%5Cn%20%20%20%20B.OrderID%2C%20%5Cn%20%20%20%20C.EmployeeID%2C%20%5Cn%20%20%20%20C.LastName%2C%20%5Cn%20%20%20%20C.FirstName%20%5CnFROM%20%5Cn%20%20%20%20%5C%22sqlserver%5C%22.%5C%22northwind%5C%22.%5C%22customers%5C%22%20A%20%5CnNATURAL%20JOIN%20%5Cn%20%20%20%20%5C%22mysql5%5C%22.%5C%22northwind%5C%22.%5C%22orders%5C%22%20B%20%5CnNATURAL%20JOIN%20%20%20%20%5Cn%20%20%20%20%5C%22Demo%5C%22.%5C%22demo%5C%22.%5C%22employees%5C%22%20C%22%7D%7D",
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "ss-sql-customers",
+      "dataset": "sqlserver",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "SQL Server customers, queried in place",
+      "description": "The attached SQL Server table, read through Virtuoso without moving the data.",
+      "query": "SELECT TOP 10 CustomerID, CompanyName, Country FROM \"sqlserver\".\"northwind\".\"customers\"",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "ss-spasql-top-customers",
+      "dataset": "sqlserver",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "Top customers by sales, SPARQL inside SQL",
+      "description": "The SQL Server RDF View, aggregated in SPARQL and handed back to SQL as rows.",
+      "query": "SELECT company_name, total_quantity, total_sales\nFROM (\n  SPARQL\n  PREFIX ns: <http://demo.openlinksw.com/schemas/northwind-sqlserver/>\n  SELECT ?company_name\n         (SUM(?quantity) AS ?total_quantity)\n         (ROUND(SUM(?quantity * ?unit_price)) AS ?total_sales)\n  FROM <http://demo.openlinksw.com/northwind-sqlserver#>\n  WHERE {\n    ?customer a ns:customers ; ns:companyname ?company_name .\n    ?order a ns:orders ; ns:has_customers ?customer ; ns:orderid ?order_id .\n    ?order_detail a ns:order_details ; ns:orderid ?order_id ;\n                  ns:unitprice ?unit_price ; ns:quantity ?quantity .\n  }\n  GROUP BY ?company_name\n  ORDER BY DESC(?total_sales)\n  LIMIT 10\n) AS x",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "ss-sparql-customers",
+      "dataset": "sqlserver",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Customers as entities",
+      "description": "Each SQL Server customer row, named by a hyperlink such as …/customers/CustomerID/ALFKI#this, the same kind of super-key that rows in native Virtuoso SQL tables and PostgreSQL get.",
+      "query": "PREFIX ns: <http://demo.openlinksw.com/schemas/northwind-sqlserver/>\nSELECT ?customer ?customer_id ?company_name\nFROM <http://demo.openlinksw.com/northwind-sqlserver#>\nWHERE {\n  ?customer a ns:customers ;\n            ns:customerid ?customer_id ;\n            ns:companyname ?company_name .\n}\nORDER BY ?customer_id\nLIMIT 10",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": {
+        "label": "Browse SQL Server customers",
+        "href": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9ub3J0aHdpbmQtc3Fsc2VydmVyL2N1c3RvbWVycyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+        "host": "demo"
+      }
+    },
+    {
+      "id": "ss-sparql-top-customers",
+      "dataset": "sqlserver",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Top customers by sales",
+      "description": "The dashboard post's query, grouped by company.",
+      "query": "PREFIX ns: <http://demo.openlinksw.com/schemas/northwind-sqlserver/>\nSELECT ?company_name\n       (SUM(?quantity) AS ?total_quantity)\n       (ROUND(SUM(?quantity * ?unit_price)) AS ?total_sales)\nFROM <http://demo.openlinksw.com/northwind-sqlserver#>\nWHERE {\n  ?customer a ns:customers ; ns:companyname ?company_name .\n  ?order a ns:orders ; ns:has_customers ?customer ; ns:orderid ?order_id .\n  ?order_detail a ns:order_details ; ns:orderid ?order_id ;\n                ns:unitprice ?unit_price ; ns:quantity ?quantity .\n}\nGROUP BY ?company_name\nORDER BY DESC(?total_sales)\nLIMIT 10",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "pg-sql-clients",
+      "dataset": "postgres",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "PostgreSQL clients, queried in place",
+      "description": "The attached PostgreSQL table, read through Virtuoso over XMLA without moving the data.",
+      "query": "SELECT TOP 10 clientid, clientname, clientgender, clientcountryid FROM \"postgres\".\"postgres_jdbc_mt\".\"clients\"",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "pg-spasql-entity-types",
+      "dataset": "postgres",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "Entity types, SPARQL inside SQL",
+      "description": "The PostgreSQL RDF View profiled by type and returned to SQL as rows.",
+      "query": "SELECT type, n\nFROM (\n  SPARQL\n  SELECT ?type (COUNT(?s) AS ?n)\n  FROM <http://demo.openlinksw.com/postgres_postgres_jdbc_mt_codex_20260403#>\n  WHERE { ?s a ?type }\n  GROUP BY ?type\n  ORDER BY DESC(?n)\n) AS x",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "pg-sparql-entity-types",
+      "dataset": "postgres",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Entity types in the PostgreSQL view",
+      "description": "16 entity types according to the post: clients, sales, shipments, suppliers and more.",
+      "query": "SELECT ?type (COUNT(?s) AS ?n)\nFROM <http://demo.openlinksw.com/postgres_postgres_jdbc_mt_codex_20260403#>\nWHERE { ?s a ?type }\nGROUP BY ?type\nORDER BY DESC(?n)",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "pg-sparql-describe-client",
+      "dataset": "postgres",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Describe client CLI001",
+      "description": "The post's DESCRIBE, with the # in the IRI encoded so the query is not cut off.",
+      "query": "DESCRIBE <http://demo.openlinksw.com/postgres_postgres_jdbc_mt_codex_20260403/clients/clientid/CLI001#this>\nFROM <http://demo.openlinksw.com/postgres_postgres_jdbc_mt_codex_20260403#>",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-sql-franchises",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "Databricks franchises, queried in place",
+      "description": "The attached Databricks table, read through Virtuoso over XMLA. The rows stay in the Databricks warehouse.",
+      "query": "SELECT TOP 10 franchiseID, name, city, country, size FROM databricks.bakehouse.sales_franchises",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-sql-revenue-by-city",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "Revenue by city, in SQL",
+      "description": "A join and an aggregate over two attached Databricks tables. The SPARQL card \"Revenue by city\" below returns the same numbers through the RDF View.",
+      "query": "SELECT TOP 10 f.city, COUNT(*) AS orders, SUM(t.totalPrice) AS revenue\nFROM databricks.bakehouse.sales_transactions t\nJOIN databricks.bakehouse.sales_franchises f ON t.franchiseID = f.franchiseID\nGROUP BY f.city\nORDER BY 3 DESC",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-spasql-revenue-by-city",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "Revenue by city, SPARQL inside SQL",
+      "description": "The Databricks RDF View, aggregated in SPARQL and handed back to SQL as rows.",
+      "query": "SELECT city, orders, revenue\nFROM (\n  SPARQL\n  PREFIX : <http://www.databricks.com/bakehouse#>\n  SELECT ?city\n         (COUNT(DISTINCT ?transaction) AS ?orders)\n         (SUM(?totalPrice) AS ?revenue)\n  FROM <http://demo.openlinksw.com/databricks-bakehouse-r2rml#>\n  WHERE {\n    ?transaction a :Transaction ;\n                 :franchise ?franchise ;\n                 :totalPrice ?totalPrice .\n    ?franchise :city ?city .\n  }\n  GROUP BY ?city\n  ORDER BY DESC(?revenue)\n  LIMIT 10\n) AS x",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-sparql-entity-types",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Entity types in the Databricks view",
+      "description": "Five R2RML triples maps, five classes: transactions, customers, reviews, franchises and suppliers.",
+      "query": "SELECT ?type (COUNT(?s) AS ?n)\nFROM <http://demo.openlinksw.com/databricks-bakehouse-r2rml#>\nWHERE { ?s a ?type }\nGROUP BY ?type\nORDER BY DESC(?n)",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-sparql-revenue-by-city",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Revenue by city",
+      "description": "The post's query, scoped to the RDF View's graph on demo.openlinksw.com. Transactions reach their city by following the franchise link, not a foreign-key column.",
+      "query": "PREFIX : <http://www.databricks.com/bakehouse#>\nSELECT ?city\n       (COUNT(DISTINCT ?transaction) AS ?orders)\n       (SUM(?totalPrice) AS ?revenue)\nFROM <http://demo.openlinksw.com/databricks-bakehouse-r2rml#>\nWHERE {\n  ?transaction a :Transaction ;\n               :franchise ?franchise ;\n               :totalPrice ?totalPrice .\n  ?franchise :city ?city .\n}\nGROUP BY ?city\nORDER BY DESC(?revenue)\nLIMIT 10",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-sparql-top-customers",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Top customers by lifetime value",
+      "description": "Each Databricks customer row is named by a hyperlink such as …/bakehouse/customer-2000112#this, a super-key you can click.",
+      "query": "PREFIX : <http://www.databricks.com/bakehouse#>\nSELECT ?customer ?firstName ?lastName\n       (COUNT(?transaction) AS ?purchases)\n       (SUM(?totalPrice) AS ?lifetimeValue)\nFROM <http://demo.openlinksw.com/databricks-bakehouse-r2rml#>\nWHERE {\n  ?transaction a :Transaction ;\n               :customer ?customer ;\n               :totalPrice ?totalPrice .\n  ?customer :firstName ?firstName ;\n            :lastName ?lastName .\n}\nGROUP BY ?customer ?firstName ?lastName\nORDER BY DESC(?lifetimeValue)\nLIMIT 10",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "db-sparql-describe-franchise",
+      "dataset": "databricks",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Describe one franchise",
+      "description": "The franchise the post uses as its example, with every transaction and review that links to it.",
+      "query": "DESCRIBE <http://demo.openlinksw.com/databricks/bakehouse/franchise-3000046#this>\nFROM <http://demo.openlinksw.com/databricks-bakehouse-r2rml#>",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-sql-snowflake-tables",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sql",
+      "title": "Warehouse tables from the Snowflake source",
+      "description": "Plain SQL over two of the estate's tables: the warehouse tables whose source is Snowflake, largest first.",
+      "query": "SELECT ws.src_name, wt.table_name, wt.row_count\nFROM ScaleKG.kidehen.warehouse_table wt\nJOIN ScaleKG.kidehen.warehouse_source ws ON ws.src_id = wt.src_id\nWHERE ws.src_name = 'Snowflake'\nORDER BY wt.row_count DESC",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-spasql-db-limit",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "The article's databases-per-GB rule, as SQL over SPARQL",
+      "description": "From the post: SPARQL counts databases per cluster and passes each cluster's hyperlink through as a column; SQL then applies the article's rule of 5 databases per GB of RAM, capped at 100 in preview and 250 at general availability.",
+      "query": "SELECT c, cluster_name, ram_gb, dbs,\n       ram_gb * 5 AS by_ram,\n       CASE WHEN ram_gb * 5 > 100 THEN 100 ELSE ram_gb * 5 END - dbs AS headroom_preview,\n       CASE WHEN ram_gb * 5 > 250 THEN 250 ELSE ram_gb * 5 END - dbs AS headroom_ga\nFROM (SPARQL\n  PREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\n  PREFIX schema: <http://schema.org/>\n  SELECT ?c ?cluster_name ?ram_gb (COUNT(?db) AS ?dbs)\n  FROM <http://demo.openlinksw.com/ScaleKG#>\n  WHERE {\n    ?c a skg:Cluster ; schema:name ?cluster_name ; skg:ramGb ?ram_gb .\n    OPTIONAL { ?db skg:hostedOn ?c }\n  }\n  GROUP BY ?c ?cluster_name ?ram_gb\n) AS x\nORDER BY dbs DESC",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-spasql-billed-seconds",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "spasql",
+      "title": "Graph walk joined to a native SQL table",
+      "description": "From the post: SPARQL walks tenant → owned database in the RDF View, and SQL joins those rows to the analytics_job table to sum billed seconds per tenant, keeping each tenant's hyperlink beside its name.",
+      "query": "SELECT t.tenant_iri, t.tenant, COUNT(*) AS jobs, SUM(j.billed_seconds) AS billed_seconds\nFROM (SPARQL\n  PREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\n  PREFIX schema: <http://schema.org/>\n  SELECT ?tenant_iri ?tenant ?db_name\n  FROM <http://demo.openlinksw.com/ScaleKG#>\n  WHERE {\n    ?tenant_iri a skg:Tenant ; schema:name ?tenant .\n    ?db skg:ownedBy ?tenant_iri ; schema:name ?db_name .\n  }\n) AS t\nJOIN ScaleKG.kidehen.graph_database d ON d.db_name = t.db_name\nJOIN ScaleKG.kidehen.analytics_job j ON j.db_id = d.db_id\nGROUP BY t.tenant_iri, t.tenant\nORDER BY billed_seconds DESC",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-sparql-three-hops",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Three hops from tenant to warehouse table",
+      "description": "Tenant → workload → warehouse table → source, followed as links. The Snowflake tables show up with the workloads that read them.",
+      "query": "PREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\nPREFIX schema: <http://schema.org/>\nSELECT ?tenantIri ?tenant ?workloadIri ?workload ?tableIri ?tableName ?source\nFROM <http://demo.openlinksw.com/ScaleKG#>\nWHERE {\n  ?tenantIri a skg:Tenant ; schema:name ?tenant .\n  ?workloadIri skg:forTenant ?tenantIri ; schema:name ?workload ; skg:readsFrom ?tableIri .\n  ?tableIri schema:name ?tableName ; skg:inSource ?sourceIri .\n  ?sourceIri schema:name ?source .\n}\nORDER BY ?tenant ?workload ?tableName",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-sparql-dbs-per-cluster",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Databases per cluster",
+      "description": "The graph side of the per-GB rule: each cluster, its RAM and how many databases it hosts.",
+      "query": "PREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\nPREFIX schema: <http://schema.org/>\nSELECT ?clusterIri ?cluster ?ramGb (COUNT(?db) AS ?databases)\nFROM <http://demo.openlinksw.com/ScaleKG#>\nWHERE {\n  ?clusterIri a skg:Cluster ; schema:name ?cluster ; skg:ramGb ?ramGb .\n  OPTIONAL { ?db skg:hostedOn ?clusterIri }\n}\nGROUP BY ?clusterIri ?cluster ?ramGb\nORDER BY DESC(?databases)",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-sparql-replication",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Replication topology and the access-control gap",
+      "description": "Each replication link with its source and target regions, sync mode and whether access-control settings travel with the data.",
+      "query": "PREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\nPREFIX schema: <http://schema.org/>\nSELECT ?linkIri ?sourceDb ?fromRegion ?targetDb ?toRegion ?syncMode ?rbacReplicated\nFROM <http://demo.openlinksw.com/ScaleKG#>\nWHERE {\n  ?linkIri a skg:ReplicationLink ;\n           skg:replicatesFrom ?sourceIri ; skg:replicatesTo ?targetIri ;\n           skg:syncMode ?syncMode ; skg:rbacReplicated ?rbacReplicated .\n  ?sourceIri schema:name ?sourceDb ; skg:hostedOn/skg:inRegion/schema:name ?fromRegion .\n  ?targetIri schema:name ?targetDb ; skg:hostedOn/skg:inRegion/schema:name ?toRegion .\n}\nORDER BY ?sourceDb",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-sparql-entailment",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Entailment: what is a data asset?",
+      "description": "With the ScaleKG inference rules on, graph databases and warehouse tables both answer as skg:DataAsset, a class no table declares.",
+      "query": "DEFINE input:inference \"urn:scalekg:inference\"\nPREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\nPREFIX schema: <http://schema.org/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT ?kindIri ?kind (COUNT(DISTINCT ?assetIri) AS ?assets)\nFROM <http://demo.openlinksw.com/ScaleKG#>\nFROM <http://demo.openlinksw.com/schemas/ScaleKG/>\nWHERE {\n  ?assetIri a skg:DataAsset ; a ?kindIri .\n  ?kindIri rdfs:label ?kind .\n  FILTER(?kindIri IN (skg:DataAsset, skg:GraphDatabase, skg:WarehouseTable))\n}\nGROUP BY ?kindIri ?kind\nORDER BY DESC(?assets)",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "sk-sparql-property-hierarchy",
+      "dataset": "snowflake",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "The property hierarchy, read from the TBox",
+      "description": "Joins the ontology graph to find every property declared a sub-property of skg:dependsOn and follows it from each workload.",
+      "query": "PREFIX skg: <http://demo.openlinksw.com/schemas/ScaleKG/>\nPREFIX schema: <http://schema.org/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT DISTINCT ?workloadIri ?workload ?relation ?dependencyIri ?dependency\nFROM <http://demo.openlinksw.com/ScaleKG#>\nFROM <http://demo.openlinksw.com/schemas/ScaleKG/>\nWHERE {\n  ?workloadIri a skg:Workload ; schema:name ?workload ; ?relationIri ?dependencyIri .\n  ?relationIri rdfs:subPropertyOf skg:dependsOn ; rdfs:label ?relation .\n  ?dependencyIri schema:name ?dependency .\n}",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "csv-sparql-customers",
+      "dataset": "csv",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Customers from CSV files",
+      "description": "The same RDF View technique over flat files.",
+      "query": "PREFIX nw: <http://demo.openlinksw.com/schemas/csv_northwind/>\nSELECT ?org ?id ?name ?city ?country\nFROM <urn:demo.csv:northwind:data>\nWHERE {\n  ?org a nw:customers ;\n       nw:customerid ?id ;\n       nw:companyname ?name ;\n       nw:city ?city ;\n       nw:country ?country .\n}\nLIMIT 10",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "csv-sparql-quad-maps",
+      "dataset": "csv",
+      "view": "rdf-views",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Which SQL table feeds which predicate",
+      "description": "RDF Views describe themselves: the quad maps are queryable, so you can see the SQL table behind each predicate.",
+      "query": "PREFIX virtrdf: <http://www.openlinksw.com/schemas/virtrdf#>\nSELECT DISTINCT ?s1 AS ?quadMap ?s3 AS ?rdfPredicate ?s2 AS ?sqlTable\nWHERE {\n  ?s1 a virtrdf:QuadMap .\n  ?s1 virtrdf:qmTableName ?s2 .\n  ?s1 virtrdf:qmPredicateRange-rvrFixedValue ?s3 .\n  FILTER (! contains(str(?s2), \"/csv\"))\n  FILTER (! contains(str(?s2), 'csv.'))\n  FILTER (contains(str(?s2), \"supplier\"))\n}\nLIMIT 200",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "onto-nw-classes",
+      "dataset": "ontology",
+      "view": "ontologies",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Classes generated from the Northwind tables",
+      "description": "Every table became a class, labelled with the table it came from, with a property for each column.",
+      "query": "SELECT ?class ?sqlTable (COUNT(DISTINCT ?property) AS ?properties)\nWHERE {\n  ?class a ?kind ;\n         rdfs:label ?sqlTable .\n  FILTER(?kind IN (owl:Class, rdfs:Class))\n  OPTIONAL { ?property rdfs:domain ?class }\n  FILTER(STRSTARTS(STR(?class), \"http://demo.openlinksw.com/schemas/Northwind/\"))\n}\nGROUP BY ?class ?sqlTable\nORDER BY ?class",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "onto-nw-products-properties",
+      "dataset": "ontology",
+      "view": "ontologies",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Columns become typed properties, foreign keys become links",
+      "description": "The generated Products class: datatype properties typed from the SQL columns, and object properties for its foreign keys to Categories and Suppliers.",
+      "query": "SELECT ?property ?column ?kind ?range\nWHERE {\n  ?property rdfs:domain <http://demo.openlinksw.com/schemas/Northwind/Products> ;\n            a ?kind .\n  FILTER(?kind IN (owl:DatatypeProperty, owl:ObjectProperty))\n  OPTIONAL { ?property rdfs:label ?column }\n  OPTIONAL { ?property rdfs:range ?range }\n}\nORDER BY ?kind ?property",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "onto-ss-classes",
+      "dataset": "ontology",
+      "view": "ontologies",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "The same, generated from SQL Server",
+      "description": "The SQL Server Northwind tables, attached over ODBC, generated their own classes, labelled sqlserver.northwind.*.",
+      "query": "SELECT DISTINCT ?class ?sqlTable\nWHERE {\n  ?class a ?kind ;\n         rdfs:label ?sqlTable .\n  FILTER(?kind IN (owl:Class, rdfs:Class))\n  FILTER(STRSTARTS(STR(?class), \"http://demo.openlinksw.com/schemas/northwind-sqlserver/\"))\n  FILTER(CONTAINS(?sqlTable, \".\"))\n}\nORDER BY ?class",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "onto-shared-alignments",
+      "dataset": "ontology",
+      "view": "ontologies",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Generated classes aligned with shared ontologies",
+      "description": "Across the ontologies on the server, locally minted classes are declared subclasses of shared ones from DBpedia, schema.org, FOAF and others.",
+      "query": "SELECT DISTINCT ?generatedClass ?sharedClass\nWHERE {\n  ?generatedClass rdfs:subClassOf ?sharedClass .\n  FILTER(STRSTARTS(STR(?generatedClass), \"http://demo.openlinksw.com/schemas/\"))\n  FILTER(!STRSTARTS(STR(?sharedClass), \"http://demo.openlinksw.com/\"))\n}\nORDER BY ?sharedClass ?generatedClass\nLIMIT 25",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "onto-foaf-employees",
+      "dataset": "ontology",
+      "view": "ontologies",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "Ask in a shared vocabulary",
+      "description": "A question in FOAF terms (foaf:Person) answered by the Northwind employees table, with names from the generated properties.",
+      "query": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nPREFIX nw: <http://demo.openlinksw.com/schemas/Northwind/>\nSELECT ?person ?firstName ?lastName ?title\nFROM <http://demo.openlinksw.com/Northwind#>\nWHERE {\n  ?person a foaf:Person ;\n          nw:firstname ?firstName ;\n          nw:lastname ?lastName ;\n          nw:title ?title .\n}\nORDER BY ?lastName",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    },
+    {
+      "id": "onto-cross-source-people",
+      "dataset": "ontology",
+      "view": "ontologies",
+      "ep": "demo",
+      "lang": "sparql",
+      "title": "One shared class, two different sources",
+      "description": "People from CSV files and from Virtuoso SQL tables in one answer: the query follows each generated class up to foaf:Person.",
+      "query": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT ?source ?generatedClass (COUNT(DISTINCT ?person) AS ?people) (SAMPLE(?person) AS ?example)\nWHERE {\n  ?generatedClass rdfs:subClassOf foaf:Person .\n  { GRAPH <urn:demo.csv:northwind:data> { ?person a ?generatedClass } BIND(\"CSV files\" AS ?source) }\n  UNION\n  { GRAPH <http://demo.openlinksw.com/Northwind#> { ?person a ?generatedClass } BIND(\"Virtuoso SQL tables (Demo.demo)\" AS ?source) }\n}\nGROUP BY ?source ?generatedClass\nORDER BY ?source",
+      "verbatimUrl": null,
+      "postUrl": null,
+      "abridged": false,
+      "facetedBrowser": null
+    }
+  ],
+  "sponger": [
+    {
+      "id": "tm-headlines",
+      "source": "https://www.techmeme.com/feed.xml",
+      "title": "Latest Techmeme headlines",
+      "description": "The Sponger reads the RSS feed and turns each story into a schema:DataFeedItem with a title, publication time and links. This is the pattern the opml-rss-reader skill and the OPML and RSS News Reader agent query.",
+      "ep": "ub",
+      "query": "PREFIX schema: <http://schema.org/>\nSELECT ?published ?title ?link\nFROM <https://www.techmeme.com/feed.xml>\nWHERE {\n  ?item a schema:DataFeedItem ;\n        schema:title ?title ;\n        schema:datePublished ?published ;\n        schema:seeAlso ?link .\n}\nORDER BY DESC(?published)\nLIMIT 15",
+      "respongeQuery": "DEFINE get:soft \"replace\"\nPREFIX schema: <http://schema.org/>\nSELECT ?published ?title ?link\nFROM <https://www.techmeme.com/feed.xml>\nWHERE {\n  ?item a schema:DataFeedItem ;\n        schema:title ?title ;\n        schema:datePublished ?published ;\n        schema:seeAlso ?link .\n}\nORDER BY DESC(?published)\nLIMIT 15"
+    },
+    {
+      "id": "tm-entities",
+      "source": "https://www.techmeme.com/feed.xml",
+      "title": "Entities in the news, linked to DBpedia",
+      "description": "Its entity extraction finds the companies, products and publications the headlines mention, links each to DBpedia with owl:sameAs, and scores how relevant it is. Click an entity to see its description.",
+      "ep": "ub",
+      "query": "PREFIX attr: <http://www.openlinksw.com/schema/attribution#>\nPREFIX oplbase: <http://www.openlinksw.com/schemas/oplbase#>\nSELECT ?label (SAMPLE(?dbpedia) AS ?entity) (MAX(?score) AS ?relevance)\nFROM <https://www.techmeme.com/feed.xml>\nWHERE {\n  ?e a attr:NamedEntity ;\n     rdfs:label ?label ;\n     owl:sameAs ?dbpedia ;\n     oplbase:hasRelevanceScore ?score .\n  FILTER(STRSTARTS(STR(?dbpedia), \"http://dbpedia.org/resource/\"))\n}\nGROUP BY ?label\nORDER BY DESC(?relevance)\nLIMIT 15",
+      "respongeQuery": "DEFINE get:soft \"replace\"\nPREFIX attr: <http://www.openlinksw.com/schema/attribution#>\nPREFIX oplbase: <http://www.openlinksw.com/schemas/oplbase#>\nSELECT ?label (SAMPLE(?dbpedia) AS ?entity) (MAX(?score) AS ?relevance)\nFROM <https://www.techmeme.com/feed.xml>\nWHERE {\n  ?e a attr:NamedEntity ;\n     rdfs:label ?label ;\n     owl:sameAs ?dbpedia ;\n     oplbase:hasRelevanceScore ?score .\n  FILTER(STRSTARTS(STR(?dbpedia), \"http://dbpedia.org/resource/\"))\n}\nGROUP BY ?label\nORDER BY DESC(?relevance)\nLIMIT 15"
+    },
+    {
+      "id": "tm-companies-people",
+      "source": "https://www.techmeme.com/feed.xml",
+      "title": "Companies and people, with background",
+      "description": "The extracted entities carry DBpedia types and abstracts, so the feed can be filtered by kind of thing. Here: companies and people.",
+      "ep": "ub",
+      "query": "PREFIX dbo: <http://dbpedia.org/ontology/>\nPREFIX bibo: <http://purl.org/ontology/bibo/>\nSELECT ?type ?label (SAMPLE(?dbpedia) AS ?entity) (SAMPLE(?abstract) AS ?about)\nFROM <https://www.techmeme.com/feed.xml>\nWHERE {\n  VALUES ?type { dbo:Company dbo:Person }\n  ?e a ?type ;\n     rdfs:label ?label ;\n     owl:sameAs ?dbpedia .\n  OPTIONAL { ?e bibo:abstract ?abstract }\n  FILTER(STRSTARTS(STR(?dbpedia), \"http://dbpedia.org/resource/\"))\n}\nGROUP BY ?type ?label\nORDER BY ?type ?label",
+      "respongeQuery": "DEFINE get:soft \"replace\"\nPREFIX dbo: <http://dbpedia.org/ontology/>\nPREFIX bibo: <http://purl.org/ontology/bibo/>\nSELECT ?type ?label (SAMPLE(?dbpedia) AS ?entity) (SAMPLE(?abstract) AS ?about)\nFROM <https://www.techmeme.com/feed.xml>\nWHERE {\n  VALUES ?type { dbo:Company dbo:Person }\n  ?e a ?type ;\n     rdfs:label ?label ;\n     owl:sameAs ?dbpedia .\n  OPTIONAL { ?e bibo:abstract ?abstract }\n  FILTER(STRSTARTS(STR(?dbpedia), \"http://dbpedia.org/resource/\"))\n}\nGROUP BY ?type ?label\nORDER BY ?type ?label"
+    },
+    {
+      "id": "tm-type-profile",
+      "source": "https://www.techmeme.com/feed.xml",
+      "title": "The whole graph, profiled by type",
+      "description": "Data Twingler template T2: a sample entity and a count for every type in the graph. A good first query for anything the Sponger has read.",
+      "ep": "ub",
+      "query": "SELECT (SAMPLE(?s) AS ?EntityID) (COUNT(*) AS ?count) (?o AS ?EntityTypeID)\nWHERE { GRAPH <https://www.techmeme.com/feed.xml> { ?s a ?o } }\nGROUP BY ?o\nORDER BY DESC(?count)\nLIMIT 15",
+      "respongeQuery": "DEFINE get:soft \"replace\"\nSELECT (SAMPLE(?s) AS ?EntityID) (COUNT(*) AS ?count) (?o AS ?EntityTypeID)\nWHERE { GRAPH <https://www.techmeme.com/feed.xml> { ?s a ?o } }\nGROUP BY ?o\nORDER BY DESC(?count)\nLIMIT 15"
+    },
+    {
+      "id": "gh-ai-agent-skills-types",
+      "source": "https://github.com/OpenLinkSoftware/ai-agent-skills",
+      "title": "GitHub: the ai-agent-skills repository",
+      "description": "The Sponger reads a GitHub repository page into a graph named by the repository URL: page metadata, extracted entities and annotations, and provenance for the load. The query below reads what is already there; Re-sponge sends the full query, which starts with DEFINE get:soft \"replace\" so the repository page is fetched again first.",
+      "ep": "ub",
+      "query": "SELECT DISTINCT (?o AS ?EntityType) (SAMPLE(?s) AS ?sampleEntity) (COUNT (*) AS ?EntityCount)\nFROM <https://github.com/OpenLinkSoftware/ai-agent-skills>\nWHERE {\n        ?s a ?o.\n}\nGROUP BY ?o\nORDER BY DESC (?EntityCount)",
+      "respongeQuery": "DEFINE get:soft \"replace\"\nSELECT DISTINCT (?o AS ?EntityType) (SAMPLE(?s) AS ?sampleEntity) (COUNT (*) AS ?EntityCount)\nFROM <https://github.com/OpenLinkSoftware/ai-agent-skills>\nWHERE {\n        ?s a ?o.\n}\nGROUP BY ?o\nORDER BY DESC (?EntityCount)"
+    }
+  ],
+  "exploreQueryTemplate": "SELECT ?type (SAMPLE(?s) AS ?sampleEntity) (SAMPLE(?label) AS ?sampleLabel) (COUNT(?s) AS ?entityCount)\nWHERE {\n  GRAPH <{GRAPH}> {\n    ?s rdf:type ?type .\n    OPTIONAL { ?s rdfs:label ?label }\n  }\n}\nGROUP BY ?type\nORDER BY DESC(?entityCount)",
+  "exploreQueryTemplateNoLabel": "SELECT ?type (SAMPLE(?s) AS ?sampleEntity) (COUNT(?s) AS ?entityCount)\nWHERE {\n  GRAPH <{GRAPH}> {\n    ?s rdf:type ?type .\n  }\n}\nGROUP BY ?type\nORDER BY DESC(?entityCount)",
+  "exploreDatasets": [
+    {
+      "id": "northwind",
+      "label": "Virtuoso Northwind (RDF View over Demo.demo)",
+      "ep": "demo",
+      "graph": "http://demo.openlinksw.com/Northwind#",
+      "noLabel": false,
+      "note": null,
+      "extras": [
+        {
+          "label": "Order lines → their products",
+          "href": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvT3JkZXJfRGV0YWlscyIsIm5lZyI6MH1dfSx7InZpYSI6eyJwIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvaGFzX3Byb2R1Y3RzIiwiZGlyIjoib3V0In0sInRleHQiOiIiLCJzY29wZSI6ImxhYmVsIiwiY29uZHMiOltdfV0sImZvY3VzIjoxLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+          "host": "demo"
+        },
+        {
+          "label": "Chai in the faceted browser",
+          "href": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOltdLCJmb2N1cyI6LTEsInZpZXciOiJkZXNjcmliZSIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6Imh0dHA6Ly9kZW1vLm9wZW5saW5rc3cuY29tL05vcnRod2luZC9wcm9kdWN0cy9Qcm9kdWN0SUQvMSN0aGlzIiwicGciOnt9LCJhbGxMYW5ncyI6ZmFsc2V9fQ",
+          "host": "demo"
+        }
+      ],
+      "fallbackTypes": []
+    },
+    {
+      "id": "sqlserver",
+      "label": "SQL Server Northwind (RDF View)",
+      "ep": "demo",
+      "graph": "http://demo.openlinksw.com/northwind-sqlserver#",
+      "noLabel": false,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": [
+        "http://demo.openlinksw.com/schemas/northwind-sqlserver/customers",
+        "http://demo.openlinksw.com/schemas/northwind-sqlserver/orders",
+        "http://demo.openlinksw.com/schemas/northwind-sqlserver/order_details",
+        "http://demo.openlinksw.com/schemas/northwind-sqlserver/products",
+        "http://demo.openlinksw.com/schemas/northwind-sqlserver/categories"
+      ]
+    },
+    {
+      "id": "postgres",
+      "label": "PostgreSQL (RDF View)",
+      "ep": "demo",
+      "graph": "http://demo.openlinksw.com/postgres_postgres_jdbc_mt_codex_20260403#",
+      "noLabel": false,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": []
+    },
+    {
+      "id": "databricks",
+      "label": "Databricks Bakehouse (R2RML RDF View)",
+      "ep": "demo",
+      "graph": "http://demo.openlinksw.com/databricks-bakehouse-r2rml#",
+      "noLabel": false,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": []
+    },
+    {
+      "id": "snowflake",
+      "label": "Snowflake-style estate: ScaleKG (RDF View over synthetic tables)",
+      "ep": "demo",
+      "graph": "http://demo.openlinksw.com/ScaleKG#",
+      "noLabel": true,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": []
+    },
+    {
+      "id": "csv",
+      "label": "CSV Northwind (RDF View over CSV files)",
+      "ep": "demo",
+      "graph": "urn:demo.csv:northwind:data",
+      "noLabel": false,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": []
+    },
+    {
+      "id": "techmeme",
+      "label": "Sponged: Techmeme RSS feed",
+      "ep": "ub",
+      "graph": "https://www.techmeme.com/feed.xml",
+      "noLabel": false,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": []
+    },
+    {
+      "id": "github",
+      "label": "Sponged: GitHub ai-agent-skills repository",
+      "ep": "ub",
+      "graph": "https://github.com/OpenLinkSoftware/ai-agent-skills",
+      "noLabel": false,
+      "note": null,
+      "extras": [],
+      "fallbackTypes": []
+    }
+  ],
+  "facetedTypeLinks": {
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/GraphDatabase": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL0dyYXBoRGF0YWJhc2UiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/Workload": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL1dvcmtsb2FkIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/WarehouseTable": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL1dhcmVob3VzZVRhYmxlIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/AnalyticsJob": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL0FuYWx5dGljc0pvYiIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/Tenant": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL1RlbmFudCIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/Region": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL1JlZ2lvbiIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/Environment": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL0Vudmlyb25tZW50IiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/Cluster": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL0NsdXN0ZXIiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/WarehouseSource": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL1dhcmVob3VzZVNvdXJjZSIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/ScaleKG/ReplicationLink": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9TY2FsZUtHL1JlcGxpY2F0aW9uTGluayIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://www.databricks.com/bakehouse#Transaction": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL3d3dy5kYXRhYnJpY2tzLmNvbS9iYWtlaG91c2UjVHJhbnNhY3Rpb24iLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://www.databricks.com/bakehouse#Customer": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL3d3dy5kYXRhYnJpY2tzLmNvbS9iYWtlaG91c2UjQ3VzdG9tZXIiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://www.databricks.com/bakehouse#CustomerReview": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL3d3dy5kYXRhYnJpY2tzLmNvbS9iYWtlaG91c2UjQ3VzdG9tZXJSZXZpZXciLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://www.databricks.com/bakehouse#Franchise": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL3d3dy5kYXRhYnJpY2tzLmNvbS9iYWtlaG91c2UjRnJhbmNoaXNlIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://www.databricks.com/bakehouse#Supplier": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL3d3dy5kYXRhYnJpY2tzLmNvbS9iYWtlaG91c2UjU3VwcGxpZXIiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/Northwind/Order_Details": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvT3JkZXJfRGV0YWlscyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/Northwind/Products": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvUHJvZHVjdHMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/Northwind/Suppliers": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvU3VwcGxpZXJzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/Northwind/Employees": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvRW1wbG95ZWVzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/Northwind/Categories": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvQ2F0ZWdvcmllcyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/Northwind/Shippers": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9Ob3J0aHdpbmQvU2hpcHBlcnMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/orders": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL29yZGVycyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/orders_details": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL29yZGVyc19kZXRhaWxzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/customers": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL2N1c3RvbWVycyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/products": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL3Byb2R1Y3RzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/territories": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL3RlcnJpdG9yaWVzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/suppliers": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL3N1cHBsaWVycyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/employees": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL2VtcGxveWVlcyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/categories": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL2NhdGVnb3JpZXMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/shippers": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL3NoaXBwZXJzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/csv_northwind/regions": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9jc3Zfbm9ydGh3aW5kL3JlZ2lvbnMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/northwind-sqlserver/customers": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9ub3J0aHdpbmQtc3Fsc2VydmVyL2N1c3RvbWVycyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/northwind-sqlserver/orders": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9ub3J0aHdpbmQtc3Fsc2VydmVyL29yZGVycyIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/northwind-sqlserver/order_details": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9ub3J0aHdpbmQtc3Fsc2VydmVyL29yZGVyX2RldGFpbHMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/northwind-sqlserver/products": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9ub3J0aHdpbmQtc3Fsc2VydmVyL3Byb2R1Y3RzIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0",
+    "https://demo.openlinksw.com/sparql http://demo.openlinksw.com/schemas/northwind-sqlserver/categories": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL2RlbW8ub3Blbmxpbmtzdy5jb20vc2NoZW1hcy9ub3J0aHdpbmQtc3Fsc2VydmVyL2NhdGVnb3JpZXMiLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://demo.openlinksw.com/sparql http://xmlns.com/foaf/0.1/Person": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vZGVtby5vcGVubGlua3N3LmNvbS9zcGFycWwiLCJuYXYiOnsibm9kZXMiOlt7InZpYSI6bnVsbCwidGV4dCI6IiIsInNjb3BlIjoibGFiZWwiLCJjb25kcyI6W3sidCI6ImNsYXNzIiwiaXJpIjoiaHR0cDovL3htbG5zLmNvbS9mb2FmLzAuMS9QZXJzb24iLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://linkeddata.uriburner.com/sparql http://schema.org/DataFeedItem": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vbGlua2VkZGF0YS51cmlidXJuZXIuY29tL3NwYXJxbCIsIm5hdiI6eyJub2RlcyI6W3sidmlhIjpudWxsLCJ0ZXh0IjoiIiwic2NvcGUiOiJsYWJlbCIsImNvbmRzIjpbeyJ0IjoiY2xhc3MiLCJpcmkiOiJodHRwOi8vc2NoZW1hLm9yZy9EYXRhRmVlZEl0ZW0iLCJuZWciOjB9XX1dLCJmb2N1cyI6MCwidmlldyI6ImVudGl0aWVzIiwib2ZmIjowLCJ2cCI6bnVsbCwiZW50IjpudWxsLCJwZyI6e319fQ",
+    "https://linkeddata.uriburner.com/sparql http://www.openlinksw.com/schema/attribution#NamedEntity": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vbGlua2VkZGF0YS51cmlidXJuZXIuY29tL3NwYXJxbCIsIm5hdiI6eyJub2RlcyI6W3sidmlhIjpudWxsLCJ0ZXh0IjoiIiwic2NvcGUiOiJsYWJlbCIsImNvbmRzIjpbeyJ0IjoiY2xhc3MiLCJpcmkiOiJodHRwOi8vd3d3Lm9wZW5saW5rc3cuY29tL3NjaGVtYS9hdHRyaWJ1dGlvbiNOYW1lZEVudGl0eSIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://linkeddata.uriburner.com/sparql http://dbpedia.org/ontology/Company": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vbGlua2VkZGF0YS51cmlidXJuZXIuY29tL3NwYXJxbCIsIm5hdiI6eyJub2RlcyI6W3sidmlhIjpudWxsLCJ0ZXh0IjoiIiwic2NvcGUiOiJsYWJlbCIsImNvbmRzIjpbeyJ0IjoiY2xhc3MiLCJpcmkiOiJodHRwOi8vZGJwZWRpYS5vcmcvb250b2xvZ3kvQ29tcGFueSIsIm5lZyI6MH1dfV0sImZvY3VzIjowLCJ2aWV3IjoiZW50aXRpZXMiLCJvZmYiOjAsInZwIjpudWxsLCJlbnQiOm51bGwsInBnIjp7fX19",
+    "https://linkeddata.uriburner.com/sparql http://dbpedia.org/ontology/Person": "https://linkeddata.uriburner.com/DAV/demos/daas/sparql-faceted-browser-claude_opus_5_5.html#s=eyJlcCI6Imh0dHBzOi8vbGlua2VkZGF0YS51cmlidXJuZXIuY29tL3NwYXJxbCIsIm5hdiI6eyJub2RlcyI6W3sidmlhIjpudWxsLCJ0ZXh0IjoiIiwic2NvcGUiOiJsYWJlbCIsImNvbmRzIjpbeyJ0IjoiY2xhc3MiLCJpcmkiOiJodHRwOi8vZGJwZWRpYS5vcmcvb250b2xvZ3kvUGVyc29uIiwibmVnIjowfV19XSwiZm9jdXMiOjAsInZpZXciOiJlbnRpdGllcyIsIm9mZiI6MCwidnAiOm51bGwsImVudCI6bnVsbCwicGciOnt9fX0"
+  },
+  "agents": [
+    {
+      "key": "virtuoso-support",
+      "module": "virtuoso-support-assistant-config",
+      "label": "Virtuoso Support Agent",
+      "functions": [
+        "Demo.demo.execute_spasql_query"
+      ]
+    },
+    {
+      "key": "uda-support",
+      "module": "uda-support-assistant-config",
+      "label": "ODBC & JDBC Support Agent",
+      "functions": [
+        "Demo.demo.execute_spasql_query"
+      ]
+    }
+  ],
+  "prompts": [
+    {
+      "agent": "virtuoso-support",
+      "text": "What is a Virtuoso RDF View, and how does it differ from loading data into the quad store?"
+    },
+    {
+      "agent": "virtuoso-support",
+      "text": "How do I create an RDF View over a SQL Server table that is attached to Virtuoso?"
+    },
+    {
+      "agent": "virtuoso-support",
+      "text": "Define the term SPASQL"
+    },
+    {
+      "agent": "uda-support",
+      "text": "Which OpenLink drivers connect an application to PostgreSQL over ODBC or JDBC?"
+    },
+    {
+      "agent": "uda-support",
+      "text": "How do I attach a PostgreSQL table to Virtuoso through a JDBC data source?"
+    },
+    {
+      "agent": "virtuoso-support",
+      "text": "How do I map Databricks tables attached to Virtuoso with R2RML?"
+    }
+  ],
+  "faq": [
+    {
+      "q": "Does Virtuoso generate an ontology from my database?",
+      "a": "Yes. Generating an RDF View also generates its ontology: a class for every table, a typed datatype property for every column, and an object property for every foreign key, each with its own IRI and a label naming the SQL source. You can then align those classes with shared ontologies such as FOAF, schema.org or DBpedia, and query every source in the shared terms. The Ontologies page shows both on the live server."
+    },
+    {
+      "q": "Which databases does this work with?",
+      "a": "Any DBMS that Virtuoso can reach over ODBC or JDBC. Its tables are linked into Virtuoso and can then be exposed through an RDF View, so every row gets its own hyperlink. The showcases on this site use Microsoft SQL Server, PostgreSQL, Databricks and native Virtuoso SQL tables as examples, plus a synthetic Snowflake-style warehouse estate. The Databricks view is mapped with R2RML, the W3C mapping language, which Virtuoso turns into quad maps."
+    },
+    {
+      "q": "What is an RDF View?",
+      "a": "A mapping, written as quad maps, that presents the tables of any ODBC- or JDBC-accessible DBMS as RDF without copying them. Each row gets a hyperlink of its own that works as a cross-platform super-key, columns become properties and foreign keys become links. SPARQL queries are translated to SQL against the source tables at query time."
+    },
+    {
+      "q": "What does SQL over XMLA mean here?",
+      "a": "XMLA (XML for Analysis) is a SOAP protocol for sending SQL to a server over HTTP. The SPASQL Query Builder posts your SQL to Virtuoso's /XMLA endpoint with the data source DSN=Local_Instance, so a browser can run SQL without an ODBC driver. Each SQL card can show the request it sends."
+    },
+    {
+      "q": "What is SPASQL?",
+      "a": "SPARQL inside SQL. A SPARQL query is placed in a SQL FROM clause, written FROM (SPARQL …) AS alias, and its result behaves like a derived table. Any SQL client can then use graph data, and SQL can filter or join it further."
+    },
+    {
+      "q": "Why do SQL and SPASQL ask me to sign in?",
+      "a": "The demo instance is protected by ABAC ACLs. SPARQL is open to anonymous users, while SQL and SPASQL need a session. Sign in with user name demo and password demo, or vdb and vdb. The Query Builder links on this site already preset the demo account for the query itself."
+    },
+    {
+      "q": "What is the Sponger?",
+      "a": "Virtuoso's Linked Data middleware. Cartridges turn web resources such as HTML pages, feeds, repositories and social posts into RDF, stored in a graph named by the source URL. Adding DEFINE get:soft \"replace\" to a query fetches or refreshes that graph."
+    },
+    {
+      "q": "Why do the Sponger cards run without the DEFINE pragma?",
+      "a": "Fetching new content needs a signed-in session on URIBurner. The graphs the Sponger has already built can be read by anyone, so the cards query those, and the Re-sponge link adds the pragma for a fresh fetch."
+    },
+    {
+      "q": "How are OPAL agents “loosely coupled” with Data Spaces?",
+      "a": "An agent holds instructions and a list of query functions, not a copy of the data. At answer time the model picks a function and Virtuoso runs a predefined SQL, SPARQL or SPASQL query against whichever Data Space the function names. You can change the model, the agent or the data without rebuilding the others."
+    },
+    {
+      "q": "Can I put the chat widget on my own site?",
+      "a": "Yes. Load opal.js and auth.js, then create new Opal(...) with your host, callbacks and an agent module, as the Widget usage section shows. Register your own API key on URIBurner, or sign users in with Solid OIDC."
+    },
+    {
+      "q": "What is the faceted browser?",
+      "a": "A single-page app in the style of Virtuoso's FCT service. It narrows a set of entities by text, type, property and value, pivots along relationships, and keeps the whole view in its URL so any view can be shared."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Customer Sales Performance Dashboard (SQL Server Northwind)",
+      "url": "https://www.openlinksw.com/weblog/?post=rdf-linked-data-views-sqlserver.html",
+      "date": "31 July 2025",
+      "use": "Graph and ontology of the SQL Server RDF View; the sales query, as a working variant."
+    },
+    {
+      "title": "Turn Your Data Into Decisive Knowledge",
+      "url": "https://www.openlinksw.com/weblog/?post=virtuoso-turning-data-into-decisive-knowledge.html",
+      "date": "23 July 2025",
+      "use": "SQL Server + MySQL + Virtuoso federated join, with its Query Builder permalink over XMLA."
+    },
+    {
+      "title": "Northwind Sales Performance Dashboard",
+      "url": "https://www.openlinksw.com/weblog/?post=northwind-dashboard-rdf-views-claude-3.html",
+      "date": "25 August 2025",
+      "use": "The Northwind# graph, the SalesPerformance SPASQL and a shared OPAL chat."
+    },
+    {
+      "title": "Knowledge Graph: Entity Type & Sample Entities",
+      "url": "https://www.openlinksw.com/weblog/?post=claude-virtuoso-support-agent-skills-generated-northwind-knowledge-graph.html",
+      "date": "13 November 2025",
+      "use": "Entity-type query over the Demo.demo RDF View."
+    },
+    {
+      "title": "postgres_postgres_jdbc_mt_codex_20260403 Knowledge Graph",
+      "url": "https://www.openlinksw.com/weblog/?post=postgres_postgres_jdbc_mt_codex_linked_data_infographic.html",
+      "date": "8 April 2026",
+      "use": "PostgreSQL RDF View graph, ontology and the client DESCRIBE."
+    },
+    {
+      "title": "Databricks → Virtual Knowledge Graph with Virtuoso",
+      "url": "https://linkeddata.uriburner.com/weblog/?post=databricks-virtuoso-kg-deepseek_v4pro-1.html",
+      "date": "16 June 2026",
+      "use": "Databricks Bakehouse RDF View: graph, ontology, R2RML mapping, the revenue and customer queries and the franchise DESCRIBE."
+    },
+    {
+      "title": "From Databricks Tables to a Virtual Knowledge Graph with Virtuoso",
+      "url": "https://community.openlinksw.com/t/from-databricks-tables-to-a-virtual-knowledge-graph-with-virtuoso/6293",
+      "date": "9 June 2026",
+      "use": "The original OpenLink Community walkthrough the Databricks post is built from."
+    },
+    {
+      "title": "Scale AI into Production: Neo4j's Five Scale Capabilities Meshed with Virtuoso and agent-rdf-memory",
+      "url": "https://linkeddata.uriburner.com/weblog/?post=neo4j-scale-ai-production-vs-virtuoso-agent-rdf-memory-meshup-claude_sonnet_5_5-1.html",
+      "date": null,
+      "use": "The ScaleKG estate (synthetic tables standing in for a Snowflake system of record), its graph, ontology, SPASQL and SPARQL queries."
+    },
+    {
+      "title": "Virtuoso Multi-Model Data Management Breakdown",
+      "url": "https://www.openlinksw.com/weblog/?post=virtuoso-rdf-views.html",
+      "date": "19 May 2025",
+      "use": "Inventory of the quad maps on demo.openlinksw.com."
+    },
+    {
+      "title": "Conceptual Data Virtualization for SQL and RDF",
+      "url": "https://www.openlinksw.com/weblog/?post=conceptual-data-virtualization-sql-rdf-deepseek_v4flash-1.html",
+      "date": "12 October 2026",
+      "use": "CSV Northwind queries and quad-map introspection."
+    },
+    {
+      "title": "OPAL widget architecture",
+      "url": "https://www.openlinksw.com/weblog/?post=opal-widget-architecture.drawio.html",
+      "date": null,
+      "use": "The request flow on the OPAL Agents page."
+    },
+    {
+      "title": "OPAL Agent, Skills, and Functions Playground",
+      "url": "https://www.openlinksw.com/weblog/?post=opal-system-functions-or-agents-apis-developer-journey-gemini-19.html",
+      "date": null,
+      "use": "Background on agents, skills and function tools."
+    },
+    {
+      "title": "OPAL agent demo over DBpedia",
+      "url": "https://www.openlinksw.com/weblog/?post=opal-agent-dbpedia-spike-lee-demo-1.html",
+      "date": null,
+      "use": "An OPAL agent answering from a public knowledge graph."
+    },
+    {
+      "title": "From Intent to Action: Agents, Context and Open Standards",
+      "url": "https://linkeddata.uriburner.com/weblog/?post=intent-to-action-agents-web-claude_sonnet_5_5-1.html",
+      "date": null,
+      "use": "Agents over open standards, including A2A."
+    },
+    {
+      "title": "chat-data.com",
+      "url": "https://www.chat-data.com/",
+      "date": null,
+      "use": "Page structure and visual style."
+    }
+  ]
+}
