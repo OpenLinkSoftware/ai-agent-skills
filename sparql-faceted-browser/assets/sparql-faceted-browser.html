@@ -796,7 +796,8 @@ const NS = {
   skosxl: 'http://www.w3.org/2008/05/skos-xl#', frbr: 'http://purl.org/vocab/frbr/core#', crm: 'http://www.cidoc-crm.org/cidoc-crm/',
   ecrm: 'http://erlangen-crm.org/current/'
 };
-const LABEL_PROPS = ['rdfs:label', 'skos:prefLabel', 'schema:name', 'foaf:name', 'dcterms:title', 'dc:title', 'jolux:title'];
+// schema.org is published under both http:// and https://; data uses either (URIBurner sponges https://schema.org/name).
+const LABEL_PROPS = ['rdfs:label', 'skos:prefLabel', 'schema:name', 'https://schema.org/name', 'foaf:name', 'dcterms:title', 'dc:title', 'jolux:title'];
 const DESC_PROPS = ['rdfs:comment', 'schema:description', 'dcterms:description', 'skos:definition'];
 const IMG_PROPS = ['dbo:thumbnail', 'foaf:depiction', 'schema:image', 'wdt:P18'];
 /* Some gateways reject any request that mentions http://xmlns.com/ (the FOAF namespace): Fedlex's BIT firewall answers
@@ -804,7 +805,9 @@ const IMG_PROPS = ['dbo:thumbnail', 'foaf:depiction', 'schema:image', 'wdt:P18']
    and the app's own property lists then leave FOAF terms out of the queries they build. */
 const foafBlocked = new Set();
 const okIri = iri => !(foafBlocked.has(settings.ep) && /\/\/xmlns\.com\//.test(iri));
-const usable = list => list.filter(c => okIri(expand(c) || c));
+// A full IRI (scheme://…) is used as it is: expand() would read its scheme as a prefix.
+const fullIri = c => /^[a-z][\w+.-]*:\/\//i.test(c);
+const usable = list => list.filter(c => okIri(fullIri(c) ? c : expand(c) || c));
 const ORDERED = /#(integer|decimal|double|float|int|long|short|byte|nonNegativeInteger|positiveInteger|negativeInteger|nonPositiveInteger|unsignedInt|unsignedLong|unsignedShort|gYear|date|dateTime)$/;
 const expand = c => { const m = /^([A-Za-z][\w-]*):(.*)$/.exec(c); if (!m) return null; if (NS[m[1]] !== undefined) return NS[m[1]] + m[2]; const d = typeof derivedPrefixNs === 'function' && derivedPrefixNs(m[1]); return d ? d + m[2] : null; };
 /* Namespace → prefix index used to show a CURIE when an IRI has no label. Built-ins win; an external
@@ -885,7 +888,7 @@ function curie(iri) {
    meaningful path segment (or the host), gets a number on collision, and loses to any real prefix (built-in, prefix.cc,
    Zazuko). Derived prefixes are declared in exports like any other. */
 const derivedNs = new Map();   // namespace -> derived prefix
-const GENERIC_SEG = /^(ontology|ontologies|schema|schemas|vocab|vocabulary|ns|core|terms|def|resource|resources|property|properties|class|classes|prop|o|v|id|data|rdf|owl|model|voc|elements)$/i;
+const GENERIC_SEG = /^(https?|about|ontology|ontologies|schema|schemas|vocab|vocabulary|ns|core|terms|def|resource|resources|property|properties|class|classes|prop|o|v|id|data|rdf|owl|model|voc|elements)$/i;
 function derivedCurie(iri) {
   const hash = iri.lastIndexOf('#'), cut = hash > 7 ? hash : iri.lastIndexOf('/');
   if (cut <= 7 || cut >= iri.length - 1) return null;
@@ -970,7 +973,7 @@ function readHash() {
 
 /* ---------- SPARQL terms ---------- */
 const iriRef = i => '<' + String(i).replace(/[<>"{}|^`\\\s]/g, c => encodeURIComponent(c)) + '>';
-const P = c => iriRef(expand(c) || c);
+const P = c => iriRef(fullIri(c) ? c : expand(c) || c);
 const litStr = s => '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
 function termSparql(t) {
   if (t.type === 'uri') return iriRef(t.value);
@@ -1671,7 +1674,10 @@ const pendingLabels = new Set();
 let labelTimer = null;
 // Wikidata property IRIs in every form (wdt:, p:, ps:, pq:, pr:, psv:, … all under /prop/…/P123) take their label
 // from the property entity wd:P123.
-const labelKey = iri => { const m = /^http:\/\/www\.wikidata\.org\/prop\/(?:[a-z-]+\/)*(P\d+)$/.exec(iri); return m ? NS.wd + m[1] : iri; };
+// Virtuoso Sponger proxy IRIs (…/about/id/entity/https/w3id.org/do) carry no triples of their own: the data, label
+// included, sits on the source IRI they encode (https://w3id.org/do).
+const proxySource = iri => { const m = /^https?:\/\/[^/]+\/about\/id\/entity\/(https?)\/([^/].*)$/.exec(iri); return m ? m[1] + '://' + m[2].replace(/%23/gi, '#') : null; };
+const labelKey = iri => { const m = /^http:\/\/www\.wikidata\.org\/prop\/(?:[a-z-]+\/)*(P\d+)$/.exec(iri); return m ? NS.wd + m[1] : proxySource(iri) || iri; };
 // EU Publications Office language authority codes (as used by jolux:language) -> BCP 47.
 const EU_LANG = { ENG: 'en', FRA: 'fr', DEU: 'de', ITA: 'it', ROH: 'rm', SPA: 'es', POR: 'pt', NLD: 'nl', LTZ: 'lb', DAN: 'da', SWE: 'sv',
   FIN: 'fi', POL: 'pl', CES: 'cs', SLK: 'sk', SLV: 'sl', HUN: 'hu', RON: 'ro', BUL: 'bg', ELL: 'el', HRV: 'hr', EST: 'et', LAV: 'lv',
@@ -1686,7 +1692,7 @@ function pickLang(list) {
 function display(iri) {
   const l = labels.get(iri);
   if (l && l !== iri) return { kind: 'label', text: l };
-  if (l === iri) { const c = curie(iri); return c ? { kind: 'curie', text: c } : { kind: 'raw', text: iri }; }
+  if (l === iri) { const c = curie(proxySource(iri) || iri); return c ? { kind: 'curie', text: c } : { kind: 'raw', text: iri }; }
   return { kind: 'pending', text: localName(iri) };
 }
 const labelOf = iri => display(iri).text;
@@ -1700,25 +1706,27 @@ async function flushLabels() {
   const all = [...pendingLabels]; pendingLabels.clear();
   for (let i = 0; i < all.length; i += 60) {
     const chunk = all.slice(i, i + 60);
-    const keyed = new Map(chunk.map(x => [labelKey(x), x]));
+    // Each IRI is asked for itself and, when it maps to another (labelKey), for that one too; its own label wins.
+    const keys = new Set(); chunk.forEach(x => { keys.add(x); keys.add(labelKey(x)); });
     // DISTINCT: a store holding the same label in many graphs (rdf:type's "type" on demo.openlinksw.com) otherwise
     // fills the LIMIT with copies. If the LIMIT is still reached, IRIs without a row are asked again rather than
     // cached as unlabelled.
-    const lim = chunk.length * 8;
+    const lim = keys.size * 8;
     // JOLux (Fedlex, Legilux): a work or act has no label of its own; its titles sit on its expressions
     // (jolux:isRealizedBy/jolux:title), one per language, untagged, with the language in jolux:language.
-    const q = sel('DISTINCT ?x ?l ?xl', '  VALUES ?x { ' + [...keyed.keys()].map(iriRef).join(' ') + ' }\n  { ?x ' + labelPath() + ' ?l .\n    FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + '))) }\n' +
+    const q = sel('DISTINCT ?x ?l ?xl', '  VALUES ?x { ' + [...keys].map(iriRef).join(' ') + ' }\n  { ?x ' + labelPath() + ' ?l .\n    FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + '))) }\n' +
       '  UNION { ?x ' + P('jolux:isRealizedBy') + ' ?xe . ?xe ' + P('jolux:title') + ' ?l . OPTIONAL { ?xe ' + P('jolux:language') + ' ?xl } }', 'LIMIT ' + lim);
     try {
       const by = new Map();
       const rs = rows(await sparql(q, { quiet: true }));
       rs.forEach(r => {
-        const x = keyed.get(r.x.value) || r.x.value;
+        const x = r.x.value;
         if (!by.has(x)) by.set(x, []);
         by.get(x).push({ value: r.l.value, lang: (r.l['xml:lang'] || (r.xl && EU_LANG[r.xl.value.split('/').pop()]) || '').toLowerCase() });
       });
       const full = rs.length >= lim;
-      chunk.forEach(x => { if (by.has(x)) labels.set(x, pickLang(by.get(x))); else if (full) pendingLabels.add(x); else labels.set(x, x); });
+      chunk.forEach(x => { const got = by.get(x) || by.get(labelKey(x));
+        if (got) labels.set(x, pickLang(got)); else if (full) pendingLabels.add(x); else labels.set(x, x); });
       if (full && pendingLabels.size) { clearTimeout(labelTimer); labelTimer = setTimeout(flushLabels, 30); }
     } catch { /* a failed lookup is not "no label": leave these uncached so the next render asks again */ }
     paintLabels();
