@@ -2126,7 +2126,12 @@ CREATE PROCEDURE DB.DBA.WEBLOG_NEWSLETTER_SEND_DIGEST (IN dav_collection VARCHAR
   posts := vector ();
   for (select RES_NAME as _name, RES_MOD_TIME as _mod
          from WS.WS.SYS_DAV_RES
-        where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
+        -- Only HTML posts directly in the weblog folder: not files in a
+        -- post's asset subfolders (catalog-v1.html, DATA.md and site.html
+        -- from a HackerTube collection went out in the 2026-11-04 URIBurner
+        -- digest with links to nowhere), and not Markdown files.
+        where RES_FULL_PATH like coll || '%.html'
+          and RES_FULL_PATH = coll || RES_NAME
           and RES_NAME not like '._%'
           and RES_NAME <> 'index.vsp'
           and RES_NAME <> 'dashboard.html'
@@ -2613,6 +2618,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_ANALYTICS_HTML (IN dav_collection VARCH
   for (select RES_NAME as _name, RES_MOD_TIME as _mod, RES_ID as _id
          from WS.WS.SYS_DAV_RES
         where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
+          and RES_FULL_PATH = coll || RES_NAME
           and RES_NAME not like '._%'
           and RES_NAME not in ('index.vsp', 'newsletter.vsp', 'dashboard.html')) do
   {
@@ -3006,6 +3012,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DASHBOARD_REFRESH (IN dav_collection VARCHAR)
     for (select RES_ID as _rid, RES_NAME as _rname, RES_MOD_TIME as _rmod
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
+            and RES_FULL_PATH = coll || RES_NAME
             and RES_NAME not like '._%'
             and RES_NAME <> 'index.vsp'
             and RES_NAME <> 'dashboard.html'

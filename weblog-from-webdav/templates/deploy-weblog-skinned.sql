@@ -275,6 +275,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_DASHBOARD_PAGE (IN coll VARCHAR)
     n_posts := 0;
     for (select max (RES_MOD_TIME) as _nm, count (*) as _n from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
+            and RES_FULL_PATH = coll || RES_NAME
             and RES_NAME not like '._%' and RES_NAME <> 'index.vsp' and RES_NAME <> 'dashboard.html') do
     {
       newest := _nm;
@@ -1716,6 +1717,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like ''{{DAV_COLLECTION}}%.html''
               or RES_FULL_PATH like ''{{DAV_COLLECTION}}%.md'')
+            and RES_FULL_PATH = ''{{DAV_COLLECTION}}'' || RES_NAME
             and RES_NAME not like ''._%''
             and RES_NAME not in (''index.vsp'', ''newsletter.vsp'')
           order by RES_MOD_TIME desc, RES_NAME desc) do
@@ -1752,6 +1754,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like ''{{DAV_COLLECTION}}%.html''
               or RES_FULL_PATH like ''{{DAV_COLLECTION}}%.md'')
+            and RES_FULL_PATH = ''{{DAV_COLLECTION}}'' || RES_NAME
             and RES_NAME not like ''._%''
             and RES_NAME not in (''index.vsp'', ''newsletter.vsp'')
             and contains (RES_CONTENT, ft_q)

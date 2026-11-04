@@ -178,6 +178,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_ACTIVE_CATEGORY_ALIASES (IN coll VARCHAR)
   FOR SELECT P.PROP_VALUE AS _v
         FROM WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
        WHERE R.RES_FULL_PATH LIKE coll || '%'
+         AND R.RES_FULL_PATH = coll || R.RES_NAME
          AND P.PROP_PARENT_ID = R.RES_ID
          AND P.PROP_TYPE = 'R'
          AND P.PROP_NAME = 'schema:category' DO
@@ -411,6 +412,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_REFRESH_CATEGORIES
      WHERE (RES_FULL_PATH LIKE coll || '%.html'
          OR RES_FULL_PATH LIKE coll || '%.htm'
          OR RES_FULL_PATH LIKE coll || '%.md')
+       AND RES_FULL_PATH = coll || RES_NAME
        AND RES_NAME NOT LIKE '._%'
        AND RES_NAME <> '.DS_Store'
        AND RES_NAME <> 'index.vsp'

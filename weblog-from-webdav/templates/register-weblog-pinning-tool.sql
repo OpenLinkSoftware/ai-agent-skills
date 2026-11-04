@@ -98,6 +98,7 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_SET_PIN
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like coll || '%.html'
               or RES_FULL_PATH like coll || '%.md')
+            and RES_FULL_PATH = coll || RES_NAME
             and RES_NAME not like '._%'
             and RES_NAME <> 'index.vsp') do
     {
