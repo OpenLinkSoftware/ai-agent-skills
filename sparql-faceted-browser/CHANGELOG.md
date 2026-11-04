@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.18 — 2026-11-03
+
+- **Labels from `https://schema.org/name`.** The label lookup, the "in labels & names" search and the label probe now
+  also read `https://schema.org/name` (URIBurner's sponged data uses it), not only `http://schema.org/name`; an entity
+  named only there showed its CURIE (`velitchkov:me`) instead of its name. Full IRIs in the label property list are
+  used as they are, never read as prefixed names.
+- **Sponger proxy IRIs take their source's label.** A Virtuoso proxy IRI (`…/about/id/entity/https/w3id.org/do`) has
+  no triples of its own; it is now labelled from the source IRI it encodes ("Decision ontology"), the IRI's own label
+  still winning, and a label-less one shows the source's CURIE.
+- Derived prefixes are no longer named after a URI scheme or `about` path segment (the proxy above showed as `https:do`).
+
 ## 1.0.17 — 2026-10-27
 
 - **SPARQL tab panels collapse.** Each query is a collapsible section headed by its name and timing; only the first is
