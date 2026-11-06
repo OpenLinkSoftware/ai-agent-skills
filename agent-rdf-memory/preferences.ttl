@@ -177,7 +177,8 @@
         <howto/rdf-document-authoring.ttl>,
         <howto/position-integer-type.ttl>,
         <howto/example-iri-anti-pattern.ttl>,
-        <howto/hyperlink-post-references-resolver.ttl> ;
+        <howto/hyperlink-post-references-resolver.ttl>,
+        <howto/rdf-serialization-default-clarification.ttl> ;
     schema:step :step-entityDenotation, :step-documentEntity, :step-documentAbout,
         :step-entityTypeGate, :step-externalIriVerification,
         :step-entityLinkPlacement, :step-canonicalIriCompliance,
@@ -188,7 +189,8 @@
         :step-residenceVsBirthplace, :step-noBlankNodesForResolverEntities,
         :step-dbpediaCanonicalSubject, :step-terminologySemanticWeb,
         :step-positionIntegerType, :step-exampleIriAntiPattern,
-        :step-hyperlinkPostReferencesResolver .
+        :step-hyperlinkPostReferencesResolver,
+        :step-rdfSerializationDefaultClarification, :step-rdfNotationPreferenceElicitation .
 
 # ── 5. HTML Infographic & KG Explorer ───────────────────────────────────────
 
@@ -2303,12 +2305,12 @@ Applies alongside step-screencastDistributionArtifacts (routing) and step-screen
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/filesystem-virtuoso-sync.ttl> .
 
-# ── Step 165: RDF output defaults to Turtle only — JSON-LD requires explicit request ──
+# ── Step 165: RDF output follows the selected notation preference (Turtle by default) ──
 
 :step-turtleOnlyDefaultNoImpliedJsonld a schema:HowToStep ;
     schema:position 165 ;
-    schema:name "Never generate JSON-LD as a side effect of an HTML companion's format-toggle footer — Turtle only unless the user names JSON-LD explicitly"@en ;
-    schema:text "Default every RDF+HTML generation to Turtle only; produce JSON-LD only when the user's own words name it in that session."@en ;
+    schema:name "Use the user's selected RDF notation; default to Turtle until another preference is selected"@en ;
+    schema:text "RDF output uses the notation preference selected by the user; when no preference is recorded, use Turtle. Do not generate additional RDF serializations unless requested or selected."@en ;
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/turtle-only-default.ttl> .
 
@@ -3890,3 +3892,20 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
     rdfs:seeAlso <howto/first-mention-hyperlinks.ttl>,
         <howto/first-mention-hyperlinks.ttl#step-definition>,
         <howto/concept-entity-hyperlinking.ttl> .
+
+
+# ── Step 360: Turtle is the default serialization, never the only one ──
+:step-rdfSerializationDefaultClarification a schema:HowToStep ;
+    schema:position "360"^^xsd:integer ;
+    schema:name "Clarify that Turtle is the default RDF notation and offer notation choice on first use or when the user seeks a change"@en ;
+    schema:text "Turtle is this repository's default RDF notation, not a requirement; elicit a notation preference on first RDF use and accept changes whenever requested."@en ;
+    onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/rdf-serialization-default-clarification.ttl>,
+        <howto/turtle-only-default.ttl> .
+
+:step-rdfNotationPreferenceElicitation a schema:HowToStep ;
+    schema:position "362"^^xsd:integer ;
+    schema:name "Elicit and remember the user's RDF notation preference on first use, and whenever they ask to change it"@en ;
+    schema:text "Offer Turtle (default), LD-Vault, YAML-LD, JSON-LD, and a free-text notation choice; honor and record the selection, with Turtle as the fallback when none is recorded."@en ;
+    onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;
+    rdfs:seeAlso <howto/rdf-serialization-default-clarification.ttl> .

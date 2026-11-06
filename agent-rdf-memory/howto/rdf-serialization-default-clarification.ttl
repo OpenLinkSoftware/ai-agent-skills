@@ -1,0 +1,55 @@
+@prefix : <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <../ontology.ttl#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/rdf-serialization-default-clarification.ttl"@en ;
+    schema:description "Companion for preferences.ttl Steps 360 and 362. Defines the RDF notation default, first-use preference elicitation, preference recording and changes, and accurate prose about serialization choices."@en ;
+    schema:dateCreated "2026-11-05T16:30:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-11-06T14:00:00Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Elicit and honor RDF notation preferences; Turtle is the default, not a requirement"@en ;
+    schema:description "Stated by Kingsley on 2026-11-05 about the sentence 'RDF, OWL, SKOS and SPARQL are W3C standards with many implementations; the interchange file of this demo is Turtle, which any of them reads.' in the Snowflake against VOICE collection: it should be enhanced, always, to clarify that RDF-Turtle is just the default preference, with YAML-LD, JSON-LD, RDF-XML and others as alternatives."@en ;
+    schema:step :step-firstUse, :step-recordChoice, :step-changeChoice, :step-default,
+        :step-rule, :step-wording, :step-claims ;
+    rdfs:seeAlso <../preferences.ttl#step-rdfSerializationDefaultClarification>, <turtle-only-default.ttl> .
+
+ :step-firstUse a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "On first RDF authoring use, offer the notation preference choices"@en ;
+    schema:text "If no preference is already recorded, ask the user to choose: Turtle (default), LD-Vault, YAML-LD, JSON-LD, or Type your own RDF notation preference. If the task needs to proceed without a reply, use Turtle as the default."@en .
+
+:step-recordChoice a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Record the selected notation as a user preference"@en ;
+    schema:text "Record the user's selection in the local preferences.private.ttl overlay when available and in the current session record. Do not turn a user's choice into a public default for all users."@en .
+
+:step-changeChoice a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Accept notation preference changes whenever the user asks"@en ;
+    schema:text "When the user asks to change their RDF notation preference, update the local preference and use the new selection for subsequent RDF output."@en .
+
+:step-default a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Use Turtle as the default only when no user preference is recorded"@en ;
+    schema:text "RDF is the data model; Turtle is this repository's default notation. Use the recorded preference when one exists, and do not imply that Turtle is required."@en .
+
+:step-rule a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Whenever copy names Turtle, identify it as the default preference"@en ;
+    schema:text "Applies to generated HTML, Markdown and RDF collection copy, including feature rows, FAQ answers, glossary text and chat summaries. Do not present Turtle as a property of RDF standards or of a product being described."@en .
+
+:step-wording a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "Name the alternatives: JSON-LD, RDF/XML, N-Triples, N-Quads, TriG, YAML-LD and others"@en ;
+    schema:text "Wording used first on 2026-11-05: RDF is a data model with several serializations, among them Turtle, JSON-LD, RDF/XML, N-Triples, N-Quads, TriG and YAML-LD. Turtle is this collection's default preference, not a requirement; the same graph can be written in whichever serialization the reader's tools expect, without changing its meaning."@en .
+
+ :step-claims a schema:HowToStep ;
+    schema:position "7"^^xsd:integer ;
+    schema:name "Do not claim every tool reads every serialization, and do not call a draft syntax a W3C standard"@en ;
+    schema:text "Say that a graph can be converted between serializations without changing its meaning. Do not write that any implementation reads any serialization, and do not assign standards status to YAML-LD, which is named here only as an alternative."@en .

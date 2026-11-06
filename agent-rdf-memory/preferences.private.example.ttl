@@ -17,6 +17,13 @@
 # default is https://linkeddata.uriburner.com. Override here for another deployment.
 # :defaultResolverServer schema:value "https://linkeddata.uriburner.com" .
 
+# Optional per-user RDF notation preference. The public default is Turtle; set
+# this value to Turtle, LD-Vault, YAML-LD, JSON-LD, or another notation selected
+# by the user. Update it whenever the user asks to change their preference.
+# :rdfNotationPreference a schema:PropertyValue ;
+#     schema:name "RDF notation preference"@en ;
+#     schema:value "Turtle" .
+
 # Example overlay assertion. Private graph values should be prioritized by the
 # harness when both public and private retrieval policies are available.
 # onto:VirtuosoSparqlTroubleshooting onto:retrievalPolicy :PrivateEndpointSelectionPolicy .

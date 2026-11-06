@@ -52,6 +52,10 @@ Treat these RDF files as authoritative operational memory. Do not substitute a
 summary, `MEMORY.md`, or assumptions for them. Re-read the relevant `howto` file
 when a task triggers one of its rules.
 
+## RDF Notation Preference
+
+On the first RDF authoring task, check the private preference overlay and recent session memory for a notation preference. If none is recorded, offer **Turtle (default)**, **LD-Vault**, **YAML-LD**, **JSON-LD**, and **Type your own RDF notation preference**. If the user does not answer and the task should proceed, use Turtle as the default. Record the selected preference locally in `preferences.private.ttl` when available, and in the current session record; never treat Turtle as a requirement. Honor a recorded preference, and update it whenever the user asks to change it. Read `howto/rdf-serialization-default-clarification.ttl` for the detailed rules.
+
 The source design is documented in
 `/Users/kidehen/Documents/Management/Development/ai-agent-skills/agent-rdf-memory/SESSION-START-HOOK.md`.
 That document describes a Claude Code hook; this `AGENTS.md` is its Codex

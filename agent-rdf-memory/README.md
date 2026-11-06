@@ -1,6 +1,6 @@
 # Agent RDF Memory
 
-A queryable behavioral contract for AI agents, encoded in RDF-Turtle. It defines how an agent retrieves and applies standing instructions, with RDF memory files serving as the authoritative source.
+A queryable behavioral contract for AI agents, encoded as RDF. Turtle is the default notation used by this repository; agents can select Turtle, LD-Vault, YAML-LD, JSON-LD, or another RDF notation on first use and change that preference at any time.
 
 ## Folder structure
 

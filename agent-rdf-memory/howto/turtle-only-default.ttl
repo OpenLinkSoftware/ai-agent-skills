@@ -4,9 +4,10 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <> a schema:CreativeWork ;
-    schema:name "Turtle-Only Default — No Implied JSON-LD"@en ;
-    schema:description "RDF output defaults to Turtle only; JSON-LD is never generated as an inferred side effect of an HTML companion's format-toggle footer."@en ;
-    schema:dateCreated "2026-07-30"^^xsd:date .
+    schema:name "Selected RDF Notation — No Implied Additional Serializations"@en ;
+    schema:description "RDF output follows the user's selected notation; Turtle is the default when no preference is recorded. Additional serializations are not generated as an inferred side effect of an HTML companion's format-toggle footer."@en ;
+    schema:dateCreated "2026-07-30"^^xsd:date ;
+    schema:dateModified "2026-11-06"^^xsd:date .
 
 :incident a schema:CreativeWork ;
     schema:name "CDOIQ 2026 Substack collection — unrequested JSON-LD"@en ;
@@ -15,5 +16,5 @@
 
 :rule a schema:CreativeWork ;
     schema:name "Standing rule going forward"@en ;
-    schema:description """Default every RDF+HTML (or RDF+HTML+MD) generation to Turtle only. Do not build a Turtle/JSON-LD format-toggle footer speculatively — a footer control is not a reason to generate the second format it controls. Only produce JSON-LD, and only then add the toggle, when the user's own words name JSON-LD in that session (e.g. 'give me both formats', 'also produce JSON-LD'). Do not use the kg-generator skill's own elicitation prompt ('Output format: (1) Turtle, (2) JSON-LD, (3) Both?') as a nudge toward dual-format — if elicitation is used at all, Turtle-only must be presented as the default answer, not one of three equally-weighted options assumed to trend toward Both."""@en ;
+    schema:description """Use the user's recorded RDF notation preference for each RDF+HTML (or RDF+HTML+MD) generation; when none is recorded, use Turtle. Do not generate extra serializations or build a format-toggle footer speculatively — a footer control is not a reason to create the second format it controls. If the user asks for an additional serialization, produce it as requested. On first RDF use, follow the preference elicitation in rdf-serialization-default-clarification.ttl."""@en ;
     rdfs:seeAlso <../preferences.ttl#step-turtleOnlyDefaultNoImpliedJsonld> .
