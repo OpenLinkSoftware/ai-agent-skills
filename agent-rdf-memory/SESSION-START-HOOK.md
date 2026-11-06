@@ -59,6 +59,8 @@ On every session start, the hook runs a Python script that reads:
 
 The combined content is returned as `additionalContext`, making it part of the model's context window from the first turn. Agents follow `rdfs:seeAlso` into the relevant howto doc on demand for full step details.
 
+RDF notation is a user preference, not a fixed property of the memory model. On the first RDF authoring task, check for a recorded preference; if none exists, offer Turtle (default), LD-Vault, YAML-LD, JSON-LD, and a free-text choice. Record the selection in the local private overlay and session record when available. The user can change it at any time. Turtle remains the default when no preference is recorded.
+
 
 ## SPARQL-Preferred Context Selection
 
