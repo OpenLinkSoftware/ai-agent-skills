@@ -457,11 +457,75 @@ footer.site a, #about a { color: var(--accent); }
   .tools .icon-btn { padding: 6px 5px; }
 }
 /* Find Connections tab */
+.rel-hint { position: absolute; left: 10px; right: 10px; bottom: 6px; font-size: 11px; color: var(--muted); pointer-events: none; z-index: 1; }
+.rel-svg { width: 100%; height: 100%; display: block; cursor: grab; }
+.kg-active .rel-svg:active { cursor: grabbing; }
+.rel-graphbox.kg-active { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+.kg-zoomhint { position: absolute; top: 46px; right: 10px; z-index: 3; font-size: 11px; padding: 3px 8px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); animation: kgfade 2.6s ease forwards; pointer-events: none; }
+@keyframes kgfade { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+.kg-head { position: absolute; top: 8px; left: 8px; right: 8px; z-index: 3; display: flex; align-items: center; gap: 8px; pointer-events: none; }
+.kg-head > * { pointer-events: auto; }
+.kg-ctl { font: inherit; font-size: 12px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; }
+.kg-ctl[aria-expanded=true] { border-color: var(--accent); color: var(--accent); }
+.kg-badge { font-size: 11.5px; padding: 3px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-variant-numeric: tabular-nums; }
+.kg-adv { margin-left: auto; display: inline-flex; gap: 6px; }
+.kg-ic { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: 14px; line-height: 1; cursor: pointer; padding: 0; }
+.kg-ic:hover, .kg-ctl:hover { background: var(--surface2); }
+.kg-tray { position: absolute; top: 44px; left: 8px; z-index: 3; width: min(420px, calc(100% - 16px)); max-height: calc(100% - 90px); overflow: auto; display: grid; gap: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.16); font-size: 12px; }
+.kg-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.kg-lab { color: var(--muted); min-width: 66px; font-size: 11.5px; }
+.kg-chip { font: inherit; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+.kg-chip[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.kg-chip[aria-pressed=false] { opacity: .75; }
+.kg-tray input[type=search] { flex: 1; min-width: 120px; font: inherit; font-size: 12px; }
+.kg-status { color: var(--muted); font-size: 11.5px; }
+.kg-legend { gap: 4px 12px; }
+.kg-leg { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; }
+.kg-leg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.kg-settings { position: absolute; top: 0; right: 0; bottom: 0; z-index: 4; width: min(300px, 92%); overflow: auto; padding: 10px 12px; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -8px 0 24px rgba(0,0,0,.14); font-size: 12px; display: grid; align-content: start; gap: 8px; animation: kgslide .18s ease; }
+@keyframes kgslide { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.kg-settings[hidden] { display: none; }
+.kg-sh { display: flex; align-items: center; justify-content: space-between; }
+.kg-settings fieldset { margin: 0; padding: 6px 8px 8px; border: 1px solid var(--border); border-radius: 8px; display: grid; gap: 4px; }
+.kg-settings legend { font-size: 11px; color: var(--muted); padding: 0 4px; }
+.kg-settings input[type=text], .kg-settings select { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; }
+.kg-sl { display: grid; grid-template-columns: 90px 1fr 34px; align-items: center; gap: 6px; }
+.kg-sl input { min-width: 0; }
+.kg-preds { max-height: 180px; overflow: auto; display: grid; gap: 2px; }
+.kg-sf { display: flex; justify-content: flex-end; }
+.kg-tip { position: absolute; z-index: 6; max-width: 280px; padding: 7px 10px; border-radius: 8px; background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0,0,0,.18); font-size: 12px; line-height: 1.4; pointer-events: none; }
+.kg-tip-i { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.kg-tip-m { color: var(--muted); font-size: 11.5px; }
+.kg-tip-d { margin-top: 4px; font-size: 11.5px; }
+.kg-tip-e + .kg-tip-e { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
 .rel-hit { fill: none; stroke: transparent; stroke-width: 14px; pointer-events: stroke; cursor: pointer; }
+.rel-link { fill: none; stroke: #94A3B8; stroke-width: 1.5; stroke-opacity: .5; pointer-events: none; }
+.rel-link.hov { stroke-opacity: .9; stroke-width: 2.25; }
 .rel-link.pick { stroke-width: 4.5; }
-.rel-el text { pointer-events: all; cursor: pointer; }
-.rel-node:focus-visible circle { stroke: var(--accent); stroke-width: 3.5; }
+.rel-link.on { stroke: var(--accent); stroke-width: 3; stroke-opacity: 1; }
+.rel-link.dim { opacity: .12; }
+.rel-el { cursor: pointer; }
+.rel-pill { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
+.rel-el rect, .rel-el text { opacity: .82; transition: opacity .15s ease; }
+.rel-el text { fill: #64748B; font-size: 9.5px; pointer-events: all; }
+.rel-el text.ico { font-size: 11px; }
+.kg-dense .rel-el rect, .kg-dense .rel-el text { opacity: .28; }
+.rel-el.hov rect, .rel-el.hov text, .rel-el.on rect, .rel-el.on text { opacity: 1; }
+.rel-el.on text { fill: var(--accent); font-weight: 700; }
+.rel-el.dim { opacity: .35; }
+.rel-node { cursor: pointer; }
 .rel-node:focus { outline: none; }
+.rel-node circle { stroke: #fff; stroke-width: 2; }
+.rel-node:focus-visible circle { stroke: var(--accent); stroke-width: 3.5; }
+.rel-node.on circle { stroke: var(--accent); stroke-width: 3; }
+.rel-node.match circle { stroke: #facc15; stroke-width: 3.5; }
+.rel-node text { pointer-events: none; }
+.rel-nl { font-size: 10px; fill: var(--text); paint-order: stroke; stroke: var(--surface2); stroke-width: 3px; stroke-linejoin: round; }
+.rel-node.input .rel-nl { font-weight: 700; }
+.rel-ic { fill: #fff; }
+.rel-node.dim { opacity: .14; }
+.rel-hopn circle { fill: var(--accent); }
+.rel-hopn text { fill: var(--on-accent); font-size: 10px; font-weight: 700; }
 .rel-menu { position: fixed; z-index: 70; min-width: 230px; max-width: min(340px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow: auto; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.28); padding: 4px 0; font-size: 13px; }
 .rel-menu:focus { outline: none; }
 .rm-g + .rm-g { border-top: 1px solid var(--border); }
@@ -476,7 +540,6 @@ footer.site a, #about a { color: var(--accent); }
 .rel-add { position: relative; max-width: 640px; }
 .rel-add input[type=search] { width: 100%; box-sizing: border-box; }
 .rel-hits { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); overflow: hidden; }
-.rel-hit { display: block; width: 100%; text-align: left; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
 .rel-hit:last-child { border-bottom: 0; }
 .rel-hit:hover, .rel-hit.sel { background: var(--surface2); }
 .rel-hit[disabled] { opacity: .55; cursor: default; }
@@ -486,33 +549,13 @@ footer.site a, #about a { color: var(--accent); }
 .rel-tray { display: flex; flex-wrap: wrap; gap: 8px; }
 .rel-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; }
 .rel-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
-.rel-c0 { --c: #1f77b4; } .rel-c1 { --c: #d62728; } .rel-c2 { --c: #2ca02c; } .rel-c3 { --c: #ff7f0e; } .rel-c4 { --c: #9467bd; }
+.rel-c0 { --c: #2563eb; } .rel-c1 { --c: #dc2626; } .rel-c2 { --c: #7c3aed; } .rel-c3 { --c: #db2777; } .rel-c4 { --c: #ca8a04; }
 .rel-opts { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 13px; }
 .rel-opts input[type=range] { vertical-align: middle; width: 130px; }
 .rel-run { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .rel-main { display: grid; gap: 12px; }
 .rel-graphbox { position: relative; height: min(76vh, 680px); min-height: 420px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); overflow: hidden; }
 .rel-graphbox:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.rel-svg { width: 100%; height: 100%; display: block; cursor: grab; }
-.rel-tools { position: absolute; top: 8px; left: 8px; right: 8px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 12px; width: fit-content; max-width: calc(100% - 16px); }
-.rel-hint { position: absolute; left: 10px; right: 10px; bottom: 6px; font-size: 11px; color: var(--muted); pointer-events: none; }
-.rel-node { cursor: pointer; }
-.rel-node circle { fill: var(--surface); stroke: var(--muted); stroke-width: 1.6; }
-.rel-node.input circle { fill: var(--c); stroke: var(--surface); stroke-width: 2.5; }
-.rel-node text, .rel-el text { paint-order: stroke; stroke: var(--surface2); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
-.rel-node text { font-size: 11px; fill: var(--text); }
-.rel-node.input text { font-weight: 700; }
-.rel-el text { font-size: 10px; fill: var(--muted); }
-.rel-link { fill: none; stroke: var(--muted); stroke-width: 1.3; opacity: .85; }
-.rel-arr { fill: var(--muted); } .rel-arr-on { fill: var(--accent); }
-.rel-svg.nolabels .rel-el, .rel-svg.nolabels .rel-node:not(.input) text { display: none; }
-.rel-svg.many .rel-el:not(.on) { display: none; }   /* a dense graph shows link names only on what is outlined */
-.rel-node.dim, .rel-link.dim, .rel-el.dim { opacity: .12; }
-.rel-link.on { stroke: var(--accent); stroke-width: 3; opacity: 1; }
-.rel-node.on circle { stroke: var(--accent); stroke-width: 3; }
-.rel-el.on text { fill: var(--accent); font-weight: 700; font-size: 11px; }
-.rel-hopn circle { fill: var(--accent); }
-.rel-hopn text { fill: var(--on-accent); font-size: 10px; font-weight: 700; stroke: none; }
 .rel-side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 14px; align-items: start; font-size: 13px; }
 @media (max-width: 760px) { .rel-side { grid-template-columns: 1fr; } }
 .rel-side h4 { margin: 0 0 6px; font-size: 13px; }
@@ -3523,7 +3566,7 @@ async function relStart() {
   if (relSt && relSt.ctl) relSt.ctl.abort();
   relPos = new Map(); relView = null;
   const st = relSt = { key: relKey(c), cfg: c, paths: new Map(), nodes: new Set(), nextId: 1, ctl: new AbortController(), jobs: relJobs(c), done: 0, fail: 0, firstErr: '',
-    partial: 0, capped: false, logged: 0, t0: performance.now(), t1: 0, running: true, hiddenLens: new Set(), hiddenPreds: new Set(), sel: null };
+    partial: 0, capped: false, logged: 0, t0: performance.now(), t1: 0, running: true, hiddenLens: new Set(), hiddenPreds: new Set(), hiddenGroups: new Set(), hiddenKinds: new Set(), sel: null };
   if (!c.run) relSet({ run: 1 });
   wantLabels(c.inputs);
   relDraw(); relStatus();
@@ -3548,7 +3591,7 @@ function relStatus() {
     (st.capped ? ' · limited to ' + REL_CAP_PATHS + ' paths / ' + REL_CAP_NODES + ' resources' : '');
   if (stop) stop.hidden = !st.running; if (go) go.hidden = st.running;
 }
-const relVisible = st => [...st.paths.values()].filter(p => !st.hiddenLens.has(p.hops.length) && p.hops.every(h => !st.hiddenPreds.has(h.p)));
+const relVisible = st => [...st.paths.values()].filter(p => !st.hiddenLens.has(p.hops.length) && p.hops.every(h => !st.hiddenPreds.has(h.p)) && p.nodes.every(n => !relHidden(st, n)));
 const relTripleKey = t => t.s + '\u0001' + t.p + '\u0001' + t.o;
 
 /* ---- the tab ---- */
@@ -3681,8 +3724,11 @@ async function relDraw() {
   });
   st.cfg.inputs.forEach(n => { if (!nodes.has(n)) nodes.set(n, { id: n, input: st.cfg.inputs.indexOf(n) }); });
   wantLabels([...nodes.keys(), ...new Set([...edges.values()].map(e => e.p))]);
+  const deg = new Map(); edges.forEach(e => { deg.set(e.s, (deg.get(e.s) || 0) + 1); deg.set(e.o, (deg.get(e.o) || 0) + 1); });
+  nodes.forEach(n => { n.deg = deg.get(n.id) || 0; const k = relKinds.get(n.id); n.kind = k ? k.kind : 'resource'; n.cls = !!(k && k.cls); });
   relG.set([...nodes.values()], [...edges.values()]);
   relG.select(relSelection());
+  relFetchKinds([...nodes.keys()]).then(changed => { if (changed && relG && relG.box === box && relSt === st) relDraw(); });   // types arrive later: colour, icons, filters
 }
 // What the current selection outlines: the nodes and edges of the chosen paths (a node selects every path through it).
 function relSelection() {
@@ -3708,7 +3754,7 @@ function relOpenMenu(terms, x, y) {
     return '<div class="rm-g" role="group" aria-label="' + esc(t.role) + '"><div class="rm-h"><span class="rm-role">' + esc(t.role) + '</span><span class="rm-name" data-lbl="' + esc(t.iri) + '">' + esc(labelOf(t.iri)) + '</span></div>' +
       btn('describe', t.iri, 'Describe') +
       (isP ? btn('relBrowse', t.iri, '⇢ Browse things with this link') : btn('explore', t.iri, '⇢ Start a trail here') + btn('relate', t.iri, added ? '⇄ Already an input' : '⇄ Add as input', added ? ' disabled' : '')) +
-      '<a class="rm-i" role="menuitem" href="' + esc(t.iri) + '" target="_blank" rel="noopener noreferrer">↗ Open IRI</a></div>';
+      '<a class="rm-i" role="menuitem" href="' + esc(relResolve(t.iri)) + '" target="_blank" rel="noopener noreferrer">↗ Open IRI' + (relPref.resolver === 'none' ? '' : ' in resolver') + '</a></div>';
   }).join('');
   document.body.appendChild(m);
   const r = m.getBoundingClientRect();
@@ -3742,72 +3788,143 @@ document.addEventListener('keydown', ev => {
 });
 function relRepaint() { if (relG) relG.labels(); }
 
+/* ---- the graph: the KG Explorer's look and controls (rdf-infographic-skill, KG Explorer contract) ----
+   Node colours Class #ea580c / Instance #059669 (inputs get a colour of their own), thin #94A3B8 links at half opacity
+   with a wide invisible hit line, directed arrowheads only, labels below the circles with a halo, edge labels that are
+   never hidden (they dim in a busy graph and come back on hover), a controls tray that starts closed behind a compact
+   Controls button with a node/link badge, Basic and Advanced modes (Advanced: node-type icons, full screen, centre,
+   settings panel with physics sliders, predicate display Icons/Labels, arrow style, resolver, edge and node filters),
+   and zoom that only activates once the reader clicks into the graph. */
+const REL_PREF_DEFAULT = { mode: 'basic', charge: -620, dist: 150, physics: true, pred: 'icons', arrow: 'directed', resolver: 'none', custom: '' };
+let relPref = Object.assign({}, REL_PREF_DEFAULT, load('fct.rel') || {});
+const relPrefSave = () => save('fct.rel', relPref);
+const REL_COLORS = { Class: '#ea580c', Instance: '#059669', edge: '#94A3B8', label: '#64748B' };
+const REL_INPUT_COLORS = ['#2563eb', '#dc2626', '#7c3aed', '#db2777', '#ca8a04'];
+const REL_KINDS = { person: { icon: '👤', name: 'Person' }, organization: { icon: '🏢', name: 'Organization' }, place: { icon: '📍', name: 'Place' },
+  event: { icon: '📅', name: 'Event' }, concept: { icon: '💭', name: 'Concept' }, resource: { icon: '🔗', name: 'Resource' } };
+// What kind of thing a node is, from its rdf:type values (looked up once per node, a chunk at a time).
+const relKinds = new Map();   // IRI -> { kind, cls }
+function relKindFromTypes(types) {
+  const loc = t => decodeURIComponent(t.replace(/[#/]+$/, '').split(/[#/]/).pop() || '').toLowerCase();
+  const ls = types.map(loc);
+  const any = re => ls.some(l => re.test(l));
+  const cls = types.some(t => /#(Class|ObjectProperty)$/.test(t) && /(owl|rdf-schema)/.test(t));
+  const kind = any(/^(person|human|people|q5)$|person$|^wikicat.*people/) ? 'person'
+    : any(/organi[sz]ation|company|corporation|institution|university|business|^q(43229|4830453|3918|783794)$/) ? 'organization'
+    : any(/^place$|location|^city$|^country$|settlement|populatedplace|spatialthing|^region$|^q(618123|515|6256)$/) ? 'place'
+    : any(/event|^q1656682$/) ? 'event'
+    : any(/concept|category|^q151885$/) ? 'concept' : 'resource';
+  return { kind, cls };
+}
+async function relFetchKinds(iris) {
+  const todo = iris.filter(i => !relKinds.has(i));
+  if (!todo.length) return false;
+  todo.forEach(i => relKinds.set(i, { kind: 'resource', cls: false, pending: true }));
+  let changed = false;
+  for (let i = 0; i < todo.length; i += 40) {
+    const chunk = todo.slice(i, i + 40), by = new Map();
+    try {
+      const rs = rows(await sparql(sel('?x ?t', '  VALUES ?x { ' + chunk.map(iriRef).join(' ') + ' }\n  ?x ' + iriRef(typeProp()) + ' ?t .', 'LIMIT 3000'), { quiet: true }));
+      rs.forEach(r => { if (r.t && r.t.type === 'uri') (by.get(r.x.value) || by.set(r.x.value, []).get(r.x.value)).push(r.t.value); });
+    } catch { /* leave them as plain resources */ }
+    chunk.forEach(x => { const k = relKindFromTypes(by.get(x) || []); relKinds.set(x, k); if (k.kind !== 'resource' || k.cls) changed = true; });
+  }
+  return changed;
+}
+// An icon for a link, from words in its name (the contract names only the Icons/Labels switch; this mapping is ours).
+const REL_PRED_ICONS = [[/^type$|instanceof|^kind$/, '🏷'], [/subclass|broader|narrower|subproperty/, '⊂'], [/sameas|equivalent|exactmatch|^same/, '＝'],
+  [/spouse|married|partner/, '💍'], [/advisor|student|educat|almamater|school|universit|alumn|doctoral/, '🎓'], [/child|parent|father|mother|sibling|relative|family|sister|brother|son$|daughter/, '👪'],
+  [/birth|death|place|location|city|country|region|born|resid|nationality|capital|headquarter/, '📍'], [/employer|work|affiliat|member|organi[sz]ation|institution|founder|company|party|office|position|occupation/, '🏢'],
+  [/author|creator|writer|wrote|publish|artist|director|composer|producer|editor/, '✍'], [/award|prize|winner|honou?r|nominat/, '🏆'], [/field|discipline|subject|topic|genre|about|knownfor|influence/, '📚'],
+  [/manufactur|industry|product|brand|subsidiar|owner|owns|parentcompany|designer|engine|model/, '🏭'], [/date|year|time|period|era/, '📅'], [/part|contain|includes|consist|member/, '🧩']];
+function relPredIcon(p) {
+  const l = decodeURIComponent(p.replace(/[#/]+$/, '').split(/[#/]/).pop() || '').replace(/[_\-\s]/g, '').toLowerCase();
+  const hit = REL_PRED_ICONS.find(([re]) => re.test(l));
+  return hit ? hit[1] : '🔗';
+}
+const relResolve = iri => relPref.resolver === 'uriburner' ? 'https://linkeddata.uriburner.com/describe/?url=' + encodeURIComponent(iri)
+  : relPref.resolver === 'custom' && /\{(uri|url)\}/.test(relPref.custom) ? relPref.custom.replace(/\{(uri|url)\}/g, encodeURIComponent(iri)) : iri;
+// A node is hidden when its group (class / instance) or its kind (person, place, …) is switched off; inputs never are.
+function relHidden(st, n) {
+  if (st.cfg.inputs.includes(n)) return false;
+  const k = relKinds.get(n);
+  return st.hiddenGroups.has(k && k.cls ? 'class' : 'instance') || st.hiddenKinds.has(k ? k.kind : 'resource');
+}
+
 function relMakeGraph(d3, box) {
   const NS_SVG = 'http://www.w3.org/2000/svg';
-  box.insertAdjacentHTML('beforeend', '<div class="rel-tools"><button class="mini" data-act="relFit">Fit</button><button class="mini" data-act="relLayout" title="Release every pinned resource and lay the graph out again">Re-layout</button>' +
-    '<label class="check"><input type="checkbox" id="relLabels" data-rel-view="labels" checked> Labels</label><label class="check"><input type="checkbox" id="relGroup" data-rel-view="group"> Group parallel links</label>' +
-    '<button class="mini" data-act="relPng">PNG</button><button class="mini" data-act="relTriples" title="Download the links shown as Turtle">Triples</button></div>' +
-    '<div class="rel-hint">Click or right-click a resource or a link for its menu (describe, start a trail, add as input) and to outline its paths; or pick a path in the list. Drag to pin; double-click or press P to release. Esc clears.</div>');
+  box.innerHTML =
+    '<div class="kg-head"><button type="button" class="kg-ctl" id="kgCtl" aria-expanded="false" aria-controls="kgToolbar">Controls</button><span class="kg-badge" id="kgBadge"></span>' +
+    '<span class="kg-adv" data-advanced-control hidden><button type="button" class="kg-ic" id="kgFull" title="Full screen" aria-label="Full screen">⤢</button><button type="button" class="kg-ic" id="kgCenter" title="Center graph" aria-label="Center graph">◎</button>' +
+    '<button type="button" class="kg-ic" id="kgGear" title="Settings" aria-label="Settings" aria-expanded="false" aria-controls="kgSettings">⚙</button></span></div>' +
+    '<div class="kg-tray" id="kgToolbar" hidden></div>' +
+    '<aside class="kg-settings" id="kgSettings" hidden aria-label="Graph settings"></aside>' +
+    '<div class="kg-tip" id="kgTip" role="tooltip" hidden></div><div class="kg-zoomhint" id="kgZoomHint" hidden>Click outside to release zoom</div>' +
+    '<div class="rel-hint">Click or right-click a resource or a link for its menu (describe, start a trail, add as input) and to outline its paths; or pick a path in the list. Drag to pin; double-click or press P to release. Esc clears.</div>';
+  const $ = id => box.querySelector('#' + id);
   const svg = d3.select(box).append('svg').attr('class', 'rel-svg').attr('role', 'img').attr('aria-label', 'Graph of the relationships found');
   const defs = svg.append('defs');
-  ['rel-arr', 'rel-arr-on'].forEach(id => defs.append('marker').attr('id', id).attr('viewBox', '0 -5 10 10').attr('refX', 9).attr('refY', 0).attr('markerWidth', 7).attr('markerHeight', 7).attr('orient', 'auto')
-    .append('path').attr('d', 'M0,-4L10,0L0,4Z').attr('class', id));
+  [['rel-arr', REL_COLORS.edge], ['rel-arr-on', 'var(--accent)']].forEach(([id, c]) => defs.append('marker').attr('id', id).attr('viewBox', '0 -5 10 10').attr('refX', 9).attr('refY', 0).attr('markerWidth', 7).attr('markerHeight', 7).attr('orient', 'auto')
+    .append('path').attr('d', 'M0,-4L10,0L0,4Z').attr('fill', c).attr('class', id));
   const root = svg.append('g'), gL = root.append('g'), gE = root.append('g'), gN = root.append('g'), gH = root.append('g');
-  let userMoved = false;   // once the reader pans or zooms, the graph stops re-fitting itself
-  const zoom = d3.zoom().scaleExtent([0.12, 4]).on('zoom', e => { if (e.sourceEvent) userMoved = true; relView = e.transform; root.attr('transform', e.transform); });
-  svg.call(zoom).on('dblclick.zoom', null).on('click', ev => { if (ev.target === svg.node()) relSelect(null); });
   const W = () => box.clientWidth || 700, H = () => box.clientHeight || 520;
-  const sim = d3.forceSimulation().force('link', d3.forceLink().id(d => d.id).distance(150).strength(0.5)).force('charge', d3.forceManyBody().strength(-620))
-    .force('collide', d3.forceCollide(d => d.r + 26)).force('x', d3.forceX(W() / 2).strength(0.05)).force('y', d3.forceY(H() / 2).strength(0.07)).alphaDecay(0.045);
-  const byId = new Map();   // node objects live across updates, so positions and pins survive
-  let ns = [], es = [], links = [], showLabels = true, group = false, sel = null, fitted = false;
-  const short = s => (s.length > 30 ? s.slice(0, 29) + '…' : s);
+  const size = () => svg.attr('width', W()).attr('height', H()).attr('viewBox', '0 0 ' + W() + ' ' + H());
+  size();
+  let userMoved = false, ns = [], es = [], links = [], group = false, sel = null, fitted = false, search = '', zoomOn = false;
+  // Zoom is not attached at render time: it switches on when the reader clicks into the graph and off when they click elsewhere.
+  const zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', e => { if (e.sourceEvent) userMoved = true; relView = e.transform; root.attr('transform', e.transform); });
+  const zoomOnNow = () => { if (zoomOn) return; zoomOn = true; svg.call(zoom).on('dblclick.zoom', null); box.classList.add('kg-active'); const h = $('kgZoomHint'); h.hidden = false; setTimeout(() => { h.hidden = true; }, 2600); };
+  const zoomOffNow = () => { if (!zoomOn) return; zoomOn = false; svg.on('.zoom', null); box.classList.remove('kg-active'); $('kgZoomHint').hidden = true; };
+  svg.on('click', ev => { zoomOnNow(); if (ev.target === svg.node()) relSelect(null); });
+  document.addEventListener('click', ev => { if (!document.body.contains(box)) return; if (!box.contains(ev.target)) zoomOffNow(); });
+  const sim = d3.forceSimulation().force('link', d3.forceLink().id(d => d.id).distance(relPref.dist).strength(0.55)).force('charge', d3.forceManyBody().strength(relPref.charge))
+    .force('collide', d3.forceCollide(d => d.r + 24)).force('x', d3.forceX(W() / 2).strength(0.05)).force('y', d3.forceY(H() / 2).strength(0.07)).alphaDecay(0.045);
+  const byId = new Map();
+  const short = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
   const plain = iri => { const d = display(iri); if (d.kind !== 'raw') return d.text; let l = iri.replace(/[#/]+$/, '').split(/[#/]/).pop(); try { l = decodeURIComponent(l); } catch { /* keep */ } return l || iri; };
-  const nodeText = d => short(plain(d.id)), edgeText = e => (e.n > 1 ? e.n + ' links' : short(plain(e.list[0].p)));
+  const nodeFill = d => (d.input >= 0 ? REL_INPUT_COLORS[d.input % 5] : d.cls ? REL_COLORS.Class : REL_COLORS.Instance);
+  const nodeR = d => (d.input >= 0 ? 14 : 7 + Math.min(7, Math.round(Math.sqrt(d.deg || 1) * 2.2)));
+  const advanced = () => relPref.mode === 'advanced';
+  const iconsMode = () => relPref.pred === 'icons';
+  const edgeText = l => (iconsMode() ? (l.n > 1 ? '×' + l.n : relPredIcon(l.list[0].p)) : (l.n > 1 ? l.n + ' links' : short(plain(l.list[0].p), 26)));
+
+  /* ---- data to drawn lines ---- */
   function build() {
-    const m = new Map();
-    es.forEach(e => { const k = e.s < e.o ? e.s + '\u0001' + e.o : e.o + '\u0001' + e.s; (m.get(k) || m.set(k, []).get(k)).push(e); });
-    links = [];
-    m.forEach(list => {
-      if (group) { const first = list[0]; links.push({ id: list.map(x => x.key).join('|'), source: first.s, target: first.o, list, n: list.length, idx: 0, of: 1, both: list.some(x => x.s !== first.s) }); }
-      else list.forEach((e, i) => links.push({ id: e.key, source: e.s, target: e.o, list: [e], n: 1, idx: i, of: list.length, both: false }));
-    });
+    // Only same-direction links between the same two resources merge ("Group parallel links"); an arrow never points both ways.
+    const dir = new Map();
+    es.forEach(e => { const k = e.s + '\u0001' + e.o; (dir.get(k) || dir.set(k, []).get(k)).push(e); });
+    const items = [];
+    dir.forEach(list => { if (group && list.length > 1) items.push({ source: list[0].s, target: list[0].o, list, n: list.length }); else list.forEach(e => items.push({ source: e.s, target: e.o, list: [e], n: 1 })); });
+    const pair = new Map();
+    items.forEach(l => { const k = l.source < l.target ? l.source + '\u0001' + l.target : l.target + '\u0001' + l.source; (pair.get(k) || pair.set(k, []).get(k)).push(l); });
+    pair.forEach(list => list.forEach((l, i) => { l.idx = i; l.of = list.length; l.id = l.list.map(x => x.key).join('|'); }));
+    links = items;
   }
-  function draw() {
-    const hit = gL.selectAll('path.rel-hit').data(links, d => d.id);
-    hit.exit().remove();
-    hit.enter().append('path').attr('class', 'rel-hit').on('click', (ev, d) => edgeAct(ev, d)).on('contextmenu', (ev, d) => edgeAct(ev, d, true)).merge(hit);
-    const lk = gL.selectAll('path.rel-link').data(links, d => d.id);
-    lk.exit().remove();
-    lk.enter().append('path').attr('class', 'rel-link').merge(lk).attr('marker-end', d => (d.both ? null : 'url(#rel-arr)')).attr('marker-start', d => (d.both ? 'url(#rel-arr)' : null));
-    const el = gE.selectAll('g.rel-el').data(links, d => d.id);
-    el.exit().remove();
-    const ee = el.enter().append('g').attr('class', 'rel-el').on('click', (ev, d) => edgeAct(ev, d)).on('contextmenu', (ev, d) => edgeAct(ev, d, true)); ee.append('text').attr('text-anchor', 'middle');
-    ee.merge(el).attr('data-from', d => d.source.id || d.source).attr('data-to', d => d.target.id || d.target).select('text').text(edgeText);
-    ee.append('title').text(d => d.list.map(x => labelOf(x.s) + ' — ' + labelOf(x.p) + ' → ' + labelOf(x.o)).join('\n'));
-    const nd = gN.selectAll('g.rel-node').data(ns, d => d.id);
-    nd.exit().remove();
-    const ne = nd.enter().append('g').attr('class', 'rel-node').call(d3.drag().clickDistance(4)
-      .on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(0.25).restart(); d.fx = d.x; d.fy = d.y; })
-      .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
-      .on('end', (ev, d) => { if (!ev.active) sim.alphaTarget(0); savePos(); }))
-      .on('click', (ev, d) => { ev.stopPropagation(); nodeAct(ev, d); })
-      .on('contextmenu', (ev, d) => { ev.preventDefault(); ev.stopPropagation(); nodeAct(ev, d, true); })
-      .on('keydown', (ev, d) => {
-        if (ev.key === ' ') ev.preventDefault();   // Space opens the menu on key release, so that releasing it does not press the first item
-        else if (ev.key === 'Enter' || ev.key === 'ContextMenu') { ev.preventDefault(); const b = ev.currentTarget.getBoundingClientRect(); nodeAct({ clientX: b.right, clientY: b.top }, d, true); }
-      })
-      .on('keyup', (ev, d) => { if (ev.key === ' ') { ev.preventDefault(); const b = ev.currentTarget.getBoundingClientRect(); nodeAct({ clientX: b.right, clientY: b.top }, d, true); } })
-      .on('dblclick', (ev, d) => { ev.stopPropagation(); d.fx = d.fy = null; sim.alpha(0.3).restart(); });
-    ne.attr('tabindex', 0).attr('role', 'button').attr('aria-haspopup', 'menu');
-    ne.append('circle'); ne.append('text').attr('class', 'rel-nl').attr('text-anchor', 'middle'); ne.append('title');
-    ne.merge(nd).attr('class', d => 'rel-node' + (d.input >= 0 ? ' input rel-c' + (d.input % 5) : '')).select('circle').attr('r', d => d.r);
-    ne.merge(nd).select('text').attr('y', d => d.r + 13).text(nodeText);
-    ne.merge(nd).select('title').text(d => plain(d.id) + '\n' + d.id);
-    applySel(); showHideLabels();
+  const tickPath = l => {
+    const a = l.source, b = l.target; if (a.x == null || b.x == null) return '';
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, sign = (a.id <= b.id ? 1 : -1), off = l.of > 1 ? (l.idx - (l.of - 1) / 2) * 36 * sign : 0;
+    const cx = (a.x + b.x) / 2 - dy / len * off, cy = (a.y + b.y) / 2 + dx / len * off;
+    const trim = (p, q, r) => { const vx = q.x - p.x, vy = q.y - p.y, v = Math.hypot(vx, vy) || 1; return [p.x + vx / v * r, p.y + vy / v * r]; };
+    const s = trim(a, { x: cx, y: cy }, a.r + 1), e = trim(b, { x: cx, y: cy }, b.r + (relPref.arrow === 'hidden' ? 2 : 6));
+    l.mid = [0.25 * s[0] + 0.5 * cx + 0.25 * e[0], 0.25 * s[1] + 0.5 * cy + 0.25 * e[1]];
+    return 'M' + s[0] + ',' + s[1] + 'Q' + cx + ',' + cy + ' ' + e[0] + ',' + e[1];
+  };
+  const tipNode = $('kgTip');
+  function tip(html, ev) {
+    tipNode.innerHTML = html; tipNode.hidden = false;
+    const r = box.getBoundingClientRect(), x = ev.clientX - r.left + 14, y = ev.clientY - r.top + 14;
+    tipNode.style.left = Math.max(4, Math.min(x, r.width - tipNode.offsetWidth - 4)) + 'px'; tipNode.style.top = Math.max(4, Math.min(y, r.height - tipNode.offsetHeight - 4)) + 'px';
   }
-  const rad = d => d.input >= 0 ? 13 : 8;
-  // Selecting a resource or a link outlines its paths and opens a menu at the pointer (a second click, or Esc, closes it).
+  const hideTip = () => { tipNode.hidden = true; };
+  const descOf = iri => { const c = cards.get(iri); return c && c.desc ? '<div class="kg-tip-d">' + esc(c.desc.length > 220 ? c.desc.slice(0, 219) + '…' : c.desc) + '</div>' : ''; };
+  const nodeTip = (ev, d) => {
+    fetchCards([d.id]).then(() => { if (!tipNode.hidden) tip(nodeTipHtml(d), ev); }).catch(() => {});
+    tip(nodeTipHtml(d), ev);
+  };
+  const nodeTipHtml = d => { const k = relKinds.get(d.id), kn = REL_KINDS[k ? k.kind : 'resource']; return '<b>' + esc(plain(d.id)) + '</b><div class="kg-tip-i">' + esc(curie(d.id) || d.id) + '</div><div class="kg-tip-m">' + kn.icon + ' ' + kn.name + (k && k.cls ? ' · class' : '') + ' · ' + (d.deg || 0) + ' link' + (d.deg === 1 ? '' : 's') + '</div>' + descOf(d.id); };
+  const edgeTipHtml = l => l.list.map(x => '<div class="kg-tip-e"><b>' + esc(plain(x.p)) + '</b> <span class="kg-tip-i">' + esc(curie(x.p) || x.p) + '</span><div class="kg-tip-m">' + esc(plain(x.s)) + ' → ' + esc(plain(x.o)) + '</div>' + descOf(x.p) + '</div>').join('');
+  const edgeTip = (ev, l) => { l.list.forEach(x => fetchCards([x.p]).then(() => { if (!tipNode.hidden) tip(edgeTipHtml(l), ev); }).catch(() => {})); tip(edgeTipHtml(l), ev); };
+  const hov = (l, on) => { gL.selectAll('path.rel-link').filter(d => d === l).classed('hov', on); gE.selectAll('g.rel-el').filter(d => d === l).classed('hov', on); };
   function nodeAct(ev, d, always) {
     const s = relSt && relSt.sel, same = s && s.type === 'node' && s.id === d.id;
     if (same && !always) { relSelect(null); return; }
@@ -3819,37 +3936,79 @@ function relMakeGraph(d3, box) {
     if (same && !always) { relSelect(null); return; }
     relSelect({ type: 'edge', keys }); relOpenMenu(relLinkTerms(l), ev.clientX + 6, ev.clientY + 6);
   }
-  function pathD(l) {
-    const a = l.source, b = l.target; if (a.x == null || b.x == null) return '';
-    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, off = l.of > 1 ? (l.idx - (l.of - 1) / 2) * 34 : 0;
-    const cx = (a.x + b.x) / 2 - dy / len * off, cy = (a.y + b.y) / 2 + dx / len * off;
-    const trim = (p, q, r) => { const vx = q.x - p.x, vy = q.y - p.y, v = Math.hypot(vx, vy) || 1; return [p.x + vx / v * r, p.y + vy / v * r]; };
-    const s = trim(a, { x: cx, y: cy }, a.r + (l.both ? 6 : 1)), e = trim(b, { x: cx, y: cy }, b.r + 6);
-    l.mid = [0.25 * s[0] + 0.5 * cx + 0.25 * e[0], 0.25 * s[1] + 0.5 * cy + 0.25 * e[1]];
-    return 'M' + s[0] + ',' + s[1] + 'Q' + cx + ',' + cy + ' ' + e[0] + ',' + e[1];
+  function draw() {
+    box.classList.toggle('kg-dense', links.length > 90);
+    gL.selectAll('path.rel-hit').data(links, d => d.id).join(en => en.append('path').attr('class', 'rel-hit')
+      .on('click', (ev, d) => edgeAct(ev, d)).on('contextmenu', (ev, d) => edgeAct(ev, d, true))
+      .on('mouseenter', (ev, d) => { hov(d, true); edgeTip(ev, d); }).on('mousemove', (ev, d) => tip(edgeTipHtml(d), ev)).on('mouseleave', (ev, d) => { hov(d, false); hideTip(); }));
+    gL.selectAll('path.rel-link').data(links, d => d.id).join(en => en.append('path').attr('class', 'rel-link'))
+      .attr('marker-end', d => (relPref.arrow === 'hidden' ? null : 'url(#rel-arr)'));
+    const el = gE.selectAll('g.rel-el').data(links, d => d.id).join(en => {
+      const g = en.append('g').attr('class', 'rel-el').attr('data-from', d => d.source.id || d.source).attr('data-to', d => d.target.id || d.target)
+        .on('click', (ev, d) => edgeAct(ev, d)).on('contextmenu', (ev, d) => edgeAct(ev, d, true))
+        .on('mouseenter', (ev, d) => { hov(d, true); edgeTip(ev, d); }).on('mousemove', (ev, d) => tip(edgeTipHtml(d), ev)).on('mouseleave', (ev, d) => { hov(d, false); hideTip(); });
+      g.append('rect').attr('class', 'rel-pill'); g.append('text').attr('text-anchor', 'middle').attr('dy', '0.35em');
+      return g;
+    });
+    gN.selectAll('g.rel-node').data(ns, d => d.id).join(en => {
+      const g = en.append('g').attr('class', 'rel-node').attr('tabindex', 0).attr('role', 'button').attr('aria-haspopup', 'menu')
+        .call(d3.drag().clickDistance(4)
+          .on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(0.25).restart(); d.fx = d.x; d.fy = d.y; hideTip(); })
+          .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
+          .on('end', (ev, d) => { if (!ev.active) sim.alphaTarget(0); savePos(); }))
+        .on('click', (ev, d) => { ev.stopPropagation(); zoomOnNow(); nodeAct(ev, d); })
+        .on('contextmenu', (ev, d) => { ev.preventDefault(); ev.stopPropagation(); nodeAct(ev, d, true); })
+        .on('keydown', (ev, d) => {
+          if (ev.key === ' ') ev.preventDefault();   // Space opens the menu on key release, so that releasing it does not press the first item
+          else if (ev.key === 'Enter' || ev.key === 'ContextMenu') { ev.preventDefault(); const b = ev.currentTarget.getBoundingClientRect(); nodeAct({ clientX: b.right, clientY: b.top }, d, true); }
+        })
+        .on('keyup', (ev, d) => { if (ev.key === ' ') { ev.preventDefault(); const b = ev.currentTarget.getBoundingClientRect(); nodeAct({ clientX: b.right, clientY: b.top }, d, true); } })
+        .on('dblclick', (ev, d) => { ev.stopPropagation(); d.fx = d.fy = null; sim.alpha(0.3).restart(); })
+        .on('mouseenter', (ev, d) => nodeTip(ev, d)).on('mousemove', (ev, d) => tip(nodeTipHtml(d), ev)).on('mouseleave', hideTip);
+      g.append('circle'); g.append('text').attr('class', 'rel-ic').attr('text-anchor', 'middle').attr('dy', '0.35em'); g.append('text').attr('class', 'rel-nl').attr('text-anchor', 'middle');
+      return g;
+    });
+    paint();
+  }
+  // Node and edge appearance that depends on data or settings (called after draws, label arrivals and setting changes).
+  function paint() {
+    gN.selectAll('g.rel-node').attr('class', d => 'rel-node' + (d.input >= 0 ? ' input' : '')).each(function (d) {
+      const g = d3.select(this); d.r = nodeR(d);
+      g.select('circle').attr('r', d.r).attr('fill', nodeFill(d));
+      g.select('text.rel-ic').text(advanced() ? REL_KINDS[d.kind || 'resource'].icon : '').attr('font-size', Math.round(d.r * 1.15));
+      g.select('text.rel-nl').attr('y', d.r + 12).text(short(plain(d.id), d.input >= 0 ? 24 : 15));
+      g.attr('aria-label', 'Resource ' + plain(d.id));
+    });
+    gE.selectAll('g.rel-el').each(function (l) {
+      const g = d3.select(this), t = g.select('text').text(edgeText(l)).attr('class', iconsMode() ? 'ico' : 'lab'), b = t.node().getBBox();
+      g.select('rect').attr('x', b.x - 4).attr('y', b.y - 1.5).attr('width', b.width + 8).attr('height', b.height + 3).attr('rx', (b.height + 3) / 2);
+    });
+    gL.selectAll('path.rel-link').attr('marker-end', d => (relPref.arrow === 'hidden' ? null : (sel && d.list.some(x => sel.edges.has(x.key)) ? 'url(#rel-arr-on)' : 'url(#rel-arr)')));
+    gN.selectAll('g.rel-node').classed('match', d => !!search && plain(d.id).toLowerCase().includes(search));
+    applySel();
   }
   sim.on('tick', () => {
-    gL.selectAll('path.rel-link').attr('d', pathD);
-    gL.selectAll('path.rel-hit').attr('d', l => pathD(l));
+    gL.selectAll('path.rel-link').attr('d', tickPath);
+    gL.selectAll('path.rel-hit').attr('d', l => tickPath(l));
     gE.selectAll('g.rel-el').attr('transform', d => 'translate(' + (d.mid ? d.mid[0] : 0) + ',' + (d.mid ? d.mid[1] : 0) + ')');
     gN.selectAll('g.rel-node').attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
-    gH.selectAll('g.rel-hopn').attr('transform', d => { const l = links.find(x => x.list.some(y => y.key === d.key)); return l && l.mid ? 'translate(' + l.mid[0] + ',' + (l.mid[1] - 14) + ')' : 'translate(-99,-99)'; });
+    gH.selectAll('g.rel-hopn').attr('transform', d => { const l = links.find(x => x.list.some(y => y.key === d.key)); return l && l.mid ? 'translate(' + l.mid[0] + ',' + (l.mid[1] - 16) + ')' : 'translate(-99,-99)'; });
     if (!fitted && sim.alpha() < 0.35 && ns.length) { fitted = true; fit(); }
   });
   const savePos = () => ns.forEach(d => relPos.set(d.id, { x: d.x, y: d.y, fx: d.fx, fy: d.fy }));
   sim.on('end', () => { savePos(); if (!userMoved) fit(); });
   function applySel() {
-    const on = sel;
-    gN.selectAll('g.rel-node').classed('dim', d => !!on && !on.nodes.has(d.id)).classed('on', d => !!on && on.nodes.has(d.id));
+    const on = sel, quiet = !!search;
+    gN.selectAll('g.rel-node').classed('dim', d => (!!on && !on.nodes.has(d.id)) || (quiet && !on && !(plain(d.id).toLowerCase().includes(search)))).classed('on', d => !!on && on.nodes.has(d.id));
     const inSel = l => l.list.some(x => on.edges.has(x.key));
-    gL.selectAll('path.rel-link').classed('pick', l => !!on && !!on.pick && l.list.some(x => on.pick.has(x.key))).classed('dim', l => !!on && !inSel(l)).classed('on', l => !!on && inSel(l)).attr('marker-end', l => (l.both ? null : (on && inSel(l) ? 'url(#rel-arr-on)' : 'url(#rel-arr)')));
+    gL.selectAll('path.rel-link').classed('pick', l => !!on && !!on.pick && l.list.some(x => on.pick.has(x.key))).classed('dim', l => !!on && !inSel(l)).classed('on', l => !!on && inSel(l))
+      .attr('marker-end', l => (relPref.arrow === 'hidden' ? null : (on && inSel(l) ? 'url(#rel-arr-on)' : 'url(#rel-arr)')));
     gE.selectAll('g.rel-el').classed('dim', l => !!on && !inSel(l)).classed('on', l => !!on && inSel(l));
     const hn = gH.selectAll('g.rel-hopn').data(on && on.order.length ? on.order : [], d => d.key);
     hn.exit().remove();
     const he = hn.enter().append('g').attr('class', 'rel-hopn'); he.append('circle').attr('r', 9); he.append('text').attr('dy', '0.35em').attr('text-anchor', 'middle').text(d => d.n);
     sim.alpha(Math.max(sim.alpha(), 0.02)).restart();
   }
-  function showHideLabels() { svg.classed('nolabels', !showLabels).classed('many', links.length > 40); }
   function fit() {
     if (!ns.length) return;
     const xs = ns.map(d => d.x), ys = ns.map(d => d.y), x0 = Math.min(...xs) - 95, x1 = Math.max(...xs) + 95, y0 = Math.min(...ys) - 50, y1 = Math.max(...ys) + 70;   // labels extend past the circles
@@ -3857,34 +4016,102 @@ function relMakeGraph(d3, box) {
     svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
   }
   const refit = () => { userMoved = false; fit(); };
-  box.addEventListener('change', ev => {
-    const t = ev.target; if (!t.dataset.relView) return;
-    if (t.dataset.relView === 'labels') { showLabels = t.checked; showHideLabels(); } else if (t.dataset.relView === 'group') { group = t.checked; build(); sim.force('link').links(links); draw(); sim.alpha(0.2).restart(); }
+
+  /* ---- controls: tray (closed by default), modes, settings panel ---- */
+  const chip = (attr, val, on, text, extra) => '<button type="button" class="kg-chip" ' + attr + '="' + val + '" aria-pressed="' + on + '"' + (extra || '') + '>' + text + '</button>';
+  function chrome() {
+    const st = relSt, groups = ['class', 'instance'], hiddenG = st ? st.hiddenGroups : new Set(), hiddenK = st ? st.hiddenKinds : new Set();
+    const nodes = ns.length, nlinks = links.reduce((a, l) => a + l.n, 0);
+    $('kgBadge').textContent = nodes + ' node' + (nodes === 1 ? '' : 's') + ' · ' + nlinks + ' link' + (nlinks === 1 ? '' : 's');
+    const off = [...hiddenG].map(x => (x === 'class' ? 'classes' : 'instances')).concat([...hiddenK].map(k => REL_KINDS[k].name.toLowerCase()));
+    const status = (advanced() ? 'Advanced' : 'Basic') + ' mode · filters: ' + (off.length ? 'hiding ' + off.join(', ') : 'all') + ' · ' + nodes + ' nodes · ' + nlinks + ' links';
+    const legend = (st ? st.cfg.inputs : []).map((iri, i) => '<span class="kg-leg"><i style="background:' + REL_INPUT_COLORS[i % 5] + '"></i>' + esc(short(plain(iri), 22)) + '</span>').join('') +
+      '<span class="kg-leg"><i style="background:' + REL_COLORS.Class + '"></i>Class</span><span class="kg-leg"><i style="background:' + REL_COLORS.Instance + '"></i>Instance</span>';
+    $('kgToolbar').innerHTML =
+      '<div class="kg-row"><span class="kg-lab">Mode</span>' + chip('data-kg-mode', 'basic', !advanced(), 'Basic') + chip('data-kg-mode', 'advanced', advanced(), 'Advanced') + '</div>' +
+      '<div class="kg-row"><span class="kg-lab">Show</span>' + chip('data-kg-group', 'class', !hiddenG.has('class'), 'Classes') + chip('data-kg-group', 'instance', !hiddenG.has('instance'), 'Instances') +
+      Object.keys(REL_KINDS).map(k => chip('data-kg-kind', k, !hiddenK.has(k), REL_KINDS[k].icon + ' ' + REL_KINDS[k].name, ' data-advanced-control' + (advanced() ? '' : ' hidden'))).join('') + '</div>' +
+      '<div class="kg-row"><label class="kg-lab" for="kgSearch">Filter nodes</label><input type="search" id="kgSearch" placeholder="Name contains…" value="' + esc(search) + '" autocomplete="off"></div>' +
+      '<div class="kg-row"><span class="kg-lab">Edge labels</span>' + chip('data-kg-pred', 'icons', iconsMode(), 'Icons') + chip('data-kg-pred', 'labels', !iconsMode(), 'Labels') +
+      '<label class="check kg-grp"><input type="checkbox" id="kgGroup"' + (group ? ' checked' : '') + '> Group parallel links</label></div>' +
+      '<div class="kg-row"><button type="button" class="mini" data-act="relFit">Fit</button><button type="button" class="mini" data-act="relLayout" title="Release every pinned resource and lay the graph out again">Re-layout</button>' +
+      '<button type="button" class="mini" data-act="relPng">PNG</button><button type="button" class="mini" data-act="relTriples" title="Download the links shown as Turtle">Triples</button></div>' +
+      '<div class="kg-row kg-status" aria-live="polite">' + esc(status) + '</div><div class="kg-row kg-legend">' + legend + '</div>';
+    // settings panel (Advanced): physics, display, filters
+    const allPreds = st ? [...new Set([...st.paths.values()].flatMap(p => p.hops.map(h => h.p)))] : [];
+    $('kgSettings').innerHTML =
+      '<div class="kg-sh"><b>Settings</b><button type="button" class="kg-ic" id="kgSetClose" aria-label="Close settings">✕</button></div>' +
+      '<fieldset><legend>Physics</legend><label class="kg-sl">Charge <input type="range" min="-1200" max="-50" step="10" value="' + relPref.charge + '" data-kg-set="charge"><output>' + relPref.charge + '</output></label>' +
+      '<label class="kg-sl">Link distance <input type="range" min="40" max="320" step="10" value="' + relPref.dist + '" data-kg-set="dist"><output>' + relPref.dist + '</output></label>' +
+      '<label class="check"><input type="checkbox" data-kg-set="physics"' + (relPref.physics ? ' checked' : '') + '> Enable physics</label></fieldset>' +
+      '<fieldset><legend>Predicate display</legend><label class="check"><input type="radio" name="kgPred" data-kg-pred-r="icons"' + (iconsMode() ? ' checked' : '') + '> Icons</label><label class="check"><input type="radio" name="kgPred" data-kg-pred-r="labels"' + (!iconsMode() ? ' checked' : '') + '> Labels</label></fieldset>' +
+      '<fieldset><legend>Arrowheads</legend><label class="check"><input type="radio" name="kgArrow" data-kg-arrow="directed"' + (relPref.arrow === 'directed' ? ' checked' : '') + '> Directed (subject → object)</label><label class="check"><input type="radio" name="kgArrow" data-kg-arrow="hidden"' + (relPref.arrow === 'hidden' ? ' checked' : '') + '> Hidden</label></fieldset>' +
+      '<fieldset><legend>Resolver for “Open IRI”</legend><select data-kg-set="resolver"><option value="none"' + (relPref.resolver === 'none' ? ' selected' : '') + '>None (the IRI itself)</option><option value="uriburner"' + (relPref.resolver === 'uriburner' ? ' selected' : '') + '>URIBurner describe</option><option value="custom"' + (relPref.resolver === 'custom' ? ' selected' : '') + '>Custom pattern</option></select>' +
+      '<input type="text" data-kg-set="custom" placeholder="https://example.org/describe?uri={uri}" value="' + esc(relPref.custom) + '"' + (relPref.resolver === 'custom' ? '' : ' hidden') + ' spellcheck="false"></fieldset>' +
+      '<fieldset><legend>Edge filtering <button type="button" class="mini" data-act="relAllPreds" data-on="1">All</button> <button type="button" class="mini" data-act="relAllPreds" data-on="0">None</button></legend><div class="kg-preds">' +
+      allPreds.map(p => '<label class="check"><input type="checkbox" data-rel="pred" value="' + esc(p) + '"' + (st && st.hiddenPreds.has(p) ? '' : ' checked') + '> ' + esc(short(plain(p), 34)) + '</label>').join('') + '</div></fieldset>' +
+      '<div class="kg-sf"><button type="button" class="mini" id="kgClear">Clear filters</button></div>';
+    apply();
+  }
+  function apply() {
+    box.querySelectorAll('[data-advanced-control]').forEach(e => { e.hidden = !advanced(); });
+    $('kgSettings').hidden = !advanced() || $('kgGear').getAttribute('aria-expanded') !== 'true';
+    box.classList.toggle('kg-adv-on', advanced());
+  }
+  const setMode = m => { relPref.mode = m; relPrefSave(); if (m === 'basic') { $('kgGear').setAttribute('aria-expanded', 'false'); } chrome(); paint(); };
+  const physicsApply = () => { sim.force('charge').strength(relPref.charge); sim.force('link').distance(relPref.dist); if (relPref.physics) sim.alpha(0.4).restart(); else sim.stop(); };
+  box.addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b || !box.contains(b)) return;
+    if (b.id === 'kgCtl') { const o = $('kgToolbar').hidden; $('kgToolbar').hidden = !o; b.setAttribute('aria-expanded', String(o)); }
+    else if (b.dataset.kgMode) setMode(b.dataset.kgMode);
+    else if (b.dataset.kgGroup || b.dataset.kgKind) {
+      const set = b.dataset.kgGroup ? relSt.hiddenGroups : relSt.hiddenKinds, v = b.dataset.kgGroup || b.dataset.kgKind;
+      if (set.has(v)) set.delete(v); else set.add(v); relSt.sel = null; relDraw();
+    } else if (b.dataset.kgPred) { relPref.pred = b.dataset.kgPred; relPrefSave(); chrome(); paint(); }
+    else if (b.id === 'kgGear') { const o = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', String(o)); apply(); }
+    else if (b.id === 'kgSetClose') { $('kgGear').setAttribute('aria-expanded', 'false'); apply(); $('kgGear').focus(); }
+    else if (b.id === 'kgFull') { const p = document.fullscreenElement ? document.exitFullscreen() : box.requestFullscreen ? box.requestFullscreen() : null; if (p && p.catch) p.catch(() => {}); }
+    else if (b.id === 'kgCenter') refit();
+    else if (b.id === 'kgClear') { search = ''; if (relSt) { relSt.hiddenGroups.clear(); relSt.hiddenKinds.clear(); relSt.hiddenPreds.clear(); relSt.sel = null; } relDraw(); }
   });
-  const ctl = {
+  box.addEventListener('input', ev => {
+    const t = ev.target;
+    if (t.id === 'kgSearch') { search = t.value.trim().toLowerCase(); paint(); const s = box.querySelector('.kg-status'); if (s) { const m = ns.filter(d => plain(d.id).toLowerCase().includes(search)).length; s.textContent = search ? m + ' of ' + ns.length + ' nodes match “' + t.value.trim() + '”' : s.textContent; } }
+    else if (t.dataset.kgSet === 'charge' || t.dataset.kgSet === 'dist') { relPref[t.dataset.kgSet] = +t.value; t.nextElementSibling.textContent = t.value; relPrefSave(); physicsApply(); }
+    else if (t.dataset.kgSet === 'custom') { relPref.custom = t.value; relPrefSave(); }
+  });
+  box.addEventListener('change', ev => {
+    const t = ev.target;
+    if (t.id === 'kgGroup') { group = t.checked; build(); sim.force('link').links(links); draw(); sim.alpha(0.2).restart(); chrome(); }
+    else if (t.dataset.kgSet === 'physics') { relPref.physics = t.checked; relPrefSave(); physicsApply(); }
+    else if (t.dataset.kgSet === 'resolver') { relPref.resolver = t.value; relPrefSave(); const c = box.querySelector('[data-kg-set=custom]'); if (c) c.hidden = t.value !== 'custom'; }
+    else if (t.dataset.kgPredR) { relPref.pred = t.dataset.kgPredR; relPrefSave(); chrome(); paint(); }
+    else if (t.dataset.kgArrow) { relPref.arrow = t.dataset.kgArrow; relPrefSave(); paint(); }
+  });
+  new ResizeObserver(() => { size(); sim.force('x', d3.forceX(W() / 2).strength(0.05)).force('y', d3.forceY(H() / 2).strength(0.07)); }).observe(box);
+  document.addEventListener('fullscreenchange', () => { if (document.body.contains(box)) setTimeout(() => { size(); if (!userMoved) fit(); }, 80); });
+  chrome();
+  return {
     box, svg: svg.node(), fit: refit, pos: () => ns,
     set(nodes, edges) {
       const n0 = ns.length; let restored = 0;
       ns = nodes.map(n => { let o = byId.get(n.id); if (!o) { o = { id: n.id }; byId.set(n.id, o); const sp = relPos.get(n.id); if (sp) { o.x = sp.x; o.y = sp.y; o.fx = sp.fx; o.fy = sp.fy; restored++; } else if (n.input >= 0) { const ang = 2 * Math.PI * n.input / 5; o.x = W() / 2 + Math.cos(ang) * Math.min(W(), H()) * 0.3; o.y = H() / 2 + Math.sin(ang) * Math.min(W(), H()) * 0.3; } }
-        o.input = n.input; o.r = rad(o); return o; });
+        o.input = n.input; o.deg = n.deg; o.kind = n.kind; o.cls = n.cls; o.r = nodeR(o); return o; });
       es = edges; build();
-      sim.nodes(ns); sim.force('link').links(links.map(l => l)); draw();
+      sim.nodes(ns); sim.force('link').links(links.map(l => l)); draw(); chrome();
       if (restored && restored === ns.length && !n0) {   // coming back: keep the layout exactly, holding every node still while the first frame is drawn
         fitted = true; userMoved = !!relView; if (relView) svg.call(zoom.transform, relView);
         ns.forEach(d => { d.px0 = d.fx == null ? null : d.fx; d.py0 = d.fy == null ? null : d.fy; d.fx = d.x; d.fy = d.y; });
         sim.alpha(0.02).restart();
         setTimeout(() => ns.forEach(d => { d.fx = d.px0; d.fy = d.py0; }), 300);
-      }
-      else sim.alpha(n0 ? 0.35 : 1).restart();
+      } else if (relPref.physics) sim.alpha(n0 ? 0.35 : 1).restart();
     },
     select(s) { sel = s; applySel(); },
-    labels() { gN.selectAll('g.rel-node').select('text').text(nodeText); gN.selectAll('g.rel-node').select('title').text(d => plain(d.id) + '\n' + d.id); gE.selectAll('g.rel-el').select('text').text(edgeText); },
-    layout() { ns.forEach(d => { d.fx = d.fy = null; }); fitted = false; userMoved = false; sim.alpha(1).restart(); },
+    labels() { paint(); },
+    layout() { ns.forEach(d => { d.fx = d.fy = null; }); fitted = false; userMoved = false; if (relPref.physics) sim.alpha(1).restart(); },
     unpin() { ns.forEach(d => { d.fx = d.fy = null; }); sim.alpha(0.3).restart(); },
     links: () => links, nodes: () => ns
   };
-  new ResizeObserver(() => { sim.force('x', d3.forceX(W() / 2).strength(0.05)).force('y', d3.forceY(H() / 2).strength(0.07)); }).observe(box);
-  return ctl;
 }
 
 /* ---- exports ---- */
@@ -4471,8 +4698,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-// Keep in step with the newest heading in CHANGELOG.md ("## 1.1.0 — 2026-11-10"): bump both with every release.
-const APP_VERSION = '1.1.0', APP_BUILT = '2026-11-10';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.1.1 — 2026-11-10"): bump both with every release.
+const APP_VERSION = '1.1.1', APP_BUILT = '2026-11-10';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;

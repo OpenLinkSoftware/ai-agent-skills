@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.1.1 — 2026-11-10
+
+- **Find Connections now follows the KG Explorer contract** (rdf-infographic-skill: `SKILL.md` KG Explorer Basic and
+  Advanced modes, `kg_explorer.js`, and the `kg-explorer-label-density` howto), which 1.1.0 only partly did.
+  - **Edge labels are never hidden.** 1.1.0 hid every link name once a graph had more than 40 links, the mistake the
+    label-density howto already corrected. They are now always drawn, in a pill, dimmed to 0.28 above 90 links and 0.82
+    below, full on hover; the selected paths' labels are emphasised.
+  - **Icons or Labels for links, Icons by default.** A compact icon per link (a pin for places, a ring for spouse, a
+    graduation cap for advisor or education, a family, a building for employer, a pen for author, a trophy for awards, a
+    factory for manufacturer or industry, a book for field or subject, a calendar, a puzzle piece for part-of, a tag for
+    type, a link for anything else) with the name and the subject → object in the tooltip; switch to the text label
+    in Controls or in Settings. The icon mapping is ours: the contract names only the Icons/Labels switch.
+  - **Look.** Nodes are Class orange `#ea580c` or Instance green `#059669` (inputs keep a colour each), sized by how many
+    links they have, white-ringed, with the name below the circle (15 characters, 24 for inputs) and a halo; links are the
+    thin `#94A3B8` half-opacity line with a 14 px invisible hit line that thickens on hover; arrowheads point from
+    subject to object only (grouping parallel links merges same-direction links only, never a double arrow); a
+    backdrop-blur tooltip names the resource (kind, class, link count, description) or the predicate and its subject → object.
+  - **Controls tray closed by default.** The graph shows a compact **Controls** button and a node/link badge. The tray holds
+    Basic/Advanced, Classes/Instances chips with matching `aria-pressed`, a name filter, Icons/Labels, Group parallel links,
+    Fit, Re-layout, PNG, Triples, a status readout and a colour legend.
+  - **Advanced mode** adds node-type icons (person, organization, place, event, concept, resource, from each node's
+    `rdf:type`) and kind chips, full screen, centre graph, and a Settings panel with a close button: charge and
+    link-distance sliders and an Enable physics switch, predicate display, arrowheads (Directed or Hidden), the resolver
+    used by "Open IRI" (none, URIBurner describe, or a custom pattern) and edge filtering with All/None. Preferences are kept in localStorage.
+  - **Zoom isolation.** The graph no longer takes the mouse wheel until you click into it (accent border and a "Click
+    outside to release zoom" hint); clicking anywhere else releases it.
+
 ## 1.1.0 — 2026-11-10
 
 - **Find Connections: how are these resources connected?** It starts from a **⇄ Find Connections** button between Search
