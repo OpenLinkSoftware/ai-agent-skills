@@ -24,7 +24,8 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
     "off": 0,
     "vp": null,
     "ent": null,
-    "pg": {}
+    "pg": {},
+    "rel": { "inputs": [ IRI, ... ], "len": 3, "all": 0, "generic": 0, "run": 1 }
   }
 }
 ```
@@ -38,6 +39,7 @@ A SPARQL Faceted Browser link is the app URL followed by a fragment:
 | `pg.map` | Map-tab options: `lim` (1000, 3000, 10000 or 25000 features; beyond it members are grouped by area and the map follows the view), `by` (property IRI to colour by; empty = type), `view` (true = re-query for the visible area), `layers` (class IRIs drawn as extra layers), `lf` (false = do not apply the focused set's value filters to the layers; default true), `shape` (`lines` or `points` for members that join two located things; default auto) |
 | `vp` | `{ "p": IRI, "dir": "out" \| "in" }`: the property whose values the values tab lists |
 | `ent` | The IRI shown on the describe tab |
+| `rel` | The Find Connections tab: `inputs` (2-5 resource IRIs to connect), `len` (longest chain of links between two resources, 1-4), `all` (1 = try every direction pattern, 2^n per length, instead of at most one change of direction), `generic` (1 = include rdf:type, owl:sameAs, wiki page links and categories), `run` (1 = search when the link opens). `view: "relations"` shows it. The tray (`inputs`) survives new searches; the app keeps it in the link whenever it is non-empty |
 | `off`, `pg` | Paging state. Links built by the skill start at the first page |
 | `allLangs`, `raw`, `liveCounts` | App-internal toggles that may appear in links the app itself writes. Leave them as they are |
 

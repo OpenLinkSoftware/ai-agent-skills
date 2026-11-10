@@ -32,7 +32,7 @@ OPS are applied left to right, so filters always attach to the most recent set:
     --entity IRI             the set is exactly this entity
     --pivot P | --pivot-in P new set: the values of P (or the things pointing at the set through P)
     --focus N                focus set N (1-based)
-    --view entities|values|map|describe|sparql
+    --view entities|values|map|relations|describe|sparql
     --values-of P[:in]       open the values view of P for the focused set
     --describe IRI           open the description of IRI (with no trail, just that entity)
     --map-by P               Map view: colour members by property P (default: their type)
@@ -42,6 +42,10 @@ OPS are applied left to right, so filters always attach to the most recent set:
     --map-layer C            Map view: add class C as a layer (repeatable)
     --map-layer-filters on|off  Map view: apply the focused set's value filters to the layers (default on)
     --map-shape auto|lines|points  Map view: draw members that join two located things as lines or as points
+    --relate IRI|CURIE       Find Connections tab: add a resource to relate (repeat for 2-5; opens the tab and runs the search)
+    --rel-len N              Find Connections tab: longest chain of links between two resources, 1-4 (default 3)
+    --rel-all-shapes         Find Connections tab: try every direction pattern (2^n per length) instead of at most one change
+    --rel-generic            Find Connections tab: include generic links (rdf:type, owl:sameAs, wiki page links, categories)
 """
 import base64
 import json
@@ -69,7 +73,7 @@ NS = {
     'up': 'http://purl.uniprot.org/core/',
 }
 LANG_RE = re.compile(r'^[a-z]{2,3}(-[a-z0-9]{1,8})*$', re.I)
-VIEWS = ('entities', 'values', 'map', 'describe', 'sparql')
+VIEWS = ('entities', 'values', 'map', 'relations', 'describe', 'sparql')
 
 
 class UsageError(Exception):
@@ -279,9 +283,31 @@ def apply_ops(nav, ops):
                 raise UsageError('--view must be one of ' + ', '.join(VIEWS))
             if v == 'describe' and not nav.get('ent'):
                 raise UsageError('--view describe needs --describe IRI')
+            if v == 'relations' and len((nav.get('rel') or {}).get('inputs', [])) < 2:
+                raise UsageError('--view relations needs two or more --relate IRI')
             nav['view'] = v
             if v != 'values':
                 nav['vp'] = None
+        elif op in ('--relate', '--rel-len', '--rel-all-shapes', '--rel-generic'):
+            rel = nav.setdefault('rel', {'inputs': [], 'len': 3, 'all': 0, 'generic': 0, 'run': 1})
+            if op == '--relate':
+                iri = expand(arg())
+                if iri in rel['inputs']:
+                    continue
+                if len(rel['inputs']) >= 5:
+                    raise UsageError('--relate takes at most 5 resources')
+                rel['inputs'].append(iri)
+            elif op == '--rel-len':
+                n = int(arg())
+                if not 1 <= n <= 4:
+                    raise UsageError('--rel-len must be 1 to 4')
+                rel['len'] = n
+            elif op == '--rel-all-shapes':
+                rel['all'] = 1
+            else:
+                rel['generic'] = 1
+            if len(rel['inputs']) >= 2:
+                nav['view'], nav['vp'] = 'relations', None
         elif op == '--values-of':
             spec = arg()
             d = 'out'
@@ -353,7 +379,13 @@ def summarize(state, cfg=None, base=None):
                     bits.append(neg + '%s = %s' % (short(c['p']), term_text(c['v'])))
         out.append(head + ': ' + ('; '.join(bits) or 'everything'))
     view = nav.get('view', 'entities')
-    if view == 'values' and nav.get('vp'):
+    rel = nav.get('rel') or {}
+    if rel.get('inputs'):
+        out.append('Relate:    %s (up to %d link%s%s%s)' % (', '.join(short(i) for i in rel['inputs']), rel.get('len', 3), '' if rel.get('len', 3) == 1 else 's',
+                   ', every direction pattern' if rel.get('all') else '', ', generic links included' if rel.get('generic') else ''))
+    if view == 'relations':
+        view = 'connections between the resources above'
+    elif view == 'values' and nav.get('vp'):
         view = 'values of %s%s' % (short(nav['vp']['p']), ' (incoming)' if nav['vp']['dir'] == 'in' else '')
     elif view == 'values':
         view = 'distinct members with counts'

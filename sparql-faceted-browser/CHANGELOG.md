@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.1.0 — 2026-11-10
+
+- **Find Connections: how are these resources connected?** It starts from a **⇄ Find Connections** button between Search
+  and Explore, which opens the pane with a search box: type a name (suggestions ranked as in Entities) or paste an IRI or
+  CURIE, then pick a resource to add it to the tray (2 to 5, kept across searches and in the link). A **⇄ Relate** button on
+  each result and on a description adds to the same tray. The **Find Connections** tab searches for the chains of
+  links, up to a chosen length (1 to 4, default 3), between every pair and draws them as one force-directed graph in the
+  manner of RelFinder (semantechs.co.uk/relfinder): inputs coloured and larger, directed arrows, link names on the
+  edges, parallel links as arcs (or grouped), node labels below the circles, drag to pin, double-click or **P** to release,
+  zoom and pan, Fit and Re-layout.
+  - **Path outlining.** Click a resource or a link to outline every path that uses it, or a path in the list to outline
+    just that one with its links numbered in order; everything else dims. Esc or a click on the background clears it.
+  - **Context menu on what you select.** Selecting a resource opens a menu at the pointer (right-click, Enter, the
+    context-menu key or Space on a focused resource do the same); selecting a link opens one with its **Subject**,
+    **Predicate** and **Object**. For each: **Describe** (opens the Description tab), **⇢ Start a trail here** (a resource)
+    or **⇢ Browse things with this link** (a predicate), **⇄ Add as input**, and **↗ Open IRI**. The names in the path list
+    open the same menu. Coming back to the tab keeps the layout, zoom and outline.
+  - **Searching.** One plain SPARQL 1.1 query per pair, length and direction pattern (at most one change of direction by
+    default: 2n patterns for length n, as in RelFinder; **Every direction pattern** tries all 2^n), so it runs on any
+    endpoint and through the proxy. Shortest chains first, three queries at a time, results streaming into the graph,
+    **Stop** at any time, capped at 300 paths / 150 resources. Generic links (rdf:type, owl:sameAs, wiki page links,
+    categories) are left out unless **Include generic links** is on. The queries appear in the SPARQL tab.
+  - **Filters and export.** Paths shown/total, filter by length and by link (with counts), All/None; Labels and
+    Group parallel links toggles; **PNG** and **Triples** (Turtle of the links shown).
+  - The D3 library (7.9.0, SRI-pinned) loads from cdnjs only when the tab is used.
+- **Scripts:** `fct_state.py --relate IRI` (repeat for 2-5), `--rel-len N`, `--rel-all-shapes`, `--rel-generic`,
+  `--view relations`; the link schema gains `nav.rel` (`references/state-schema.md`).
+- **Fix: Wikidata labels in long lists.** The label lookup's JOLux branch made Wikidata answer HTTP 500 once the list
+  of resources was long (a relationship search labels dozens at once), so names stayed as Q-numbers; the branch is left
+  out on Wikidata, which has no JOLux data.
+
 ## 1.0.18 — 2026-11-03
 
 - **Labels from `https://schema.org/name`.** The label lookup, the "in labels & names" search and the label probe now

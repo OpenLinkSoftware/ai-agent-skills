@@ -456,6 +456,76 @@ footer.site a, #about a { color: var(--accent); }
   .stop-btn { padding: 4px 6px; }
   .tools .icon-btn { padding: 6px 5px; }
 }
+/* Find Connections tab */
+.rel-hit { fill: none; stroke: transparent; stroke-width: 14px; pointer-events: stroke; cursor: pointer; }
+.rel-link.pick { stroke-width: 4.5; }
+.rel-el text { pointer-events: all; cursor: pointer; }
+.rel-node:focus-visible circle { stroke: var(--accent); stroke-width: 3.5; }
+.rel-node:focus { outline: none; }
+.rel-menu { position: fixed; z-index: 70; min-width: 230px; max-width: min(340px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow: auto; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.28); padding: 4px 0; font-size: 13px; }
+.rel-menu:focus { outline: none; }
+.rm-g + .rm-g { border-top: 1px solid var(--border); }
+.rm-h { display: flex; gap: 8px; align-items: baseline; padding: 7px 12px 3px; }
+.rm-role { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); flex: none; }
+.rm-name { font-weight: 600; overflow-wrap: anywhere; }
+.rm-i { display: block; width: 100%; box-sizing: border-box; text-align: left; padding: 6px 12px 6px 22px; border: 0; background: transparent; color: var(--text); font: inherit; text-decoration: none; cursor: pointer; }
+.rm-i:hover, .rm-i:focus-visible { background: var(--surface2); outline: none; }
+.rm-i[disabled] { opacity: .5; cursor: default; }
+.rel-term { display: inline; padding: 0; margin: 0; border: 0; background: none; color: var(--accent); font: inherit; cursor: pointer; text-align: left; }
+.rel-term:hover { text-decoration: underline; }
+.rel-add { position: relative; max-width: 640px; }
+.rel-add input[type=search] { width: 100%; box-sizing: border-box; }
+.rel-hits { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); overflow: hidden; }
+.rel-hit { display: block; width: 100%; text-align: left; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+.rel-hit:last-child { border-bottom: 0; }
+.rel-hit:hover, .rel-hit.sel { background: var(--surface2); }
+.rel-hit[disabled] { opacity: .55; cursor: default; }
+.rel-desc { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.rel-hit-note { padding: 8px 12px; color: var(--muted); font-size: 13px; }
+.rel-ctl { display: grid; gap: 10px; margin: 6px 0 12px; }
+.rel-tray { display: flex; flex-wrap: wrap; gap: 8px; }
+.rel-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; }
+.rel-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
+.rel-c0 { --c: #1f77b4; } .rel-c1 { --c: #d62728; } .rel-c2 { --c: #2ca02c; } .rel-c3 { --c: #ff7f0e; } .rel-c4 { --c: #9467bd; }
+.rel-opts { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 13px; }
+.rel-opts input[type=range] { vertical-align: middle; width: 130px; }
+.rel-run { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rel-main { display: grid; gap: 12px; }
+.rel-graphbox { position: relative; height: min(76vh, 680px); min-height: 420px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); overflow: hidden; }
+.rel-graphbox:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.rel-svg { width: 100%; height: 100%; display: block; cursor: grab; }
+.rel-tools { position: absolute; top: 8px; left: 8px; right: 8px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 12px; width: fit-content; max-width: calc(100% - 16px); }
+.rel-hint { position: absolute; left: 10px; right: 10px; bottom: 6px; font-size: 11px; color: var(--muted); pointer-events: none; }
+.rel-node { cursor: pointer; }
+.rel-node circle { fill: var(--surface); stroke: var(--muted); stroke-width: 1.6; }
+.rel-node.input circle { fill: var(--c); stroke: var(--surface); stroke-width: 2.5; }
+.rel-node text, .rel-el text { paint-order: stroke; stroke: var(--surface2); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.rel-node text { font-size: 11px; fill: var(--text); }
+.rel-node.input text { font-weight: 700; }
+.rel-el text { font-size: 10px; fill: var(--muted); }
+.rel-link { fill: none; stroke: var(--muted); stroke-width: 1.3; opacity: .85; }
+.rel-arr { fill: var(--muted); } .rel-arr-on { fill: var(--accent); }
+.rel-svg.nolabels .rel-el, .rel-svg.nolabels .rel-node:not(.input) text { display: none; }
+.rel-svg.many .rel-el:not(.on) { display: none; }   /* a dense graph shows link names only on what is outlined */
+.rel-node.dim, .rel-link.dim, .rel-el.dim { opacity: .12; }
+.rel-link.on { stroke: var(--accent); stroke-width: 3; opacity: 1; }
+.rel-node.on circle { stroke: var(--accent); stroke-width: 3; }
+.rel-el.on text { fill: var(--accent); font-weight: 700; font-size: 11px; }
+.rel-hopn circle { fill: var(--accent); }
+.rel-hopn text { fill: var(--on-accent); font-size: 10px; font-weight: 700; stroke: none; }
+.rel-side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 14px; align-items: start; font-size: 13px; }
+@media (max-width: 760px) { .rel-side { grid-template-columns: 1fr; } }
+.rel-side h4 { margin: 0 0 6px; font-size: 13px; }
+.rel-fh { margin-bottom: 4px; }
+.rel-fg { display: grid; gap: 2px; margin-bottom: 8px; }
+.rel-preds { max-height: 230px; overflow: auto; display: grid; gap: 2px; }
+.rel-side .check { display: flex; gap: 6px; align-items: baseline; }
+.rel-list { list-style: none; margin: 0; padding: 0; max-height: 380px; overflow: auto; display: grid; gap: 4px; }
+.rel-path { display: flex; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 12.5px; }
+.rel-path:hover, .rel-path.on { border-color: var(--accent); background: var(--surface2); }
+.rel-path:focus-visible { outline: 2px solid var(--accent); }
+.rel-len { flex: none; min-width: 18px; height: 18px; border-radius: 9px; background: var(--accent); color: var(--on-accent); font-size: 11px; text-align: center; line-height: 18px; }
+.rel-hop { color: var(--muted); font-size: 11.5px; }
 </style>
 </head>
 <body>
@@ -567,6 +637,7 @@ footer.site a, #about a { color: var(--accent); }
     <option value="fuzzy-ng" hidden disabled>fuzzy: N-gram cosine (accents, partial words)</option>
   </select>
   <button class="btn primary" type="submit">Search</button>
+  <button class="btn" type="button" data-act="findConnections" title="Pick two or more resources and see how they are connected">⇄ Find Connections</button>
   <button class="btn" type="button" data-act="browseAll" title="Explore the whole dataset: its entity types, each with a sample entity and a count">Explore</button>
 </form>
 
@@ -934,6 +1005,7 @@ if ('inference' in settings || 'sameAs' in settings) {
    cond     = {t:'class', iri, neg} | {t:'pv', p, dir, v: term|null, neg, lo, hi, dt} | {t:'is', v: term}
    Every node is a SPARQL variable ?s(i+1); the focus decides which variable the views project. */
 let nav = null;
+let relMem = null;   // the Find Connections tray and settings, kept across searches and mirrored into the link through nav.rel
 let resolvedProfile = null;
 
 function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
@@ -967,6 +1039,7 @@ function readHash() {
     const o = JSON.parse(b64d(m[1]));
     if (o.ep && o.ep !== settings.ep) { settings.ep = o.ep; resolvedProfile = null; }
     nav = o.nav || null;
+    if (nav && nav.rel) relMem = nav.rel;
     return true;
   } catch { return false; }
 }
@@ -1714,8 +1787,10 @@ async function flushLabels() {
     const lim = keys.size * 8;
     // JOLux (Fedlex, Legilux): a work or act has no label of its own; its titles sit on its expressions
     // (jolux:isRealizedBy/jolux:title), one per language, untagged, with the language in jolux:language.
-    const q = sel('DISTINCT ?x ?l ?xl', '  VALUES ?x { ' + [...keys].map(iriRef).join(' ') + ' }\n  { ?x ' + labelPath() + ' ?l .\n    FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + '))) }\n' +
-      '  UNION { ?x ' + P('jolux:isRealizedBy') + ' ?xe . ?xe ' + P('jolux:title') + ' ?l . OPTIONAL { ?xe ' + P('jolux:language') + ' ?xl } }', 'LIMIT ' + lim);
+    // Wikidata answers HTTP 500 when this branch is added to a long VALUES list (a relationship search labels dozens of resources
+    // at once), and has no JOLux data anyway, so it is left out there.
+    const jolux = profile() === 'wikidata' ? '' : '\n  UNION { ?x ' + P('jolux:isRealizedBy') + ' ?xe . ?xe ' + P('jolux:title') + ' ?l . OPTIONAL { ?xe ' + P('jolux:language') + ' ?xl } }';
+    const q = sel('DISTINCT ?x ?l ?xl', '  VALUES ?x { ' + [...keys].map(iriRef).join(' ') + ' }\n  { ?x ' + labelPath() + ' ?l .\n    FILTER (isLiteral (?l) && (LANG (?l) = "" || LANGMATCHES (LANG (?l), ' + litStr(prefLang()) + '))) }' + jolux, 'LIMIT ' + lim);
     try {
       const by = new Map();
       const rs = rows(await sparql(q, { quiet: true }));
@@ -1742,6 +1817,7 @@ function paintLabels() {
     if ((d.kind === 'raw' || d.kind === 'curie') && !el.title) el.title = iri;
     el.dataset.painted = k;
   });
+  if (typeof relRepaint === 'function') relRepaint();
 }
 async function fetchCards(iris, signal) {
   iris = iris.filter(i => !cards.has(i));
@@ -1833,7 +1909,7 @@ async function cached(key, fn) {
 }
 function resetCaches() { voidState.clear(); cache.clear(); countCache.clear(); countPartial.clear(); labels.clear(); cards.clear(); queryLog.clear(); }
 
-function newNav(nodes, view) { nav = { nodes, focus: nodes.length - 1, view: view || 'entities', off: 0, vp: null, ent: null }; }
+function newNav(nodes, view) { nav = { nodes, focus: nodes.length - 1, view: view || 'entities', off: 0, vp: null, ent: null }; if (relMem && relMem.inputs.length) nav.rel = relMem; }   // the Relations tray outlives a new search
 function go(replace, opts = {}) { writeHash(replace); render(); if (!replace && !opts.noReveal) revealResults(); }
 
 /* Stop: cancel every query of the current view (fetches abort; the endpoint ends its side at its own timeout, which is
@@ -1941,7 +2017,7 @@ function searchPlaceholder() {
 
 function renderTabs() {
   const hasSets = nav.nodes.length > 0;
-  const tabs = [['entities', 'Entities', hasSets], ['values', nav.vp ? 'Values · ' + lblText(nav.vp.p) : 'Distinct (Count)', hasSets], ['map', 'Map', hasSets], ['describe', nav.ent ? 'Description · ' + lblText(nav.ent) : 'Description', !!nav.ent], ['sparql', 'SPARQL', true]];
+  const tabs = [['entities', 'Entities', hasSets], ['values', nav.vp ? 'Values · ' + lblText(nav.vp.p) : 'Distinct (Count)', hasSets], ['map', 'Map', hasSets], ['relations', 'Find Connections' + (relGet().inputs.length ? ' · ' + relGet().inputs.length : ''), true], ['describe', nav.ent ? 'Description · ' + lblText(nav.ent) : 'Description', !!nav.ent], ['sparql', 'SPARQL', true]];
   document.getElementById('tabs').innerHTML = tabs.map(([k, t, ok]) =>
     '<button class="tab" role="tab" aria-selected="' + (nav.view === k) + '" data-act="tab" data-view="' + k + '"' + (ok ? '' : ' disabled') + '>' + t + '</button>').join('');
 }
@@ -2146,6 +2222,7 @@ function renderView(my, signal) {
   const v = nav.view;
   if (v === 'sparql') return renderSparql(el);
   if (v === 'describe' && nav.ent) return renderDescribe(el, my, signal);
+  if (v === 'relations') return renderRelations(el, my, signal);
   if (!nav.nodes.length) { el.innerHTML = '<div class="content"><div class="empty">Nothing to show.</div></div>'; return; }
   if (v === 'values') return nav.vp ? renderValues(el, my, signal) : renderDistinct(el, my, signal);
   if (v === 'map') return renderMap(el, my, signal);
@@ -2292,7 +2369,7 @@ async function renderEntities(el, my, signal) {
         const c = cards.get(t.value) || {};
         return '<li class="ent">' + thumb(t.value, c, true) +
           '<div>' + lbl(t.value, null, 'name') + (score.has(t.value) ? scoreBadge(nav.nodes[f], score.get(t.value)) : '') + (c.desc ? '<div class="desc">' + esc(c.desc) + '</div>' : '') + '</div>' +
-          '<div class="acts"><button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this entity" aria-label="Narrow to this entity">=</button><button class="mini" data-act="explore" data-iri="' + esc(t.value) + '" title="Start a new trail from this entity" aria-label="Start trail">⇢</button><a class="mini" href="' + esc(t.value) + '" target="_blank" rel="noopener noreferrer" title="Open the IRI itself" aria-label="Open IRI">↗</a></div></li>';
+          '<div class="acts"><button class="mini" data-act="addSelf" data-k="' + k + '" title="Narrow the set to just this entity" aria-label="Narrow to this entity">=</button><button class="mini" data-act="explore" data-iri="' + esc(t.value) + '" title="Start a new trail from this entity" aria-label="Start trail">⇢</button><button class="mini" data-act="relate" data-iri="' + esc(t.value) + '" title="Add to Find Connections: see how resources are connected" aria-label="Relate">⇄</button><a class="mini" href="' + esc(t.value) + '" target="_blank" rel="noopener noreferrer" title="Open the IRI itself" aria-label="Open IRI">↗</a></div></li>';
       }).join('') + '</ul>' + pagerSlot('main');
       setPager('main', { count: terms.length });
     };
@@ -3047,7 +3124,7 @@ async function renderDescribe(el, my, signal) {
     const outs = groups.filter(g => g.dir === 'out'), ins = groups.filter(g => g.dir === 'in');
     el.innerHTML = '<div class="content" style="padding-top:14px">' +
       '<div class="desc-head">' + thumb(e, c, false).replace('class="thumb"', 'class="thumb" style="width:96px;height:96px;font-size:30px"') + '<div><h3>' + lbl(e) + '</h3>' + (c.desc ? '<p>' + esc(c.desc) + '</p>' : '') +
-      '<div class="btnrow"><button class="btn primary" data-act="explore" data-iri="' + esc(e) + '">⇢ Start a trail here</button>' + (nav.nodes.length ? '<button class="btn" data-act="tab" data-view="entities">Back to the set</button>' : '') +
+      '<div class="btnrow"><button class="btn primary" data-act="explore" data-iri="' + esc(e) + '">⇢ Start a trail here</button><button class="btn" data-act="relate" data-iri="' + esc(e) + '" title="Add to Find Connections: see how resources are connected">⇄ Relate</button>' + (nav.nodes.length ? '<button class="btn" data-act="tab" data-view="entities">Back to the set</button>' : '') +
       '<a class="btn" href="' + esc(e) + '" target="_blank" rel="noopener noreferrer">Open IRI ↗</a>' + '<button class="btn" data-act="langs" title="' + (dd ? 'Annotation literals (labels, comments, names…) are SAMPLE()d to one value per property, and literals are limited to ' : 'Literals are limited to ') + esc(prefLang()) + ' or untagged values">' + (all ? (dd ? 'One value per annotation' : 'Preferred language only') : 'All values &amp; languages') + '</button>' + '</div></div></div>' +
       '<div class="geo-box" id="geoBox" hidden></div>' +
       (outs.length ? '<h4 class="sec">Attributes</h4>' + outs.map(groupHtml).join('') : '') +
@@ -3335,6 +3412,512 @@ function renderSparql(el) {
   }).join('') : '<div class="empty">No queries yet.</div>') + '</div>';
 }
 
+/* ---------- Find Connections: how are these resources connected? ----------
+   Pick two to five resources (the ⇄ Relate button on a card or description), and the Find Connections tab searches for the
+   chains of links, up to N long, that join every pair, and draws them as one graph. A chain is a "path"; its links may
+   point either way. Each (pair, length, direction pattern) is one plain SPARQL 1.1 query, so the search runs on any
+   engine and through the proxy. Like RelFinder, the original pattern set lets a path change direction at most once
+   (2n patterns for length n); "every direction pattern" tries all 2^n. */
+const REL_MAX = 5, REL_CAP_PATHS = 300, REL_CAP_NODES = 150, REL_POOL = 3, REL_LIMIT = 40;
+// Links that join almost anything to anything (types, equivalents, wiki page bookkeeping, categories): off by default.
+const REL_IGNORE = ['http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'http://www.w3.org/2002/07/owl#sameAs',
+  'http://dbpedia.org/ontology/wikiPageWikiLink', 'http://dbpedia.org/ontology/wikiPageRedirects', 'http://dbpedia.org/ontology/wikiPageDisambiguates',
+  'http://dbpedia.org/ontology/wikiPageExternalLink', 'http://dbpedia.org/property/wikiPageUsesTemplate', 'http://xmlns.com/foaf/0.1/primaryTopic',
+  'http://xmlns.com/foaf/0.1/isPrimaryTopicOf', 'http://purl.org/dc/terms/subject', 'http://www.w3.org/2004/02/skos/core#broader',
+  'http://www.w3.org/ns/prov#wasDerivedFrom'];
+// Direction patterns of one length: 'o' = the link points away from the start, 'i' = towards it.
+function relShapes(n, all) {
+  const out = [];
+  if (all) { for (let m = 0; m < (1 << n); m++) out.push(Array.from({ length: n }, (_, k) => (m >> (n - 1 - k)) & 1 ? 'i' : 'o')); return out; }
+  const seen = new Set();
+  for (let k = 0; k <= n; k++) for (const [a, b] of [['o', 'i'], ['i', 'o']]) {
+    const s = a.repeat(k) + b.repeat(n - k);
+    if (!seen.has(s)) { seen.add(s); out.push(s.split('')); }
+  }
+  return out;
+}
+const relCfg = r => Object.assign({ inputs: [], len: 3, all: 0, generic: 0, run: 0 }, r || {});
+// The jobs of a search: shortest paths first, then by pair, then by direction pattern.
+function relJobs(cfg) {
+  const jobs = [], ins = cfg.inputs;
+  for (let n = 1; n <= cfg.len; n++)
+    for (let i = 0; i < ins.length; i++) for (let j = i + 1; j < ins.length; j++)
+      relShapes(n, cfg.all).forEach(sh => jobs.push({ a: ins[i], b: ins[j], n, shape: sh, pair: i + '-' + j }));
+  return jobs;
+}
+// One query: <a> ?p1 ?x1 . ?x1 ?p2 ?x2 . … ?xk ?pn <b>, each link flipped where the pattern says 'i'.
+function relQuery(job, o) {
+  const n = job.n, v = k => (k === 0 ? o.ref(job.a) : k === n ? o.ref(job.b) : '?x' + k), lines = [], flt = [];
+  for (let k = 1; k <= n; k++) lines.push(job.shape[k - 1] === 'o' ? v(k - 1) + ' ?p' + k + ' ' + v(k) + ' .' : v(k) + ' ?p' + k + ' ' + v(k - 1) + ' .');
+  for (let k = 1; k < n; k++) {
+    flt.push('isIRI (?x' + k + ')', '?x' + k + ' != ' + o.ref(job.a), '?x' + k + ' != ' + o.ref(job.b));
+    for (let m = k + 1; m < n; m++) flt.push('?x' + k + ' != ?x' + m);
+  }
+  if (o.ignore && o.ignore.length) for (let k = 1; k <= n; k++) flt.push('?p' + k + ' NOT IN (' + o.ignore.map(o.ref).join(', ') + ')');
+  if (o.predOnly) for (let k = 1; k <= n; k++) flt.push(o.predOnly('?p' + k));
+  const vars = []; for (let k = 1; k < n; k++) vars.push('?x' + k); for (let k = 1; k <= n; k++) vars.push('?p' + k);
+  return { vars: vars.join(' '), body: '  ' + lines.join('\n  ') + (flt.length ? '\n  FILTER (' + flt.join(' && ') + ')' : ''), tail: 'LIMIT ' + (o.limit || REL_LIMIT) };
+}
+// A result row -> a path: the nodes in order and, per link, its predicate and the direction it was found in.
+function relPathOf(job, row) {
+  const nodes = [job.a], hops = [];
+  for (let k = 1; k < job.n; k++) nodes.push(row['x' + k].value);
+  nodes.push(job.b);
+  for (let k = 1; k <= job.n; k++) hops.push({ p: row['p' + k].value, dir: job.shape[k - 1] });
+  return { nodes, hops, pair: job.pair, key: nodes.join(' ') + ' | ' + hops.map(h => h.dir + h.p).join(' ') };
+}
+// The triple a hop stands for, in its true subject -> object direction.
+const relTriple = (path, k) => path.hops[k].dir === 'o' ? { s: path.nodes[k], p: path.hops[k].p, o: path.nodes[k + 1] } : { s: path.nodes[k + 1], p: path.hops[k].p, o: path.nodes[k] };
+
+/* ---- Find Connections: state, tray, search ---- */
+let relPos = new Map(), relView = null;   // node positions and zoom, kept while the tab is left (Describe, a trail) and returned to
+let relSt = null;   // the current search: { key, cfg, paths, jobs, done, running, hiddenLens, hiddenPreds, sel, … }
+let relG = null;    // the graph controller for the Find Connections tab on screen
+let relD3P = null;
+function loadD3() {
+  if (window.d3) return Promise.resolve(window.d3);
+  if (!relD3P) relD3P = new Promise((ok, fail) => {
+    const js = document.createElement('script');
+    Object.assign(js, { src: 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js', crossOrigin: 'anonymous', referrerPolicy: 'no-referrer',
+      integrity: 'sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==' });
+    js.onload = () => ok(window.d3); js.onerror = () => { relD3P = null; fail(new Error('graph library unavailable')); };
+    document.head.appendChild(js);
+  });
+  return relD3P;
+}
+const relKey = c => settings.ep + '|' + c.inputs.join(',') + '|' + c.len + '|' + c.all + '|' + c.generic;
+const relGet = () => relCfg(nav && nav.rel ? nav.rel : relMem);
+function relSet(patch) { relMem = Object.assign(relGet(), patch); if (!nav) return; nav.rel = relMem; writeHash(true); renderTabs(); }
+function relAdd(iri) {
+  const c = relGet();
+  if (c.inputs.includes(iri)) { toast('Already added.'); return; }
+  if (c.inputs.length >= REL_MAX) { toast('Find Connections takes up to ' + REL_MAX + ' resources: remove one first.'); return; }
+  relSet({ inputs: c.inputs.concat(iri), run: 0 }); wantLabels([iri]);
+  if (document.getElementById('relTray')) { relPaneRefresh(); const q = document.getElementById('relQ'); if (q) { q.value = ''; relSuggest(''); q.focus(); } return; }   // the chips show it
+  toast(c.inputs.length + 1 < 2 ? 'Added to Find Connections. Add one more resource, then open the Find Connections tab.' : 'Added to Find Connections (' + (c.inputs.length + 1) + ' of ' + REL_MAX + '). Open the Find Connections tab to see how they connect.');
+}
+const relFresh = () => relSt && relSt.key === relKey(relGet());
+const relQueryOpts = c => ({ ref: iriRef, ignore: c.generic ? [] : REL_IGNORE, limit: REL_LIMIT,
+  predOnly: profile() === 'wikidata' ? v => 'STRSTARTS (STR (' + v + '), "http://www.wikidata.org/prop/direct/")' : null });
+async function relRunJob(st, job) {
+  const qq = relQuery(job, relQueryOpts(st.cfg)), q = sel(qq.vars, qq.body, qq.tail);
+  if (st.logged < 12) { queryLog.set('Connections · ' + job.n + ' link' + (job.n > 1 ? 's' : '') + ' · ' + job.shape.map(d => d === 'o' ? '→' : '←').join(' '), q); st.logged++; }
+  try {
+    const rs = rows(await sparql(q, { quiet: true, signal: st.ctl.signal, timeout: Math.min(settings.timeout, 15000) }));
+    if (rs.partial) st.partial++;
+    for (const r of rs) {
+      const p = relPathOf(job, r);
+      if (st.paths.has(p.key)) continue;
+      const fresh = p.nodes.filter(n => !st.nodes.has(n));
+      if (st.paths.size >= REL_CAP_PATHS || st.nodes.size + fresh.length > REL_CAP_NODES) { st.capped = true; continue; }
+      p.id = st.nextId++; st.paths.set(p.key, p); p.nodes.forEach(n => st.nodes.add(n));
+    }
+  } catch (e) {
+    if (e.message === 'cancelled' || (st.ctl.signal && st.ctl.signal.aborted)) return;
+    st.fail++; if (!st.firstErr) st.firstErr = e.short || e.message;
+  } finally { st.done++; relSoon(); }
+}
+async function relStart() {
+  const c = relGet();
+  if (c.inputs.length < 2) return;
+  if (relSt && relSt.ctl) relSt.ctl.abort();
+  relPos = new Map(); relView = null;
+  const st = relSt = { key: relKey(c), cfg: c, paths: new Map(), nodes: new Set(), nextId: 1, ctl: new AbortController(), jobs: relJobs(c), done: 0, fail: 0, firstErr: '',
+    partial: 0, capped: false, logged: 0, t0: performance.now(), t1: 0, running: true, hiddenLens: new Set(), hiddenPreds: new Set(), sel: null };
+  if (!c.run) relSet({ run: 1 });
+  wantLabels(c.inputs);
+  relDraw(); relStatus();
+  let next = 0;
+  const worker = async () => { while (st.running && !st.ctl.signal.aborted && next < st.jobs.length) await relRunJob(st, st.jobs[next++]); };
+  await Promise.all(Array.from({ length: REL_POOL }, worker));
+  if (st !== relSt) return;
+  st.running = false; st.t1 = performance.now(); relDraw(); relStatus();
+}
+function relStop() { if (relSt && relSt.running) { relSt.ctl.abort(); relSt.running = false; relSt.stopped = true; relSt.t1 = performance.now(); relDraw(); relStatus(); } }
+let relTimer = null;
+function relSoon() { clearTimeout(relTimer); relTimer = setTimeout(() => { relDraw(); relStatus(); }, 160); }
+function relStatus() {
+  const el = document.getElementById('relStatus'), st = relSt;
+  if (!el) return;
+  const stop = document.getElementById('relStop'), go = document.getElementById('relFind');
+  if (!st || !relFresh()) { el.textContent = relGet().inputs.length < 2 ? 'Add at least two resources.' : (st ? 'Settings changed: press Find connections again.' : 'Press Find connections.'); if (stop) stop.hidden = true; if (go) go.hidden = false; return; }
+  const secs = ((st.t1 || performance.now()) - st.t0) / 1000;
+  el.textContent = (st.running ? 'Searching · ' + st.done + ' of ' + st.jobs.length + ' queries' : st.stopped ? 'Stopped · ' + st.done + ' of ' + st.jobs.length + ' queries' : 'Done · ' + st.jobs.length + ' queries') +
+    ' · ' + st.paths.size + ' path' + (st.paths.size === 1 ? '' : 's') + ' · ' + secs.toFixed(1) + ' s' +
+    (st.partial ? ' · ' + st.partial + ' partial (Anytime)' : '') + (st.fail ? ' · ' + st.fail + ' failed' + (st.firstErr ? ' (' + st.firstErr + ')' : '') : '') +
+    (st.capped ? ' · limited to ' + REL_CAP_PATHS + ' paths / ' + REL_CAP_NODES + ' resources' : '');
+  if (stop) stop.hidden = !st.running; if (go) go.hidden = st.running;
+}
+const relVisible = st => [...st.paths.values()].filter(p => !st.hiddenLens.has(p.hops.length) && p.hops.every(h => !st.hiddenPreds.has(h.p)));
+const relTripleKey = t => t.s + '\u0001' + t.p + '\u0001' + t.o;
+
+/* ---- the tab ---- */
+const relTrayHtml = c => c.inputs.length
+  ? c.inputs.map((iri, i) => '<span class="rel-chip rel-c' + (i % 5) + '"><span class="rel-dot"></span>' + lbl(iri, null, 'name') + '<button class="mini" data-act="relRemove" data-iri="' + esc(iri) + '" title="Remove from Find Connections" aria-label="Remove">×</button></span>').join('')
+  : '<span class="sub">Nothing added yet. Search above, or use the ⇄ Relate button on a result or a description.</span>';
+// Refresh the pane (tray, Find button, status) after the tray changes while the tab is open.
+function relPaneRefresh() {
+  const tray = document.getElementById('relTray'); if (!tray) return;
+  const c = relGet();
+  tray.innerHTML = relTrayHtml(c); paintLabels();
+  const f = document.getElementById('relFind'); if (f) f.disabled = c.inputs.length < 2;
+  relStatus();
+}
+/* Search as you type: the app's own text search (label scope), ranked by entity rank on Virtuoso, a few suggestions at a time. */
+let relQCtl = null, relQTimer = null, relHitIdx = -1;
+async function relSuggest(text) {
+  const box = document.getElementById('relHits'); if (!box) return;
+  const t = text.trim();
+  if (t.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
+  if (relQCtl) relQCtl.abort();
+  const ctl2 = relQCtl = new AbortController();
+  box.hidden = false; box.innerHTML = '<div class="rel-hit-note">Searching…</div>'; relHitIdx = -1;
+  const body = '  ' + textPattern('?s1', { text: t, scope: 'label', conds: [], via: null }, 0);
+  const ranked = profile() === 'virtuoso' && !noRank.has(settings.ep);
+  const run = ranked => sparql(ranked ? sel('?s1', body, 'GROUP BY ?s1 ORDER BY DESC (<LONG::IRI_RANK> (?s1)) LIMIT 8') : sel('DISTINCT ?s1', body, 'LIMIT 8'), { quiet: true, signal: ctl2.signal });
+  let iris;
+  try {
+    let j;
+    try { j = await run(ranked); } catch (e) { if (ranked && /IRI_RANK/.test(e.message)) { noRank.add(settings.ep); j = await run(false); } else throw e; }
+    iris = rows(j).map(r => r.s1).filter(x => x && x.type === 'uri').map(x => x.value);
+  } catch (e) { if (ctl2.signal.aborted) return; box.innerHTML = '<div class="rel-hit-note">The search failed (' + esc(e.short || e.message) + ').</div>'; return; }
+  if (ctl2.signal.aborted || !document.getElementById('relHits')) return;
+  if (!iris.length) { box.innerHTML = '<div class="rel-hit-note">Nothing matches “' + esc(t) + '”.</div>'; return; }
+  wantLabels(iris);
+  const have = relGet().inputs;
+  box.innerHTML = iris.map(i => '<button type="button" class="rel-hit" role="option" data-act="relate" data-iri="' + esc(i) + '"' + (have.includes(i) ? ' disabled' : '') + '>' + lblText(i) + '<span class="sub"> ' + esc(curie(i) || i) + (have.includes(i) ? ' · added' : '') + '</span></button>').join('');
+  paintLabels();
+  fetchCards(iris, ctl2.signal).then(() => { if (ctl2.signal.aborted) return; box.querySelectorAll('.rel-hit').forEach(b => { const c = cards.get(b.dataset.iri); if (c && c.desc && !b.querySelector('.rel-desc')) b.insertAdjacentHTML('beforeend', '<span class="rel-desc">' + esc(c.desc.length > 110 ? c.desc.slice(0, 109) + '…' : c.desc) + '</span>'); }); }).catch(() => {});
+}
+document.addEventListener('input', ev => {
+  if (ev.target.id !== 'relQ') return;
+  clearTimeout(relQTimer); const v = ev.target.value; relQTimer = setTimeout(() => relSuggest(v), 320);
+});
+document.addEventListener('keydown', ev => {
+  if (ev.target.id !== 'relQ') return;
+  const box = document.getElementById('relHits'), hits = box ? [...box.querySelectorAll('.rel-hit:not([disabled])')] : [];
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { if (!hits.length) return; ev.preventDefault(); relHitIdx = (relHitIdx + (ev.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length; hits.forEach((h, i) => h.classList.toggle('sel', i === relHitIdx)); }
+  else if (ev.key === 'Enter') {
+    ev.preventDefault();
+    const v = ev.target.value.trim(), iri = /^(https?|urn):\S+$/i.test(v) ? v : (/^\S+:\S*$/.test(v) ? expand(v) : null);
+    if (hits[relHitIdx]) hits[relHitIdx].click();
+    else if (iri) { relAdd(iri); ev.target.value = ''; relSuggest(''); }
+    else if (hits[0]) hits[0].click();
+  } else if (ev.key === 'Escape' && box) { box.hidden = true; }
+});
+function renderRelations(el) {
+  const c = relGet();
+  wantLabels(c.inputs);
+  const chips = relTrayHtml(c);
+  el.innerHTML = viewHead('Find Connections', 'How are these resources connected? Chains of links up to the chosen length are searched between every pair; a link may point either way.') +
+    '<div class="content rel"><div class="rel-ctl"><div class="rel-add"><label class="sr" for="relQ">Add a resource</label>' +
+    '<input type="search" id="relQ" placeholder="Search for a resource to add (two to ' + REL_MAX + ') — or paste its IRI / CURIE" autocomplete="off" aria-controls="relHits"><div class="rel-hits" id="relHits" role="listbox" hidden></div></div>' +
+    '<div class="rel-tray" id="relTray">' + chips + '</div>' +
+    '<div class="rel-opts"><label>Maximum links between inputs <input type="range" min="1" max="4" step="1" value="' + c.len + '" data-rel-set="len"> <output id="relLenOut">' + c.len + '</output></label>' +
+    '<label class="check"><input type="checkbox" data-rel-set="all"' + (c.all ? ' checked' : '') + '> Every direction pattern <small class="sub">(slower: ' + '2<sup>n</sup>' + ' patterns instead of 2n)</small></label>' +
+    '<label class="check"><input type="checkbox" data-rel-set="generic"' + (c.generic ? ' checked' : '') + '> Include generic links <small class="sub">(rdf:type, owl:sameAs, wiki page links, categories)</small></label></div>' +
+    '<div class="rel-run"><button class="btn primary" id="relFind" data-act="relFind"' + (c.inputs.length < 2 ? ' disabled' : '') + '>Find connections</button><button class="btn" id="relStop" data-act="relStop" hidden>Stop</button><span class="sub" id="relStatus" aria-live="polite"></span></div></div>' +
+    '<div class="rel-main"><div class="rel-graphbox" id="relGraph" tabindex="0" aria-label="Relationship graph"></div><aside class="rel-side" id="relSide"></aside></div></div>';
+  relG = null;
+  relStatus();
+  if (relFresh()) relDraw();
+  else if (c.run && c.inputs.length >= 2) relStart();
+  else relSide();
+}
+document.addEventListener('input', ev => {
+  const t = ev.target.closest && ev.target.closest('[data-rel-set]'); if (!t) return;
+  if (t.dataset.relSet === 'len') { document.getElementById('relLenOut').textContent = t.value; relSet({ len: +t.value, run: 0 }); relStatus(); }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target.closest && ev.target.closest('[data-rel-set], [data-rel]'); if (!t) return;
+  if (t.dataset.relSet === 'all' || t.dataset.relSet === 'generic') { relSet({ [t.dataset.relSet]: t.checked ? 1 : 0, run: 0 }); relStatus(); }
+  else if (t.dataset.rel && relSt) {
+    const set = t.dataset.rel === 'len' ? relSt.hiddenLens : relSt.hiddenPreds, v = t.dataset.rel === 'len' ? +t.value : t.value;
+    if (t.checked) set.delete(v); else set.add(v);
+    relSt.sel = null; relDraw();
+  }
+});
+
+/* ---- side panel: filters and the path list ---- */
+function relSide() {
+  const side = document.getElementById('relSide'); if (!side) return;
+  const st = relSt;
+  if (!st || !relFresh()) { side.innerHTML = '<p class="sub">Filters and the list of paths appear here once a search has run.</p>'; return; }
+  const all = [...st.paths.values()], vis = relVisible(st), visIds = new Set(vis.map(p => p.id));
+  const lens = [...new Set(all.map(p => p.hops.length))].sort((a, b) => a - b);
+  const preds = new Map();
+  all.forEach(p => new Set(p.hops.map(h => h.p)).forEach(pr => { const o = preds.get(pr) || { n: 0, v: 0 }; o.n++; if (visIds.has(p.id)) o.v++; preds.set(pr, o); }));
+  wantLabels([...preds.keys()]);
+  const ps = [...preds].sort((a, b) => b[1].n - a[1].n);
+  const lenCount = n => all.filter(p => p.hops.length === n).length;
+  const rowsHtml = vis.slice().sort((a, b) => a.hops.length - b.hops.length || a.id - b.id).slice(0, 200).map(p => relPathRow(p, st.sel && st.sel.type === 'path' && st.sel.id === p.id)).join('');
+  side.innerHTML = '<div class="rel-filters"><h4>Filter by</h4><div class="rel-fh">Paths <b>' + vis.length + '/' + all.length + '</b></div>' +
+    '<div class="rel-fg"><span class="sub">Length</span>' + lens.map(n => '<label class="check"><input type="checkbox" data-rel="len" value="' + n + '"' + (st.hiddenLens.has(n) ? '' : ' checked') + '> ' + n + ' link' + (n > 1 ? 's' : '') + ' <span class="cnt">' + lenCount(n) + '</span></label>').join('') + '</div>' +
+    '<div class="rel-fg"><span class="sub">Link <button class="mini" data-act="relAllPreds" data-on="1">All</button> <button class="mini" data-act="relAllPreds" data-on="0">None</button></span><div class="rel-preds">' +
+    ps.map(([pr, o]) => '<label class="check"><input type="checkbox" data-rel="pred" value="' + esc(pr) + '"' + (st.hiddenPreds.has(pr) ? '' : ' checked') + '> ' + lblText(pr) + ' <span class="cnt">' + o.v + '/' + o.n + '</span></label>').join('') + '</div></div></div>' +
+    '<div class="rel-paths"><h4>Paths</h4>' + (rowsHtml ? '<ol class="rel-list">' + rowsHtml + '</ol>' + (vis.length > 200 ? '<p class="sub">…and ' + (vis.length - 200) + ' more (use the filters).</p>' : '') : '<p class="sub">' + (st.running ? 'Searching…' : 'No paths. Try a longer maximum, or include generic links.') + '</p>') + '</div>';
+  paintLabels();
+}
+function relPathRow(p, on) {
+  const term = (iri, role) => '<button type="button" class="rel-term" data-act="relMenu" data-iri="' + esc(iri) + '" data-role="' + role + '" title="Describe, start a trail, add as input…" aria-haspopup="menu">' + lblText(iri) + '</button>';
+  let h = '<li class="rel-path' + (on ? ' on' : '') + '" data-act="relSelPath" data-id="' + p.id + '" tabindex="0"><span class="rel-len">' + p.hops.length + '</span><span class="rel-steps">' + term(p.nodes[0], 'Resource');
+  p.hops.forEach((x, k) => { h += x.dir === 'o' ? ' <span class="rel-hop">—' + term(x.p, 'Predicate') + '→</span> ' : ' <span class="rel-hop">←' + term(x.p, 'Predicate') + '—</span> '; h += term(p.nodes[k + 1], 'Resource'); });
+  return h + '</span></li>';
+}
+
+/* ---- the graph (D3 force layout, in the manner of the KG Explorer) ---- */
+async function relDraw() {
+  const box = document.getElementById('relGraph');
+  if (!box || !relSt || !relFresh()) { relSide(); return; }
+  relSide();
+  let d3;
+  try { d3 = await loadD3(); } catch { box.innerHTML = '<div class="empty">The graph library could not be loaded.</div>'; return; }
+  if (!document.getElementById('relGraph')) return;
+  if (!relG || relG.box !== box) { box.innerHTML = ''; relG = relMakeGraph(d3, box); }
+  const st = relSt, vis = relVisible(st), nodes = new Map(), edges = new Map();
+  vis.forEach(p => {
+    p.nodes.forEach((n, i) => { if (!nodes.has(n)) nodes.set(n, { id: n, input: st.cfg.inputs.indexOf(n) }); });
+    p.hops.forEach((h, k) => { const t = relTriple(p, k), key = relTripleKey(t); if (!edges.has(key)) edges.set(key, { key, s: t.s, p: t.p, o: t.o }); });
+  });
+  st.cfg.inputs.forEach(n => { if (!nodes.has(n)) nodes.set(n, { id: n, input: st.cfg.inputs.indexOf(n) }); });
+  wantLabels([...nodes.keys(), ...new Set([...edges.values()].map(e => e.p))]);
+  relG.set([...nodes.values()], [...edges.values()]);
+  relG.select(relSelection());
+}
+// What the current selection outlines: the nodes and edges of the chosen paths (a node selects every path through it).
+function relSelection() {
+  const st = relSt, s = st && st.sel; if (!s) return null;
+  const vis = relVisible(st);
+  const uses = p => p.hops.some((h, k) => s.keys.includes(relTripleKey(relTriple(p, k))));
+  const paths = s.type === 'path' ? vis.filter(p => p.id === s.id) : s.type === 'edge' ? vis.filter(uses) : vis.filter(p => p.nodes.includes(s.id));
+  if (!paths.length) return null;
+  const nodes = new Set(), edges = new Set(), order = [];
+  paths.forEach(p => { p.nodes.forEach(n => nodes.add(n)); p.hops.forEach((h, k) => { const key = relTripleKey(relTriple(p, k)); edges.add(key); if (s.type === 'path') order.push({ key, n: k + 1 }); }); });
+  return { nodes, edges, order, count: paths.length, pick: s.type === 'edge' ? new Set(s.keys) : null };
+}
+/* ---- the context menu: what to do with a selected subject, predicate or object ---- */
+function relMenuClose() { const m = document.getElementById('relMenu'); if (m) m.remove(); }
+function relOpenMenu(terms, x, y) {
+  relMenuClose();
+  const have = relGet().inputs;
+  const btn = (act, iri, text, extra) => '<button type="button" class="rm-i" role="menuitem" data-act="' + act + '" data-iri="' + esc(iri) + '"' + (extra || '') + '>' + text + '</button>';
+  const m = document.createElement('div');
+  m.id = 'relMenu'; m.className = 'rel-menu'; m.setAttribute('role', 'menu'); m.tabIndex = -1;
+  m.innerHTML = terms.map(t => {
+    const isP = t.role === 'Predicate', added = have.includes(t.iri);
+    return '<div class="rm-g" role="group" aria-label="' + esc(t.role) + '"><div class="rm-h"><span class="rm-role">' + esc(t.role) + '</span><span class="rm-name" data-lbl="' + esc(t.iri) + '">' + esc(labelOf(t.iri)) + '</span></div>' +
+      btn('describe', t.iri, 'Describe') +
+      (isP ? btn('relBrowse', t.iri, '⇢ Browse things with this link') : btn('explore', t.iri, '⇢ Start a trail here') + btn('relate', t.iri, added ? '⇄ Already an input' : '⇄ Add as input', added ? ' disabled' : '')) +
+      '<a class="rm-i" role="menuitem" href="' + esc(t.iri) + '" target="_blank" rel="noopener noreferrer">↗ Open IRI</a></div>';
+  }).join('');
+  document.body.appendChild(m);
+  const r = m.getBoundingClientRect();
+  m.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px';
+  m.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px';
+  m.addEventListener('click', () => setTimeout(relMenuClose, 0));
+  m.addEventListener('keydown', ev => {
+    const items = [...m.querySelectorAll('.rm-i:not([disabled])')], i = items.indexOf(document.activeElement);
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); (items[i + 1] || items[0]).focus(); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); (items[i - 1] || items[items.length - 1]).focus(); }
+    else if (ev.key === 'Escape') { ev.stopPropagation(); relMenuClose(); }
+  });
+  paintLabels();
+  const first = m.querySelector('.rm-i:not([disabled])'); if (first) first.focus({ preventScroll: true });
+}
+document.addEventListener('pointerdown', ev => { const m = document.getElementById('relMenu'); if (m && !m.contains(ev.target)) relMenuClose(); }, true);
+window.addEventListener('scroll', ev => { const m = document.getElementById('relMenu'); if (m && ev.target instanceof Node && m.contains(ev.target)) return; relMenuClose(); }, true);
+const relLinkTerms = l => l.list.length === 1
+  ? [{ role: 'Subject', iri: l.list[0].s }, { role: 'Predicate', iri: l.list[0].p }, { role: 'Object', iri: l.list[0].o }]
+  : [{ role: 'Resource', iri: l.list[0].s }, { role: 'Resource', iri: l.list[0].o }].concat([...new Set(l.list.map(x => x.p))].map(p => ({ role: 'Predicate', iri: p })));
+function relSelect(sel) {
+  if (!relSt) return;
+  relSt.sel = sel; if (relG) relG.select(relSelection());
+  if (!sel) relMenuClose();
+  document.querySelectorAll('.rel-path').forEach(li => li.classList.toggle('on', !!sel && sel.type === 'path' && +li.dataset.id === sel.id));
+}
+document.addEventListener('keydown', ev => {
+  if (!relG || !document.body.contains(relG.box)) return;
+  if (ev.key === 'Escape') relSelect(null);
+  else if ((ev.key === 'p' || ev.key === 'P') && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) relG.unpin();
+});
+function relRepaint() { if (relG) relG.labels(); }
+
+function relMakeGraph(d3, box) {
+  const NS_SVG = 'http://www.w3.org/2000/svg';
+  box.insertAdjacentHTML('beforeend', '<div class="rel-tools"><button class="mini" data-act="relFit">Fit</button><button class="mini" data-act="relLayout" title="Release every pinned resource and lay the graph out again">Re-layout</button>' +
+    '<label class="check"><input type="checkbox" id="relLabels" data-rel-view="labels" checked> Labels</label><label class="check"><input type="checkbox" id="relGroup" data-rel-view="group"> Group parallel links</label>' +
+    '<button class="mini" data-act="relPng">PNG</button><button class="mini" data-act="relTriples" title="Download the links shown as Turtle">Triples</button></div>' +
+    '<div class="rel-hint">Click or right-click a resource or a link for its menu (describe, start a trail, add as input) and to outline its paths; or pick a path in the list. Drag to pin; double-click or press P to release. Esc clears.</div>');
+  const svg = d3.select(box).append('svg').attr('class', 'rel-svg').attr('role', 'img').attr('aria-label', 'Graph of the relationships found');
+  const defs = svg.append('defs');
+  ['rel-arr', 'rel-arr-on'].forEach(id => defs.append('marker').attr('id', id).attr('viewBox', '0 -5 10 10').attr('refX', 9).attr('refY', 0).attr('markerWidth', 7).attr('markerHeight', 7).attr('orient', 'auto')
+    .append('path').attr('d', 'M0,-4L10,0L0,4Z').attr('class', id));
+  const root = svg.append('g'), gL = root.append('g'), gE = root.append('g'), gN = root.append('g'), gH = root.append('g');
+  let userMoved = false;   // once the reader pans or zooms, the graph stops re-fitting itself
+  const zoom = d3.zoom().scaleExtent([0.12, 4]).on('zoom', e => { if (e.sourceEvent) userMoved = true; relView = e.transform; root.attr('transform', e.transform); });
+  svg.call(zoom).on('dblclick.zoom', null).on('click', ev => { if (ev.target === svg.node()) relSelect(null); });
+  const W = () => box.clientWidth || 700, H = () => box.clientHeight || 520;
+  const sim = d3.forceSimulation().force('link', d3.forceLink().id(d => d.id).distance(150).strength(0.5)).force('charge', d3.forceManyBody().strength(-620))
+    .force('collide', d3.forceCollide(d => d.r + 26)).force('x', d3.forceX(W() / 2).strength(0.05)).force('y', d3.forceY(H() / 2).strength(0.07)).alphaDecay(0.045);
+  const byId = new Map();   // node objects live across updates, so positions and pins survive
+  let ns = [], es = [], links = [], showLabels = true, group = false, sel = null, fitted = false;
+  const short = s => (s.length > 30 ? s.slice(0, 29) + '…' : s);
+  const plain = iri => { const d = display(iri); if (d.kind !== 'raw') return d.text; let l = iri.replace(/[#/]+$/, '').split(/[#/]/).pop(); try { l = decodeURIComponent(l); } catch { /* keep */ } return l || iri; };
+  const nodeText = d => short(plain(d.id)), edgeText = e => (e.n > 1 ? e.n + ' links' : short(plain(e.list[0].p)));
+  function build() {
+    const m = new Map();
+    es.forEach(e => { const k = e.s < e.o ? e.s + '\u0001' + e.o : e.o + '\u0001' + e.s; (m.get(k) || m.set(k, []).get(k)).push(e); });
+    links = [];
+    m.forEach(list => {
+      if (group) { const first = list[0]; links.push({ id: list.map(x => x.key).join('|'), source: first.s, target: first.o, list, n: list.length, idx: 0, of: 1, both: list.some(x => x.s !== first.s) }); }
+      else list.forEach((e, i) => links.push({ id: e.key, source: e.s, target: e.o, list: [e], n: 1, idx: i, of: list.length, both: false }));
+    });
+  }
+  function draw() {
+    const hit = gL.selectAll('path.rel-hit').data(links, d => d.id);
+    hit.exit().remove();
+    hit.enter().append('path').attr('class', 'rel-hit').on('click', (ev, d) => edgeAct(ev, d)).on('contextmenu', (ev, d) => edgeAct(ev, d, true)).merge(hit);
+    const lk = gL.selectAll('path.rel-link').data(links, d => d.id);
+    lk.exit().remove();
+    lk.enter().append('path').attr('class', 'rel-link').merge(lk).attr('marker-end', d => (d.both ? null : 'url(#rel-arr)')).attr('marker-start', d => (d.both ? 'url(#rel-arr)' : null));
+    const el = gE.selectAll('g.rel-el').data(links, d => d.id);
+    el.exit().remove();
+    const ee = el.enter().append('g').attr('class', 'rel-el').on('click', (ev, d) => edgeAct(ev, d)).on('contextmenu', (ev, d) => edgeAct(ev, d, true)); ee.append('text').attr('text-anchor', 'middle');
+    ee.merge(el).attr('data-from', d => d.source.id || d.source).attr('data-to', d => d.target.id || d.target).select('text').text(edgeText);
+    ee.append('title').text(d => d.list.map(x => labelOf(x.s) + ' — ' + labelOf(x.p) + ' → ' + labelOf(x.o)).join('\n'));
+    const nd = gN.selectAll('g.rel-node').data(ns, d => d.id);
+    nd.exit().remove();
+    const ne = nd.enter().append('g').attr('class', 'rel-node').call(d3.drag().clickDistance(4)
+      .on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(0.25).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
+      .on('end', (ev, d) => { if (!ev.active) sim.alphaTarget(0); savePos(); }))
+      .on('click', (ev, d) => { ev.stopPropagation(); nodeAct(ev, d); })
+      .on('contextmenu', (ev, d) => { ev.preventDefault(); ev.stopPropagation(); nodeAct(ev, d, true); })
+      .on('keydown', (ev, d) => {
+        if (ev.key === ' ') ev.preventDefault();   // Space opens the menu on key release, so that releasing it does not press the first item
+        else if (ev.key === 'Enter' || ev.key === 'ContextMenu') { ev.preventDefault(); const b = ev.currentTarget.getBoundingClientRect(); nodeAct({ clientX: b.right, clientY: b.top }, d, true); }
+      })
+      .on('keyup', (ev, d) => { if (ev.key === ' ') { ev.preventDefault(); const b = ev.currentTarget.getBoundingClientRect(); nodeAct({ clientX: b.right, clientY: b.top }, d, true); } })
+      .on('dblclick', (ev, d) => { ev.stopPropagation(); d.fx = d.fy = null; sim.alpha(0.3).restart(); });
+    ne.attr('tabindex', 0).attr('role', 'button').attr('aria-haspopup', 'menu');
+    ne.append('circle'); ne.append('text').attr('class', 'rel-nl').attr('text-anchor', 'middle'); ne.append('title');
+    ne.merge(nd).attr('class', d => 'rel-node' + (d.input >= 0 ? ' input rel-c' + (d.input % 5) : '')).select('circle').attr('r', d => d.r);
+    ne.merge(nd).select('text').attr('y', d => d.r + 13).text(nodeText);
+    ne.merge(nd).select('title').text(d => plain(d.id) + '\n' + d.id);
+    applySel(); showHideLabels();
+  }
+  const rad = d => d.input >= 0 ? 13 : 8;
+  // Selecting a resource or a link outlines its paths and opens a menu at the pointer (a second click, or Esc, closes it).
+  function nodeAct(ev, d, always) {
+    const s = relSt && relSt.sel, same = s && s.type === 'node' && s.id === d.id;
+    if (same && !always) { relSelect(null); return; }
+    relSelect({ type: 'node', id: d.id }); relOpenMenu([{ role: 'Resource', iri: d.id }], ev.clientX + 6, ev.clientY + 6);
+  }
+  function edgeAct(ev, l, always) {
+    ev.stopPropagation(); if (always) ev.preventDefault();
+    const keys = l.list.map(x => x.key), s = relSt && relSt.sel, same = s && s.type === 'edge' && s.keys.join('|') === keys.join('|');
+    if (same && !always) { relSelect(null); return; }
+    relSelect({ type: 'edge', keys }); relOpenMenu(relLinkTerms(l), ev.clientX + 6, ev.clientY + 6);
+  }
+  function pathD(l) {
+    const a = l.source, b = l.target; if (a.x == null || b.x == null) return '';
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, off = l.of > 1 ? (l.idx - (l.of - 1) / 2) * 34 : 0;
+    const cx = (a.x + b.x) / 2 - dy / len * off, cy = (a.y + b.y) / 2 + dx / len * off;
+    const trim = (p, q, r) => { const vx = q.x - p.x, vy = q.y - p.y, v = Math.hypot(vx, vy) || 1; return [p.x + vx / v * r, p.y + vy / v * r]; };
+    const s = trim(a, { x: cx, y: cy }, a.r + (l.both ? 6 : 1)), e = trim(b, { x: cx, y: cy }, b.r + 6);
+    l.mid = [0.25 * s[0] + 0.5 * cx + 0.25 * e[0], 0.25 * s[1] + 0.5 * cy + 0.25 * e[1]];
+    return 'M' + s[0] + ',' + s[1] + 'Q' + cx + ',' + cy + ' ' + e[0] + ',' + e[1];
+  }
+  sim.on('tick', () => {
+    gL.selectAll('path.rel-link').attr('d', pathD);
+    gL.selectAll('path.rel-hit').attr('d', l => pathD(l));
+    gE.selectAll('g.rel-el').attr('transform', d => 'translate(' + (d.mid ? d.mid[0] : 0) + ',' + (d.mid ? d.mid[1] : 0) + ')');
+    gN.selectAll('g.rel-node').attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
+    gH.selectAll('g.rel-hopn').attr('transform', d => { const l = links.find(x => x.list.some(y => y.key === d.key)); return l && l.mid ? 'translate(' + l.mid[0] + ',' + (l.mid[1] - 14) + ')' : 'translate(-99,-99)'; });
+    if (!fitted && sim.alpha() < 0.35 && ns.length) { fitted = true; fit(); }
+  });
+  const savePos = () => ns.forEach(d => relPos.set(d.id, { x: d.x, y: d.y, fx: d.fx, fy: d.fy }));
+  sim.on('end', () => { savePos(); if (!userMoved) fit(); });
+  function applySel() {
+    const on = sel;
+    gN.selectAll('g.rel-node').classed('dim', d => !!on && !on.nodes.has(d.id)).classed('on', d => !!on && on.nodes.has(d.id));
+    const inSel = l => l.list.some(x => on.edges.has(x.key));
+    gL.selectAll('path.rel-link').classed('pick', l => !!on && !!on.pick && l.list.some(x => on.pick.has(x.key))).classed('dim', l => !!on && !inSel(l)).classed('on', l => !!on && inSel(l)).attr('marker-end', l => (l.both ? null : (on && inSel(l) ? 'url(#rel-arr-on)' : 'url(#rel-arr)')));
+    gE.selectAll('g.rel-el').classed('dim', l => !!on && !inSel(l)).classed('on', l => !!on && inSel(l));
+    const hn = gH.selectAll('g.rel-hopn').data(on && on.order.length ? on.order : [], d => d.key);
+    hn.exit().remove();
+    const he = hn.enter().append('g').attr('class', 'rel-hopn'); he.append('circle').attr('r', 9); he.append('text').attr('dy', '0.35em').attr('text-anchor', 'middle').text(d => d.n);
+    sim.alpha(Math.max(sim.alpha(), 0.02)).restart();
+  }
+  function showHideLabels() { svg.classed('nolabels', !showLabels).classed('many', links.length > 40); }
+  function fit() {
+    if (!ns.length) return;
+    const xs = ns.map(d => d.x), ys = ns.map(d => d.y), x0 = Math.min(...xs) - 95, x1 = Math.max(...xs) + 95, y0 = Math.min(...ys) - 50, y1 = Math.max(...ys) + 70;   // labels extend past the circles
+    const k = Math.min(2, 0.95 * Math.min(W() / (x1 - x0), H() / (y1 - y0))), tx = W() / 2 - k * (x0 + x1) / 2, ty = H() / 2 - k * (y0 + y1) / 2;
+    svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+  }
+  const refit = () => { userMoved = false; fit(); };
+  box.addEventListener('change', ev => {
+    const t = ev.target; if (!t.dataset.relView) return;
+    if (t.dataset.relView === 'labels') { showLabels = t.checked; showHideLabels(); } else if (t.dataset.relView === 'group') { group = t.checked; build(); sim.force('link').links(links); draw(); sim.alpha(0.2).restart(); }
+  });
+  const ctl = {
+    box, svg: svg.node(), fit: refit, pos: () => ns,
+    set(nodes, edges) {
+      const n0 = ns.length; let restored = 0;
+      ns = nodes.map(n => { let o = byId.get(n.id); if (!o) { o = { id: n.id }; byId.set(n.id, o); const sp = relPos.get(n.id); if (sp) { o.x = sp.x; o.y = sp.y; o.fx = sp.fx; o.fy = sp.fy; restored++; } else if (n.input >= 0) { const ang = 2 * Math.PI * n.input / 5; o.x = W() / 2 + Math.cos(ang) * Math.min(W(), H()) * 0.3; o.y = H() / 2 + Math.sin(ang) * Math.min(W(), H()) * 0.3; } }
+        o.input = n.input; o.r = rad(o); return o; });
+      es = edges; build();
+      sim.nodes(ns); sim.force('link').links(links.map(l => l)); draw();
+      if (restored && restored === ns.length && !n0) {   // coming back: keep the layout exactly, holding every node still while the first frame is drawn
+        fitted = true; userMoved = !!relView; if (relView) svg.call(zoom.transform, relView);
+        ns.forEach(d => { d.px0 = d.fx == null ? null : d.fx; d.py0 = d.fy == null ? null : d.fy; d.fx = d.x; d.fy = d.y; });
+        sim.alpha(0.02).restart();
+        setTimeout(() => ns.forEach(d => { d.fx = d.px0; d.fy = d.py0; }), 300);
+      }
+      else sim.alpha(n0 ? 0.35 : 1).restart();
+    },
+    select(s) { sel = s; applySel(); },
+    labels() { gN.selectAll('g.rel-node').select('text').text(nodeText); gN.selectAll('g.rel-node').select('title').text(d => plain(d.id) + '\n' + d.id); gE.selectAll('g.rel-el').select('text').text(edgeText); },
+    layout() { ns.forEach(d => { d.fx = d.fy = null; }); fitted = false; userMoved = false; sim.alpha(1).restart(); },
+    unpin() { ns.forEach(d => { d.fx = d.fy = null; }); sim.alpha(0.3).restart(); },
+    links: () => links, nodes: () => ns
+  };
+  new ResizeObserver(() => { sim.force('x', d3.forceX(W() / 2).strength(0.05)).force('y', d3.forceY(H() / 2).strength(0.07)); }).observe(box);
+  return ctl;
+}
+
+/* ---- exports ---- */
+function relTurtle() {
+  const st = relSt, vis = relVisible(st), seen = new Map(), used = new Map(), lines = [];
+  const name = iri => {
+    const c = curie(iri);
+    if (c) { const p = c.slice(0, c.indexOf(':')), loc = c.slice(p.length + 1); if (/^[A-Za-z][\w-]*$/.test(p) && /^[A-Za-z0-9_](?:[A-Za-z0-9_.-]*[A-Za-z0-9_-])?$/.test(loc)) { used.set(p, iri.slice(0, iri.length - loc.length)); return c; } }
+    return iriRef(iri);
+  };
+  const nodes = new Set();
+  vis.forEach(p => p.hops.forEach((h, k) => { const t = relTriple(p, k), key = relTripleKey(t); if (seen.has(key)) return; seen.set(key, 1); nodes.add(t.s); nodes.add(t.o); lines.push(name(t.s) + ' ' + name(t.p) + ' ' + name(t.o) + ' .'); }));
+  const lab = []; nodes.forEach(n => { const l = labels.get(n); if (l && l !== n) lab.push(name(n) + ' ' + name('http://www.w3.org/2000/01/rdf-schema#label') + ' ' + litStr(l) + ' .'); });
+  const pre = [...used].sort((a, b) => a[0].localeCompare(b[0])).map(([p, ns]) => '@prefix ' + p + ': <' + ns + '> .');
+  return '# Links shown on the Find Connections tab of the SPARQL Faceted Browser\n# Endpoint: ' + settings.ep + '\n# Resources: ' + st.cfg.inputs.join(' ') + '\n' + pre.join('\n') + '\n\n' + lines.join('\n') + '\n\n' + lab.join('\n') + '\n';
+}
+async function relPng() {
+  if (!relG) return;
+  const svg = relG.svg, b = svg.getBoundingClientRect(), W = Math.max(400, Math.round(b.width)), H = Math.max(300, Math.round(b.height));
+  const clone = svg.cloneNode(true);
+  const srcs = svg.querySelectorAll('*'), dst = clone.querySelectorAll('*');
+  const props = ['fill', 'stroke', 'stroke-width', 'opacity', 'font-size', 'font-family', 'font-weight', 'paint-order', 'stroke-linejoin', 'display'];
+  srcs.forEach((s, i) => { const cs = getComputedStyle(s); props.forEach(p => dst[i].style.setProperty(p, cs.getPropertyValue(p))); });
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); clone.setAttribute('width', W); clone.setAttribute('height', H);
+  const bg = getComputedStyle(document.body).backgroundColor;
+  const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' }));
+  const img = new Image();
+  await new Promise((ok, fail) => { img.onload = ok; img.onerror = fail; img.src = url; }).catch(() => toast('The picture could not be made.'));
+  const cv = Object.assign(document.createElement('canvas'), { width: W * 2, height: H * 2 }), cx = cv.getContext('2d');
+  cx.fillStyle = bg; cx.fillRect(0, 0, cv.width, cv.height); cx.scale(2, 2); cx.drawImage(img, 0, 0, W, H); URL.revokeObjectURL(url);
+  cv.toBlob(bl => { if (!bl) return; const u = URL.createObjectURL(bl); const a = Object.assign(document.createElement('a'), { href: u, download: 'connections-' + new Date().toISOString().slice(0, 10) + '.png' }); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); });
+}
+
 /* ---------- actions ---------- */
 function mutate(fn, opts = {}) {
   nav = JSON.parse(JSON.stringify(nav));
@@ -3617,6 +4200,19 @@ async function exportView(fmt, scope) {
 }
 
 const actions = {
+  findConnections: () => { if (!nav) { newNav([], 'relations'); go(false); } else mutate(n => { n.view = 'relations'; n.off = 0; }, { keepView: true }); setTimeout(() => { const q = document.getElementById('relQ'); if (q) q.focus(); }, 300); },
+  relate: d => relAdd(d.iri),
+  relMenu: (d, el) => { const r = el.getBoundingClientRect(); relOpenMenu([{ role: d.role, iri: d.iri }], r.left, r.bottom + 4); },
+  relBrowse: d => { newNav([{ via: null, text: '', scope: 'label', conds: [{ t: 'pv', p: d.iri, dir: 'out', v: null, neg: 0 }] }]); go(false); },
+  relRemove: d => { const c = relGet(); relSet({ inputs: c.inputs.filter(x => x !== d.iri), run: 0 }); if (nav.view === 'relations') render(); },
+  relFind: () => { relSet({ run: 1 }); relStart(); },
+  relStop: () => relStop(),
+  relFit: () => relG && relG.fit(),
+  relLayout: () => relG && relG.layout(),
+  relPng: () => relPng(),
+  relTriples: () => { if (relSt) download(relTurtle(), 'connections-' + new Date().toISOString().slice(0, 10) + '.ttl', 'text/turtle'); },
+  relSelPath: d => { const id = +d.id; relSelect(relSt && relSt.sel && relSt.sel.type === 'path' && relSt.sel.id === id ? null : { type: 'path', id }); },
+  relAllPreds: d => { if (!relSt) return; const all = new Set(); relSt.paths.forEach(p => p.hops.forEach(h => all.add(h.p))); relSt.hiddenPreds = d.on === '1' ? new Set() : all; relSt.sel = null; relDraw(); },
   start: d => { newNav([emptyNode(d.text)]); go(false); },
   browseAll: () => { newNav([emptyNode()]); go(false); },
   focus: d => { if (+d.i === nav.focus && nav.view === 'entities') return; mutate(n => { n.focus = +d.i; n.vp = null; }); },
@@ -3875,8 +4471,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-// Keep in step with the newest heading in CHANGELOG.md ("## 1.0.17 — 2026-10-27"): bump both with every release.
-const APP_VERSION = '1.0.17', APP_BUILT = '2026-10-27';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.1.0 — 2026-11-10"): bump both with every release.
+const APP_VERSION = '1.1.0', APP_BUILT = '2026-11-10';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;
