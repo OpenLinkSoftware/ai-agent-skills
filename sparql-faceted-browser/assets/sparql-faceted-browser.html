@@ -480,6 +480,11 @@ footer.site a, #about a { color: var(--accent); }
 .kg-tray input[type=search] { flex: 1; min-width: 120px; font: inherit; font-size: 12px; }
 .kg-status { color: var(--muted); font-size: 11.5px; }
 .kg-legend { gap: 4px 12px; }
+.kg-edges-row { align-items: flex-start; }
+.kg-edge-acts { display: inline-flex; gap: 4px; }
+.kg-edges { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 5px; max-height: 128px; overflow: auto; padding: 2px 1px; }
+.kg-edge { font-size: 11.5px; padding: 2px 8px; }
+.kg-n { opacity: .75; font-variant-numeric: tabular-nums; }
 .kg-leg { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; }
 .kg-leg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .kg-settings { position: absolute; top: 0; right: 0; bottom: 0; z-index: 4; width: min(300px, 92%); overflow: auto; padding: 10px 12px; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -8px 0 24px rgba(0,0,0,.14); font-size: 12px; display: grid; align-content: start; gap: 8px; animation: kgslide .18s ease; }
@@ -4024,13 +4029,23 @@ function relMakeGraph(d3, box) {
     const nodes = ns.length, nlinks = links.reduce((a, l) => a + l.n, 0);
     $('kgBadge').textContent = nodes + ' node' + (nodes === 1 ? '' : 's') + ' · ' + nlinks + ' link' + (nlinks === 1 ? '' : 's');
     const off = [...hiddenG].map(x => (x === 'class' ? 'classes' : 'instances')).concat([...hiddenK].map(k => REL_KINDS[k].name.toLowerCase()));
+    if (st && st.hiddenPreds.size) off.push(st.hiddenPreds.size + ' edge type' + (st.hiddenPreds.size === 1 ? '' : 's'));
     const status = (advanced() ? 'Advanced' : 'Basic') + ' mode · filters: ' + (off.length ? 'hiding ' + off.join(', ') : 'all') + ' · ' + nodes + ' nodes · ' + nlinks + ' links';
+    // Edges (properties): every link type found, with its icon and how many of the visible/total paths use it
+    const allP = st ? [...st.paths.values()] : [], visIds = st ? new Set(relVisible(st).map(p => p.id)) : new Set(), pc = new Map();
+    allP.forEach(p => new Set(p.hops.map(h => h.p)).forEach(pr => { const o = pc.get(pr) || { n: 0, v: 0 }; o.n++; if (visIds.has(p.id)) o.v++; pc.set(pr, o); }));
+    const predList = [...pc].sort((a, b) => b[1].n - a[1].n);
+    const sameName = new Map(); predList.forEach(([pr]) => { const n = plain(pr).trim().toLowerCase(); sameName.set(n, (sameName.get(n) || 0) + 1); });
+    const edgeTag = pr => (sameName.get(plain(pr).trim().toLowerCase()) > 1 ? ' <span class="kg-n">' + esc((curie(pr) || '').split(':')[0]) + '</span>' : '');
+    wantLabels(predList.map(x => x[0]));
     const legend = (st ? st.cfg.inputs : []).map((iri, i) => '<span class="kg-leg"><i style="background:' + REL_INPUT_COLORS[i % 5] + '"></i>' + esc(short(plain(iri), 22)) + '</span>').join('') +
       '<span class="kg-leg"><i style="background:' + REL_COLORS.Class + '"></i>Class</span><span class="kg-leg"><i style="background:' + REL_COLORS.Instance + '"></i>Instance</span>';
     $('kgToolbar').innerHTML =
       '<div class="kg-row"><span class="kg-lab">Mode</span>' + chip('data-kg-mode', 'basic', !advanced(), 'Basic') + chip('data-kg-mode', 'advanced', advanced(), 'Advanced') + '</div>' +
       '<div class="kg-row"><span class="kg-lab">Show</span>' + chip('data-kg-group', 'class', !hiddenG.has('class'), 'Classes') + chip('data-kg-group', 'instance', !hiddenG.has('instance'), 'Instances') +
       Object.keys(REL_KINDS).map(k => chip('data-kg-kind', k, !hiddenK.has(k), REL_KINDS[k].icon + ' ' + REL_KINDS[k].name, ' data-advanced-control' + (advanced() ? '' : ' hidden'))).join('') + '</div>' +
+      '<div class="kg-row kg-edges-row" data-advanced-control' + (advanced() ? '' : ' hidden') + '><span class="kg-lab">Edges</span><span class="kg-edge-acts"><button type="button" class="mini" data-act="relAllPreds" data-on="1">All</button> <button type="button" class="mini" data-act="relAllPreds" data-on="0">None</button></span>' +
+      '<div class="kg-edges">' + (predList.length ? predList.map(([pr, o]) => '<button type="button" class="kg-chip kg-edge" data-kg-edge="' + esc(pr) + '" aria-pressed="' + !(st && st.hiddenPreds.has(pr)) + '" title="' + esc(curie(pr) || pr) + '">' + relPredIcon(pr) + ' ' + lblText(pr) + edgeTag(pr) + ' <span class="kg-n">' + o.v + '/' + o.n + '</span></button>').join('') : '<span class="sub">Edge types appear once paths are found.</span>') + '</div></div>' +
       '<div class="kg-row"><label class="kg-lab" for="kgSearch">Filter nodes</label><input type="search" id="kgSearch" placeholder="Name contains…" value="' + esc(search) + '" autocomplete="off"></div>' +
       '<div class="kg-row"><span class="kg-lab">Edge labels</span>' + chip('data-kg-pred', 'icons', iconsMode(), 'Icons') + chip('data-kg-pred', 'labels', !iconsMode(), 'Labels') +
       '<label class="check kg-grp"><input type="checkbox" id="kgGroup"' + (group ? ' checked' : '') + '> Group parallel links</label></div>' +
@@ -4049,7 +4064,7 @@ function relMakeGraph(d3, box) {
       '<fieldset><legend>Resolver for “Open IRI”</legend><select data-kg-set="resolver"><option value="none"' + (relPref.resolver === 'none' ? ' selected' : '') + '>None (the IRI itself)</option><option value="uriburner"' + (relPref.resolver === 'uriburner' ? ' selected' : '') + '>URIBurner describe</option><option value="custom"' + (relPref.resolver === 'custom' ? ' selected' : '') + '>Custom pattern</option></select>' +
       '<input type="text" data-kg-set="custom" placeholder="https://example.org/describe?uri={uri}" value="' + esc(relPref.custom) + '"' + (relPref.resolver === 'custom' ? '' : ' hidden') + ' spellcheck="false"></fieldset>' +
       '<fieldset><legend>Edge filtering <button type="button" class="mini" data-act="relAllPreds" data-on="1">All</button> <button type="button" class="mini" data-act="relAllPreds" data-on="0">None</button></legend><div class="kg-preds">' +
-      allPreds.map(p => '<label class="check"><input type="checkbox" data-rel="pred" value="' + esc(p) + '"' + (st && st.hiddenPreds.has(p) ? '' : ' checked') + '> ' + esc(short(plain(p), 34)) + '</label>').join('') + '</div></fieldset>' +
+      allPreds.map(p => '<label class="check"><input type="checkbox" data-rel="pred" value="' + esc(p) + '"' + (st && st.hiddenPreds.has(p) ? '' : ' checked') + '> ' + relPredIcon(p) + ' ' + lblText(p) + edgeTag(p) + '</label>').join('') + '</div></fieldset>' +
       '<div class="kg-sf"><button type="button" class="mini" id="kgClear">Clear filters</button></div>';
     apply();
   }
@@ -4067,7 +4082,8 @@ function relMakeGraph(d3, box) {
     else if (b.dataset.kgGroup || b.dataset.kgKind) {
       const set = b.dataset.kgGroup ? relSt.hiddenGroups : relSt.hiddenKinds, v = b.dataset.kgGroup || b.dataset.kgKind;
       if (set.has(v)) set.delete(v); else set.add(v); relSt.sel = null; relDraw();
-    } else if (b.dataset.kgPred) { relPref.pred = b.dataset.kgPred; relPrefSave(); chrome(); paint(); }
+    } else if (b.dataset.kgEdge) { const set = relSt.hiddenPreds, v = b.dataset.kgEdge; if (set.has(v)) set.delete(v); else set.add(v); relSt.sel = null; relDraw(); }
+    else if (b.dataset.kgPred) { relPref.pred = b.dataset.kgPred; relPrefSave(); chrome(); paint(); }
     else if (b.id === 'kgGear') { const o = b.getAttribute('aria-expanded') !== 'true'; b.setAttribute('aria-expanded', String(o)); apply(); }
     else if (b.id === 'kgSetClose') { $('kgGear').setAttribute('aria-expanded', 'false'); apply(); $('kgGear').focus(); }
     else if (b.id === 'kgFull') { const p = document.fullscreenElement ? document.exitFullscreen() : box.requestFullscreen ? box.requestFullscreen() : null; if (p && p.catch) p.catch(() => {}); }
@@ -4107,7 +4123,7 @@ function relMakeGraph(d3, box) {
       } else if (relPref.physics) sim.alpha(n0 ? 0.35 : 1).restart();
     },
     select(s) { sel = s; applySel(); },
-    labels() { paint(); },
+    labels() { paint(); if (document.activeElement !== $('kgSearch') && !(document.activeElement && document.activeElement.closest && document.activeElement.closest('#kgSettings'))) chrome(); },
     layout() { ns.forEach(d => { d.fx = d.fy = null; }); fitted = false; userMoved = false; if (relPref.physics) sim.alpha(1).restart(); },
     unpin() { ns.forEach(d => { d.fx = d.fy = null; }); sim.alpha(0.3).restart(); },
     links: () => links, nodes: () => ns
@@ -4698,8 +4714,8 @@ document.getElementById('status').addEventListener('click', ev => { if (!ev.targ
 }
 
 /* ---------- About ---------- */
-// Keep in step with the newest heading in CHANGELOG.md ("## 1.1.1 — 2026-11-10"): bump both with every release.
-const APP_VERSION = '1.1.1', APP_BUILT = '2026-11-10';
+// Keep in step with the newest heading in CHANGELOG.md ("## 1.1.2 — 2026-11-10"): bump both with every release.
+const APP_VERSION = '1.1.2', APP_BUILT = '2026-11-10';
 document.querySelectorAll('.cyear').forEach(n => { const y = new Date().getFullYear(); n.textContent = y > 2026 ? '2026–' + y : '2026'; });
 document.getElementById('aboutBtn').addEventListener('click', () => {
   const set = (id, t) => document.getElementById(id).textContent = t;

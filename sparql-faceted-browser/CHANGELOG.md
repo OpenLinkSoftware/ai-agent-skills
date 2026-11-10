@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.2 — 2026-11-10
+
+- **Edges (properties) in the Advanced controls.** 1.1.1 put edge filtering only in the Settings panel behind the gear,
+  as a bare list of names, and the Advanced tray itself offered node types but no edge types. The tray now has an **Edges**
+  row beside the node kinds: one chip per link type found, with its icon, name and paths shown/total (for example
+  "📍 death place 5/5"), `aria-pressed` on each, and **All** / **None**. Choosing a chip hides that link type, the paths that use it, and any
+  resources left with no path, and the badge, status readout ("filters: hiding 2 edge types") and the Filter by list follow.
+  The Settings panel's Edge filtering list (with All/None) edits the same set and now shows the same icons and live names.
+  Two link types with the same name show their prefix (`city dbo`, `city dbp`).
+
 ## 1.1.1 — 2026-11-10
 
 - **Find Connections now follows the KG Explorer contract** (rdf-infographic-skill: `SKILL.md` KG Explorer Basic and
