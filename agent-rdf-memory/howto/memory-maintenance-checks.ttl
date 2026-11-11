@@ -1,0 +1,60 @@
+@prefix :       <#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a schema:CreativeWork ;
+    schema:name "howto/memory-maintenance-checks.ttl"@en ;
+    schema:description "Deterministic checks that keep agent-rdf-memory current without a model: a freshness line in the session-start pack, a maintenance report, a volatile-fact check and a session-claims check. Built on 2026-11-11 from the options in the comparison of Anthropic's The Components of Agent Memory with this store. All four are report-only; none changes a memory file, and none is wired into a hook except the freshness line."@en ;
+    schema:dateCreated "2026-11-11T18:58:35Z"^^xsd:dateTime ;
+    schema:dateModified "2026-11-11T18:58:35Z"^^xsd:dateTime ;
+    schema:author <https://linkedin.com/in/kidehen#this> ;
+    schema:about :howto .
+
+:howto a schema:HowTo ;
+    schema:name "Check that agent-rdf-memory is current, consistent and truthful about files, without a model"@en ;
+    schema:description "Four checks, cheapest first, each a script that reads the store and prints a report. They cover drift between the endpoint and the files, structural rot inside the files, facts in core.ttl that go stale, and the files a session record says it touched."@en ;
+    schema:step :step-freshness, :step-maintenance, :step-volatile, :step-claims, :step-notBuilt ;
+    rdfs:seeAlso <agent-rdf-memory-loader-run.ttl>,
+        <../scripts/memory-maintenance.py>,
+        <../scripts/check-volatile-facts.py>,
+        <../scripts/check-session-claims.py>,
+        <../load_memory.py> .
+
+:step-freshness a schema:HowToStep ;
+    schema:position "1"^^xsd:integer ;
+    schema:name "Read the freshness section of the session-start pack before trusting what the endpoint supplied"@en ;
+    schema:text """load_memory.py now ends the index section with a freshness section that compares the endpoint with the files on two numbers: the newest schema:position in index.ttl and the count of schema:HowToStep entries in preferences.ttl. Each line says in sync, or that the endpoint is BEHIND or AHEAD of the files by N, and a BEHIND result adds a pointer to scripts/refresh-loader.sh.
+
+Why: on 2026-11-11 the pack came from an endpoint graph 58 index entries behind the files (182 of 687 documents out of sync) and said nothing, so recent rules were absent without any sign. The same check found a one-entry gap within hours of the reload, because another session wrote a new index entry and step afterwards: a load is a snapshot, so a small gap after a busy day is normal. If the line says BEHIND, read the files for what is missing or reload; do not assume the pack is complete."""@en .
+
+:step-maintenance a schema:HowToStep ;
+    schema:position "2"^^xsd:integer ;
+    schema:name "Run scripts/memory-maintenance.py for structural rot: superseded steps, dead links, duplicate names, unrouted steps"@en ;
+    schema:text """python3 scripts/memory-maintenance.py prints four lists and writes nothing (about a second):
+
+1. Steps that mark another step superseded, reversed or corrected, with the step numbers they refer to. These are candidates to retire; retiring one is a hand edit with approval.
+2. rdfs:seeAlso links in the root, howto, entities, projects and shapes documents whose target file is missing or whose #fragment names a subject that is not in the target. Add --sessions to include sessions/ (slow). --strict exits 1 when any are found.
+3. Duplicate howto document names and duplicate step names.
+4. Steps attached to no topic howto, each with the topic that the ontology's trigger phrases suggest. The suggestion is a phrase match, not a decision: on 2026-11-11 it offered a topic for 124 of 170 unrouted steps, and short phrases such as RDF or skill can match loosely.
+
+First run, 2026-11-11: 8 steps with supersession markers, 7 dead links (5 fragments that name no subject, 2 missing files), no duplicate names, 170 unrouted steps."""@en .
+
+:step-volatile a schema:HowToStep ;
+    schema:position "3"^^xsd:integer ;
+    schema:name "Run scripts/check-volatile-facts.py to confirm the credential locations, paths and endpoints in core.ttl still exist"@en ;
+    schema:text """python3 scripts/check-volatile-facts.py reads every schema:value in core.ttl and checks the thing it names: a Keychain item (existence only, by running security find-generic-password WITHOUT -w or -g, so the secret is never read or printed), a file or folder (with {CREDENTIALS_ROOT} expanded from core.ttl itself), or an endpoint (any HTTP answer, including 401, counts as reachable). It also probes the loader's default endpoints. --strict exits 1 on a missing or unreachable fact; --skip-network skips the endpoint probes.
+
+Why: a stale credential location caused failed logins before (a /tmp/uyi value that was out of date, and a value stored under the wrong key). First run, 2026-11-11: 12 facts, all present, both loader endpoints answering HTTP 401."""@en .
+
+:step-claims a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "Run scripts/check-session-claims.py on a session record to compare the files it names with the disk and the transcript"@en ;
+    schema:text """python3 scripts/check-session-claims.py sessions/<record>.ttl [--transcript PATH] [--written] extracts every file path named in the record's literals and reports OK (on disk and traced in the transcript), NO-TRACE (on disk, never mentioned by the transcript, so possibly older than the session) or NOT-ON-DISK (named but not found). --written also lists files the transcript wrote or edited that the record never names. The default transcript is the newest .jsonl for this repository under ~/.claude/projects/.
+
+This is the narrow, scriptable part of the dreaming pass in Anthropic's The Components of Agent Memory: it settles claims about files and says nothing about prose. A NOT-ON-DISK result is not always an error: a record may name a file in order to say it is absent (the 2026-11-11 record names the orphan graph's missing howto). Read the list before concluding anything."""@en .
+
+:step-notBuilt a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "Not built: judging the content of a note against the transcript, assigning the unrouted steps, and adopting an index-then-pack session start"@en ;
+    schema:text """Comparing what a note says happened with what the transcript shows still needs a reader (a model or a person); the checks above settle only file claims. Assigning the 170 unrouted steps to topics changes preferences.ttl and is a judgement call per step, so the report only suggests. Adopting the 3.4 KB index plus per-intent packs drafted in agent-rdf-memory/drafts/ changes what every session loads and touches the full-read rule in AGENTS.md, the global CLAUDE.md and check-memory-gate.py, so it waits for a decision."""@en .
