@@ -3346,7 +3346,7 @@ PROCEDURE when a generator must write into a repo as an intermediate: gitignore 
 A source repository holds hand-authored source — engine code, XSLT, skin bundles, generator scripts — and never their output."""@en ;
     rdfs:seeAlso <howto/artifact-routing.ttl>,
         <howto/artifact-routing.ttl#step-buildFixtureIsStillAnArtifact>,
-        :step-outputRootBlockingGate,
+        <howto/artifact-routing.ttl#step-outputRootBlockingGate>,
         :step-outputDirs .
 
 # ── Step 267: a .vsp resource's executability is controlled by WS.WS.SYS_DAV_RES.RES_OWNER, not RES_TYPE/RES_PERMS ──
@@ -3414,7 +3414,7 @@ Template (all parties hyperlinked):
 
 Where {agent-NetID} is the verified agent WebID/NetID. Do not write "I am Phenny. I am not Kingsley Idehen." The delegation line is the identity statement. The article body may then continue in Phenny's first-person account. Principal in the hero line is resolver-wrapped LinkedIn #this, not a bare YouID. Matches preferences Step 47 language: curated by {agent} on behalf of {principal}."""@en ;
     onto:hasTrigger onto:triggerUserCorrection, onto:triggerPreferencesUpdate ;
-    rdfs:seeAlso <howto/kg-curation-attribution.ttl>, <#step-kgCurationAttribution>, <#step-agentSignoffWebId> .
+    rdfs:seeAlso <howto/kg-curation-attribution.ttl>, <#step-kgCurationAttribution> .
 
 # ── Step 274: Access X/Twitter content via Playwright, not curl ──
 :step-xAccessViaPlaywright a schema:HowToStep ;

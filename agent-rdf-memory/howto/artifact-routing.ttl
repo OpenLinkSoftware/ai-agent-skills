@@ -136,7 +136,7 @@ User preference recorded 2026-07-24 for all future screencast operations."""@en 
     schema:position "13"^^xsd:integer ;
     schema:name "A drafted chat/forum-reply Markdown file is still a generated artifact subject to step-outputDirs/step-outputRootBlockingGate — scratchpad is never the final destination"@en ;
     schema:text """User correction (2026-08-24): asked to draft a reply for a community.openlinksw.com thread on Virtuoso GQL performance, the agent wrote the .md draft to the session scratchpad directory and left it there after delivering it. All prior recurrences logged under :step-outputRootBlockingGate involved kg-generator or rdf-infographic-skill workflows specifically, which may have narrowed the mental model of when the gate applies to 'KG/infographic generation tasks' rather than 'any generated Markdown/RDF/HTML artifact.' This instance had no kg-generator or rdf-infographic-skill framing at all — it was a plain drafted reply to a technical forum thread, produced by reasoning/research in-conversation, not a skill invocation — yet it is still a generated Markdown deliverable and belongs under {LLM_ROOT}/Claude Generated/md/ per :step-outputDirs, using the model-id filename convention (claude_sonnet_5, not the agent-environment name 'claude_code'), not the session scratchpad. Corrected same-session by moving the file to Claude Generated/md/virtuoso-gql-ingestion-array-optimization-claude_sonnet_5-reply.md and deleting the scratchpad copy. Generalization: the output-root blocking gate is scoped by artifact TYPE — any generated .md/.ttl/.html file meant to persist, be handed to the user as a deliverable, or be posted/sent externally — not by which skill or workflow produced it. A one-off drafted reply, a saved analysis, or a memory-adjacent write-up all qualify equally. Scratchpad remains valid only for genuinely disposable intermediate files that will not be delivered, referenced again, or handed to the user as the finished artifact."""@en ;
-    rdfs:seeAlso <../preferences.ttl#step-outputRootGateAppliesBeyondKgGenerator>, <../preferences.ttl#step-outputRootBlockingGate>, <../preferences.ttl#step-outputDirs> .
+    rdfs:seeAlso <../preferences.ttl#step-outputRootGateAppliesBeyondKgGenerator>, <#step-outputRootBlockingGate>, <../preferences.ttl#step-outputDirs> .
 
 # ── Step 14: a build fixture inside a source repo is still a generated artifact ──
 
@@ -153,7 +153,7 @@ CORRECTED SAME-SESSION by adding infrastructure-tests/composite/package_artifact
 
 FILENAME NOTE: the slug carries claude_opus_5 (the active model per the system prompt), not claude_code (the agent environment), per :step-modelOverEnvironment."""@en ;
     rdfs:seeAlso <../preferences.ttl#step-buildFixtureIsStillAnArtifact>,
-        <../preferences.ttl#step-outputRootBlockingGate>,
+        <#step-outputRootBlockingGate>,
         <../preferences.ttl#step-outputDirs>,
         :step-outputRootBlockingGate,
         :step-outputRootGateAppliesBeyondKgGenerator,

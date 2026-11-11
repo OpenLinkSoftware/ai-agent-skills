@@ -13,7 +13,7 @@
     schema:step :step-whatItIs, :step-buildLineage, :step-nonNegotiables, :step-selectionRule ;
     rdfs:seeAlso <../preferences.ttl#step-thesisFrameworkTemplatePreference>,
         <../preferences.ttl#step-tierMapDriftFromHandAuthoring>,
-        <../references/template-options.md>,
+        <../../rdf-infographic-skill/references/template-options.md>,
         <openlink-brand-color-scheme.ttl>,
         <css-comment-star-slash-trap.ttl>,
         <kg-explorer-label-density.ttl>,

@@ -1,4 +1,4 @@
-@prefix : <https://loom.ogbuji.net/tech/building-and-working-knowledge-graphs-with-onya-and-local-llms/#howto-generator-script-not-substitute> .
+@prefix : <#> .
 @prefix schema: <http://schema.org/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
