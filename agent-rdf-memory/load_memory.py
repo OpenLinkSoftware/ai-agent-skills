@@ -179,14 +179,27 @@ def sparql_csv_auth(endpoint, method, query, timeout):
     return body
 
 
+def sparql_error(body):
+    """True when a 2xx body is a Virtuoso error message, not a CSV result.
+
+    A CSV result opens with its quoted header row. Whatever its cells contain
+    (a trigger phrase such as "SPARQL compiler", a step about Virtuoso errors)
+    is data, so only a body that does not open that way is inspected.
+    """
+    head = body.lstrip()[:600]
+    if head.startswith('"'):
+        return False
+    return "SPARQL compiler" in head or ("Virtuoso" in head and "Error" in head)
+
+
 def sparql_csv(endpoint, query, timeout=SPARQL_TIMEOUT):
     method = AUTH_FOR.get(endpoint)
     if method:
         body = sparql_csv_auth(endpoint, method, query, timeout)
-        if "SPARQL compiler" in body or "Virtuoso" in body[:600] and "Error" in body[:600]:
+        if sparql_error(body):
             raise RuntimeError(body[:600].replace("\n", " "))
         return list(csv.DictReader(io.StringIO(body)))
-    data = urllib.parse.urlencode({
+    data =urllib.parse.urlencode({
         "query": query,
         "format": "text/csv",
         "timeout": "30000",
@@ -203,7 +216,7 @@ def sparql_csv(endpoint, query, timeout=SPARQL_TIMEOUT):
     context = https_context_for(endpoint)
     with urllib.request.urlopen(request, timeout=timeout, context=context) as response:
         body = response.read().decode("utf-8", errors="replace")
-    if "SPARQL compiler" in body or "Virtuoso" in body[:600] and "Error" in body[:600]:
+    if sparql_error(body):
         raise RuntimeError(body[:600].replace("\n", " "))
     return list(csv.DictReader(io.StringIO(body)))
 
@@ -442,6 +455,7 @@ def build_sparql_context():
     ]
     if private_graph:
         sections.append(f"  private overlay graph: {private_graph}")
+    sections.append(f"  mem: = {GRAPH_PREFIX}  (local files: {BASE}/)")
 
     # preferences.ttl Step 302: the SAMPLE() state tables are ELICITED, not mandatory.
     if os.environ.get("AGENT_RDF_MEMORY_STATE_TABLE", "").lower() in ("1", "yes", "true"):
@@ -459,70 +473,110 @@ def build_sparql_context():
             "and present its tables to the user. On a no, proceed without them.",
         ]
 
-    # Intent routing summary.
+    # Intent routing: every PromptIntent, one line each. One row per
+    # (intent, property, value), folded here, so multi-valued properties do
+    # not multiply into a cross product.
     try:
-        intent = subject_for(ontology_graph, "VirtuosoSparqlTroubleshooting")
         query = f"""
 PREFIX onto: <{onto_base}>
-PREFIX schema: <http://schema.org/>
-SELECT ?topic ?howto ?optionalHowto ?policy ?source ?recentRequired
+SELECT ?intent ?p ?v
 WHERE {{
   GRAPH <{ontology_graph}> {{
-    VALUES ?intent {{ <{intent}> }}
-    OPTIONAL {{ ?intent onto:routesToTopic ?topic }}
-    OPTIONAL {{ ?intent onto:requiresHowTo ?howto }}
-    OPTIONAL {{ ?intent onto:optionalHowTo ?optionalHowto }}
-    OPTIONAL {{ ?intent onto:retrievalPolicy ?policy }}
-    OPTIONAL {{ ?intent onto:preferredContextSource ?source }}
-    OPTIONAL {{ ?intent onto:requiresRecentSession ?recentRequired }}
+    ?intent onto:routesToTopic ?topic ;
+            ?p ?v .
+    FILTER(STRSTARTS(STR(?p), "{onto_base}"))
   }}
 }}
-ORDER BY ?topic ?howto ?optionalHowto ?source
+ORDER BY ?intent ?p ?v
 """
-        rows = select_rows(endpoint, query, limit=24)
-        sections.append("\n--- ontology.ttl (intent routing sample) ---")
+        rows = select_rows(endpoint, query)
+        intents = {}
         for row in rows:
-            bits = []
-            for key in ("topic", "howto", "optionalHowto", "policy", "source", "recentRequired"):
-                if row.get(key):
-                    bits.append(f"{key}={row[key]}")
-            if bits:
-                sections.append("  " + " | ".join(bits))
+            prop = row.get("p", "")[len(onto_base):]
+            value = curie(row.get("v", ""))
+            if value.startswith("mem:ontology.ttl#"):
+                value = value[len("mem:ontology.ttl#"):]
+            values = intents.setdefault(row.get("intent", ""), {}).setdefault(prop, [])
+            if value not in values:
+                values.append(value)
+        sections.append("\n--- ontology.ttl (intent routing) ---")
+        for intent, props in intents.items():
+            bits = [f"{prop}={', '.join(vals)}" for prop, vals in props.items()]
+            sections.append(f"  {intent[len(onto_base):]}: " + " | ".join(bits))
     except Exception as exc:
         sections.append(f"\nERROR ontology intent query: {exc}")
 
-    # Preference step index.
+    # Preference step index. Every step is fetched and folded to one entry per
+    # step; the injection then shows the lowest-positioned half of MAX_STEPS
+    # (the standing rules) and the highest-positioned half (the latest ones),
+    # and says how many it left out.
     try:
         query = f"""
 PREFIX schema: <http://schema.org/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?step ?pos ?name ?text ?seealso
+SELECT ?step ?pos ?name (SUBSTR(STR(?text), 1, 240) AS ?excerpt) ?seealso
 WHERE {{
   GRAPH <{preferences_graph}> {{
-    ?step a schema:HowToStep .
+    ?step a schema:HowToStep ;
+          schema:name ?name .
     OPTIONAL {{ ?step schema:position ?pos }}
-    OPTIONAL {{ ?step schema:name ?name }}
     OPTIONAL {{ ?step schema:text ?text }}
     OPTIONAL {{ ?step rdfs:seeAlso ?seealso }}
   }}
 }}
-ORDER BY xsd:decimal(?pos)
-LIMIT {MAX_STEPS}
 """
         rows = select_rows(endpoint, query)
-        sections.append("\n--- preferences.ttl (SPARQL step index) ---")
+        steps = {}
         for row in rows:
-            name = row.get("name", "")
-            if not name:
-                continue
-            line = f"  • {name}"
-            if row.get("seealso"):
-                line += f"  → {row['seealso']}"
-            if row.get("text"):
-                excerpt = row["text"].splitlines()[0][:160]
-                line += f"\n    └ {excerpt}"
-            sections.append(line)
+            entry = steps.setdefault(row.get("step", ""), {
+                "pos": None, "name": row.get("name", ""), "excerpt": "", "refs": [],
+            })
+            try:
+                entry["pos"] = float(row.get("pos", ""))
+            except ValueError:
+                pass
+            if row.get("excerpt") and not entry["excerpt"]:
+                entry["excerpt"] = row["excerpt"]
+            ref = curie(row.get("seealso", ""))
+            if ref and ref not in entry["refs"]:
+                entry["refs"].append(ref)
+        ordered = sorted(
+            steps.values(),
+            key=lambda e: (e["pos"] is None, e["pos"] or 0, e["name"]),
+        )
+
+        def step_lines(entries):
+            lines = []
+            for entry in entries:
+                pos = "" if entry["pos"] is None else f"[{int(entry['pos'])}] "
+                name = entry["name"]
+                if len(name) > 200:
+                    name = name[:197] + "..."
+                line = f"  • {pos}{name}"
+                if entry["refs"]:
+                    line += "  → " + ", ".join(sorted(entry["refs"]))
+                if entry["excerpt"]:
+                    line += f"\n    └ {entry['excerpt'].splitlines()[0][:160]}"
+                lines.append(line)
+            return lines
+
+        if len(ordered) <= MAX_STEPS:
+            sections.append(f"\n--- preferences.ttl (SPARQL step index, all {len(ordered)} steps) ---")
+            sections += step_lines(ordered)
+        else:
+            head = MAX_STEPS // 2
+            tail = MAX_STEPS - head
+            sections.append(
+                f"\n--- preferences.ttl (SPARQL step index: {MAX_STEPS} of {len(ordered)} steps) ---"
+            )
+            sections.append(f"Standing rules, the {head} lowest positions:")
+            sections += step_lines(ordered[:head])
+            sections.append(f"Latest rules, the {tail} highest positions:")
+            sections += step_lines(ordered[-tail:])
+            sections.append(
+                f"  {len(ordered) - MAX_STEPS} steps between them are NOT shown here. "
+                "Query the preferences graph, or read preferences.ttl, for the rest."
+            )
     except Exception as exc:
         sections.append(f"\nERROR preferences step query: {exc}")
 
