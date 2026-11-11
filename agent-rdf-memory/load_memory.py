@@ -401,6 +401,52 @@ GROUP BY ?type ORDER BY DESC(?instances) LIMIT {TYPE_ROWS}
     return lines
 
 
+def local_index_position():
+    """Highest schema:position in the local index.ttl, or None when unreadable."""
+    try:
+        text = open(os.path.join(BASE, "index.ttl"), encoding="utf-8").read()
+    except OSError:
+        return None
+    positions = [int(p) for p in re.findall(r"schema:position\s+(\d+)\b", text)]
+    return max(positions) if positions else None
+
+
+def local_step_count():
+    """Number of schema:HowToStep entries in the local preferences.ttl, or None."""
+    try:
+        text = open(os.path.join(BASE, "preferences.ttl"), encoding="utf-8").read()
+    except OSError:
+        return None
+    return len(re.findall(r"\ba\s+schema:HowToStep\b", text))
+
+
+def freshness_lines(endpoint_position, endpoint_steps):
+    """Compare what the endpoint holds with the files. Drift is normal (a load is a
+    snapshot), so say so in the injected context instead of leaving it invisible."""
+    lines = ["\n--- freshness (endpoint against files) ---"]
+    checks = (
+        ("index.ttl newest position", endpoint_position, local_index_position()),
+        ("preferences.ttl steps", endpoint_steps, local_step_count()),
+    )
+    behind = False
+    for label, at_endpoint, in_files in checks:
+        if at_endpoint is None or in_files is None:
+            lines.append(f"  {label}: not compared (endpoint {at_endpoint}, files {in_files})")
+        elif at_endpoint == in_files:
+            lines.append(f"  {label}: endpoint {at_endpoint}, files {in_files}: in sync")
+        else:
+            behind = True
+            gap = in_files - at_endpoint
+            word = f"BEHIND the files by {gap}" if gap > 0 else f"AHEAD of the files by {-gap}"
+            lines.append(f"  {label}: endpoint {at_endpoint}, files {in_files}: endpoint is {word}")
+    if behind:
+        lines.append(
+            "  The memory above comes from the endpoint, so it may omit recent rules. Reload with "
+            "scripts/refresh-loader.sh (howto/agent-rdf-memory-loader-run.ttl), or read the files."
+        )
+    return lines
+
+
 def build_sparql_context():
     endpoint, endpoint_errors = first_working_endpoint()
     if not endpoint:
@@ -473,6 +519,9 @@ def build_sparql_context():
             "and present its tables to the user. On a no, proceed without them.",
         ]
 
+    endpoint_step_count = None
+    endpoint_position = None
+
     # Intent routing: every PromptIntent, one line each. One row per
     # (intent, property, value), folded here, so multi-valued properties do
     # not multiply into a cross product.
@@ -540,6 +589,7 @@ WHERE {{
             ref = curie(row.get("seealso", ""))
             if ref and ref not in entry["refs"]:
                 entry["refs"].append(ref)
+        endpoint_step_count = len(steps)
         ordered = sorted(
             steps.values(),
             key=lambda e: (e["pos"] is None, e["pos"] or 0, e["name"]),
@@ -631,8 +681,18 @@ LIMIT 5
                 latest_session_graph = session_graph_from_doc(row["sessionDoc"])
             label = row.get("name") or row.get("sessionDoc") or row.get("item")
             sections.append(f"  {row.get('pos', '')}: {label}")
+            try:
+                value = int(float(row.get("pos", "")))
+                endpoint_position = value if endpoint_position is None else max(endpoint_position, value)
+            except ValueError:
+                pass
     except Exception as exc:
         sections.append(f"\nERROR index query: {exc}")
+
+    try:
+        sections.extend(freshness_lines(endpoint_position, endpoint_step_count))
+    except Exception as exc:
+        sections.append(f"\nERROR freshness check: {exc}")
 
     if latest_session_graph:
         try:
