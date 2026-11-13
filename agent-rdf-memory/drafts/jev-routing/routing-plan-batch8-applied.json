@@ -1,0 +1,7 @@
+{
+ "skill-workflows": ["step-pythonDefaultJsFallback", "step-countReflectsSourceDensity", "step-checkerContextIsolation", "step-bash32EmptyArrayIdiom", "step-x402JsonschemaRequired", "step-verifySettlementIndependently", "step-xAccessViaPlaywright"],
+ "html-kg-explorer": ["step-navSaveStateTransitionRace", "step-sectionAltMarginShorthandCentering", "step-cssCommentStarSlashTrap"],
+ "terminology": ["step-linkedinNewsletterArticlePublish", "step-clickableUrlTables", "step-macDocsInChatOpenAttachLabel", "step-chatResponsePortableLinks", "step-tabulatedItemsHyperlinked"],
+ "rdf-authoring": ["step-neverFabricateCommentText"],
+ "memory-management": ["step-jhandPrSync"]
+}

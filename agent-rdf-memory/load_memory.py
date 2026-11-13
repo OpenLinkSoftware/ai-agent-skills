@@ -417,7 +417,8 @@ def local_step_count():
         text = open(os.path.join(BASE, "preferences.ttl"), encoding="utf-8").read()
     except OSError:
         return None
-    return len(re.findall(r"\ba\s+schema:HowToStep\b", text))
+    # anchored to a subject at the start of a line: prose inside a schema:text may say 'a schema:HowToStep'
+    return len(re.findall(r"^:[^\s]+\s+a\s+schema:HowToStep\b", text, re.M))
 
 
 def freshness_lines(endpoint_position, endpoint_steps):

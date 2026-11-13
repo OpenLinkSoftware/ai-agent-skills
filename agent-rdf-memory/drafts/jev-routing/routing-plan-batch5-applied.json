@@ -1,0 +1,9 @@
+{
+ "html-kg-explorer": ["step-themeToggleOsPreferenceGuard", "step-registerNewInfographicTemplate", "step-attributionSingleCanonicalSurface"],
+ "rdf-authoring": ["step-namedPersonHandleFullNameHyperlink", "step-elicitEntityLinkModeOnAnyProseAddition", "step-disambiguatedSectionLabels", "step-authorVsBodyBylineNames"],
+ "virtuoso-sparql": ["step-dualEngineBlockSeparation", "step-sparqlExploreQueryAsUrl", "step-rdfViewVerificationHyperlinks", "step-virtuosoLicenseManagerRestartOrder"],
+ "ontology-generation": ["step-ontologyReuseNotWriteBack"],
+ "memory-management": ["step-filesystemVirtuosoSync", "step-memoryQueryInferencePragmas", "step-latestStandingDefaultResolution"],
+ "skill-workflows": ["step-secFilingTemplateFamily", "step-flowReportTemplate", "step-generatorScriptNotSubstituteForChecklist"],
+ "artifact-routing": ["step-midSessionModelSwitch"]
+}

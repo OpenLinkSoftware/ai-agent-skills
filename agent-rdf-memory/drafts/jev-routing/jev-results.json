@@ -1,0 +1,4076 @@
+{
+ "model": "jev-latest",
+ "served_by": "jev-1.14.0",
+ "date": "2026-11-12",
+ "note": "raw answers; ids filled by name where the first run recorded only positions",
+ "results": [
+  {
+   "step": 110,
+   "name": "DEPRECATED \u2014 replaced by step-progressiveContextLoading (position 144)",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.92,
+   "top3": [
+    [
+     "memory-management",
+     0.93
+    ],
+    [
+     "skill-workflows",
+     0.04
+    ],
+    [
+     "none",
+     0.03
+    ]
+   ],
+   "fit": 0.13,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-semanticSessionBootstrap"
+  },
+  {
+   "step": 130,
+   "name": "Chat-response markdown file links must use paths relative to the working directory, never absolute local filesystem path",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.76,
+   "top3": [
+    [
+     "none",
+     0.78
+    ],
+    [
+     "artifact-routing",
+     0.21
+    ],
+    [
+     "html-kg-explorer",
+     0.01
+    ]
+   ],
+   "fit": 0.26,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-chatResponsePortableLinks"
+  },
+  {
+   "step": 132,
+   "name": "Verify registry additions against already-read documents; exclude corpus owl:sameAs errors surfaced by a census rather t",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.96,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.96
+    ],
+    [
+     "ontology-generation",
+     0.04
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.42,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-entityRegistryCensusVerification"
+  },
+  {
+   "step": 133,
+   "name": "Use curl (or other local CLI tools) for HTTP interactions; invoke MCP server tools only as a last resort",
+   "phrase_match": "artifact-routing",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-curlFirstMcpLastResort"
+  },
+  {
+   "step": 134,
+   "name": "Generated VSP (Virtuoso Server Page) artifacts go in a vsps/ subfolder under the model-specific output root",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "artifact-routing",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "artifact-routing",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.11,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-vspArtifactsFolder"
+  },
+  {
+   "step": 139,
+   "name": "Write new scripts in Python by default; use JavaScript/Node only when explicitly required",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "none",
+     0.99
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-pythonDefaultJsFallback"
+  },
+  {
+   "step": 140,
+   "name": "Generated diagram artifacts (draw.io, Mermaid exports, etc.) go in a visualizations/ subfolder under the model-specific ",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "artifact-routing",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "artifact-routing",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.24,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-visualizationsFolder"
+  },
+  {
+   "step": 145,
+   "name": "BLOCKING GATE \u2014 RDF+HTML collection requests always get the full kg-generator/rdf-infographic-skill contract, not a ligh",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "skill-workflows",
+   "confidence": 0.65,
+   "top3": [
+    [
+     "skill-workflows",
+     0.68
+    ],
+    [
+     "rdf-authoring",
+     0.19
+    ],
+    [
+     "html-kg-explorer",
+     0.08
+    ]
+   ],
+   "fit": 0.55,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-fullSkillsContractAlwaysApplies"
+  },
+  {
+   "step": 146,
+   "name": "BLOCKING GATE \u2014 three specific rdf-infographic-skill/SKILL.md structural requirements missed on first pass, caught by us",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.41,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.46
+    ],
+    [
+     "skill-workflows",
+     0.35
+    ],
+    [
+     "none",
+     0.16
+    ]
+   ],
+   "fit": 0.22,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-structuralContractDetails"
+  },
+  {
+   "step": 147,
+   "name": "BLOCKING GATE \u2014 re-run the heading-redundancy test every time a lede paragraph is touched, not just once at delivery",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.36,
+   "top3": [
+    [
+     "none",
+     0.41
+    ],
+    [
+     "rdf-authoring",
+     0.4
+    ],
+    [
+     "html-kg-explorer",
+     0.06
+    ]
+   ],
+   "fit": 0.53,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-redundantLedeRecheckOnEveryEdit"
+  },
+  {
+   "step": 148,
+   "name": "Nav panel MUST be resizable when expanded AND manually hideable via the same fade/marker path \u2014 added to rdf-infographic",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.89,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.9
+    ],
+    [
+     "skill-workflows",
+     0.06
+    ],
+    [
+     "none",
+     0.04
+    ]
+   ],
+   "fit": 0.42,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-navResizeAndManualHide"
+  },
+  {
+   "step": 149,
+   "name": "BLOCKING GATE \u2014 manual nav-hide silently undone by the next mousemove/scroll unless gated by a manuallyHidden flag; caug",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.74,
+   "top3": [
+    [
+     "none",
+     0.76
+    ],
+    [
+     "html-kg-explorer",
+     0.24
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-manualHideMustStick"
+  },
+  {
+   "step": 150,
+   "name": "BLOCKING GATE \u2014 checking entities/ontology-terms.ttl before minting a local class is only half the gate; the OTHER half ",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "ontology-generation",
+   "confidence": 0.88,
+   "top3": [
+    [
+     "ontology-generation",
+     0.89
+    ],
+    [
+     "rdf-authoring",
+     0.1
+    ],
+    [
+     "memory-management",
+     0.01
+    ]
+   ],
+   "fit": 0.4,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-ontologyRegistryWriteBack"
+  },
+  {
+   "step": 151,
+   "name": "Any UI region with a hard-coded (non-theme-switching) background must pin its text/border colors to literal values \u2014 nev",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.57,
+   "top3": [
+    [
+     "none",
+     0.61
+    ],
+    [
+     "html-kg-explorer",
+     0.37
+    ],
+    [
+     "artifact-routing",
+     0.02
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-fixedBackgroundColorPinning"
+  },
+  {
+   "step": 152,
+   "name": "Reading agent-rdf-memory/sessions/ defaults to the current model's own history; elicit on the first read of each session",
+   "phrase_match": "memory-management",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.96,
+   "top3": [
+    [
+     "memory-management",
+     0.96
+    ],
+    [
+     "artifact-routing",
+     0.04
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.41,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sessionReadLlmScope"
+  },
+  {
+   "step": 153,
+   "name": "CORRECTION 2026-07-23, same session: Step 150's fix was itself wrong for the KeyPrinciple/ComparisonDimension case \u2014 tho",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "ontology-generation",
+   "confidence": 0.49,
+   "top3": [
+    [
+     "ontology-generation",
+     0.53
+    ],
+    [
+     "rdf-authoring",
+     0.36
+    ],
+    [
+     "none",
+     0.08
+    ]
+   ],
+   "fit": 0.31,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-ontologyReuseNotWriteBack"
+  },
+  {
+   "step": 154,
+   "name": "rdfs:isDefinedBy's range is owl:Ontology \u2014 but the fix is a SEPARATE owl:Ontology resource, not typing the document root",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "ontology-generation",
+   "confidence": 0.59,
+   "top3": [
+    [
+     "ontology-generation",
+     0.62
+    ],
+    [
+     "rdf-authoring",
+     0.37
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-ontologyIsDistinctEntity"
+  },
+  {
+   "step": 157,
+   "name": "FAQPage/HowTo/Glossary/Table section entities must use '{Article Short Title} -- {Section Type}' as schema:name, never a",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.5,
+   "top3": [
+    [
+     "none",
+     0.54
+    ],
+    [
+     "rdf-authoring",
+     0.42
+    ],
+    [
+     "terminology",
+     0.03
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-disambiguatedSectionLabels"
+  },
+  {
+   "step": 158,
+   "name": "Hero-meta KG curation attribution (Step 47/61) is a pre-build gate, not a post-hoc nicety \u2014 re-check it explicitly on ev",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.62,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.65
+    ],
+    [
+     "skill-workflows",
+     0.09
+    ],
+    [
+     "identity-webid",
+     0.08
+    ]
+   ],
+   "fit": 0.31,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-heroAttributionRecurringMiss"
+  },
+  {
+   "step": 159,
+   "name": "A reused HTML template is a snapshot of the contract on its generation date \u2014 audit it feature-by-feature against the cu",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "html-kg-explorer",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.28,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-reusedTemplateContractDrift"
+  },
+  {
+   "step": 161,
+   "name": "Resolver-link every named entity at its FIRST occurrence; every entity minted in the companion TTL must appear somewhere",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.98,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.98
+    ],
+    [
+     "html-kg-explorer",
+     0.01
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.33,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-entityFirstOccurrenceAndParity"
+  },
+  {
+   "step": 162,
+   "name": "Frame RDF+HTML collections built from a single source article as notes taken about that article",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "skill-workflows",
+   "confidence": 0.57,
+   "top3": [
+    [
+     "skill-workflows",
+     0.61
+    ],
+    [
+     "none",
+     0.13
+    ],
+    [
+     "rdf-authoring",
+     0.11
+    ]
+   ],
+   "fit": 0.35,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-articleNotesFraming"
+  },
+  {
+   "step": 163,
+   "name": "A local ontology term declared correctly is still a gate violation if invoked under schema: (or any foreign prefix) inst",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.72,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.74
+    ],
+    [
+     "ontology-generation",
+     0.25
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-localTermNamespaceConsistency"
+  },
+  {
+   "step": 164,
+   "name": "When a Virtuoso instance is in active use, mirror every filesystem edit to agent-rdf-memory via WebDAV (preferred) or SP",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.47,
+   "top3": [
+    [
+     "memory-management",
+     0.51
+    ],
+    [
+     "virtuoso-sparql",
+     0.41
+    ],
+    [
+     "artifact-routing",
+     0.04
+    ]
+   ],
+   "fit": 0.33,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-filesystemVirtuosoSync"
+  },
+  {
+   "step": 165,
+   "name": "Use the user's selected RDF notation; default to Turtle until another preference is selected",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.74,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.76
+    ],
+    [
+     "none",
+     0.23
+    ],
+    [
+     "artifact-routing",
+     0.01
+    ]
+   ],
+   "fit": 0.08,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-turtleOnlyDefaultNoImpliedJsonld"
+  },
+  {
+   "step": 167,
+   "name": "The full skills/LLM/server/KG-endpoint attribution stack is enumerated in exactly ONE visible place per HTML page \u2014 the ",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.48,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.52
+    ],
+    [
+     "none",
+     0.38
+    ],
+    [
+     "identity-webid",
+     0.06
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-attributionSingleCanonicalSurface"
+  },
+  {
+   "step": 168,
+   "name": "FAQ and glossary counts must cover every distinct question-worthy claim and defined term in the source, with 10 as an an",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.93,
+   "top3": [
+    [
+     "none",
+     0.94
+    ],
+    [
+     "terminology",
+     0.06
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.26,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-countReflectsSourceDensity"
+  },
+  {
+   "step": 169,
+   "name": "rdf-infographic-skill's generate_infographic.py + its bundled validators check a narrower surface than the full contract",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.5,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.54
+    ],
+    [
+     "html-kg-explorer",
+     0.39
+    ],
+    [
+     "skill-workflows",
+     0.05
+    ]
+   ],
+   "fit": 0.53,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-generatorScriptNotSubstituteForChecklist"
+  },
+  {
+   "step": 170,
+   "name": "When patching a missing footer sparqlBtn onto generator output, build the full footer-sparql-explorer-gate.ttl structure",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.9,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.91
+    ],
+    [
+     "virtuoso-sparql",
+     0.06
+    ],
+    [
+     "none",
+     0.02
+    ]
+   ],
+   "fit": 0.22,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-adHocSparqlBtnMustFollowGate2"
+  },
+  {
+   "step": 171,
+   "name": "entity-link-placement.ttl's Mode A/B elicitation applies to ANY new body-prose section added to an existing infographic ",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.5,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.54
+    ],
+    [
+     "html-kg-explorer",
+     0.37
+    ],
+    [
+     "skill-workflows",
+     0.05
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-elicitEntityLinkModeOnAnyProseAddition"
+  },
+  {
+   "step": 172,
+   "name": "Before patching in a missing sparqlBtn, check whether the page already has a SPARQL section (id, heading, or workbench) ",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.98,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.98
+    ],
+    [
+     "virtuoso-sparql",
+     0.01
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.18,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-consolidateNotStackSparqlSections"
+  },
+  {
+   "step": 173,
+   "name": "generate_infographic.py silently drops schema:CreativeWork section bodies from rendering, and its KG Explorer omits seve",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.99
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.32,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-generatorGapsSectionBodyAndKgExplorer"
+  },
+  {
+   "step": 175,
+   "name": "Voice-over pronunciation rules for domain terms",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.68,
+   "top3": [
+    [
+     "none",
+     0.71
+    ],
+    [
+     "terminology",
+     0.27
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-ttsPronunciations"
+  },
+  {
+   "step": 176,
+   "name": "Defer the floating-nav's saveState() call until after the expand CSS transition settles, or it persists a corrupt collap",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.92,
+   "top3": [
+    [
+     "none",
+     0.93
+    ],
+    [
+     "html-kg-explorer",
+     0.07
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-navSaveStateTransitionRace"
+  },
+  {
+   "step": 177,
+   "name": "The floating navigation panel MUST default to the collapsed header-bar state on page load (no 'expanded' class in initia",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.79,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.81
+    ],
+    [
+     "skill-workflows",
+     0.1
+    ],
+    [
+     "none",
+     0.09
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-navDefaultCollapsed"
+  },
+  {
+   "step": 178,
+   "name": "Any ad hoc filesystem search for a generated artifact (duplicate/stale-copy checks, 'where did this file go') must scope",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.42,
+   "top3": [
+    [
+     "none",
+     0.47
+    ],
+    [
+     "artifact-routing",
+     0.33
+    ],
+    [
+     "destructive-command-guard",
+     0.1
+    ]
+   ],
+   "fit": 0.31,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-scopeFilesystemSearchesToLlmRoot"
+  },
+  {
+   "step": 179,
+   "name": "The schema:CreativeWork document entity (<>) and the owl:Ontology entity it schema:about-links to must NOT share identic",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "ontology-generation",
+   "confidence": 0.45,
+   "top3": [
+    [
+     "ontology-generation",
+     0.5
+    ],
+    [
+     "rdf-authoring",
+     0.46
+    ],
+    [
+     "none",
+     0.03
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-ontologyDocumentNameDifferentiation"
+  },
+  {
+   "step": 180,
+   "name": "A third rdfs:isDefinedBy failure mode (beyond Step 154's two): pointing at the bare ':' (<#>) fragment instead of the na",
+   "phrase_match": "memory-management",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.78,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.8
+    ],
+    [
+     "ontology-generation",
+     0.19
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.24,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-isDefinedByBareFragmentBug"
+  },
+  {
+   "step": 181,
+   "name": "Financial-statement line items from SEC/EDGAR (or similar XBRL-tagged) sources MUST be aligned to the FASB US-GAAP XBRL ",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.38,
+   "top3": [
+    [
+     "none",
+     0.43
+    ],
+    [
+     "terminology",
+     0.33
+    ],
+    [
+     "ontology-generation",
+     0.14
+    ]
+   ],
+   "fit": 0.22,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-xbrlFinancialReportingAlignment"
+  },
+  {
+   "step": 182,
+   "name": "When asked to show the SPARQL query for exploring a generated KG, return a ready-to-click percent-encoded query URL, not",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.52,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.56
+    ],
+    [
+     "html-kg-explorer",
+     0.36
+    ],
+    [
+     "none",
+     0.05
+    ]
+   ],
+   "fit": 0.17,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sparqlExploreQueryAsUrl"
+  },
+  {
+   "step": 185,
+   "name": "Wrap every SPARQL-bearing section \u2014 sample query cards AND the whole KG Explorer / SPARQL Workbench sections \u2014 in a clos",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.99
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.39,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sparqlSectionsClosedAccordion"
+  },
+  {
+   "step": 186,
+   "name": "There is exactly ONE attribution/provenance surface per page \u2014 the footer #footer 'Attribution & Provenance' attr-grid \u2014",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.43,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.48
+    ],
+    [
+     "skill-workflows",
+     0.44
+    ],
+    [
+     "none",
+     0.06
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-noSecondAttributionSurface"
+  },
+  {
+   "step": 187,
+   "name": "Minting even a tiny 2-4-term staging ontology still requires the full owl-property-characterization.ttl + ontology-cross",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "ontology-generation",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "ontology-generation",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.17,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-smallOntologyNoExemption"
+  },
+  {
+   "step": 188,
+   "name": "Any <details><summary> used as a section/card title must have its font-family/font-size/font-weight restated explicitly ",
+   "phrase_match": null,
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-accordionSummaryHeadingInheritance"
+  },
+  {
+   "step": 189,
+   "name": "SUPERSEDED 2026-08-20 by Step 243 \u2014 see below. KG Explorer and SPARQL Workbench MUST precede FAQ, Glossary, and HowTo \u2014 ",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.97,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.97
+    ],
+    [
+     "none",
+     0.02
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ]
+   ],
+   "fit": 0.57,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-explorerPrecedesReference"
+  },
+  {
+   "step": 190,
+   "name": "A schema:SoftwareSourceCode entity nested as a schema:hasPart child of any section (not just top-level) must not render ",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.87,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.88
+    ],
+    [
+     "virtuoso-sparql",
+     0.1
+    ],
+    [
+     "none",
+     0.02
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-noNestedQueryCardDuplication"
+  },
+  {
+   "step": 191,
+   "name": "Any container placed outside the .section/.section-alt system (a direct <body> child, or a footer sub-wrapper) needs its",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.97,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.97
+    ],
+    [
+     "none",
+     0.03
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-unconstrainedContainerWidth"
+  },
+  {
+   "step": 192,
+   "name": "Every card-grid container (grid-template-columns:repeat(...,minmax(...))) MUST use auto-fill, never auto-fit \u2014 auto-fit ",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.66,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.69
+    ],
+    [
+     "none",
+     0.31
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.13,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-cardGridAutoFitStretch"
+  },
+  {
+   "step": 193,
+   "name": "A shared class's spacing rule must use longhand margin-bottom (not the 3/4-value margin shorthand) or it silently overri",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.95,
+   "top3": [
+    [
+     "none",
+     0.95
+    ],
+    [
+     "html-kg-explorer",
+     0.05
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sectionAltMarginShorthandCentering"
+  },
+  {
+   "step": 194,
+   "name": "KG Explorer and SPARQL Workbench are always-visible sections again \u2014 do NOT wrap #kg-explorer or #sparql-explorer in a s",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "html-kg-explorer",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.18,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-kgSparqlAccordionRemoved"
+  },
+  {
+   "step": 195,
+   "name": "Every sample/documented SPARQL query text MUST declare its own PREFIX lines, scope to the actual DAV graph IRI (except c",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.96,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.96
+    ],
+    [
+     "none",
+     0.03
+    ],
+    [
+     "rdf-authoring",
+     0.01
+    ]
+   ],
+   "fit": 0.17,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sparqlSampleQuerySelfContainment"
+  },
+  {
+   "step": 196,
+   "name": "Before copying any prior HTML file as a structural base (LLM-Direct hand-authoring OR generator-assisted), grep it again",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.87,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.88
+    ],
+    [
+     "none",
+     0.09
+    ],
+    [
+     "artifact-routing",
+     0.03
+    ]
+   ],
+   "fit": 0.29,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-priorTemplateStalenessCheck"
+  },
+  {
+   "step": 197,
+   "name": "extract_description() MUST truncate at a word boundary with a visible ellipsis, never a bare [:N] slice that silently cu",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.65,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.68
+    ],
+    [
+     "none",
+     0.32
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.28,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-cardDescriptionTruncation"
+  },
+  {
+   "step": 198,
+   "name": "Never claim a specific SPARQL endpoint supports RDF-star/RDF 1.2 quoted-triple syntax (or any similar spec-level feature",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.87,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.88
+    ],
+    [
+     "none",
+     0.12
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.18,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-rdfStarNotVerified"
+  },
+  {
+   "step": 199,
+   "name": "Standing preference: any live/Execute-button SPARQL sample query relying on a Virtuoso query-level pragma (DEFINE input:",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.99
+    ],
+    [
+     "none",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-pragmaAbToggleVariant"
+  },
+  {
+   "step": 201,
+   "name": "The footer SPARQL feature is the full Workbench (sample-query <details> cards + editable recipe/textarea editor + single",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.98,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.98
+    ],
+    [
+     "skill-workflows",
+     0.02
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sparqlWorkbenchNotSimplifiedButton"
+  },
+  {
+   "step": 202,
+   "name": "When a user reports an endpoint was upgraded to support a previously-unverified feature, re-run the exact original faili",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.6,
+   "top3": [
+    [
+     "none",
+     0.63
+    ],
+    [
+     "rdf-authoring",
+     0.27
+    ],
+    [
+     "virtuoso-sparql",
+     0.1
+    ]
+   ],
+   "fit": 0.29,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-rdfStarUpgradeReverify"
+  },
+  {
+   "step": 203,
+   "name": "A slash-joined claim like 'Virtuoso/FuXi reasoning' is a promise both are independently demonstrated \u2014 burying the secon",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.55,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.59
+    ],
+    [
+     "none",
+     0.35
+    ],
+    [
+     "artifact-routing",
+     0.03
+    ]
+   ],
+   "fit": 0.53,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-dualEngineBlockSeparation"
+  },
+  {
+   "step": 204,
+   "name": "A count instruction paired with a space complaint describes ONE fix (compress row density), not two independent requests",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.63,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.66
+    ],
+    [
+     "none",
+     0.34
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.24,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-synopsisPanelCompactRows"
+  },
+  {
+   "step": 205,
+   "name": "Resolver-IRI-for-every-entity-href governs first-mention prose references, not a jump-list row previewing a full section",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.9,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.91
+    ],
+    [
+     "html-kg-explorer",
+     0.07
+    ],
+    [
+     "none",
+     0.02
+    ]
+   ],
+   "fit": 0.31,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-spotlightPanelLocalAnchor"
+  },
+  {
+   "step": 206,
+   "name": "The rdf-infographic-skill synopsis deck needs a real schema:abstract on the main article entity, not just schema:descrip",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.43,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.48
+    ],
+    [
+     "skill-workflows",
+     0.26
+    ],
+    [
+     "html-kg-explorer",
+     0.12
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-synopsisRequiresAbstract"
+  },
+  {
+   "step": 207,
+   "name": "'I've loaded the data to UB, verify the sample queries' means run them against the real endpoint, not re-read the TTL",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.41,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.46
+    ],
+    [
+     "memory-management",
+     0.24
+    ],
+    [
+     "none",
+     0.16
+    ]
+   ],
+   "fit": 0.35,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-liveVerifyWorkbenchQueries"
+  },
+  {
+   "step": 208,
+   "name": "When a generated HTML/MD/RDF collection introduces a genuinely new, reusable visual/structural pattern, add it to rdf-in",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.53,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.57
+    ],
+    [
+     "skill-workflows",
+     0.36
+    ],
+    [
+     "none",
+     0.05
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-registerNewInfographicTemplate"
+  },
+  {
+   "step": 209,
+   "name": "Resolve and record CREDENTIALS_ROOT plus the user's principal/agent PKCS#12 bundle paths in core.ttl at session start, a",
+   "phrase_match": "artifact-routing",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-credentialLocationAtSessionStart"
+  },
+  {
+   "step": 210,
+   "name": "When a data-twingler result's provenance is suspect, keep the resolver-hyperlink citation format and attach the existing",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.69,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.72
+    ],
+    [
+     "none",
+     0.15
+    ],
+    [
+     "skill-workflows",
+     0.06
+    ]
+   ],
+   "fit": 0.43,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-kgCitationUnverifiedBadge"
+  },
+  {
+   "step": 211,
+   "name": "Standing KG/data-twingler retrieval order: UB (URIBurner endpoint) first, Local ({LLM_ROOT}/ RDF scan) second as fallbac",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "skill-workflows",
+   "confidence": 0.69,
+   "top3": [
+    [
+     "skill-workflows",
+     0.72
+    ],
+    [
+     "none",
+     0.16
+    ],
+    [
+     "memory-management",
+     0.06
+    ]
+   ],
+   "fit": 0.38,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-kgOrderResolved"
+  },
+  {
+   "step": 212,
+   "name": "validate-kg-compliance.sh's 'Ontology not linked via schema:hasPart' and 'Prefixed DBpedia/Wikidata CURIEs found' checks",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.45,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.5
+    ],
+    [
+     "none",
+     0.27
+    ],
+    [
+     "ontology-generation",
+     0.22
+    ]
+   ],
+   "fit": 0.36,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-dbrCurieFalsePositive"
+  },
+  {
+   "step": 213,
+   "name": "Reference-section order is HowTo, then FAQ, then Glossary \u2014 enforced in rdf-infographic-skill's html_assembler.py and ch",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.87,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.88
+    ],
+    [
+     "skill-workflows",
+     0.09
+    ],
+    [
+     "none",
+     0.02
+    ]
+   ],
+   "fit": 0.39,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-howtoFaqGlossaryOrder"
+  },
+  {
+   "step": 214,
+   "name": "generate_infographic.py no longer renders a standalone People section \u2014 person entities and canonical-identity/cross-ref",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.84,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.85
+    ],
+    [
+     "rdf-authoring",
+     0.12
+    ],
+    [
+     "ontology-generation",
+     0.01
+    ]
+   ],
+   "fit": 0.47,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-peopleSectionRemoved"
+  },
+  {
+   "step": 217,
+   "name": "generate_infographic.py no longer renders a standalone Organizations section \u2014 organization entities and canonical-ident",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.91,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.92
+    ],
+    [
+     "rdf-authoring",
+     0.06
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ]
+   ],
+   "fit": 0.39,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-organizationsSectionRemoved"
+  },
+  {
+   "step": 218,
+   "name": "rdf-infographic-skill sections now alternate section/section-alt in real DOM order via a client-side pass, since html_as",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.83,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.84
+    ],
+    [
+     "skill-workflows",
+     0.14
+    ],
+    [
+     "none",
+     0.02
+    ]
+   ],
+   "fit": 0.37,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sectionBackgroundAlternation"
+  },
+  {
+   "step": 219,
+   "name": "KG Explorer predicate labels are hover-reveal, not always-on; node labels sit below the circle with a paint-order:stroke",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "html-kg-explorer",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-kgExplorerLabelDensity"
+  },
+  {
+   "step": 220,
+   "name": "html_assembler.py's generic section renderer switches to a numbered .timeline.numbered component when every item carries",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.75,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.77
+    ],
+    [
+     "none",
+     0.19
+    ],
+    [
+     "rdf-authoring",
+     0.03
+    ]
+   ],
+   "fit": 0.32,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-orderedSectionTimeline"
+  },
+  {
+   "step": 221,
+   "name": "Count a generated page's DISTINCT visual component types before calling it finished \u2014 then use schema:image SVG literals",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.73,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.75
+    ],
+    [
+     "none",
+     0.12
+    ],
+    [
+     "rdf-authoring",
+     0.06
+    ]
+   ],
+   "fit": 0.7,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-rdfDrivenFigures"
+  },
+  {
+   "step": 222,
+   "name": "Treat an explicit mid-session model switch as SOURCE 0 above the system prompt; attribute post-switch work to the new mo",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "skill-workflows",
+   "confidence": 0.51,
+   "top3": [
+    [
+     "skill-workflows",
+     0.55
+    ],
+    [
+     "memory-management",
+     0.28
+    ],
+    [
+     "artifact-routing",
+     0.09
+    ]
+   ],
+   "fit": 0.4,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-midSessionModelSwitch"
+  },
+  {
+   "step": 223,
+   "name": "A section with exactly one child renders as a full-width .feature-block with the UNTRUNCATED description; the 600-char c",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.72,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.74
+    ],
+    [
+     "none",
+     0.23
+    ],
+    [
+     "rdf-authoring",
+     0.02
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-singleItemFeatureBlock"
+  },
+  {
+   "step": 224,
+   "name": "Resolve the principal PKCS#12 passphrase from the macOS Keychain item uriburner-p12 FIRST, falling back to the /tmp/uyi ",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-p12PassphraseKeychainFirst"
+  },
+  {
+   "step": 225,
+   "name": "Any credential-store probe or precedence test MUST use a namespaced throwaway identifier \u2014 never the real service/accoun",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-neverProbeProductionCredentialNames"
+  },
+  {
+   "step": 226,
+   "name": "The uriburner-p12 keychain item is LIVE (migrated from /tmp/uyi with user permission) and verified end-to-end against th",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-p12PassphraseKeychainLive"
+  },
+  {
+   "step": 227,
+   "name": "A bundled validator's PASS is a floor not an anchor; two artifacts that look independent may have a real derive-from edg",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.85,
+   "top3": [
+    [
+     "none",
+     0.86
+    ],
+    [
+     "skill-workflows",
+     0.13
+    ],
+    [
+     "artifact-routing",
+     0.01
+    ]
+   ],
+   "fit": 0.73,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-checkerContextIsolation"
+  },
+  {
+   "step": 228,
+   "name": "KG Explorer predicate/edge labels MUST be visible by default (non-zero opacity), not hidden until hover; SKILL.md's Basi",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "html-kg-explorer",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.23,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-kgExplorerEdgeLabelsVisibleByDefault"
+  },
+  {
+   "step": 229,
+   "name": "Any @media(prefers-color-scheme:dark) :root block MUST be guarded with :not([data-theme=\"light\"]) (or the dark-first equ",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.57,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.61
+    ],
+    [
+     "none",
+     0.38
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-themeToggleOsPreferenceGuard"
+  },
+  {
+   "step": 230,
+   "name": "A CSS comment documenting custom-property names must never contain a literal star-slash (as in an --opal-*/--ols-* glob)",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "none",
+     0.99
+    ],
+    [
+     "html-kg-explorer",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.18,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-cssCommentStarSlashTrap"
+  },
+  {
+   "step": 231,
+   "name": "rdf-infographic-skill/scripts/templates/styles.css now ships the OpenLink brand palette Step 125 declared the standing d",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-openlinkPaletteInGeneratorTemplate"
+  },
+  {
+   "step": 232,
+   "name": "A tier/category map (or any HTML section presenting an RDF-derived count or list) MUST be regenerated from the graph whe",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.9,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.91
+    ],
+    [
+     "none",
+     0.06
+    ],
+    [
+     "skill-workflows",
+     0.02
+    ]
+   ],
+   "fit": 0.35,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-tierMapDriftFromHandAuthoring"
+  },
+  {
+   "step": 233,
+   "name": "SUPERSEDED 2026-08-19 by Step 236, itself refined 2026-08-20 by Step 244 \u2014 assets/templates/thesis-framework-openlink-br",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.8,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.82
+    ],
+    [
+     "none",
+     0.13
+    ],
+    [
+     "artifact-routing",
+     0.04
+    ]
+   ],
+   "fit": 0.37,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-thesisFrameworkTemplatePreference"
+  },
+  {
+   "step": 234,
+   "name": "schema:author = the single author of record the publishing platform asserts; extra names in the article's own \"By: X, Y,",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.48,
+   "top3": [
+    [
+     "none",
+     0.52
+    ],
+    [
+     "rdf-authoring",
+     0.36
+    ],
+    [
+     "terminology",
+     0.06
+    ]
+   ],
+   "fit": 0.23,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-authorVsBodyBylineNames"
+  },
+  {
+   "step": 235,
+   "name": "A skill/script/example this agent authors or packages MUST NOT contain a secret literal; secrets resolve through the fou",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-secretResolutionInGeneratedSkills"
+  },
+  {
+   "step": 237,
+   "name": "Never fabricate, reconstruct, or attribute invented comment text to a real person",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.89,
+   "top3": [
+    [
+     "none",
+     0.9
+    ],
+    [
+     "memory-management",
+     0.1
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.26,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-neverFabricateCommentText"
+  },
+  {
+   "step": 238,
+   "name": "Local Virtuoso dba password resolves from macOS Keychain item virtuoso-local-dba FIRST, /tmp/uyi DBA_PWD as fallback \u2014 a",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-virtuosoLocalDbaKeychain"
+  },
+  {
+   "step": 242,
+   "name": "Run the first-reference entity-link check before delivering a freshly-generated page, not only when repairing one",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.81,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.83
+    ],
+    [
+     "html-kg-explorer",
+     0.15
+    ],
+    [
+     "none",
+     0.02
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-entityLinkFreshBuildGate"
+  },
+  {
+   "step": 243,
+   "name": "REVERSED 2026-08-20: KG Explorer and SPARQL Workbench sections MUST now follow Glossary in document order (and in the fl",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.69,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.72
+    ],
+    [
+     "none",
+     0.26
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-explorerFollowsGlossary"
+  },
+  {
+   "step": 244,
+   "name": "Intelligence Network editorial data-viz aesthetic (preferred HTML doc aesthetic going forward \u2014 refines Step 236)",
+   "phrase_match": "artifact-routing",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-intelligenceNetworkAesthetic"
+  },
+  {
+   "step": 245,
+   "name": "SPARQL workbench accordion MUST be open by default (supersedes the closed-by-default rendering)",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "html-kg-explorer",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.16,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sparqlWorkbenchOpenByDefault"
+  },
+  {
+   "step": 246,
+   "name": "schema:accountablePerson and all WebID positions MUST use the principal's certificate WebID (core.ttl :userPrincipalCred",
+   "phrase_match": "identity-webid",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-webidFromCertSan"
+  },
+  {
+   "step": 247,
+   "name": "WebID-TLS/NetID-TLS targets port 5443 automatically, as an upfront default, never discovered after a misleading 401 on p",
+   "phrase_match": "identity-webid",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-webidTlsPort5443Default"
+  },
+  {
+   "step": 248,
+   "name": "Before citing a 'preferred default' HowToStep by name or ID, walk forward through preferences.ttl for later steps on the",
+   "phrase_match": "memory-management",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.5,
+   "top3": [
+    [
+     "none",
+     0.54
+    ],
+    [
+     "skill-workflows",
+     0.18
+    ],
+    [
+     "rdf-authoring",
+     0.16
+    ]
+   ],
+   "fit": 0.24,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-latestStandingDefaultResolution"
+  },
+  {
+   "step": 249,
+   "name": "LI100 'Number of licensed connections exceeded' on an otherwise-healthy Virtuoso instance: restart the Virtuoso SERVER, ",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.55,
+   "top3": [
+    [
+     "none",
+     0.59
+    ],
+    [
+     "virtuoso-sparql",
+     0.41
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.16,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-virtuosoLicenseManagerRestartOrder"
+  },
+  {
+   "step": 250,
+   "name": "A drafted chat/forum-reply Markdown file is still a generated artifact subject to step-outputDirs/step-outputRootBlockin",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "artifact-routing",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "artifact-routing",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-outputRootGateAppliesBeyondKgGenerator"
+  },
+  {
+   "step": 251,
+   "name": "Any shell script with set -u and an optional/conditionally-empty array must expand it as ${ARR[@]+\"${ARR[@]}\"}, never ba",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.97,
+   "top3": [
+    [
+     "none",
+     0.97
+    ],
+    [
+     "destructive-command-guard",
+     0.03
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.23,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-bash32EmptyArrayIdiom"
+  },
+  {
+   "step": 254,
+   "name": "A generated HTML infographic must be loaded in a real browser (local server + console-error check + DOM population check",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.97,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.97
+    ],
+    [
+     "skill-workflows",
+     0.03
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.41,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-mustBrowserVerifyNotJustGrep"
+  },
+  {
+   "step": 258,
+   "name": "Every example/workbench SPARQL SELECT MUST project at least one IRI-valued variable alongside its labels, so each result",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.5,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.54
+    ],
+    [
+     "html-kg-explorer",
+     0.26
+    ],
+    [
+     "virtuoso-sparql",
+     0.18
+    ]
+   ],
+   "fit": 0.42,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sparqlExampleQueryIriInSolution"
+  },
+  {
+   "step": 259,
+   "name": "The Markdown companion is NOT uploaded to URIBurner DAV unless the user explicitly instructs it \u2014 default upload set is ",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "artifact-routing",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "artifact-routing",
+     0.99
+    ],
+    [
+     "none",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-markdownNotUploadedByDefault"
+  },
+  {
+   "step": 260,
+   "name": "When a payment/settlement client reports success, verify independently against the underlying ledger before repeating th",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "none",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.28,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-verifySettlementIndependently"
+  },
+  {
+   "step": 261,
+   "name": "Never rely on awk's IGNORECASE variable for case-insensitive matching in a shell pipeline meant to run cross-platform \u2014 ",
+   "phrase_match": "identity-webid",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-awkIgnorecaseNotPortable"
+  },
+  {
+   "step": 262,
+   "name": "Whenever a SPARQL query URL is generated, present it as a clickable hyperlink \u2014 never as bare unlinked text",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.36,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.41
+    ],
+    [
+     "virtuoso-sparql",
+     0.35
+    ],
+    [
+     "none",
+     0.2
+    ]
+   ],
+   "fit": 0.16,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-hyperlinkSparqlUrls"
+  },
+  {
+   "step": 267,
+   "name": "OSDI .vsp files served as raw static source instead of executing: fix is a plain UPDATE of WS.WS.SYS_DAV_RES.RES_OWNER t",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.62,
+   "top3": [
+    [
+     "none",
+     0.65
+    ],
+    [
+     "artifact-routing",
+     0.24
+    ],
+    [
+     "virtuoso-sparql",
+     0.11
+    ]
+   ],
+   "fit": 0.23,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-osdiVspExecutionRegistration"
+  },
+  {
+   "step": 270,
+   "name": "A new template/RDF-driven OSDI route 404s despite correct routing.ttl/skin.ttl: the stock engine still requires a physic",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.63,
+   "top3": [
+    [
+     "none",
+     0.66
+    ],
+    [
+     "artifact-routing",
+     0.32
+    ],
+    [
+     "rdf-authoring",
+     0.01
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-osdiContentFileGate"
+  },
+  {
+   "step": 271,
+   "name": "Editing a custom-location OSDI skin shim (e.g. skin-ldp.xslt) never takes effect, even after staleall()+config_flush_cac",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.69,
+   "top3": [
+    [
+     "none",
+     0.72
+    ],
+    [
+     "virtuoso-sparql",
+     0.25
+    ],
+    [
+     "html-kg-explorer",
+     0.02
+    ]
+   ],
+   "fit": 0.17,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-osdiStaleCustomSkinShim"
+  },
+  {
+   "step": 272,
+   "name": "Start the DeepSeek-v4 harness with npx @deepseek-ai/dsh web",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "none",
+     0.99
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.08,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-deepseekV4HarnessStartup"
+  },
+  {
+   "step": 273,
+   "name": "Markdown article hero is the standard on-behalf-of attribution line, never an I-am-Phenny / I-am-not-Kingsley identity c",
+   "phrase_match": "identity-webid",
+   "status": "ok",
+   "jev_topic": "identity-webid",
+   "confidence": 0.84,
+   "top3": [
+    [
+     "identity-webid",
+     0.85
+    ],
+    [
+     "none",
+     0.07
+    ],
+    [
+     "terminology",
+     0.05
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-markdownHeroAttribution"
+  },
+  {
+   "step": 274,
+   "name": "Access X/Twitter content via Playwright (headless Chromium) \u2014 not curl",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.97,
+   "top3": [
+    [
+     "none",
+     0.97
+    ],
+    [
+     "skill-workflows",
+     0.02
+    ],
+    [
+     "activitypub",
+     0.01
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-xAccessViaPlaywright"
+  },
+  {
+   "step": 275,
+   "name": "The agent delegate cert.p12 (link-in-bio-agent-credentials) unlocks via Keychain item uriburner-agent-p12 \u2014 a distinct i",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-agentP12PassphraseKeychain"
+  },
+  {
+   "step": 276,
+   "name": "Never run security delete-generic-password (or delete-keychain) without the user's explicit, per-item approval in the cu",
+   "phrase_match": null,
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-keychainDeletionApproval"
+  },
+  {
+   "step": 277,
+   "name": "Whenever a document presents SQL DDL/sample-data cards, also add one consolidated batch-script card, and offer to verify",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.77,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.79
+    ],
+    [
+     "none",
+     0.17
+    ],
+    [
+     "artifact-routing",
+     0.01
+    ]
+   ],
+   "fit": 0.26,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sqlBatchScriptVerification"
+  },
+  {
+   "step": 278,
+   "name": "Never state a specific network port number for a real live-deployment's connection listener in published document conten",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.98,
+   "top3": [
+    [
+     "none",
+     0.98
+    ],
+    [
+     "memory-management",
+     0.01
+    ],
+    [
+     "virtuoso-sparql",
+     0.01
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-noInfraPortDisclosure"
+  },
+  {
+   "step": 279,
+   "name": "Verification always implies replying with sample hyperlinks denoting entities from the RDF Views",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.56,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.6
+    ],
+    [
+     "virtuoso-sparql",
+     0.37
+    ],
+    [
+     "none",
+     0.03
+    ]
+   ],
+   "fit": 0.15,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-rdfViewVerificationHyperlinks"
+  },
+  {
+   "step": 280,
+   "name": "Migrate credentials found hardcoded in an attached/downloaded file into their own distinct, non-interactively-readable K",
+   "phrase_match": null,
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-attachedFileCredentialsToKeychain"
+  },
+  {
+   "step": 281,
+   "name": "When a design specifies a proper credential-issuance flow (OAuth Authorization Code+PKCE, or a deployment's equivalent),",
+   "phrase_match": null,
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-untrustedTokenVsOAuthElicitation"
+  },
+  {
+   "step": 283,
+   "name": "Use the indefinite article: 'a Semantic Web', never the definite 'the Semantic Web', when naming the hyperlink/IRI/SPARQ",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "terminology",
+   "confidence": 0.95,
+   "top3": [
+    [
+     "terminology",
+     0.95
+    ],
+    [
+     "none",
+     0.03
+    ],
+    [
+     "rdf-authoring",
+     0.02
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-semanticWebIndefiniteArticle"
+  },
+  {
+   "step": 284,
+   "name": "Never claim Virtuoso 'has nothing to copy' or 'isn't a file' when contrasting it with a file-based store \u2014 claim its hyp",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.44,
+   "top3": [
+    [
+     "none",
+     0.49
+    ],
+    [
+     "virtuoso-sparql",
+     0.34
+    ],
+    [
+     "rdf-authoring",
+     0.14
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-virtuosoDbFileStillExists"
+  },
+  {
+   "step": 285,
+   "name": "Give a SPASQL (SPARQL-in-SQL) worked example a live link via the SPASQL Query Builder, per data-twingler/SKILL.md's docu",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.45,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.5
+    ],
+    [
+     "skill-workflows",
+     0.26
+    ],
+    [
+     "virtuoso-sparql",
+     0.16
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-spasqlExampleLiveLink"
+  },
+  {
+   "step": 286,
+   "name": "Every table in an ALTER QUAD STORAGE FROM clause must be fully qualified as qualifier.schema.table \u2014 a bare table name f",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "virtuoso-sparql",
+   "confidence": 0.72,
+   "top3": [
+    [
+     "virtuoso-sparql",
+     0.74
+    ],
+    [
+     "none",
+     0.26
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.09,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-alterQuadStorageFullyQualifiedTableNames"
+  },
+  {
+   "step": 287,
+   "name": "AGI = highly autonomous systems more efficient than humans at a broad range of traditionally economically valuable tasks",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.78,
+   "top3": [
+    [
+     "none",
+     0.8
+    ],
+    [
+     "terminology",
+     0.2
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-agiDefinition"
+  },
+  {
+   "step": 288,
+   "name": "Reusable meshup prompt: RDF+HTML collection on TimBL Web/Semantic Web hyperlink naming, HttpRange-14/RDF-XML/OWL hurdles",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "skill-workflows",
+   "confidence": 0.62,
+   "top3": [
+    [
+     "skill-workflows",
+     0.65
+    ],
+    [
+     "none",
+     0.13
+    ],
+    [
+     "html-kg-explorer",
+     0.1
+    ]
+   ],
+   "fit": 0.49,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-llmRdfClientsMeshupPrompt"
+  },
+  {
+   "step": 289,
+   "name": "When running a noted RDF+HTML meshup prompt, generate and store under Documents/LLMs/Grok/{rdf,webpages,md}/ by default ",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "artifact-routing",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "artifact-routing",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.31,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-meshupStoreGrokMacPaths"
+  },
+  {
+   "step": 290,
+   "name": "A raw @handle naming a real person in fixed prompt context renders as that person's full name in visible prose, with sta",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.51,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.55
+    ],
+    [
+     "none",
+     0.3
+    ],
+    [
+     "identity-webid",
+     0.05
+    ]
+   ],
+   "fit": 0.29,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-namedPersonHandleFullNameHyperlink"
+  },
+  {
+   "step": 291,
+   "name": "When Jacqueline Hand's PRs merge into ai-agent-skills main, check for and bring them into the active working branch with",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.91,
+   "top3": [
+    [
+     "none",
+     0.92
+    ],
+    [
+     "skill-workflows",
+     0.07
+    ],
+    [
+     "destructive-command-guard",
+     0.01
+    ]
+   ],
+   "fit": 0.16,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-jhandPrSync"
+  },
+  {
+   "step": 292,
+   "name": "acp-client and ucp-client must elicit WHICH WebID-TLS identity (principal vs agent delegate vs a named credential set) o",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-webidIdentitySelection"
+  },
+  {
+   "step": 293,
+   "name": "Parts of speech map to RDF denotation roles: Noun\u2192Entity/Thing, Adjective\u2192Attribute/Quality, Verb\u2192Action/State/Relation ",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.36,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.41
+    ],
+    [
+     "none",
+     0.36
+    ],
+    [
+     "ontology-generation",
+     0.13
+    ]
+   ],
+   "fit": 0.53,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-posRdfDenotationFraming"
+  },
+  {
+   "step": 294,
+   "name": "Every curl PUT to a URIBurner DAV path (Basic-Auth 443 or mTLS :5443) must carry an explicit -H \"Content-Type: ...\" matc",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "artifact-routing",
+   "confidence": 0.77,
+   "top3": [
+    [
+     "artifact-routing",
+     0.79
+    ],
+    [
+     "none",
+     0.18
+    ],
+    [
+     "virtuoso-sparql",
+     0.02
+    ]
+   ],
+   "fit": 0.29,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-uriburnerDavPutContentType"
+  },
+  {
+   "step": 295,
+   "name": "SUPERSEDES Step 186 (still correct, now enforced): a standalone mid-page <section id=\"about\"> duplicating the footer att",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.42,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.47
+    ],
+    [
+     "skill-workflows",
+     0.44
+    ],
+    [
+     "none",
+     0.09
+    ]
+   ],
+   "fit": 0.3,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-noSecondAttributionSurfaceEnforced"
+  },
+  {
+   "step": 296,
+   "name": "The remote OBO test's PRIMARY form is dereferencing both WebIDs and checking reciprocal triples (the remote variant of l",
+   "phrase_match": "identity-webid",
+   "status": "ok",
+   "jev_topic": "identity-webid",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "identity-webid",
+     1.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ],
+    [
+     "artifact-routing",
+     0.0
+    ]
+   ],
+   "fit": 0.26,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-remoteWebidVerifyOboIgnored"
+  },
+  {
+   "step": 297,
+   "name": "CORRECTION to Step 296/the MPP incident report: On-Behalf-Of now produces a genuine, value-checked authorization differe",
+   "phrase_match": "identity-webid",
+   "status": "ok",
+   "jev_topic": "identity-webid",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "identity-webid",
+     0.99
+    ],
+    [
+     "none",
+     0.01
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.33,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-mppOboValueSpecific"
+  },
+  {
+   "step": 298,
+   "name": "Kingsley liked the presentation aesthetics of the UCP/ACP flow report (Step 297) and asked for it to be a reusable templ",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.55,
+   "top3": [
+    [
+     "none",
+     0.59
+    ],
+    [
+     "skill-workflows",
+     0.3
+    ],
+    [
+     "artifact-routing",
+     0.07
+    ]
+   ],
+   "fit": 0.34,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-flowReportTemplate"
+  },
+  {
+   "step": 299,
+   "name": "Bringing the local Virtuoso memory store in sync is a four-stage procedure (regenerate, Keychain credential, positional ",
+   "phrase_match": "memory-management",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-memoryStoreSyncProcedure"
+  },
+  {
+   "step": 300,
+   "name": "entities/people.ttl is private and local-only: never commit or push it; the public repo carries only entities/people.exa",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.77,
+   "top3": [
+    [
+     "memory-management",
+     0.79
+    ],
+    [
+     "none",
+     0.17
+    ],
+    [
+     "rdf-authoring",
+     0.03
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-peopleRegistryLocalOnly"
+  },
+  {
+   "step": 301,
+   "name": "Interact with the local Virtuoso memory graphs \u2014 read or write \u2014 only as an authenticated identity: WebID-TLS (principal",
+   "phrase_match": "skill-workflows",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-memoryGraphsViaDba"
+  },
+  {
+   "step": 302,
+   "name": "When memory is driven from Virtuoso, a SAMPLE()-based verification query (one FROM NAMED per document graph) feeds per-f",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.85,
+   "top3": [
+    [
+     "memory-management",
+     0.86
+    ],
+    [
+     "virtuoso-sparql",
+     0.12
+    ],
+    [
+     "html-kg-explorer",
+     0.01
+    ]
+   ],
+   "fit": 0.29,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-memoryGraphStateTable"
+  },
+  {
+   "step": 303,
+   "name": "Reasoning over the memory graphs is query-scoped: plain reads stay pragma-free; a query needing entailment reuses data-t",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.47,
+   "top3": [
+    [
+     "memory-management",
+     0.51
+    ],
+    [
+     "virtuoso-sparql",
+     0.44
+    ],
+    [
+     "none",
+     0.04
+    ]
+   ],
+   "fit": 0.6,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-memoryQueryInferencePragmas"
+  },
+  {
+   "step": 304,
+   "name": "Name template and sample files {name}.example.ttl (never {name}.ttl.sample); the loader, state table and full-store gate",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.67,
+   "top3": [
+    [
+     "memory-management",
+     0.7
+    ],
+    [
+     "none",
+     0.12
+    ],
+    [
+     "terminology",
+     0.08
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-exampleTtlNaming"
+  },
+  {
+   "step": 305,
+   "name": "LinkedIn newsletters and articles: render Markdown before posting (native hyperlinks only), put attribution/Phenny signo",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.93,
+   "top3": [
+    [
+     "none",
+     0.94
+    ],
+    [
+     "artifact-routing",
+     0.04
+    ],
+    [
+     "memory-management",
+     0.01
+    ]
+   ],
+   "fit": 0.25,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-linkedinNewsletterArticlePublish"
+  },
+  {
+   "step": 306,
+   "name": "Optional System One judgment modality on the agent-rdf-memory harness: judgmentModality none|jev-shadow|jev-active; Jev/",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.83,
+   "top3": [
+    [
+     "memory-management",
+     0.84
+    ],
+    [
+     "none",
+     0.16
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.47,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-jevJudgmentModality"
+  },
+  {
+   "step": 307,
+   "name": "KG Explorer and SPARQL Workbench are collapsible sections CLOSED BY DEFAULT \u2014 wrap #kg-explorer and #sparql-workbench in",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "html-kg-explorer",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.22,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-kgSparqlCollapseByDefault"
+  },
+  {
+   "step": 308,
+   "name": "When asked for tabulated form, hyperlink the items in the table \u2014 including ones whose target is known-broken, with the ",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.43,
+   "top3": [
+    [
+     "none",
+     0.48
+    ],
+    [
+     "html-kg-explorer",
+     0.45
+    ],
+    [
+     "rdf-authoring",
+     0.05
+    ]
+   ],
+   "fit": 0.38,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-tabulatedItemsHyperlinked"
+  },
+  {
+   "step": 316,
+   "name": "Every SPASQL query in an RDF Views demo on demo.openlinksw.com carries a notice to authenticate as demo or vdb, user id ",
+   "phrase_match": "rdf-authoring",
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-demoSpasqlSigninNotice"
+  },
+  {
+   "step": 317,
+   "name": "Meshups: hyperlink in-text references to their section by fragment id, never count ODBC transfer against Virtuoso, credi",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.37,
+   "top3": [
+    [
+     "none",
+     0.42
+    ],
+    [
+     "virtuoso-sparql",
+     0.25
+    ],
+    [
+     "rdf-authoring",
+     0.13
+    ]
+   ],
+   "fit": 0.68,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-meshupFragmentLinksVendorFairness"
+  },
+  {
+   "step": 318,
+   "name": "Benchmark and head-to-head performance reports start from the editorial story template (2026-10-03 Virtuoso 7 / Virtuoso",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.74,
+   "top3": [
+    [
+     "none",
+     0.76
+    ],
+    [
+     "html-kg-explorer",
+     0.1
+    ],
+    [
+     "virtuoso-sparql",
+     0.09
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-benchmarkReportStoryTemplate"
+  },
+  {
+   "step": 319,
+   "name": "Run the full retrieval sequence as the first action of every session in this repo, and write the session file as the las",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.98,
+   "top3": [
+    [
+     "memory-management",
+     0.98
+    ],
+    [
+     "skill-workflows",
+     0.01
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.41,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-sessionBookends"
+  },
+  {
+   "step": 320,
+   "name": "Reader-facing collections do not carry debugging material: no error codes, failed query shapes or deployment troubleshoo",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.41,
+   "top3": [
+    [
+     "none",
+     0.46
+    ],
+    [
+     "memory-management",
+     0.26
+    ],
+    [
+     "html-kg-explorer",
+     0.15
+    ]
+   ],
+   "fit": 0.39,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-readerFacingNotDebugReport"
+  },
+  {
+   "step": 321,
+   "name": "Ground every minted IRI, fragment ids included, in the source document's URL; for a local-only document presume {default",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.98,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.98
+    ],
+    [
+     "artifact-routing",
+     0.01
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.32,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-iriSourceDocGrounding"
+  },
+  {
+   "step": 322,
+   "name": "Hyperlink the first mention of a named project or product once, in running prose and never in a heading, to its confirme",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.6,
+   "top3": [
+    [
+     "none",
+     0.63
+    ],
+    [
+     "rdf-authoring",
+     0.34
+    ],
+    [
+     "terminology",
+     0.03
+    ]
+   ],
+   "fit": 0.14,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-firstMentionHyperlinks"
+  },
+  {
+   "step": 323,
+   "name": "Default voice-over for screencasts and videos is Grok/xAI text-to-speech voice leo (rex as fallback), with the key read ",
+   "phrase_match": null,
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-screencastNarrationVoiceLeo"
+  },
+  {
+   "step": 324,
+   "name": "Skins belong in the skins repo (opl-skins) in source control and in the opl-skins VAD (/DAV/VAD/opl-skins/) on a server;",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.53,
+   "top3": [
+    [
+     "none",
+     0.57
+    ],
+    [
+     "artifact-routing",
+     0.41
+    ],
+    [
+     "html-kg-explorer",
+     0.01
+    ]
+   ],
+   "fit": 0.15,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-skinsInSkinsRepoAndVad"
+  },
+  {
+   "step": 325,
+   "name": "When presenting pages, URLs or deployments in a table or list, hyperlink every item as a full clickable URL; never give ",
+   "phrase_match": "memory-management",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.83,
+   "top3": [
+    [
+     "none",
+     0.84
+    ],
+    [
+     "html-kg-explorer",
+     0.12
+    ],
+    [
+     "rdf-authoring",
+     0.03
+    ]
+   ],
+   "fit": 0.19,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-clickableUrlTables"
+  },
+  {
+   "step": 325,
+   "name": "When presenting pages, URLs or deployments in a table or list, hyperlink every item as a full clickable URL; never give ",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.83,
+   "top3": [
+    [
+     "none",
+     0.84
+    ],
+    [
+     "html-kg-explorer",
+     0.12
+    ],
+    [
+     "rdf-authoring",
+     0.03
+    ]
+   ],
+   "fit": 0.21,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-clickableUrlTables"
+  },
+  {
+   "step": 330,
+   "name": "The footer 'Explore the Knowledge Graph using SPARQL' workbench is a collapsible <details> (footer-accordion) CLOSED by ",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.99
+    ],
+    [
+     "none",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-footerSparqlCollapseByDefault"
+  },
+  {
+   "step": 331,
+   "name": "Exactly one query surface per page: the SPARQL Workbench; the footer 'Explore/Query the Knowledge Graph' workbench and #",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.91,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.92
+    ],
+    [
+     "virtuoso-sparql",
+     0.07
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.12,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-singleQuerySurfaceNoFooter"
+  },
+  {
+   "step": 334,
+   "name": "Language-tagged literals default to the viewer's browser language, overridable by an explicit setting",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.71,
+   "top3": [
+    [
+     "none",
+     0.73
+    ],
+    [
+     "rdf-authoring",
+     0.18
+    ],
+    [
+     "html-kg-explorer",
+     0.05
+    ]
+   ],
+   "fit": 0.35,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-literalLanguageFromBrowser"
+  },
+  {
+   "step": 338,
+   "name": "Treat pasted-in source content as a local document saved under the model root, ground every IRI in that file's presumed ",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.74,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.76
+    ],
+    [
+     "artifact-routing",
+     0.13
+    ],
+    [
+     "none",
+     0.07
+    ]
+   ],
+   "fit": 0.34,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-pastedContentAsLocalDoc"
+  },
+  {
+   "step": 345,
+   "name": "Every query or code example on a generated site page goes through one standard formatter (codefmt.py): tidied text, capi",
+   "phrase_match": null,
+   "status": "withheld: concerns credentials; classify locally",
+   "id": "step-standardCodeQueryExamples"
+  },
+  {
+   "step": 347,
+   "name": "Build every OSDI site change in this order: 1 local host, 2 propagate to the staging server (oplussol11), 3 take live us",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.77,
+   "top3": [
+    [
+     "none",
+     0.79
+    ],
+    [
+     "skill-workflows",
+     0.11
+    ],
+    [
+     "artifact-routing",
+     0.05
+    ]
+   ],
+   "fit": 0.12,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-promotionSequenceLocalStagingLive"
+  },
+  {
+   "step": 348,
+   "name": "The next time the oplussol11 or www site is updated, time the upload and record the figure in ROLLOUT.md's timing table",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.68,
+   "top3": [
+    [
+     "none",
+     0.71
+    ],
+    [
+     "artifact-routing",
+     0.27
+    ],
+    [
+     "skill-workflows",
+     0.02
+    ]
+   ],
+   "fit": 0.27,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-timeStagingAndLiveUploads"
+  },
+  {
+   "step": 349,
+   "name": "An SEC filing source gets the SEC Filing Family template (S-1 or 10-Q variant), presented for approval before the first ",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.57,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.61
+    ],
+    [
+     "none",
+     0.25
+    ],
+    [
+     "skill-workflows",
+     0.07
+    ]
+   ],
+   "fit": 0.24,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-secFilingTemplateFamily"
+  },
+  {
+   "step": 350,
+   "name": "Before trusting a generator or validator on any rule, grep preferences.ttl for the newest step on that topic; when the t",
+   "phrase_match": "html-kg-explorer",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.99
+    ],
+    [
+     "none",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.37,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-validatorSupersededByNewerStep"
+  },
+  {
+   "step": 351,
+   "name": "rdf-infographic-skill pages give every section and sub-section a kebab-case id from the entity IRI and a real fragment l",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.96,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.96
+    ],
+    [
+     "skill-workflows",
+     0.03
+    ],
+    [
+     "none",
+     0.01
+    ]
+   ],
+   "fit": 0.32,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-generatedPageFragmentLinks"
+  },
+  {
+   "step": 352,
+   "name": "check-memory-gate.py blocks Write, Edit, Bash, Skill and mcp__ tools until core.ttl, preferences.ttl and index.ttl are r",
+   "phrase_match": "memory-management",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.67,
+   "top3": [
+    [
+     "memory-management",
+     0.7
+    ],
+    [
+     "destructive-command-guard",
+     0.15
+    ],
+    [
+     "none",
+     0.14
+    ]
+   ],
+   "fit": 0.22,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-memoryGateToolCoverage"
+  },
+  {
+   "step": 355,
+   "name": "When referencing a Mac doc in Grok Bot chat: open it on the Mac, attach the box copy, and keep file: only as a location ",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.87,
+   "top3": [
+    [
+     "none",
+     0.88
+    ],
+    [
+     "artifact-routing",
+     0.08
+    ],
+    [
+     "skill-workflows",
+     0.04
+    ]
+   ],
+   "fit": 0.17,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-macDocsInChatOpenAttachLabel"
+  },
+  {
+   "step": 356,
+   "name": "All teammate todo reports use ibps HTML: Oct 27 bar Gantt (visual) + Oct 30 status table (companion)",
+   "phrase_match": "artifact-routing",
+   "status": "ok",
+   "jev_topic": "html-kg-explorer",
+   "confidence": 0.53,
+   "top3": [
+    [
+     "html-kg-explorer",
+     0.57
+    ],
+    [
+     "none",
+     0.36
+    ],
+    [
+     "artifact-routing",
+     0.05
+    ]
+   ],
+   "fit": 0.23,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-todoReportsIbpsHtmlFormat"
+  },
+  {
+   "step": 357,
+   "name": "Implement every OSDI change in this sequence: 1 localhost, 2 the webdev edition on sol11 (www.webdev), 3 live; the sol11",
+   "phrase_match": null,
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 0.87,
+   "top3": [
+    [
+     "none",
+     0.88
+    ],
+    [
+     "artifact-routing",
+     0.08
+    ],
+    [
+     "skill-workflows",
+     0.03
+    ]
+   ],
+   "fit": 0.2,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-webdevBeforeLive"
+  },
+  {
+   "step": 368,
+   "name": "Example SPARQL and SPASQL queries put entity IRIs in the select list, beside labels and numbers, to show what Linked Dat",
+   "phrase_match": "rdf-authoring",
+   "status": "ok",
+   "jev_topic": "rdf-authoring",
+   "confidence": 0.72,
+   "top3": [
+    [
+     "rdf-authoring",
+     0.74
+    ],
+    [
+     "virtuoso-sparql",
+     0.12
+    ],
+    [
+     "none",
+     0.12
+    ]
+   ],
+   "fit": 0.3,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0",
+   "id": "step-iriInExampleSelect"
+  },
+  {
+   "step": 325,
+   "id": "step-memoryShaclValidation",
+   "name": "Validate the agent-rdf-memory store with SHACL shapes and check graph sync by content, not counts",
+   "phrase_match": "memory-management",
+   "status": "ok",
+   "jev_topic": "memory-management",
+   "confidence": 0.99,
+   "top3": [
+    [
+     "memory-management",
+     0.99
+    ],
+    [
+     "rdf-authoring",
+     0.01
+    ],
+    [
+     "identity-webid",
+     0.0
+    ]
+   ],
+   "fit": 0.26,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0"
+  },
+  {
+   "step": 258,
+   "id": "step-webidTlsRedirectNotUniversal",
+   "name": "Do not assume every WebID-TLS-gated x402 resource 302-redirects through a ?k=... URL before its 402 \u2014 a /sparql/ query e",
+   "phrase_match": "identity-webid",
+   "status": "withheld: concerns credentials; classify locally"
+  },
+  {
+   "step": 259,
+   "id": "step-x402JsonschemaRequired",
+   "name": "The x402 Python SDK needs jsonschema + the extensions extra even when the caller uses no extensions \u2014 it validates whate",
+   "phrase_match": "skill-workflows",
+   "status": "ok",
+   "jev_topic": "none",
+   "confidence": 1.0,
+   "top3": [
+    [
+     "none",
+     1.0
+    ],
+    [
+     "identity-webid",
+     0.0
+    ],
+    [
+     "memory-management",
+     0.0
+    ]
+   ],
+   "fit": 0.31,
+   "fit_meaning": "clearly belongs to one topic",
+   "served_by": "jev-1.14.0"
+  }
+ ]
+}

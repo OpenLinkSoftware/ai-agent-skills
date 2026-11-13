@@ -1,0 +1,9 @@
+{
+ "ontology-generation": ["step-ontologyDocumentNameDifferentiation"],
+ "html-kg-explorer": ["step-noSecondAttributionSurface", "step-noSecondAttributionSurfaceEnforced", "step-structuralContractDetails", "step-synopsisRequiresAbstract", "step-readerFacingNotDebugReport", "step-redundantLedeRecheckOnEveryEdit"],
+ "virtuoso-sparql": ["step-liveVerifyWorkbenchQueries", "step-spasqlExampleLiveLink", "step-hyperlinkSparqlUrls"],
+ "rdf-authoring": ["step-posRdfDenotationFraming"],
+ "skill-workflows": ["step-dbrCurieFalsePositive", "step-meshupFragmentLinksVendorFairness", "step-xbrlFinancialReportingAlignment"],
+ "terminology": ["step-virtuosoDbFileStillExists"],
+ "artifact-routing": ["step-scopeFilesystemSearchesToLlmRoot"]
+}

@@ -1,0 +1,8 @@
+{
+ "identity-webid": ["step-credentialLocationAtSessionStart", "step-p12PassphraseKeychainFirst", "step-p12PassphraseKeychainLive", "step-agentP12PassphraseKeychain", "step-attachedFileCredentialsToKeychain", "step-webidFromCertSan", "step-webidTlsPort5443Default", "step-webidTlsRedirectNotUniversal", "step-webidIdentitySelection"],
+ "skill-workflows": ["step-curlFirstMcpLastResort", "step-secretResolutionInGeneratedSkills", "step-untrustedTokenVsOAuthElicitation", "step-screencastNarrationVoiceLeo", "step-awkIgnorecaseNotPortable"],
+ "html-kg-explorer": ["step-accordionSummaryHeadingInheritance", "step-openlinkPaletteInGeneratorTemplate", "step-intelligenceNetworkAesthetic", "step-standardCodeQueryExamples"],
+ "memory-management": ["step-virtuosoLocalDbaKeychain", "step-memoryStoreSyncProcedure", "step-memoryGraphsViaDba"],
+ "destructive-command-guard": ["step-neverProbeProductionCredentialNames", "step-keychainDeletionApproval"],
+ "virtuoso-sparql": ["step-demoSpasqlSigninNotice"]
+}
