@@ -28,7 +28,7 @@
     schema:about :topic-identity-webid, :topic-memory-management, :topic-artifact-routing,
         :topic-rdf-authoring, :topic-html-kg-explorer, :topic-ontology-generation,
         :topic-skill-workflows, :topic-virtuoso-sparql, :topic-terminology,
-        :topic-activitypub, :topic-destructive-command-guard ;
+        :topic-activitypub, :topic-destructive-command-guard, :topic-osdi-inclusion-engine ;
     schema:hasPart :howto-identity-webid,
         :howto-memory-management,
         :howto-artifact-routing,
@@ -39,7 +39,8 @@
         :howto-virtuoso-sparql,
         :howto-terminology,
         :howto-activitypub,
-        :howto-destructive-command-guard .
+        :howto-destructive-command-guard,
+        :howto-osdi-inclusion-engine .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Topic Entities (simplified — one per sub-HowTo) ──────────────────────
@@ -81,6 +82,10 @@
     schema:name "Terminology & Conventions"@en ;
     schema:description "Mashup vs meshup and other terminological conventions."@en .
 
+:topic-osdi-inclusion-engine a schema:Thing ;
+    schema:name "OSDI Inclusion Engine & Site Deployment"@en ;
+    schema:description "Operating the OpenLink OSDI Inclusion Engine that renders openlinksw.com sub-sites from WebDAV content: .vsp execution, content-file and skin-shim gotchas, skins in the opl-skins repo and VAD, and the local, staging, live promotion sequence."@en .
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Sub-HowTo Entities ──────────────────────────────────────────────────
 # ═══════════════════════════════════════════════════════════════════════════
@@ -104,7 +109,19 @@
         :step-webidVerificationServiceSelection, :step-webidVerificationTable,
         :step-delegationLocalFiles, :step-delegationInsertGate,
         :step-oboHeaderFormat, :step-youidValidationGate,
-        :step-p12PassphraseUyiFile, :step-webidVsCanonicalIdentity .
+        :step-p12PassphraseUyiFile, :step-webidVsCanonicalIdentity,
+        :step-markdownHeroAttribution,
+        :step-remoteWebidVerifyOboIgnored,
+        :step-mppOboValueSpecific,
+        :step-credentialLocationAtSessionStart,
+        :step-p12PassphraseKeychainFirst,
+        :step-p12PassphraseKeychainLive,
+        :step-agentP12PassphraseKeychain,
+        :step-attachedFileCredentialsToKeychain,
+        :step-webidFromCertSan,
+        :step-webidTlsPort5443Default,
+        :step-webidTlsRedirectNotUniversal,
+        :step-webidIdentitySelection .
 
 # ── 2. Memory Management & Session Governance ──────────────────────────────
 
@@ -133,7 +150,20 @@
         :step-howtoAuthoringStructure,
         :step-identityEstablishment, :step-preferencesEstablishment,
         :step-identityMode, :step-progressiveContextLoading,
-        :step-grokBotMemorySync .
+        :step-grokBotMemorySync,
+        :step-sessionReadLlmScope,
+        :step-memoryGraphStateTable,
+        :step-jevJudgmentModality,
+        :step-memoryShaclValidation,
+        :step-peopleRegistryLocalOnly,
+        :step-exampleTtlNaming,
+        :step-filesystemVirtuosoSync,
+        :step-memoryQueryInferencePragmas,
+        :step-latestStandingDefaultResolution,
+        :step-virtuosoLocalDbaKeychain,
+        :step-memoryStoreSyncProcedure,
+        :step-memoryGraphsViaDba,
+        :step-jhandPrSync .
 
 # ── 3. Artifact Output Routing ──────────────────────────────────────────────
 
@@ -153,7 +183,14 @@
         :step-screencastPresentationNaming, :step-screencastEmbedMp4,
         :step-remoteWebdavUpload, :step-remoteUploadOrder, :step-remoteRemovalOrder,
         :step-markdownNotUploadedByDefault, :step-savedPromptsFolder, :step-filesystemPathVerification,
-        :step-publishUbWeblogToWww .
+        :step-publishUbWeblogToWww,
+        :step-vspArtifactsFolder,
+        :step-visualizationsFolder,
+        :step-outputRootGateAppliesBeyondKgGenerator,
+        :step-meshupStoreGrokMacPaths,
+        :step-uriburnerDavPutContentType,
+        :step-midSessionModelSwitch,
+        :step-scopeFilesystemSearchesToLlmRoot .
 
 # ── 4. RDF Authoring & Entity Resolution ────────────────────────────────────
 
@@ -190,7 +227,21 @@
         :step-dbpediaCanonicalSubject, :step-terminologySemanticWeb,
         :step-positionIntegerType, :step-exampleIriAntiPattern,
         :step-hyperlinkPostReferencesResolver,
-        :step-rdfSerializationDefaultClarification, :step-rdfNotationPreferenceElicitation .
+        :step-rdfSerializationDefaultClarification, :step-rdfNotationPreferenceElicitation,
+        :step-entityRegistryCensusVerification,
+        :step-entityFirstOccurrenceAndParity,
+        :step-spotlightPanelLocalAnchor,
+        :step-entityLinkFreshBuildGate,
+        :step-iriSourceDocGrounding,
+        :step-turtleOnlyDefaultNoImpliedJsonld,
+        :step-localTermNamespaceConsistency,
+        :step-firstMentionHyperlinks,
+        :step-namedPersonHandleFullNameHyperlink,
+        :step-elicitEntityLinkModeOnAnyProseAddition,
+        :step-disambiguatedSectionLabels,
+        :step-authorVsBodyBylineNames,
+        :step-posRdfDenotationFraming,
+        :step-neverFabricateCommentText .
 
 # ── 5. HTML Infographic & KG Explorer ───────────────────────────────────────
 
@@ -243,7 +294,51 @@
         :step-synopsisDeckDesignSystem ,
         :step-editorialDataVizAesthetic ,
         :step-portedTemplateMeasuredDefectSweep ,
-        :step-priorWorkEvaluationGates .
+        :step-priorWorkEvaluationGates,
+        :step-navResizeAndManualHide,
+        :step-reusedTemplateContractDrift,
+        :step-adHocSparqlBtnMustFollowGate2,
+        :step-consolidateNotStackSparqlSections,
+        :step-generatorGapsSectionBodyAndKgExplorer,
+        :step-noNestedQueryCardDuplication,
+        :step-unconstrainedContainerWidth,
+        :step-priorTemplateStalenessCheck,
+        :step-sparqlWorkbenchNotSimplifiedButton,
+        :step-howtoFaqGlossaryOrder,
+        :step-peopleSectionRemoved,
+        :step-organizationsSectionRemoved,
+        :step-sectionBackgroundAlternation,
+        :step-kgExplorerLabelDensity,
+        :step-kgExplorerEdgeLabelsVisibleByDefault,
+        :step-tierMapDriftFromHandAuthoring,
+        :step-mustBrowserVerifyNotJustGrep,
+        :step-kgSparqlCollapseByDefault,
+        :step-navDefaultCollapsed,
+        :step-orderedSectionTimeline,
+        :step-rdfDrivenFigures,
+        :step-singleItemFeatureBlock,
+        :step-manualHideMustStick,
+        :step-benchmarkReportStoryTemplate,
+        :step-explorerFollowsGlossary,
+        :step-cardGridAutoFitStretch,
+        :step-cardDescriptionTruncation,
+        :step-synopsisPanelCompactRows,
+        :step-heroAttributionRecurringMiss,
+        :step-fixedBackgroundColorPinning,
+        :step-themeToggleOsPreferenceGuard,
+        :step-registerNewInfographicTemplate,
+        :step-attributionSingleCanonicalSurface,
+        :step-noSecondAttributionSurface,
+        :step-noSecondAttributionSurfaceEnforced,
+        :step-structuralContractDetails,
+        :step-synopsisRequiresAbstract,
+        :step-redundantLedeRecheckOnEveryEdit,
+        :step-accordionSummaryHeadingInheritance,
+        :step-openlinkPaletteInGeneratorTemplate,
+        :step-intelligenceNetworkAesthetic,
+        :step-navSaveStateTransitionRace,
+        :step-sectionAltMarginShorthandCentering,
+        :step-cssCommentStarSlashTrap .
 
 
 # ── 6. Ontology Generation ──────────────────────────────────────────────────
@@ -262,7 +357,13 @@
         :step-mintingRunsOntologyGates,
         :step-elicitBeforeConditionalDefault,
         :step-crossDocumentLocalTermReuse,
-        :step-subsumptionPlausibilityAbduction .
+        :step-subsumptionPlausibilityAbduction,
+        :step-ontologyRegistryWriteBack,
+        :step-smallOntologyNoExemption,
+        :step-isDefinedByBareFragmentBug,
+        :step-ontologyIsDistinctEntity,
+        :step-ontologyReuseNotWriteBack,
+        :step-ontologyDocumentNameDifferentiation .
 
 # ── 7. Skill Chain & Workflows ──────────────────────────────────────────────
 
@@ -280,7 +381,29 @@
         :step-uriburnerOAuthAuthCodeFlow,
         :step-webdavWeblogEngineGate,
         :step-meshupPromptStyle,
-        :step-meshupHarnessSkillsAreVirtuosoSide .
+        :step-meshupHarnessSkillsAreVirtuosoSide,
+        :step-kgCitationUnverifiedBadge,
+        :step-kgOrderResolved,
+        :step-fullSkillsContractAlwaysApplies,
+        :step-llmRdfClientsMeshupPrompt,
+        :step-articleNotesFraming,
+        :step-ttsPronunciations,
+        :step-flowReportTemplate,
+        :step-generatorScriptNotSubstituteForChecklist,
+        :step-dbrCurieFalsePositive,
+        :step-xbrlFinancialReportingAlignment,
+        :step-curlFirstMcpLastResort,
+        :step-secretResolutionInGeneratedSkills,
+        :step-untrustedTokenVsOAuthElicitation,
+        :step-screencastNarrationVoiceLeo,
+        :step-awkIgnorecaseNotPortable,
+        :step-pythonDefaultJsFallback,
+        :step-countReflectsSourceDensity,
+        :step-checkerContextIsolation,
+        :step-bash32EmptyArrayIdiom,
+        :step-x402JsonschemaRequired,
+        :step-verifySettlementIndependently,
+        :step-xAccessViaPlaywright .
 
 # ── 8. Virtuoso & SPARQL ────────────────────────────────────────────────────
 
@@ -295,7 +418,21 @@
         :step-sparqlExampleQueryIriInSolution,
         :step-spasqlIriInSolution,
         :step-rdfViewRewriteRulesMandatory,
-        :step-rdfViewOntologyMandatory .
+        :step-rdfViewOntologyMandatory,
+        :step-sparqlSampleQuerySelfContainment,
+        :step-rdfStarNotVerified,
+        :step-pragmaAbToggleVariant,
+        :step-alterQuadStorageFullyQualifiedTableNames,
+        :step-sqlBatchScriptVerification,
+        :step-rdfStarUpgradeReverify,
+        :step-dualEngineBlockSeparation,
+        :step-sparqlExploreQueryAsUrl,
+        :step-rdfViewVerificationHyperlinks,
+        :step-virtuosoLicenseManagerRestartOrder,
+        :step-liveVerifyWorkbenchQueries,
+        :step-spasqlExampleLiveLink,
+        :step-hyperlinkSparqlUrls,
+        :step-demoSpasqlSigninNotice .
 
 # ── Step 315: publishing UB weblog HTML to the www blog ─────────────────────
 :step-publishUbWeblogToWww a schema:HowToStep ;
@@ -327,7 +464,13 @@
         <howto/usual-linkedin-post-hashtags.ttl> ;
     schema:step :step-mashupVsMeshup,
         :step-expandFirstUse,
-        :step-usualLinkedInPostHashtags .
+        :step-usualLinkedInPostHashtags,
+        :step-semanticWebIndefiniteArticle,
+        :step-agiDefinition,
+        :step-virtuosoDbFileStillExists,
+        :step-linkedinNewsletterArticlePublish,
+        :step-chatResponsePortableLinks,
+        :step-tabulatedItemsHyperlinked .
 
 # ── 10. ActivityPub & Fediverse Protocol ────────────────────────────────────
 
@@ -351,7 +494,20 @@
     schema:name "Destructive Command Guard"@en ;
     schema:description "Standing rule: never execute destructive shell commands. Covers git force operations, recursive deletion, filesystem wipes, fork bombs, and pipe-to-shell patterns."@en ;
     rdfs:seeAlso <howto/destructive-command-guard.ttl> ;
-    schema:step :step-destructiveCommandGuard, :step-buildFixtureIsStillAnArtifact .
+    schema:step :step-destructiveCommandGuard, :step-buildFixtureIsStillAnArtifact,
+        :step-neverProbeProductionCredentialNames,
+        :step-keychainDeletionApproval .
+
+# ── 12. OSDI Inclusion Engine & Site Deployment (topic created 2026-11-12 from the unrouted-steps routing project) ──
+
+:howto-osdi-inclusion-engine a schema:HowTo ;
+    schema:name "OSDI Inclusion Engine & Site Deployment"@en ;
+    schema:description "Standing rules for the OSDI Inclusion Engine (the Virtuoso index.vsp and skin system that renders openlinksw.com sub-sites from WebDAV content): making .vsp files execute, the physical content-file requirement, stale custom skin shims, where skins live, and the order every site change is promoted (local host, staging, live). Steps and howtos not yet on main are added by scripts/apply-step-routing.py once their files land."@en ;
+    rdfs:seeAlso <howto/osdi-vsp-execution-registration.ttl>,
+        <howto/osdi-composite-doc-caching-and-content-gate.ttl> ;
+    schema:step :step-osdiVspExecutionRegistration,
+        :step-osdiContentFileGate,
+        :step-osdiStaleCustomSkinShim .
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Step Definitions (referenced by sub-HowTos above) ────────────────────
@@ -3151,19 +3307,19 @@ If any check fails, port the CURRENT pattern from the newest compliant file in t
     onto:hasTrigger onto:triggerBehaviorGapIdentified, onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-bash32EmptyArrayBug> .
 
-# ── Step 258: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly ──
+# ── Step 374: the WebID-TLS redirect-to-402 hop is not universal — some resource types answer 402 directly (renumbered from 258 on 2026-11-12: two steps held that number) ──
 
 :step-webidTlsRedirectNotUniversal a schema:HowToStep ;
-    schema:position 258 ;
+    schema:position 374 ;
     schema:name "Do not assume every WebID-TLS-gated x402 resource 302-redirects through a ?k=... URL before its 402 — a /sparql/ query endpoint answered 402 directly at :5443 with no redirect at all"@en ;
     schema:text "2026-08-19: confirmed with a live probe of an ods-qa.openlinksw.com SPARQL query endpoint (urn:jch:test named graph) — cert accepted on :5443 went straight to 402, no 302/?k= hop, unlike the DAV file resource probed earlier in the same session. A redirect-follow (curl -L) handles both shapes correctly as a no-op when nothing needs following; don't build detection logic that treats an absent redirect as a failure signal." ;
     onto:hasTrigger onto:triggerArtifactGeneration ;
     rdfs:seeAlso <howto/webid-tls-port-5443-default.ttl#step-redirectHopNotUniversal> .
 
-# ── Step 259: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing ──
+# ── Step 371: x402 Python SDK requires jsonschema even for a plain fetch — validates server-offered extensions before signing (renumbered from 259 on 2026-11-12: two steps held that number) ──
 
 :step-x402JsonschemaRequired a schema:HowToStep ;
-    schema:position 259 ;
+    schema:position 371 ;
     schema:name "The x402 Python SDK needs jsonschema + the extensions extra even when the caller uses no extensions — it validates whatever extension the SERVER'S challenge advertises before creating a payment payload"@en ;
     schema:text "2026-08-19: discovered running x402-buyer's first real end-to-end settlement. A challenge advertising eip2612GasSponsoring failed deep inside signing with ImportError: Extensions validation requires jsonschema — after the challenge had already decoded and the buyer address already printed, reading like a mid-run crash rather than a missing dependency. Fixed in every install line across the skill (docstring, SKILL.md, setup.md) plus a troubleshooting.md entry keyed on the exact error text." ;
     onto:hasTrigger onto:triggerArtifactGeneration, onto:triggerBehaviorGapIdentified ;
@@ -3904,7 +4060,7 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
         <howto/turtle-only-default.ttl> .
 
 :step-rdfNotationPreferenceElicitation a schema:HowToStep ;
-    schema:position "362"^^xsd:integer ;
+    schema:position "372"^^xsd:integer ;
     schema:name "Elicit and remember the user's RDF notation preference on first use, and whenever they ask to change it"@en ;
     schema:text "Offer Turtle (default), LD-Vault, YAML-LD, JSON-LD, and a free-text notation choice; honor and record the selection, with Turtle as the fallback when none is recorded."@en ;
     onto:hasTrigger onto:triggerPreferencesUpdate, onto:triggerArtifactGeneration ;

@@ -1,0 +1,7 @@
+{
+ "html-kg-explorer": ["step-navDefaultCollapsed", "step-orderedSectionTimeline", "step-rdfDrivenFigures", "step-singleItemFeatureBlock"],
+ "artifact-routing": ["step-uriburnerDavPutContentType"],
+ "memory-management": ["step-peopleRegistryLocalOnly"],
+ "rdf-authoring": ["step-turtleOnlyDefaultNoImpliedJsonld", "step-pastedContentAsLocalDoc", "step-localTermNamespaceConsistency"],
+ "virtuoso-sparql": ["step-alterQuadStorageFullyQualifiedTableNames", "step-sqlBatchScriptVerification"]
+}

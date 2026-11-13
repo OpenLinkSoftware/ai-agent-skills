@@ -1,0 +1,8 @@
+{
+ "skill-workflows": ["step-kgOrderResolved", "step-fullSkillsContractAlwaysApplies", "step-llmRdfClientsMeshupPrompt", "step-articleNotesFraming", "step-ttsPronunciations"],
+ "html-kg-explorer": ["step-explorerFollowsGlossary", "step-cardGridAutoFitStretch", "step-cardDescriptionTruncation", "step-synopsisPanelCompactRows", "step-heroAttributionRecurringMiss", "step-fixedBackgroundColorPinning"],
+ "memory-management": ["step-exampleTtlNaming", "step-memoryGateToolCoverage"],
+ "ontology-generation": ["step-ontologyIsDistinctEntity"],
+ "virtuoso-sparql": ["step-rdfStarUpgradeReverify"],
+ "rdf-authoring": ["step-firstMentionHyperlinks"]
+}

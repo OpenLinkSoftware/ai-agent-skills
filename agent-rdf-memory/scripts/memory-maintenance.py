@@ -179,7 +179,7 @@ def check_unrouted(steps):
         hay = (v["name"] + " " + v["text"][:600]).lower()
         scores = {t: sum(1 for ph in lst if ph in hay) for t, lst in phrases.items()}
         best = max(scores.items(), key=lambda kv: kv[1]) if scores else (None, 0)
-        rows.append({"step": v["position"], "name": v["name"][:100],
+        rows.append({"step": v["position"], "id": v["id"], "name": v["name"][:100],
                      "suggested_topic": best[0] if best[1] else None, "matched_phrases": best[1]})
     return rows
 

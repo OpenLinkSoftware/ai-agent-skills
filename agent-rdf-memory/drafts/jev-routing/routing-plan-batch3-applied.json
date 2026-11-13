@@ -1,0 +1,8 @@
+{
+ "html-kg-explorer": ["step-manualHideMustStick", "step-benchmarkReportStoryTemplate"],
+ "ontology-generation": ["step-isDefinedByBareFragmentBug"],
+ "virtuoso-sparql": ["step-iriInExampleSelect"],
+ "rdf-authoring": ["step-literalLanguageFromBrowser"],
+ "skill-workflows": ["step-kgCitationUnverifiedBadge"],
+ "terminology": ["step-agiDefinition"]
+}

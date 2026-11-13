@@ -416,6 +416,19 @@ prov:wasGeneratedBy rdfs:seeAlso opal:usesTools ;
     :triggerPhrase "SPARQL compiler", "Virtuoso 37000", "SP031", "bif:contains", "describe page", "default-graph-uri", "format=text/x-html+tr" ;
     rdfs:isDefinedBy :memoryOntology .
 
+:OsdiSiteTask a owl:Class ;
+    rdfs:subClassOf :PromptIntent ;
+    rdfs:label "OSDI Site Task"@en ;
+    rdfs:comment "Prompt intent for working on the OSDI Inclusion Engine: deploying or repairing a site, skin, composite skin or .vsp page, and promoting a change from the local host through staging to live."@en ;
+    :routesToTopic <preferences.ttl#topic-osdi-inclusion-engine> ;
+    :requiresHowTo <howto/osdi-composite-doc-caching-and-content-gate.ttl> ;
+    :optionalHowTo <howto/osdi-vsp-execution-registration.ttl> ;
+    :retrievalPolicy :sparqlEndpointPreferred ;
+    :requiresRecentSession true ;
+    :preferredContextSource :OntologyContextSource, :PreferencesContextSource, :IndexContextSource, :HowToContextSource, :SessionContextSource ;
+    :triggerPhrase "OSDI", "Inclusion Engine", "skin shim", "composite skin", "index.vsp", "oplussol11", "xslt_sheet", "staleall", "opl-skins" ;
+    rdfs:isDefinedBy :memoryOntology .
+
 :RdfAuthoringTask a owl:Class ;
     rdfs:subClassOf :PromptIntent ;
     rdfs:label "RDF Authoring Task"@en ;

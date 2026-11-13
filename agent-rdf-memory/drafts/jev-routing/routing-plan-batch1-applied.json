@@ -1,0 +1,64 @@
+{
+ "rdf-authoring": [
+  "step-entityRegistryCensusVerification",
+  "step-entityFirstOccurrenceAndParity",
+  "step-spotlightPanelLocalAnchor",
+  "step-entityLinkFreshBuildGate",
+  "step-iriSourceDocGrounding"
+ ],
+ "artifact-routing": [
+  "step-vspArtifactsFolder",
+  "step-visualizationsFolder",
+  "step-outputRootGateAppliesBeyondKgGenerator",
+  "step-markdownNotUploadedByDefault",
+  "step-meshupStoreGrokMacPaths"
+ ],
+ "html-kg-explorer": [
+  "step-navResizeAndManualHide",
+  "step-reusedTemplateContractDrift",
+  "step-adHocSparqlBtnMustFollowGate2",
+  "step-consolidateNotStackSparqlSections",
+  "step-generatorGapsSectionBodyAndKgExplorer",
+  "step-noNestedQueryCardDuplication",
+  "step-unconstrainedContainerWidth",
+  "step-priorTemplateStalenessCheck",
+  "step-sparqlWorkbenchNotSimplifiedButton",
+  "step-howtoFaqGlossaryOrder",
+  "step-peopleSectionRemoved",
+  "step-organizationsSectionRemoved",
+  "step-sectionBackgroundAlternation",
+  "step-kgExplorerLabelDensity",
+  "step-kgExplorerEdgeLabelsVisibleByDefault",
+  "step-tierMapDriftFromHandAuthoring",
+  "step-mustBrowserVerifyNotJustGrep",
+  "step-kgSparqlCollapseByDefault",
+  "step-footerSparqlCollapseByDefault",
+  "step-singleQuerySurfaceNoFooter",
+  "step-validatorSupersededByNewerStep",
+  "step-generatedPageFragmentLinks"
+ ],
+ "ontology-generation": [
+  "step-ontologyRegistryWriteBack",
+  "step-smallOntologyNoExemption"
+ ],
+ "memory-management": [
+  "step-sessionReadLlmScope",
+  "step-memoryGraphStateTable",
+  "step-jevJudgmentModality",
+  "step-sessionBookends",
+  "step-memoryShaclValidation"
+ ],
+ "virtuoso-sparql": [
+  "step-sparqlSampleQuerySelfContainment",
+  "step-rdfStarNotVerified",
+  "step-pragmaAbToggleVariant"
+ ],
+ "identity-webid": [
+  "step-markdownHeroAttribution",
+  "step-remoteWebidVerifyOboIgnored",
+  "step-mppOboValueSpecific"
+ ],
+ "terminology": [
+  "step-semanticWebIndefiniteArticle"
+ ]
+}

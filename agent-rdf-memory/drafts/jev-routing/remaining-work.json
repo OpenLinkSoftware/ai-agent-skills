@@ -1,0 +1,88 @@
+{
+ "date": "2026-11-12",
+ "unrouted_now": 9,
+ "groups": {
+  "held_back_high_confidence": [
+   {
+    "id": "step-semanticSessionBootstrap",
+    "position": 110,
+    "name": "DEPRECATED \u2014 replaced by step-progressiveContextLoading (position 144)",
+    "jev_topic": "memory-management",
+    "confidence": 0.92,
+    "phrase_match": null
+   },
+   {
+    "id": "step-sparqlSectionsClosedAccordion",
+    "position": 185,
+    "name": "Wrap every SPARQL-bearing section \u2014 sample query cards AND the whole KG Explorer / SPARQL ",
+    "jev_topic": "html-kg-explorer",
+    "confidence": 0.99,
+    "phrase_match": "html-kg-explorer"
+   },
+   {
+    "id": "step-explorerPrecedesReference",
+    "position": 189,
+    "name": "SUPERSEDED 2026-08-20 by Step 243 \u2014 see below. KG Explorer and SPARQL Workbench MUST prece",
+    "jev_topic": "html-kg-explorer",
+    "confidence": 0.97,
+    "phrase_match": "html-kg-explorer"
+   },
+   {
+    "id": "step-kgSparqlAccordionRemoved",
+    "position": 194,
+    "name": "KG Explorer and SPARQL Workbench are always-visible sections again \u2014 do NOT wrap #kg-explo",
+    "jev_topic": "html-kg-explorer",
+    "confidence": 1.0,
+    "phrase_match": "html-kg-explorer"
+   },
+   {
+    "id": "step-thesisFrameworkTemplatePreference",
+    "position": 233,
+    "name": "SUPERSEDED 2026-08-19 by Step 236, itself refined 2026-08-20 by Step 244 \u2014 assets/template",
+    "jev_topic": "html-kg-explorer",
+    "confidence": 0.8,
+    "phrase_match": "skill-workflows"
+   },
+   {
+    "id": "step-sparqlWorkbenchOpenByDefault",
+    "position": 245,
+    "name": "SPARQL workbench accordion MUST be open by default (supersedes the closed-by-default rende",
+    "jev_topic": "html-kg-explorer",
+    "confidence": 1.0,
+    "phrase_match": "html-kg-explorer"
+   }
+  ],
+  "low_confidence": [
+   {
+    "id": "step-todoReportsIbpsHtmlFormat",
+    "position": 356,
+    "name": "All teammate todo reports use ibps HTML: Oct 27 bar Gantt (visual) + Oct 30 status table (",
+    "jev_topic": "html-kg-explorer",
+    "confidence": 0.53,
+    "phrase_match": "artifact-routing"
+   }
+  ],
+  "withheld_credential_related": [],
+  "jev_none_high_confidence": [
+   {
+    "id": "step-deepseekV4HarnessStartup",
+    "position": 272,
+    "name": "Start the DeepSeek-v4 harness with npx @deepseek-ai/dsh web",
+    "jev_topic": "none",
+    "confidence": 0.99,
+    "phrase_match": "html-kg-explorer"
+   },
+   {
+    "id": "step-noInfraPortDisclosure",
+    "position": 278,
+    "name": "Never state a specific network port number for a real live-deployment's connection listene",
+    "jev_topic": "none",
+    "confidence": 0.98,
+    "phrase_match": "artifact-routing"
+   }
+  ],
+  "added_by_other_sessions_never_classified": []
+ },
+ "never_classified": [],
+ "updated": "2026-11-12 after batch 9 (369 and 370 routed)"
+}

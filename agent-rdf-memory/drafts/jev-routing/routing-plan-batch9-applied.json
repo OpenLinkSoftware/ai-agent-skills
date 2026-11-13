@@ -1,0 +1,4 @@
+{
+ "virtuoso-sparql": ["step-rewriteDescribeTwoGraphs"],
+ "artifact-routing": ["step-collectionGraphsUriburnerDemoGraphsDemo"]
+}
