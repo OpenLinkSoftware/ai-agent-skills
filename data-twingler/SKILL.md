@@ -4,7 +4,7 @@ description: Execute SQL, SPARQL, SPASQL, SPARQL-FED, and GraphQL queries agains
 license: See LICENSE.txt
 ---
 
-# OpenLink Data Twingler (v2.0.87)
+# OpenLink Data Twingler (v2.0.89)
 
 Enhances LLM responses with RAG by routing user intent to the right query
 language and live endpoint. Covers SQL, SPARQL, SPASQL, SPARQL-FED, and
@@ -31,9 +31,16 @@ GraphQL — all driven by natural language, no imperative programming required.
 | Fallback Endpoints | `https://kingsley.idehen.net/sparql`, `https://demo.openlinksw.com/sparql` |
 | Local RDF Directories | Fallback only: `~/Documents/LLMs/*/rdf/`, `~/Documents/LLMs/GPT5-Chat-Generated/rdf/`, `./rdf/` |
 | Auto-Discover Local RDF | Enabled for fallback only — scans model-root RDF directories and `./rdf/` after endpoint exhaustion |
-| Vector Similarity Threshold (Local) | 0.75 |
+| Vector Similarity Threshold (Local) | 0.75 (only when a real embedding model is available; see Local RDF Similarity Matching) |
 | Vector Candidate Types | `schema:Question`, `schema:DefinedTerm`, `schema:HowTo`, `schema:HowToStep`, `skos:Concept` |
-| Server-Side Vector Similarity Threshold | 0.5 |
+| Vector Capability Probe | **Required** before any vector step on an endpoint; result cached per endpoint for the session (see Vector Capability Probe Gate) |
+| Vector Search Endpoint | `https://vec.demo.openlinksw.com/sparql` — full `bif:vector_search` support; offered when the target endpoint fails the probe |
+| Known Vector Support (2026-11-15) | `vec.demo.openlinksw.com`: full `bif:vector_search`. `demo.openlinksw.com`: partial — `vvec:hasEmbedding` data present, `bif:vector_search` not compiled, `vvec_cosine_similarity_openai` needs an authenticated account (SR186). `linkeddata.uriburner.com`: none. Always re-probe; this row is a hint, not a substitute |
+| Server-Side Vector Similarity Threshold | 0.5 (legacy `vvec_cosine_similarity_openai` path only) |
+| Vector Discovery Candidates (k) | 20 per search, `ef_search` 100 |
+| Rank Fusion | Vector-corroborated Reciprocal Rank Fusion, constant `k = 60` (see step 1c) |
+| Vector Fusion Window | Vector ranks 1–10 with score ≥ 0.70 enter the ranked list and can corroborate keyword hits |
+| Vector Expansion Hops | 1 (top 5 seeds from the corroborated ranked list; never an uncorroborated keyword hit) |
 | `judgmentModality` | `jev-shadow` (`none` \| `jev-shadow` \| `jev-active`) — published default; operators may override per session |
 | Jev fail-open | Missing key, timeout, API error, `enabled:false`, or "bypass jev" / "no jev" → non-Jev path |
 
@@ -167,6 +174,63 @@ seems faster.
 | 6 | "{Question}" with article/graph context | T6 — Q&A UNION (2-step) |
 | 7 | "Define the term {X}" | T7 — DefinedTerm (2-step) |
 | 8 | "What is {X}?" / "Can you explain what {X} is?" / "Tell me about {X}" | T8 — Direct Entity Description (1-step) |
+| 9 | "Vector search for {X}" / "Semantic search for {X}" / "Hybrid search for {X}" | T9 — Vector / hybrid search with index selection |
+| 10 | "List vector indexes" / "Find available vector indexes" / "Which vector indexes can I search?" | T10 — Vector index discovery |
+
+### Vector Capability Probe Gate (before any vector step)
+
+Vector support differs per Virtuoso instance and cannot be assumed. Before the
+first vector step against an endpoint — T9, Graph IRI Discovery step 1b, or a
+vector semantic-variant retry — run **VP — Vector Capability Probe** in
+`references/query-templates.md` against that endpoint and cache the result for
+the session:
+
+| Probe outcome | Capability record | Consequence |
+|---|---|---|
+| `bif:vector_search` probe returns rows or an empty result | `bif_vector_search = yes` | T9 and step 1b-A run here |
+| Probe fails with `SP030` at `INDEX`, or `bif:vector_search` is unknown | `bif_vector_search = no` | No T9 / 1b-A here |
+| `vvec:hasEmbedding` ASK true and one-row cosine call succeeds | `vvec_cosine = yes` | Step 1b-B (legacy) may run |
+| Cosine call fails with `SR186` (no permission) | `vvec_cosine = auth-required` | Offer to authenticate (OAuth, see protocol-routing.md); otherwise skip 1b-B |
+| Network/TLS failure | `unknown` | Report it; do not record `no` |
+
+Rules:
+
+- Never infer vector support from the endpoint's name, from this skill's
+  Known Vector Support row, or from T10. **An empty `urn:vvec:indexes` result is
+  not evidence of missing vector support**: that graph is a view over a table
+  with no grants for non-DBA readers, and it returns nothing anonymously even
+  on `vec.demo.openlinksw.com`, where `bif:vector_search` works.
+- When the user asks for vector search on an endpoint whose probe fails, say so
+  and offer the configured `Vector Search Endpoint`. Do not switch silently,
+  and do not fall back to keyword search while calling it vector search.
+- Report the capability record (endpoint + outcome) alongside vector results.
+
+### Vector / Hybrid Search Routing (T9, T10)
+
+**Explicit requests.** For "vector search", "semantic search", or "hybrid
+search" requests, run the probe gate, then load T9 in
+`references/query-templates.md`. Use `bif:vector_search` with the supplied
+search text, result limit, and `ef_search`. Search all indexes (`INDEX *`,
+bare — `INDEX '*'` is a syntax error), one index, or a list of index IRIs.
+`score_limit`, `distance_limit` and `ranking raw` require every searched index
+to share one embedding model and metric (else `VEC68`); with `INDEX *` use
+`ranking relevance` and no score/distance limits unless the indexes are known
+to be compatible. For hybrid search, use T9's hybrid variants. These explicit
+requests route directly to T9 rather than the T5–T8 discovery/checkpoint
+workflow.
+
+**Implicit natural-language questions.** When the target endpoint's probe
+passes, T5–T8 run vector discovery **alongside** keyword discovery and fuse the
+two (Graph IRI Discovery, step 1b). Vector search is no longer reserved for the
+case where keyword search finds nothing.
+
+When asked which indexes exist, run T10 against `urn:vvec:indexes` and tabulate
+`?index`, `?label`, and `?comment`. Use returned index IRIs for selection; when
+the user names graphs, verify their associated indexes rather than assuming
+graph IRIs are index IRIs. T10 is on request, not a prerequisite to every T9
+search, and its empty result means "metadata not readable here", not "no
+indexes". Index IRIs also appear in `VEC68` error text. Honor the user's
+endpoint and protocol preferences.
 
 ### T5 Structured HowTo Preflight
 
@@ -195,7 +259,7 @@ enumeration has been attempted.
 
 For T5, T6, T7, and T8 queries, run Graph IRI Discovery against URIBurner
 first. Local RDF search is a fallback layer only. Execute it after the UB
-keyword modality, UB vector modality, semantic variants, and fallback endpoints
+keyword modality, probe-gated vector modality, semantic variants, and fallback endpoints
 either return no usable result or are unavailable.
 
 #### Folder Resolution
@@ -235,11 +299,21 @@ Each candidate carries:
 
 #### Similarity Matching
 
-1. Embed the user's prompt and every candidate `text` string.
+1. Embed the user's prompt and every candidate `text` string with **one real
+   embedding model** available in the environment (for example a local
+   sentence-transformers model such as `all-MiniLM-L6-v2`, or an embeddings
+   API the user has configured). Use the same model for prompt and candidates,
+   and name it in the report.
 2. Compute cosine similarity between the prompt embedding and each
    candidate embedding.
 3. Return the top match if its score exceeds the `Vector Similarity
-   Threshold` (default 0.75).
+   Threshold` (default 0.75). The threshold is calibrated per model; state
+   the model when reporting the score.
+
+If no embedding model is available, say so and fall back to lexical matching
+(case-insensitive token overlap on the candidate text). Label the result
+"lexical match", never "vector similarity", and never estimate or invent a
+similarity score.
 
 #### Fallback Match → Checkpoint
 
@@ -269,15 +343,22 @@ local directories scanned, then ask before falling back to model knowledge.
 ### Graph IRI Discovery — UB-First Modality (T5, T6, T7, T8)
 
 Graph IRI Discovery operates in a **UB-first modality**: two search strategies
-against the endpoint and its named graphs. Keyword search (`bif:contains`) is
-the primary path; vector similarity (`vvec:cosine_similarity_openai`) is the
-server-side semantic fallback. Both run on the endpoint; neither requires local
-computation.
+against the endpoint and its named graphs. Keyword search (`bif:contains`)
+always runs. Vector search runs **alongside it** whenever the endpoint passes
+the Vector Capability Probe, and the two ranked lists are fused (step 1c), so a
+weak keyword hit no longer hides a stronger semantic match. Both run on the
+endpoint; neither requires local computation. If the target endpoint fails the
+probe (UB today), discovery is keyword-only there; the user may name the
+`Vector Search Endpoint` to add the vector modality.
 
 These templates require a mandatory four-step sequence. **Steps may not be
 combined, pre-empted, or skipped under any circumstances:**
 
-1. **Graph IRI Discovery — Keyword Modality** — Determine the relevant
+Step 1 has sub-steps 1a (keyword), 1b (vector), 1c (fusion) and 1d
+(expansion); 1b–1d run only on endpoints that passed the Vector Capability
+Probe. Report each sub-step's results before the index query.
+
+1. **(1a) Graph IRI Discovery — Keyword Modality** — Determine the relevant
    named graph(s) by executing a full-text keyword search across the data
    space. Substitute `({prompt})` with the user's search terms (key nouns
    joined with `AND`):
@@ -308,8 +389,9 @@ combined, pre-empted, or skipped under any circumstances:**
    Report the discovered graph IRI(s) (`?g`) to the user. Bind these IRI(s)
    to `{G}`, `{G1}`, `{G2}`, `{G3}` for use in the index and final queries.
    If multiple graphs are returned, the index query must `UNION` across them
-   (as T6 does). If zero graphs are returned, proceed to the **Vector
-   Modality** below.
+   (as T6 does). Whether or not keyword search returns rows, run the
+   **Vector Modality** (1b) next when the endpoint passed the probe; if it did
+   not and zero graphs were returned, go to the Semantic Variant Fallback.
 
    **Entity-level insight:** Examine the `?s1` and `?o1` values returned. If
    `?o1` is a `schema:description` or `schema:text` literal attached to a
@@ -317,26 +399,87 @@ combined, pre-empted, or skipped under any circumstances:**
    `schema:HowTo`), treat `?s1` as a **direct answer candidate** — proceed
    to describe it in the final step.
 
-2. **Graph IRI Discovery — Vector Modality** (when Keyword Modality returns
-   zero results). Execute a server-side cosine similarity query using
-   `sql:vvec_cosine_similarity_openai()`. This requires entities to be
-   annotated with `vvec:hasEmbedding 'true'^^xsd:boolean` on the endpoint:
+1b. **Graph IRI Discovery — Vector Modality** (runs alongside 1a whenever
+   the probe passed; gated by the Vector Capability Probe Gate). Pass the
+   user's prompt as natural language — the `bif:contains` boolean-term rules
+   do not apply.
+
+   **1b-A — `bif:vector_search` (preferred; `bif_vector_search = yes`).**
+   Use the **VD — Vector Discovery** template in
+   `references/query-templates.md`. It returns `?doc`, `?score`, and a sampled
+   `?type`, `?label` and `?graph` per hit, so the hit carries the graph IRI
+   the index and final steps need.
+
+   **1b-B — legacy cosine (only when `bif_vector_search = no` and
+   `vvec_cosine = yes`).** Requires entities annotated with
+   `vvec:hasEmbedding true` and execute permission on
+   `DB.DBA.vvec_cosine_similarity_openai` (anonymous callers get `SR186` on
+   demo.openlinksw.com). Every non-aggregated variable is grouped and the
+   scan is bounded:
 
    ```sparql
    PREFIX vvec: <http://www.openlinksw.com/ontology/vvec#>
 
-   SELECT ?similarity ?term ?type ?termName
+   SELECT ?term (SAMPLE(?type) AS ?termType) (SAMPLE(?termName) AS ?name)
+          (MAX(?similarity) AS ?score)
    WHERE {
-     ?term a ?type ;
-       schema:name | rdfs:label | schema:title ?termName ;
-       vvec:hasEmbedding 'true'^^xsd:boolean .
-     BIND('{user prompt}' AS ?userInput)
-     BIND(sql:vvec_cosine_similarity_openai(?term, ?userInput) AS ?similarity)
+     ?term vvec:hasEmbedding 'true'^^xsd:boolean ;
+       a ?type ;
+       schema:name | rdfs:label | schema:title ?termName .
+     BIND(sql:vvec_cosine_similarity_openai(?term, '{user prompt}') AS ?similarity)
    }
-   GROUP BY ?similarity ?term
-   HAVING (?similarity > {Server-Side Vector Similarity Threshold})
-   ORDER BY DESC(?similarity)
+   GROUP BY ?term
+   HAVING (MAX(?similarity) > {Server-Side Vector Similarity Threshold})
+   ORDER BY DESC(?score)
+   LIMIT {Vector Discovery Candidates}
    ```
+
+   This path scores every embedded entity row by row (no ANN index); prefer
+   1b-A wherever it is available.
+
+1c. **Vector-corroborated rank fusion.** Fuse the keyword list (1a, ranked by
+   `?sc`) and the vector list (1b, ranked by `?score`) by **rank, never by raw
+   score**: keyword `?sc` and vector `?score` are on unrelated scales, and
+   vector scores from indexes with different embedding models are not
+   comparable either.
+
+   1. **Vector window** — the vector hits ranked 1–10 with score ≥ 0.70
+      (`Vector Fusion Window`).
+   2. **Ranked list** — every entity in the window, scored
+      `1 / (k + vector_rank)`, plus `1 / (k + keyword_rank)` when keyword
+      search also found it (a *corroborated* keyword hit), with `k = 60`.
+      Sort descending.
+   3. **Appended keyword-only hits** — keyword hits outside the window follow
+      the ranked list in keyword order, labelled "keyword-only (not
+      corroborated by vector search)". They stay visible, so the radius is a
+      union, but they never outrank a vector-backed entity.
+   4. **Vector empty or weak** — if the window is empty (no hit ≥ 0.70), the
+      keyword order rules unchanged.
+
+   Why not plain RRF: when keyword search returns one or two hits, plain RRF
+   ranks any of them that also appears low in the vector list above the best
+   vector hit, because appearing in both lists outweighs rank. On vec.demo
+   (2026-11-15) that put `dbr:Locked-in_retirement_account` first for "I am
+   locked out of my account" and the song `dbr:OK_Love_You_Bye` first for "how
+   do I change my password". Corroborated fusion ranked password and login
+   documentation first in both cases and kept correct keyword hits
+   (`dbr:Password_reset` for "how do I reset a password") at the top.
+
+   Report the ranked table with each entity's keyword rank, vector rank, vector
+   score, fused score, corroboration status and source graph IRI(s), followed by
+   the appended keyword-only hits. Known limit: an exact-name match that vector
+   search misses (identifiers, rare proper names) lands in the appended block;
+   say so when the prompt is a bare name or identifier.
+
+1d. **One-hop expansion.** For the top 5 entities of the ranked list from 1c
+   (vector-backed by construction — never an appended keyword-only hit, which
+   in testing multiplied a wrong hit into seven more wrong neighbours), run the **VX — Vector
+   Hit Expansion** template (both directions over `owl:sameAs`,
+   `skos:exactMatch`, `skos:related`, `skos:broader`, `dbo:wikiPageRedirects`,
+   `schema:about`, `schema:isPartOf`, `schema:mentions`, `rdfs:seeAlso`).
+   Add neighbours to the candidate list, marked "via {predicate} from
+   {seed}", ranked below their seed. Expansion adds candidates; it never
+   replaces a direct hit.
 
    **On match:** Follow the type-specific retrieval query for the matched
    `?type` to extract the answer:
@@ -378,9 +521,39 @@ combined, pre-empted, or skipped under any circumstances:**
      ORDER BY ASC(?position)
      ```
 
+   - **`schema:DefinedTerm`** → retrieve the definition:
+
+     ```sparql
+     SELECT ?term ?name ?definition ?termSet
+     WHERE {
+       ?term a schema:DefinedTerm .
+       OPTIONAL { ?term schema:name ?name }
+       OPTIONAL { ?term schema:description | skos:definition ?definition }
+       OPTIONAL { ?term schema:inDefinedTermSet ?termSet }
+       FILTER (?term IN (<{matched-IRI}>))
+     }
+     ```
+
+   - **`schema:HowToStep`** → retrieve the step and its parent HowTo with the
+     sibling steps in order:
+
+     ```sparql
+     SELECT ?guide ?step ?text ?position
+     WHERE {
+       ?guide a schema:HowTo ;
+         schema:step <{matched-IRI}>, ?step .
+       ?step schema:name | schema:text ?text .
+       OPTIONAL { ?step schema:position ?position }
+     }
+     ORDER BY ASC(?position)
+     ```
+
+   - **Any other type** (e.g. a `schema:CreativeWork` hit from 1b-A) → run the
+     T8 describe query on the entity.
+
    Report the matched entity, its type, similarity score, and the extracted
-   answer to the user as a checkpoint. If the vector modality also returns
-   zero results, proceed to the **Semantic Variant Fallback** below.
+   answer to the user as a checkpoint. If keyword, vector and expansion all
+   return zero results, proceed to the **Semantic Variant Fallback** below.
 
    **Semantic Variant Fallback (when both KG-Hybrid modalities return zero results):**
 
@@ -402,8 +575,10 @@ combined, pre-empted, or skipped under any circumstances:**
         "Microsoft stock decline following record revenue"
 
    3. **Variant Retry** — Execute Graph IRI Discovery with each variant in
-      sequence, using the same `bif:contains` query template. Stop on the first
-      variant that returns results. Report which variant succeeded.
+      sequence: the `bif:contains` template with the variant's key terms and,
+      when the endpoint passed the probe, VD with the variant's full
+      phrasing, fused as in 1c. Stop on the first variant that returns
+      results. Report which variant and which modality succeeded.
 
    4. **Fallback Endpoints** — If all semantic variants return zero results,
       retry the original prompt against the fallback endpoints in order:
@@ -534,12 +709,45 @@ natural-language-only placeholder for `url`, `query`, or `sql`.
 
 ## Entity Denotation in Results
 
-Hyperlink all entity identifiers using:
+Hyperlink every entity identifier — in tables, prose, fused/ranked lists,
+expansion results and citations — to the `/describe` service of **the
+endpoint that served that entity's content in this response**:
+
 ```
-http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
+{endpoint-origin}/describe/?url={url_encoded_id}
 ```
-- All URLs must be percent-encoded.
-- Include a **citation section** with hyperlinked source entity IDs.
+
+`{endpoint-origin}` is the scheme and host of the SPARQL endpoint whose query
+returned the entity (e.g. `https://vec.demo.openlinksw.com` for a T9/VD hit,
+`https://demo.openlinksw.com` for a fallback-endpoint hit,
+`https://linkeddata.uriburner.com` for a UB hit). Never route an entity through
+another instance's resolver: a different instance shows a different data space,
+not the triples that produced the answer.
+
+- **Track provenance per entity.** Record which endpoint(s) returned each
+  entity. When fusion or fallback combines results from several endpoints,
+  link each entity to the endpoint that returned it; if more than one did, link
+  the first and list the others in the citation section.
+- **Verify the resolver once per endpoint per session** before using it: open
+  one describe link for an entity that endpoint returned (if it shows an
+  "Open this link?" confirmation, continue it — the form posts `h=1`) and
+  require an HTTP 200 page about that entity. Cache the outcome with the
+  Vector Capability Probe record.
+- **Fallback when that endpoint's `/describe` fails** — stay on the same
+  endpoint and link a SPARQL `DESCRIBE` rendered as nice Turtle:
+
+  ```
+  {endpoint-url}?query=DESCRIBE%20%3C{url_encoded_id}%3E&format=text%2Fx-html-nice-turtle
+  ```
+
+  Say in the response that the fallback was used and why (e.g. 2026-11-15:
+  `vec.demo.openlinksw.com/describe` fails with
+  `SR185: Undefined procedure VAL.DBA.get_query_scope`, while `DESCRIBE` on its
+  `/sparql` works). Verified 2026-11-15: `/describe/?url=` returns the entity on
+  `linkeddata.uriburner.com` and `demo.openlinksw.com` (`?uri=` is accepted too).
+- All URLs must be percent-encoded; compute them with a tool, never by hand.
+- Include a **citation section** listing every linked entity's full IRI,
+  hyperlinked the same way, with the endpoint that served it.
 - Log all hyperlink formatting errors with detailed feedback.
 
 ---
@@ -549,7 +757,7 @@ http://linkeddata.uriburner.com/describe/?uri={url_encoded_id}
 The UB-first + local-fallback workflow:
 
 ```
-Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semantic Variants → Fallback Endpoints → Local RDF Fallback → Final Report
+Vector Capability Probe (once per endpoint) → Step 1a (bif:contains Keyword) ∥ Step 1b (bif:vector_search, or legacy vvec cosine, only if probe passed) → 1c RRF fusion → 1d one-hop expansion → Semantic Variants (keyword + vector) → Fallback Endpoints (each probed before any vector step) → Local RDF Fallback → Final Report
 ```
 
 1. **UB Graph IRI Discovery** — Executes first on
@@ -558,8 +766,9 @@ Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semant
 
 2. **Semantic Variant Retry** — When Graph IRI Discovery returns zero results,
    decompose the prompt into subject/predicate/object components, generate up to
-   3 semantically equivalent phrasing variants, and retry keyword search with
-   each variant before escalating to endpoint fallback.
+   3 semantically equivalent phrasing variants, and retry keyword search (and
+   vector search, where the probe passed) with each variant before escalating
+   to endpoint fallback.
 
 3. **Fallback Endpoints** — Retry against `https://kingsley.idehen.net/sparql`,
    then `https://demo.openlinksw.com/sparql`, in order.
@@ -600,7 +809,7 @@ Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semant
 1. **UB-first retrieval rule** — For T5, T6, T7, and T8 templates, and for
    KG-mediated "Why", "How", "What", "Define", "Explain", and "Compare"
    prompts, Graph IRI Discovery on URIBurner MUST execute before any local RDF
-   scan. Local RDF search is fallback only after UB keyword search, UB vector
+   scan. Local RDF search is fallback only after UB keyword search, probe-gated vector
    search, semantic variants, and fallback endpoints are exhausted or
    unavailable. This applies even when the user does not explicitly say
    "KG-only".
@@ -643,7 +852,9 @@ Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semant
    stop.
 12. **KG-only presentation rule** — Report the discovered graph, entity, and
    provenance references. Hyperlink entity, graph, and source identifiers via
-   the URIBurner resolver. Use literal KG values for the answer body and mark
+   the `/describe` resolver of the endpoint that served them (see Entity
+   Denotation in Results, including its same-endpoint `DESCRIBE` fallback).
+   Use literal KG values for the answer body and mark
    local fallback evidence explicitly when used.
 13. Optimize every query for performance and accuracy.
 14. Validate setting changes with test queries where possible.
@@ -656,3 +867,15 @@ Step 1a (UB bif:contains Keyword) → Step 1b (UB vvec:cosine Vector) → Semant
     the remote endpoint URL and concrete SPARQL query; SPASQL prompts must bind
     the `sql` string. Never rely on the backend to infer these required
     parameters from only the natural-language message.
+20. **Vector capability probe rule** — Never run a vector query (T9, 1b-A,
+    1b-B, or a vector variant retry) against an endpoint that has not passed
+    the Vector Capability Probe in this session. Never infer support from an
+    endpoint's name, the Known Vector Support hint, or an empty T10 result.
+    When the probe fails, say so and offer the `Vector Search Endpoint`;
+    never present keyword-only results as vector or semantic search.
+21. **Rank-fusion rule** — Combine keyword and vector results, or vector results
+    from indexes with different embedding models, by rank, never by raw
+    score, using vector-corroborated fusion (step 1c): a keyword hit is boosted
+    only when vector search ranks it inside the fusion window; otherwise it is
+    appended, labelled keyword-only. Expansion seeds come only from the ranked
+    list.
