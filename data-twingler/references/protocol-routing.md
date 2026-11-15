@@ -4,13 +4,27 @@ Use this file only when you need execution routing guidance beyond the main skil
 
 ## Default Order
 
-1. **Local RDF files** — scan configured directories, auto-discovered paths, and user-specified overrides for `.jsonld`, `.ttl`, `.rdf`, `.nt` files. Extract candidates matching `Vector Candidate Types` and run vector similarity against the user prompt. If no RDF files found at all, ask the user for a directory path before falling back to the network. If a match exceeds the `Vector Similarity Threshold` (0.75), offer it to the user before making any network call. If no local match or user declines, proceed to step 2.
-2. Direct native execution such as `curl` to the target endpoint
-3. URIBurner REST functions
-4. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header
-5. MCP via streamable HTTP or SSE
-6. Authenticated `chatPromptComplete`
-7. OPAL Agent routing via recognizable function names
+This is the **transport** order for executing a query. Retrieval order for
+T5–T8 is set in `SKILL.md` (UB-first; local RDF files are a fallback only after
+endpoint keyword search, probe-gated vector search, semantic variants and
+fallback endpoints are exhausted). Local RDF files are never scanned before the
+network.
+
+1. Direct native execution such as `curl` to the target endpoint
+2. URIBurner REST functions
+3. Terminal-owned OAuth flow — authenticate via OAuth 2.0 from the terminal to enable authenticated REST/OpenAPI calls; obtain a Bearer token and inject via `Authorization: Bearer {token}` header. Also the route when the Vector Capability Probe records `vvec_cosine = auth-required` (`SR186`) and the user wants the legacy cosine path
+4. MCP via streamable HTTP or SSE
+5. Authenticated `chatPromptComplete`
+6. OPAL Agent routing via recognizable function names
+
+### Vector-search endpoint routing
+
+Before any vector query, run the VP probe (`references/query-templates.md`)
+against the endpoint chosen above and cache the result for the session. Vector
+queries go only to endpoints whose probe passed. When the user's endpoint
+fails, offer `https://vec.demo.openlinksw.com/sparql` (the configured
+`Vector Search Endpoint`) and say that the switch changes the data being
+searched.
 
 ---
 
