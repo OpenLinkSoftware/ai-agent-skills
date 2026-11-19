@@ -187,6 +187,196 @@ CREATE PROCEDURE DB.DBA.WEBLOG_ADMIN_CSRF (IN coll VARCHAR, IN who VARCHAR)
 }
 ;
 
+-- ==========================================================================
+-- Caches for the public weblog page (index.vsp).
+--
+-- Without them every page view read the content of every post (about
+-- 100 MB for the URIBurner weblog's 330 posts) to find their titles, and
+-- rebuilt the whole page from scratch; the page also sent no ETag, so a
+-- browser could never be told "not modified" (measured 2026-11-19).
+--
+--   WEBLOG_POST_TITLE_CACHE -- one row per post: the title the post list
+--     shows, valid while the post's RES_MOD_TIME is unchanged.
+--   WEBLOG_PAGE_CACHE -- one built page per host + query string, valid
+--     while WEBLOG_PAGE_FINGERPRINT is unchanged. The fingerprint covers
+--     everything the page shows: index.vsp itself, the collection's
+--     weblog:* settings, and each post's name, date, category and pin.
+--
+-- Both are emptied on every install (new code can render differently).
+-- ==========================================================================
+CREATE PROCEDURE DB.DBA.TMP_WEBLOG_CACHE_TABLES ()
+{
+  { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+    exec ('CREATE TABLE DB.DBA.WEBLOG_POST_TITLE_CACHE (WPT_RES_ID INTEGER NOT NULL, WPT_MOD DATETIME, WPT_TITLE VARCHAR, PRIMARY KEY (WPT_RES_ID))'); }
+  { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+    exec ('CREATE TABLE DB.DBA.WEBLOG_PAGE_CACHE (WPC_COLL VARCHAR NOT NULL, WPC_KEY VARCHAR NOT NULL, WPC_FP VARCHAR, WPC_BODY LONG VARCHAR, WPC_AT DATETIME, PRIMARY KEY (WPC_COLL, WPC_KEY))'); }
+  { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+    exec ('DELETE FROM DB.DBA.WEBLOG_POST_TITLE_CACHE'); }
+  { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+    exec ('DELETE FROM DB.DBA.WEBLOG_PAGE_CACHE'); }
+}
+;
+DB.DBA.TMP_WEBLOG_CACHE_TABLES ();
+DROP PROCEDURE DB.DBA.TMP_WEBLOG_CACHE_TABLES;
+
+-- The title the post list shows for one post: from the cache while the
+-- post is unchanged, else worked out from its content (the same rules the
+-- page used inline before) and stored.
+CREATE PROCEDURE DB.DBA.WEBLOG_POST_LIST_TITLE (IN rid INTEGER, IN rmod DATETIME, IN rname VARCHAR)
+{
+  declare t, s, ext, stem varchar;
+  declare dpos, title_pos any;
+  -- The cache table is reached through exec(), not static SQL: a static
+  -- reference stops this procedure compiling wherever the table is not yet
+  -- visible, and the page calling it then fails (URIBurner, 2026-11-19:
+  -- HTTP 500 after upgrade.sql ran in a client that did not commit each
+  -- statement). A cache miss or error just means working the title out.
+  t := null;
+  {
+    declare st, msg varchar;
+    declare rows any;
+    declare exit handler for sqlstate '*' { t := null; };
+    st := '00000';
+    rows := null;
+    exec ('select WPT_TITLE from DB.DBA.WEBLOG_POST_TITLE_CACHE where WPT_RES_ID = ? and WPT_MOD = ?',
+          st, msg, vector (rid, rmod), 1, null, rows);
+    if (st = '00000' and rows is not null and length (rows) > 0)
+      t := rows[0][0];
+  }
+  if (t is not null)
+    return t;
+
+  dpos := strrchr (rname, '.');
+  stem := case when dpos is null then rname else subseq (rname, 0, dpos) end;
+  ext := case when dpos is null then '' else lower (subseq (rname, dpos + 1)) end;
+  s := '';
+  -- Cut the blob BEFORE converting it: blob_to_string() refuses anything
+  -- past ~10 MB (SR072). Only the head is needed: the title and an
+  -- 8000-byte window, starting at <title> when it sits further in.
+  for (select RES_CONTENT as _c from WS.WS.SYS_DAV_RES where RES_ID = rid) do
+    s := blob_to_string (subseq (_c, 0, case when length (_c) > 2000000 then 2000000 else length (_c) end));
+  title_pos := null;
+  if (ext = 'html')
+    title_pos := strcasestr (s, '<title');
+  if (title_pos is not null and title_pos > 7000)
+    s := subseq (s, title_pos, title_pos + 8000);
+  else
+    s := subseq (s, 0, 8000);
+
+  if (ext = 'html')
+  {
+    t := regexp_substr ('(?is)<title[^>]*>([^<]*)</title>', s, 1);
+    if (t is not null)
+    {
+      t := trim (t);
+      t := DB.DBA.WEBLOG_HTML_UNESCAPE (t);
+      t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
+    }
+  }
+  else
+  {
+    -- Markdown: front-matter title:, else the first # heading, else the
+    -- stem. (No dollar signs in these patterns: isql treats one as a
+    -- macro even inside a loaded file.)
+    if (s like '---%')
+      t := regexp_substr ('(?m)^title:[[:space:]]*([^[:cntrl:]]+)', s, 1);
+    if (t is null or trim (t) = '')
+      t := regexp_substr ('(?m)^#[[:space:]]+([^[:cntrl:]]+)', s, 1);
+    if (t is not null)
+    {
+      t := trim (t);
+      if (length (t) > 1 and t like '"%"')
+        t := subseq (t, 1, length (t) - 1);
+      t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
+    }
+    if (t is null or t = '')
+      t := stem;
+  }
+  if (t is null or t = '')
+    t := rname;
+  {
+    declare st, msg varchar;
+    declare exit handler for sqlstate '*' { ; };
+    st := '00000';
+    exec ('insert replacing DB.DBA.WEBLOG_POST_TITLE_CACHE (WPT_RES_ID, WPT_MOD, WPT_TITLE) values (?, ?, ?)',
+          st, msg, vector (rid, rmod, t));
+  }
+  return t;
+}
+;
+
+-- A digest of everything the public page shows; any change to a post, a
+-- category, a pin, a weblog setting or the page template changes it.
+CREATE PROCEDURE DB.DBA.WEBLOG_PAGE_FINGERPRINT (IN coll VARCHAR)
+{
+  declare ses, col_id any;
+  ses := string_output ();
+  for (select RES_MOD_TIME as _m from WS.WS.SYS_DAV_RES where RES_FULL_PATH = coll || 'index.vsp') do
+    http (cast (_m as varchar), ses);
+  col_id := DB.DBA.DAV_SEARCH_ID (coll, 'C');
+  if (isinteger (col_id) and col_id > 0)
+  {
+    -- Every collection property except rotating tokens.
+    for (select PROP_NAME as _n, PROP_VALUE as _v from WS.WS.SYS_DAV_PROP
+          where PROP_PARENT_ID = col_id and PROP_TYPE = 'C' and PROP_NAME not like '%Token%'
+          order by PROP_NAME) do
+      http (concat ('|', _n, '=', cast (_v as varchar)), ses);
+  }
+  -- Posts are found by folder (RES_COL, indexed), not by path prefix: a
+  -- RES_FULL_PATH LIKE prefix scan read the whole WebDAV table on every
+  -- request -- about 0.5 s per page view on www.openlinksw.com, 304s
+  -- included (2026-11-19), against 1 ms by folder. RES_COL also matches
+  -- exactly the files directly in the folder.
+  if (isinteger (col_id) and col_id > 0)
+  {
+    for (select RES_ID as _id, RES_NAME as _n, RES_MOD_TIME as _m from WS.WS.SYS_DAV_RES
+          where RES_COL = col_id and (RES_NAME like '%.html' or RES_NAME like '%.md')
+          order by RES_ID) do
+      http (concat ('|', cast (_id as varchar), ':', _n, ':', cast (_m as varchar)), ses);
+    for (select R.RES_ID as _id, P.PROP_NAME as _n, P.PROP_VALUE as _v
+           from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+          where R.RES_COL = col_id and (R.RES_NAME like '%.html' or R.RES_NAME like '%.md')
+            and P.PROP_PARENT_ID = R.RES_ID and P.PROP_TYPE = 'R'
+            and P.PROP_NAME in ('schema:category', 'schema:position')
+          order by R.RES_ID, P.PROP_NAME) do
+      http (concat ('|', cast (_id as varchar), ':', _n, '=', cast (_v as varchar)), ses);
+  }
+  return md5 (string_output_string (ses));
+}
+;
+
+CREATE PROCEDURE DB.DBA.WEBLOG_PAGE_CACHE_GET (IN coll VARCHAR, IN page_key VARCHAR, IN fp VARCHAR)
+{
+  -- exec(), not static SQL, for the reason given in WEBLOG_POST_LIST_TITLE.
+  declare body, rows any;
+  declare st, msg varchar;
+  declare exit handler for sqlstate '*' { return null; };
+  body := null;
+  st := '00000';
+  rows := null;
+  exec ('select WPC_BODY from DB.DBA.WEBLOG_PAGE_CACHE where WPC_COLL = ? and WPC_KEY = ? and WPC_FP = ?',
+        st, msg, vector (coll, page_key, fp), 1, null, rows);
+  if (st = '00000' and rows is not null and length (rows) > 0 and rows[0][0] is not null)
+    body := blob_to_string (rows[0][0]);
+  return body;
+}
+;
+
+-- Store a built page; pages built for an older fingerprint are dropped at
+-- the same time, so the table only ever holds current pages.
+CREATE PROCEDURE DB.DBA.WEBLOG_PAGE_CACHE_PUT (IN coll VARCHAR, IN page_key VARCHAR, IN fp VARCHAR, IN body ANY)
+{
+  declare st, msg varchar;
+  declare exit handler for sqlstate '*' { return 0; };
+  st := '00000';
+  exec ('delete from DB.DBA.WEBLOG_PAGE_CACHE where WPC_COLL = ? and WPC_FP <> ?', st, msg, vector (coll, fp));
+  st := '00000';
+  exec ('insert replacing DB.DBA.WEBLOG_PAGE_CACHE (WPC_COLL, WPC_KEY, WPC_FP, WPC_BODY, WPC_AT) values (?, ?, ?, ?, now ())',
+        st, msg, vector (coll, page_key, fp, body));
+  return case when st = '00000' then 1 else 0 end;
+}
+;
+
 -- The admin dashboard, served by the admin route's dashboard.vsp. The
 -- generated dashboard.html stays locked in the admin collection (no world
 -- bits); this procedure reads it only for an administrator:
@@ -1708,12 +1898,53 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     }
   }
 
+  -- Built-page cache for plain page views (not searches, feeds or form
+  -- posts): answered from DB.DBA.WEBLOG_PAGE_CACHE while nothing the page
+  -- shows has changed, and with 304 Not Modified when the browser already
+  -- holds the current copy (ETag). See WEBLOG_PAGE_FINGERPRINT.
+  declare page_cache_store int;
+  declare page_cache_key, page_fp, page_etag, page_inm, page_cached any;
+  page_cache_store := 0;
+  page_fp := null;
+  if (q = '''' and feed_type = '''' and http_request_get (''REQUEST_METHOD'') = ''GET'')
+  {
+    -- If the cache step fails for any reason, build the page as usual.
+    {
+      declare exit handler for sqlstate ''*'' { page_fp := null; };
+      page_fp := DB.DBA.WEBLOG_PAGE_FINGERPRINT (''{{DAV_COLLECTION}}'');
+    }
+  }
+  if (page_fp is not null)
+  {
+    page_cache_key := concat (site_base, ''|'', coalesce (http_request_get (''QUERY_STRING''), ''''));
+    page_etag := concat (''"'', md5 (concat (page_fp, ''|'', page_cache_key)), ''"'');
+    page_inm := http_request_header (http_request_header (), ''If-None-Match'', null, null);
+    if (isstring (page_inm) and page_inm = page_etag)
+    {
+      http_request_status (''HTTP/1.1 304 Not Modified'');
+      http_header (concat (''ETag: '', page_etag, ''\r\nCache-Control: no-cache\r\n''));
+      return;
+    }
+    http_header (concat (''Content-Type: text/html; charset=UTF-8\r\nETag: '', page_etag, ''\r\nCache-Control: no-cache\r\n''));
+    page_cached := null;
+    {
+      declare exit handler for sqlstate ''*'' { page_cached := null; };
+      page_cached := DB.DBA.WEBLOG_PAGE_CACHE_GET (''{{DAV_COLLECTION}}'', page_cache_key, page_fp);
+    }
+    if (page_cached is not null)
+    {
+      http (page_cached);
+      return;
+    }
+    page_cache_store := 1;
+  }
+
   -- Pass 1: collect .html and .md resources; note stems that have an HTML rendition
   all_rows := vector ();
   html_stems := dict_new (61);
   if (q = '''')
   {
-    for (select RES_NAME as _name, RES_MOD_TIME as _mod, RES_CONTENT as _cont
+    for (select RES_ID as _id, RES_NAME as _name, RES_MOD_TIME as _mod
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like ''{{DAV_COLLECTION}}%.html''
               or RES_FULL_PATH like ''{{DAV_COLLECTION}}%.md'')
@@ -1729,28 +1960,20 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     ext  := lower (subseq (_name, dpos + 1));
     if (ext = ''html'')
       dict_put (html_stems, stem, 1);
-    -- Cut the blob BEFORE converting it: blob_to_string() refuses anything past ~10 MB
-    -- (SR072), and one oversized post made the whole listing return HTTP 500. Only the
-    -- head is needed here -- the title and an 8000-byte window.
-    s := blob_to_string (subseq (_cont, 0, case when length (_cont) > 2000000 then 2000000 else length (_cont) end));
-    -- Keep 8000 bytes for the title lookup, but starting at <title> when it
-    -- sits further in: generated pages can open with a large inline <style>
-    -- block, which pushed <title> past a fixed first-8000-byte window and
-    -- left the post listed under its filename.
-    declare title_pos any;
-    title_pos := null;
-    if (ext = ''html'')
-      title_pos := strcasestr (s, ''<title'');
-    if (title_pos is not null and title_pos > 7000)
-      s := subseq (s, title_pos, title_pos + 8000);
-    else
-      s := subseq (s, 0, 8000);
+    -- The title only, from DB.DBA.WEBLOG_POST_LIST_TITLE: cached per post
+    -- while the post is unchanged, instead of reading the content of every
+    -- post on every page view.
+    s := null;
+    {
+      declare exit handler for sqlstate ''*'' { s := _name; };
+      s := DB.DBA.WEBLOG_POST_LIST_TITLE (_id, _mod, _name);
+    }
     all_rows := vector_concat (all_rows, vector (vector (_name, _mod, s, ext, stem)));
     }
   }
   else
   {
-    for (select RES_NAME as _name, RES_MOD_TIME as _mod, RES_CONTENT as _cont
+    for (select RES_ID as _id, RES_NAME as _name, RES_MOD_TIME as _mod
            from WS.WS.SYS_DAV_RES
           where (RES_FULL_PATH like ''{{DAV_COLLECTION}}%.html''
               or RES_FULL_PATH like ''{{DAV_COLLECTION}}%.md'')
@@ -1767,22 +1990,14 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     ext  := lower (subseq (_name, dpos + 1));
     if (ext = ''html'')
       dict_put (html_stems, stem, 1);
-    -- Cut the blob BEFORE converting it: blob_to_string() refuses anything past ~10 MB
-    -- (SR072), and one oversized post made the whole listing return HTTP 500. Only the
-    -- head is needed here -- the title and an 8000-byte window.
-    s := blob_to_string (subseq (_cont, 0, case when length (_cont) > 2000000 then 2000000 else length (_cont) end));
-    -- Keep 8000 bytes for the title lookup, but starting at <title> when it
-    -- sits further in: generated pages can open with a large inline <style>
-    -- block, which pushed <title> past a fixed first-8000-byte window and
-    -- left the post listed under its filename.
-    declare title_pos any;
-    title_pos := null;
-    if (ext = ''html'')
-      title_pos := strcasestr (s, ''<title'');
-    if (title_pos is not null and title_pos > 7000)
-      s := subseq (s, title_pos, title_pos + 8000);
-    else
-      s := subseq (s, 0, 8000);
+    -- The title only, from DB.DBA.WEBLOG_POST_LIST_TITLE: cached per post
+    -- while the post is unchanged, instead of reading the content of every
+    -- post on every page view.
+    s := null;
+    {
+      declare exit handler for sqlstate ''*'' { s := _name; };
+      s := DB.DBA.WEBLOG_POST_LIST_TITLE (_id, _mod, _name);
+    }
     all_rows := vector_concat (all_rows, vector (vector (_name, _mod, s, ext, stem)));
     }
   }
@@ -1803,36 +2018,8 @@ CREATE PROCEDURE DB.DBA.WEBLOG_DAV_DEPLOY_SKINNED
     stem := aref (r, 4);
     if (ext = ''md'' and dict_get (html_stems, stem, null) is not null)
       goto next_row;
-    if (ext = ''html'')
-    {
-      t := regexp_substr (''(?is)<title[^>]*>([^<]*)</title>'', s, 1);
-      if (t is not null)
-      {
-        t := trim (t);
-        t := DB.DBA.WEBLOG_HTML_UNESCAPE (t);
-        t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
-      }
-    }
-    else
-    {
-      -- Markdown: front-matter title:, else the first # heading, else the
-      -- stem. (No dollar signs in these patterns: isql treats one as a
-      -- macro even inside a loaded file.)
-      t := null;
-      if (s like ''---%'')
-        t := regexp_substr (''(?m)^title:[[:space:]]*([^[:cntrl:]]+)'', s, 1);
-      if (t is null or trim (t) = '''')
-        t := regexp_substr (''(?m)^#[[:space:]]+([^[:cntrl:]]+)'', s, 1);
-      if (t is not null)
-      {
-        t := trim (t);
-        if (length (t) > 1 and t like ''"%"'')
-          t := subseq (t, 1, length (t) - 1);
-        t := DB.DBA.WEBLOG_FIX_MOJIBAKE (t);
-      }
-      if (t is null or t = '''')
-        t := stem;
-    }
+    -- Pass 1 already holds the title (DB.DBA.WEBLOG_POST_LIST_TITLE).
+    t := s;
     if (t is null or t = '''')
       t := aref (r, 0);
     item_date := sprintf (''%04d-%02d-%02d'', year (aref (r, 1)), month (aref (r, 1)), dayofmonth (aref (r, 1)));
@@ -2615,7 +2802,13 @@ next_row: ;
   </script>
 </body>
 </html>
-';
+<?vsp
+  if (page_cache_store = 1)
+  {
+    declare exit handler for sqlstate ''*'' { ; };
+    DB.DBA.WEBLOG_PAGE_CACHE_PUT (''{{DAV_COLLECTION}}'', page_cache_key, page_fp, http_get_string_output ());
+  }
+?>';
 
   index_content := replace (index_content, '{{DAV_COLLECTION}}', coll);
   index_content := replace (index_content, '{{PUBLIC_ROUTE}}', route);
