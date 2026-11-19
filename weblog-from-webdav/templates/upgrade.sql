@@ -3776,19 +3776,25 @@ CREATE PROCEDURE DB.DBA.WEBLOG_PAGE_FINGERPRINT (IN coll VARCHAR)
           order by PROP_NAME) do
       http (concat ('|', _n, '=', cast (_v as varchar)), ses);
   }
-  for (select RES_ID as _id, RES_NAME as _n, RES_MOD_TIME as _m from WS.WS.SYS_DAV_RES
-        where (RES_FULL_PATH like coll || '%.html' or RES_FULL_PATH like coll || '%.md')
-          and RES_FULL_PATH = coll || RES_NAME
-        order by RES_ID) do
-    http (concat ('|', cast (_id as varchar), ':', _n, ':', cast (_m as varchar)), ses);
-  for (select R.RES_ID as _id, P.PROP_NAME as _n, P.PROP_VALUE as _v
-         from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
-        where (R.RES_FULL_PATH like coll || '%.html' or R.RES_FULL_PATH like coll || '%.md')
-          and R.RES_FULL_PATH = coll || R.RES_NAME
-          and P.PROP_PARENT_ID = R.RES_ID and P.PROP_TYPE = 'R'
-          and P.PROP_NAME in ('schema:category', 'schema:position')
-        order by R.RES_ID, P.PROP_NAME) do
-    http (concat ('|', cast (_id as varchar), ':', _n, '=', cast (_v as varchar)), ses);
+  -- Posts are found by folder (RES_COL, indexed), not by path prefix: a
+  -- RES_FULL_PATH LIKE prefix scan read the whole WebDAV table on every
+  -- request -- about 0.5 s per page view on www.openlinksw.com, 304s
+  -- included (2026-11-19), against 1 ms by folder. RES_COL also matches
+  -- exactly the files directly in the folder.
+  if (isinteger (col_id) and col_id > 0)
+  {
+    for (select RES_ID as _id, RES_NAME as _n, RES_MOD_TIME as _m from WS.WS.SYS_DAV_RES
+          where RES_COL = col_id and (RES_NAME like '%.html' or RES_NAME like '%.md')
+          order by RES_ID) do
+      http (concat ('|', cast (_id as varchar), ':', _n, ':', cast (_m as varchar)), ses);
+    for (select R.RES_ID as _id, P.PROP_NAME as _n, P.PROP_VALUE as _v
+           from WS.WS.SYS_DAV_RES R, WS.WS.SYS_DAV_PROP P
+          where R.RES_COL = col_id and (R.RES_NAME like '%.html' or R.RES_NAME like '%.md')
+            and P.PROP_PARENT_ID = R.RES_ID and P.PROP_TYPE = 'R'
+            and P.PROP_NAME in ('schema:category', 'schema:position')
+          order by R.RES_ID, P.PROP_NAME) do
+      http (concat ('|', cast (_id as varchar), ':', _n, '=', cast (_v as varchar)), ses);
+  }
   return md5 (string_output_string (ses));
 }
 ;
