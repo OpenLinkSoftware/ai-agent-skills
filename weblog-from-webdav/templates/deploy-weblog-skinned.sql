@@ -211,6 +211,8 @@ CREATE PROCEDURE DB.DBA.TMP_WEBLOG_CACHE_TABLES ()
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
     exec ('CREATE TABLE DB.DBA.WEBLOG_PAGE_CACHE (WPC_COLL VARCHAR NOT NULL, WPC_KEY VARCHAR NOT NULL, WPC_FP VARCHAR, WPC_BODY LONG VARCHAR, WPC_AT DATETIME, PRIMARY KEY (WPC_COLL, WPC_KEY))'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
+    exec ('CREATE TABLE DB.DBA.WEBLOG_PAGE_CACHE_BASE (WPB_COLL VARCHAR NOT NULL, WPB_BASE VARCHAR NOT NULL, PRIMARY KEY (WPB_COLL, WPB_BASE))'); }
+  { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
     exec ('DELETE FROM DB.DBA.WEBLOG_POST_TITLE_CACHE'); }
   { DECLARE EXIT HANDLER FOR SQLSTATE '*' { ; };
     exec ('DELETE FROM DB.DBA.WEBLOG_PAGE_CACHE'); }
@@ -373,7 +375,60 @@ CREATE PROCEDURE DB.DBA.WEBLOG_PAGE_CACHE_PUT (IN coll VARCHAR, IN page_key VARC
   st := '00000';
   exec ('insert replacing DB.DBA.WEBLOG_PAGE_CACHE (WPC_COLL, WPC_KEY, WPC_FP, WPC_BODY, WPC_AT) values (?, ?, ?, ?, now ())',
         st, msg, vector (coll, page_key, fp, body));
+  -- A front page (empty query string, key "<scheme://host>|") also records
+  -- the address it was served at, for WEBLOG_PAGE_CACHE_WARM.
+  if (st = '00000' and page_key like '%|')
+  {
+    declare st2, msg2 varchar;
+    st2 := '00000';
+    exec ('insert soft DB.DBA.WEBLOG_PAGE_CACHE_BASE (WPB_COLL, WPB_BASE) values (?, ?)',
+          st2, msg2, vector (coll, subseq (page_key, 0, length (page_key) - 1)));
+  }
   return case when st = '00000' then 1 else 0 end;
+}
+;
+
+-- Rebuild a weblog's cached front page as soon as it goes out of date (a
+-- post added, edited or removed; a category, pin or setting changed), so
+-- the first visitor after a change gets a cached page too. Run every minute
+-- by the scheduled event weblog-page-cache-warm:<collection> that every
+-- deploy registers. For each address a front page has been served at, it
+-- requests that page when the cache holds no copy for the current
+-- fingerprint; the request itself rebuilds and stores it. Cheap when
+-- nothing changed (a fingerprint and one lookup); never raises.
+CREATE PROCEDURE DB.DBA.WEBLOG_PAGE_CACHE_WARM (IN coll VARCHAR)
+{
+  declare fp, route, st, msg, report varchar;
+  declare bases, hits, hdr any;
+  declare i integer;
+  declare exit handler for sqlstate '*' { return concat ('warm failed: ', __SQL_MESSAGE); };
+  route := DB.DBA.WEBLOG_DAV_GET_COLLECTION_PROP (coll, 'weblog:publicRoute', '');
+  if (route = '')
+    return 'no public route recorded';
+  fp := DB.DBA.WEBLOG_PAGE_FINGERPRINT (coll);
+  st := '00000';
+  bases := null;
+  exec ('select WPB_BASE from DB.DBA.WEBLOG_PAGE_CACHE_BASE where WPB_COLL = ?', st, msg, vector (coll), 50, null, bases);
+  if (st <> '00000' or bases is null or length (bases) = 0)
+    return 'no front-page address recorded yet';
+  report := '';
+  for (i := 0; i < length (bases); i := i + 1)
+  {
+    st := '00000';
+    hits := null;
+    exec ('select count (*) from DB.DBA.WEBLOG_PAGE_CACHE where WPC_COLL = ? and WPC_KEY = ? and WPC_FP = ?',
+          st, msg, vector (coll, concat (bases[i][0], '|'), fp), 1, null, hits);
+    if (st = '00000' and hits is not null and hits[0][0] > 0)
+      report := concat (report, bases[i][0], ': current; ');
+    else
+    {
+      declare exit handler for sqlstate '*' { report := concat (report, bases[i][0], ': request failed; '); };
+      hdr := null;
+      http_get (concat (bases[i][0], route), hdr, 'GET', 'User-Agent: weblog-cache-warm\r\n', null, null, 0, 120);
+      report := concat (report, bases[i][0], ': rebuilt (', cast (hdr[0] as varchar), '); ');
+    }
+  }
+  return trim (replace (replace (report, '\r', ''), '\n', ''));
 }
 ;
 
@@ -3062,6 +3117,14 @@ next_row: ;
     if ((select count (*) from DB.DBA.SYS_PROCEDURES where P_NAME = 'DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST') > 0
         and (select count (*) from DB.DBA.SYS_SCHEDULED_EVENT where SE_NAME = sprintf ('weblog-newsletter-digest:%s', coll)) = 0)
       DB.DBA.WEBLOG_NEWSLETTER_SCHEDULE_DIGEST (sprintf ('weblog-newsletter-digest:%s', coll), coll, 10080);
+  }
+  -- Keep the cached front page current in the background (see
+  -- WEBLOG_PAGE_CACHE_WARM): checked every minute, rebuilt only on change.
+  {
+    declare exit handler for sqlstate '*' { ; };
+    insert replacing DB.DBA.SYS_SCHEDULED_EVENT (SE_NAME, SE_START, SE_INTERVAL, SE_SQL)
+      values (sprintf ('weblog-page-cache-warm:%s', coll), now (), 1,
+              sprintf ('DB.DBA.WEBLOG_PAGE_CACHE_WARM (''%s'')', replace (coll, '''', '''''')));
   }
 
   return sprintf ('{"ok":true,"dav_collection":"%V","public_route":"%V","skin":"%V","admin_collection":"%V","dashboard_url":"https://%V%V%V","action_route":"%V","admin_dav_user":"%V","dashboard":"%V"}', coll, route, default_skin, admin_coll, uriqa_host, case when ssl_port = '443' then '' else concat (':', ssl_port) end, admin_route, action_route, dav_user, dashboard_status);
