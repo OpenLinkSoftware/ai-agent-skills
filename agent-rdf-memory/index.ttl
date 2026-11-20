@@ -6,14 +6,15 @@
 <> a schema:CreativeWork ;
     schema:name "Agent Session Index"@en ;
     schema:description "Index of all agent sessions with references to session files."@en ;
-    schema:dateModified "2026-09-16T19:41:00Z"^^xsd:dateTime ;
+    schema:dateCreated "2026-05-27T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-11-20T12:00:00Z"^^xsd:dateTime ;
     schema:author <https://linkedin.com/in/kidehen#this> ;
     schema:about :sessionIndex .
 
 :sessionIndex a schema:ItemList ;
     schema:name "Agent Session Index"@en ;
     schema:dateCreated "2026-05-27T00:00:00"^^xsd:dateTime ;
-    schema:dateModified "2026-06-18T16:30:00Z"^^xsd:dateTime .
+    schema:dateModified "2026-11-11T13:57:23Z"^^xsd:dateTime .
 
 :session20260527 a schema:ListItem ;
     schema:position 1 ;
@@ -146,7 +147,7 @@
     schema:description "End-to-end ACP subscription payment: XYZFileAccess purchase → SPT → /complete → subscription_payment link → Stripe invoice page → sandbox card fill → payment confirmed. Added Stripe sandbox card step to preferences.ttl. Verified TestFile.txt accessible (200), XYZ resource not found in DAV listing."@en .
 
 :session20260602grok43Whoami a schema:ListItem ;
-    schema:position 22 ;
+    schema:position 1276 ;
     schema:item <sessions/2026-06-02-grok_4_3-grok-cli-7.ttl> ;
     schema:name "Session 2026-06-02 (Grok 4.3 + Grok CLI — whoami equivalent redo after preferences reload)"@en ;
     schema:description "Reloaded full agent-rdf-memory/ (dir list, core.ttl, preferences.ttl [now with new KG Explorer UI steps :step-kgNavPlacement etc and :step-curlAuth], index.ttl, ontology.ttl, latest sessions). Redid whoami report. New prefs rules now in force: float nav top-left + collapsed, controls as master reset for panels, no orphan nodes in filters, tb-group + tb-label for toolbar, slider cards + grid for settings panel, authenticated curl with cert + On-Behalf-Of. Wrote new session memory."@en .
@@ -385,7 +386,7 @@
     schema:description "Generated 477-triple RDF-Turtle KG + interactive HTML infographic for https://www.unaligned.io/p/the-public-trust-problem-in-ai. Business & Market Analysis template, 12 FAQ pairs, 10 glossary terms, 7 HowTo steps, 5 stakeholder groups, lightweight ontology. HTML: D3.js KG Explorer (Core 54 nodes / Full 78 nodes, 0 orphans), SPARQL workbench, resolver-backed entity links. Validator PASS after 8 targeted harness fixes (D3 CDN string, alternate link, nav label, toggleNav/toggleTheme wrappers, SPARQL workbench IDs + format strings, 8 attribution labels, predAnchor rename, compact node click handler)."@en .
 
 :session20260815ClaudeSonnet5Rdf12Virtuoso a schema:ListItem ;
-    schema:position 69 ;
+    schema:position 1278 ;
     schema:item <sessions/2026-08-15-claude_sonnet_5-claude_code.ttl> ;
     schema:name "Session 2026-08-15 (Claude Sonnet 5 + Claude Code — RDF 1.2 Support in Virtuoso KG + Infographic + MD)"@en ;
     schema:description "3-artifact collection (RDF 527 triples, HTML, MD) for the OpenLink Community RDF 1.2 post. 21 code examples (14 verbatim + 7 spec-supplement for completeness). 12 of 14 post Turtle examples rewrapped as SPARQL INSERT DATA/SELECT so 19/21 examples render as live-linked SPARQL Workbench accordions per explicit user request. rdflib 7.6.0 has no RDF-star parser, so RDF 1.2 syntax lives only as schema:text string literals, never as live parsed triples. Validator PASS after fixing programmingLanguage to exactly 'SPARQL'. Verified in-browser (KG Explorer + 19 accordions + zero console errors)."@en .
@@ -397,6 +398,7 @@
     schema:description "Generated 519-triple RDF-Turtle KG + interactive HTML infographic for Saanya Ojha's 'Satya's Convenient Truth' Substack post, Satya Nadella X post, and LinkedIn discussion via Basic KG Explorer mode. 0 blank nodes, lightweight :SemanticWebLayer ontology. HTML: D3.js force graph, SPARQL workbench with 4 recipe queries, FAQ accordion, glossary grid, HowTo steps, dark/light theme, floating nav. Validator PASS after 15 targeted harness fixes (orphan xPost node, mode/density toggles, settings panel, predicate controls, literal filter, arrow markers, SPARQL format strings, recipe selector ID)."@en .
 
 :prefVerifiedWhoami a schema:ListItem ;
+    schema:item <preferences.ttl#step-verifiedWhoami> ;
     schema:position 60 ;
     schema:name "Step 60 — Verified identity gate for whoami"@en ;
     schema:description "Before responding to whoami, run openssl cert modulus checks against local credential bundles for both user (link-in-bio-credentials-5) and agent (link-in-bio-agent-credentials). Emit Verified Identity and Agent WebID lines with ✓ Verified or ⚠ Unverified badge."@en ;
@@ -404,6 +406,7 @@
     rdfs:seeAlso <howto/verified-identity.ttl> .
 
 :prefSemanticWebTerminology a schema:ListItem ;
+    schema:item <preferences.ttl#step-terminologySemanticWeb> ;
     schema:position 59 ;
     schema:name "Step 59 — Terminology: 'a Semantic Web' not 'the Semantic Web'"@en ;
     schema:description """Terminological rule added to preferences.ttl: use "a Semantic Web" (indefinite, instance-specific) rather than "the Semantic Web" (definite, global ecosystem) in all generated prose. Distinction mirrors Web/web difference."""@en ;
@@ -491,6 +494,7 @@
     :session20260715BigPickleOpencode .
 
 :prefWebidVerificationServices a schema:ListItem ;
+    schema:item <preferences.ttl#step-webidVerificationServiceSelection> ;
     schema:position 71 ;
     schema:name "Step 82 — WebID/NetID verification service selection (elicit before mTLS)"@en ;
     schema:description """New preference: when the user asks to verify a WebID or NetID via a remote service, elicit which service to use from the known open list. Known services: (1) https://netid-qa.openlinksw.com:9443/webid/ — mTLS on port 9443, supports WebID+TLS and NetID+TLS, accepts acct/http(s)/ldap/mailto/bitcoin/ethereum URI schemes, returns NetID+timestamp+sha1+emoji; (2) https://ods-qa.openlinksw.com/webid/; (3) https://linkeddata.uriburner.com/webid/; (4) https://demo.openlinksw.com/webid/. List is open and extensible — new services added over time. If the user names a service in their prompt, honor it without re-eliciting. Companion howto: howto/webid-verification-services.ttl. Complements :step-verifiedWhoami (pos 60) and :step-webidTlsVerification (pos 23.1) which perform LOCAL modulus verification."""@en ;
@@ -515,7 +519,7 @@
     schema:description "Regenerated canonical Virtuoso 08.03.3335 RDF/HTML artifacts after fixing KG Explorer dark-mode hyperlink colors and Firefox-safe dark/light toggle behavior; validated RDF parse, syntax, and static theme contract checks."@en .
 
 :session20260715BigPickleOpencode a schema:ListItem ;
-    schema:position 1000 ;
+    schema:position 1279 ;
     schema:item <sessions/2026-07-15-big_pickle-opencode.ttl> ;
     schema:name "Session 2026-07-15 (big-pickle + OpenCode — Memory Protocol Violation + KG-Only Retry + Endpoint-First Optimization)"@en ;
     schema:description "User asked 'How to Evaluate Claims About AI Infrastructure Efficiency?' — agent violated memory protocol by not reading preferences/core/index before responding. User flagged, agent acknowledged, then retried using data-twingler skill against URIBurner. T5 HowTo workflow found exact match in graph generative-ai-engineering-disaster-claude_code-1.ttl. Delivered 6-step HowTo, 10 FAQ Q&A, 7 glossary terms as structured text with resolver-hyperlinked IRIs. User noted URIBurner bif:contains queries are faster than local TTL/MD search. Optimization applied: (1) added :step-sparqlEndpointSearchOrder (pos 131) to preferences.ttl for KG-only override and early-exit-on-zero-match; (2) updated data-twingler SKILL.md Rule 1 with endpoint-first override clause and early-exit-on-zero-match clause; (3) updated Step 0 preamble and workflow diagram."@en .
@@ -622,7 +626,7 @@
     :session20260715BigPickleOpencode .
 
 :session20260714DeepSeekV4ProPiWhoamiGateFix a schema:ListItem ;
-    schema:position 68 ;
+    schema:position 1277 ;
     schema:item <sessions/2026-07-14-deepseek_v4pro-pi.ttl> ;
     schema:name "Session 2026-07-14 (DeepSeek V4 Pro + Pi — Whoami Gate Laziness Fix & Model Identity Resolution Chain)"@en ;
     schema:description "Agent skipped verified identity gate on initial whoami, left model identity unresolved. Corrected: full cert modulus verification (user ✅, agent ✅, delegation ✅ corroborated). Added :step-modelIdentityResolution (pos 42) BLOCKING GATE with three-source chain (system prompt → env vars → elicit) + companion howto/model-identity-resolution.ttl."@en .
@@ -676,6 +680,7 @@
     schema:description "Created 2026-07-14 from the TBox census of DAV named graphs (656 local terms, 86 recurring): repairs the FDE/IRE #-vs-## IRI split (12 classes + 4 properties), designates canonical IRIs for generator-template analysis classes/properties (KeyPrinciple ×5 IRIs, hasLaborTAM ×4, etc.), and records a watchlist of label collisions that must NOT be aligned. Uses owl:equivalentClass/equivalentProperty (not owl:sameAs) so Virtuoso/FuXi reasoners can merge instance data across graphs."@en .
 
 :prefCrossDocumentLocalTermReuse a schema:ListItem ;
+    schema:item <preferences.ttl#step-crossDocumentLocalTermReuse> ;
     schema:position 127 ;
     schema:name "Step 127 — Reuse resolver-dereferenceable local ontology terms from ANY prior task run, not only related documents"@en ;
     schema:description "Identified 2026-07-14, then corrected same day: preferences.ttl had gates for external shared-vocabulary discovery (prefix.cc) and real-world entity IRI denotation, but none for reusing THIS AGENT'S OWN previously-minted, DAV-published, resolver-dereferenceable document-local DefinedTerms/classes/properties (e.g. avc:abac, karp:CriticalPerspective). Initial framing wrongly conditioned reuse on the new document being a topically-related companion/sequel; the user clarified that resolver-IRI dereferenceability makes any minted term reusable in ANY future task regardless of topic — the point is preventing custom term bloat across the full output corpus, not just within a series."@en ;
@@ -1581,7 +1586,7 @@
 # ── 2026-08-24-2: DeepSeek V4 Flash + dsh — Scaling AI in the Enterprise x Agent RDF Memory Control Plane Alignment Meshup ──
 
 :session20260824DeepSeekV4FlashControlPlaneMeshup a schema:ListItem ;
-    schema:position 1147 ;
+    schema:position 1280 ;
     schema:item <sessions/2026-08-24-deepseek_v4flash-dsh-2.ttl> ;
     schema:name "Session 2026-08-24-2 (DeepSeek V4 Flash + dsh — Scaling AI in the Enterprise x Agent RDF Memory Control Plane Alignment Meshup)"@en ;
     schema:description "Generated an RDF-Turtle + HTML infographic meshup collection meshing Suvankar Mazumder's 'Scaling AI in the Enterprise' series (Series Overview + Part 2: Securing the Last Mile, captured via the author's RSS feed after Cloudflare blocked curl and PinchTab's daemon could not create its profile dir under the sandbox) with the agent-rdf-memory skill. Critical requirement delivered as explicit RDF: 13 ControlPlaneAlignment instances mapping the 5 control-plane pillars, 3 inference vulnerabilities, and 5 last-mile security layers to concrete agent-rdf-memory components (preferences.ttl elicitation gates, WebID-TLS identity + delegated PKCS#12 credentials, session files + index ledger, durable memory checkpoints, scripts/ compliance gates, retrieval protocol, secret-hygiene storage rules, per-task scoped authorization). 1074-triple TTL (validate-kg-compliance.sh 19/19) + harness-validated 415KB HTML (validate-harness-contract.py 0 failures) with dual-presentation blueprint-vs-implementation matrix (9 cdx:ComparisonDimension aspects), 13 alignment sections, 15 FAQ, 14-term glossary (5 DBpedia primaries), 7-step HowTo, 222-node/693-link KG Explorer, single Turtle format tab. Deliverables: rdf/scaling-ai-enterprise-control-plane-meshup-deepseek_v4flash-1.ttl, webpages/scaling-ai-enterprise-control-plane-meshup-deepseek_v4flash-1.html."@en .
@@ -1943,103 +1948,1240 @@
 
 :sessionIndex schema:itemListElement :session20260918ClaudeOpus5ClaudeCodeQueryScopedReasoning .
 
-# ── 2026-09-28: Claude Opus 5 + Claude Code — registered the third-party motion-broll skill ──
-
-:session20260928ClaudeOpus5ClaudeCodeMotionBrollRegistration a schema:ListItem ;
-    schema:position 1187 ;
-    schema:item <sessions/2026-09-28-claude_opus_5-claude_code.ttl> ;
-    schema:name "Session 2026-09-28 (Claude Opus 5 + Claude Code — registered the third-party motion-broll skill)"@en ;
-    schema:description "Inspected and code-reviewed Barty-Bart/motion-graphics (MIT), installed skills/motion-broll into the repo directory plus ~/.codex/skills and ~/.vibe/skills, left untracked like other third-party skills, and registered :motionBrollSkill in entities/tools.ttl under its upstream GitHub IRI."@en ;
-    rdfs:seeAlso <sessions/2026-09-28-claude_opus_5-claude_code.ttl>,
-        <entities/tools.ttl> .
-
-:sessionIndex schema:itemListElement :session20260928ClaudeOpus5ClaudeCodeMotionBrollRegistration .
-
-# ── 2026-09-30: Claude Sonnet 5.5 + Claude Code — Neo4j 'Scale AI into production' meshup vs Virtuoso + agent-rdf-memory, live ScaleKG demo ──
-
-:session20260930ClaudeSonnet55ClaudeCodeScaleKgMeshup a schema:ListItem ;
-    schema:position 1188 ;
-    schema:item <sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl> ;
-    schema:name "Session 2026-09-30 (Claude Sonnet 5.5 + Claude Code — Neo4j 'Scale AI into production' meshup vs Virtuoso + agent-rdf-memory, with a live ScaleKG RDF View on demo.openlinksw.com)"@en ;
-    schema:description "Eleven-table SQL estate, 347-triple RDF View, 268-triple TBox and eight verified SPARQL/SPASQL/SQL queries on demo.openlinksw.com; nullable-FK quad-map guard, SQ142 with DISTINCT+ORDER BY+inference, sub-property entailment not firing over a view, Query Builder sign-in, and the sandbox/output-root copy pattern."@en ;
-    rdfs:seeAlso <sessions/2026-09-30-claude_sonnet_5_5-claude_code.ttl>,
-        <howto/sql-ddl-batch-script-and-verification.ttl> .
-
-:sessionIndex schema:itemListElement :session20260930ClaudeSonnet55ClaudeCodeScaleKgMeshup .
-
-# ── 2026-09-18: DeepSeek V4 Pro + dsh — Meta 'An Organizational Second Brain' meshup vs agent-rdf-memory (tacit knowledge → Semantic Web generation) ──
-
-:session20260918DeepSeekV4ProDshSecondBrainMeshup a schema:ListItem ;
-    schema:position 1182 ;
-    schema:item <sessions/2026-09-18-deepseek_v4pro-dsh-3.ttl> ;
-    schema:name "Session 2026-09-18 (DeepSeek V4 Pro + dsh — Meta 'An Organizational Second Brain' meshup vs agent-rdf-memory: tacit knowledge → Semantic Web generation)"@en ;
-    schema:description "Turtle + HTML collection from https://engineering.fb.com/2026/09/02/ml-applications/organizational-second-brain-ai-learns-from-experts/ — 'An Organizational Second Brain: Building an AI That Learns From Experts' (Shaurya Sengar, Jason Nawrocki, Jay Shah, Prashant Kommireddi, Engineering at Meta, 2026-09-02). Mesh angle: the article's four-layer tacit-knowledge architecture (knowledge system / reasoning recipes / evaluation framework / self-improvement flywheel) mapped onto agent-rdf-memory as a Semantic Web realization (RDF named graphs = knowledge files; ontology.ttl + entities/ = vocabulary; preferences.ttl schema:HowTo = recipes; validate-*.py gates = gateway files; SPARQL context routing = routing index; sessions/ + index.ttl = flywheel). 867-triple Turtle (osb: vocabulary + :secondBrainOntology, 12 cdx:ComparisonDimension, 8 mesh mappings, 12 FAQ, 12 glossary, 6 HowToStep, 11 SPARQL recipes each projecting an IRI variable) + single-file HTML. Reuse-first port from the neo4j-nams 2-way shell (re-brand neo4j→meta), NOT hand-rolled D3. validate-harness-contract.py PASS 0 failures; validate-kg-compliance.sh 20/20; rdflib PARSE OK; browser smoke test 0 console errors, 61 nodes/85 links core. Deliverables: rdf/ + webpages/organizational-second-brain-deepseek_v4pro-1.{ttl,html} + build_second_brain_meshup.py. Session records onto:usedFileReads + onto:usedSparqlEndpoint <http://localhost:8890/sparql>."@en ;
-    rdfs:seeAlso <sessions/2026-09-18-deepseek_v4pro-dsh-3.ttl> .
-
-:sessionIndex schema:itemListElement :session20260918DeepSeekV4ProDshSecondBrainMeshup .
-
-# ── 2026-09-26: Claude Opus 5.5 + Claude Code — ProtectedOffer DAV DET (offer generation + admin notification on upload) ──
-
-:session20260926ClaudeOpus55ClaudeCodeProtectedOfferDet a schema:ListItem ;
-    schema:position 1185 ;
-    schema:item <sessions/2026-09-26-claude_opus_5_5-claude_code.ttl> ;
-    schema:name "Session 2026-09-26 (Claude Opus 5.5 + Claude Code — ProtectedOffer DAV DET: File Access offer generated on upload, buyer-only VAL rule, admin notice for shop upload)"@en ;
-    schema:description "DET_ProtectedOffer.sql (Conductor and briefcase) with Conductor wiring. Tested live on the local instance: public read stripped on upload, offer generated, 8/8 in-database checks pass, VAL rule at scope oplacl:Dav, anonymous GET returns 401, SHACL PASS with 0 violations. Added resource-access-offers-generator/references/det-integration.md and flagged the empty prompts/*.md."@en ;
-    rdfs:seeAlso <sessions/2026-09-26-claude_opus_5_5-claude_code.ttl> .
-
-:sessionIndex schema:itemListElement :session20260926ClaudeOpus55ClaudeCodeProtectedOfferDet .
-
-# ── 2026-09-20: Claude Opus 5 + Claude Code — Snowflake ontology/KG/semantic-layer meshup vs Virtuoso RDF Views; live MovieKG deployment on demo.openlinksw.com ──
-
-:session20260920ClaudeOpus5ClaudeCodeSnowflakeSemanticLayerMeshup a schema:ListItem ;
-    schema:position 1183 ;
-    schema:item <sessions/2026-09-20-claude_opus_5-claude_code.ttl> ;
-    schema:name "Session 2026-09-20 (Claude Opus 5 + Claude Code — Snowflake five-layer ontology/KG/semantic-layer meshup vs Virtuoso RDF Views + agent-rdf-memory, with a live MovieKG RDF View deployed on demo.openlinksw.com)"@en ;
-    schema:description "Turtle + JSON-LD + HTML collection from https://snowflakewiki.medium.com/ontology-knowledge-graphs-the-semantic-layer-on-snowflake-the-concepts-2efc606dfeb2 — 'Ontology, Knowledge Graphs & the Semantic Layer on Snowflake — The Concepts' (Snowflake Wiki, Medium, 2026-09-09). Mesh angle: the article's five-layer stack (node/edge tables, VARIANT ontology metadata, auto-generated unifying views, three semantic models, Cortex Agent) mapped layer-by-layer onto Virtuoso (unmoved relational tables, RDFS/OWL TBox in a named graph, declarative quad map, entailment + property paths, hyperlink-addressed agent), plus agent-rdf-memory as the rung above Layer 5. NEW SUPPORTING DATA BUILT LIVE: the article's own movie domain as 13 FK-constrained tables in MovieKG.kidehen on demo.openlinksw.com (181 rows, article identifiers preserved — Hanks 1001, Zemeckis 301, Forrest Gump 2045, Best Picture 1995 = award 100), 217-triple TBox, 7 IRI classes, one ALTER QUAD STORAGE quad map projecting 600 triples into <http://demo.openlinksw.com/MovieKG#>, 78-rule rdfs_rule_set urn:moviekg:inference, public SELECT grants, and Linked Data rewrite rules on /MovieKG. Five queries executed and verified before being written down: plain-SQL Bacon numbers (24 lines, 12 rows), polymorphic Person-by-entailment (5 rows, DISTINCT mandatory), SPARQL property-path Bacon numbers (3 path expressions, same 12 rows), SPASQL box-office-by-genre (9 rows), and SPASQL joining graph-traversal results to the native Studio table (18 rows) — the axis with no Snowflake counterpart. 570-triple Turtle (0 blank nodes, all literals @en), semantically equivalent JSON-LD, 333 KB HTML with 12 comparison accordions and 5 live query cards. validate-harness-contract.py PASS; browser-verified, 0 console errors, 30 nodes / 84 edges / 42 arrowheads, light and dark. Key lessons: XMLA on demo is SELECT-only (SELECT exec('…') is the write route), CREATE IRI CLASS outlives the client timeout without failing, an RDF View 401s until SQL SELECT is granted, and DEFINE input:inference requires SELECT DISTINCT. Open finding: generate_infographic.py's KG Explorer renders no edge labels. POST-DELIVERY CORRECTIONS (prompt 2): (a) the 12 dimensions had shipped as section accordions instead of the contracted responsive dual presentation — rebuilt as .comparison-table-view (4-column sticky-first-column table, per-entity accents, edge badges) plus .comparison-cards-view (3 cards x 12 rows), schema:description added to all 12 dimension instances (TTL now 582 triples), viewport gate passed at 1440px and 390px with zero overflow; logged as howto/responsive-comparison-presentation.ttl#step-accordionIsNotDualPresentation and clause 7 on preferences.ttl#step-responsiveComparisonPresentation. (b) SELECT granted to the demo and vdb accounts as well as SPARQL/PUBLIC, since SPASQL execution resolves under a different principal than the anonymous /sparql endpoint. Session records onto:usedFileReads."@en ;
-    rdfs:seeAlso <sessions/2026-09-20-claude_opus_5-claude_code.ttl> .
-
-:sessionIndex schema:itemListElement :session20260920ClaudeOpus5ClaudeCodeSnowflakeSemanticLayerMeshup .
-
-# ── 2026-09-19: Claude Opus 5 + Claude Code — ODS login state rebuilt for the openlink-2026 composite skin ──
-
-:session20260919ClaudeOpus5ClaudeCodeOdsLoginState a schema:ListItem ;
-    schema:position 1184 ;
-    schema:item <sessions/2026-09-19-claude_opus_5-claude_code.ttl> ;
-    schema:name "Session 2026-09-19 (Claude Opus 5 + Claude Code — ODS logged-in/logged-out state for the openlink-2026 composite skin across three OSDI demo sites)"@en ;
-    schema:description "Restored session state to /openlink/, /openlink-ldp/ and /openlink-vsp-demo/ on oplussol11.intranet.openlinksw.com:8890. An approved rebuild plan (adopt jQuery, port auth/*.vsp, wire the host into ODS) was cut down after probing the live host disproved three of its four premises: the ODS-UI VAD was already installed, /auth/* already served, the registry was already configured (opl_loginPage=/license_generator/login.vsp, opl_cookieName=sid, opl_cookieDomain=.openlinksw.com, opl_shop_uri set), and the demo sites share a vhost with /auth so CORS never applied. Delivered instead as one client-side file: js/ods-session.js fetches /auth/odswidget.vsp same-origin and reads ods_sid state out of it with DOMParser, executing nothing and applying every value via textContent/setAttribute — so the legacy masthead.xslt arrangement's jQuery 1.7.2 document.write bootstrap and #profileBox CSS are not inherited. A purpose-built JSON endpoint was ruled out twice over: /auth is a VAD collection shared with the live www/virtuoso/uda webdev vhosts, and a VSP in a site's own collection is unreachable because osdi_*_catchall funnels every path under /openlink/ into index.vsp. Logged-out path verified live on all three sites (login href retargeted from the widget's own onclick, per-site returnto correct); logged-in path exercised against a fixture built from odswidget.vsp's own logged-in branch, since authenticating was out of bounds. That fixture run caught a real defect: the widget's default avatar for a photoless account 404s on this host, so the img now removes itself on error. Dark-mode active state corrected from --blue to --accent-bright. Committed as inclusion-engine 8633a63. Session records onto:usedFileReads."@en ;
-    rdfs:seeAlso <sessions/2026-09-19-claude_opus_5-claude_code.ttl> .
-
-:sessionIndex schema:itemListElement :session20260919ClaudeOpus5ClaudeCodeOdsLoginState .
-
-# ── 2026-09-28: DeepSeek V4 Pro + dsh — "Built for Something Else" chain-of-accidents meshup (Mollick X post + sources page) ──
-
-:session20260928DeepSeekV4ProDshBuiltForSomethingElse a schema:ListItem ;
-    schema:position 1186 ;
-    schema:item <sessions/2026-09-28-deepseek_v4pro-dsh.ttl> ;
-    schema:name "Session 2026-09-28 (DeepSeek V4 Pro + dsh — 'Built for something else' chain-of-accidents meshup: Ethan Mollick's X post + the sources-and-notes page for the Claude Opus 5.5 video essay on how ChatGPT was assembled from parts built for other purposes)"@en ;
-    schema:description "Turtle + JSON-LD + HTML visual-communication competition entry from a two-source meshup: https://built-for-something-else.netlify.app (primary sources-and-notes page for the video 'Built for something else' by Claude Opus 5.5, supervised by Ethan Mollick) + https://x.com/emollick/status/2104415669123174553 (Mollick's sharing post). Content: 9 schema:Clip video segments with 6 'built for' purpose DefinedTerms, 31 schema:Claim verbatim quotes with citations, 16 people + 10 organizations (fully-expanded DBpedia IRIs), 16 cited works, 23-item timeline map, 12-question FAQ, 13-term glossary, 6-step HowTo, 5 SPARQL recipes. 1013-triple Turtle (kg-compliance 15/15, all literals @en, 0 file: IRIs), JSON-LD (@language en), and a self-contained HTML infographic in the Intelligence Network editorial aesthetic (deep-ink hero + inline-SVG chain map + stat band + duality panel + D3 v7 KG Explorer derived from the TTL: 59 nodes/77 links/0 orphans). validate-harness-contract.py PASS 0 failures; node --check valid; browser smoke test 0 console errors, no horizontal overflow, dark/light distinct. Deliverables: rdf/ + webpages/built-for-something-else-deepseek_v4pro-1.{ttl,jsonld,html}. No WebDAV upload requested (generate-only). Session records onto:usedFileReads."@en ;
-    rdfs:seeAlso <sessions/2026-09-28-deepseek_v4pro-dsh.ttl> .
-
-:sessionIndex schema:itemListElement :session20260928DeepSeekV4ProDshBuiltForSomethingElse .
-
-# ── 2026-10-02: DeepSeek V4 Pro + dsh — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory, live custcontext demo ──
-
-:session20261002DeepSeekV4ProDshDatabricksAgenticMarketing a schema:ListItem ;
-    schema:position 1189 ;
-    schema:item <sessions/2026-10-02-deepseek_v4pro-dsh.ttl> ;
-    schema:name "Session 2026-10-02 (DeepSeek V4 Pro + dsh — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory, with a live customer-context RDF View demo on demo.openlinksw.com)"@en ;
-    schema:description "Three-way meshup of the Databricks post 'Connecting customer context to measurable ROI with agentic marketing': CustomerLake native vs Virtuoso + agent-rdf-memory alternative vs Databricks-via-ODBC to RDF Views. Six-table customer-context schema, 83-triple data + 18-triple vocab graphs materialized on demo.openlinksw.com, anonymous SPARQL + rewrite-rule dereference verified. Key lesson: CREATE IRI CLASS + quad map need FULL-IRI class names and full rdf:type predicate (short names leave orphaned qmv-* metadata)."@en ;
-    rdfs:seeAlso <sessions/2026-10-02-deepseek_v4pro-dsh.ttl> .
-
-:sessionIndex schema:itemListElement :session20261002DeepSeekV4ProDshDatabricksAgenticMarketing .
-
 # ── 2026-10-02: Claude Sonnet 5.5 + Claude Code — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory and ODBC-attached tables, live CustomerKG demo ──
 
 :session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup a schema:ListItem ;
-    schema:position 1190 ;
+    schema:position 1182 ;
     schema:item <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl> ;
     schema:name "Session 2026-10-02 (Claude Sonnet 5.5 + Claude Code — Databricks agentic-marketing meshup vs Virtuoso + agent-rdf-memory and Databricks tables attached over ODBC, with a live CustomerKG RDF View on demo.openlinksw.com)"@en ;
-    schema:description "Turtle + HTML collection with a 12-table synthetic estate, 1,160-triple RDF View, 419-triple TBox, rewrite rules (176 entity IRIs resolve) and ten live SQL, SPASQL and SPARQL queries. Lessons: SQ142/SQ200 query shapes to avoid, inference duplicates need SELECT DISTINCT, demo already holds a databricks_odbc DSN whose generated view maps cardNumber, and a parallel DeepSeek session worked the same article."@en ;
-    rdfs:seeAlso <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl> .
+    schema:description "Turtle + HTML collection with a 12-table synthetic estate, 1,160-triple RDF View, 419-triple TBox, rewrite rules (176 entity IRIs resolve) and twelve live queries grouped by server, function and language. Added Step 316 (SPASQL sign-in notice as demo or vdb) with howto/demo-spasql-signin-notice.ttl, and fixed the shared KG Explorer template so the core view has no orphan nodes. Lessons: SQ142/SQ200 query shapes to avoid, inference duplicates need SELECT DISTINCT, demo already holds a databricks_odbc DSN whose generated view maps cardNumber."@en ;
+    rdfs:seeAlso <sessions/2026-10-02-claude_sonnet_5_5-claude_code.ttl>,
+        <howto/demo-spasql-signin-notice.ttl> .
 
 :sessionIndex schema:itemListElement :session20261002ClaudeSonnet55ClaudeCodeDatabricksMeshup .
+
+# ── 2026-10-04: Claude Sonnet 5.5 + Claude Code — Virtuoso 7 / Virtuoso 8 / QLever benchmark dashboard, story page, v2 edition and report template ──
+
+:session20261004ClaudeSonnet55ClaudeCodeBenchmarkStory a schema:ListItem ;
+    schema:position 1183 ;
+    schema:item <sessions/2026-10-04-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-04 (Claude Sonnet 5.5 + Claude Code — Virtuoso 7 / Virtuoso 8 / QLever benchmark: analytics dashboard, editorial story page, v2 edition with revised Virtuoso 8 numbers, and the story page recorded as the benchmark-report template)"@en ;
+    schema:description "Three HTML deliverables in Claude Generated/webpages and Step 318 with howto/benchmark-report-story-template.ttl. Lessons: the retrieval sequence and session record were skipped until called out; Turtle is the session-file default (Step 165) despite AGENTS.md's ask-first line; the browser pane needs http, not file:."@en ;
+    rdfs:seeAlso <sessions/2026-10-04-claude_sonnet_5_5-claude_code.ttl>,
+        <howto/benchmark-report-story-template.ttl> .
+
+:sessionIndex schema:itemListElement :session20261004ClaudeSonnet55ClaudeCodeBenchmarkStory .
+
+# ── 2026-10-05: Claude Sonnet 5.5 + Claude Code — "Whatchu Talkin' 'Bout" hyperlinks-as-names explainer with comic strip ──
+
+:session20261005ClaudeSonnet55ClaudeCodeWillisHyperlinks a schema:ListItem ;
+    schema:position 1184 ;
+    schema:item <sessions/2026-10-05-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-05 (Claude Sonnet 5.5 + Claude Code — interactive hypermedia explainer on naming with hyperlinks and fragment ids, with a four-panel comic)"@en ;
+    schema:description "One self-contained HTML page in Claude Generated/webpages: Strings/Hyperlinks switch, comic strip, flip cards, JSON-LD-driven graph, fragment lab, source view. RDF validators and skill workflow not run."@en ;
+    rdfs:seeAlso <sessions/2026-10-05-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261005ClaudeSonnet55ClaudeCodeWillisHyperlinks .
+
+# ── 2026-10-05 (second session): Claude Sonnet 5.5 + Claude Code — benchmark story page v3 with the masala DBLP numbers and Virtuoso 8 change notes ──
+
+:session20261005ClaudeSonnet55ClaudeCodeBenchmarkV3 a schema:ListItem ;
+    schema:position 1185 ;
+    schema:item <sessions/2026-10-05-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-05, second (Claude Sonnet 5.5 + Claude Code — v3 edition of the Virtuoso 7, Virtuoso 8 and QLever story page from MASALA_VOS_V8_QLEVER.md)"@en ;
+    schema:description "New data parsed from the user's markdown table and a What changed in Virtuoso 8 explainer written from the engineering notes, with live evidence tables. Reported inconsistencies between the notes' prose and table. Template how-to gained step 16 for building a new edition, step 17 for the race card Query text tab and step 18 for the result-type grouping that became the v4 edition."@en ;
+    rdfs:seeAlso <sessions/2026-10-05-claude_sonnet_5_5-claude_code-2.ttl>,
+        <howto/benchmark-report-story-template.ttl> .
+
+:sessionIndex schema:itemListElement :session20261005ClaudeSonnet55ClaudeCodeBenchmarkV3 .
+
+# ── 2026-10-05 (third session): Claude Sonnet 5.5 + Claude Code — Data is the new oil animated visual essay ──
+
+:session20261005ClaudeSonnet55ClaudeCodeOilPage a schema:ListItem ;
+    schema:position 1186 ;
+    schema:item <sessions/2026-10-05-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-05, third (Claude Sonnet 5.5 + Claude Code — animated Data Is the New Oil visual essay from an X post about gasoline's journey)"@en ;
+    schema:description "Single-file SVG and JavaScript animation mapping fuel stages to data and agent stages. After the user's note that a fuelled car is independent of the pump, the hose lets go, the station scrolls away and the exhaust data refuels the car's own tank. Routed to Claude Generated/webpages."@en ;
+    rdfs:seeAlso <sessions/2026-10-05-claude_sonnet_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261005ClaudeSonnet55ClaudeCodeOilPage .
+
+# ── 2026-10-06: Claude Opus 5 + Claude Code — opl-skins VAD migration, Products menu removal, eight-PR cleanup ──
+
+:session20261006ClaudeOpus5ClaudeCodeOplSkinsMigration a schema:ListItem ;
+    schema:position 1187 ;
+    schema:item <sessions/2026-10-06-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-06 (Claude Opus 5 + Claude Code — openlink-2026 skin migrated into the opl-skins VAD, two Products menu entries removed, stale working tree landed as eight PRs)"@en ;
+    schema:description "Multi-day session against oplussol11. Skin moved from a DAV home collection into the opl-skins package: sticker dav_perm added, collection perms via post-install SQL, four bound shims repointed, asset vdir moved, verified end to end. Sniffer and Personal Data Spaces removed from the Products menu across six graphs and three deployed documents. Working tree grouped into PRs 143-150, two files held back as upstream collisions. Corrections recorded: virtuoso-oplussol11 is dav-read-only not dba; devhub was never down, that was a sandbox artifact; vadpacker's default perms were insufficient rather than the cause. Several steps refused by the permission classifier and handed over as reviewable SQL."@en ;
+    rdfs:seeAlso <sessions/2026-10-06-claude_opus_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261006ClaudeOpus5ClaudeCodeOplSkinsMigration .
+
+# ── 2026-10-01 to 2026-10-06: Claude Sonnet 5.5 + Claude Code — HTTP log analytics dashboards for URIBurner, www and shop ──
+
+:session20261006ClaudeSonnet55ClaudeCodeLogDashboards a schema:ListItem ;
+    schema:position 1188 ;
+    schema:item <sessions/2026-10-06-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-06 (Claude Sonnet 5.5 + Claude Code — single-file HTTP log analytics dashboards with Overview and Journeys tabs, embedded rebuildable snapshots, built for URIBurner, www, shop and URIBurner 1-6 Oct; horizontal-scroll layer; recreation guide)"@en ;
+    schema:description "Multi-day session (2026-10-01 to 2026-10-06). Browser-only dashboard: worker streams logs into typed arrays, scores each IP, swarm detector for rotating-proxy botnets, identity and Host dimensions, GA-style journeys with a Sankey. Each report opens on an embedded gzip snapshot and can be rebuilt with Save snapshot. Four datasets, eight report files in Claude Generated/webpages plus a recreation guide in Claude Generated/md. Copied URIBurner logs 2026-10-01 to 2026-10-06 from kidehen@linkeddata.uriburner.com. Findings recorded: the desktop preview pane silently refuses local HTML above roughly 512000 bytes; an SSH alias named uriburner points at a different host; the agent scratchpad is wiped when the date rolls over; memory retrieval ran at the end instead of the start of the session (step 319 gap, disclosed). Untested items and left-behind test artefacts are listed in the session file."@en ;
+    rdfs:seeAlso <sessions/2026-10-06-claude_sonnet_5_5-claude_code.ttl>,
+        <projects/http-log-analytics-dashboard.ttl>,
+        <howto/http-log-dashboard-rebuild.ttl> .
+
+:sessionIndex schema:itemListElement :session20261006ClaudeSonnet55ClaudeCodeLogDashboards .
+
+# ── 2026-10-07: Claude Opus 5 + Claude Code — unblock both conflicting open PRs; committed conflict markers found on main ──
+
+:session20261007ClaudeOpus5ClaudeCodePrUnblock a schema:ListItem ;
+    schema:position 1189 ;
+    schema:item <sessions/2026-10-07-claude_opus_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-07 (Claude Opus 5 + Claude Code — PRs #151 and #152 taken from CONFLICTING/DIRTY to MERGEABLE/CLEAN; three osdi-inclusion-engine files on main found carrying committed conflict markers)"@en ;
+    schema:description "Both open PRs conflicted only in preferences.ttl, where each branch and main had appended a new HowToStep at end of file; kept both sides, verified no duplicate schema:position or :step-* subject (313 steps, max 323; 316 and 321 free in main), merge commits bc852e4 (#151, 3 .ttl) and 4763512 (#152, 13 .ttl), pushed as fast-forwards from throwaway detached worktrees because the primary checkout held 43 modified files. A post-merge marker sweep then found unresolved conflict markers committed on main by 2e51726 (2026-10-02) in osdi-inclusion-engine/SKILL.md (4 hunks), references/homepage-replacement-playbook.md (1) and scripts/check_chrome_conflict.py (3) — the script no longer parses, so that skill's Chrome-conflict blocking gate cannot run; neither side of any hunk matches any committed version, so no clean resolution exists to recover. Reported with a recommendation for the script and left unfixed pending the user's per-hunk choice on the two docs. Also recorded: gh CLI cannot verify TLS through the sandbox proxy (OSStatus -26276) and must run unsandboxed."@en ;
+    rdfs:seeAlso <sessions/2026-10-07-claude_opus_5-claude_code.ttl>,
+        <preferences.ttl#step-iriSourceDocGrounding>,
+        <howto/demo-spasql-signin-notice.ttl> .
+
+:sessionIndex schema:itemListElement :session20261007ClaudeOpus5ClaudeCodePrUnblock .
+
+# ── 2026-10-08: Claude Haiku 5.5 + Claude Code — Context Layers meshup: Talisman article tested against Collate and agent-rdf-memory ──
+
+:session20261008ClaudeHaiku55ClaudeCodeContextLayersMeshup a schema:ListItem ;
+    schema:position 1190 ;
+    schema:item <sessions/2026-10-08-claude_haiku_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-08 (Claude Haiku 5.5 + Claude Code — Context Layers meshup: RDF, HTML and Markdown collection testing a LinkedIn Pulse article on context layers against Collate and agent-rdf-memory, with a Virtuoso angle)"@en ;
+    schema:description "Single-day session with three follow-ups. Base: source read in full via the built-in browser; build plan approved before writes; Turtle companion (424 triples), HTML (10 cdx:ComparisonDimension rows, 12 FAQ, 12 glossary terms, 7 HowTo steps, 140-node KG Explorer), and local Markdown companion; harness validator 0 failures, KG compliance 20/20. Follow-up 1: bare /sparql endpoint references fixed, all 320 session graphs and the index graph synced to Virtuoso. Follow-up 2: llm-routing-skill rebuilt on the 2026-10-07 feed (175 models), with load_graph.py added and the ZIP repackaged. Follow-up 3: SHACL shapes, a pyshacl validator (report-only; 231 of 320 session files conform at baseline), a content-based graph gate (320/320 IN_SYNC), preferences Step 325, and the Jessica collection's SHACL statements corrected. Still open: DAV upload of the companion Turtle, which needs approval."@en ;
+    rdfs:seeAlso <sessions/2026-10-08-claude_haiku_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261008ClaudeHaiku55ClaudeCodeContextLayersMeshup .
+
+# ── 2026-10-09: Claude Sonnet 5.5 + Claude Code — RFC 9421 HTTP signatures in the YouID skill ──
+
+:session20261009ClaudeSonnet55ClaudeCodeHttpSignatures a schema:ListItem ;
+    schema:position 1191 ;
+    schema:item <sessions/2026-10-09-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-09 (Claude Sonnet 5.5 + Claude Code — RFC 9421 HTTP Message Signatures added to the YouID skill: WebID keyid profile and Cloudflare Web Bot Auth)"@en ;
+    schema:description "Added T8 and scripts/http_signature.py (sign, verify, directory) plus generate_certificate.sh --key-type ed25519. Cloudflare accepts Ed25519 only and never dereferences a WebID, so RSA .p12 bundles sign under the webid profile only. RSA round trip verified locally; Cloudflare test endpoint returned 401 unknown key (format accepted); a 200 needs Cloudflare registration. Nothing committed."@en ;
+    rdfs:seeAlso <sessions/2026-10-09-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261009ClaudeSonnet55ClaudeCodeHttpSignatures .
+
+# ── 2026-10-09: Claude Sonnet 5.5 + Claude Code — Constraint to Economy page, Turtle companion, UB upload ──
+
+:session20261009ClaudeSonnet55ClaudeCodeConstraintToEconomy a schema:ListItem ;
+    schema:position 1192 ;
+    schema:item <sessions/2026-10-09-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-09-3 (Claude Sonnet 5.5 + Claude Code — Constraint to Economy hypermedia page, Turtle companion, URIBurner upload, relative companion-link fix)"@en ;
+    schema:description "Turned a 15-row technology table into a DBpedia-linked spreadsheet, a hypermedia visualization page and a script-built Turtle companion (1470 triples, 14 FAQ, 17 glossary terms, 6 HowTo steps; kg-generator compliance 20/20, 100 percent page-to-RDF parity). Uploaded both to URIBurner DAV via mTLS and verified. A relative ../rdf companion link surfaced as a file: URI in the published page; the button was dropped and howto/dav-public-url-default.ttl plus preferences.ttl Step 126 now forbid any non-absolute href in a published edition."@en ;
+    rdfs:seeAlso <sessions/2026-10-09-claude_sonnet_5_5-claude_code-3.ttl>, <howto/dav-public-url-default.ttl> .
+
+:sessionIndex schema:itemListElement :session20261009ClaudeSonnet55ClaudeCodeConstraintToEconomy .
+
+# ── 2026-10-09: Claude Sonnet 5.5 + Claude Code — weblog repo state check after compaction ──
+
+:session20261009ClaudeSonnet55ClaudeCodeWeblogStateCheck a schema:ListItem ;
+    schema:position 1193 ;
+    schema:item <sessions/2026-10-09-claude_sonnet_5_5-claude_code-4.ttl> ;
+    schema:name "Session 2026-10-09-4 (Claude Sonnet 5.5 + Claude Code — weblog-from-webdav repo state check after a context compaction)"@en ;
+    schema:description "The pre-compaction summary called the weblog dashboard work uncommitted; git showed it already committed on weblog/favicon-and-subscriber-restore, 1 ahead and 34 behind origin/main (fetch blocked by the sandbox). No files changed."@en ;
+    rdfs:seeAlso <sessions/2026-10-09-claude_sonnet_5_5-claude_code-4.ttl> .
+
+:sessionIndex schema:itemListElement :session20261009ClaudeSonnet55ClaudeCodeWeblogStateCheck .
+
+# ── 2026-10-10: Claude Opus 5.5 + Claude Code — UB weblog category facets restored ──
+
+:session20261010ClaudeOpus55ClaudeCodeCategoryFacets a schema:ListItem ;
+    schema:position 1194 ;
+    schema:item <sessions/2026-10-10-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-10 (Claude Opus 5.5 + Claude Code — missing category facets on the URIBurner weblog)"@en ;
+    schema:description "UB's 289 posts had no schema:category because the scheduled refresh wrote through DAV_PROP_SET with the dba hash, which failed silently. register-category-refresh-scheduler.sql now reads SYS_DAV_PROP and writes with DAV_PROP_SET_INT; verified locally. Uncommitted; awaiting load on UB."@en ;
+    rdfs:seeAlso <sessions/2026-10-10-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261010ClaudeOpus55ClaudeCodeCategoryFacets .
+
+# ── 2026-10-11: Claude Opus 5.5 + Claude Code — UB weblog posts listed under filenames ──
+
+:session20261011ClaudeOpus55ClaudeCodePostTitles a schema:ListItem ;
+    schema:position 1195 ;
+    schema:item <sessions/2026-10-11-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-11 (Claude Opus 5.5 + Claude Code — weblog post titles fell back to filenames)"@en ;
+    schema:description "index.vsp searched only the first 8000 bytes for <title>, and pages opening with a large style block listed under their filename; Markdown posts never read a title. Fixed in deploy-weblog-skinned.sql and upgrade.sql and verified locally. One UB post is a 0-byte failed upload. Uncommitted."@en ;
+    rdfs:seeAlso <sessions/2026-10-11-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261011ClaudeOpus55ClaudeCodePostTitles .
+
+# ── 2026-10-13: Claude Sonnet 5.5 + Claude Code — VOS vs QLever reports, episode summary, www blog method ──
+
+:session20261013ClaudeSonnet55ClaudeCodeVosQlever a schema:ListItem ;
+    schema:position 1196 ;
+    schema:item <sessions/2026-10-13-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-13 (Claude Sonnet 5.5 + Claude Code — VOS vs QLever benchmark reports, episode summary, www blog publication)"@en ;
+    schema:description "Built the original-build report and an episode summary around two reports, added NUMA explanations and a Sections control, uploaded the pages to URIBurner DAV and the summary to the www.openlinksw.com weblog, and saved the www blog method as preferences Step 332 with a companion howto. Per-action entries are in the 2026-10-05 second session file."@en ;
+    rdfs:seeAlso <sessions/2026-10-13-claude_sonnet_5_5-claude_code.ttl>, <sessions/2026-10-05-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261013ClaudeSonnet55ClaudeCodeVosQlever .
+
+# ── 2026-10-14 (second): Claude Opus 5.5 + Claude Code — MongoDB agentic-commerce catalog meshup ──
+
+:session20261014ClaudeOpus55ClaudeCodeMongodbAgenticCatalogMeshup a schema:ListItem ;
+    schema:position 1197 ;
+    schema:item <sessions/2026-10-14-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-14, second (Claude Opus 5.5 + Claude Code — MongoDB agentic-commerce catalog meshup with Virtuoso, OPAL and agent-rdf-memory, and a live AgenticCatalog RDF View on demo)"@en ;
+    schema:description "Turtle and HTML collection on MongoDB's 2026-10-13 catalog-enrichment article, with a four-lens comparison, a new AgenticCatalog RDF View on demo.openlinksw.com built over XMLA (533 triples, content negotiation working), nine verified demo queries and seven related UB weblog posts. KG compliance and harness contract PASS; DAV upload not done."@en ;
+    rdfs:seeAlso <sessions/2026-10-14-claude_opus_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261014ClaudeOpus55ClaudeCodeMongodbAgenticCatalogMeshup .
+
+:session20261014ClaudeOpus55ClaudeCodeSparqlFacetedBrowser a schema:ListItem ;
+    schema:position 1198 ;
+    schema:item <sessions/2026-10-14-claude_opus_5_5-claude_code-4.ttl> ;
+    schema:name "Session 2026-10-14, fourth (Claude Opus 5.5 + Claude Code — generic parallax-style SPARQL faceted browser modelled on FCT)"@en ;
+    schema:description "Single-file SPARQL-only faceted browser: chain-of-sets query tree with forward and inverse pivots, type, property-value, range and exclusion facets, Virtuoso, generic and Wikidata profiles, verified live on DBpedia. Added preferences Steps 333 and 334."@en ;
+    rdfs:seeAlso <sessions/2026-10-14-claude_opus_5_5-claude_code-4.ttl> .
+
+:sessionIndex schema:itemListElement :session20261014ClaudeOpus55ClaudeCodeSparqlFacetedBrowser .
+
+# ── 2026-10-14: Claude Opus 5.5 + Claude Code — weblog digest email inlined whole interactive pages ──
+
+:session20261014ClaudeOpus55ClaudeCodeDigestExcerpts a schema:ListItem ;
+    schema:position 1199 ;
+    schema:item <sessions/2026-10-14-claude_opus_5_5-claude_code-5.ttl> ;
+    schema:name "Session 2026-10-14-5 (Claude Opus 5.5 + Claude Code — weblog digest email inlined whole interactive pages)"@en ;
+    schema:description "A real URIBurner digest inlined 7 of 10 posts as whole unstyled page bodies because interactive-page detection knew one generator's markers only; the digest title code kept an 8000-byte window. Fixed and verified locally by rendering the full digest; WWW upgraded and checked live; UB next. Uncommitted."@en ;
+    rdfs:seeAlso <sessions/2026-10-14-claude_opus_5_5-claude_code-5.ttl> .
+
+:sessionIndex schema:itemListElement :session20261014ClaudeOpus55ClaudeCodeDigestExcerpts .
+
+# ── 2026-10-15: Claude Opus 5.5 + Claude Code — UB weblog upgraded, empty post re-uploaded ──
+
+:session20261015ClaudeOpus55ClaudeCodeWeblogRollout a schema:ListItem ;
+    schema:position 1200 ;
+    schema:item <sessions/2026-10-15-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-15 (Claude Opus 5.5 + Claude Code — UB weblog upgraded, TARGET blanked, empty post re-uploaded)"@en ;
+    schema:description "Verified UB after upgrade.sql (298 posts, real titles; slowness traced to server load). Blanked upgrade.sql's TARGET. Re-uploaded the 0-byte token-budget post over :5443 mTLS with text/html; UB now has no filename titles. Weblog changes uncommitted."@en ;
+    rdfs:seeAlso <sessions/2026-10-15-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261015ClaudeOpus55ClaudeCodeWeblogRollout .
+
+# ── 2026-10-15 (second): Claude Opus 5.5 + Claude Code — Data Pipelines POC meshup with Virtuoso, OPAL MCP and agent-rdf-memory ──
+
+:session20261015ClaudeOpus55ClaudeCodeDataPipelinesMeshup a schema:ListItem ;
+    schema:position 1201 ;
+    schema:item <sessions/2026-10-15-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-15, second (Claude Opus 5.5 + Claude Code — Data Pipelines POC meshup with Virtuoso, OPAL MCP and agent-rdf-memory)"@en ;
+    schema:description "RDF-Turtle (1,676 triples) and HTML compare-and-contrast meshup of the Kalluri and Shankar data pipelines POC (Medium, 2026-07-21) across four lenses and 13 comparison dimensions. KG compliance 19/19, harness contract PASS, browser checks at 1280 light and 375 dark clean. DAV upload not done."@en ;
+    rdfs:seeAlso <sessions/2026-10-15-claude_opus_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261015ClaudeOpus55ClaudeCodeDataPipelinesMeshup .
+
+# ── 2026-10-15: Claude Opus 5.5 + Claude Code — SPARQL Faceted Browser branding, retry icon, cfg links and skill ──
+
+:session20261015ClaudeOpus55ClaudeCodeSparqlFacetedBrowserSkill a schema:ListItem ;
+    schema:position 1202 ;
+    schema:item <sessions/2026-10-15-claude_opus_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-15, third (Claude Opus 5.5 + Claude Code — SPARQL Faceted Browser branding, retry icon, cfg language links and the sparql-faceted-browser skill)"@en ;
+    schema:description "OpenLink footer branding and About panel, annotation-only SAMPLE() dedupe setting, retry icon with helptext, &cfg= link-scoped language, and the new sparql-faceted-browser skill (link builder/decoder with app-instance resolution, query runner at parity with the app, ten interaction-mode examples). App uploaded and verified; skill not committed."@en ;
+    rdfs:seeAlso <sessions/2026-10-15-claude_opus_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261015ClaudeOpus55ClaudeCodeSparqlFacetedBrowserSkill .
+
+# ── 2026-10-16: Claude Opus 5.5 + Claude Code — SPARQL Faceted Browser menu label and compact footer ──
+
+:session20261016ClaudeOpus55ClaudeCodeSparqlFacetedBrowserFooter a schema:ListItem ;
+    schema:position 1203 ;
+    schema:item <sessions/2026-10-16-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-16 (Claude Opus 5.5 + Claude Code — SPARQL Faceted Browser: menu label and compact footer)"@en ;
+    schema:description "Wikidata OpenLink preset label shortened (the endpoint now sends CORS for any origin); footer reworked with the OpenLink logo on the left, 45% shorter on desktop; deployed to URIBurner and the local Virtuoso, SHA-256 identical everywhere."@en ;
+    rdfs:seeAlso <sessions/2026-10-16-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261016ClaudeOpus55ClaudeCodeSparqlFacetedBrowserFooter .
+
+:session20261016ClaudeOpus55ClaudeCodeInvertedHypeCycle a schema:ListItem ;
+    schema:position 1204 ;
+    schema:item <sessions/2026-10-16-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-16, second (Claude Opus 5.5 + Claude Code — The Inverted Hype Cycle interactive story)"@en ;
+    schema:description "Competition-entry scrollytelling page (skim mode, same-scale timeline rails, doc-vs-data graph, agent symbiosis) published as a private Artifact."@en ;
+    rdfs:seeAlso <sessions/2026-10-16-claude_opus_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261016ClaudeOpus55ClaudeCodeInvertedHypeCycle .
+
+# ── 2026-10-16: Gemini 4 + Antigravity — The Two Inverted Hype Cycles Competition Entry ──
+
+:session20261016Gemini4AntigravityInvertedHypeCycles a schema:ListItem ;
+    schema:position 1205 ;
+    schema:item <sessions/2026-10-16-gemini_4-antigravity.ttl> ;
+    schema:name "Session 2026-10-16 (Gemini 4 + Antigravity — The Two Inverted Hype Cycles Multimedia Competition Entry)"@en ;
+    schema:description "Generated competition-grade interactive HTML multimedia experience and Markdown companion articulating the Two Inverted Hype Cycles (Hypertext to Web 1965–1994 and The Semantic Web Project to LLM-powered AI Agents 1999–2026+) to Google Gemini Generated/ directories."@en ;
+    rdfs:seeAlso <sessions/2026-10-16-gemini_4-antigravity.ttl> .
+
+:sessionIndex schema:itemListElement :session20261016Gemini4AntigravityInvertedHypeCycles .
+
+
+# ── 2026-10-17: Claude Opus 5.5 + Claude Code — SPARQL Faceted Browser EU endpoint diagnosis and ERA RINF preset ──
+
+:session20261017ClaudeOpus55ClaudeCodeRinfPreset a schema:ListItem ;
+    schema:position 1206 ;
+    schema:item <sessions/2026-10-17-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-17 (Claude Opus 5.5 + Claude Code — SPARQL Faceted Browser: EU endpoint diagnosis and the ERA RINF preset)"@en ;
+    schema:description "data.europa.eu/sparql traced to a CloudFront 504 outage; rinf.data.era.europa.eu/endpoint is the portal page, so the GraphDB repository graph.data.era.europa.eu/repositories/rinf-plus was probed and added as a preset with curated samples."@en ;
+    rdfs:seeAlso <sessions/2026-10-17-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261017ClaudeOpus55ClaudeCodeRinfPreset .
+
+
+# ── 2026-10-17 (second): Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA after chat-data.com ──
+
+:session20261017ClaudeOpus55ClaudeCodeDataSpacesSpa a schema:ListItem ;
+    schema:position 1207 ;
+    schema:item <sessions/2026-10-17-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-17, second (Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA after chat-data.com)"@en ;
+    schema:description "Single-page app in chat-data.com's layout with live RDF Views examples (SQL over XMLA, SPASQL, SPARQL) for Virtuoso Northwind, SQL Server and PostgreSQL, cached Sponger graphs, faceted-browser links and an OPAL chat driven by virtuoso.openlinksw.com's widget. Lessons on anonymous Sponger access, OPAL widget lexical globals and a persisting SR172 deadlock on the SQL Server view."@en ;
+    rdfs:seeAlso <sessions/2026-10-17-claude_opus_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261017ClaudeOpus55ClaudeCodeDataSpacesSpa .
+
+
+# ── 2026-10-18: Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA, continued ──
+
+:session20261018ClaudeOpus55ClaudeCodeDataSpacesSpa a schema:ListItem ;
+    schema:position 1208 ;
+    schema:item <sessions/2026-10-18-claude_opus_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-18, third (Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA: location check, lede, top menu and OPAL chat sign-in)"@en ;
+    schema:description "Confirmed the SPA's location under {LLM_ROOT}/Claude Generated/webpages/, merged the redundant lede, made the top menu fit at every width, and added URIBurner OpenID Connect sign-in, a sign-in notice and an LLM API-key fallback to the OPAL chat panel. Repointed from the base filename, which a concurrent session rewrote."@en ;
+    rdfs:seeAlso <sessions/2026-10-18-claude_opus_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261018ClaudeOpus55ClaudeCodeDataSpacesSpa .
+
+
+# ── 2026-10-19: Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA, Databricks, Snowflake and Oracle ──
+
+:session20261019ClaudeOpus55ClaudeCodeDataSpacesSources a schema:ListItem ;
+    schema:position 1209 ;
+    schema:item <sessions/2026-10-19-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-19 (Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA: Databricks, Snowflake and Oracle RDF Views)"@en ;
+    schema:description "Added Databricks (R2RML, live), Snowflake (JDBC driver missing) and Oracle HR (account expired) RDF View tabs to the SPA and the virtuoso-ai-value-prop skill (1.3.0), sourced from the URIBurner and openlinksw.com weblogs and the demo server's quad maps."@en ;
+    rdfs:seeAlso <sessions/2026-10-19-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261019ClaudeOpus55ClaudeCodeDataSpacesSources .
+
+
+# ── 2026-10-20: Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA, Oracle tab dropped ──
+
+:session20261020ClaudeOpus55ClaudeCodeDataSpacesOracleDropped a schema:ListItem ;
+    schema:position 1210 ;
+    schema:item <sessions/2026-10-20-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-20 (Claude Opus 5.5 + Claude Code — Virtuoso Data Spaces SPA: Oracle tab dropped)"@en ;
+    schema:description "Continuation of the 2026-10-19 session after the date changed: the Oracle HR tab and its traces were removed from the SPA and the virtuoso-ai-value-prop skill (1.3.3), rebuilt and re-uploaded to URIBurner."@en ;
+    rdfs:seeAlso <sessions/2026-10-20-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261020ClaudeOpus55ClaudeCodeDataSpacesOracleDropped .
+
+
+# ── 2026-10-20: DeepSeek V4 Pro + dsh — Virtuoso SaaS Managed Service Buyer Guide ──
+
+:session20261020DeepSeekV4ProDshVirtuosoSaaSBuyerGuide a schema:ListItem ;
+    schema:position 1211 ;
+    schema:item <sessions/2026-10-20-deepseek_v4pro-dsh-2.ttl> ;
+    schema:name "Session 2026-10-20 (DeepSeek V4 Pro + dsh — Virtuoso SaaS Managed Service Buyer Guide: Turtle + Ogilvy-style HTML collection)"@en ;
+    schema:description "Generated an HTML + Turtle collection for the Virtuoso SaaS Managed Service Buyer Guide community post. 416-triple schema.org graph (TechArticle + 8-step HowTo + 12 FAQ + 12 glossary + 7-item checklist + 6 software + 2 orgs + 3 SPARQL examples + 18 screenshots); Ogilvy-style HTML infographic with serif display headline, 8-phase pipeline, KG Explorer, and SPARQL workbench. All validators passed: kg-compliance 15/15, harness-contract PASS, headless-browser render with zero console errors."@en ;
+    rdfs:seeAlso <sessions/2026-10-20-deepseek_v4pro-dsh-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261020DeepSeekV4ProDshVirtuosoSaaSBuyerGuide .
+
+
+# ── 2026-10-20: Claude Sonnet 5.5 + Claude Code — Virtuoso SaaS Buyer Guide, Ogilvy-style ──
+
+:session20261020ClaudeSonnet55ClaudeCodeSaaSBuyerGuide a schema:ListItem ;
+    schema:position 1212 ;
+    schema:item <sessions/2026-10-20-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-20 (Claude Sonnet 5.5 + Claude Code — Virtuoso SaaS Managed Service Buyer Guide: Ogilvy-style Turtle and HTML collection)"@en ;
+    schema:description "Script-Assisted collection on the Virtuoso SaaS buyer guide: 1538-triple graph, Two Doors framing, audience section from the user's brief, price figures from the public AWS listing, 18 screenshots by stage, six sample queries. Compliance 19/19 and harness contract PASS."@en ;
+    rdfs:seeAlso <sessions/2026-10-20-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261020ClaudeSonnet55ClaudeCodeSaaSBuyerGuide .
+
+
+# ── 2026-10-21: Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser map scoping ──
+
+:session20261021ClaudeSonnet55ClaudeCodeFacetedBrowserMap a schema:ListItem ;
+    schema:position 1213 ;
+    schema:item <sessions/2026-10-21-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-21 (Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser: description map scoped to the entity, greyed out without coordinates)"@en ;
+    schema:description "Paris showed 20 wikiPageWikiLink neighbours because DBpedia holds no coordinates for it. Lookup now goes direct, owl:sameAs, Wikidata P625, then a filtered one-hop; the Location box greys out when nothing is found. ZIP rebuilt, nothing committed."@en ;
+    rdfs:seeAlso <sessions/2026-10-21-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261021ClaudeSonnet55ClaudeCodeFacetedBrowserMap .
+
+
+# ── 2026-10-22: Claude Sonnet 5.5 + Claude Code — PHP CVE-2026-109618/109619 versus VSP/VSPX ──
+
+:session20261022ClaudeSonnet55ClaudeCodePhpCveVsp a schema:ListItem ;
+    schema:position 1214 ;
+    schema:item <sessions/2026-10-22-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-22 (Claude Sonnet 5.5 + Claude Code — PHP CVE-2026-109618/109619 versus VSP, VSPX, ASP and ASPX)"@en ;
+    schema:description "Neither CVE applies to VSP or VSPX: both are memory-lifetime bugs in the PHP runtime. Only the optional PHP hosting plugin can inherit them, via its linked libphp. Four-engine comparison saved as Markdown in Claude Generated/md; engine repository untouched."@en ;
+    rdfs:seeAlso <sessions/2026-10-22-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261022ClaudeSonnet55ClaudeCodePhpCveVsp .
+
+
+# ── 2026-10-22: Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser PR repair and vector search ──
+
+:session20261022ClaudeSonnet55ClaudeCodeFacetedBrowserVector a schema:ListItem ;
+    schema:position 1215 ;
+    schema:item <sessions/2026-10-22-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-22 (Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser: PR 171 conflicts repaired, DAV upload, search by meaning)"@en ;
+    schema:description "PR 171 rebuilt from origin/main and mergeable; fixed page uploaded to DAV; vector similarity scope added behind an ASK probe, with the vec demo endpoint as a preset. Vector branch not yet committed."@en ;
+    rdfs:seeAlso <sessions/2026-10-22-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261022ClaudeSonnet55ClaudeCodeFacetedBrowserVector .
+
+
+# ── 2026-10-22: Claude Sonnet 5.5 + Claude Code — weblog digest cap, UB/www fixes, apology and redo, favicon ──
+
+:session20261022ClaudeSonnet55ClaudeCodeWeblogDigest a schema:ListItem ;
+    schema:position 1216 ;
+    schema:item <sessions/2026-10-22-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-22 (Claude Sonnet 5.5 + Claude Code — weblog-from-webdav: digest cap, UB/www fixes, apology and redo, favicon, Postfix header rule)"@en ;
+    schema:description "A newsletter digest carried all 359 posts in 2.8 MB; capped at 10 posts and 85 KB, applied on UB and www, apology/redo and preview scripts tested locally, favicon added (PR 140, commits b44e3a8 and 43d6e20), Postfix rule script written. P_TEXT is empty for procedures; check P_MORE."@en ;
+    rdfs:seeAlso <sessions/2026-10-22-claude_sonnet_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261022ClaudeSonnet55ClaudeCodeWeblogDigest .
+
+
+# ── 2026-10-22: Gemini 4 + Antigravity — Virtuoso SaaS Managed Service Buyer Guide (Ogilvy HTML + TTL Collection) ──
+
+:session20261022Gemini4AntigravityBuyerGuide a schema:ListItem ;
+    schema:position 1217 ;
+    schema:item <sessions/2026-10-22-gemini_4-antigravity.ttl> ;
+    schema:name "Session 2026-10-22 (Gemini 4 + Antigravity — Virtuoso SaaS Managed Service Buyer Guide Ogilvy HTML + TTL Collection)"@en ;
+    schema:description "Generated an Ogilvy-style visual communications competition HTML monograph and companion RDF-Turtle knowledge graph for https://community.openlinksw.com/t/virtuoso-saas-managed-service-buyer-guide/6600 (18 annotated visual plates, interactive CIDR firewall validator and 7-gate readiness checklist, responsive comparison matrix, 7 HowTo steps, 12 FAQs, 12 Glossary terms, 5 SPARQL queries, 72-node D3 v7 KG Explorer). Passed validate-harness-contract.py with 0 failures."@en ;
+    rdfs:seeAlso <sessions/2026-10-22-gemini_4-antigravity.ttl> .
+
+:sessionIndex schema:itemListElement :session20261022Gemini4AntigravityBuyerGuide .
+
+# ── 2026-10-26: Claude Sonnet 5.5 + Claude Code — local mirror of sol11 openlink edition; build order local, staging, live ──
+:session20261026ClaudeSonnet55LocalMirror a schema:ListItem ;
+    schema:position 1282 ;
+    schema:item <sessions/2026-10-26-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-26 (Claude Sonnet 5.5 + Claude Code — local mirror of the sol11 openlink edition; build order local, staging, live)"@en ;
+    rdfs:seeAlso <sessions/2026-10-26-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261026ClaudeSonnet55LocalMirror .
+
+# ── 2026-10-27: Claude Sonnet 5.5 + Claude Code — support guide on the local support page ──
+:session20261027ClaudeSonnet55SupportGuide a schema:ListItem ;
+    schema:position 1286 ;
+    schema:item <sessions/2026-10-27-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-27 (Claude Sonnet 5.5 + Claude Code — support guide on the local support page)"@en ;
+    rdfs:seeAlso <sessions/2026-10-27-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261027ClaudeSonnet55SupportGuide .
+
+# ── 2026-10-28: Claude Sonnet 5.5 + Claude Code — Web docs moved, local edition exported ──
+:session20261028ClaudeSonnet55WebDocsExport a schema:ListItem ;
+    schema:position 1289 ;
+    schema:item <sessions/2026-10-28-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-28 (Claude Sonnet 5.5 + Claude Code — Web docs moved to Corporate Communications, local edition exported)"@en ;
+    rdfs:seeAlso <sessions/2026-10-28-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261028ClaudeSonnet55WebDocsExport .
+
+# ── 2026-10-26: Claude Sonnet 5.5 + Claude Code — Anthropic S-1 collection and SEC Filing Family templates ──
+:session20261026ClaudeSonnet55SecFiling a schema:ListItem ;
+    schema:position 1283 ;
+    schema:item <sessions/2026-10-26-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-26 (Claude Sonnet 5.5 + Claude Code — Anthropic S-1 RDF and HTML collection; SEC Filing Family templates)"@en ;
+    rdfs:seeAlso <sessions/2026-10-26-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261026ClaudeSonnet55SecFiling .
+
+# ── 2026-10-26: Claude Sonnet 5.5 + Claude Code — KG-only Q&A and memory-gate hardening ──
+:session20261026ClaudeSonnet55GateFix a schema:ListItem ;
+    schema:position 1284 ;
+    schema:item <sessions/2026-10-26-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-26 (Claude Sonnet 5.5 + Claude Code — KG-only Q&A via SPARQL Faceted Browser; memory-gate coverage fix)"@en ;
+    rdfs:seeAlso <sessions/2026-10-26-claude_sonnet_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261026ClaudeSonnet55GateFix .
+
+# ── 2026-10-26: Claude Sonnet 5.5 + Claude Code — KG-mode PC-adoption answer and narrated screencast ──
+:session20261026ClaudeSonnet55Screencast a schema:ListItem ;
+    schema:position 1285 ;
+    schema:item <sessions/2026-10-26-claude_sonnet_5_5-claude_code-4.ttl> ;
+    schema:name "Session 2026-10-26 (Claude Sonnet 5.5 + Claude Code — KG-mode PC-adoption answer and Leo-narrated screencast)"@en ;
+    rdfs:seeAlso <sessions/2026-10-26-claude_sonnet_5_5-claude_code-4.ttl> .
+
+:sessionIndex schema:itemListElement :session20261026ClaudeSonnet55Screencast .
+
+
+# ── 2026-10-27: DeepSeek V4 Pro + dsh — Databricks Future of the Firm coopetitive OpenLink portfolio meshup ──
+:session20261027DeepSeekV4ProDshCoopetitive a schema:ListItem ;
+    schema:position 1287 ;
+    schema:item <sessions/2026-10-27-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-10-27 (DeepSeek V4 Pro + dsh — Databricks & the Future of the Firm coopetitive OpenLink portfolio meshup)"@en ;
+    rdfs:seeAlso <sessions/2026-10-27-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261027DeepSeekV4ProDshCoopetitive .
+
+
+# ── 2026-10-27: Claude Sonnet 5.5 + Claude Code — Companion Maker problem/solution Mermaid diagram ──
+:session20261027ClaudeSonnet55CompanionMaker a schema:ListItem ;
+    schema:position 1288 ;
+    schema:item <sessions/2026-10-27-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-27 (Claude Sonnet 5.5 + Claude Code — Companion Maker problem/solution Mermaid diagram)"@en ;
+    rdfs:seeAlso <sessions/2026-10-27-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261027ClaudeSonnet55CompanionMaker .
+
+
+# ── 2026-10-28: DeepSeek V4 Pro + dsh — Databricks Lakehouse Federation vs VOICE meshup with live demos ──
+:session20261028DeepSeekV4ProDshFederation a schema:ListItem ;
+    schema:position 1290 ;
+    schema:item <sessions/2026-10-28-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-10-28 (DeepSeek V4 Pro + dsh — Databricks Lakehouse Federation vs VOICE meshup with live demos)"@en ;
+    rdfs:seeAlso <sessions/2026-10-28-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261028DeepSeekV4ProDshFederation .
+
+# ── 2026-10-28: Claude Sonnet 5.5 + Claude Code — Databricks Lakehouse Federation vs VOICE meshup, PortfolioKG simulation ──
+:session20261028ClaudeSonnet55Federation a schema:ListItem ;
+    schema:position 1291 ;
+    schema:item <sessions/2026-10-28-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-28 (Claude Sonnet 5.5 + Claude Code — Databricks Lakehouse Federation vs VOICE meshup with the PortfolioKG simulation on demo)"@en ;
+    rdfs:seeAlso <sessions/2026-10-28-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261028ClaudeSonnet55Federation .
+
+# ── 2026-10-29: Claude Sonnet 5.5 + Claude Code — Genie 4 announcement Turtle and HTML ──
+:session20261029ClaudeSonnet55Genie4 a schema:ListItem ;
+    schema:position 1292 ;
+    schema:item <sessions/2026-10-29-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-29 (Claude Sonnet 5.5 + Claude Code — Genie 4 world-simulation announcement: Turtle and HTML)"@en ;
+    rdfs:seeAlso <sessions/2026-10-29-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261029ClaudeSonnet55Genie4 .
+
+# ── 2026-10-29 (2): Claude Sonnet 5.5 + Claude Code — query-string fix on oplussol11, faceted search staged, structured-data Phase 1 ──
+:session20261029ClaudeSonnet55StructuredData a schema:ListItem ;
+    schema:position 1293 ;
+    schema:item <sessions/2026-10-29-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-29 (2) (Claude Sonnet 5.5 + Claude Code — query-string fix applied on oplussol11, faceted search staged, page metadata Phase 1 built locally)"@en ;
+    rdfs:seeAlso <sessions/2026-10-29-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261029ClaudeSonnet55StructuredData .
+
+
+# ── 2026-10-29: Claude Sonnet 5.5 + Claude Code — weblog: 22 MB post took the UB weblog down ──
+
+:session20261029ClaudeSonnet55WeblogBigPost a schema:ListItem ;
+    schema:position 1218 ;
+    schema:item <sessions/2026-10-29-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-10-29 (3) (Claude Sonnet 5.5 + Claude Code — weblog: a 22 MB post took the UB weblog down; pin set; fix applied on UB and www)"@en ;
+    schema:description "SR072 from blob_to_string() on a 22 MB post made the UB weblog return 500; index.vsp and the newsletter readers now cut the blob to 2 MB first (PR 140, 9c13c68), applied on UB and www. Pinned the faceted-browser post on UB through its function API with the user's certificate."@en ;
+    rdfs:seeAlso <sessions/2026-10-29-claude_sonnet_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261029ClaudeSonnet55WeblogBigPost .
+
+
+# ── 2026-10-29: Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser 1.0.9 to 1.0.17 ──
+
+:session20261029ClaudeSonnet55FacetedBrowserStack a schema:ListItem ;
+    schema:position 1219 ;
+    schema:item <sessions/2026-10-29-claude_sonnet_5_5-claude_code-4.ttl> ;
+    schema:name "Session 2026-10-29 (4) (Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser 1.0.9 to 1.0.17: shortener, fuzzy and vector search, SPARQL tab layout, stacked-PR merge gap)"@en ;
+    schema:description "Short links in Share and one-click copy, describe de-duplication, BnF preset and engine version, About, fuzzy search, SPARQL tab prefixes/layout/collapsible panels. Stacked PRs 174-176 never reached main; PR 180 carries everything and is merged; live DAV copy is 1.0.17."@en ;
+    rdfs:seeAlso <sessions/2026-10-29-claude_sonnet_5_5-claude_code-4.ttl> .
+
+:sessionIndex schema:itemListElement :session20261029ClaudeSonnet55FacetedBrowserStack .
+
+
+# ── 2026-10-29: Gemini 4 Argon + Antigravity — RDF2vec.org Turtle + HTML Collection ──
+
+:session20261029Gemini4AntigravityRdf2vec a schema:ListItem ;
+    schema:position 1220 ;
+    schema:item <sessions/2026-10-29-gemini_4-antigravity.ttl> ;
+    schema:name "Session 2026-10-29 (Gemini 4 Argon + Antigravity — RDF2vec.org Knowledge Graph Embeddings: Turtle and HTML Monograph)"@en ;
+    schema:description "Generated RDF-Turtle (928 triples, 0 blank nodes) and Intelligence Network HTML infographic for https://www.rdf2vec.org/ covering the 2026 SWSA 10-Year Award, 2023 Springer monograph, 8 implementations, 10 pre-trained model repositories, 6 cdx: comparison dimensions, 7 HowTo stages, 12 FAQs, 12 Glossary terms, and 5 SPARQL queries. Passed validate-kg-compliance.sh, validate-harness-contract.py, and check-artifact-routing.py."@en ;
+    rdfs:seeAlso <sessions/2026-10-29-gemini_4-antigravity.ttl> .
+
+:sessionIndex schema:itemListElement :session20261029Gemini4AntigravityRdf2vec .
+
+
+# ── 2026-10-29: DeepSeek V4 Pro + dsh — Genie 4 world simulation knowledge graph ──
+
+:session20261029DeepSeekV4ProGenie4 a schema:ListItem ;
+    schema:position 1221 ;
+    schema:item <sessions/2026-10-29-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-10-29 (DeepSeek V4 Pro + dsh — Genie 4 world simulation knowledge graph)"@en ;
+    schema:description "Generated RDF-Turtle (372 triples) and HTML infographic for Google DeepMind's 'Genie 4: A new generation of world simulation'. User URL (deepmind.blog) 404'd and was resolved to the canonical deepmind.google page with user approval. 4 capabilities, 4 use cases, 11 software entities, 10 glossary terms, 5 claims, 10 FAQ, 5 HowTo steps, 1 VideoObject. Passed validate-kg-compliance.sh (15/15), validate-harness-contract.py (0 failures), node --check, and a browser render check."@en ;
+    rdfs:seeAlso <sessions/2026-10-29-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261029DeepSeekV4ProGenie4 .
+
+
+# ── 2026-10-30: DeepSeek V4 Pro + dsh — Google Cloud Knowledge Catalog semantic model support KG + competitive meshup ──
+
+:session20261030DeepSeekV4ProKnowledgeCatalog a schema:ListItem ;
+    schema:position 1222 ;
+    schema:item <sessions/2026-10-30-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-10-30 (DeepSeek V4 Pro + dsh — Knowledge Catalog semantic model support KG + competitive meshup vs. Semantic Web)"@en ;
+    schema:description "Generated RDF-Turtle (478 triples, 0 blank nodes) and HTML infographic for Google Cloud's 'Expanded semantic model support in Knowledge Catalog' post (Maggy Hu & Paulina Trzeciak, 2026-10-29), framed as a competitive meshup against VOICE. 6 semantic-model sources, 3 benchmark claims, 10 FAQ, 10 glossary terms, 7 HowTo steps, 8 cdx:ComparisonDimension + 16 cdx:Position head-to-head vs. the open Semantic Web/Linked Data/RDF/SPARQL stack, 4 SPARQL recipes. Passed validate-kg-compliance.sh (14/14), validate-harness-contract.py (0 failures), node --check, and a browser render check (24 core nodes/24 links, 0 console errors)."@en ;
+    rdfs:seeAlso <sessions/2026-10-30-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261030DeepSeekV4ProKnowledgeCatalog .
+
+# ── 2026-10-30: Claude Sonnet 5.5 + Claude Code — DESCRIBE page redesign draft ──
+
+:session20261030ClaudeSonnet55DescribeRedesign a schema:ListItem ;
+    schema:position 1223 ;
+    schema:item <sessions/2026-10-30-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-10-30 (Claude Sonnet 5.5 + Claude Code — modern replacement page for a Virtuoso DESCRIBE result)"@en ;
+    schema:description "Drafted a single-file HTML replacement for the demo.openlinksw.com DESCRIBE page of aiontology business_metric/1, organised around its three competing mined-claim definitions of win_rate. Saved under Claude Generated/webpages/. Interactive checks not run (static preview pane)."@en ;
+    rdfs:seeAlso <sessions/2026-10-30-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261030ClaudeSonnet55DescribeRedesign .
+
+# ── 2026-10-30: Claude Sonnet 5.5 + Claude Code — Inverted Hype Cycle variant (blogging and podcasting) ──
+
+:session20261030ClaudeSonnet55BloggingPodcasting a schema:ListItem ;
+    schema:position 1224 ;
+    schema:item <sessions/2026-10-30-claude_sonnet_5_5-claude_code-4.ttl> ;
+    schema:name "Session 2026-10-30 (Claude Sonnet 5.5 + Claude Code — Inverted Hype Cycle variant about blogging and podcasting)"@en ;
+    schema:description "Built a new RDF + HTML collection from the original Inverted Hype Cycle page: thesis that open feeds wait for AI agents, dates verified against primary sources first, ihc: terms reused from the original graph, 18/18 compliance and harness validators pass, browser-checked. Placed in Claude Generated webpages/ and rdf/."@en ;
+    rdfs:seeAlso <sessions/2026-10-30-claude_sonnet_5_5-claude_code-4.ttl> .
+
+:sessionIndex schema:itemListElement :session20261030ClaudeSonnet55BloggingPodcasting .
+
+# ── 2026-10-31: Claude Sonnet 5.5 + Claude Code — LOAC chat replica of chat.opencommerce.sh ──
+
+:session20261031ClaudeSonnet55LoacChat a schema:ListItem ;
+    schema:position 1225 ;
+    schema:item <sessions/2026-11-06-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-10-31 to 2026-11-06 (Claude Sonnet 5.5 + Claude Code — LOAC chat replica of chat.opencommerce.sh)"@en ;
+    schema:description "Built a chat page, local UCP checkout bridge, and a validated RDF + infographic companion; the live test-mode payment was declined by the merchant; added the Ogilvy prose standard (Step 366); the URIBurner upload was denied (403) for the principal certificate."@en ;
+    rdfs:seeAlso <sessions/2026-11-06-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261031ClaudeSonnet55LoacChat .
+
+
+# ── 2026-11-02: Claude Opus 5.5 + Claude Code — virtuoso-ai-value-prop committed ──
+
+:session20261102ClaudeOpus55VapCommit a schema:ListItem ;
+    schema:position 1226 ;
+    schema:item <sessions/2026-11-02-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-02 (Claude Opus 5.5 + Claude Code — virtuoso-ai-value-prop skill committed)"@en ;
+    schema:description "Committed the virtuoso-ai-value-prop skill (1.3.3, 16 files) as 82bc9e3 on branch skills/virtuoso-ai-value-prop from main, through a temporary worktree so the checkout's unrelated branch and uncommitted work were untouched; ZIP not committed (repository ignores *.zip); not pushed."@en ;
+    rdfs:seeAlso <sessions/2026-11-02-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261102ClaudeOpus55VapCommit .
+
+
+# ── 2026-11-02: Gemini 4 Argon + Antigravity — Google Cloud Knowledge Catalog vs. Virtuoso (VOICE) meshup ──
+
+:session20261102Gemini4AntigravityKnowledgeCatalogVoice a schema:ListItem ;
+    schema:position 1227 ;
+    schema:item <sessions/2026-11-02-gemini_4-antigravity.ttl> ;
+    schema:name "Session 2026-11-02 (Gemini 4 Argon + Antigravity — Google Cloud Knowledge Catalog Expanded Semantic Models vs. Virtuoso VOICE Competitive Meshup)"@en ;
+    schema:description "Generated RDF-Turtle (0 blank nodes, 15/15 compliance) and HTML competitive meshup monograph for Google Cloud's 'Expanded semantic model support in Knowledge Catalog' (Maggy Hu & Paulina Trzeciak, 2026-10-29) evaluated head-to-head against OpenLink Virtuoso Universal Server and its modular VOICE components (OPAL and agent-rdf-memory). Modeled 6 semantic model ecosystems (LookML, BigQuery Graph/Measures, dbt MetricFlow, Snowflake Semantic Views, Databricks Metric Views, SAP CSN), 12 cdx:ComparisonDimension rows with 24 cdx:Position stances, 7 HowTo stages, 12 FAQs, 12 Glossary terms, 5 SPARQL 1.1 queries, and a 50-node D3 v7 KG Explorer. Enforced Mode A first-mention-only entity hyperlinking (78 unique links, 0 duplicates). Passed validate-kg-compliance.sh, validate-harness-contract.py, and check-artifact-routing.py."@en ;
+    rdfs:seeAlso <sessions/2026-11-02-gemini_4-antigravity.ttl> .
+
+:sessionIndex schema:itemListElement :session20261102Gemini4AntigravityKnowledgeCatalogVoice .
+
+
+# ── 2026-11-02: Claude Sonnet 5.5 + Claude Code — Harvey LAB benchmark digest and legal ontology ──
+
+:session20261102ClaudeSonnetHarveyLab a schema:ListItem ;
+    schema:position 1228 ;
+    schema:item <sessions/2026-11-02-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-02 (Claude Sonnet 5.5 + Claude Code — Harvey LAB benchmark digest and legal-agent benchmark ontology cross-referenced to FOLIO, LMSS and Judging Contracts)"@en ;
+    schema:description "The Grok-hosted page was unreadable (empty content frame), so Harvey LAB was digested from Harvey's launch post and the harvey-labs repository. Drafted a 635-triple ontology of the benchmark structure, cross-referenced to FOLIO, LMSS and the Judging Contracts ontologies with every IRI verified against the attached files; saved to the Claude rdf root, routing check PASS."@en ;
+    rdfs:seeAlso <sessions/2026-11-02-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261102ClaudeSonnetHarveyLab .
+
+# ── 2026-11-03: Claude Sonnet 5.5 + Claude Code — Sequoia AI Ascent 2026 collection ──
+
+:session20261103ClaudeSonnetSequoiaAscent a schema:ListItem ;
+    schema:position 1229 ;
+    schema:item <sessions/2026-11-03-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-03 (Claude Sonnet 5.5 + Claude Code — Sequoia AI Ascent 2026 RDF and HTML collection)"@en ;
+    schema:description "964-triple Template 3 graph and a story-driven HTML page built from it; harness validator, compliance audit and routing check all PASS. Turtle only, no live-SPARQL upload yet."@en ;
+    rdfs:seeAlso <sessions/2026-11-03-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261103ClaudeSonnetSequoiaAscent .
+
+:session20261103ClaudeSonnetNeo4jContextualRetrieval a schema:ListItem ;
+    schema:position 1230 ;
+    schema:item <sessions/2026-11-03-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-03 (Claude Sonnet 5.5 + Claude Code — Neo4j contextual retrieval vs VOICE competitive meshup)"@en ;
+    schema:description "894-triple comparison graph and HTML with live demo.openlinksw.com examples tied to fragment ids in the UB and WWW weblog posts; compliance 19/19, harness, routing PASS. Workbench endpoint patched in the output only; generator limitation recorded."@en ;
+    rdfs:seeAlso <sessions/2026-11-03-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261103ClaudeSonnetNeo4jContextualRetrieval .
+
+# ── 2026-11-03: DeepSeek V4 Pro + dsh — RDF Docs 3D Faceted Browser ──
+
+:session20261103DeepSeekRdfDocs3dBrowser a schema:ListItem ;
+    schema:position 1231 ;
+    schema:item <sessions/2026-11-03-deepseek_v4pro-dsh-3.ttl> ;
+    schema:name "Session 2026-11-03 (DeepSeek V4 Pro + dsh — RDF Docs 3D Faceted Browser tool)"@en ;
+    schema:description "Single-file 5.29MB 3D faceted search/browsing tool over the 148-document DeepSeek RDF corpus: WebGL force-graph document map (1078 shared-entity edges), entity-class/predicate/reference/year/size/text facets, per-document 3D drill-in, and a SPARQL explorer (URIBurner/localhost:8890/DBpedia/Wikidata). Index built by build_rdf_docs_3d_browser.py with rdflib; three.js 0.149.0 + 3d-force-graph 1.73.5 UMD inlined for offline/file:// use. Verified in headless browser (148 nodes/1078 edges, facet filter, theme toggle, SPARQL tab, 0 console errors, 0 dangling drill edges). 2 RDF-star docs skipped (rdflib 7.6.0 has no RDF-star parser)."@en ;
+    rdfs:seeAlso <sessions/2026-11-03-deepseek_v4pro-dsh-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261103DeepSeekRdfDocs3dBrowser .
+
+# ── 2026-11-04: Claude Opus 5.5 + Claude Code — weblog labels, pinning table, top-level-only posts ──
+
+:session20261104ClaudeOpus55ClaudeCodeWeblogPosts a schema:ListItem ;
+    schema:position 1232 ;
+    schema:item <sessions/2026-11-04-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-04 (Claude Opus 5.5 + Claude Code — Oxford-comma labels, dashboard pinning table, top-level-only weblog posts)"@en ;
+    schema:description "Spans 2026-10-15 to 2026-11-04. PR 162 carries the title and digest fixes and Oxford-comma labels with a rename pass. The dashboard now rebuilds when posts change and its pinning table has search, sort and paging. The digest and all post queries now ignore subfolders, after asset files from a HackerTube collection reached subscribers. Last two uncommitted; upgrade.sql TARGET set to UB."@en ;
+    rdfs:seeAlso <sessions/2026-11-04-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261104ClaudeOpus55ClaudeCodeWeblogPosts .
+
+
+# ── 2026-11-04: GPT-6 + Codex — Virtuoso/UDA software offer generator skill ──
+
+:session20261104Gpt6CodexVirtuosoUdaOffers a schema:ListItem ;
+    schema:position 1233 ;
+    schema:item <sessions/2026-11-04-gpt_6-codex.ttl> ;
+    schema:name "Session 2026-11-04 (GPT-6 + Codex — Virtuoso/UDA software offer generator skill)"@en ;
+    schema:description "Added the versioned skill and ZIP to the local repository, with common and product-family SHACL gates and a bundled validator; mixed-family fixture passed."@en ;
+    rdfs:seeAlso <sessions/2026-11-04-gpt_6-codex.ttl> .
+
+:sessionIndex schema:itemListElement :session20261104Gpt6CodexVirtuosoUdaOffers .
+
+
+# ── 2026-11-04: Claude Sonnet 5.5 + Claude Code — OSDI hero animations to live, light default, Site Search, rollout sequence rule ──
+
+:session20261104ClaudeSonnet55OsdiHeroLive a schema:ListItem ;
+    schema:position 1234 ;
+    schema:item <sessions/2026-11-04-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-04 (Claude Sonnet 5.5 + Claude Code — OSDI hero animations deployed to live, moved-diagram viewer, Google metadata fix, light default theme, Site Search, localhost then webdev then live rule)"@en ;
+    schema:description "Hero animations with Play/Pause and expand controls, play-once GIFs and UDA diagram fixes went local, sol11 and live with backups, a tunnel flush and a 166-route warm-up; the Google value-type errors came from typed JSON-LD context terms and were fixed; www.webdev was found to lag and was deployed; light is now the default theme with a stored dark choice applied before first paint; the sequence localhost, webdev on sol11, live is recorded as Step 357."@en ;
+    rdfs:seeAlso <sessions/2026-11-04-claude_sonnet_5_5-claude_code.ttl>, <sessions/2026-11-02-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261104ClaudeSonnet55OsdiHeroLive .
+
+# ── 2026-11-05: Claude Sonnet 5.5 + Claude Code — contact page rolled out localhost, webdev, live; live speed sampling; rollout doc ──
+
+:session20261105ClaudeSonnet55ContactRollout a schema:ListItem ;
+    schema:position 1235 ;
+    schema:item <sessions/2026-11-05-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-05 (Claude Sonnet 5.5 + Claude Code — working contact form live after localhost and www.webdev, live cold and warm page speed, ROLLOUT.md updated)"@en ;
+    schema:description "The contact page became a working rendition of the original contact system with a hardened endpoint and real mail tested at every stage; a route-query dependency on the Organization email and a VHOST_DEFINE HT078 error were found and fixed; live cold first renders (median 9.8 s, slowest 64.6 s) were measured against warm access (367 ms first byte); the rollout doc was updated."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-claude_sonnet_5_5-claude_code.ttl>, <sessions/2026-11-04-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105ClaudeSonnet55ContactRollout .
+
+
+# ── 2026-11-05: DeepSeek V4 Pro + dsh — Snowflake Business Ontology + Horizon Context vs VOICE meshup ──
+
+:session20261105DeepseekV4ProSnowflakeVoice a schema:ListItem ;
+    schema:position 1281 ;
+    schema:item <sessions/2026-11-05-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-11-05 (DeepSeek V4 Pro + dsh — Snowflake Business Ontology + Horizon Context vs VOICE RDF + HTML meshup)"@en ;
+    schema:description "Generated a two-artifact comparative meshup of Snowflake's governed-context offering (Business Ontology 'Meaning Before Metrics' and Horizon Context 'The Governed Context Layer for AI, BI and Apps') against the Virtuoso Open Interoperable Context Engine (VOICE). 12 comparison dimensions, Snowflake's Net Revenue example modeled as open RDF, six live demo.openlinksw.com fragment-id demos sourced from OpenLink WWW and URIBurner posts. Turtle (587 triples) + HTML infographic; validate-kg-compliance.sh 20/20 and validate-harness-contract.py both PASS."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105DeepseekV4ProSnowflakeVoice .
+
+# ── 2026-11-05: Claude Sonnet 5.5 + Claude Code — Snowflake Business Ontology + Horizon Context vs VOICE meshup with live BusinessOntologyKG demo ──
+
+:session20261105ClaudeSonnetSnowflakeVoice a schema:ListItem ;
+    schema:position 1236 ;
+    schema:item <sessions/2026-11-05-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-05 (Claude Sonnet 5.5 + Claude Code — Snowflake Business Ontology + Horizon Context vs VOICE meshup, live BusinessOntologyKG demo on demo.openlinksw.com)"@en ;
+    schema:description "Turtle, HTML and the demo SQL batch under Claude Generated; 13 dimensions, 11 live queries, 15 weblog links with fragment ids. Validators PASS; not uploaded to DAV."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105ClaudeSonnetSnowflakeVoice .
+
+# ── 2026-11-05: Claude Sonnet 5.5 + Claude Code — explainer GIF series (OPAL, VOICE, LOAM, UDA, OpenLink home), AVI renditions, SVG vs video comparison ──
+
+:session20261105ClaudeSonnetGifSeries a schema:ListItem ;
+    schema:position 1237 ;
+    schema:item <sessions/2026-11-05-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-05 (Claude Sonnet 5.5 + Claude Code — explainer GIF series for OPAL, VOICE, LOAM, Virtuoso, UDA drivers and the OpenLink home page; AVI renditions; animated SVG vs MP4 vs WebM comparison)"@en ;
+    schema:description "45 GIFs and their HTML scene sources under Claude Generated, 45 AVI renditions, and a format comparison page. Routing check passed on the images and scenes; AVIs not machine-checked."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105ClaudeSonnetGifSeries .
+
+# ── 2026-11-05: Claude Sonnet 5.5 + Claude Code — agent-rdf-memory explainer page, a variant of the Memgraph AI Memory page ──
+
+:session20261105ClaudeSonnetMemoryExplainer a schema:ListItem ;
+    schema:position 1238 ;
+    schema:item <sessions/2026-11-05-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-11-05 (Claude Sonnet 5.5 + Claude Code — How agent-rdf-memory works: a variant of the Memgraph AI Memory page for any AGENTS.md harness)"@en ;
+    schema:description "Turtle and HTML under Claude Generated. Compliance 15 of 15, harness contract PASS, routing PASS for html and rdf, browser checks at 1280 and 375 widths. Not uploaded to DAV."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-claude_sonnet_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105ClaudeSonnetMemoryExplainer .
+
+# ── 2026-11-05: Claude Sonnet 5.5 + Claude Code — complete set of animated SVGs from the 45 GIFs ──
+
+:session20261105ClaudeSonnetSvgSet a schema:ListItem ;
+    schema:position 1239 ;
+    schema:item <sessions/2026-11-05-claude_sonnet_5_5-claude_code-4.ttl> ;
+    schema:name "Session 2026-11-05 (Claude Sonnet 5.5 + Claude Code — 45 animated SVGs generated from the explainer GIFs, with a gallery page)"@en ;
+    schema:description "SVGs under Claude Generated/visualizations/animated-svgs, 846 KB in total; every loop frame parsed as XML and routing check passed."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-claude_sonnet_5_5-claude_code-4.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105ClaudeSonnetSvgSet .
+
+# ── 2026-11-05: DeepSeek V4 Pro + dsh — O'Reilly New Knowledge Artifacts × LOAC "what comes next" meshup ──
+
+:session20261105DeepSeekOreillyLoac a schema:ListItem ;
+    schema:position 1240 ;
+    schema:item <sessions/2026-11-05-deepseek_v4pro-dsh-2.ttl> ;
+    schema:name "Session 2026-11-05 (DeepSeek V4 Pro + dsh — O'Reilly 'New Knowledge Artifacts of the AI Economy' × Linked Open Agentic Commerce (LOAC) 'this is what comes next' meshup)"@en ;
+    schema:description "Three-artifact collection (Turtle 681 triples + JSON-LD + HTML infographic) meshing Tim O'Reilly's context-bundle thesis with Kingsley Idehen's LOAC posts on the URIBurner weblog. Ten :MeshBridge entities map O'Reilly's open questions onto LOAC mechanisms. kg-compliance 20/20, harness contract 0 failures, JS syntax OK, kgData 46 nodes/47 links 0 orphans, headless-browser render clean."@en ;
+    rdfs:seeAlso <sessions/2026-11-05-deepseek_v4pro-dsh-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261105DeepSeekOreillyLoac .
+
+# ── 2026-11-06: GPT-6 + Codex — animated LOAM agent-rdf-memory flow with session-level prompt loop ──
+
+:session20261106Gpt6CodexLoamFlow a schema:ListItem ;
+    schema:position 1241 ;
+    schema:item <sessions/2026-11-06-gpt_6-codex.ttl> ;
+    schema:name "Session 2026-11-06 (GPT-6 + Codex — animated LOAM agent-rdf-memory flow, session bootstrap and repeated prompt/task cycle)"@en ;
+    schema:description "Animated SVG revised to show one-time session setup, persistent environment context, repeated prompts/tasks with memory updates, and reinitialization at the next session."@en ;
+    rdfs:seeAlso <sessions/2026-11-06-gpt_6-codex.ttl> .
+
+:sessionIndex schema:itemListElement :session20261106Gpt6CodexLoamFlow .
+
+# ── 2026-11-07: Claude Sonnet 5.5 + Claude Code — article on the three planes of information ──
+
+:session20261107ClaudeThreePlanes a schema:ListItem ;
+    schema:position 1242 ;
+    schema:item <sessions/2026-11-07-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-07 (Claude Sonnet 5.5 + Claude Code — article on the three planes: document, ontology, knowledge graph)"@en ;
+    schema:description "Markdown article built from Tony Seale's LinkedIn thread and the HackerTube collection; revised to link the three eyes and to add the Peirce, Morris and Conceptual Graphs angle."@en ;
+    rdfs:seeAlso <sessions/2026-11-07-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261107ClaudeThreePlanes .
+
+:session20261108ClaudeGqlVirtuoso a schema:ListItem ;
+    schema:position 1243 ;
+    schema:item <sessions/2026-11-08-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-08 (Claude Sonnet 5.5 + Claude Code — GQL in Virtuoso meshup: Turtle and HTML collection)"@en ;
+    schema:description "Meshup of two GQL Essentials chapters with OpenLink's GQL showcase; 16 queries run live. Generator now renders GQL queries; two validators corrected."@en ;
+    rdfs:seeAlso <sessions/2026-11-08-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261108ClaudeGqlVirtuoso .
+
+# ── 2026-11-08: DeepSeek Flash + dsh — GQL history and positioning meshed with Virtuoso two-surface analytics ──
+
+:session20261108DeepseekGqlHistory a schema:ListItem ;
+    schema:position 1244 ;
+    schema:item <sessions/2026-11-08-deepseek_flash-dsh.ttl> ;
+    schema:name "Session 2026-11-08 (DeepSeek Flash + dsh — GQL history and positioning meshed with Virtuoso two-surface graph analytics)"@en ;
+    schema:description "Turtle (1,108 triples), HTML and Markdown collection from GQL Essentials Ch. 01 and Ch. 03 plus OpenLink posts 6689 and 6694; six narrative sections, 37 claims, 10 FAQ, 8 comparison dimensions, 23 catalogued queries each with a verified live endpoint URL, paired SPARQL/GQL catalog, KG Explorer (167 nodes) and a six-recipe SPARQL workbench. Gates: kg compliance 19/19, harness contract PASS, routing PASS, Playwright clean. Local only, no DAV upload."@en ;
+    rdfs:seeAlso <sessions/2026-11-08-deepseek_flash-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261108DeepseekGqlHistory .
+
+:session20261109LoamImageVariant a schema:ListItem ;
+    schema:position 1245 ;
+    schema:item <sessions/2026-11-09-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-09 (Claude Sonnet 5.5 + Claude Code, LOAM and Data Twingler PNG and GIF variant)"@en ;
+    rdfs:seeAlso <sessions/2026-11-09-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261109LoamImageVariant .
+
+:session20261109OreillyKellyLoacMeshup a schema:ListItem ;
+    schema:position 1246 ;
+    schema:item <sessions/2026-11-09-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-09 (Claude Sonnet 5.5 + Claude Code, O'Reilly knowledge artifacts, Kevin Kelly, books-as-graphs and LOAC meshup)"@en ;
+    rdfs:seeAlso <sessions/2026-11-09-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261109OreillyKellyLoacMeshup .
+
+:session20261109LogUpdateCrossSite a schema:ListItem ;
+    schema:position 1247 ;
+    schema:item <sessions/2026-11-09-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-11-09 (Claude Sonnet 5.5 + Claude Code, November log update for www and shop, www-to-shop journey analysis, shop evaluation-landing trend)"@en ;
+    schema:description "Copied and verified the 2026-11-01 to 2026-11-09 logs for www and shop from their recorded sources and updated both staging manifests; ran a cross-site journey analysis (main-site click-throughs are rare, 0.37 percent of human-like shop sessions follow a main-site content page; the larger feeders are my.openlinksw.com to register and download.openlinksw.com to the license generator) and looked for the evaluation landing trend that stopped on 5 November: errors on the evaluation landings ended Nov 4-5, but the exact series was not identified. October is missing locally for shop and mostly for www. Dashboards not rebuilt for November."@en ;
+    rdfs:seeAlso <sessions/2026-11-09-claude_sonnet_5_5-claude_code-3.ttl>,
+        <projects/http-log-analytics-dashboard.ttl> .
+
+:sessionIndex schema:itemListElement :session20261109LogUpdateCrossSite .
+
+# ── 2026-11-10: Claude Sonnet 5.5 + Claude Code — assessment, devhub sync, jhand read access, feed page cache lifetime ──
+
+:session20261110ClaudeSonnet55FeedCache a schema:ListItem ;
+    schema:position 1294 ;
+    schema:item <sessions/2026-11-10-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-10 (Claude Sonnet 5.5 + Claude Code — project assessment, devhub sync, jhand read access, per-URL cache lifetime for feed-backed pages)"@en ;
+    rdfs:seeAlso <sessions/2026-11-10-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261110ClaudeSonnet55FeedCache .
+
+
+# ── 2026-11-10: Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser Relations tab ──
+
+:session20261110ClaudeSonnet55FacetedBrowserRelations a schema:ListItem ;
+    schema:position 1248 ;
+    schema:item <sessions/2026-11-10-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-10 (2) (Claude Sonnet 5.5 + Claude Code — SPARQL Faceted Browser 1.1.0: Relations tab, RelFinder-style path search with force graph and path outlining)"@en ;
+    schema:description "Relate button and tray, per-pair path queries with direction patterns, D3 graph with outlining, filters and exports, fct_state flags, and a Wikidata label-query fix. Built and tested locally on skills/faceted-browser-relations; not yet uploaded, committed or opened as a PR."@en ;
+    rdfs:seeAlso <sessions/2026-11-10-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261110ClaudeSonnet55FacetedBrowserRelations .
+
+
+# ── 2026-11-11: Claude Fable 5.2 + Claude Code — dreaming-memory comparison, slimmed injection draft ──
+
+:session20261111ClaudeFable52SlimInjection a schema:ListItem ;
+    schema:position 1249 ;
+    schema:item <sessions/2026-11-11-claude_fable_5_2-claude_code.ttl> ;
+    schema:name "Session 2026-11-11 (Claude Fable 5.2 + Claude Code — agent-rdf-memory compared with Anthropic's dreaming-memory design; slimmed SessionStart injection drafted for review)"@en ;
+    schema:description "Layer-by-layer comparison with the components-of-agent-memory article, then a draft session index (3,450 bytes against 38,359 today) and per-intent packs built by SPARQL over the designated store, endpoint or filesystem. Draft and prototype are in drafts/. Three defects were then fixed in load_memory.py (hard-coded intent sample, oldest-80 step index with duplicates, false error detection on result text); hooks and protocol files are unchanged."@en ;
+    rdfs:seeAlso <sessions/2026-11-11-claude_fable_5_2-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261111ClaudeFable52SlimInjection .
+
+
+# ── 2026-11-11: DeepSeek Flash + dsh — "The Hidden Cost of Moving Data" meshup with ten live SQL/SPASQL/SPARQL showcases ──
+
+:session20261111DeepseekFlashHiddenCostMovingData a schema:ListItem ;
+    schema:position 1250 ;
+    schema:item <sessions/2026-11-11-deepseek_flash-dsh.ttl> ;
+    schema:name "Session 2026-11-11 (DeepSeek Flash + dsh — Snowflake 'The Hidden Cost of Moving Data' meshup with a synthetic ScaleKG estate demonstrated in SQL, SPASQL and SPARQL)"@en ;
+    schema:description "1,236-triple Turtle and a 497 KB HTML page about https://www.snowflake.com/en/blog/hidden-cost-of-moving-data/ (Henrik Nielsen), read as a meshup against VOICE across 12 neutral cdx:ComparisonDimension rows with two positions each, plus 11 claims carrying evidence tiers. The demonstration reuses the ScaleKG estate on demo.openlinksw.com (11 native SQL tables, 76 synthetic rows, 268 TBox triples, 347 projected triples) for ten showcases: 3 SQL and 2 SPASQL over XMLA as demo/demo with the mandatory SOAPAction header, and 5 SPARQL on the demo endpoint. 11 weblog post-section links (7 on the OpenLink copy, 4 on URIBurner for the two demonstrations published only there) are schema:WebPageElement entities each with a direct 'Open post section' anchor, and the SQL/SPASQL block carries its own fragment id plus a permalink on each card. A build script regenerates through the rdf-infographic-skill assembler then retargets the workbench to demo, renders the SQL/SPASQL panel from the TTL, and audits; it re-runs the harness validator on the post-processed page. A second turn cut repetition and moved the prose to an Ogilvy register (the post 82 to 23 mentions, 12,825 to 10,542 words, 18.1 words per sentence, comparison dimensions posed as questions, claim tiers reduced to Stated. or Demonstrated.). Gates: kg compliance 21/21, harness PASS, routing PASS, browser 0 console errors and 0 failed requests at 1280px and 390px after fixing three measured overflow defects. No DAV upload and no Markdown companion."@en ;
+    rdfs:seeAlso <sessions/2026-11-11-deepseek_flash-dsh.ttl> ,
+        <projects/hidden-cost-of-moving-data-leapfrog-meshup.ttl> .
+
+:sessionIndex schema:itemListElement :session20261111DeepseekFlashHiddenCostMovingData .
+
+# ── 2026-11-11: DeepSeek Flash + dsh — "The New Genie versus VOICE" meshup with a synthetic CoworkerOps estate ──
+
+:session20261111DeepseekFlashGenieCoworker a schema:ListItem ;
+    schema:position 1251 ;
+    schema:item <sessions/2026-11-11-deepseek_flash-dsh-2.ttl> ;
+    schema:name "Session 2026-11-11 (DeepSeek Flash + dsh — Databricks 'The new Genie' meshup against VOICE, with a synthetic CoworkerOps estate demonstrated in SQL, SPASQL and SPARQL)"@en ;
+    schema:description "1,179-triple Turtle and a 486 KB HTML page about https://www.databricks.com/blog/new-genie-autonomous-ai-complex-enterprise-work (Cynthya Peranandam and Elise Georis, 2026-11-11), read as a meshup against VOICE across 12 neutral cdx:ComparisonDimension rows with two positions each, plus 8 claims carrying evidence tiers. A new synthetic estate, CoworkerOps, was built on demo.openlinksw.com: eight SQL tables (agents, governed terms, jobs, runs, tool calls, approvals, memory statements, term uses), 70 invented rows, a 302-triple vocabulary of 6 classes and 34 properties, and a 449-triple data graph. Ten showcases were each executed before being written down: 3 SQL and 2 SPASQL through XMLA as demo/demo with the mandatory SOAPAction header, 5 SPARQL on the demo endpoint, with the measured row counts carried into the Turtle as :rowsReturned. The quad map (RDF View) was attempted twice and refused by the instance's damaged quad-map metadata (SR172 deadlock, SR503), so the graph was materialised from the same rows and the FAQ says so. Eight fragment-id demonstrations are schema:WebPageElement entities under their own section, one host per item (three OpenLink ?raw= routes, one URIBurner-only post). The builder is a direct port of the same day's hidden-cost builder. Gates: kg compliance 21/21, harness PASS on generation and after post-processing, routing PASS for both Turtle files and the page, browser clean at 1280px and 390px, objectivity scan clean after two rewordings. No DAV upload and no Markdown companion."@en ;
+    rdfs:seeAlso <sessions/2026-11-11-deepseek_flash-dsh-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261111DeepseekFlashGenieCoworker .
+
+# ── 2026-11-11: Claude Sonnet 5.5 + Claude Code — Databricks 'The new Genie' meshup against VOICE with a GenieKG estate ──
+
+:session20261111SonnetGenieGenieKG a schema:ListItem ;
+    schema:position 1252 ;
+    schema:item <sessions/2026-11-11-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-11 (Claude Sonnet 5.5 + Claude Code — Databricks 'The new Genie' comparative meshup with VOICE; GenieKG estate on demo with 11 live SQL, SPARQL and SPASQL queries)"@en ;
+    schema:description "1,485-triple Turtle, harness-valid HTML and the batch SQL under the Claude Generated root; 11 neutral comparison dimensions; 15 verified published-demo links; lessons on Virtuoso PL case-insensitivity, native numeric RDF values, STR() in SPASQL over XMLA, and RDF View metadata contention on the shared demo instance."@en ;
+    rdfs:seeAlso <sessions/2026-11-11-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261111SonnetGenieGenieKG .
+
+
+# ── 2026-11-12: Claude Sonnet 5.5 + Claude Code — TypeSafe Jev as a shadow classifier for unrouted steps ──
+
+:session20261112SonnetJevShadow a schema:ListItem ;
+    schema:position 1253 ;
+    schema:item <sessions/2026-11-12-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-12 (Claude Sonnet 5.5 + Claude Code — TypeSafe Jev endpoint contract learned by probing; scripts/jev-route-steps.py shadow pass over the 170 unrouted steps)"@en ;
+    schema:description "Bearer auth, a questions dictionary of choice, noul and score types, and the jev-latest model; a report-only script that asks Jev which topic each step belongs to and sets it beside the phrase match. Full run started; assignments not yet reviewed or applied."@en ;
+    rdfs:seeAlso <sessions/2026-11-12-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261112SonnetJevShadow .
+
+# ── 2026-11-11: Claude Sonnet 5.5 + Claude Code — Hidden Cost of Moving Data collection and HiddenCostKG demo estate ──
+
+:session20261111SonnetHiddenCost a schema:ListItem ;
+    schema:position 1254 ;
+    schema:item <sessions/2026-11-11-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-11 (Claude Sonnet 5.5 + Claude Code — Snowflake 'hidden cost of moving data' meshup; synthetic HiddenCostKG estate on demo.openlinksw.com; RDF View repaired through an ssh tunnel; Turtle and HTML built and validated)"@en ;
+    schema:description "Nine synthetic tables and an RDF View on demo, verified SQL, SPASQL and SPARQL; the collection passes compliance, harness and routing checks; Step 368 (IRIs in example select lists)."@en ;
+    rdfs:seeAlso <sessions/2026-11-11-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261111SonnetHiddenCost .
+
+# ── 2026-11-12: Claude Sonnet 5.5 + Claude Code — HiddenCostKG rewrite rules (Step 369) ──
+
+:session20261112SonnetHiddenCostRewrite a schema:ListItem ;
+    schema:position 1255 ;
+    schema:item <sessions/2026-11-12-claude_sonnet_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-12 (Claude Sonnet 5.5 + Claude Code — entity-IRI rewrite rules for RDF Views demos: describe/?uri= with the view graph and the ontology graph; Step 369 and howto saved, rules not yet applied)"@en ;
+    schema:description "IRIs 404 on demo because no rules existed; script written, ssh tunnel denied, ontology term table still to present for approval."@en ;
+    rdfs:seeAlso <sessions/2026-11-12-claude_sonnet_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261112SonnetHiddenCostRewrite .
+
+# ── 2026-11-12: Claude Sonnet 5.5 + Claude Code — Virtuoso SaaS RDF Cluster buyer guide ──
+
+:session20261112SonnetClusterGuide a schema:ListItem ;
+    schema:position 1256 ;
+    schema:item <sessions/2026-11-12-claude_sonnet_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-11-12 (Claude Sonnet 5.5 + Claude Code — RDF Cluster buyer guide: four-source meshup built as Turtle and HTML from the Single Server template; docs URL 404 resolved to its parent-page anchor)"@en ;
+    schema:description "Script-assisted build; compliance 20 of 20, harness, routing and browser checks pass; no Markdown companion; run links need the Turtle loaded on URIBurner DAV."@en ;
+    rdfs:seeAlso <sessions/2026-11-12-claude_sonnet_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261112SonnetClusterGuide .
+
+# ── 2026-11-13: Claude Opus 5.5 + Claude Code — Genie collection Eleven Queries repair and GenieKG ontology ──
+
+:session20261113OpusGenieQueriesOntology a schema:ListItem ;
+    schema:position 1257 ;
+    schema:item <sessions/2026-11-13-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-13 (Claude Opus 5.5 + Claude Code — Genie against VOICE: query-card fragment links, SQL/SPASQL sign-in notice, GenieKG ontology rebuilt to the full gate)"@en ;
+    schema:description "HTML and TTL patched and validated; 34-term ontology file built and verified; loading it on demo.openlinksw.com and linking it from the collection await approval."@en ;
+    rdfs:seeAlso <sessions/2026-11-13-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261113OpusGenieQueriesOntology .
+
+:session20261114OpusContextEnginesHowTo a schema:ListItem ;
+    schema:position 1258 ;
+    schema:item <sessions/2026-11-14-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-14 (Claude Opus 5.5 + Claude Code — Context Engines and loose coupling HowTo from the UB VOICE posts on Snowflake, Databricks and Neo4j)"@en ;
+    schema:description "HTML, Markdown and Turtle built with 23 live SPARQL proofs re-run and 35 fragment links verified; all gates pass; DAV publish awaits approval. Snowflake Query 4 found failing live (SQ142). Later: two animated GIFs (coupling strategies; trade-offs) for a user-supplied Context Engines article, saved under images/."@en ;
+    rdfs:seeAlso <sessions/2026-11-14-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261114OpusContextEnginesHowTo .
+
+:session20261114OpusNorthwindRewriteRules a schema:ListItem ;
+    schema:position 1259 ;
+    schema:item <sessions/2026-11-14-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-14 (2) (Claude Opus 5.5 + Claude Code — push blocked by a diverged branch; northwind-sqlserver rewrite rules fixed on demo)"@en ;
+    schema:description "Push not done: branch diverged from origin, which already merged it into main; route awaits the user. northwind-sqlserver entity, term and Turtle rules corrected to the Step 369 form with a rollback script; links from SPARQL results still 404 (shared /describe rule does not work); attached SQL Server began deadlocking (SR172)."@en ;
+    rdfs:seeAlso <sessions/2026-11-14-claude_opus_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261114OpusNorthwindRewriteRules .
+
+:session20261115OpusVoiceGifLabel a schema:ListItem ;
+    schema:position 1260 ;
+    schema:item <sessions/2026-11-15-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-15 (Claude Opus 5.5 + Claude Code — VOICE context box relabelled 'Knowledge Graph informed by an Ontology' in the coupling-strategies GIF)"@en ;
+    rdfs:seeAlso <sessions/2026-11-15-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261115OpusVoiceGifLabel .
+
+:session20261115OpusArticleFormatSwitch a schema:ListItem ;
+    schema:position 1261 ;
+    schema:item <sessions/2026-11-15-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-15 (2) (Claude Opus 5.5 + Claude Code — Northwind rewrite fix; article query links over RDF Views switched to format=text/html, Step 379)"@en ;
+    schema:description "Continuation of 2026-11-14 (2). Describe-list rules found inert on demo and rolled back; Northwind entity, term and Turtle rules fixed; 61 query links in 10 files switched to text/html and two published articles updated on UB and WWW."@en ;
+    rdfs:seeAlso <sessions/2026-11-15-claude_opus_5_5-claude_code-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261115OpusArticleFormatSwitch .
+
+:session20261115OpusTwinglerVector a schema:ListItem ;
+    schema:position 1262 ;
+    schema:item <sessions/2026-11-15-claude_opus_5_5-claude_code-3.ttl> ;
+    schema:name "Session 2026-11-15 (3) (Claude Opus 5.5 + Claude Code — data-twingler v2.0.89 probe-gated vector search)"@en ;
+    schema:description "Vector Capability Probe gate, keyword+vector RRF fusion, one-hop expansion; fixed INDEX '*' syntax, VEC68 wildcard limits, bif:contains+bif:vector_search 0-row hybrid, T10 as support test. Applied to ~/Downloads/data-twingler only; repo untouched."@en ;
+    rdfs:seeAlso <sessions/2026-11-15-claude_opus_5_5-claude_code-3.ttl> .
+
+:sessionIndex schema:itemListElement :session20261115OpusTwinglerVector .
+
+:session20261116OpusSapCaseCrafter a schema:ListItem ;
+    schema:position 1263 ;
+    schema:item <sessions/2026-11-16-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-16 (Claude Opus 5.5 + Claude Code — SAP CaseCrafter Part 1 RDF + HTML collection)"@en ;
+    schema:description "Turtle + HTML collection from an SAP Community post on AI test case generation; all gates pass; SAP images blocked headless, onerror fallback added; .ttl and .html uploaded to URIBurner DAV daas and sample queries verified live, then deleted from DAV at the user's request (graph cleared too)."@en ;
+    rdfs:seeAlso <sessions/2026-11-16-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261116OpusSapCaseCrafter .
+
+:session20261116OpusStratecheryObituaries a schema:ListItem ;
+    schema:position 1264 ;
+    schema:item <sessions/2026-11-16-claude_opus_5_5-claude_code-2.ttl> ;
+    schema:name "Session 2026-11-16 (Claude Opus 5.5 + Claude Code — Stratechery 'Obituaries' RDF + HTML collection)"@en ;
+    schema:description "Turtle (839 triples) + HTML from Ben Thompson's six-obituary article on Jensen Huang's resignation; all gates pass; post.py now renders nested ItemLists and Quotations the generator leaves empty; local only."@en ;
+    rdfs:seeAlso <sessions/2026-11-16-claude_opus_5_5-claude_code-2.ttl> .
+
+:session20261116DeepSeekStratecheryObituaries a schema:ListItem ;
+    schema:position 1265 ;
+    schema:item <sessions/2026-11-16-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-11-16 (DeepSeek V4 Pro + dsh — Stratechery 'Obituaries' RDF-Turtle + HTML collection)"@en ;
+    schema:description "569-triple RDF-Turtle KG + harness-compliant HTML infographic from Ben Thompson's six-obituary essay on Jensen Huang's resignation. Script-assisted via generate_infographic.py; KG compliance 23/23, harness contract PASS, 0 blank nodes, 0 orphan nodes, 0 console errors. DBpedia IRIs fully expanded per compliance check #13; local hash IRIs for Megaspeed/Alice Huang/abstract concepts."@en ;
+    rdfs:seeAlso <sessions/2026-11-16-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261116DeepSeekStratecheryObituaries .
+
+:session20261116LongcatPrefsLoadPath a schema:ListItem ;
+    schema:position 1266 ;
+    schema:item <sessions/2026-11-16-longcat_2_5_free-opencode.ttl> ;
+    schema:name "Session 2026-11-16 (longcat-2.5-free + OpenCode — HN top story, whoami, preferences load-path)"@en ;
+    schema:description "Two Hacker News front-page fetches (top story: CMU free CS courses on YouTube); 'Who am I?' answered from core.ttl identity; 'Follow the rules in prefs' loaded preferences.ttl and private overlay via file reads after eliciting the load path (user chose file reads)."@en ;
+    rdfs:seeAlso <sessions/2026-11-16-longcat_2_5_free-opencode.ttl> .
+
+:sessionIndex schema:itemListElement :session20261116LongcatPrefsLoadPath .
+
+:session20261117SonnetAgentCloudVoiceLoam a schema:ListItem ;
+    schema:position 1267 ;
+    schema:item <sessions/2026-11-17-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-17 (Claude Sonnet 5.5 + Claude Code — Jaya Gupta 'Agent Cloud' meshup: where VOICE and LOAM fit)"@en ;
+    schema:description "Turtle (1562 triples) + HTML built and validated: compliance 23/23, harness PASS, routing PASS, browser checks clean. Twelve neutral dimensions with evidence tiers (Pareto routing, Jev and OpenLink Agent Skills added at the user request), five substitutes mapped, a not-built section; local only, nothing uploaded."@en ;
+    rdfs:seeAlso <sessions/2026-11-17-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261117SonnetAgentCloudVoiceLoam .
+
+:session20261117OpusOpalPlayground a schema:ListItem ;
+    schema:position 1268 ;
+    schema:item <sessions/2026-11-17-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-17 (Claude Opus 5.5 + Claude Code — OPAL Quick Start as a relatedb.ai-style query playground)"@en ;
+    schema:description "Single-file HTML playground: sparql/sql/spasql/graphql/opal inputs against URIBurner, Quick Start steps as backslash commands; verified live in the browser pane; routing PASS; OPAL chat with a real key not exercised."@en ;
+    rdfs:seeAlso <sessions/2026-11-17-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261117OpusOpalPlayground .
+
+:session20261118OpusOpalContainment a schema:ListItem ;
+    schema:position 1270 ;
+    schema:item <sessions/2026-11-18-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-18 (Claude Opus 5.5 + Claude Code — OPAL playground containment model, draft toggle, Step 381)"@en ;
+    schema:description "Memory ⊃ Agent ⊃ Skill ⊃ Tool loosely coupled to data spaces, applied to the playground and recorded as Step 381 with a companion howto; draft items behind a toggle; MEMORY.md compacted."@en ;
+    rdfs:seeAlso <sessions/2026-11-18-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261118OpusOpalContainment .
+
+:session20261117DeepSeekV4ProDshJava4Shell a schema:ListItem ;
+    schema:position 1269 ;
+    schema:item <sessions/2026-11-17-deepseek_v4pro-dsh-2.ttl> ;
+    schema:name "Session 2026-11-17 (DeepSeek V4 Pro + dsh — Java4Shell CVE-2026-114938 RDF-Turtle + HTML collection)"@en ;
+    schema:description "Two-artifact collection (RDF-Turtle + HTML) from Calif Research's Java4Shell security disclosure. 828-triple Turtle (23/23 kg-compliance PASS) with a lightweight :java4ShellOntology (Vulnerability/ExploitationPrimitive/Mitigation/ThesisConcept), 25 SoftwareApplication entities (affected products, frameworks, ten Java distributions), 12 FAQ, 11 glossary, 6 HowTo, 6 SPARQL recipes; HTML built via the _build/java4shell/ build_kgdata.py + assemble.py + body.html machinery reusing the stratechery-obituaries skeleton (187 nodes/481 links, 0 orphans), validate-harness-contract.py PASS, zero browser console errors. Uploaded to URIBurner DAV (both 201 Created, verified Content-Type + public GET 200 + SPARQL 830 triples)."@en ;
+    rdfs:seeAlso <sessions/2026-11-17-deepseek_v4pro-dsh-2.ttl> .
+
+:sessionIndex schema:itemListElement :session20261117DeepSeekV4ProDshJava4Shell .
+
+:session20261118DeepSeekV4ProDshExternalSandboxes a schema:ListItem ;
+    schema:position 1271 ;
+    schema:item <sessions/2026-11-18-deepseek_v4pro-dsh.ttl> ;
+    schema:name "Session 2026-11-18 (DeepSeek V4 Pro + dsh — External Sandboxes for Coding Agents (Prime Radiant) RDF-Turtle + HTML collection)"@en ;
+    schema:description "Two-artifact collection (RDF-Turtle + HTML) from Simon Willison's Prime Radiant post introducing the external-sandboxes pattern. 661-triple Turtle (23/23 kg-compliance PASS, zero blank nodes) with a lightweight :externalSandboxOntology (ExternalSandbox/AgentConnection/SandboxCapability/ThesisConcept/Limitation), three sandbox implementations (v86/WebAssembly, Apple Containers, Quicksand+QEMU), three agents (Claude Code, Codex, Pi), three connection mechanisms, six capabilities, three limitations, 18 claims, 12 FAQ, 11 glossary, 7 HowTo, 6 SPARQL recipes; HTML built via _build/external-sandboxes/ (build_kgdata.py + assemble.py + body.html) reusing the stratechery-obituaries skeleton (174 nodes/370 links, 0 orphans), validate-harness-contract.py PASS, routing PASS, zero browser console errors. Local only — no DAV upload requested."@en ;
+    rdfs:seeAlso <sessions/2026-11-18-deepseek_v4pro-dsh.ttl> .
+
+:sessionIndex schema:itemListElement :session20261118DeepSeekV4ProDshExternalSandboxes .
+
+:session20261118SonnetClipboardIncident a schema:ListItem ;
+    schema:position 1272 ;
+    schema:item <sessions/2026-11-18-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-18 (Claude Sonnet 5.5 + Claude Code — agent-desktop install, web diagnostics, clipboard-swapper incident)"@en ;
+    schema:description "A clipboard that rewrote address-shaped strings was traced to a fake Finder.app Login Item under ~/Library/Caches/com.apple.finder (loginwindow autolaunch, ad-hoc signature, hidden browser-data files, HTTPS to an outside host). Process stopped and files moved to a quarantine folder after user approval; incident report written to the Claude md folder. Also covered: an npm install failing on pasted zsh comments, registering agent-desktop skills, the graph-analytics docs 404s, shop DT013 datediff error with verified Virtuoso doc links, and Linux connection triage."@en ;
+    rdfs:seeAlso <sessions/2026-11-18-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261118SonnetClipboardIncident .
+
+# ── 2026-11-19: Claude Opus 5.5 + Claude Code — UB weblog load-time diagnosis ──
+
+:session20261119ClaudeOpus55ClaudeCodeWeblogLoad a schema:ListItem ;
+    schema:position 1273 ;
+    schema:item <sessions/2026-11-19-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-19 (Claude Opus 5.5 + Claude Code — why the URIBurner weblog loads slowly)"@en ;
+    schema:description "About 4 s to a fully loaded page: 1.1 s page build (every request re-reads all ~315 posts to find titles), 1.2 s for the pinned 420 KB post in the iframe, 1.6 s of that post's live SPARQL queries. No HTTP cache headers anywhere. A title cache and a built-page cache with ETag/304 were then built: on a local 330-post mirror the front page went from 0.51 s to 0.045 s. The UB rollout returned HTTP 500 (cache procedures not compiled); a fix file restored it and UB now serves the front page in 0.40 s, as fast as a static file. The cache code was then hardened to fall back instead of failing, verified live on UB, committed as PR 192, and staged for WWW. On WWW a path-prefix scan in the per-request fingerprint cost about 0.5 s; switched to the indexed folder lookup (0.008 s locally). After re-runs both UB and WWW serve the front page in 0.34 s, as fast as a static file; both commits are in PR 192. The local ub-mirror test weblog was then removed, and PR 192 was merged."@en ;
+    rdfs:seeAlso <sessions/2026-11-19-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261119ClaudeOpus55ClaudeCodeWeblogLoad .
+
+# ── 2026-11-19: Claude Sonnet 5.5 + Claude Code — VOICE runtime rendition from an X post's video ──
+
+:session20261119ClaudeSonnet55VoiceRuntime a schema:ListItem ;
+    schema:position 1274 ;
+    schema:item <sessions/2026-11-19-claude_sonnet_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-19 (Claude Sonnet 5.5 + Claude Code — VOICE runtime rendition: parallel agents, one governed memory)"@en ;
+    schema:description "GIF, scene source and animated SVG under Claude Generated, built after judging the post's video more detailed than the VOICE GIF. SVG frames parsed as XML; routing check passed."@en ;
+    rdfs:seeAlso <sessions/2026-11-19-claude_sonnet_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261119ClaudeSonnet55VoiceRuntime .
+
+<> schema:hasPart :howtoCollectionIndex .
+:howtoCollectionIndex a schema:ItemList ;
+    schema:name "HowTo Collections"@en ;
+    schema:description "Index of reusable procedural collections, separate from the session index."@en ;
+    schema:itemListElement :businessDevelopmentHowtos .
+
+:businessDevelopmentHowtos a schema:ListItem ;
+    schema:position 1 ;
+    schema:name "eCRM Business Development"@en ;
+    schema:item <howto/business-development-workflows.ttl#collection> ;
+    rdfs:seeAlso <preferences.ttl#howto-business-development> .
+
+
+# ── 2026-11-20: Claude Opus 5.5 + Claude Code — deleted the merged page-and-title-cache branch ──
+
+:session20261120ClaudeOpus55ClaudeCodeBranchCleanup a schema:ListItem ;
+    schema:position 1275 ;
+    schema:item <sessions/2026-11-20-claude_opus_5_5-claude_code.ttl> ;
+    schema:name "Session 2026-11-20 (Claude Opus 5.5 + Claude Code — deleted the merged weblog/page-and-title-cache branch)"@en ;
+    schema:description "After PR 192 merged, deleted weblog/page-and-title-cache on GitHub and locally once it was confirmed to have no commits outside origin/main."@en ;
+    rdfs:seeAlso <sessions/2026-11-20-claude_opus_5_5-claude_code.ttl> .
+
+:sessionIndex schema:itemListElement :session20261120ClaudeOpus55ClaudeCodeBranchCleanup .
+
+# ── 2026-11-20: list membership repaired ──
+# index-shapes.ttl now requires every ListItem to sit in a list. These sessions had
+# been recorded without their :sessionIndex link; preference-step announcements and
+# registry entries get lists of their own (their positions follow other sequences).
+
+:sessionIndex schema:itemListElement :session20260527,
+    :session20260527b,
+    :session20260528gpt5ChatCodex,
+    :session20260528minimaxOpenCode,
+    :session20260528deepseekClaudeCode,
+    :session20260528kimiOpenCode,
+    :session20260529kimiOpenCode,
+    :session20260529claudeCode,
+    :session20260529gpt5ChatCodex,
+    :session20260529deepseekClaudeCode,
+    :session20260530grok43,
+    :session20260530grok43Meshup,
+    :session20260531claudeCode,
+    :session20260601gpt5ChatCodex,
+    :session20260601glm51OpenCode,
+    :session20260602grok43,
+    :session20260602grok43Aesthetics,
+    :session20260602grok43AnteUp,
+    :session20260602grok43KgFix,
+    :session20260602grok43KgFix2,
+    :session20260602gpt5ChatCodex,
+    :session20260602glm51OpenCode,
+    :session20260602grok43Whoami,
+    :session20260602grok43WhoamiReload,
+    :session20260602deepseekV4FlashFreeOpenCode,
+    :session20260602grok43AcpXyzPurchase9,
+    :session20260602grok43AcpXyzPurchase10,
+    :session20260602grok43AcpXyzPurchase11,
+    :session20260602grok43CurlAuthElicitationFix,
+    :session20260602grok43SecretRedactionRule,
+    :session20260603GrokPrefsPathVerification,
+    :session20260603BigPickleOpenCode,
+    :session20260603BigPickleOpenCode2,
+    :session20260605Gpt5CodexGlobalBootstrap,
+    :session20260607BigPickleOpenCode,
+    :session20260611ClaudeSonnet46SpaceDatacenters,
+    :session20260612ClaudeSonnet46TonySealeLIPost,
+    :session20260616ClaudeCodePublicTrustAI,
+    :session20260617BigPickleOpenCode,
+    :session20260618YouidDelegation,
+    :session20260619ClaudeCodeYouIDSSI,
+    :session20260619BigPickleOAuthAuthCode,
+    :session20260624ClaudeCodeVirtuosoRelease,
+    :session20260626Gpt5ChatCodex,
+    :session20260706ClaudeSonnet5SymbolicLogOffloading,
+    :session20260718ClaudeFable5LoopsToGraphs,
+    :session20260718ClaudeFable5A16zTokensLoops,
+    :session20260811BigPickleIriRemediation,
+    :session20260811Grok45HarnessComparison,
+    :session20260811Grok45SynthidText,
+    :session20260813Grok46Whoami,
+    :session20260815ClaudeSonnet5Rdf12Virtuoso,
+    :session20260915MuseSparkAB,
+    :session20261116OpusStratecheryObituaries .
+
+:preferenceAnnouncementIndex a schema:ItemList ;
+    schema:name "Preference step announcements"@en ;
+    schema:description "Index entries announcing new preferences.ttl steps; each entry's position is its step number, so they are kept apart from the session list."@en ;
+    schema:dateCreated "2026-11-20T12:00:00Z"^^xsd:dateTime ;
+    schema:itemListElement :prefVerifiedWhoami, :prefSemanticWebTerminology, :prefWebidVerificationServices, :prefCrossDocumentLocalTermReuse .
+
+:registryIndex a schema:ItemList ;
+    schema:name "Memory registry documents"@en ;
+    schema:description "Index entries for entity and ontology registry documents under entities/."@en ;
+    schema:dateCreated "2026-11-20T12:00:00Z"^^xsd:dateTime ;
+    schema:itemListElement :entityOntologyTerms .
