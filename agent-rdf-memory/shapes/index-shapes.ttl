@@ -1,0 +1,47 @@
+@prefix : <#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a schema:CreativeWork ;
+    schema:about :indexShapes ;
+    schema:name "Agent RDF Memory index shapes"@en ;
+    schema:description "SHACL rules that compare index.ttl entries with each other, applied to index.ttl only (on top of memory-shapes.ttl) by scripts/validate-memory-shapes.py: every list entry belongs to a list, and no two entries in one list share a position. Session files are not checked against these: some keep small lists of their own. Added 2026-11-20 after six pairs of sessions were found sharing a position and 59 entries were found outside any list; the per-entry shapes could not see either."@en ;
+    schema:dateCreated "2026-11-20T00:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2026-11-20T00:00:00Z"^^xsd:dateTime .
+
+:indexShapes a schema:DefinedTerm ;
+    schema:name "Agent RDF Memory index shapes"@en .
+
+:indexShapePrefixes sh:declare [ sh:prefix "schema" ; sh:namespace "http://schema.org/"^^xsd:anyURI ] .
+
+# Every entry is reachable from a list, so it is counted and ordered with the rest.
+:IndexEntryInListShape a sh:NodeShape ;
+    sh:targetClass schema:ListItem ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "ListItem is not linked into any list (add <list> schema:itemListElement <item>)"@en ;
+        sh:prefixes :indexShapePrefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                FILTER NOT EXISTS { ?list schema:itemListElement $this }
+            }
+        """
+    ] .
+
+# No two entries of the same list share a position.
+:IndexUniquePositionShape a sh:NodeShape ;
+    sh:targetClass schema:ListItem ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "ListItem shares its schema:position with another entry of the same list ({?other})"@en ;
+        sh:prefixes :indexShapePrefixes ;
+        sh:select """
+            SELECT $this ?other ?value WHERE {
+                ?list schema:itemListElement $this , ?other .
+                FILTER (?other != $this)
+                $this schema:position ?value .
+                ?other schema:position ?value .
+            }
+        """
+    ] .
