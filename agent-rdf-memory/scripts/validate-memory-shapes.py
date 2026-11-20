@@ -32,6 +32,9 @@ from pyshacl import validate
 HERE = Path(__file__).resolve().parent
 STORE = HERE.parent
 SHAPES = STORE / "shapes" / "memory-shapes.ttl"
+# Cross-entry rules for index.ttl only (list membership, unique positions);
+# session files keep small lists of their own and are not held to them.
+INDEX_SHAPES = STORE / "shapes" / "index-shapes.ttl"
 SH = rdflib.Namespace("http://www.w3.org/ns/shacl#")
 
 
@@ -84,11 +87,16 @@ def main() -> int:
     ap.add_argument("files", nargs="*", help="files to check (default: sessions, index, preferences)")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any file violates")
     ap.add_argument("--json", metavar="PATH", help="write the full report as JSON")
+    ap.add_argument("--details", action="store_true", help="list every violation with its file and focus node")
     args = ap.parse_args()
 
     shapes_graph = rdflib.Graph().parse(SHAPES.as_uri(), format="turtle")
+    index_shapes = rdflib.Graph().parse(SHAPES.as_uri(), format="turtle")
+    if INDEX_SHAPES.exists():
+        index_shapes.parse(INDEX_SHAPES.as_uri(), format="turtle")
     paths = [Path(os.path.abspath(f)) for f in args.files] if args.files else default_files()
-    results = [check_file(p, shapes_graph) for p in paths]
+    results = [check_file(p, index_shapes if group_of(p.relative_to(STORE).as_posix()) == "index" else shapes_graph)
+               for p in paths]
 
     by_group: dict[str, Counter] = {}
     for r in results:
@@ -108,6 +116,11 @@ def main() -> int:
         print("\ntop violations:")
         for text, n in rules.most_common(8):
             print(f"  {n:>4}  {text}")
+
+    if args.details:
+        for r in results:
+            for v in r["violations"]:
+                print(f"  {r['file']}: {v}")
 
     if args.json:
         Path(args.json).write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")

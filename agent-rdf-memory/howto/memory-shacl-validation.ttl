@@ -6,14 +6,14 @@
 <> a schema:CreativeWork ;
     schema:about :memoryShaclValidation ;
     schema:name "How to validate the agent-rdf-memory store with SHACL and the sync gate"@en ;
-    schema:description "Shapes, validator, and graph-sync check for the memory store. Covers session document entities, index list items, and HowTo steps."@en ;
+    schema:description "Shapes, validator, and graph-sync check for the memory store. Covers session document entities, index list items and their list membership and positions, and HowTo steps; and the Stop-hook check that blocks a turn which leaves index.ttl or a session file invalid."@en ;
     schema:dateCreated "2026-10-08T00:00:00Z"^^xsd:dateTime ;
-    schema:dateModified "2026-10-08T00:00:00Z"^^xsd:dateTime .
+    schema:dateModified "2026-11-20T12:00:00Z"^^xsd:dateTime .
 
 :memoryShaclValidation a schema:HowTo ;
     schema:name "Validate the memory store with SHACL and check graph sync"@en ;
-    schema:step :stepRunShapes, :stepReadBaseline, :stepGraphSyncContent ;
-    schema:description "Procedural gates (check-memory-gate.py, validate-memory-protocol.py, session-graph-gate.py) remain. SHACL shapes now check the structure of each file."@en .
+    schema:step :stepRunShapes, :stepReadBaseline, :stepGraphSyncContent, :stepIndexCrossEntryRules, :stepStrictStopHook, :stepShellRecordsCount ;
+    schema:description "Procedural gates (check-memory-gate.py, validate-memory-protocol.py, session-graph-gate.py) remain. SHACL shapes now check the structure of each file, and the Stop hook enforces them on the files a turn changes."@en .
 
 :stepRunShapes a schema:HowToStep ;
     schema:position "1"^^xsd:integer ;
@@ -23,9 +23,24 @@
 :stepReadBaseline a schema:HowToStep ;
     schema:position "2"^^xsd:integer ;
     schema:name "Treat failures as a report until the baseline is clean"@en ;
-    schema:text "Report-only is the default. Do not edit older files to pass the shapes unless the owner approves each file. New session files must pass before the Stop hook is switched to blocking."@en .
+    schema:text "Report-only is the default when the validator is run by hand over the whole store, and older files that fail are left alone unless the owner approves each one. Blocking applies only to the files a turn changes (see the Stop-hook step): index.ttl was brought to a clean baseline on 2026-11-20 and must stay clean, and every session file written from then on must pass."@en .
 
 :stepGraphSyncContent a schema:HowToStep ;
     schema:position "3"^^xsd:integer ;
     schema:name "Check graph sync by content, not by counts"@en ;
     schema:text "session-graph-gate.py check compares normalized triple sets with the named graph in Virtuoso. Typed literals are compared by value, blank nodes by structure, and urn:dav:/ and urn:/ are treated as one prefix. Counts and dateModified alone miss value-only edits."@en .
+
+:stepIndexCrossEntryRules a schema:HowToStep ;
+    schema:position "4"^^xsd:integer ;
+    schema:name "index.ttl is also held to cross-entry rules: every entry in a list, and no two entries of one list sharing a position"@en ;
+    schema:text "shapes/index-shapes.ttl adds two SPARQL constraints that the validator applies to index.ttl only (session files keep small lists of their own): a schema:ListItem must be the object of some schema:itemListElement, and two entries of the same list must not share a schema:position. When adding a session entry, take the next free position after the highest one in the file (another agent may have taken the obvious next number the same day), give it a schema:item, and add :sessionIndex schema:itemListElement for it. Entries that follow a different numbering, such as preference-step announcements numbered by step, go in their own list (:preferenceAnnouncementIndex, :registryIndex). Added 2026-11-20 after six pairs of sessions were found sharing a position, 59 entries outside any list and 13 without a position, none of which the per-entry shapes could see."@en .
+
+:stepStrictStopHook a schema:HowToStep ;
+    schema:position "5"^^xsd:integer ;
+    schema:name "The Stop hook blocks a turn that leaves index.ttl or a session file invalid"@en ;
+    schema:text "scripts/check-session-record.py, once a session record is in place, runs validate-memory-shapes.py --strict --details on index.ttl and every session file whose modification time falls in the current turn, and blocks with the violations listed. Files changed in earlier turns are not re-checked, so an older problem elsewhere never blocks an unrelated turn. Like the rest of the hook it fails open when the check cannot run (validator missing, timeout, pyshacl error). Override: AGENT_SESSION_RECORD_GATE=off."@en .
+
+:stepShellRecordsCount a schema:HowToStep ;
+    schema:position "6"^^xsd:integer ;
+    schema:name "A session record written from the shell counts"@en ;
+    schema:text "The hook used to count only Write/Edit tool calls, so a session file updated by a shell script left it asking for a record that already existed. It now also accepts any sessions/*.ttl whose modification time is later than the latest file change (taken from the transcript timestamp of that tool call)."@en .
