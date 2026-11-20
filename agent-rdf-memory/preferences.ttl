@@ -4024,9 +4024,10 @@ Companion: howto/jev-judgment-modality.ttl. Lab reference: Bodila51/grok-bot-jev
 :step-memoryShaclValidation a schema:HowToStep ;
     schema:position "325"^^xsd:integer ;
     schema:name "Validate the agent-rdf-memory store with SHACL shapes and check graph sync by content, not counts"@en ;
-    schema:text "Run scripts/validate-memory-shapes.py against shapes/memory-shapes.ttl for session files, index.ttl and preferences.ttl; report-only until the baseline is clean. Keep check-memory-gate.py, validate-memory-protocol.py and check-session-record.py. session-graph-gate.py compares triple sets with the named graph, not just counts."@en ;
+    schema:text "Validate memory files with scripts/validate-memory-shapes.py (index.ttl also against shapes/index-shapes.ttl), and expect the Stop hook to block any turn that leaves index.ttl or a session file it changed invalid."@en ;
     rdfs:seeAlso <howto/memory-shacl-validation.ttl> ,
-        <shapes/memory-shapes.ttl> .
+        <shapes/memory-shapes.ttl> ,
+        <shapes/index-shapes.ttl> .
 
 # ── Step 318: benchmark and performance reports start from the story template ──
 :step-benchmarkReportStoryTemplate a schema:HowToStep ;
