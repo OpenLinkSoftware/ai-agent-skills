@@ -127,6 +127,8 @@ CHECKS = {
         "WEBLOG_PAGE_FINGERPRINT",
         "If-None-Match",
         "WEBLOG_PAGE_CACHE_PUT",
+        "WEBLOG_PAGE_CACHE_WARM",
+        "weblog-page-cache-warm:%s",
         "WEBLOG_NEWSLETTER_TRY_DASHBOARD_REFRESH (coll);",
         "(?m)^#[[:space:]]+([^[:cntrl:]]+)",
         "et_subject_prop",
